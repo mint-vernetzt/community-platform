@@ -664,6 +664,7 @@ const de = {
     route: deProjectRequirementsSettings,
     financings: deFinancings,
     rte: deRTE,
+    components: deComponents,
   },
   "project/$slug/settings/responsible-orgs": {
     route: deResponsibleOrganizationsOfProject,
@@ -1071,6 +1072,7 @@ const en = {
     route: enProjectRequirementsSettings,
     financings: enFinancings,
     rte: enRTE,
+    components: enComponents,
   },
   "project/$slug/settings/responsible-orgs": {
     route: enResponsibleOrganizationsOfProject,

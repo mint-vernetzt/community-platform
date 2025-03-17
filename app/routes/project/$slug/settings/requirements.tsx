@@ -1,44 +1,40 @@
-import { conform, list, useFieldList, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
+  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import {
-  Form,
-  useActionData,
-  useBlocker,
-  useLoaderData,
-  useLocation,
-} from "react-router";
-import React from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { TextArea } from "~/components-next/TextArea";
-import { invariantResponse } from "~/lib/utils/response";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
-import { sanitizeUserHtml } from "~/utils.server";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { redirectWithToast } from "~/toast.server";
 import { BackButton } from "~/components-next/BackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { TextArea } from "~/components-next/TextArea";
+import { detectLanguage } from "~/i18n.server";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { redirectWithToast } from "~/toast.server";
+import { sanitizeUserHtml } from "~/utils.server";
+import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
-  getHash,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const TIMEFRAME_MAX_LENGTH = 200;
 const JOB_FILLINGS_MAX_LENGTH = 800;
@@ -263,34 +259,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales =
     languageModuleMap[language]["project/$slug/settings/requirements"];
 
-  const { authClient } = createAuthClient(request);
-
-  const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
-
-  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
-  invariantResponse(sessionUser !== null, locales.route.error.notLoggedIn, {
-    status: 403,
-  });
-
   const project = await prismaClient.project.findUnique({
     select: {
       timeframe: true,
@@ -328,7 +296,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  return { project, allFinancings, locales };
+  const currentTimestamp = Date.now();
+
+  return { project, allFinancings, currentTimestamp, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -368,13 +338,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     status: 404,
   });
   // Validation
-  const requirementsSchema = createRequirementsSchema(locales);
   const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: (intent) =>
-      requirementsSchema.transform(async (data, ctx) => {
-        if (intent !== "submit") return { ...data };
-
+  const conformIntent = formData.get("__intent__");
+  if (conformIntent !== null) {
+    const submission = await parseWithZod(formData, {
+      schema: createRequirementsSchema(locales),
+    });
+    return {
+      submission: submission.reply(),
+    };
+  }
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createRequirementsSchema(locales).transform(async (data, ctx) => {
         const {
           financings,
           timeframe,
@@ -438,111 +414,77 @@ export async function action({ request, params }: ActionFunctionArgs) {
     async: true,
   });
 
-  const hash = getHash(submission);
-
-  if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
-  }
-  if (!submission.value) {
-    return { status: "error", submission, hash };
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
   return redirectWithToast(request.url, {
-    id: "change-project-requirements-toast",
-    key: hash,
+    id: "update-requirements-toast",
+    key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
 }
 
 function Requirements() {
   const location = useLocation();
+  const isHydrated = useHydrated();
+  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, allFinancings, locales } = loaderData;
   const actionData = useActionData<typeof action>();
-  const requirementsSchema = createRequirementsSchema(locales);
+  const { project, allFinancings, locales } = loaderData;
+
+  const { financings, ...rest } = project;
+
+  const defaultValues = {
+    ...rest,
+    financings: financings.map((relation) => relation.financing.id),
+  };
+
   const [form, fields] = useForm({
-    id: "requirements-form",
-    constraint: getFieldsetConstraint(requirementsSchema),
-    defaultValue: {
-      // TODO: On old conform version null values are not converted to undefined -> use conform v1
-      jobFillings: project.jobFillings || undefined,
-      furtherJobFillings: project.furtherJobFillings || undefined,
-      yearlyBudget: project.yearlyBudget || undefined,
-      furtherFinancings: project.furtherFinancings || undefined,
-      technicalRequirements: project.technicalRequirements || undefined,
-      furtherTechnicalRequirements:
-        project.furtherTechnicalRequirements || undefined,
-      roomSituation: project.roomSituation || undefined,
-      furtherRoomSituation: project.furtherRoomSituation || undefined,
-      timeframe: project.timeframe || undefined,
-      financings: project.financings.map((relation) => relation.financing.id),
-    },
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData?.submission,
-    shouldValidate: "onSubmit",
+    id: `requirements-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createRequirementsSchema(locales)),
+    defaultValue: defaultValues,
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    onValidate({ formData }) {
-      return parse(formData, { schema: requirementsSchema });
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createRequirementsSchema(locales),
+      });
+      return submission;
     },
   });
-  const financingList = useFieldList(form.ref, fields.financings);
 
-  const [isDirty, setIsDirty] = React.useState(false);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname
-  );
-  if (blocker.state === "blocked") {
-    const confirmed = confirm(locales.route.content.prompt);
-    if (confirmed === true) {
-      // TODO: fix blocker -> use org settings as blueprint
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - The blocker type may not be correct. Sentry logged an error that claims invalid blocker state transition from proceeding to proceeding
-      if (blocker.state !== "proceeding") {
-        blocker.proceed();
-      }
-    } else {
-      blocker.reset();
-    }
-  }
+  const financingList = fields.financings.getFieldList();
+
+  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    searchParam: "modal-unsaved-changes",
+    formMetadataToCheck: form,
+    locales,
+  });
 
   return (
     <>
       <Section>
+        {UnsavedChangesBlockerModal}
         <BackButton to={location.pathname}>
           {locales.route.content.back}
         </BackButton>
         <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
         <Form
+          {...getFormProps(form)}
           method="post"
-          {...form.props}
-          onChange={(event) => {
-            // On RTE the onChange is called during first render
-            // That breaks our logic that the form is dirty when it got changed
-            // Therefore we check textarea elements specifically
-            // TODO: How can we get arround this assertions?
-            const input = event.target as HTMLInputElement;
-            if (
-              input.type === "textarea" &&
-              input.value === project[input.name as keyof typeof project]
-            ) {
-              setIsDirty(false);
-            } else {
-              setIsDirty(true);
-            }
-          }}
-          onSubmit={() => {
-            setIsDirty(false);
-          }}
-          onReset={() => {
-            setIsDirty(false);
-          }}
+          preventScrollReset
+          autoComplete="off"
         >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
           <button type="submit" hidden />
-          <Input name={Deep} defaultValue="true" type="hidden" />
           <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
             <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
               <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -550,10 +492,16 @@ function Requirements() {
               </h2>
 
               <TextArea
-                {...conform.textarea(fields.timeframe)}
+                {...getInputProps(fields.timeframe, { type: "text" })}
+                key="timeframe"
                 id={fields.timeframe.id || ""}
                 label={locales.route.form.timeframe.label}
-                errorMessage={fields.timeframe.error}
+                errorMessage={
+                  Array.isArray(fields.timeframe.errors)
+                    ? fields.timeframe.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.timeframe.errorId}
                 maxLength={TIMEFRAME_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
@@ -565,19 +513,26 @@ function Requirements() {
               </h2>
 
               <TextArea
-                {...conform.textarea(fields.jobFillings)}
+                {...getInputProps(fields.jobFillings, { type: "text" })}
+                key="jobFillings"
                 id={fields.jobFillings.id || ""}
                 label={locales.route.form.personellSituation.jobFillings.label}
                 helperText={
                   locales.route.form.personellSituation.jobFillings.helper
                 }
-                errorMessage={fields.jobFillings.error}
+                errorMessage={
+                  Array.isArray(fields.jobFillings.errors)
+                    ? fields.jobFillings.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.jobFillings.errorId}
                 maxLength={JOB_FILLINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
               <TextArea
-                {...conform.textarea(fields.furtherJobFillings)}
+                {...getInputProps(fields.furtherJobFillings, { type: "text" })}
+                key="furtherJobFillings"
                 id={fields.furtherJobFillings.id || ""}
                 label={
                   locales.route.form.personellSituation.furtherJobFillings.label
@@ -586,7 +541,12 @@ function Requirements() {
                   locales.route.form.personellSituation.furtherJobFillings
                     .helper
                 }
-                errorMessage={fields.furtherJobFillings.error}
+                errorMessage={
+                  Array.isArray(fields.furtherJobFillings.errors)
+                    ? fields.furtherJobFillings.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.furtherJobFillings.errorId}
                 maxLength={FURTHER_JOB_FILLINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
@@ -598,15 +558,21 @@ function Requirements() {
               </h2>
 
               <Input
-                {...conform.input(fields.yearlyBudget)}
+                {...getInputProps(fields.yearlyBudget, { type: "text" })}
+                key="yearlyBudget"
                 maxLength={YEARLY_BUDGET_MAX_LENGTH}
               >
                 <Input.Label htmlFor={fields.yearlyBudget.id}>
                   {locales.route.form.budget.yearlyBudget.label}
                 </Input.Label>
-                {typeof fields.yearlyBudget.error !== "undefined" && (
-                  <Input.Error>{fields.yearlyBudget.error}</Input.Error>
-                )}
+                {typeof fields.yearlyBudget.errors !== "undefined" &&
+                fields.yearlyBudget.errors.length > 0
+                  ? fields.yearlyBudget.errors.map((error) => (
+                      <Input.Error id={fields.yearlyBudget.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
                 <Input.HelperText>
                   {locales.route.form.budget.yearlyBudget.helper}
                 </Input.HelperText>
@@ -619,13 +585,25 @@ function Requirements() {
                 <ConformSelect.Label htmlFor={fields.financings.id}>
                   {locales.route.form.budget.financings.label}
                 </ConformSelect.Label>
-                <ConformSelect.HelperText>
-                  {locales.route.form.budget.financings.helper}
-                </ConformSelect.HelperText>
+                {typeof fields.financings.errors !== "undefined" &&
+                fields.financings.errors.length > 0 ? (
+                  fields.financings.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.financings.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                ) : (
+                  <ConformSelect.HelperText>
+                    {locales.route.form.budget.financings.helper}
+                  </ConformSelect.HelperText>
+                )}
                 {allFinancings
                   .filter((financing) => {
                     return !financingList.some((listFinancing) => {
-                      return listFinancing.defaultValue === financing.id;
+                      return listFinancing.initialValue === financing.id;
                     });
                   })
                   .map((filteredFinancing) => {
@@ -644,7 +622,8 @@ function Requirements() {
                     return (
                       <button
                         key={filteredFinancing.id}
-                        {...list.insert(fields.financings.name, {
+                        {...form.insert.getButtonProps({
+                          name: fields.financings.name,
                           defaultValue: filteredFinancing.id,
                         })}
                         className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -658,7 +637,7 @@ function Requirements() {
                 <Chip.Container>
                   {financingList.map((listFinancing, index) => {
                     const financingSlug = allFinancings.find((financing) => {
-                      return financing.id === listFinancing.defaultValue;
+                      return financing.id === listFinancing.initialValue;
                     })?.slug;
                     let title;
                     if (financingSlug === undefined) {
@@ -681,13 +660,16 @@ function Requirements() {
                     return (
                       <Chip key={listFinancing.key}>
                         {title || locales.route.content.notFound}
-                        <Input
-                          type="hidden"
-                          {...conform.input(listFinancing)}
+                        <input
+                          {...getInputProps(listFinancing, { type: "hidden" })}
+                          key={listFinancing.id}
                         />
                         <Chip.Delete>
                           <button
-                            {...list.remove(fields.financings.name, { index })}
+                            {...form.remove.getButtonProps({
+                              name: fields.financings.name,
+                              index,
+                            })}
                           />
                         </Chip.Delete>
                       </Chip>
@@ -697,11 +679,17 @@ function Requirements() {
               )}
 
               <TextArea
-                {...conform.textarea(fields.furtherFinancings)}
+                {...getInputProps(fields.furtherFinancings, { type: "text" })}
+                key="furtherFinancings"
                 id={fields.furtherFinancings.id || ""}
                 label={locales.route.form.budget.furtherFinancings.label}
                 helperText={locales.route.form.budget.furtherFinancings.helper}
-                errorMessage={fields.furtherFinancings.error}
+                errorMessage={
+                  Array.isArray(fields.furtherFinancings.errors)
+                    ? fields.furtherFinancings.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.furtherFinancings.errorId}
                 maxLength={FURTHER_FINANCINGS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
@@ -713,24 +701,40 @@ function Requirements() {
               </h2>
 
               <TextArea
-                {...conform.textarea(fields.technicalRequirements)}
+                {...getInputProps(fields.technicalRequirements, {
+                  type: "text",
+                })}
+                key="technicalRequirements"
                 id={fields.technicalRequirements.id || ""}
                 label={
                   locales.route.form.technicalFrame.technicalRequirements.label
                 }
-                errorMessage={fields.technicalRequirements.error}
+                errorMessage={
+                  Array.isArray(fields.technicalRequirements.errors)
+                    ? fields.technicalRequirements.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.technicalRequirements.errorId}
                 maxLength={TECHNICAL_REQUIREMENTS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
               <TextArea
-                {...conform.textarea(fields.furtherTechnicalRequirements)}
+                {...getInputProps(fields.furtherTechnicalRequirements, {
+                  type: "text",
+                })}
+                key="furtherTechnicalRequirements"
                 id={fields.furtherTechnicalRequirements.id || ""}
                 label={
                   locales.route.form.technicalFrame.furtherTechnicalRequirements
                     .label
                 }
-                errorMessage={fields.furtherTechnicalRequirements.error}
+                errorMessage={
+                  Array.isArray(fields.furtherTechnicalRequirements.errors)
+                    ? fields.furtherTechnicalRequirements.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.furtherTechnicalRequirements.errorId}
                 maxLength={FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
@@ -742,103 +746,102 @@ function Requirements() {
               </h2>
 
               <TextArea
-                {...conform.textarea(fields.roomSituation)}
+                {...getInputProps(fields.roomSituation, { type: "text" })}
+                key="roomSituation"
                 id={fields.roomSituation.id || ""}
                 label={locales.route.form.spatialSituation.roomSituation.label}
                 helperText={
                   locales.route.form.spatialSituation.roomSituation.helper
                 }
-                errorMessage={fields.roomSituation.error}
+                errorMessage={
+                  Array.isArray(fields.roomSituation.errors)
+                    ? fields.roomSituation.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.roomSituation.errorId}
                 maxLength={ROOM_SITUATION_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
 
               <TextArea
-                {...conform.textarea(fields.furtherRoomSituation)}
+                {...getInputProps(fields.furtherRoomSituation, {
+                  type: "text",
+                })}
+                key="furtherRoomSituation"
                 id={fields.furtherRoomSituation.id || ""}
                 label={
                   locales.route.form.spatialSituation.furtherRoomSituation.label
                 }
-                errorMessage={fields.furtherRoomSituation.error}
+                errorMessage={
+                  Array.isArray(fields.furtherRoomSituation.errors)
+                    ? fields.furtherRoomSituation.errors.join(", ")
+                    : undefined
+                }
+                errorId={fields.furtherRoomSituation.errorId}
                 maxLength={FURTHER_ROOM_SITUATION_MAX_LENGTH}
                 rte={{ locales: locales }}
               />
             </div>
+            {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+              <div>
+                {form.errors.map((error) => {
+                  return (
+                    <div
+                      id={form.errorId}
+                      key={form.errorId}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
 
             <div className="mv-flex mv-w-full mv-justify-end">
               <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
                 <Controls>
-                  {/* TODO: Add disabled attribute. organization settings are blueprint with conform v1 */}
-                  <Button
-                    type="reset"
-                    variant="outline"
-                    onClick={() => {
-                      setIsDirty(false);
-                    }}
-                    className="mv-btn mv-btn-sm mv-font-semibold mv-whitespace-nowrap mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-w-full mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-                  >
-                    {locales.route.form.reset}
-                  </Button>
+                  <div className="mv-relative mv-w-full">
+                    <Button
+                      type="reset"
+                      onClick={() => {
+                        setTimeout(() => form.reset(), 0);
+                      }}
+                      variant="outline"
+                      fullSize
+                      // Don't disable button when js is disabled
+                      disabled={isHydrated ? form.dirty === false : false}
+                    >
+                      {locales.route.form.reset}
+                    </Button>
+                    <noscript className="mv-absolute mv-top-0">
+                      <Button
+                        as="a"
+                        href="./requirements"
+                        variant="outline"
+                        fullSize
+                      >
+                        {locales.route.form.reset}
+                      </Button>
+                    </noscript>
+                  </div>
                   <Button
                     type="submit"
+                    name="intent"
+                    defaultValue="submit"
                     fullSize
-                    onClick={() => {
-                      setIsDirty(false);
-                    }}
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? form.dirty === false || form.valid === false
+                        : false
+                    }
                   >
                     {locales.route.form.submit}
                   </Button>
                 </Controls>
               </div>
             </div>
-            {/* Workarround error messages because conform mapping and error displaying is not working yet with RTE components */}
-            {fields.timeframe.error !== undefined && (
-              <Alert level="negative">
-                Zeitlicher Rahmen - Projektstart bzw. Projektlaufzeit:{" "}
-                {fields.timeframe.error}
-              </Alert>
-            )}
-            {fields.jobFillings.error !== undefined && (
-              <Alert level="negative">
-                Personelle Situation - Stellen und / oder Stundenkontingent:{" "}
-                {fields.jobFillings.error}
-              </Alert>
-            )}
-            {fields.furtherJobFillings.error !== undefined && (
-              <Alert level="negative">
-                Personelle Situation - Weitere Infos:{" "}
-                {fields.furtherJobFillings.error}
-              </Alert>
-            )}
-            {fields.furtherFinancings.error !== undefined && (
-              <Alert level="negative">
-                Finanzieller Rahmen - Weitere Infos:{" "}
-                {fields.furtherFinancings.error}
-              </Alert>
-            )}
-            {fields.technicalRequirements.error !== undefined && (
-              <Alert level="negative">
-                Technischer Rahmen - Eingesetzte Technik:{" "}
-                {fields.technicalRequirements.error}
-              </Alert>
-            )}
-            {fields.furtherTechnicalRequirements.error !== undefined && (
-              <Alert level="negative">
-                Technischer Rahmen - Sonstige Erläuterungen:{" "}
-                {fields.furtherTechnicalRequirements.error}
-              </Alert>
-            )}
-            {fields.roomSituation.error !== undefined && (
-              <Alert level="negative">
-                Räumliche Situation - Arbeitsorte: {fields.roomSituation.error}
-              </Alert>
-            )}
-            {fields.furtherRoomSituation.error !== undefined && (
-              <Alert level="negative">
-                Räumliche Situation - Weitere Informationen:{" "}
-                {fields.furtherRoomSituation.error}
-              </Alert>
-            )}
           </div>
         </Form>
       </Section>

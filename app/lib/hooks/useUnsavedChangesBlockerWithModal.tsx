@@ -17,6 +17,7 @@ import { type ChangeProjectUrlLocales } from "~/routes/project/$slug/settings/da
 import { type ProjectWebAndSocialLocales } from "~/routes/project/$slug/settings/web-social.server";
 import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
+import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
@@ -31,7 +32,8 @@ export function useUnsavedChangesBlockerWithModal(options: {
     | ChangeProjectUrlLocales
     | ProjectWebAndSocialLocales
     | GeneralProjectSettingsLocales
-    | ProjectDetailsSettingsLocales;
+    | ProjectDetailsSettingsLocales
+    | ProjectRequirementsSettingsLocales;
 }) {
   const { searchParam, formMetadataToCheck, locales } = options;
   let forms = formMetadataToCheck;
