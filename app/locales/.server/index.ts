@@ -651,6 +651,7 @@ const de = {
     projectTargetGroups: deProjectTargetGroups,
     specialTargetGroups: deSpecialTargetGroups,
     rte: deRTE,
+    components: deComponents,
   },
   "project/$slug/settings/general": {
     route: deGeneralProjectSettings,
@@ -1057,6 +1058,7 @@ const en = {
     projectTargetGroups: enProjectTargetGroups,
     specialTargetGroups: enSpecialTargetGroups,
     rte: enRTE,
+    components: enComponents,
   },
   "project/$slug/settings/general": {
     route: enGeneralProjectSettings,

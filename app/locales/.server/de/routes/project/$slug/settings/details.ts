@@ -62,6 +62,8 @@ export const locale = {
       headline:
         "Welche zusätzlichen Disziplinen spielen in Deinem Projekt eine Rolle?",
       helper: "Mehrfachnennungen sind möglich.",
+      helperWithoutDisciplines:
+        "Wähle mindestens eine Hauptdisziplin aus um zusätzliche Disziplinen hinzuzufügen.",
       choose: "Bitte auswählen",
     },
     furtherDisciplines: {

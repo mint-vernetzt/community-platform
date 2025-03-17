@@ -325,9 +325,14 @@ function CreateOrganization() {
             <Input.Label htmlFor={fields.organizationName.id}>
               {locales.route.form.organizationName.label}
             </Input.Label>
-            {typeof fields.organizationName.errors !== "undefined" && (
-              <Input.Error>{fields.organizationName.errors}</Input.Error>
-            )}
+            {typeof fields.organizationName.errors !== "undefined" &&
+            fields.organizationName.errors.length > 0
+              ? fields.organizationName.errors.map((error) => (
+                  <Input.Error id={fields.organizationName.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
           </Input>
           {/* Already existing organizations section */}
           {searchResult.length > 0 && (
@@ -371,10 +376,16 @@ function CreateOrganization() {
               {locales.route.form.organizationTypes.label}
             </ConformSelect.Label>
 
-            {typeof fields.organizationTypes.errors !== "undefined" ? (
-              <ConformSelect.Error>
-                {fields.organizationTypes.errors}
-              </ConformSelect.Error>
+            {typeof fields.organizationTypes.errors !== "undefined" &&
+            fields.organizationTypes.errors.length > 0 ? (
+              fields.organizationTypes.errors.map((error) => (
+                <ConformSelect.Error
+                  id={fields.organizationTypes.errorId}
+                  key={error}
+                >
+                  {error}
+                </ConformSelect.Error>
+              ))
             ) : (
               <ConformSelect.HelperText>
                 {locales.route.form.organizationTypes.helperText}
@@ -451,7 +462,7 @@ function CreateOrganization() {
                 }
                 return (
                   <Chip key={listOrganizationType.key}>
-                    <Input
+                    <input
                       {...getInputProps(listOrganizationType, {
                         type: "hidden",
                       })}
@@ -493,10 +504,16 @@ function CreateOrganization() {
                 {locales.route.form.networkTypes.label}
               </span>
             </ConformSelect.Label>
-            {typeof fields.networkTypes.errors !== "undefined" ? (
-              <ConformSelect.Error>
-                {fields.networkTypes.errors}
-              </ConformSelect.Error>
+            {typeof fields.networkTypes.errors !== "undefined" &&
+            fields.networkTypes.errors.length > 0 ? (
+              fields.networkTypes.errors.map((error) => (
+                <ConformSelect.Error
+                  id={fields.networkTypes.errorId}
+                  key={error}
+                >
+                  {error}
+                </ConformSelect.Error>
+              ))
             ) : (
               <ConformSelect.HelperText>
                 <span
@@ -569,7 +586,7 @@ function CreateOrganization() {
                 }
                 return (
                   <Chip key={listNetworkType.key}>
-                    <Input
+                    <input
                       {...getInputProps(listNetworkType, {
                         type: "hidden",
                       })}

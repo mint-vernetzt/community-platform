@@ -201,6 +201,21 @@ function Delete() {
                 ))
               : null}
           </Input>
+          {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+            <div>
+              {form.errors.map((error, index) => {
+                return (
+                  <div
+                    id={form.errorId}
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
           <div className="mv-flex mv-w-full mv-justify-end">
             <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
               <Button
@@ -218,21 +233,6 @@ function Delete() {
             </div>
           </div>
         </div>
-        {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
-          <div>
-            {form.errors.map((error, index) => {
-              return (
-                <div
-                  id={form.errorId}
-                  key={index}
-                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                >
-                  {error}
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
       </Form>
     </>
   );
