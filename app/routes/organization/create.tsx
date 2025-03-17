@@ -43,14 +43,33 @@ import {
   type CreateOrganizationLocales,
 } from "./create.server";
 
+const NAME_MIN_LENGTH = 3;
+const NAME_MAX_LENGTH = 80;
+
 const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
     organizationName: z
       .string({
         required_error: locales.route.validation.organizationName.required,
       })
-      .min(3, locales.route.validation.organizationName.min)
-      .max(80, locales.route.validation.organizationName.max),
+      .min(
+        NAME_MIN_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.organizationName.min,
+          {
+            min: NAME_MIN_LENGTH,
+          }
+        )
+      )
+      .max(
+        NAME_MAX_LENGTH,
+        insertParametersIntoLocale(
+          locales.route.validation.organizationName.max,
+          {
+            max: NAME_MAX_LENGTH,
+          }
+        )
+      ),
     organizationTypes: z.array(z.string().uuid()),
     networkTypes: z.array(z.string().uuid()),
   });
@@ -73,7 +92,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const queryString = url.searchParams.get("search");
   const query =
-    queryString !== null && queryString.length >= 3
+    queryString !== null && queryString.length >= NAME_MIN_LENGTH
       ? queryString.split(" ")
       : [];
 
@@ -321,6 +340,8 @@ function CreateOrganization() {
           <Input
             {...getInputProps(fields.organizationName, { type: "text" })}
             key="organizationName"
+            minLength={NAME_MIN_LENGTH}
+            maxLength={NAME_MAX_LENGTH}
           >
             <Input.Label htmlFor={fields.organizationName.id}>
               {locales.route.form.organizationName.label}
@@ -630,7 +651,7 @@ function CreateOrganization() {
         <p className="mv-text-neutral-700 mv-text-xs mv-leading-4">
           {locales.route.form.helperText}
         </p>
-        <div className="mv-flex mv-gap-2 ">
+        <div className="mv-flex mv-gap-2">
           <Button as="a" href="/my/organizations" variant="outline">
             {locales.route.form.cancel}
           </Button>

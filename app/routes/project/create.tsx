@@ -1,5 +1,3 @@
-import { conform, useForm } from "@conform-to/react";
-import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Link } from "@mint-vernetzt/components/src/molecules/Link";
@@ -8,8 +6,8 @@ import {
   Form,
   useActionData,
   useLoaderData,
-  useNavigate,
   redirect,
+  useNavigation,
 } from "react-router";
 import { z } from "zod";
 import {
@@ -20,14 +18,19 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
-import {
-  deriveMode,
-  generateProjectSlug,
-  createHashFromObject,
-} from "~/utils.server";
+import { deriveMode, generateProjectSlug } from "~/utils.server";
 import { type CreateProjectLocales } from "./create.server";
 import { languageModuleMap } from "~/locales/.server";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { useHydrated } from "remix-utils/use-hydrated";
+
+const NAME_MIN_LENGTH = 3;
+const NAME_MAX_LENGTH = 80;
 
 const createSchema = (locales: CreateProjectLocales) =>
   z.object({
@@ -35,7 +38,18 @@ const createSchema = (locales: CreateProjectLocales) =>
       .string({
         required_error: locales.validation.projectName.required,
       })
-      .max(80, locales.validation.projectName.max),
+      .min(
+        NAME_MIN_LENGTH,
+        insertParametersIntoLocale(locales.validation.projectName.min, {
+          min: NAME_MIN_LENGTH,
+        })
+      )
+      .max(
+        NAME_MAX_LENGTH,
+        insertParametersIntoLocale(locales.validation.projectName.max, {
+          max: NAME_MAX_LENGTH,
+        })
+      ),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -60,7 +74,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/create"];
 
-  return { locales };
+  const currentTimestamp = Date.now();
+
+  return { currentTimestamp, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -76,17 +92,12 @@ export const action = async (args: ActionFunctionArgs) => {
     status: 403,
   });
 
-  const schema = createSchema(locales);
-
   // Validation
   const formData = await request.formData();
-  const submission = await parse(formData, {
-    schema: (intent) =>
-      schema.transform(async (data, ctx) => {
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createSchema(locales).transform(async (data, ctx) => {
         const slug = generateProjectSlug(data.projectName);
-        if (intent !== "submit") {
-          return { ...data, slug };
-        }
         try {
           await prismaClient.profile.update({
             where: {
@@ -138,36 +149,37 @@ export const action = async (args: ActionFunctionArgs) => {
     async: true,
   });
 
-  const hash = createHashFromObject(submission);
-
-  if (submission.intent !== "submit") {
-    return { status: "idle", submission, hash };
-  }
-  if (!submission.value) {
-    return { status: "error", submission, hash };
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
   return redirect(`/project/${submission.value.slug}/settings`);
 };
 
 function Create() {
-  const { locales } = useLoaderData<typeof loader>();
+  const isHydrated = useHydrated();
+  const navigation = useNavigation();
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
-
-  const schema = createSchema(locales);
+  const { locales } = loaderData;
 
   const [form, fields] = useForm({
-    id: "create-project-form",
-    constraint: getFieldsetConstraint(schema),
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData?.submission,
-    shouldValidate: "onSubmit",
+    id: `create-project-form-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    constraint: getZodConstraint(createSchema(locales)),
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    onValidate({ formData }) {
-      return parse(formData, { schema: schema });
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createSchema(locales),
+      });
+      return submission;
     },
   });
 
@@ -210,24 +222,51 @@ function Create() {
                 </Link>,
               ])}
             </p>
-            <Form method="post" {...form.props}>
-              <Input {...conform.input(fields.projectName)}>
+            <Form
+              {...getFormProps(form)}
+              method="post"
+              preventScrollReset
+              autoComplete="off"
+            >
+              <Input
+                {...getInputProps(fields.projectName, { type: "text" })}
+                minLength={NAME_MIN_LENGTH}
+                maxLength={NAME_MAX_LENGTH}
+                key="name"
+              >
                 <Input.Label htmlFor={fields.projectName.id}>
                   {locales.form.projectName.label}
                 </Input.Label>
-                {typeof fields.projectName.error !== "undefined" && (
-                  <Input.Error>{fields.projectName.error}</Input.Error>
-                )}
+                {typeof fields.projectName.errors !== "undefined" &&
+                fields.projectName.errors.length > 0
+                  ? fields.projectName.errors.map((error) => (
+                      <Input.Error id={fields.projectName.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
               </Input>
             </Form>
             <p className="mv-text-xs">{locales.content.explanation.headline}</p>
             <p className="mv-text-xs">{locales.content.explanation.intro}</p>
             <div className="mv-flex mv-flex-col mv-gap-2">
-              <Button type="submit" form={form.id}>
+              <Button
+                form={form.id}
+                type="submit"
+                name="intent"
+                defaultValue="submit"
+                fullSize
+                // Don't disable button when js is disabled
+                disabled={
+                  isHydrated
+                    ? form.dirty === false || form.valid === false
+                    : false
+                }
+              >
                 {locales.form.submit.label}
               </Button>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
-              <Button variant="outline" onClick={() => navigate(-1)}>
+              <Button as="a" href="/my/projects" variant="outline" fullSize>
                 {locales.form.reset.label}
               </Button>
             </div>

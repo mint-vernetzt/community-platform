@@ -354,8 +354,8 @@ function General() {
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
-  const { project, allFormats, areaOptions, locales } = loaderData;
   const actionData = useActionData<typeof action>();
+  const { project, allFormats, areaOptions, locales } = loaderData;
 
   const { formats, areas, ...rest } = project;
 
