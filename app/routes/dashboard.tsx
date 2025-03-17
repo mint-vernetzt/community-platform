@@ -539,37 +539,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-function getDataForExternalTeasers() {
-  type ExternalTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["externalTeasers"]["entries"];
-  type ExternalTeaser = {
-    [key in ExternalTeaserKey]: {
-      link: string;
-      icon: TeaserIconType;
-      external: boolean;
-    };
-  };
-  const teaserData: AtLeastOne<ExternalTeaser> = {
-    website: {
-      link: "https://www.mint-vernetzt.de",
-      icon: "globe",
-      external: true,
-    },
-    dataLab: {
-      link: "https://www.mint-vernetzt.de/mint-datalab/",
-      icon: "bar-chart",
-      external: true,
-    },
-    meshMint: {
-      link: "https://www.mint-vernetzt.de/mesh-studie/?limit=6&PostType=mesh_study",
-      icon: "signpost",
-      external: true,
-    },
-  };
-  return teaserData;
-}
-
 function getDataForUpdateTeasers() {
   type UpdateTeaserKey = keyof Awaited<
     ReturnType<typeof useLoaderData<typeof loader>>
@@ -710,7 +679,6 @@ function Dashboard() {
   const actionData = useActionData<typeof action>();
   const location = useLocation();
 
-  const externalTeasers = getDataForExternalTeasers();
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
@@ -1364,7 +1332,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Event Card Section */}
-      <section className="mv-w-full mv-mb-12 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+      <section className="mv-w-full mv-mb-24 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.events}
@@ -1409,50 +1377,6 @@ function Dashboard() {
             })}
           </CardContainer>
         </div>
-      </section>
-      {/* External Links Section */}
-      <section className="mv-w-full mv-mb-24 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <h2 className="mv-appearance-none mv-w-full mv-mb-6 mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold">
-          {loaderData.locales.route.content.externalTeasers.headline}
-        </h2>
-        <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-3 @xl:mv-grid-rows-1 mv-gap-6 @xl:mv-gap-8 mv-w-full">
-          {Object.entries(externalTeasers).map(([key, value]) => {
-            // Runtime check to safely use type assertion below
-            if (
-              key in
-                loaderData.locales.route.content.externalTeasers.entries ===
-              false
-            ) {
-              console.error(`No locale found for external teaser ${key}`);
-              return null;
-            }
-            type LocaleKey =
-              keyof typeof loaderData.locales.route.content.externalTeasers.entries;
-            return (
-              <TeaserCard
-                to={value.link}
-                external={value.external}
-                key={`${key}-external-link-teaser`}
-                headline={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].headline
-                }
-                description={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].description
-                }
-                linkDescription={
-                  loaderData.locales.route.content.externalTeasers.entries[
-                    key as LocaleKey
-                  ].linkDescription
-                }
-                iconType={value.icon}
-              />
-            );
-          })}
-        </ul>
       </section>
       <Form
         id="modal-avatar-form"
