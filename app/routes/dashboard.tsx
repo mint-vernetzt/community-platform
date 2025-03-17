@@ -1247,6 +1247,34 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+      {/* Project Card Section */}
+      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+            {loaderData.locales.route.content.projects}
+          </div>
+          <div className="mv-text-right">
+            <MVLink to="/explore/projects">
+              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
+                {loaderData.locales.route.content.allProjects}
+              </span>
+            </MVLink>
+          </div>
+        </div>
+        <div className="@xl:mv-px-2">
+          <CardContainer>
+            {loaderData.projects.map((project) => {
+              return (
+                <ProjectCard
+                  key={`newest-project-card-${project.slug}`}
+                  project={project}
+                  locales={loaderData.locales}
+                />
+              );
+            })}
+          </CardContainer>
+        </div>
+      </section>
       {/* Profile Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
@@ -1296,34 +1324,6 @@ function Dashboard() {
                 <OrganizationCard
                   key={`newest-organization-card-${organization.slug}`}
                   organization={organization}
-                  locales={loaderData.locales}
-                />
-              );
-            })}
-          </CardContainer>
-        </div>
-      </section>
-      {/* Project Card Section */}
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
-            {loaderData.locales.route.content.projects}
-          </div>
-          <div className="mv-text-right">
-            <MVLink to="/explore/projects">
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
-                {loaderData.locales.route.content.allProjects}
-              </span>
-            </MVLink>
-          </div>
-        </div>
-        <div className="@xl:mv-px-2">
-          <CardContainer>
-            {loaderData.projects.map((project) => {
-              return (
-                <ProjectCard
-                  key={`newest-project-card-${project.slug}`}
-                  project={project}
                   locales={loaderData.locales}
                 />
               );
