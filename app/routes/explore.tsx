@@ -59,7 +59,7 @@ function Explore() {
 
   return (
     <>
-      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+      {/* <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-p-6">
           <h1 className="mv-font-black mv-text-5xl">
             {searchParams.has("search") && searchParams.get("search") !== ""
@@ -70,6 +70,25 @@ function Explore() {
               : loaderData.locales.route.content.headline}
           </h1>
           <menu className="mv-flex mv-gap-2 mv-p mv-rounded-lg mv-bg-neutral-100 mv-flex-wrap mv-justify-center mv-font-semibold mv-text-sm">
+            {links.map((item) => {
+              return (
+                <MenuItem key={item.to} {...item} origin={loaderData.origin} />
+              );
+            })}
+          </menu>
+        </div>
+      </section> */}
+      <section className="mv-mx-auto @sm:mv-pt-8 @sm:mv-pb-16 @sm:mv-px-4 @xl:mv-px-6 mv-max-w-screen-2xl">
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @sm:mv-rounded-lg mv-bg-white @sm:mv-border mv-border-neutral-200 mv-p-6">
+          <h1 className="mv-font-black mv-text-5xl">
+            {searchParams.has("search") && searchParams.get("search") !== ""
+              ? insertParametersIntoLocale(
+                  loaderData.locales.route.content.searchHeadline,
+                  { search: searchParams.get("search") }
+                )
+              : loaderData.locales.route.content.headline}
+          </h1>
+          <menu className="mv-inline-flex mv-overflow-scroll mv-max-w-full mv-gap-2 mv-p mv-rounded-lg mv-bg-neutral-100 mv-font-semibold mv-text-sm">
             {links.map((item) => {
               return (
                 <MenuItem key={item.to} {...item} origin={loaderData.origin} />
@@ -113,7 +132,7 @@ function MenuItem(props: {
   );
 
   return (
-    <li className="mv-p-2">
+    <li className="mv-p-2 mv-grow mv-min-w-fit">
       <NavLink className={linkClasses} {...otherProps}>
         {label}
         <span className={badgeClasses}>100</span>
