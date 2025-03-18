@@ -2,7 +2,8 @@ export const locale = {
   validation: {
     projectName: {
       required: "The project name is a required information.",
-      max: "Your entry exceeds the maximum permitted number of characters of 80.",
+      min: "The project name must be at least {{min}} characters long.",
+      max: "Your entry exceeds the maximum permitted number of characters of {{max}}.",
     },
   },
   error: {

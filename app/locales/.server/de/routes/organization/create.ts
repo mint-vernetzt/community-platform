@@ -2,8 +2,8 @@ export const locale = {
   validation: {
     organizationName: {
       required: "Bitte gib den Namen Deiner Organisation ein.",
-      min: "Der Name der Organisation muss mindestens 3 Zeichen lang sein.",
-      max: "Der Name der Organisation darf maximal 80 Zeichen lang sein.",
+      min: "Der Name der Organisation muss mindestens {{min}} Zeichen lang sein.",
+      max: "Der Name der Organisation darf maximal {{max}} Zeichen lang sein.",
     },
     organizationTypeNetworkNotFound:
       "Organisationsform Netzwerk nicht gefunden",
