@@ -10,6 +10,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
@@ -142,6 +143,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const showFiltersValue = searchParams.getAll("showFilters");
+
+  if (showFiltersValue.length > 1) {
+    const cleanURL = new URL(request.url);
+    cleanURL.searchParams.delete("showFilters");
+    cleanURL.searchParams.append("showFilters", "on");
+    return redirect(cleanURL.toString(), { status: 301 });
+  }
+
   const submission = parseWithZod(searchParams, {
     schema: getEventsSchema,
   });
@@ -423,12 +434,7 @@ export default function ExploreOrganizations() {
             ) {
               preventScrollReset = false;
             }
-
-            // Need this to prevent duplicate "showFilters" parameter
-            const formData = new FormData(event.currentTarget);
-            formData.delete(fields.showFilters.name);
-            formData.append(fields.showFilters.name, "on");
-            submit(formData, { preventScrollReset });
+            submit(event.currentTarget, { preventScrollReset });
           }}
         >
           <input name="page" defaultValue="1" hidden />
