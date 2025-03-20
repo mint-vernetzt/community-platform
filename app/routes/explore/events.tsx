@@ -423,7 +423,12 @@ export default function ExploreOrganizations() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset });
+
+            // Need this to prevent duplicate "showFilters" parameter
+            const formData = new FormData(event.currentTarget);
+            formData.delete(fields.showFilters.name);
+            formData.append(fields.showFilters.name, "on");
+            submit(formData, { preventScrollReset });
           }}
         >
           <input name="page" defaultValue="1" hidden />
