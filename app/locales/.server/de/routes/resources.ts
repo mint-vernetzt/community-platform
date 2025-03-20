@@ -30,7 +30,7 @@ export const locale = {
         imgAlt: "Das Logo von MINT Open Educational Badges.",
         headline: "MINT Open Educational Badges (OEB)",
         content:
-          "Mit Open Educational Badges können Bildungs&shy;akteur:innen minutenschnell Badges (digitale Nachweise) für Lernangebote erstellen und so Sichtbarkeit für ihre Lernangebote schaffen.",
+          "Erstelle mit Open Educational Badges minutenschnell Badges (digitale Nachweise) für Deine Lernenden und schaffe mehr Sichtbarkeit für die Qualität Deiner Lernangebote.",
         action: "Zu MINT-OEB",
       },
     },
