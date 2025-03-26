@@ -326,7 +326,7 @@ export async function joinNetwork(options: {
       id: "join-network-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
-        locales.route.content.networks.join.success,
+        locales.route.content.networks.requestToJoin.success,
         { organization: name }
       ),
     },
@@ -449,7 +449,7 @@ export async function addNetworkMember(options: {
       id: "add-network-member-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
-        locales.route.content.networkMembers.add.success,
+        locales.route.content.networkMembers.invite.success,
         { organization: name }
       ),
     },

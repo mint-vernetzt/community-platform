@@ -37,42 +37,44 @@ export const locale = {
     },
     networks: {
       current: {
-        headline_one: "Current network",
-        headline_other: "Current networks",
-        subline_one: "Your organization is part of this network",
-        subline_other: "Your organization is part of these networks",
+        headline_one: "Your organization is part of the following network",
+        headline_other: "Your organization is part of the following networks",
         leave: {
-          cta: "Leave",
+          cta: "End membership",
           success: "You have successfully left the network {{organization}}.",
         },
       },
-      join: {
-        headline_zero: "Is your organization part of a network?",
-        headline_other: "Is your organization part of other networks?",
+      requestToJoin: {
+        headline: "Add your organization to networks",
         subline:
           "Search for network organizations and add your organization as a network member.",
         label: "Name of network organization",
         placeholder: "Search...",
         helper: "At least 3 characters.",
         searchCta: "Search",
-        cta: "Join",
-        success: "You have successfully joined the network {{organization}}.",
+        cta: "Request membership",
+        alreadyMemberOf: "already confirmed",
+        alreadyRequested: "already requested",
+        success:
+          "You have successfully requested membership for the network {{organization}}.",
       },
     },
     networkMembers: {
       current: {
-        headline_one: "Current member organization",
-        headline_other: "Current member organizations",
-        subline_one: "Your network consists of this member organization",
-        subline_other: "Your network consists of these member organizations",
+        headline_one: "Current member organization of your network",
+        headline_other: "Current member organizations of your network",
+        subline_one:
+          "Your network consists of the following member organization.",
+        subline_other:
+          "Your network consists of the following member organizations.",
         remove: {
           cta: "Remove",
           success:
             "You have successfully removed the member organization {{organization}} from your network.",
         },
       },
-      add: {
-        headline: "Add organizations to your network organization",
+      invite: {
+        headline: "Add organizations to your network",
         subline:
           "Search for organizations and add them to your network organization.",
         label: "Name of organization",
@@ -80,9 +82,11 @@ export const locale = {
         helper: "At least 3 characters.",
         helperWithoutNetwork: 'Requires organizational form "Network"',
         searchCta: "Search",
-        cta: "Add",
+        cta: "Invite",
+        alreadyInvited: "already invited",
+        alreadyMember: "already member",
         success:
-          "You have successfully added the organization {{organization}} to your network organization.",
+          "You have successfully invited the organization {{organization}} to your network organization.",
       },
     },
   },
