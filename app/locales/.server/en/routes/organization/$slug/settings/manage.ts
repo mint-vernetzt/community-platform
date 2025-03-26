@@ -39,6 +39,7 @@ export const locale = {
       current: {
         headline_one: "Your organization is part of the following network",
         headline_other: "Your organization is part of the following networks",
+        blankState: "Your organization is not yet part of any other networks.",
         leave: {
           cta: "End membership",
           success: "You have successfully left the network {{organization}}.",
@@ -67,6 +68,7 @@ export const locale = {
           "Your network consists of the following member organization.",
         subline_other:
           "Your network consists of the following member organizations.",
+        blankState: "Your network does not yet have any member organizations.",
         remove: {
           cta: "Remove",
           success:

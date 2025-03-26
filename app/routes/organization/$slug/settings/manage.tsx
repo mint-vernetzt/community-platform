@@ -893,83 +893,83 @@ function Manage() {
           </div>
           {/* Current Network Members and Remove Network Member Section */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2
+              className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              }`}
+            >
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networkMembers.current.headline_one,
+                locales.route.content.networkMembers.current.headline_other,
+                networkMembers.length
+              )}
+            </h2>
+            <p>
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networkMembers.current.subline_one,
+                locales.route.content.networkMembers.current.subline_other,
+                networkMembers.length
+              )}
+            </p>
             {networkMembers.length > 0 ? (
-              <>
-                <h2
-                  className={`mv-text-lg mv-font-semibold mv-mb-0 ${
-                    isNetwork === false
-                      ? "mv-text-neutral-300"
-                      : "mv-text-primary"
-                  }`}
+              <Form
+                {...getFormProps(removeNetworkMemberForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="network-members"
+                  hideAfter={3}
                 >
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networkMembers.current.headline_one,
-                    locales.route.content.networkMembers.current.headline_other,
-                    networkMembers.length
-                  )}
-                </h2>
-                <p>
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networkMembers.current.subline_one,
-                    locales.route.content.networkMembers.current.subline_other,
-                    networkMembers.length
-                  )}
-                </p>
-                <Form
-                  {...getFormProps(removeNetworkMemberForm)}
-                  method="post"
-                  preventScrollReset
-                >
-                  <ListContainer
-                    locales={locales}
-                    listKey="network-members"
-                    hideAfter={3}
-                  >
-                    {networkMembers.map((relation, index) => {
-                      return (
-                        <ListItem
-                          key={`network-member-${relation.networkMember.slug}`}
-                          entity={relation.networkMember}
-                          locales={locales}
-                          listIndex={index}
-                          hideAfter={3}
+                  {networkMembers.map((relation, index) => {
+                    return (
+                      <ListItem
+                        key={`network-member-${relation.networkMember.slug}`}
+                        entity={relation.networkMember}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`remove-network-member-${relation.networkMember.id}`}
+                          type="submit"
+                          fullSize
+                          disabled={isNetwork === false}
                         >
-                          <Button
-                            name="intent"
-                            variant="outline"
-                            value={`remove-network-member-${relation.networkMember.id}`}
-                            type="submit"
-                            fullSize
-                            disabled={isNetwork === false}
-                          >
-                            {
-                              locales.route.content.networkMembers.current
-                                .remove.cta
-                            }
-                          </Button>
-                        </ListItem>
+                          {
+                            locales.route.content.networkMembers.current.remove
+                              .cta
+                          }
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof removeNetworkMemberForm.errors !== "undefined" &&
+                removeNetworkMemberForm.errors.length > 0 ? (
+                  <div>
+                    {removeNetworkMemberForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={removeNetworkMemberForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
                       );
                     })}
-                  </ListContainer>
-                  {typeof removeNetworkMemberForm.errors !== "undefined" &&
-                  removeNetworkMemberForm.errors.length > 0 ? (
-                    <div>
-                      {removeNetworkMemberForm.errors.map((error, index) => {
-                        return (
-                          <div
-                            id={removeNetworkMemberForm.errorId}
-                            key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                          >
-                            {error}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </Form>
-              </>
-            ) : null}
+                  </div>
+                ) : null}
+              </Form>
+            ) : (
+              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base leading-5 mv-font-normal">
+                {locales.route.content.networkMembers.current.blankState}
+              </div>
+            )}
             {/* Search Network Members To Invite Section */}
             <h2
               className={`mv-text-lg mv-font-semibold mv-mb-0 ${
@@ -1147,66 +1147,68 @@ function Manage() {
           </div>
           {/* Current Networks and Leave Network Section */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networks.current.headline_one,
+                locales.route.content.networks.current.headline_other,
+                memberOf.length
+              )}
+            </h2>
             {memberOf.length > 0 ? (
-              <>
-                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networks.current.headline_one,
-                    locales.route.content.networks.current.headline_other,
-                    memberOf.length
-                  )}
-                </h2>
-                <Form
-                  {...getFormProps(leaveNetworkForm)}
-                  method="post"
-                  preventScrollReset
+              <Form
+                {...getFormProps(leaveNetworkForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="networks"
+                  hideAfter={3}
                 >
-                  <ListContainer
-                    locales={locales}
-                    listKey="networks"
-                    hideAfter={3}
-                  >
-                    {memberOf.map((relation, index) => {
-                      return (
-                        <ListItem
-                          key={`network-${relation.network.slug}`}
-                          entity={relation.network}
-                          locales={locales}
-                          listIndex={index}
-                          hideAfter={3}
+                  {memberOf.map((relation, index) => {
+                    return (
+                      <ListItem
+                        key={`network-${relation.network.slug}`}
+                        entity={relation.network}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`leave-network-${relation.network.id}`}
+                          type="submit"
+                          fullSize
                         >
-                          <Button
-                            name="intent"
-                            variant="outline"
-                            value={`leave-network-${relation.network.id}`}
-                            type="submit"
-                            fullSize
-                          >
-                            {locales.route.content.networks.current.leave.cta}
-                          </Button>
-                        </ListItem>
+                          {locales.route.content.networks.current.leave.cta}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof leaveNetworkForm.errors !== "undefined" &&
+                leaveNetworkForm.errors.length > 0 ? (
+                  <div>
+                    {leaveNetworkForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={leaveNetworkForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
                       );
                     })}
-                  </ListContainer>
-                  {typeof leaveNetworkForm.errors !== "undefined" &&
-                  leaveNetworkForm.errors.length > 0 ? (
-                    <div>
-                      {leaveNetworkForm.errors.map((error, index) => {
-                        return (
-                          <div
-                            id={leaveNetworkForm.errorId}
-                            key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                          >
-                            {error}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </Form>
-              </>
-            ) : null}
+                  </div>
+                ) : null}
+              </Form>
+            ) : (
+              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base leading-5 mv-font-normal">
+                {locales.route.content.networks.current.blankState}
+              </div>
+            )}
             {/* Search Networks To Join Section */}
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
               {locales.route.content.networks.requestToJoin.headline}
