@@ -121,6 +121,38 @@ type RequestAcceptedOrRejectedContent = {
   organization: { name: string };
 };
 
+type RequestNetworkContent = {
+  firstName: string;
+  organization: { name: string };
+  network: { name: string };
+  button: {
+    url: string;
+    text: string;
+  };
+};
+
+type RequestCanceledNetworkContent = {
+  firstName: string;
+  organization: { name: string };
+  network: { name: string };
+};
+
+type InviteNetworkContent = {
+  firstName: string;
+  organization: { name: string };
+  network: { name: string };
+  button: {
+    url: string;
+    text: string;
+  };
+};
+
+type InviteCanceledNetworkContent = {
+  firstName: string;
+  organization: { name: string };
+  network: { name: string };
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -147,7 +179,15 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
   | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
-  | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
+  | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+  | "mail-templates/requests/network-to-add-organization/html.hbs"
+  | "mail-templates/requests/network-to-add-organization/text.hbs"
+  | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
+  | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
+  | "mail-templates/invites/organization-to-join-network/text.hbs"
+  | "mail-templates/invites/organization-to-join-network/html.hbs"
+  | "mail-templates/invites/organization-to-join-network/canceled-text.hbs"
+  | "mail-templates/invites/organization-to-join-network/canceled-html.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -191,6 +231,22 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/requests/organization-to-add-profile/rejected-html.hbs"
       | "mail-templates/requests/organization-to-add-profile/rejected-text.hbs"
   ? RequestAcceptedOrRejectedContent
+  : TemplatePath extends
+      | "mail-templates/requests/network-to-add-organization/html.hbs"
+      | "mail-templates/requests/network-to-add-organization/text.hbs"
+  ? RequestNetworkContent
+  : TemplatePath extends
+      | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
+      | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
+  ? RequestCanceledNetworkContent
+  : TemplatePath extends
+      | "mail-templates/invites/organization-to-join-network/html.hbs"
+      | "mail-templates/invites/organization-to-join-network/text.hbs"
+  ? InviteNetworkContent
+  : TemplatePath extends
+      | "mail-templates/invites/organization-to-join-network/canceled-html.hbs"
+      | "mail-templates/invites/organization-to-join-network/canceled-text.hbs"
+  ? InviteCanceledNetworkContent
   : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(

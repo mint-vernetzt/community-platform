@@ -53,9 +53,9 @@ import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { deriveMode, createHashFromObject } from "~/utils.server";
 import {
-  addNetworkMember,
+  updateNetworkMemberInvite,
   getOrganizationWithNetworksAndNetworkMembers,
-  joinNetwork,
+  updateJoinNetworkRequest,
   leaveNetwork,
   removeNetworkMember,
   updateOrganization,
@@ -261,14 +261,27 @@ export async function action(args: ActionFunctionArgs) {
       locales,
     });
   } else if (intent.startsWith("request-to-join-network-")) {
-    const joinNetworkFormData = new FormData();
-    joinNetworkFormData.set(
+    const requestToJoinNetworkFormData = new FormData();
+    requestToJoinNetworkFormData.set(
       "organizationId",
       intent.replace("request-to-join-network-", "")
     );
-    result = await joinNetwork({
-      formData: joinNetworkFormData,
+    result = await updateJoinNetworkRequest({
+      formData: requestToJoinNetworkFormData,
       organization,
+      intent: "requestToJoinNetwork",
+      locales,
+    });
+  } else if (intent.startsWith("cancel-network-join-request-")) {
+    const cancelNetworkJoinRequestFormData = new FormData();
+    cancelNetworkJoinRequestFormData.set(
+      "organizationId",
+      intent.replace("cancel-network-join-request-", "")
+    );
+    result = await updateJoinNetworkRequest({
+      formData: cancelNetworkJoinRequestFormData,
+      organization,
+      intent: "cancelNetworkJoinRequest",
       locales,
     });
   } else if (intent.startsWith("leave-network-")) {
@@ -283,25 +296,39 @@ export async function action(args: ActionFunctionArgs) {
       locales,
     });
   } else if (intent.startsWith("invite-network-member-")) {
-    const leaveNetworkFormData = new FormData();
-    leaveNetworkFormData.set(
+    const inviteNetworkMemberFormData = new FormData();
+    inviteNetworkMemberFormData.set(
       "organizationId",
       intent.replace("invite-network-member-", "")
     );
-    result = await addNetworkMember({
-      formData: leaveNetworkFormData,
+    result = await updateNetworkMemberInvite({
+      formData: inviteNetworkMemberFormData,
       organization,
       organizationTypeNetwork,
+      intent: "inviteNetworkMember",
+      locales,
+    });
+  } else if (intent.startsWith("cancel-network-member-invitation-")) {
+    const cancelNetworkMemberInvitationFormData = new FormData();
+    cancelNetworkMemberInvitationFormData.set(
+      "organizationId",
+      intent.replace("cancel-network-member-invitation-", "")
+    );
+    result = await updateNetworkMemberInvite({
+      formData: cancelNetworkMemberInvitationFormData,
+      organization,
+      organizationTypeNetwork,
+      intent: "cancelNetworkMemberInvitation",
       locales,
     });
   } else if (intent.startsWith("remove-network-member-")) {
-    const leaveNetworkFormData = new FormData();
-    leaveNetworkFormData.set(
+    const removeNetworkMemberFormData = new FormData();
+    removeNetworkMemberFormData.set(
       "organizationId",
       intent.replace("remove-network-member-", "")
     );
     result = await removeNetworkMember({
-      formData: leaveNetworkFormData,
+      formData: removeNetworkMemberFormData,
       organization,
       locales,
     });
@@ -361,7 +388,9 @@ function Manage() {
   const {
     types: organizationTypes,
     networkTypes,
+    sentNetworkJoinRequests,
     memberOf,
+    sentNetworkJoinInvites,
     networkMembers,
   } = organization;
 
@@ -439,6 +468,13 @@ function Manage() {
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
+  const [cancelNetworkJoinRequestForm] = useForm({
+    id: `cancel-network-join-request-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
   const [searchNetworkMembersForm, searchNetworkMembersFields] = useForm({
     id: "search-network-members",
     constraint: getZodConstraint(searchNetworkMembersSchema(locales)),
@@ -465,6 +501,13 @@ function Manage() {
 
   const [removeNetworkMemberForm] = useForm({
     id: `remove-network-member-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [cancelNetworkJoinInviteForm] = useForm({
+    id: `cancel-network-member-invitation-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -1100,7 +1143,6 @@ function Manage() {
                         listIndex={index}
                         hideAfter={3}
                       >
-                        {/* TODO: <div> for pendingInvitedNetworkMembers */}
                         {networkMembers.some((relation) => {
                           return relation.networkMember.id === organization.id;
                         }) ? (
@@ -1108,6 +1150,15 @@ function Manage() {
                             {
                               locales.route.content.networkMembers.invite
                                 .alreadyMember
+                            }
+                          </div>
+                        ) : sentNetworkJoinInvites.some((relation) => {
+                            return relation.organization.id === organization.id;
+                          }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networkMembers.invite
+                                .alreadyInvited
                             }
                           </div>
                         ) : (
@@ -1143,7 +1194,68 @@ function Manage() {
                 ) : null}
               </Form>
             ) : null}
-            {/* TODO: Pending invited network members section */}
+            {/* Pending invited network members section */}
+            {sentNetworkJoinInvites.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {locales.route.content.networkMembers.pendingInvites.headline}
+                </h2>
+                <Form
+                  {...getFormProps(cancelNetworkJoinInviteForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer
+                    locales={locales}
+                    listKey="pending-network-member-invitations"
+                    hideAfter={3}
+                  >
+                    {sentNetworkJoinInvites.map((relation, index) => {
+                      return (
+                        <ListItem
+                          key={`network-member-invitation-${relation.organization.slug}`}
+                          entity={relation.organization}
+                          locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
+                        >
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`cancel-network-member-invitation-${relation.organization.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.content.networkMembers
+                                .pendingInvites.cancel.cta
+                            }
+                          </Button>
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                  {typeof cancelNetworkJoinInviteForm.errors !== "undefined" &&
+                  cancelNetworkJoinInviteForm.errors.length > 0 ? (
+                    <div>
+                      {cancelNetworkJoinInviteForm.errors.map(
+                        (error, index) => {
+                          return (
+                            <div
+                              id={cancelNetworkJoinInviteForm.errorId}
+                              key={index}
+                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            >
+                              {error}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  ) : null}
+                </Form>
+              </>
+            ) : null}
           </div>
           {/* Current Networks and Leave Network Section */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
@@ -1313,7 +1425,6 @@ function Manage() {
                         listIndex={index}
                         hideAfter={3}
                       >
-                        {/* TODO: <div> for pendingRequestsToBeMemberOfNetwork */}
                         {memberOf.some((relation) => {
                           return relation.network.id === organization.id;
                         }) ? (
@@ -1321,6 +1432,24 @@ function Manage() {
                             {
                               locales.route.content.networks.requestToJoin
                                 .alreadyMemberOf
+                            }
+                          </div>
+                        ) : sentNetworkJoinRequests.some((relation) => {
+                            return relation.network.id === organization.id;
+                          }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networks.requestToJoin
+                                .alreadyRequested
+                            }
+                          </div>
+                        ) : organization.types.some((relation) => {
+                            return relation.organizationType.slug === "network";
+                          }) === false ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networks.requestToJoin
+                                .noNetwork
                             }
                           </div>
                         ) : (
@@ -1356,7 +1485,68 @@ function Manage() {
                 ) : null}
               </Form>
             ) : null}
-            {/* TODO: Pending requests to be member of network section */}
+            {/* Pending requests to be member of network section */}
+            {sentNetworkJoinRequests.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {locales.route.content.networks.pendingRequests.headline}
+                </h2>
+                <Form
+                  {...getFormProps(cancelNetworkJoinRequestForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer
+                    locales={locales}
+                    listKey="pending-join-network-requests"
+                    hideAfter={3}
+                  >
+                    {sentNetworkJoinRequests.map((relation, index) => {
+                      return (
+                        <ListItem
+                          key={`join-network-request-${relation.network.slug}`}
+                          entity={relation.network}
+                          locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
+                        >
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`cancel-network-join-request-${relation.network.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.content.networks.pendingRequests
+                                .cancel.cta
+                            }
+                          </Button>
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                  {typeof cancelNetworkJoinRequestForm.errors !== "undefined" &&
+                  cancelNetworkJoinRequestForm.errors.length > 0 ? (
+                    <div>
+                      {cancelNetworkJoinRequestForm.errors.map(
+                        (error, index) => {
+                          return (
+                            <div
+                              id={cancelNetworkJoinRequestForm.errorId}
+                              key={index}
+                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            >
+                              {error}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  ) : null}
+                </Form>
+              </>
+            ) : null}
           </div>
         </div>
       </Section>

@@ -10,6 +10,10 @@ export const locale = {
     notAllowed:
       "Your organization must have the organizational form network to make this action",
     networkTypesRequired: "Please select at least one network form.",
+    requestFailed: "Membership request could not be sent",
+    cancelRequestFailed: "Membership request could not be withdrawn",
+    inviteFailed: "Invitation could not be sent",
+    cancelInviteFailed: "Invitation could not be withdrawn",
   },
   content: {
     notFound: "Not found",
@@ -54,10 +58,30 @@ export const locale = {
         helper: "At least 3 characters.",
         searchCta: "Search",
         cta: "Request membership",
+        email: {
+          subject: {
+            requested: "You have received a membership request!",
+            canceled: "The membership request has been withdrawn!",
+          },
+          button: {
+            text: "To the community platform",
+          },
+        },
         alreadyMemberOf: "already confirmed",
         alreadyRequested: "already requested",
+        noNetwork: "No network",
         success:
           "You have successfully requested membership for the network {{organization}}.",
+        cancelSuccess:
+          "You have successfully withdrawn the membership request for the network {{organization}}.",
+      },
+      pendingRequests: {
+        headline: "Pending membership requests",
+        cancel: {
+          cta: "Withdraw request",
+          success:
+            "You have successfully withdrawn the membership request for the network {{organization}}.",
+        },
       },
     },
     networkMembers: {
@@ -85,10 +109,29 @@ export const locale = {
         helperWithoutNetwork: 'Requires organizational form "Network"',
         searchCta: "Search",
         cta: "Invite",
+        email: {
+          subject: {
+            invited: "You have received an invitation!",
+            canceled: "The invitation has been withdrawn!",
+          },
+          button: {
+            text: "To the community platform",
+          },
+        },
         alreadyInvited: "already invited",
         alreadyMember: "already member",
         success:
           "You have successfully invited the organization {{organization}} to your network organization.",
+        cancelSuccess:
+          "You have successfully withdrawn the invitation for the organization {{organization}}.",
+      },
+      pendingInvites: {
+        headline: "Organizations invited as members",
+        cancel: {
+          cta: "Withdraw invitation",
+          success:
+            "You have successfully withdrawn the invitation for the organization {{organization}}.",
+        },
       },
     },
   },

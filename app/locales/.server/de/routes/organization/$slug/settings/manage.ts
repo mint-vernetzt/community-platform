@@ -11,6 +11,10 @@ export const locale = {
     notAllowed:
       "Deine Organisation muss die Organisationsform Netzwerk haben um die Aktion durchzuführen",
     networkTypesRequired: "Bitte wähle mindestens eine Netzwerkform aus.",
+    requestFailed: "Anfrage konnte nicht gesendet werden",
+    cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
+    inviteFailed: "Einladung konnte nicht gesendet werden",
+    cancelInviteFailed: "Einladung konnte nicht zurückgezogen werden",
   },
   content: {
     notFound: "Nicht gefunden",
@@ -59,8 +63,28 @@ export const locale = {
         cta: "Beitritt anfragen",
         alreadyMemberOf: "Beitritt bereits bestätigt",
         alreadyRequested: "Beitritt angefragt",
+        noNetwork: "Kein Netzwerk",
+        email: {
+          subject: {
+            requested: "Du hast eine Anfrage erhalten!",
+            canceled: "Die Anfrage wurde zurückgezogen!",
+          },
+          button: {
+            text: "Zur Community Plattform",
+          },
+        },
         success:
           "Du hast den Beitritt zum Netzwerk {{organization}} erfolgreich angefragt.",
+        cancelSuccess:
+          "Du hast die Beitrittsanfrage zum Netzwerk {{organization}} erfolgreich zurückgezogen.",
+      },
+      pendingRequests: {
+        headline: "Angefragte Netzwerkmitgliedschaften",
+        cancel: {
+          cta: "Beitrittsanfrage zurückziehen",
+          success:
+            "Du hast die Beitrittsanfrage zur Netzwerkmitgliedschaft bei {{organization}} erfolgreich zurückgezogen.",
+        },
       },
     },
     networkMembers: {
@@ -89,10 +113,29 @@ export const locale = {
         helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
         searchCta: "Suchen",
         cta: "Einladen",
+        email: {
+          subject: {
+            invited: "Du hast eine Einladung erhalten!",
+            canceled: "Die Einladung wurde zurückgezogen!",
+          },
+          button: {
+            text: "Zur Community Plattform",
+          },
+        },
         alreadyInvited: "bereits eingeladen",
         alreadyMember: "bereits Mitglied",
         success:
           "Du hast die Organisation {{organization}} erfolgreich zu Deiner Netzwerk-Organisation eingeladen.",
+        cancelSuccess:
+          "Du hast die Einladung an die Organisation {{organization}} erfolgreich zurückgezogen.",
+      },
+      pendingInvites: {
+        headline: "Als Mitglied eingeladene Organisationen",
+        cancel: {
+          cta: "Einladung zurückziehen",
+          success:
+            "Du hast die Einladung an die Organisation {{organization}} erfolgreich zurückgezogen.",
+        },
       },
     },
   },
