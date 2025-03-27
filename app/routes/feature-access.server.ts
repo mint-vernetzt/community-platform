@@ -80,7 +80,7 @@ export async function validateFeatureAccess(
       // Feature flag not present in .env
       if (typeof feature === "undefined") {
         const message = `Feature flag for "${featureName}" not found`;
-        console.error(message);
+        console.warn(message);
         if (options.throw) {
           invariantResponse(false, message, { status: 404 });
         }
@@ -108,7 +108,7 @@ export async function validateFeatureAccess(
             abilities[featureName] = { hasAccess: true };
           } else {
             const message = `User hasn't access to feature "${featureName}"`;
-            console.error(message);
+            console.warn(message);
             if (options.throw) {
               invariantResponse(false, message, { status: 403 });
             }
