@@ -101,6 +101,11 @@ export async function addAdminToProject(options: {
     where: { slug },
     select: {
       id: true,
+      admins: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
   const profile = await prismaClient.profile.findFirst({
@@ -115,6 +120,13 @@ export async function addAdminToProject(options: {
     project !== null && profile !== null,
     locales.route.error.invariant.entitiesForRemovalNotFound,
     { status: 404 }
+  );
+  invariantResponse(
+    project.admins.some((admin) => admin.profileId === profile.id) === false,
+    locales.route.error.invariant.alreadyAdmin,
+    {
+      status: 400,
+    }
   );
 
   await prismaClient.adminOfProject.create({
@@ -214,6 +226,11 @@ export async function addAdminToProject(options: {
 //     select: {
 //       id: true,
 //       name: true,
+// admins: {
+//   select: {
+//     profileId: true,
+//   },
+// },
 //     },
 //   });
 
@@ -234,6 +251,14 @@ export async function addAdminToProject(options: {
 //       status: 404,
 //     }
 //   );
+
+// invariantResponse(
+//   project.admins.some((admin) => admin.profileId === profile.id) === false,
+//   locales.route.error.invariant.alreadyAdmin,
+//   {
+//     status: 400,
+//   }
+// );
 
 //   await prismaClient.inviteForProfileToJoinProject.upsert({
 //     where: {
@@ -326,6 +351,11 @@ export async function addAdminToProject(options: {
 //     where: { slug },
 //     select: {
 //       id: true,
+// admins: {
+//   select: {
+//     profileId: true,
+//   },
+// },
 //     },
 //   });
 //   const profile = await prismaClient.profile.findFirst({
@@ -341,6 +371,13 @@ export async function addAdminToProject(options: {
 //     locales.route.error.invariant.entitiesForInviteNotFound,
 //     { status: 404 }
 //   );
+// invariantResponse(
+//   project.admins.some((admin) => admin.profileId === profile.id) === false,
+//   locales.route.error.invariant.alreadyAdmin,
+//   {
+//     status: 400,
+//   }
+// );
 
 //   await prismaClient.inviteForProfileToJoinProject.update({
 //     where: {

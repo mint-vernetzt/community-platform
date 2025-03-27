@@ -14,6 +14,7 @@ export const locale = {
     cancelRequestFailed: "Membership request could not be withdrawn",
     inviteFailed: "Invitation could not be sent",
     cancelInviteFailed: "Invitation could not be withdrawn",
+    alreadyMember: "Organization is already a member",
   },
   content: {
     notFound: "Not found",

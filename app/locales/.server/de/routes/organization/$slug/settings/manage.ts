@@ -15,6 +15,7 @@ export const locale = {
     cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
     inviteFailed: "Einladung konnte nicht gesendet werden",
     cancelInviteFailed: "Einladung konnte nicht zurückgezogen werden",
+    alreadyMember: "Organisation ist bereits Mitglied",
   },
   content: {
     notFound: "Nicht gefunden",

@@ -440,6 +440,15 @@ export async function updateJoinNetworkRequest(options: {
                 },
               },
             },
+            networkMembers: {
+              select: {
+                networkMember: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
           },
           where: {
             id: networkId,
@@ -455,6 +464,13 @@ export async function updateJoinNetworkRequest(options: {
         invariantResponse(network !== null, locales.route.error.notFound, {
           status: 404,
         });
+        invariantResponse(
+          network.networkMembers.some((relation) => {
+            return relation.networkMember.id === organizationId;
+          }) === false,
+          locales.route.error.alreadyMember,
+          { status: 400 }
+        );
         try {
           await prismaClient.requestToNetworkToAddOrganization.upsert({
             where: {
@@ -678,6 +694,11 @@ export async function updateNetworkMemberInvite(options: {
         id: string;
       };
     }[];
+    networkMembers: {
+      networkMember: {
+        id: string;
+      };
+    }[];
   };
   organizationTypeNetwork: {
     id: string;
@@ -698,6 +719,13 @@ export async function updateNetworkMemberInvite(options: {
         invariantResponse(isNetwork !== false, locales.route.error.notAllowed, {
           status: 400,
         });
+        invariantResponse(
+          organization.networkMembers.some((relation) => {
+            return relation.networkMember.id === networkMemberId;
+          }) === false,
+          locales.route.error.alreadyMember,
+          { status: 400 }
+        );
         const networkMember = await prismaClient.organization.findFirst({
           select: {
             id: true,

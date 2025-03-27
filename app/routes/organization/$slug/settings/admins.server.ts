@@ -169,6 +169,11 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     select: {
       id: true,
       name: true,
+      admins: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
 
@@ -187,6 +192,14 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     locales.route.error.invariant.entitiesForInviteNotFound,
     {
       status: 404,
+    }
+  );
+  invariantResponse(
+    organization.admins.some((admin) => admin.profileId === profile.id) ===
+      false,
+    locales.route.error.invariant.alreadyAdmin,
+    {
+      status: 400,
     }
   );
 
@@ -281,6 +294,11 @@ export async function cancelOrganizationAdminInvitation(options: {
     where: { slug },
     select: {
       id: true,
+      admins: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
   const profile = await prismaClient.profile.findFirst({
@@ -295,6 +313,14 @@ export async function cancelOrganizationAdminInvitation(options: {
     organization !== null && profile !== null,
     locales.route.error.invariant.entitiesForInviteNotFound,
     { status: 404 }
+  );
+  invariantResponse(
+    organization.admins.some((admin) => admin.profileId === profile.id) ===
+      false,
+    locales.route.error.invariant.alreadyAdmin,
+    {
+      status: 400,
+    }
   );
 
   await prismaClient.inviteForProfileToJoinOrganization.update({

@@ -1134,17 +1134,20 @@ function Manage() {
                   listKey="network-member-search-results"
                   hideAfter={3}
                 >
-                  {searchedNetworkMembers.map((organization, index) => {
+                  {searchedNetworkMembers.map((searchedOrganization, index) => {
                     return (
                       <ListItem
-                        key={`network-member-search-result-${organization.slug}`}
-                        entity={organization}
+                        key={`network-member-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
                       >
                         {networkMembers.some((relation) => {
-                          return relation.networkMember.id === organization.id;
+                          return (
+                            relation.networkMember.id ===
+                            searchedOrganization.id
+                          );
                         }) ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
                             {
@@ -1153,7 +1156,10 @@ function Manage() {
                             }
                           </div>
                         ) : sentNetworkJoinInvites.some((relation) => {
-                            return relation.organization.id === organization.id;
+                            return (
+                              relation.organization.id ===
+                              searchedOrganization.id
+                            );
                           }) ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
                             {
@@ -1165,7 +1171,7 @@ function Manage() {
                           <Button
                             name="intent"
                             variant="outline"
-                            value={`invite-network-member-${organization.id}`}
+                            value={`invite-network-member-${searchedOrganization.id}`}
                             type="submit"
                             fullSize
                           >

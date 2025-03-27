@@ -61,13 +61,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   //   authClient
   // );
 
-  const pendingAndCurrentAdminIds = [
-    ...project.admins.map((relation) => relation.profile.id),
-    // ...pendingAdminInvites.map((invite) => invite.id),
-  ];
   const { searchedProfiles, submission } = await searchProfiles({
     searchParams: new URL(request.url).searchParams,
-    idsToExclude: pendingAndCurrentAdminIds,
     authClient,
     locales,
     mode,
@@ -372,24 +367,45 @@ function Admins() {
                 listKey="admin-search-results"
                 hideAfter={3}
               >
-                {searchedProfiles.map((profile, index) => {
+                {searchedProfiles.map((searchedProfile, index) => {
                   return (
                     <ListItem
-                      key={`admin-search-result-${profile.username}`}
-                      entity={profile}
+                      key={`admin-search-result-${searchedProfile.username}`}
+                      entity={searchedProfile}
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
                     >
-                      <Button
-                        name="intent"
-                        variant="outline"
-                        value={`add-admin-${profile.id}`}
-                        type="submit"
-                        fullSize
-                      >
-                        {locales.route.content.add.submit}
-                      </Button>
+                      {project.admins.some((admin) => {
+                        return admin.profile.id === searchedProfile.id;
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.add.alreadyAdmin}
+                        </div>
+                      ) : (
+                        // TODO: Implement this when project admin invites are implemented
+                        // pendingAdminInvites.some((relation) => {
+                        //     return (
+                        //       relation.profile.id === searchedProfile.id
+                        //     );
+                        //   }) ? (
+                        //   <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                        //     {
+                        //       locales.route.content.add
+                        //         .alreadyInvited
+                        //     }
+                        //   </div>
+                        // ) :
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`add-admin-${searchedProfile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.add.submit}
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}

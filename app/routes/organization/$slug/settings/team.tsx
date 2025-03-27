@@ -64,13 +64,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       authClient
     );
 
-  const pendingAndCurrentTeamMemberIds = [
-    ...organization.teamMembers.map((relation) => relation.profile.id),
-    ...pendingTeamMemberInvites.map((invite) => invite.id),
-  ];
   const { searchedProfiles, submission } = await searchProfiles({
     searchParams: new URL(request.url).searchParams,
-    idsToExclude: pendingAndCurrentTeamMemberIds,
     authClient,
     locales,
     mode,
@@ -289,7 +284,7 @@ function Team() {
         {/* Search Profiles To Add Section */}
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-            {locales.route.content.add.headline}
+            {locales.route.content.invite.headline}
           </h2>
           <Form
             {...getFormProps(searchForm)}
@@ -311,7 +306,7 @@ function Team() {
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchProfiles].id}>
-                {locales.route.content.add.search}
+                {locales.route.content.invite.search}
               </Input.Label>
               <Input.SearchIcon />
 
@@ -327,13 +322,13 @@ function Team() {
                 ))
               ) : (
                 <Input.HelperText>
-                  {locales.route.content.add.criteria}
+                  {locales.route.content.invite.criteria}
                 </Input.HelperText>
               )}
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
-                    {locales.route.content.add.submitSearch}
+                    {locales.route.content.invite.submitSearch}
                   </Button>
                 </noscript>
               </Input.Controls>
@@ -366,24 +361,38 @@ function Team() {
                 listKey="team-member-search-results"
                 hideAfter={3}
               >
-                {searchedProfiles.map((profile, index) => {
+                {searchedProfiles.map((searchedProfile, index) => {
                   return (
                     <ListItem
-                      key={`team-member-search-result-${profile.username}`}
-                      entity={profile}
+                      key={`team-member-search-result-${searchedProfile.username}`}
+                      entity={searchedProfile}
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
                     >
-                      <Button
-                        name="intent"
-                        variant="outline"
-                        value={`invite-team-member-${profile.id}`}
-                        type="submit"
-                        fullSize
-                      >
-                        {locales.route.content.add.submit}
-                      </Button>
+                      {organization.teamMembers.some((teamMember) => {
+                        return teamMember.profile.id === searchedProfile.id;
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.invite.alreadyMember}
+                        </div>
+                      ) : pendingTeamMemberInvites.some((invitedProfile) => {
+                          return invitedProfile.id === searchedProfile.id;
+                        }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.invite.alreadyInvited}
+                        </div>
+                      ) : (
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`invite-team-member-${searchedProfile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.invite.submit}
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}
