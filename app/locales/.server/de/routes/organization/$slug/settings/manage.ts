@@ -16,6 +16,7 @@ export const locale = {
     inviteFailed: "Einladung konnte nicht gesendet werden",
     cancelInviteFailed: "Einladung konnte nicht zurückgezogen werden",
     alreadyMember: "Organisation ist bereits Mitglied",
+    thisOrganization: "Die eigene Organisation kann nicht hinzugefügt werden",
   },
   content: {
     notFound: "Nicht gefunden",
@@ -64,6 +65,7 @@ export const locale = {
         cta: "Beitritt anfragen",
         alreadyMemberOf: "Beitritt bereits bestätigt",
         alreadyRequested: "Beitritt angefragt",
+        thisOrganization: "diese Organisation",
         noNetwork: "Kein Netzwerk",
         email: {
           subject: {
@@ -125,6 +127,7 @@ export const locale = {
         },
         alreadyInvited: "bereits eingeladen",
         alreadyMember: "bereits Mitglied",
+        thisOrganization: "diese Organisation",
         success:
           "Du hast die Organisation {{organization}} erfolgreich zu Deiner Netzwerk-Organisation eingeladen.",
         cancelSuccess:

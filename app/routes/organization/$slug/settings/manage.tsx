@@ -947,7 +947,11 @@ function Manage() {
                 networkMembers.length
               )}
             </h2>
-            <p>
+            <p
+              className={
+                isNetwork === false ? "mv-text-neutral-300" : undefined
+              }
+            >
               {decideBetweenSingularOrPlural(
                 locales.route.content.networkMembers.current.subline_one,
                 locales.route.content.networkMembers.current.subline_other,
@@ -1009,7 +1013,13 @@ function Manage() {
                 ) : null}
               </Form>
             ) : (
-              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base leading-5 mv-font-normal">
+              <div
+                className={`mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-base leading-5 mv-font-normal ${
+                  isNetwork === false
+                    ? "mv-text-neutral-300"
+                    : "mv-text-neutral-700"
+                }`}
+              >
                 {locales.route.content.networkMembers.current.blankState}
               </div>
             )}
@@ -1165,6 +1175,13 @@ function Manage() {
                             {
                               locales.route.content.networkMembers.invite
                                 .alreadyInvited
+                            }
+                          </div>
+                        ) : searchedOrganization.id === organization.id ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networkMembers.invite
+                                .thisOrganization
                             }
                           </div>
                         ) : (
@@ -1422,17 +1439,19 @@ function Manage() {
                   listKey="network-search-results"
                   hideAfter={3}
                 >
-                  {searchedNetworks.map((organization, index) => {
+                  {searchedNetworks.map((searchedOrganization, index) => {
                     return (
                       <ListItem
-                        key={`network-search-result-${organization.slug}`}
-                        entity={organization}
+                        key={`network-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
                       >
                         {memberOf.some((relation) => {
-                          return relation.network.id === organization.id;
+                          return (
+                            relation.network.id === searchedOrganization.id
+                          );
                         }) ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
                             {
@@ -1441,7 +1460,9 @@ function Manage() {
                             }
                           </div>
                         ) : sentNetworkJoinRequests.some((relation) => {
-                            return relation.network.id === organization.id;
+                            return (
+                              relation.network.id === searchedOrganization.id
+                            );
                           }) ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
                             {
@@ -1449,7 +1470,14 @@ function Manage() {
                                 .alreadyRequested
                             }
                           </div>
-                        ) : organization.types.some((relation) => {
+                        ) : searchedOrganization.id === organization.id ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networkMembers.invite
+                                .thisOrganization
+                            }
+                          </div>
+                        ) : searchedOrganization.types.some((relation) => {
                             return relation.organizationType.slug === "network";
                           }) === false ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
@@ -1462,7 +1490,7 @@ function Manage() {
                           <Button
                             name="intent"
                             variant="outline"
-                            value={`request-to-join-network-${organization.id}`}
+                            value={`request-to-join-network-${searchedOrganization.id}`}
                             type="submit"
                             fullSize
                           >

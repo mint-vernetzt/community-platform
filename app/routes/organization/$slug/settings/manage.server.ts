@@ -167,8 +167,6 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   if (organization === null) {
     return null;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id, ...rest } = organization;
   // enhance pendingNetworkRequests, networks, pendingNetworkMemberInvitations nad networkMembers with avatar
   const sentNetworkJoinRequests = organization.sentNetworkJoinRequests.map(
     (relation) => {
@@ -271,7 +269,7 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   });
 
   const enhancedOrganization = {
-    ...rest,
+    ...organization,
     memberOf,
     networkMembers,
     sentNetworkJoinRequests,
@@ -470,6 +468,13 @@ export async function updateJoinNetworkRequest(options: {
           }) === false,
           locales.route.error.alreadyMember,
           { status: 400 }
+        );
+        invariantResponse(
+          networkId !== organizationId,
+          locales.route.error.thisOrganization,
+          {
+            status: 400,
+          }
         );
         try {
           await prismaClient.requestToNetworkToAddOrganization.upsert({
@@ -725,6 +730,13 @@ export async function updateNetworkMemberInvite(options: {
           }) === false,
           locales.route.error.alreadyMember,
           { status: 400 }
+        );
+        invariantResponse(
+          networkMemberId !== organizationId,
+          locales.route.error.thisOrganization,
+          {
+            status: 400,
+          }
         );
         const networkMember = await prismaClient.organization.findFirst({
           select: {

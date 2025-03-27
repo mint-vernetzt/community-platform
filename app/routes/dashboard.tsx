@@ -45,6 +45,7 @@ import ImageCropper, {
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import {
   decideBetweenSingularOrPlural,
+  insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
@@ -56,12 +57,14 @@ import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
   getOrganizationsForCards,
-  getOrganizationsFromInvites,
+  getOrganizationMemberInvites,
   getProfileById,
   getProfilesForCards,
-  getProfilesFromRequests,
+  getOrganizationMemberRequests,
   getProjectsForCards,
   getUpcomingCanceledEvents,
+  getNetworkInvites,
+  getNetworkRequests,
 } from "./dashboard.server";
 import { getFeatureAbilities } from "./feature-access.server";
 import { disconnectImage, uploadImage } from "./profile/$username/index.server";
@@ -505,20 +508,25 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projects: await getProjectCount(),
   };
 
-  const organizationsFromInvites = await getOrganizationsFromInvites(
+  const organizationMemberInvites = await getOrganizationMemberInvites(
     authClient,
     sessionUser.id
   );
 
-  const profilesFromRequests = await getProfilesFromRequests(
+  const organizationMemberRequests = await getOrganizationMemberRequests(
     authClient,
     sessionUser.id
   );
+
+  const networkInvites = await getNetworkInvites(authClient, sessionUser.id);
+
+  const networkRequests = await getNetworkRequests(authClient, sessionUser.id);
 
   const upcomingCanceledEvents = await getUpcomingCanceledEvents(
     authClient,
     sessionUser
   );
+
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
   return {
@@ -527,8 +535,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizations,
     events,
     projects,
-    organizationsFromInvites,
-    profilesFromRequests,
+    organizationMemberInvites,
+    organizationMemberRequests,
+    networkInvites,
+    networkRequests,
     upcomingCanceledEvents,
     locales,
     imageCropperLocales,
@@ -839,13 +849,13 @@ function Dashboard() {
           </Button>
         </div>
       </section> */}
-      {/* Organization Invites Section */}
-      {loaderData.organizationsFromInvites.length > 0 && (
+      {/* Organization Member Invites Section */}
+      {loaderData.organizationMemberInvites.length > 0 && (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
             <div className="mv-flex mv-items-center mv-gap-2">
               <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
-                {loaderData.organizationsFromInvites
+                {loaderData.organizationMemberInvites
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
@@ -862,9 +872,9 @@ function Dashboard() {
                     );
                   })}
               </div>
-              {loaderData.organizationsFromInvites.length > 3 && (
+              {loaderData.organizationMemberInvites.length > 3 && (
                 <div className="mv-text-2xl mv-font-semibold mv-text-primary">
-                  +{loaderData.organizationsFromInvites.length - 3}
+                  +{loaderData.organizationMemberInvites.length - 3}
                 </div>
               )}
             </div>
@@ -874,13 +884,21 @@ function Dashboard() {
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.invites.headline_one,
                     loaderData.locales.route.content.invites.headline_other,
-                    loaderData.organizationsFromInvites.length
+                    loaderData.organizationMemberInvites.length
                   ),
-                  { count: loaderData.organizationsFromInvites.length }
+                  { count: loaderData.organizationMemberInvites.length }
                 )}
               </h3>
               <p className="mv-text-normal mv-text-sm">
-                {loaderData.locales.route.content.invites.description}
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.invites.description,
+                  [
+                    <span
+                      key="highlight-invite-description"
+                      className="mv-font-semibold"
+                    />,
+                  ]
+                )}
               </p>
             </div>
             <Button as="a" href="/my/organizations">
@@ -889,13 +907,13 @@ function Dashboard() {
           </div>
         </section>
       )}
-      {/* Organization Requests Section */}
-      {loaderData.profilesFromRequests.length > 0 && (
+      {/* Organization Member Requests Section */}
+      {loaderData.organizationMemberRequests.length > 0 && (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
             <div className="mv-flex mv-items-center mv-gap-2">
               <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
-                {loaderData.profilesFromRequests
+                {loaderData.organizationMemberRequests
                   .slice(0, 3)
                   .map((profile, index) => {
                     return (
@@ -912,9 +930,9 @@ function Dashboard() {
                     );
                   })}
               </div>
-              {loaderData.profilesFromRequests.length > 3 && (
+              {loaderData.organizationMemberRequests.length > 3 && (
                 <div className="mv-text-2xl mv-font-semibold mv-text-primary">
-                  +{loaderData.profilesFromRequests.length - 3}
+                  +{loaderData.organizationMemberRequests.length - 3}
                 </div>
               )}
             </div>
@@ -924,17 +942,145 @@ function Dashboard() {
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.requests.headline_one,
                     loaderData.locales.route.content.requests.headline_other,
-                    loaderData.profilesFromRequests.length
+                    loaderData.organizationMemberRequests.length
                   ),
-                  { count: loaderData.profilesFromRequests.length }
+                  { count: loaderData.organizationMemberRequests.length }
                 )}
               </h3>
               <p className="mv-text-normal mv-text-sm">
-                {loaderData.locales.route.content.requests.description}
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.requests.description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="mv-font-semibold"
+                    />,
+                  ]
+                )}
               </p>
             </div>
             <Button as="a" href="/my/organizations">
               {loaderData.locales.route.content.requests.linkDescription}
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Network Invites Section */}
+      {loaderData.networkInvites.length > 0 && (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+            <div className="mv-flex mv-items-center mv-gap-2">
+              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                {loaderData.networkInvites
+                  .slice(0, 3)
+                  .map((organization, index) => {
+                    return (
+                      <div
+                        key={`network-invite-${organization.slug}-${index}`}
+                        className="mv-w-[72px] mv-h-[72px]"
+                      >
+                        <Avatar
+                          to={`/organization/${organization.slug}`}
+                          size="full"
+                          {...organization}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+              {loaderData.networkInvites.length > 3 && (
+                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                  +{loaderData.networkInvites.length - 3}
+                </div>
+              )}
+            </div>
+            <div className="mv-flex-1 mv-text-primary">
+              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.networkInvites
+                      .headline_one,
+                    loaderData.locales.route.content.networkInvites
+                      .headline_other,
+                    loaderData.networkInvites.length
+                  ),
+                  { count: loaderData.networkInvites.length }
+                )}
+              </h3>
+              <p className="mv-text-normal mv-text-sm">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.networkInvites.description,
+                  [
+                    <span
+                      key="highlight-invite-description"
+                      className="mv-font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button as="a" href="/my/organizations">
+              {loaderData.locales.route.content.networkInvites.linkDescription}
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Network Requests Section */}
+      {loaderData.networkRequests.length > 0 && (
+        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
+            <div className="mv-flex mv-items-center mv-gap-2">
+              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                {loaderData.networkRequests
+                  .slice(0, 3)
+                  .map((organization, index) => {
+                    return (
+                      <div
+                        key={`network-request-${organization.slug}-${index}`}
+                        className="mv-w-[72px] mv-h-[72px]"
+                      >
+                        <Avatar
+                          to={`/organization/${organization.slug}`}
+                          size="full"
+                          {...organization}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+              {loaderData.networkRequests.length > 3 && (
+                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                  +{loaderData.networkRequests.length - 3}
+                </div>
+              )}
+            </div>
+            <div className="mv-flex-1 mv-text-primary">
+              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.networkRequests
+                      .headline_one,
+                    loaderData.locales.route.content.networkRequests
+                      .headline_other,
+                    loaderData.networkRequests.length
+                  ),
+                  { count: loaderData.networkRequests.length }
+                )}
+              </h3>
+              <p className="mv-text-normal mv-text-sm">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.networkRequests.description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="mv-font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button as="a" href="/my/organizations">
+              {loaderData.locales.route.content.networkRequests.linkDescription}
             </Button>
           </div>
         </section>
