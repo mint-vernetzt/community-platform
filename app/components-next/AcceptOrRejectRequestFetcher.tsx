@@ -19,7 +19,7 @@ export function AcceptOrRejectRequestFetcher(props: {
     <fetcher.Form
       preventScrollReset
       method="post"
-      className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+      className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
       action="/my/organizations/requests"
     >
       <input
@@ -44,6 +44,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         name="intent"
         value={AddToOrganizationRequest.Reject}
         aria-describedby={`requests-headline tab-description-${tabKey} reject-request-${profileId}-${organizationId} requests-subline`}
+        className="mv-text-wrap @sm:mv-text-nowrap"
       >
         {locales.route.requests.decline}
       </Button>
@@ -54,6 +55,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         name="intent"
         value={AddToOrganizationRequest.Accept}
         aria-describedby={`requests-headline tab-description-${tabKey} accept-request-${profileId}-${organizationId} requests-subline`}
+        className="mv-text-wrap @sm:mv-text-nowrap"
       >
         {locales.route.requests.accept}
       </Button>

@@ -299,10 +299,8 @@ export default function MyOrganizations() {
           }
         )?.name
   );
-  let requestsCount = 0;
   const requests = loaderData.adminOrganizationsWithPendingRequests.map(
     (organization) => {
-      requestsCount += organization.profileJoinRequests.length;
       return {
         organization: organization,
         active: activeRequestsTab === organization.name,
@@ -622,7 +620,59 @@ export default function MyOrganizations() {
               />
             </div>
           </Section>
-          {/* Invites Section */}
+          {/* Add Organization Section */}
+          <Section>
+            <Section.Headline>
+              {locales.route.addOrganization.headline}
+            </Section.Headline>
+            <Section.Subline>
+              {locales.route.addOrganization.subline}
+            </Section.Subline>
+            <AddOrganization
+              organizations={loaderData.organizationsToAdd}
+              memberOrganizations={loaderData.organizations}
+              pendingRequestsToOrganizations={
+                loaderData.pendingRequestsToOrganizations
+              }
+              invites={loaderData.invites}
+              createRequestFetcher={createRequestFetcher}
+              locales={locales}
+            />
+            {loaderData.pendingRequestsToOrganizations.length > 0 ? (
+              <>
+                <hr />
+                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+                  {locales.route.requests.headline}
+                </h4>
+                <ListContainer
+                  listKey="pending-requests-to-organizations"
+                  hideAfter={3}
+                  locales={locales}
+                >
+                  {loaderData.pendingRequestsToOrganizations.map(
+                    (organization, index) => {
+                      return (
+                        <ListItem
+                          key={`cancel-request-from-${organization.id}`}
+                          listIndex={index}
+                          entity={organization}
+                          hideAfter={3}
+                          locales={locales}
+                        >
+                          <CancelRequestFetcher
+                            fetcher={cancelRequestFetcher}
+                            organizationId={organization.id}
+                            locales={locales}
+                          />
+                        </ListItem>
+                      );
+                    }
+                  )}
+                </ListContainer>
+              </>
+            ) : null}
+          </Section>
+          {/* Organization team member and admin invites section */}
           {invites.teamMember.invites.length > 0 ||
           invites.admin.invites.length > 0 ? (
             <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
@@ -718,7 +768,8 @@ export default function MyOrganizations() {
               })}
             </section>
           ) : null}
-          {/* Requests Section */}
+          {/* TODO: Network invites section */}
+          {/* Organization team member requests section */}
           {requests.length > 0 ? (
             <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
               <div className="mv-flex mv-flex-col mv-gap-2">
@@ -732,14 +783,7 @@ export default function MyOrganizations() {
                   id="requests-subline"
                   className="mv-text-sm mv-text-neutral-700"
                 >
-                  {requestsCount === 1
-                    ? locales.route.requests.singleCountSubline
-                    : insertParametersIntoLocale(
-                        locales.route.requests.subline,
-                        {
-                          count: requestsCount,
-                        }
-                      )}
+                  {locales.route.requests.subline}
                 </p>
               </div>
               <TabBar>
@@ -808,58 +852,7 @@ export default function MyOrganizations() {
               })}
             </section>
           ) : null}
-          {/* Add Organization Section */}
-          <Section>
-            <Section.Headline>
-              {locales.route.addOrganization.headline}
-            </Section.Headline>
-            <Section.Subline>
-              {locales.route.addOrganization.subline}
-            </Section.Subline>
-            <AddOrganization
-              organizations={loaderData.organizationsToAdd}
-              memberOrganizations={loaderData.organizations}
-              pendingRequestsToOrganizations={
-                loaderData.pendingRequestsToOrganizations
-              }
-              invites={loaderData.invites}
-              createRequestFetcher={createRequestFetcher}
-              locales={locales}
-            />
-            {loaderData.pendingRequestsToOrganizations.length > 0 ? (
-              <>
-                <hr />
-                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
-                  {locales.route.requests.headline}
-                </h4>
-                <ListContainer
-                  listKey="pending-requests-to-organizations"
-                  hideAfter={3}
-                  locales={locales}
-                >
-                  {loaderData.pendingRequestsToOrganizations.map(
-                    (organization, index) => {
-                      return (
-                        <ListItem
-                          key={`cancel-request-from-${organization.id}`}
-                          listIndex={index}
-                          entity={organization}
-                          hideAfter={3}
-                          locales={locales}
-                        >
-                          <CancelRequestFetcher
-                            fetcher={cancelRequestFetcher}
-                            organizationId={organization.id}
-                            locales={locales}
-                          />
-                        </ListItem>
-                      );
-                    }
-                  )}
-                </ListContainer>
-              </>
-            ) : null}
-          </Section>
+          {/* TODO: Network requests section */}
           {/* Team and Admin Organizations Section */}
           {organizations.teamMember.organizations.length > 0 ||
           organizations.admin.organizations.length > 0 ? (
@@ -912,24 +905,31 @@ export default function MyOrganizations() {
               <div className="-mv-mx-4">
                 {Object.entries(organizations).map(([key, value]) => {
                   return value.active && value.organizations.length > 0 ? (
-                    <CardContainer
-                      key={`${key}-organizations`}
-                      type="multi row"
-                    >
-                      {value.organizations.map((organization) => {
-                        return (
-                          <OrganizationCard
-                            key={`${key}-organization-${organization.id}`}
-                            organization={organization}
-                            menu={{
-                              mode: key === "admin" ? "admin" : "teamMember",
-                              quitOrganizationFetcher: quitOrganizationFetcher,
-                            }}
-                            locales={locales}
-                          />
-                        );
-                      })}
-                    </CardContainer>
+                    <div key={`${key}-organizations`}>
+                      <p className="mv-text-sm mv-text-neutral-700 mv-mx-4 mv-mb-6">
+                        {
+                          locales.route.organizations.subline[
+                            key as keyof typeof organizations
+                          ]
+                        }
+                      </p>
+                      <CardContainer type="multi row">
+                        {value.organizations.map((organization) => {
+                          return (
+                            <OrganizationCard
+                              key={`${key}-organization-${organization.id}`}
+                              organization={organization}
+                              menu={{
+                                mode: key === "admin" ? "admin" : "teamMember",
+                                quitOrganizationFetcher:
+                                  quitOrganizationFetcher,
+                              }}
+                              locales={locales}
+                            />
+                          );
+                        })}
+                      </CardContainer>
+                    </div>
                   ) : null;
                 })}
               </div>

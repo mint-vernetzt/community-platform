@@ -1073,7 +1073,6 @@ function Manage() {
                 >
                   {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
-                {/* TODO: Replace search icon when new one is usable */}
                 <Input.SearchIcon />
 
                 {typeof searchNetworkMembersFields[SearchNetworkMembers]
@@ -1384,7 +1383,6 @@ function Manage() {
                 <Input.Label htmlFor={searchNetworksFields[SearchNetworks].id}>
                   {locales.route.content.networks.requestToJoin.label}
                 </Input.Label>
-                {/* TODO: Replace search icon when new one is usable */}
                 <Input.SearchIcon />
 
                 {typeof searchNetworksFields[SearchNetworks].errors !==

@@ -15,7 +15,7 @@ export function AcceptOrRejectInviteFetcher(props: {
     <inviteFetcher.Form
       id={`invite-form-${organizationId}`}
       method="post"
-      className="mv-grid mv-grid-cols-2 mv-grid-rows-1 mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
+      className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit"
       preventScrollReset
     >
       <input
@@ -40,6 +40,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         name="intent"
         value="rejected"
         aria-describedby={`invites-headline tab-description-${tabKey} reject-invite-${organizationId} invites-subline`}
+        className="mv-text-wrap @sm:mv-text-nowrap"
       >
         {locales.route.invites.decline}
       </Button>
@@ -50,6 +51,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         name="intent"
         value="accepted"
         aria-describedby={`invites-headline tab-description-${tabKey} accept-invite-${organizationId} invites-subline`}
+        className="mv-text-wrap @sm:mv-text-nowrap"
       >
         {locales.route.invites.accept}
       </Button>

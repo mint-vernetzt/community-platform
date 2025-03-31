@@ -33,15 +33,15 @@ export const locale = {
     less: "Show less information",
   },
   invites: {
-    headline: "Invites",
+    headline: "Invites from organizations",
     subline:
-      "An admin will be notified as soon as you respond to the invitation.",
+      "If you accept invitations, you will become a team member or admin of the organization.",
     tabbar: {
       teamMember: "Team Member",
       admin: "Admin",
     },
-    decline: "Decline",
-    accept: "Accept",
+    decline: "Decline invitation",
+    accept: "Accept invitation",
     more: "Show {{count}} more",
     less: "Show {{count}} less",
   },
@@ -63,15 +63,17 @@ export const locale = {
       custom:
         "The data could not be saved. Please try again or contact the support team.",
     },
+    label: "Organization name",
     placeholder: "Search for organization...",
     helperText: "At least 3 letters.",
+    searchCta: "Search",
   },
   requests: {
-    headline: "Join Requests",
-    subline: "You have {{count}} new membership requests.",
-    singleCountSubline: "You have 1 new membership request.",
-    decline: "Decline",
-    accept: "Add",
+    headline: "Membership requests to your organizations",
+    subline:
+      "If you confirm membership requests, people will be visible as team members.",
+    decline: "Decline membership",
+    accept: "Accept membership",
     createRequest:
       "You have requested to join {{organization.name}}. You will be notified as soon as an admin responds to your request.",
     cancelRequest:
@@ -90,6 +92,10 @@ export const locale = {
     tabbar: {
       teamMember: "Team Member",
       admin: "Admin",
+    },
+    subline: {
+      teamMember: "You are assigned to these organizations as a team member.",
+      admin: "You are assigned to these organizations as an administrator.",
     },
   },
   alerts: {

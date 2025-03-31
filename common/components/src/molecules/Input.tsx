@@ -48,6 +48,7 @@ function InputLabel(props: React.PropsWithChildren<InputLabelProps>) {
   );
 }
 
+// TODO: Replace search icon when new one is usable
 function InputSearchIcon() {
   return (
     <svg

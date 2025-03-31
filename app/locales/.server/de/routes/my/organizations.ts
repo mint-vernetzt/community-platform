@@ -33,15 +33,15 @@ export const locale = {
     less: "Infos einklappen",
   },
   invites: {
-    headline: "Einladungen",
+    headline: "Einladungen von Organisationen",
     subline:
-      "Ein Admin wird benachrichtigt, sobald Du Dich zu der Einladung äußerst.",
+      "Wenn Du Einladungen annimmst, wirst Du Teammitglied bzw. Admin der Organisation.",
     tabbar: {
       teamMember: "Teammitglied",
       admin: "Admin",
     },
-    decline: "Ablehnen",
-    accept: "Annehmen",
+    decline: "Einladung ablehnen",
+    accept: "Einladung annehmen",
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
   },
@@ -63,15 +63,17 @@ export const locale = {
       custom:
         "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
     },
+    label: "Organisationsname",
     placeholder: "Organisation suchen...",
     helperText: "Mindestens 3 Buchstaben.",
+    searchCta: "Suchen",
   },
   requests: {
-    headline: "Beitrittsanfragen",
-    subline: "Du hast {{count}} neue Beitrittsanfragen.",
-    singleCountSubline: "Du hast 1 neue Beitrittsanfrage.",
-    decline: "Ablehnen",
-    accept: "Hinzufügen",
+    headline: "Beitrittsanfragen an Deine Organisationen",
+    subline:
+      "Wenn Du Anfragen bestätigst, werden Personen als Teammitglied sichtbar.",
+    decline: "Beitritt ablehnen",
+    accept: "Beitritt annehmen",
     createRequest:
       "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
     cancelRequest:
@@ -90,6 +92,10 @@ export const locale = {
     tabbar: {
       teamMember: "Teammitglied",
       admin: "Admin",
+    },
+    subline: {
+      teamMember: "Diesen Organisationen bist Du als Teammitglied zugeordnet.",
+      admin: "Diesen Organisationen bist Du als Administrator:in zugeordnet.",
     },
   },
   alerts: {

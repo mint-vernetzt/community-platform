@@ -20,6 +20,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { ListContainer } from "./ListContainer";
 import { ListItem } from "./ListItem";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 
 export function AddOrganization(props: {
   organizations?: Awaited<ReturnType<typeof getOrganizationsToAdd>>;
@@ -83,32 +84,36 @@ export function AddOrganization(props: {
         onChange={handleFormActions}
         onSubmit={handleFormActions}
       >
+        {isHydrated === false ? <input type="hidden" name="no-js" /> : null}
         <div className="mv-w-full">
-          <div className="mv-relative">
-            <div className="mv-absolute mv-left-3.5 mv-top-3.5 mv-text-neutral-700">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-                <path
-                  fill="currentColor"
-                  fillRule="nonzero"
-                  d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1ZM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0Z"
-                />
-              </svg>
-            </div>
-            {isHydrated === false ? <input type="hidden" name="no-js" /> : null}
-            <input
-              className="mv-w-full mv-font-semibold mv-bg-white mv-border-2 mv-border-gray-100 mv-rounded-lg mv-pl-10 mv-pr-4 mv-py-2 mv-h-11"
-              placeholder={locales.route.addOrganization.placeholder}
-              name={GetOrganizationsToAdd.SearchParam}
-              minLength={3}
-              defaultValue={
-                searchParams.get(GetOrganizationsToAdd.SearchParam) ?? ""
-              }
-              autoComplete="off"
-            />
-            <div className="mv-text-sm mv-mt-2 mv-text-gray-700">
+          <Input
+            id="request-to-add-to-organization"
+            placeholder={locales.route.addOrganization.placeholder}
+            name={GetOrganizationsToAdd.SearchParam}
+            minLength={3}
+            defaultValue={
+              searchParams.get(GetOrganizationsToAdd.SearchParam) ?? ""
+            }
+            autoComplete="off"
+          >
+            <Input.Label htmlFor="request-to-add-to-organization">
+              {locales.route.addOrganization.label}
+            </Input.Label>
+            <Input.SearchIcon />
+
+            <Input.HelperText>
               {locales.route.addOrganization.helperText}
-            </div>
-          </div>
+            </Input.HelperText>
+            {isHydrated === false ? (
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.addOrganization.searchCta}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            ) : null}
+          </Input>
         </div>
       </getOrganizationsToAddFetcher.Form>
       {searchQuery.length >= 3 &&
