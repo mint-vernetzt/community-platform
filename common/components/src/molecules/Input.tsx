@@ -1,4 +1,3 @@
-import { type FormMetadata } from "@conform-to/react-v1";
 import classNames from "classnames";
 import React from "react";
 import { Link } from "react-router";
@@ -65,11 +64,7 @@ function InputSearchIcon() {
   );
 }
 
-function InputClearIcon(props: {
-  formMetaData: FormMetadata;
-  disabled?: boolean;
-}) {
-  const { formMetaData, disabled = false } = props;
+function InputClearIcon(props: React.HTMLProps<HTMLButtonElement>) {
   const isHydrated = useHydrated();
   const clearIcon = (
     <svg
@@ -87,13 +82,7 @@ function InputClearIcon(props: {
     </svg>
   );
   return isHydrated === true ? (
-    <button
-      type="reset"
-      disabled={disabled}
-      onClick={() => {
-        setTimeout(() => formMetaData.reset(), 0);
-      }}
-    >
+    <button {...props} type="reset">
       {clearIcon}
     </button>
   ) : (

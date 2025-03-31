@@ -7,11 +7,11 @@ import {
   Form,
   redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
-  useSubmit,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -180,7 +180,7 @@ function Team() {
     project,
     ownOrganizationSuggestions,
     // pendingResponsibleOrganizationInvites,
-    searchedOrganizations,
+    searchedOrganizations: loaderSearchedOrganizations,
     submission: loaderSubmission,
     locales,
     currentTimestamp,
@@ -189,9 +189,13 @@ function Team() {
 
   const location = useLocation();
   const navigation = useNavigation();
-  const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedOrganizations =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedOrganizations
+      : loaderSearchedOrganizations;
   const [searchForm, searchFields] = useForm({
     id: "search-organizations",
     defaultValue: {
@@ -405,13 +409,15 @@ function Team() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.addOther.headline}
           </h2>
-          <Form
+          <searchFetcher.Form
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                submit(event.currentTarget, { preventScrollReset: true });
+                searchFetcher.submit(event.currentTarget, {
+                  preventScrollReset: true,
+                });
               }
             }}
             autoComplete="off"
@@ -445,6 +451,16 @@ function Team() {
                   {locales.route.content.addOwn.criteria}
                 </Input.HelperText>
               )}
+              <Input.ClearIcon
+                onClick={() => {
+                  setTimeout(() => {
+                    searchForm.reset();
+                    searchFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }, 0);
+                }}
+              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
@@ -469,7 +485,7 @@ function Team() {
                 })}
               </div>
             ) : null}
-          </Form>
+          </searchFetcher.Form>
           {searchedOrganizations.length > 0 ? (
             <Form
               {...getFormProps(addResponsibleOrganizationForm)}

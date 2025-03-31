@@ -1101,7 +1101,14 @@ function Manage() {
                   </Input.HelperText>
                 )}
                 <Input.ClearIcon
-                  formMetaData={searchNetworksForm}
+                  onClick={() => {
+                    setTimeout(() => {
+                      searchNetworkMembersForm.reset();
+                      searchNetworkMembersFetcher.submit(null, {
+                        preventScrollReset: true,
+                      });
+                    }, 0);
+                  }}
                   disabled={isNetwork === false}
                 />
                 {isHydrated === false ? (
@@ -1401,7 +1408,17 @@ function Manage() {
                     {locales.route.content.networks.requestToJoin.helper}
                   </Input.HelperText>
                 )}
-                <Input.ClearIcon formMetaData={searchNetworkMembersForm} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    setTimeout(() => {
+                      searchNetworksForm.reset();
+                      searchNetworksFetcher.submit(null, {
+                        preventScrollReset: true,
+                      });
+                    }, 0);
+                  }}
+                  disabled={isNetwork === false}
+                />
                 {isHydrated === false ? (
                   <Input.Controls>
                     <noscript>

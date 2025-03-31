@@ -4,18 +4,16 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
-import {
   Form,
+  redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
-  useSubmit,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
@@ -166,7 +164,7 @@ function Admins() {
   const {
     project,
     // pendingAdminInvites,
-    searchedProfiles,
+    searchedProfiles: loaderSearchedProfiles,
     submission: loaderSubmission,
     locales,
     currentTimestamp,
@@ -175,11 +173,15 @@ function Admins() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
 
-  const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
   const location = useLocation();
 
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedProfiles =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedProfiles
+      : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
@@ -292,13 +294,15 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.add.headline}
           </h2>
-          <Form
+          <searchFetcher.Form
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                submit(event.currentTarget, { preventScrollReset: true });
+                searchFetcher.submit(event.currentTarget, {
+                  preventScrollReset: true,
+                });
               }
             }}
             autoComplete="off"
@@ -331,6 +335,16 @@ function Admins() {
                   {locales.route.content.add.criteria}
                 </Input.HelperText>
               )}
+              <Input.ClearIcon
+                onClick={() => {
+                  setTimeout(() => {
+                    searchForm.reset();
+                    searchFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }, 0);
+                }}
+              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
@@ -355,7 +369,7 @@ function Admins() {
                 })}
               </div>
             ) : null}
-          </Form>
+          </searchFetcher.Form>
           {searchedProfiles.length > 0 ? (
             <Form
               {...getFormProps(addAdminForm)}
