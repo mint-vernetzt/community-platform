@@ -381,9 +381,8 @@ export function flattenOrganizationRelations(
 
   return { adminOrganizations, teamMemberOrganizations };
 }
-// TODO: Get invites -> transaction of two queries -> getInvitesForProfile(sessionUser.id) -> returns {adminInvites, teamMemberInvites}
-// Select fields: slug, logo, name, organizationType
-export async function getOrganizationInvitesForProfile(id: string) {
+
+export async function getOrganizationMemberInvites(id: string) {
   const [adminInvites, teamMemberInvites] = await prismaClient.$transaction([
     prismaClient.inviteForProfileToJoinOrganization.findMany({
       select: {
@@ -456,9 +455,9 @@ export async function getOrganizationInvitesForProfile(id: string) {
   return { adminInvites, teamMemberInvites };
 }
 
-export function addImageUrlToInvites(
+export function addImageUrlToOrganizationMemberInvites(
   authClient: SupabaseClient,
-  invites: Awaited<ReturnType<typeof getOrganizationInvitesForProfile>>
+  invites: Awaited<ReturnType<typeof getOrganizationMemberInvites>>
 ) {
   const adminInvites = invites.adminInvites.map((invite) => {
     let logo = invite.organization.logo;
@@ -625,7 +624,7 @@ export async function updateOrganizationInvite(options: {
   return invite;
 }
 
-export async function getAdminOrganizationsWithPendingRequests(id: string) {
+export async function getOrganizationMemberRequests(id: string) {
   const organizations = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -679,10 +678,10 @@ export async function getAdminOrganizationsWithPendingRequests(id: string) {
   return enhancedOrganizations;
 }
 
-export function addImageUrlToRequests(
+export function addImageUrlToOrganizationMemberRequests(
   authClient: SupabaseClient,
   organizationsWithRequests: Awaited<
-    ReturnType<typeof getAdminOrganizationsWithPendingRequests>
+    ReturnType<typeof getOrganizationMemberRequests>
   >
 ) {
   const enhancedOrganizations = organizationsWithRequests.map(
@@ -724,6 +723,224 @@ export function addImageUrlToRequests(
       return {
         ...organization,
         profileJoinRequests,
+      };
+    }
+  );
+
+  return enhancedOrganizations;
+}
+
+export async function getNetworkRequests(id: string) {
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+      receivedNetworkJoinRequests: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          status: true,
+        },
+      },
+    },
+    where: {
+      receivedNetworkJoinRequests: {
+        some: {
+          status: "pending",
+        },
+      },
+      admins: {
+        some: {
+          profileId: id,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedOrganizations = organizations.map((organization) => {
+    const receivedNetworkJoinRequests =
+      organization.receivedNetworkJoinRequests.filter((relation) => {
+        return relation.status === "pending";
+      });
+    return {
+      ...organization,
+      receivedNetworkJoinRequests,
+    };
+  });
+
+  return enhancedOrganizations;
+}
+
+export function addImageUrlToNetworkRequests(
+  authClient: SupabaseClient,
+  organizationsWithNetworkRequests: Awaited<
+    ReturnType<typeof getNetworkRequests>
+  >
+) {
+  const enhancedOrganizations = organizationsWithNetworkRequests.map(
+    (organization) => {
+      const receivedNetworkJoinRequests =
+        organization.receivedNetworkJoinRequests.map((relation) => {
+          let logo = relation.organization.logo;
+          let blurredLogo;
+          if (logo !== null) {
+            const publicURL = getPublicURL(authClient, logo);
+            if (publicURL !== null) {
+              logo = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Organization.ListItem.Logo.width,
+                  height: ImageSizes.Organization.ListItem.Logo.height,
+                },
+              });
+              blurredLogo = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+                  height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+                },
+                blur: BlurFactor,
+              });
+            }
+          }
+          return {
+            ...relation,
+            organization: {
+              ...relation.organization,
+              logo,
+              blurredLogo,
+            },
+          };
+        });
+      return {
+        ...organization,
+        receivedNetworkJoinRequests,
+      };
+    }
+  );
+
+  return enhancedOrganizations;
+}
+
+export async function getNetworkInvites(id: string) {
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+      receivedNetworkJoinInvites: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          status: true,
+        },
+      },
+    },
+    where: {
+      receivedNetworkJoinInvites: {
+        some: {
+          status: "pending",
+        },
+      },
+      admins: {
+        some: {
+          profileId: id,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedOrganizations = organizations.map((organization) => {
+    const receivedNetworkJoinInvites =
+      organization.receivedNetworkJoinInvites.filter((relation) => {
+        return relation.status === "pending";
+      });
+    return {
+      ...organization,
+      receivedNetworkJoinInvites,
+    };
+  });
+
+  return enhancedOrganizations;
+}
+
+export function addImageUrlToNetworkInvites(
+  authClient: SupabaseClient,
+  organizationsWithNetworkInvites: Awaited<ReturnType<typeof getNetworkInvites>>
+) {
+  const enhancedOrganizations = organizationsWithNetworkInvites.map(
+    (organization) => {
+      const receivedNetworkJoinInvites =
+        organization.receivedNetworkJoinInvites.map((relation) => {
+          let logo = relation.organization.logo;
+          let blurredLogo;
+          if (logo !== null) {
+            const publicURL = getPublicURL(authClient, logo);
+            if (publicURL !== null) {
+              logo = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Organization.ListItem.Logo.width,
+                  height: ImageSizes.Organization.ListItem.Logo.height,
+                },
+              });
+              blurredLogo = getImageURL(publicURL, {
+                resize: {
+                  type: "fill",
+                  width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+                  height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+                },
+                blur: BlurFactor,
+              });
+            }
+          }
+          return {
+            ...relation,
+            organization: {
+              ...relation.organization,
+              logo,
+              blurredLogo,
+            },
+          };
+        });
+      return {
+        ...organization,
+        receivedNetworkJoinInvites,
       };
     }
   );

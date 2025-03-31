@@ -21,7 +21,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
-export const AddToOrganizationRequest: {
+export const AddMemberToOrganizationRequest: {
   Create: "createRequest";
   Cancel: "cancelRequest";
   Reject: "rejectRequest";
@@ -41,12 +41,12 @@ export const schema = z.object({
     .string()
     .refine(
       (intent) =>
-        intent === AddToOrganizationRequest.Create ||
-        intent === AddToOrganizationRequest.Cancel ||
-        intent === AddToOrganizationRequest.Reject ||
-        intent === AddToOrganizationRequest.Accept,
+        intent === AddMemberToOrganizationRequest.Create ||
+        intent === AddMemberToOrganizationRequest.Cancel ||
+        intent === AddMemberToOrganizationRequest.Reject ||
+        intent === AddMemberToOrganizationRequest.Accept,
       {
-        message: `Only ${AddToOrganizationRequest.Create}, ${AddToOrganizationRequest.Cancel}, ${AddToOrganizationRequest.Reject} and ${AddToOrganizationRequest.Accept} are valid intents.`,
+        message: `Only ${AddMemberToOrganizationRequest.Create}, ${AddMemberToOrganizationRequest.Cancel}, ${AddMemberToOrganizationRequest.Reject} and ${AddMemberToOrganizationRequest.Accept} are valid intents.`,
       }
     ),
 });
@@ -73,7 +73,7 @@ export async function action(args: ActionFunctionArgs) {
   let organization;
   let profile;
 
-  if (submission.value.intent === AddToOrganizationRequest.Create) {
+  if (submission.value.intent === AddMemberToOrganizationRequest.Create) {
     const result = await createRequestToOrganization(
       submission.value.organizationId,
       sessionUser.id
@@ -130,7 +130,9 @@ export async function action(args: ActionFunctionArgs) {
       console.error({ error });
       invariantResponse(false, "Server Error: Mailer", { status: 500 });
     }
-  } else if (submission.value.intent === AddToOrganizationRequest.Cancel) {
+  } else if (
+    submission.value.intent === AddMemberToOrganizationRequest.Cancel
+  ) {
     const result = await cancelRequestToOrganization(
       submission.value.organizationId,
       sessionUser.id
@@ -169,7 +171,7 @@ export async function action(args: ActionFunctionArgs) {
       organization: { name: string };
     };
 
-    if (submission.value.intent === AddToOrganizationRequest.Reject) {
+    if (submission.value.intent === AddMemberToOrganizationRequest.Reject) {
       result = await rejectRequestFromProfile(
         submission.value.organizationId,
         profileId
@@ -241,13 +243,13 @@ export async function action(args: ActionFunctionArgs) {
   return redirectWithToast(redirectURL.toString(), {
     key: `${submission.value.intent}-${Date.now()}`,
     level:
-      submission.value.intent === AddToOrganizationRequest.Create ||
-      submission.value.intent === AddToOrganizationRequest.Accept
+      submission.value.intent === AddMemberToOrganizationRequest.Create ||
+      submission.value.intent === AddMemberToOrganizationRequest.Accept
         ? "positive"
         : "neutral",
     message:
-      submission.value.intent === AddToOrganizationRequest.Create ||
-      submission.value.intent === AddToOrganizationRequest.Cancel
+      submission.value.intent === AddMemberToOrganizationRequest.Create ||
+      submission.value.intent === AddMemberToOrganizationRequest.Cancel
         ? insertParametersIntoLocale(
             locales.route.requests[submission.value.intent],
             {

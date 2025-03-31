@@ -31,20 +31,24 @@ import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
 import {
-  addImageUrlToInvites,
+  addImageUrlToOrganizationMemberInvites,
   addImageUrlToOrganizations,
-  addImageUrlToRequests,
+  addImageUrlToOrganizationMemberRequests,
   flattenOrganizationRelations,
-  getAdminOrganizationsWithPendingRequests,
-  getOrganizationInvitesForProfile,
+  getOrganizationMemberRequests,
+  getOrganizationMemberInvites,
   getOrganizationsFromProfile,
   getPendingOrganizationInvite,
   updateOrganizationInvite,
+  getNetworkRequests,
+  addImageUrlToNetworkInvites,
+  getNetworkInvites,
+  addImageUrlToNetworkRequests,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { type action as quitAction } from "./organizations/quit";
 import {
-  AddToOrganizationRequest,
+  AddMemberToOrganizationRequest,
   type action as requestsAction,
 } from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
@@ -78,27 +82,48 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations
   );
 
-  const invites = await getOrganizationInvitesForProfile(sessionUser.id);
-  const enhancedInvites = addImageUrlToInvites(authClient, invites);
+  const organizationMemberInvites = await getOrganizationMemberInvites(
+    sessionUser.id
+  );
+  const enhancedOrganizationMemberInvites =
+    addImageUrlToOrganizationMemberInvites(
+      authClient,
+      organizationMemberInvites
+    );
 
   const pendingRequestsToOrganizations =
     await getPendingRequestsToOrganizations(sessionUser.id, authClient);
   const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
 
-  const adminOrganizationsWithPendingRequests =
-    await getAdminOrganizationsWithPendingRequests(sessionUser.id);
-  const enhancedAdminOrganizationsWithPendingRequests = addImageUrlToRequests(
+  const organizationMemberRequests = await getOrganizationMemberRequests(
+    sessionUser.id
+  );
+  const enhancedOrganizationMemberRequests =
+    addImageUrlToOrganizationMemberRequests(
+      authClient,
+      organizationMemberRequests
+    );
+
+  const networkInvites = await getNetworkInvites(sessionUser.id);
+  const enhancedNetworkInvites = addImageUrlToNetworkInvites(
     authClient,
-    adminOrganizationsWithPendingRequests
+    networkInvites
+  );
+
+  const networkRequests = await getNetworkRequests(sessionUser.id);
+  const enhancedNetworkRequests = addImageUrlToNetworkRequests(
+    authClient,
+    networkRequests
   );
 
   return {
-    organizations: flattenedOrganizations,
-    invites: enhancedInvites,
     organizationsToAdd,
     pendingRequestsToOrganizations,
-    adminOrganizationsWithPendingRequests:
-      enhancedAdminOrganizationsWithPendingRequests,
+    organizationMemberInvites: enhancedOrganizationMemberInvites,
+    networkInvites: enhancedNetworkInvites,
+    organizationMemberRequests: enhancedOrganizationMemberRequests,
+    networkRequests: enhancedNetworkRequests,
+    organizations: flattenedOrganizations,
     locales,
   };
 };
@@ -289,111 +314,120 @@ export default function MyOrganizations() {
     },
   };
 
-  const [activeRequestsTab, setActiveRequestsTab] = useState(
-    searchParams.get("requests-tab") !== null &&
-      searchParams.get("requests-tab") !== ""
-      ? searchParams.get("requests-tab")
-      : loaderData.adminOrganizationsWithPendingRequests.find(
-          (organization) => {
-            return organization.profileJoinRequests.length > 0;
-          }
-        )?.name
+  const [
+    activeOrganizationMemberRequestsTab,
+    setActiveOrganizationMemberRequestsTab,
+  ] = useState(
+    searchParams.get("organization-member-requests-tab") !== null &&
+      searchParams.get("organization-member-requests-tab") !== ""
+      ? searchParams.get("organization-member-requests-tab")
+      : loaderData.organizationMemberRequests.find((organization) => {
+          return organization.profileJoinRequests.length > 0;
+        })?.name
   );
-  const requests = loaderData.adminOrganizationsWithPendingRequests.map(
-    (organization) => {
-      return {
-        organization: organization,
-        active: activeRequestsTab === organization.name,
-        searchParams: extendSearchParams(searchParams, {
-          addOrReplace: { "requests-tab": organization.name },
-        }),
-      };
-    }
-  );
+  const requests = loaderData.organizationMemberRequests.map((organization) => {
+    return {
+      organization: organization,
+      active: activeOrganizationMemberRequestsTab === organization.name,
+      searchParams: extendSearchParams(searchParams, {
+        addOrReplace: { "organization-member-requests-tab": organization.name },
+      }),
+    };
+  });
 
-  const [activeInvitesTab, setActiveInvitesTab] = useState(
-    searchParams.get("invites-tab") !== null &&
-      searchParams.get("invites-tab") !== ""
-      ? searchParams.get("invites-tab")
-      : loaderData.invites.adminInvites.length > 0
+  const [
+    activeOrganizationMemberInvitesTab,
+    setActiveOrganizationMemberInvitesTab,
+  ] = useState(
+    searchParams.get("organization-member-invites-tab") !== null &&
+      searchParams.get("organization-member-invites-tab") !== ""
+      ? searchParams.get("organization-member-invites-tab")
+      : loaderData.organizationMemberInvites.adminInvites.length > 0
       ? "admin"
       : "teamMember"
   );
-  const invites = {
+  const organizationMemberInvites = {
     admin: {
-      invites: loaderData.invites.adminInvites,
-      active: activeInvitesTab === "admin",
+      invites: loaderData.organizationMemberInvites.adminInvites,
+      active: activeOrganizationMemberInvitesTab === "admin",
       searchParams: extendSearchParams(searchParams, {
-        addOrReplace: { "invites-tab": "admin" },
+        addOrReplace: { "organization-member-invites-tab": "admin" },
       }),
     },
     teamMember: {
-      invites: loaderData.invites.teamMemberInvites,
-      active: activeInvitesTab === "teamMember",
+      invites: loaderData.organizationMemberInvites.teamMemberInvites,
+      active: activeOrganizationMemberInvitesTab === "teamMember",
       searchParams: extendSearchParams(searchParams, {
-        addOrReplace: { "invites-tab": "teamMember" },
+        addOrReplace: { "organization-member-invites-tab": "teamMember" },
       }),
     },
   };
 
   // Effect to update the active tab after the optimistic ui has been applied
   React.useEffect(() => {
-    if (loaderData.invites.adminInvites.length > 0) {
-      setActiveInvitesTab("admin");
+    if (loaderData.organizationMemberInvites.adminInvites.length > 0) {
+      setActiveOrganizationMemberInvitesTab("admin");
     } else {
-      setActiveInvitesTab("teamMember");
+      setActiveOrganizationMemberInvitesTab("teamMember");
     }
-  }, [loaderData.invites.adminInvites, loaderData.invites.teamMemberInvites]);
+  }, [
+    loaderData.organizationMemberInvites.adminInvites,
+    loaderData.organizationMemberInvites.teamMemberInvites,
+  ]);
 
   React.useEffect(() => {
-    if (loaderData.adminOrganizationsWithPendingRequests.length > 0) {
-      setActiveRequestsTab(
-        loaderData.adminOrganizationsWithPendingRequests.find(
-          (organization) => {
-            return organization.profileJoinRequests.length > 0;
-          }
-        )?.name
+    if (loaderData.organizationMemberRequests.length > 0) {
+      setActiveOrganizationMemberRequestsTab(
+        loaderData.organizationMemberRequests.find((organization) => {
+          return organization.profileJoinRequests.length > 0;
+        })?.name
       );
     }
-  }, [loaderData.adminOrganizationsWithPendingRequests]);
+  }, [loaderData.organizationMemberRequests]);
 
   // Optimistic UI when accepting or rejecting invites
-  const inviteFetcher = useFetcher<typeof action>();
-  const inviteIntent = inviteFetcher.formData?.get("intent");
+  const organizationMemberInviteFetcher = useFetcher<typeof action>();
+  const organizationMemberInviteIntent =
+    organizationMemberInviteFetcher.formData?.get("intent");
   if (
-    inviteFetcher.formData !== undefined &&
-    (inviteIntent === "accepted" || inviteIntent === "rejected")
+    organizationMemberInviteFetcher.formData !== undefined &&
+    (organizationMemberInviteIntent === "accepted" ||
+      organizationMemberInviteIntent === "rejected")
   ) {
-    const organizationId = inviteFetcher.formData.get("organizationId");
-    if (inviteFetcher.formData.get("role") === "admin") {
-      loaderData.invites.adminInvites = loaderData.invites.adminInvites.filter(
-        (invite) => {
-          return invite.organizationId !== organizationId;
-        }
-      );
-    }
-    if (inviteFetcher.formData.get("role") === "member") {
-      loaderData.invites.teamMemberInvites =
-        loaderData.invites.teamMemberInvites.filter((invite) => {
+    const organizationId =
+      organizationMemberInviteFetcher.formData.get("organizationId");
+    if (organizationMemberInviteFetcher.formData.get("role") === "admin") {
+      loaderData.organizationMemberInvites.adminInvites =
+        loaderData.organizationMemberInvites.adminInvites.filter((invite) => {
           return invite.organizationId !== organizationId;
         });
+    }
+    if (organizationMemberInviteFetcher.formData.get("role") === "member") {
+      loaderData.organizationMemberInvites.teamMemberInvites =
+        loaderData.organizationMemberInvites.teamMemberInvites.filter(
+          (invite) => {
+            return invite.organizationId !== organizationId;
+          }
+        );
     }
   }
 
   // Optimistic UI when accepting or rejecting requests
-  const acceptOrRejectRequestFetcher = useFetcher<typeof requestsAction>();
-  const acceptOrRejectRequest =
-    acceptOrRejectRequestFetcher.formData?.get("intent");
+  const OrganizationMemberRequestFetcher = useFetcher<typeof requestsAction>();
+  const organizationMemberRequestIntent =
+    OrganizationMemberRequestFetcher.formData?.get("intent");
   if (
-    acceptOrRejectRequestFetcher.formData !== undefined &&
-    (acceptOrRejectRequest === AddToOrganizationRequest.Accept ||
-      acceptOrRejectRequest === AddToOrganizationRequest.Reject)
+    OrganizationMemberRequestFetcher.formData !== undefined &&
+    (organizationMemberRequestIntent ===
+      AddMemberToOrganizationRequest.Accept ||
+      organizationMemberRequestIntent === AddMemberToOrganizationRequest.Reject)
   ) {
     const organizationId =
-      acceptOrRejectRequestFetcher.formData.get("organizationId");
-    const profileId = acceptOrRejectRequestFetcher.formData.get("profileId");
-    loaderData.adminOrganizationsWithPendingRequests =
-      loaderData.adminOrganizationsWithPendingRequests.map((organization) => {
+      OrganizationMemberRequestFetcher.formData.get("organizationId");
+    const profileId =
+      OrganizationMemberRequestFetcher.formData.get("profileId");
+    loaderData.organizationMemberRequests =
+      loaderData.organizationMemberRequests.map((organization) => {
         if (organization.id !== organizationId) {
           return organization;
         }
@@ -409,12 +443,15 @@ export default function MyOrganizations() {
   }
 
   // Optimistic UI when canceling requests
-  const cancelRequestFetcher = useFetcher<typeof requestsAction>();
+  const cancelOrganizationMemberRequestFetcher =
+    useFetcher<typeof requestsAction>();
   if (
-    cancelRequestFetcher.formData !== undefined &&
-    cancelRequestFetcher.formData.get("organizationId") !== null
+    cancelOrganizationMemberRequestFetcher.formData !== undefined &&
+    cancelOrganizationMemberRequestFetcher.formData.get("organizationId") !==
+      null
   ) {
-    const organizationId = cancelRequestFetcher.formData.get("organizationId");
+    const organizationId =
+      cancelOrganizationMemberRequestFetcher.formData.get("organizationId");
     if (organizationId !== null) {
       loaderData.pendingRequestsToOrganizations =
         loaderData.pendingRequestsToOrganizations.filter((organization) => {
@@ -424,12 +461,15 @@ export default function MyOrganizations() {
   }
 
   // Optimistic UI when creating requests
-  const createRequestFetcher = useFetcher<typeof requestsAction>();
+  const createOrganizationMemberRequestFetcher =
+    useFetcher<typeof requestsAction>();
   if (
-    createRequestFetcher.formData !== undefined &&
-    createRequestFetcher.formData.get("organizationId") !== null
+    createOrganizationMemberRequestFetcher.formData !== undefined &&
+    createOrganizationMemberRequestFetcher.formData.get("organizationId") !==
+      null
   ) {
-    const organizationId = createRequestFetcher.formData.get("organizationId");
+    const organizationId =
+      createOrganizationMemberRequestFetcher.formData.get("organizationId");
     if (organizationId !== null && loaderData.organizationsToAdd !== null) {
       const organizationToTransfer = loaderData.organizationsToAdd.find(
         (organization) => {
@@ -634,8 +674,8 @@ export default function MyOrganizations() {
               pendingRequestsToOrganizations={
                 loaderData.pendingRequestsToOrganizations
               }
-              invites={loaderData.invites}
-              createRequestFetcher={createRequestFetcher}
+              invites={loaderData.organizationMemberInvites}
+              createRequestFetcher={createOrganizationMemberRequestFetcher}
               locales={locales}
             />
             {loaderData.pendingRequestsToOrganizations.length > 0 ? (
@@ -660,7 +700,7 @@ export default function MyOrganizations() {
                           locales={locales}
                         >
                           <CancelRequestFetcher
-                            fetcher={cancelRequestFetcher}
+                            fetcher={cancelOrganizationMemberRequestFetcher}
                             organizationId={organization.id}
                             locales={locales}
                           />
@@ -673,8 +713,8 @@ export default function MyOrganizations() {
             ) : null}
           </Section>
           {/* Organization team member and admin invites section */}
-          {invites.teamMember.invites.length > 0 ||
-          invites.admin.invites.length > 0 ? (
+          {organizationMemberInvites.teamMember.invites.length > 0 ||
+          organizationMemberInvites.admin.invites.length > 0 ? (
             <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
               <div className="mv-flex mv-flex-col mv-gap-2">
                 <h2
@@ -691,54 +731,56 @@ export default function MyOrganizations() {
                 </p>
               </div>
               <TabBar>
-                {Object.entries(invites).map(([key, value]) => {
-                  return value.invites.length > 0 ? (
-                    <TabBar.Item
-                      key={`${key}-invites-tab`}
-                      active={value.active}
-                    >
-                      <Link
-                        to={`?${value.searchParams.toString()}`}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          setActiveInvitesTab(key);
-                          return;
-                        }}
-                        preventScrollReset
+                {Object.entries(organizationMemberInvites).map(
+                  ([key, value]) => {
+                    return value.invites.length > 0 ? (
+                      <TabBar.Item
+                        key={`${key}-organization-member-invites-tab`}
+                        active={value.active}
                       >
-                        <div
-                          id={`tab-description-${key}`}
-                          className="mv-flex mv-gap-1.5 mv-items-center"
+                        <Link
+                          to={`?${value.searchParams.toString()}`}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setActiveOrganizationMemberInvitesTab(key);
+                            return;
+                          }}
+                          preventScrollReset
                         >
-                          <span>
-                            {(() => {
-                              let title;
-                              if (key in locales.route.invites.tabbar) {
-                                type LocaleKey =
-                                  keyof typeof locales.route.invites.tabbar;
-                                title =
-                                  locales.route.invites.tabbar[
-                                    key as LocaleKey
-                                  ];
-                              } else {
-                                console.error(
-                                  `Tab bar title ${key} not found in locales`
-                                );
-                                title = key;
-                              }
-                              return title;
-                            })()}
-                          </span>
-                          <TabBar.Counter active={value.active}>
-                            {value.invites.length}
-                          </TabBar.Counter>
-                        </div>
-                      </Link>
-                    </TabBar.Item>
-                  ) : null;
-                })}
+                          <div
+                            id={`tab-description-${key}`}
+                            className="mv-flex mv-gap-1.5 mv-items-center"
+                          >
+                            <span>
+                              {(() => {
+                                let title;
+                                if (key in locales.route.invites.tabbar) {
+                                  type LocaleKey =
+                                    keyof typeof locales.route.invites.tabbar;
+                                  title =
+                                    locales.route.invites.tabbar[
+                                      key as LocaleKey
+                                    ];
+                                } else {
+                                  console.error(
+                                    `Tab bar title ${key} not found in locales`
+                                  );
+                                  title = key;
+                                }
+                                return title;
+                              })()}
+                            </span>
+                            <TabBar.Counter active={value.active}>
+                              {value.invites.length}
+                            </TabBar.Counter>
+                          </div>
+                        </Link>
+                      </TabBar.Item>
+                    ) : null;
+                  }
+                )}
               </TabBar>
-              {Object.entries(invites).map(([key, value]) => {
+              {Object.entries(organizationMemberInvites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
                   <ListContainer
                     key={key}
@@ -755,7 +797,7 @@ export default function MyOrganizations() {
                           locales={locales}
                         >
                           <AcceptOrRejectInviteFetcher
-                            inviteFetcher={inviteFetcher}
+                            inviteFetcher={organizationMemberInviteFetcher}
                             organizationId={invite.organizationId}
                             tabKey={key}
                             locales={locales}
@@ -790,14 +832,16 @@ export default function MyOrganizations() {
                 {Object.entries(requests).map(([key, value]) => {
                   return value.organization.profileJoinRequests.length > 0 ? (
                     <TabBar.Item
-                      key={`${key}-requests-tab`}
+                      key={`${key}-organization-member-requests-tab`}
                       active={value.active}
                     >
                       <Link
                         to={`?${value.searchParams.toString()}`}
                         onClick={(event) => {
                           event.preventDefault();
-                          setActiveRequestsTab(value.organization.name);
+                          setActiveOrganizationMemberRequestsTab(
+                            value.organization.name
+                          );
                           return;
                         }}
                         preventScrollReset
@@ -837,7 +881,7 @@ export default function MyOrganizations() {
                             locales={locales}
                           >
                             <AcceptOrRejectRequestFetcher
-                              fetcher={acceptOrRejectRequestFetcher}
+                              fetcher={OrganizationMemberRequestFetcher}
                               organizationId={value.organization.id}
                               profileId={request.profile.id}
                               tabKey={key}

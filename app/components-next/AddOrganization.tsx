@@ -1,13 +1,13 @@
 import { Form, useFetcher, useSearchParams } from "react-router";
 import {
   type MyOrganizationsLocales,
-  type addImageUrlToInvites,
+  type addImageUrlToOrganizationMemberInvites,
   type flattenOrganizationRelations,
 } from "~/routes/my/organizations.server";
 import { type getOrganizationsToAdd } from "~/routes/my/organizations/get-organizations-to-add.server";
 import { type getPendingRequestsToOrganizations } from "~/routes/my/organizations/requests.server";
 import {
-  AddToOrganizationRequest,
+  AddMemberToOrganizationRequest,
   type action as requestsAction,
 } from "~/routes/my/organizations/requests";
 import {
@@ -28,7 +28,7 @@ export function AddOrganization(props: {
   pendingRequestsToOrganizations: Awaited<
     ReturnType<typeof getPendingRequestsToOrganizations>
   >;
-  invites: ReturnType<typeof addImageUrlToInvites>;
+  invites: ReturnType<typeof addImageUrlToOrganizationMemberInvites>;
   createRequestFetcher: ReturnType<typeof useFetcher<typeof requestsAction>>;
   locales: MyOrganizationsLocales;
 }) {
@@ -195,7 +195,7 @@ export function AddOrganization(props: {
                     <input
                       type="hidden"
                       name="intent"
-                      value={AddToOrganizationRequest.Create}
+                      value={AddMemberToOrganizationRequest.Create}
                     />
                     <Button
                       variant="outline"

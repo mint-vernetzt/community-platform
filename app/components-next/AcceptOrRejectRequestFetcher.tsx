@@ -1,6 +1,6 @@
 import { type useFetcher } from "react-router";
 import {
-  AddToOrganizationRequest,
+  AddMemberToOrganizationRequest,
   type action,
 } from "~/routes/my/organizations/requests";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -42,7 +42,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         fullSize
         type="submit"
         name="intent"
-        value={AddToOrganizationRequest.Reject}
+        value={AddMemberToOrganizationRequest.Reject}
         aria-describedby={`requests-headline tab-description-${tabKey} reject-request-${profileId}-${organizationId} requests-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >
@@ -53,7 +53,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         fullSize
         type="submit"
         name="intent"
-        value={AddToOrganizationRequest.Accept}
+        value={AddMemberToOrganizationRequest.Accept}
         aria-describedby={`requests-headline tab-description-${tabKey} accept-request-${profileId}-${organizationId} requests-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >

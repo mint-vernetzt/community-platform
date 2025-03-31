@@ -1,6 +1,6 @@
 import { useSearchParams, type useFetcher } from "react-router";
 import {
-  AddToOrganizationRequest,
+  AddMemberToOrganizationRequest,
   type action,
 } from "~/routes/my/organizations/requests";
 import { GetOrganizationsToAdd } from "~/routes/my/organizations/get-organizations-to-add";
@@ -39,7 +39,7 @@ export function CancelRequestFetcher(props: {
       <input
         type="hidden"
         name="intent"
-        value={AddToOrganizationRequest.Cancel}
+        value={AddMemberToOrganizationRequest.Cancel}
       />
       <Button
         variant="outline"
