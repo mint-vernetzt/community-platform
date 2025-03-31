@@ -124,6 +124,7 @@ export async function loader(args: LoaderFunctionArgs) {
     submission: searchNetworksSubmission,
   } = await searchOrganizations({
     searchParams: networkSearchParams,
+    idsToExclude: [organization.id],
     authClient,
     locales,
     mode,
@@ -144,6 +145,7 @@ export async function loader(args: LoaderFunctionArgs) {
     submission: searchNetworkMembersSubmission,
   } = await searchOrganizations({
     searchParams: networkMemberSearchParams,
+    idsToExclude: [organization.id],
     authClient,
     locales,
     mode,
@@ -1186,13 +1188,6 @@ function Manage() {
                                 .alreadyInvited
                             }
                           </div>
-                        ) : searchedOrganization.id === organization.id ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
-                            {
-                              locales.route.content.networkMembers.invite
-                                .thisOrganization
-                            }
-                          </div>
                         ) : (
                           <Button
                             name="intent"
@@ -1486,13 +1481,6 @@ function Manage() {
                             {
                               locales.route.content.networks.requestToJoin
                                 .alreadyRequested
-                            }
-                          </div>
-                        ) : searchedOrganization.id === organization.id ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
-                            {
-                              locales.route.content.networkMembers.invite
-                                .thisOrganization
                             }
                           </div>
                         ) : searchedOrganization.types.some((relation) => {

@@ -65,7 +65,6 @@ export const locale = {
         cta: "Beitritt anfragen",
         alreadyMemberOf: "Beitritt bereits bestätigt",
         alreadyRequested: "Beitritt angefragt",
-        thisOrganization: "diese Organisation",
         noNetwork: "Kein Netzwerk",
         email: {
           subject: {
@@ -127,7 +126,6 @@ export const locale = {
         },
         alreadyInvited: "bereits eingeladen",
         alreadyMember: "bereits Mitglied",
-        thisOrganization: "diese Organisation",
         success:
           "Du hast die Organisation {{organization}} erfolgreich zu Deiner Netzwerk-Organisation eingeladen.",
         cancelSuccess:

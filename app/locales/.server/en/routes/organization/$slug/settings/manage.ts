@@ -71,7 +71,6 @@ export const locale = {
         },
         alreadyMemberOf: "already confirmed",
         alreadyRequested: "already requested",
-        thisOrganization: "this organization",
         noNetwork: "No network",
         success:
           "You have successfully requested membership for the network {{organization}}.",
@@ -123,7 +122,6 @@ export const locale = {
         },
         alreadyInvited: "already invited",
         alreadyMember: "already member",
-        thisOrganization: "this organization",
         success:
           "You have successfully invited the organization {{organization}} to your network organization.",
         cancelSuccess:
