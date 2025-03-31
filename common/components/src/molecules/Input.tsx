@@ -65,8 +65,11 @@ function InputSearchIcon() {
   );
 }
 
-function InputClearIcon(props: { formMetaData: FormMetadata }) {
-  const { formMetaData } = props;
+function InputClearIcon(props: {
+  formMetaData: FormMetadata;
+  disabled?: boolean;
+}) {
+  const { formMetaData, disabled = false } = props;
   const isHydrated = useHydrated();
   const clearIcon = (
     <svg
@@ -86,6 +89,7 @@ function InputClearIcon(props: { formMetaData: FormMetadata }) {
   return isHydrated === true ? (
     <button
       type="reset"
+      disabled={disabled}
       onClick={() => {
         setTimeout(() => formMetaData.reset(), 0);
       }}

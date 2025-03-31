@@ -1101,7 +1101,10 @@ function Manage() {
                           .helperWithoutNetwork}
                   </Input.HelperText>
                 )}
-                <Input.ClearIcon formMetaData={searchNetworksForm} />
+                <Input.ClearIcon
+                  formMetaData={searchNetworksForm}
+                  disabled={isNetwork === false}
+                />
                 {isHydrated === false ? (
                   <Input.Controls>
                     <noscript>
