@@ -1,11 +1,21 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import {
+  acceptOrRejectOrganizationMemberRequestSchema,
+  createOrCancelOrganizationMemberRequestSchema,
+  quitOrganizationSchema,
+  updateNetworkInviteSchema,
+  updateNetworkRequestSchema,
+  updateOrganizationMemberInviteSchema,
+} from "./organizations";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -946,4 +956,394 @@ export function addImageUrlToNetworkInvites(
   );
 
   return enhancedOrganizations;
+}
+
+export async function createOrCancelOrganizationMemberRequest(options: {
+  formData: FormData;
+  intent: "createOrganizationMemberRequest" | "cancelOrganizationMemberRequest";
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, intent, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      createOrCancelOrganizationMemberRequestSchema.transform(
+        async (data, ctx) => {
+          // TODO:
+          // profile id from session user and organization id from form data
+          // Send corresponding email
+
+          // Old
+          // see requests.tsx
+          return { ...data };
+        }
+      ),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "create-or-cancel-organization-member-request-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        intent === "createOrganizationMemberRequest"
+          ? locales.route.requestOrganizationMembership
+              .createOrganizationMemberRequest
+          : locales.route.requestOrganizationMembership
+              .cancelOrganizationMemberRequest,
+        {
+          name: "TODO: organization name from database",
+        }
+      ),
+    },
+  };
+}
+
+export async function updateOrganizationMemberInvite(options: {
+  formData: FormData;
+  intent: "acceptOrganizationMemberInvite" | "rejectOrganizationMemberInvite";
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, intent, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      updateOrganizationMemberInviteSchema.transform(async (data, ctx) => {
+        // TODO:
+        // invite id from form data
+        // Check if the connected profile id is the session user id
+        // Check if the invite is pending
+        // Set the invite to accepted or rejected
+        // Get the role from the invite
+        // On accept check if the connection already exists (admin or member depending on role)
+        // If not create the connection (admin or member depending on role)
+        // If it exists, do nothing
+        // Send corresponding email
+
+        // Old
+        // // Even if typescript claims that role and intent has the correct type i needed to add the below typecheck to make the compiler happy when running npm run typecheck
+        // invariantResponse(
+        //   submission.value.role === "admin" || submission.value.role === "member",
+        //   "Only admin and member are valid roles.",
+        //   { status: 400 }
+        // );
+        // invariantResponse(
+        //   submission.value.intent === "accepted" ||
+        //     submission.value.intent === "rejected",
+        //   "Only accepted and rejected are valid intents.",
+        //   { status: 400 }
+        // );
+
+        // const pendingInvite = await getPendingOrganizationInvite(
+        //   submission.value.organizationId,
+        //   sessionUser.id,
+        //   submission.value.role
+        // );
+        // invariantResponse(pendingInvite !== null, "Pending invite not found.", {
+        //   status: 404,
+        // });
+
+        // const invite = await updateOrganizationInvite({
+        //   profileId: sessionUser.id,
+        //   organizationId: submission.value.organizationId,
+        //   role: submission.value.role,
+        //   intent: submission.value.intent,
+        // });
+
+        // const sender = process.env.SYSTEM_MAIL_SENDER;
+        // try {
+        //   await Promise.all(
+        //     invite.organization.admins.map(async (admin) => {
+        //       let textTemplatePath:
+        //         | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
+        //       let htmlTemplatePath:
+        //         | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+        //         | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
+
+        //       let subject: string;
+
+        //       if (submission.value.intent === "accepted") {
+        //         textTemplatePath =
+        //           submission.value.role === "admin"
+        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
+        //             : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
+        //         htmlTemplatePath =
+        //           submission.value.role === "admin"
+        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
+        //             : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
+        //         subject =
+        //           submission.value.role === "admin"
+        //             ? locales.route.email.inviteAsAdminAccepted.subject
+        //             : locales.route.email.inviteAccepted.subject;
+        //       } else {
+        //         textTemplatePath =
+        //           submission.value.role === "admin"
+        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+        //             : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
+        //         htmlTemplatePath =
+        //           submission.value.role === "admin"
+        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
+        //             : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
+        //         subject =
+        //           submission.value.role === "admin"
+        //             ? locales.route.email.inviteAsAdminRejected.subject
+        //             : locales.route.email.inviteRejected.subject;
+        //       }
+
+        //       const content = {
+        //         firstName: admin.profile.firstName,
+        //         organization: {
+        //           name: invite.organization.name,
+        //         },
+        //         profile: {
+        //           firstName: invite.profile.firstName,
+        //           lastName: invite.profile.lastName,
+        //         },
+        //       };
+
+        //       const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        //         textTemplatePath,
+        //         content,
+        //         "text"
+        //       );
+        //       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        //         htmlTemplatePath,
+        //         content,
+        //         "html"
+        //       );
+
+        //       await mailer(
+        //         mailerOptions,
+        //         sender,
+        //         admin.profile.email,
+        //         subject,
+        //         text,
+        //         html
+        //       );
+        //     })
+        //   );
+        // } catch (error) {
+        //   console.error({ error });
+        //   invariantResponse(false, "Server Error: Mailer", { status: 500 });
+        // }
+        return { ...data };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "update-organization-member-invite-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        intent === "acceptOrganizationMemberInvite"
+          ? locales.route.organizationMemberInvites.accepted
+          : locales.route.organizationMemberInvites.rejected,
+        {
+          name: "TODO: organization name from database",
+        }
+      ),
+    },
+  };
+}
+
+export async function updateNetworkInvite(options: {
+  formData: FormData;
+  intent: "acceptNetworkInvite" | "rejectNetworkInvite";
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, intent, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      updateNetworkInviteSchema.transform(async (data, ctx) => {
+        // TODO:
+        // invite id from form data
+        // Check if the session user is admin of the connected organization id
+        // Check if the invite is pending
+        // Set the invite to accepted or rejected
+        // On accept check if the connection already exists
+        // If not create the connection
+        // If it exists, do nothing
+        // Send corresponding email
+
+        return { ...data };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "update-network-invite-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        intent === "acceptNetworkInvite"
+          ? locales.route.networkInvites.acceptNetworkInvite
+          : locales.route.networkInvites.rejectNetworkInvite,
+        {
+          organizationName: "TODO: organization name from database",
+          networkName: "TODO: network name from database",
+        }
+      ),
+    },
+  };
+}
+
+export async function acceptOrRejectOrganizationMemberRequest(options: {
+  formData: FormData;
+  intent: "acceptOrganizationMemberRequest" | "rejectOrganizationMemberRequest";
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, intent, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      acceptOrRejectOrganizationMemberRequestSchema.transform(
+        async (data, ctx) => {
+          // TODO:
+          // request id from form data
+          // Check if the session user is admin of the connected organization id
+          // Check if the request is pending
+          // Set the request to accepted or rejected
+          // On accept check if the connection already exists
+          // If not create the connection
+          // If it exists, do nothing
+          // Send corresponding email
+
+          // Old
+          // see requests.tsx
+          return { ...data };
+        }
+      ),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "accept-or-reject-organization-member-request-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        intent === "acceptOrganizationMemberRequest"
+          ? locales.route.organizationMemberRequests
+              .acceptOrganizationMemberRequest
+          : locales.route.organizationMemberRequests
+              .rejectOrganizationMemberRequest,
+        {
+          academicTitle: "TODO: from database",
+          firstName: "TODO: from database",
+          lastName: "TODO: from database",
+        }
+      ),
+    },
+  };
+}
+
+export async function updateNetworkRequest(options: {
+  formData: FormData;
+  intent: "acceptNetworkRequest" | "rejectNetworkRequest";
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, intent, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      updateNetworkRequestSchema.transform(async (data, ctx) => {
+        // TODO:
+        // request id from form data
+        // Check if the session user is admin of the connected network id
+        // Check if the request is pending
+        // Set the request to accepted or rejected
+        // On accept check if the connection already exists
+        // If not create the connection
+        // If it exists, do nothing
+        // Send corresponding email
+        return { ...data };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "accept-or-reject-organization-member-request-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        intent === "acceptNetworkRequest"
+          ? locales.route.networkRequests.acceptNetworkRequest
+          : locales.route.networkRequests.rejectNetworkRequest,
+        {
+          organizationName: "TODO: organization name from database",
+          networkName: "TODO: network name from database",
+        }
+      ),
+    },
+  };
+}
+
+export async function quitOrganization(options: {
+  formData: FormData;
+  locales: MyOrganizationsLocales;
+  sessionUser: User;
+}) {
+  const { formData, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      quitOrganizationSchema.transform(async (data, ctx) => {
+        // TODO:
+        // organization id from form data
+        // Check if the session user is admin or team member of the organization
+        // Check if the session user is last admin of the organization
+        // If so, return custom issue -> locales.route.quit.lastAdmin
+        // If not, remove the connections (admin and team member)
+
+        // Old
+        // see quit.tsx
+        return { ...data };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "accept-or-reject-organization-member-request-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.route.quit.success, {
+        name: "TODO: organization name from database",
+      }),
+    },
+  };
 }

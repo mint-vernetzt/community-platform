@@ -43,7 +43,10 @@ export const locale = {
     },
     createOrganizationMemberRequestCta: "Beitritt anfragen",
     cancelOrganizationMemberRequestCta: "Beitrittsanfrage zurückziehen",
-
+    createOrganizationMemberRequest:
+      "Du hast den Beitritt bei der Organisation {{name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
+    cancelOrganizationMemberRequest:
+      "Du hast die Beitrittsanfrage zur Organisation {{name}} zurückgezogen.",
     errors: {
       invalidRoute: "Keine gültige Route",
       alreadyInRelation:
@@ -66,6 +69,8 @@ export const locale = {
     },
     decline: "Einladung ablehnen",
     accept: "Einladung annehmen",
+    accepted: "Du bist erfolgreich der Organisation {{name}} beigetreten.",
+    rejected: "Du hast den Beitritt zur Organisation {{name}} abgelehnt.",
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
   },
@@ -89,10 +94,6 @@ export const locale = {
       "Du hast die Beitrittsanfrage von {{academicTitle}} {{firstName}} {{lastName}} abgelehnt.",
     acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt.",
-    createOrganizationMemberRequest:
-      "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
-    cancelOrganizationMemberRequest:
-      "Du hast die Beitrittsanfrage zur Organisation {{organization.name}} zurückgezogen.",
   },
   networkRequests: {
     headline: "Beitrittsanfragen an Deine Netzwerke",
@@ -101,12 +102,12 @@ export const locale = {
     decline: "Beitritt ablehnen",
     accept: "Beitritt annehmen",
     rejectNetworkRequest:
-      "Du hast die Beitrittsanfrage von {{name}} abgelehnt.",
+      "Du hast die Beitrittsanfrage von {{organizationName}} abgelehnt.",
     acceptNetworkRequest:
       "Die Organisation {{organizationName}} wurde zu Deinem Netzwerk {{networkName}} hinzugefügt.",
   },
   quit: {
-    success: "Du hast die Organisation {{organization}} erfolgreich verlassen.",
+    success: "Du hast die Organisation {{name}} erfolgreich verlassen.",
     lastAdmin:
       "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
   },
@@ -119,12 +120,6 @@ export const locale = {
       teamMember: "Diesen Organisationen bist Du als Teammitglied zugeordnet.",
       admin: "Diesen Organisationen bist Du als Administrator:in zugeordnet.",
     },
-  },
-  alerts: {
-    accepted:
-      "Du bist erfolgreich der Organisation {{organization}} beigetreten.",
-    rejected:
-      "Du hast den Beitritt zur Organisation {{organization}} abgelehnt.",
   },
   email: {
     createRequest: {

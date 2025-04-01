@@ -1,64 +1,55 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { useForm } from "@conform-to/react-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { useState } from "react";
 import {
+  Link,
   redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { Link, useFetcher, useLoaderData, useSearchParams } from "react-router";
-import React, { useState } from "react";
-import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import {
-  getCompiledMailTemplate,
-  mailer,
-  mailerOptions,
-} from "~/mailer.server";
-import { detectLanguage } from "~/i18n.server";
-import { redirectWithToast } from "~/toast.server";
-import { AcceptOrRejectInviteFetcher } from "~/components-next/AcceptOrRejectInviteFetcher";
-import { AcceptOrRejectRequestFetcher } from "~/components-next/AcceptOrRejectRequestFetcher";
-import { AddOrganization } from "~/components-next/AddOrganization";
-import { CancelRequestFetcher } from "~/components-next/CancelRequestFetcher";
+import { Icon } from "~/components-next/icons/Icon";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
+import { detectLanguage } from "~/i18n.server";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
 import {
-  addImageUrlToOrganizationMemberInvites,
-  addImageUrlToOrganizations,
-  addImageUrlToOrganizationMemberRequests,
-  flattenOrganizationRelations,
-  getOrganizationMemberRequests,
-  getOrganizationMemberInvites,
-  getOrganizationsFromProfile,
-  getPendingOrganizationInvite,
-  updateOrganizationInvite,
-  getNetworkRequests,
+  acceptOrRejectOrganizationMemberRequest,
   addImageUrlToNetworkInvites,
-  getNetworkInvites,
   addImageUrlToNetworkRequests,
+  addImageUrlToOrganizationMemberInvites,
+  addImageUrlToOrganizationMemberRequests,
+  addImageUrlToOrganizations,
+  createOrCancelOrganizationMemberRequest,
+  flattenOrganizationRelations,
+  getNetworkInvites,
+  getNetworkRequests,
+  getOrganizationMemberInvites,
+  getOrganizationMemberRequests,
+  getOrganizationsFromProfile,
+  quitOrganization,
+  updateNetworkInvite,
+  updateNetworkRequest,
+  updateOrganizationMemberInvite,
 } from "./organizations.server";
 import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
-import { type action as quitAction } from "./organizations/quit";
-import {
-  AddMemberToOrganizationRequest,
-  type action as requestsAction,
-} from "./organizations/requests";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
-import { Icon } from "~/components-next/icons/Icon";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
+import { z } from "zod";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -116,6 +107,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests
   );
 
+  const currentTimestamp = Date.now();
+
   return {
     organizationsToAdd,
     pendingRequestsToOrganizations,
@@ -125,19 +118,32 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests: enhancedNetworkRequests,
     organizations: flattenedOrganizations,
     locales,
+    currentTimestamp,
   };
 };
 
-const organizationMemberInviteSchema = z.object({
-  intent: z
-    .string()
-    .refine((intent) => intent === "accepted" || intent === "rejected", {
-      message: "Only accepted and rejected are valid intents.",
-    }),
-  organizationId: z.string().uuid(),
-  role: z.string().refine((role) => role === "admin" || role === "member", {
-    message: "Only admin and member are valid roles.",
-  }),
+export const createOrCancelOrganizationMemberRequestSchema = z.object({
+  organizationId: z.string(),
+});
+
+export const updateOrganizationMemberInviteSchema = z.object({
+  inviteId: z.string(),
+});
+
+export const updateNetworkInviteSchema = z.object({
+  inviteId: z.string(),
+});
+
+export const acceptOrRejectOrganizationMemberRequestSchema = z.object({
+  requestId: z.string(),
+});
+
+export const updateNetworkRequestSchema = z.object({
+  requestId: z.string(),
+});
+
+export const quitOrganizationSchema = z.object({
+  organizationId: z.string(),
 });
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -154,208 +160,208 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectPath);
   }
 
+  let result;
   const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: organizationMemberInviteSchema,
-  });
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  // Even if typescript claims that role and intent has the correct type i needed to add the below typecheck to make the compiler happy when running npm run typecheck
-  invariantResponse(
-    submission.value.role === "admin" || submission.value.role === "member",
-    "Only admin and member are valid roles.",
-    { status: 400 }
-  );
-  invariantResponse(
-    submission.value.intent === "accepted" ||
-      submission.value.intent === "rejected",
-    "Only accepted and rejected are valid intents.",
-    { status: 400 }
-  );
-
-  const pendingInvite = await getPendingOrganizationInvite(
-    submission.value.organizationId,
-    sessionUser.id,
-    submission.value.role
-  );
-  invariantResponse(pendingInvite !== null, "Pending invite not found.", {
-    status: 404,
+  const intent = formData.get("intent");
+  invariantResponse(typeof intent === "string", "Intent is not a string.", {
+    status: 400,
   });
 
-  const invite = await updateOrganizationInvite({
-    profileId: sessionUser.id,
-    organizationId: submission.value.organizationId,
-    role: submission.value.role,
-    intent: submission.value.intent,
-  });
-
-  const sender = process.env.SYSTEM_MAIL_SENDER;
-  try {
-    await Promise.all(
-      invite.organization.admins.map(async (admin) => {
-        let textTemplatePath:
-          | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
-          | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
-          | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-          | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
-        let htmlTemplatePath:
-          | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
-          | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
-          | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-          | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
-
-        let subject: string;
-
-        if (submission.value.intent === "accepted") {
-          textTemplatePath =
-            submission.value.role === "admin"
-              ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-              : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
-          htmlTemplatePath =
-            submission.value.role === "admin"
-              ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-              : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
-          subject =
-            submission.value.role === "admin"
-              ? locales.route.email.inviteAsAdminAccepted.subject
-              : locales.route.email.inviteAccepted.subject;
-        } else {
-          textTemplatePath =
-            submission.value.role === "admin"
-              ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
-              : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
-          htmlTemplatePath =
-            submission.value.role === "admin"
-              ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
-              : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
-          subject =
-            submission.value.role === "admin"
-              ? locales.route.email.inviteAsAdminRejected.subject
-              : locales.route.email.inviteRejected.subject;
-        }
-
-        const content = {
-          firstName: admin.profile.firstName,
-          organization: {
-            name: invite.organization.name,
-          },
-          profile: {
-            firstName: invite.profile.firstName,
-            lastName: invite.profile.lastName,
-          },
-        };
-
-        const text = getCompiledMailTemplate<typeof textTemplatePath>(
-          textTemplatePath,
-          content,
-          "text"
-        );
-        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-          htmlTemplatePath,
-          content,
-          "html"
-        );
-
-        await mailer(
-          mailerOptions,
-          sender,
-          admin.profile.email,
-          subject,
-          text,
-          html
-        );
-      })
+  if (intent.startsWith("create-organization-member-request-")) {
+    const requestToJoinOrganizationFormData = new FormData();
+    requestToJoinOrganizationFormData.set(
+      "organizationId",
+      intent.replace("create-organization-member-request-", "")
     );
-  } catch (error) {
-    console.error({ error });
-    invariantResponse(false, "Server Error: Mailer", { status: 500 });
+    result = await createOrCancelOrganizationMemberRequest({
+      formData: requestToJoinOrganizationFormData,
+      intent: "createOrganizationMemberRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("cancel-organization-member-request-")) {
+    const cancelOrganizationJoinRequestFormData = new FormData();
+    cancelOrganizationJoinRequestFormData.set(
+      "organizationId",
+      intent.replace("cancel-organization-member-request-", "")
+    );
+    result = await createOrCancelOrganizationMemberRequest({
+      formData: cancelOrganizationJoinRequestFormData,
+      intent: "cancelOrganizationMemberRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("accept-organization-member-invite-")) {
+    const acceptOrganizationMemberInviteFormData = new FormData();
+    acceptOrganizationMemberInviteFormData.set(
+      "organizationId",
+      intent.replace("accept-organization-member-invite-", "")
+    );
+    result = await updateOrganizationMemberInvite({
+      formData: acceptOrganizationMemberInviteFormData,
+      intent: "acceptOrganizationMemberInvite",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("reject-organization-member-invite-")) {
+    const rejectOrganizationMemberInviteFormData = new FormData();
+    rejectOrganizationMemberInviteFormData.set(
+      "organizationId",
+      intent.replace("reject-organization-member-invite-", "")
+    );
+    result = await updateOrganizationMemberInvite({
+      formData: rejectOrganizationMemberInviteFormData,
+      intent: "rejectOrganizationMemberInvite",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("accept-network-invite-")) {
+    const acceptNetworkInviteFormData = new FormData();
+    acceptNetworkInviteFormData.set(
+      "organizationId",
+      intent.replace("accept-network-invite-", "")
+    );
+    result = await updateNetworkInvite({
+      formData: acceptNetworkInviteFormData,
+      intent: "acceptNetworkInvite",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("reject-network-invite-")) {
+    const rejectNetworkInviteFormData = new FormData();
+    rejectNetworkInviteFormData.set(
+      "organizationId",
+      intent.replace("reject-network-invite-", "")
+    );
+    result = await updateNetworkInvite({
+      formData: rejectNetworkInviteFormData,
+      intent: "rejectNetworkInvite",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("accept-organization-member-request-")) {
+    const acceptOrganizationMemberRequestFormData = new FormData();
+    acceptOrganizationMemberRequestFormData.set(
+      "organizationId",
+      intent.replace("accept-organization-member-request-", "")
+    );
+    result = await acceptOrRejectOrganizationMemberRequest({
+      formData: acceptOrganizationMemberRequestFormData,
+      intent: "acceptOrganizationMemberRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("reject-organization-member-request-")) {
+    const rejectOrganizationMemberRequestFormData = new FormData();
+    rejectOrganizationMemberRequestFormData.set(
+      "organizationId",
+      intent.replace("reject-organization-member-request-", "")
+    );
+    result = await acceptOrRejectOrganizationMemberRequest({
+      formData: rejectOrganizationMemberRequestFormData,
+      intent: "rejectOrganizationMemberRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("accept-network-request-")) {
+    const acceptNetworkRequestFormData = new FormData();
+    acceptNetworkRequestFormData.set(
+      "organizationId",
+      intent.replace("accept-network-request-", "")
+    );
+    result = await updateNetworkRequest({
+      formData: acceptNetworkRequestFormData,
+      intent: "acceptNetworkRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("reject-network-request-")) {
+    const rejectNetworkRequestFormData = new FormData();
+    rejectNetworkRequestFormData.set(
+      "organizationId",
+      intent.replace("reject-network-request-", "")
+    );
+    result = await updateNetworkRequest({
+      formData: rejectNetworkRequestFormData,
+      intent: "rejectNetworkRequest",
+      locales,
+      sessionUser,
+    });
+  } else if (intent.startsWith("quit-organization-")) {
+    const quitOrganizationFormData = new FormData();
+    quitOrganizationFormData.set(
+      "organizationId",
+      intent.replace("quit-organization-", "")
+    );
+    result = await quitOrganization({
+      formData: quitOrganizationFormData,
+      locales,
+      sessionUser,
+    });
+  } else {
+    invariantResponse(false, "Invalid intent", {
+      status: 400,
+    });
   }
 
-  return redirectWithToast(request.url, {
-    key: `${submission.value.intent}-${Date.now()}`,
-    level: submission.value.intent === "accepted" ? "positive" : "negative",
-    message: insertParametersIntoLocale(
-      locales.route.alerts[submission.value.intent],
-      {
-        organization: invite.organization.name,
-      }
-    ),
-  });
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    if (searchParams.get("modal-quit-organization") === "true") {
+      searchParams.delete("modal-quit-organization");
+    }
+    const redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
+      url.pathname
+    }?${searchParams.toString()}`;
+    return redirectWithToast(redirectUrl, result.toast);
+  }
+  return { submission: result.submission, currentTimestamp: Date.now() };
 };
 
 export default function MyOrganizations() {
-  const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const {
+    organizationsToAdd,
+    pendingRequestsToOrganizations,
+    organizationMemberInvites: organizationMemberInvitesFromLoader,
+    networkInvites: networkInvitesFromLoader,
+    organizationMemberRequests: organizationMemberRequestsFromLoader,
+    networkRequests: networkRequestsFromLoader,
+    organizations: organizationsFromLoader,
+    locales,
+    currentTimestamp,
+  } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
 
   // JS for request to add yourself to an organization section
-  // Optimistic UI when canceling requests
-  const cancelOrganizationMemberRequestFetcher =
-    useFetcher<typeof requestsAction>();
-  if (
-    cancelOrganizationMemberRequestFetcher.formData !== undefined &&
-    cancelOrganizationMemberRequestFetcher.formData.get("organizationId") !==
-      null
-  ) {
-    const organizationId =
-      cancelOrganizationMemberRequestFetcher.formData.get("organizationId");
-    if (organizationId !== null) {
-      loaderData.pendingRequestsToOrganizations =
-        loaderData.pendingRequestsToOrganizations.filter((organization) => {
-          return organization.id !== organizationId;
-        });
-    }
-  }
-  // Optimistic UI when creating requests
-  const createOrganizationMemberRequestFetcher =
-    useFetcher<typeof requestsAction>();
-  if (
-    createOrganizationMemberRequestFetcher.formData !== undefined &&
-    createOrganizationMemberRequestFetcher.formData.get("organizationId") !==
-      null
-  ) {
-    const organizationId =
-      createOrganizationMemberRequestFetcher.formData.get("organizationId");
-    if (organizationId !== null && loaderData.organizationsToAdd !== null) {
-      const organizationToTransfer = loaderData.organizationsToAdd.find(
-        (organization) => {
-          return organization.id === organizationId;
-        }
-      );
-      loaderData.organizationsToAdd = loaderData.organizationsToAdd.filter(
-        (organization) => {
-          return organization.id !== organizationId;
-        }
-      );
-      if (organizationToTransfer !== undefined) {
-        loaderData.pendingRequestsToOrganizations.push(organizationToTransfer);
-      }
-    }
-  }
-  // Optimistic UI when quiting organizations
-  const quitOrganizationFetcher = useFetcher<typeof quitAction>();
-  if (
-    quitOrganizationFetcher.formData !== undefined &&
-    quitOrganizationFetcher.formData.get("slug") !== null
-  ) {
-    const slug = quitOrganizationFetcher.formData.get("slug");
-    if (slug !== null) {
-      loaderData.organizations.teamMemberOrganizations =
-        loaderData.organizations.teamMemberOrganizations.filter(
-          (organization) => {
-            return organization.slug !== slug;
-          }
-        );
-      loaderData.organizations.adminOrganizations =
-        loaderData.organizations.adminOrganizations.filter((organization) => {
-          return organization.slug !== slug;
-        });
-    }
-  }
+  // TODO: Refactor to use conform and this routes action
+  const [createOrganizationMemberRequesteForm] = useForm({
+    id: `create-organization-member-request-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+  // TODO: Refactor to use conform and this routes action
+  const [cancelOrganizationMemberRequesteForm] = useForm({
+    id: `cancel-organization-member-request-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
 
   // JS for incoming organization member invites section
+  // TODO: Refactor to use conform and this routes action
+  const [acceptOrRejectOrganizationMemberInviteForm] = useForm({
+    id: `accept-or-reject-organization-member-invite-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
   const [
     activeOrganizationMemberInvitesTab,
     setActiveOrganizationMemberInvitesTab,
@@ -363,75 +369,43 @@ export default function MyOrganizations() {
     searchParams.get("organization-member-invites-tab") !== null &&
       searchParams.get("organization-member-invites-tab") !== ""
       ? searchParams.get("organization-member-invites-tab")
-      : loaderData.organizationMemberInvites.adminInvites.length > 0
+      : organizationMemberInvitesFromLoader.adminInvites.length > 0
       ? "admin"
       : "teamMember"
   );
   const organizationMemberInvites = {
     admin: {
-      invites: loaderData.organizationMemberInvites.adminInvites,
+      invites: organizationMemberInvitesFromLoader.adminInvites,
       active: activeOrganizationMemberInvitesTab === "admin",
       searchParams: extendSearchParams(searchParams, {
         addOrReplace: { "organization-member-invites-tab": "admin" },
       }),
     },
     teamMember: {
-      invites: loaderData.organizationMemberInvites.teamMemberInvites,
+      invites: organizationMemberInvitesFromLoader.teamMemberInvites,
       active: activeOrganizationMemberInvitesTab === "teamMember",
       searchParams: extendSearchParams(searchParams, {
         addOrReplace: { "organization-member-invites-tab": "teamMember" },
       }),
     },
   };
-  // Effect to update the active tab after the optimistic ui has been applied
-  React.useEffect(() => {
-    if (loaderData.organizationMemberInvites.adminInvites.length > 0) {
-      setActiveOrganizationMemberInvitesTab("admin");
-    } else {
-      setActiveOrganizationMemberInvitesTab("teamMember");
-    }
-  }, [
-    loaderData.organizationMemberInvites.adminInvites,
-    loaderData.organizationMemberInvites.teamMemberInvites,
-  ]);
-  // Optimistic UI when accepting or rejecting invites
-  const organizationMemberInviteFetcher = useFetcher<typeof action>();
-  const organizationMemberInviteIntent =
-    organizationMemberInviteFetcher.formData?.get("intent");
-  if (
-    organizationMemberInviteFetcher.formData !== undefined &&
-    (organizationMemberInviteIntent === "accepted" ||
-      organizationMemberInviteIntent === "rejected")
-  ) {
-    const organizationId =
-      organizationMemberInviteFetcher.formData.get("organizationId");
-    if (organizationMemberInviteFetcher.formData.get("role") === "admin") {
-      loaderData.organizationMemberInvites.adminInvites =
-        loaderData.organizationMemberInvites.adminInvites.filter((invite) => {
-          return invite.organizationId !== organizationId;
-        });
-    }
-    if (organizationMemberInviteFetcher.formData.get("role") === "member") {
-      loaderData.organizationMemberInvites.teamMemberInvites =
-        loaderData.organizationMemberInvites.teamMemberInvites.filter(
-          (invite) => {
-            return invite.organizationId !== organizationId;
-          }
-        );
-    }
-  }
 
   // JS for incoming network invites section
-  // TODO: conform form for accepting and rejecting network invites
+  const [acceptOrRejectNetworkInviteForm] = useForm({
+    id: `accept-or-reject-network-invite-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
   const [activeNetworkInvitesTab, setActiveNetworkInvitesTab] = useState(
     searchParams.get("network-invites-tab") !== null &&
       searchParams.get("network-invites-tab") !== ""
       ? searchParams.get("network-invites-tab")
-      : loaderData.networkInvites.find((organization) => {
+      : networkInvitesFromLoader.find((organization) => {
           return organization.receivedNetworkJoinInvites.length > 0;
         })?.name
   );
-  const networkInvites = loaderData.networkInvites.map((organization) => {
+  const networkInvites = networkInvitesFromLoader.map((organization) => {
     return {
       organization: organization,
       active: activeNetworkInvitesTab === organization.name,
@@ -442,6 +416,13 @@ export default function MyOrganizations() {
   });
 
   // JS for incoming organization member requests section
+  // TODO: Refactor to use conform and this routes action
+  const [acceptOrRejectOrganizationMemberRequestForm] = useForm({
+    id: `accept-or-reject-organization-member-request-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
   const [
     activeOrganizationMemberRequestsTab,
     setActiveOrganizationMemberRequestsTab,
@@ -449,11 +430,11 @@ export default function MyOrganizations() {
     searchParams.get("organization-member-requests-tab") !== null &&
       searchParams.get("organization-member-requests-tab") !== ""
       ? searchParams.get("organization-member-requests-tab")
-      : loaderData.organizationMemberRequests.find((organization) => {
+      : organizationMemberRequestsFromLoader.find((organization) => {
           return organization.profileJoinRequests.length > 0;
         })?.name
   );
-  const organizationMemberRequests = loaderData.organizationMemberRequests.map(
+  const organizationMemberRequests = organizationMemberRequestsFromLoader.map(
     (organization) => {
       return {
         organization: organization,
@@ -466,57 +447,24 @@ export default function MyOrganizations() {
       };
     }
   );
-  // Effect to update the active tab after the optimistic ui has been applied
-  React.useEffect(() => {
-    if (loaderData.organizationMemberRequests.length > 0) {
-      setActiveOrganizationMemberRequestsTab(
-        loaderData.organizationMemberRequests.find((organization) => {
-          return organization.profileJoinRequests.length > 0;
-        })?.name
-      );
-    }
-  }, [loaderData.organizationMemberRequests]);
-  // Optimistic UI when accepting or rejecting requests
-  const OrganizationMemberRequestFetcher = useFetcher<typeof requestsAction>();
-  const organizationMemberRequestIntent =
-    OrganizationMemberRequestFetcher.formData?.get("intent");
-  if (
-    OrganizationMemberRequestFetcher.formData !== undefined &&
-    (organizationMemberRequestIntent ===
-      AddMemberToOrganizationRequest.Accept ||
-      organizationMemberRequestIntent === AddMemberToOrganizationRequest.Reject)
-  ) {
-    const organizationId =
-      OrganizationMemberRequestFetcher.formData.get("organizationId");
-    const profileId =
-      OrganizationMemberRequestFetcher.formData.get("profileId");
-    loaderData.organizationMemberRequests =
-      loaderData.organizationMemberRequests.map((organization) => {
-        if (organization.id !== organizationId) {
-          return organization;
-        }
-        return {
-          ...organization,
-          profileJoinRequests: organization.profileJoinRequests.filter(
-            (request) => {
-              return request.profile.id !== profileId;
-            }
-          ),
-        };
-      });
-  }
 
   // JS for incoming network requests section
   // TODO: conform form for accepting and rejecting network requests
+  const [acceptOrRejectNetworkRequestForm] = useForm({
+    id: `accept-or-reject-network-request-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
   const [activeNetworkRequestsTab, setActiveNetworkRequestsTab] = useState(
     searchParams.get("network-requests-tab") !== null &&
       searchParams.get("network-requests-tab") !== ""
       ? searchParams.get("network-requests-tab")
-      : loaderData.networkRequests.find((organization) => {
+      : networkRequestsFromLoader.find((organization) => {
           return organization.receivedNetworkJoinRequests.length > 0;
         })?.name
   );
-  const networkRequests = loaderData.networkRequests.map((organization) => {
+  const networkRequests = networkRequestsFromLoader.map((organization) => {
     return {
       organization: organization,
       active: activeNetworkRequestsTab === organization.name,
@@ -527,25 +475,30 @@ export default function MyOrganizations() {
   });
 
   // JS for own organizations section
+  // TODO: Refactor to use conform and this routes action
+  const [quitOrganizationForm] = useForm({
+    id: `quit-organization-${actionData?.currentTimestamp || currentTimestamp}`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
     searchParams.get("organizations-tab") !== null &&
       searchParams.get("organizations-tab") !== ""
       ? searchParams.get("organizations-tab")
-      : loaderData.organizations.adminOrganizations.length > 0
+      : organizationsFromLoader.adminOrganizations.length > 0
       ? "admin"
       : "teamMember"
   );
   const organizations = {
     admin: {
-      organizations: loaderData.organizations.adminOrganizations,
+      organizations: organizationsFromLoader.adminOrganizations,
       active: activeOrganizationsTab === "admin",
       searchParams: extendSearchParams(searchParams, {
         addOrReplace: { "organizations-tab": "admin" },
       }),
     },
     teamMember: {
-      organizations: loaderData.organizations.teamMemberOrganizations,
+      organizations: organizationsFromLoader.teamMemberOrganizations,
       active: activeOrganizationsTab === "teamMember",
       searchParams: extendSearchParams(searchParams, {
         addOrReplace: { "organizations-tab": "teamMember" },
@@ -713,17 +666,16 @@ export default function MyOrganizations() {
             <Section.Subline>
               {locales.route.requestOrganizationMembership.subline}
             </Section.Subline>
-            <AddOrganization
-              organizations={loaderData.organizationsToAdd}
-              memberOrganizations={loaderData.organizations}
-              pendingRequestsToOrganizations={
-                loaderData.pendingRequestsToOrganizations
-              }
-              invites={loaderData.organizationMemberInvites}
+            {/* TODO: Refactor to use conform and this routes action */}
+            {/* <AddOrganization
+              organizations={organizationsToAdd}
+              memberOrganizations={organizationsFromLoader}
+              pendingRequestsToOrganizations={pendingRequestsToOrganizations}
+              invites={organizationMemberInvitesFromLoader}
               createRequestFetcher={createOrganizationMemberRequestFetcher}
               locales={locales}
-            />
-            {loaderData.pendingRequestsToOrganizations.length > 0 ? (
+            /> */}
+            {pendingRequestsToOrganizations.length > 0 ? (
               <>
                 <hr />
                 <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
@@ -734,25 +686,24 @@ export default function MyOrganizations() {
                   hideAfter={3}
                   locales={locales}
                 >
-                  {loaderData.pendingRequestsToOrganizations.map(
-                    (organization, index) => {
-                      return (
-                        <ListItem
-                          key={`cancel-request-from-${organization.id}`}
-                          listIndex={index}
-                          entity={organization}
-                          hideAfter={3}
+                  {pendingRequestsToOrganizations.map((organization, index) => {
+                    return (
+                      <ListItem
+                        key={`cancel-request-from-${organization.id}`}
+                        listIndex={index}
+                        entity={organization}
+                        hideAfter={3}
+                        locales={locales}
+                      >
+                        {/* TODO: Refactor to use conform and this routes action */}
+                        {/* <CancelRequestFetcher
+                          fetcher={cancelOrganizationMemberRequestFetcher}
+                          organizationId={organization.id}
                           locales={locales}
-                        >
-                          <CancelRequestFetcher
-                            fetcher={cancelOrganizationMemberRequestFetcher}
-                            organizationId={organization.id}
-                            locales={locales}
-                          />
-                        </ListItem>
-                      );
-                    }
-                  )}
+                        /> */}
+                      </ListItem>
+                    );
+                  })}
                 </ListContainer>
               </>
             ) : null}
@@ -837,12 +788,13 @@ export default function MyOrganizations() {
                           hideAfter={3}
                           locales={locales}
                         >
-                          <AcceptOrRejectInviteFetcher
+                          {/* TODO: Refactor to use conform and this routes action */}
+                          {/* <AcceptOrRejectInviteFetcher
                             inviteFetcher={organizationMemberInviteFetcher}
                             organizationId={invite.organizationId}
                             tabKey={key}
                             locales={locales}
-                          />
+                          /> */}
                         </ListItem>
                       );
                     })}
@@ -993,13 +945,14 @@ export default function MyOrganizations() {
                               hideAfter={3}
                               locales={locales}
                             >
-                              <AcceptOrRejectRequestFetcher
+                              {/* TODO: Refactor to use conform and this routes action */}
+                              {/* <AcceptOrRejectRequestFetcher
                                 fetcher={OrganizationMemberRequestFetcher}
                                 organizationId={value.organization.id}
                                 profileId={request.profile.id}
                                 tabKey={key}
                                 locales={locales}
-                              />
+                              /> */}
                             </ListItem>
                           );
                         }
@@ -1152,11 +1105,12 @@ export default function MyOrganizations() {
                             <OrganizationCard
                               key={`${key}-organization-${organization.id}`}
                               organization={organization}
-                              menu={{
-                                mode: key === "admin" ? "admin" : "teamMember",
-                                quitOrganizationFetcher:
-                                  quitOrganizationFetcher,
-                              }}
+                              // TODO: Refactor to use conform and this routes action
+                              // menu={{
+                              //   mode: key === "admin" ? "admin" : "teamMember",
+                              //   quitOrganizationFetcher:
+                              //     quitOrganizationFetcher,
+                              // }}
                               locales={locales}
                             />
                           );

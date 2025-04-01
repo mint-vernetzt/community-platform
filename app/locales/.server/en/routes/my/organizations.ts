@@ -43,6 +43,10 @@ export const locale = {
     },
     createOrganizationMemberRequestCta: "Request to join",
     cancelOrganizationMemberRequestCta: "Cancel request to join",
+    createOrganizationMemberRequest:
+      "You have requested to join {{name}}. You will be notified as soon as an admin responds to your request.",
+    cancelOrganizationMemberRequest:
+      "You have withdrawn your membership request to {{name}}.",
     errors: {
       invalidRoute: "No valid route",
       alreadyInRelation:
@@ -65,6 +69,8 @@ export const locale = {
     },
     decline: "Decline invitation",
     accept: "Accept invitation",
+    accepted: "You have successfully joined the organization {{name}}.",
+    rejected: "You have declined to join the organization {{name}}.",
     more: "Show {{count}} more",
     less: "Show {{count}} less",
   },
@@ -88,10 +94,6 @@ export const locale = {
       "You have declined the membership request of {{academicTitle}} {{firstName}} {{lastName}}.",
     acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} has been added to your organization.",
-    createOrganizationMemberRequest:
-      "You have requested to join {{organization.name}}. You will be notified as soon as an admin responds to your request.",
-    cancelOrganizationMemberRequest:
-      "You have withdrawn your membership request to {{organization.name}}.",
   },
   networkRequests: {
     headline: "Membership requests to your networks",
@@ -100,12 +102,12 @@ export const locale = {
     decline: "Decline membership",
     accept: "Accept membership",
     rejectNetworkRequest:
-      "You have declined the membership request from {{name}}.",
+      "You have declined the membership request from {{organizationName}}.",
     acceptNetworkRequest:
       "The organization {{organizationName}} has been added to your network {{networkName}}.",
   },
   quit: {
-    success: "You have successfully left the organization {{organization}}.",
+    success: "You have successfully left the organization {{name}}.",
     lastAdmin:
       "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
   },
@@ -118,10 +120,6 @@ export const locale = {
       teamMember: "You are assigned to these organizations as a team member.",
       admin: "You are assigned to these organizations as an administrator.",
     },
-  },
-  alerts: {
-    accepted: "You have successfully joined the {{organization}} organization.",
-    rejected: "You have declined to join the {{organization}} organization.",
   },
   email: {
     createRequest: {

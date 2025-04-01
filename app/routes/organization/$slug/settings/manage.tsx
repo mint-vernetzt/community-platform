@@ -456,7 +456,7 @@ function Manage() {
   const clearNetworkQuerySearchParams = new URLSearchParams(searchParams);
   clearNetworkQuerySearchParams.delete(SearchNetworks);
 
-  const [joinNetworkForm] = useForm({
+  const [requestToJoinNetworkForm] = useForm({
     id: `request-to-join-network-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
@@ -494,7 +494,7 @@ function Manage() {
   const clearNetworkMemberQuerySearchParams = new URLSearchParams(searchParams);
   clearNetworkMemberQuerySearchParams.delete(SearchNetworks);
 
-  const [addNetworkMemberForm] = useForm({
+  const [inviteNetworkMemberForm] = useForm({
     id: `invite-network-member-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
@@ -1146,7 +1146,7 @@ function Manage() {
             </searchNetworkMembersFetcher.Form>
             {isNetwork === true && searchedNetworkMembers.length > 0 ? (
               <Form
-                {...getFormProps(addNetworkMemberForm)}
+                {...getFormProps(inviteNetworkMemberForm)}
                 method="post"
                 preventScrollReset
               >
@@ -1203,13 +1203,13 @@ function Manage() {
                     );
                   })}
                 </ListContainer>
-                {typeof addNetworkMemberForm.errors !== "undefined" &&
-                addNetworkMemberForm.errors.length > 0 ? (
+                {typeof inviteNetworkMemberForm.errors !== "undefined" &&
+                inviteNetworkMemberForm.errors.length > 0 ? (
                   <div>
-                    {addNetworkMemberForm.errors.map((error, index) => {
+                    {inviteNetworkMemberForm.errors.map((error, index) => {
                       return (
                         <div
-                          id={addNetworkMemberForm.errorId}
+                          id={inviteNetworkMemberForm.errorId}
                           key={index}
                           className="mv-text-sm mv-font-semibold mv-text-negative-600"
                         >
@@ -1443,7 +1443,7 @@ function Manage() {
             </searchNetworksFetcher.Form>
             {searchedNetworks.length > 0 ? (
               <Form
-                {...getFormProps(joinNetworkForm)}
+                {...getFormProps(requestToJoinNetworkForm)}
                 method="post"
                 preventScrollReset
               >
@@ -1507,13 +1507,13 @@ function Manage() {
                     );
                   })}
                 </ListContainer>
-                {typeof joinNetworkForm.errors !== "undefined" &&
-                joinNetworkForm.errors.length > 0 ? (
+                {typeof requestToJoinNetworkForm.errors !== "undefined" &&
+                requestToJoinNetworkForm.errors.length > 0 ? (
                   <div>
-                    {joinNetworkForm.errors.map((error, index) => {
+                    {requestToJoinNetworkForm.errors.map((error, index) => {
                       return (
                         <div
-                          id={joinNetworkForm.errorId}
+                          id={requestToJoinNetworkForm.errorId}
                           key={index}
                           className="mv-text-sm mv-font-semibold mv-text-negative-600"
                         >
