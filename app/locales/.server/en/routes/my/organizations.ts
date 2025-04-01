@@ -32,20 +32,7 @@ export const locale = {
     more: "Show more information",
     less: "Show less information",
   },
-  invites: {
-    headline: "Invites from organizations",
-    subline:
-      "If you accept invitations, you will become a team member or admin of the organization.",
-    tabbar: {
-      teamMember: "Team Member",
-      admin: "Admin",
-    },
-    decline: "Decline invitation",
-    accept: "Accept invitation",
-    more: "Show {{count}} more",
-    less: "Show {{count}} less",
-  },
-  addOrganization: {
+  requestOrganizationMembership: {
     headline: "Add me to an organization",
     subline:
       "Search for organizations, add yourself as a team member or create an organization.",
@@ -54,8 +41,8 @@ export const locale = {
       organizationsFound:
         "Organizations with this name already exist. Ask if you can join an organization.",
     },
-    createRequest: "Request to join",
-    cancelRequest: "Cancel request to join",
+    createOrganizationMemberRequestCta: "Request to join",
+    cancelOrganizationMemberRequestCta: "Cancel request to join",
     errors: {
       invalidRoute: "No valid route",
       alreadyInRelation:
@@ -68,20 +55,54 @@ export const locale = {
     helperText: "At least 3 letters.",
     searchCta: "Search",
   },
-  requests: {
+  organizationMemberInvites: {
+    headline: "Invites from organizations",
+    subline:
+      "If you accept invitations, you will become a team member or admin of the organization.",
+    tabbar: {
+      teamMember: "Team Member",
+      admin: "Admin",
+    },
+    decline: "Decline invitation",
+    accept: "Accept invitation",
+    more: "Show {{count}} more",
+    less: "Show {{count}} less",
+  },
+  networkInvites: {
+    headline: "Invitations from your organizations to networks",
+    subline:
+      "When you confirm invitations, your organization becomes visible as a network member.",
+    decline: "Decline invitation",
+    accept: "Accept invitation",
+    rejectNetworkInvite: "You have declined the invitation from {{name}}.",
+    acceptNetworkInvite:
+      "Your organization {{organizationName}} has been added to the network {{networkName}}.",
+  },
+  organizationMemberRequests: {
     headline: "Membership requests to your organizations",
     subline:
       "If you confirm membership requests, people will be visible as team members.",
     decline: "Decline membership",
     accept: "Accept membership",
-    createRequest:
-      "You have requested to join {{organization.name}}. You will be notified as soon as an admin responds to your request.",
-    cancelRequest:
-      "You have withdrawn your membership request to {{organization.name}}.",
-    rejectRequest:
+    rejectOrganizationMemberRequest:
       "You have declined the membership request of {{academicTitle}} {{firstName}} {{lastName}}.",
-    acceptRequest:
+    acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} has been added to your organization.",
+    createOrganizationMemberRequest:
+      "You have requested to join {{organization.name}}. You will be notified as soon as an admin responds to your request.",
+    cancelOrganizationMemberRequest:
+      "You have withdrawn your membership request to {{organization.name}}.",
+  },
+  networkRequests: {
+    headline: "Membership requests to your networks",
+    subline:
+      "When you confirm requests, the organizations become visible as network members.",
+    decline: "Decline membership",
+    accept: "Accept membership",
+    rejectNetworkRequest:
+      "You have declined the membership request from {{name}}.",
+    acceptNetworkRequest:
+      "The organization {{organizationName}} has been added to your network {{networkName}}.",
   },
   quit: {
     success: "You have successfully left the organization {{organization}}.",

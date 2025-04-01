@@ -22,15 +22,15 @@ import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const AddMemberToOrganizationRequest: {
-  Create: "createRequest";
-  Cancel: "cancelRequest";
-  Reject: "rejectRequest";
-  Accept: "acceptRequest";
+  Create: "createOrganizationMemberRequest";
+  Cancel: "cancelOrganizationMemberRequest";
+  Reject: "rejectOrganizationMemberRequest";
+  Accept: "acceptOrganizationMemberRequest";
 } = {
-  Create: "createRequest",
-  Cancel: "cancelRequest",
-  Reject: "rejectRequest",
-  Accept: "acceptRequest",
+  Create: "createOrganizationMemberRequest",
+  Cancel: "cancelOrganizationMemberRequest",
+  Reject: "rejectOrganizationMemberRequest",
+  Accept: "acceptOrganizationMemberRequest",
 };
 
 export const schema = z.object({
@@ -251,13 +251,13 @@ export async function action(args: ActionFunctionArgs) {
       submission.value.intent === AddMemberToOrganizationRequest.Create ||
       submission.value.intent === AddMemberToOrganizationRequest.Cancel
         ? insertParametersIntoLocale(
-            locales.route.requests[submission.value.intent],
+            locales.route.organizationMemberRequests[submission.value.intent],
             {
               organization,
             }
           )
         : insertParametersIntoLocale(
-            locales.route.requests[submission.value.intent],
+            locales.route.organizationMemberRequests[submission.value.intent],
             {
               academicTitle: profile?.academicTitle
                 ? `${profile.academicTitle} `

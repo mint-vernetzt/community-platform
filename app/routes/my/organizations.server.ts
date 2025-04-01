@@ -847,7 +847,7 @@ export async function getNetworkInvites(id: string) {
       name: true,
       receivedNetworkJoinInvites: {
         select: {
-          organization: {
+          network: {
             select: {
               id: true,
               slug: true,
@@ -907,7 +907,7 @@ export function addImageUrlToNetworkInvites(
     (organization) => {
       const receivedNetworkJoinInvites =
         organization.receivedNetworkJoinInvites.map((relation) => {
-          let logo = relation.organization.logo;
+          let logo = relation.network.logo;
           let blurredLogo;
           if (logo !== null) {
             const publicURL = getPublicURL(authClient, logo);
@@ -931,8 +931,8 @@ export function addImageUrlToNetworkInvites(
           }
           return {
             ...relation,
-            organization: {
-              ...relation.organization,
+            network: {
+              ...relation.network,
               logo,
               blurredLogo,
             },

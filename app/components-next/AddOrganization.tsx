@@ -88,7 +88,9 @@ export function AddOrganization(props: {
         <div className="mv-w-full">
           <Input
             id="request-to-add-to-organization"
-            placeholder={locales.route.addOrganization.placeholder}
+            placeholder={
+              locales.route.requestOrganizationMembership.placeholder
+            }
             name={GetOrganizationsToAdd.SearchParam}
             minLength={3}
             defaultValue={
@@ -97,18 +99,18 @@ export function AddOrganization(props: {
             autoComplete="off"
           >
             <Input.Label htmlFor="request-to-add-to-organization">
-              {locales.route.addOrganization.label}
+              {locales.route.requestOrganizationMembership.label}
             </Input.Label>
             <Input.SearchIcon />
 
             <Input.HelperText>
-              {locales.route.addOrganization.helperText}
+              {locales.route.requestOrganizationMembership.helperText}
             </Input.HelperText>
             {isHydrated === false ? (
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
-                    {locales.route.addOrganization.searchCta}
+                    {locales.route.requestOrganizationMembership.searchCta}
                   </Button>
                 </noscript>
               </Input.Controls>
@@ -203,7 +205,10 @@ export function AddOrganization(props: {
                       type="submit"
                       disabled={createRequestFetcher.state === "submitting"}
                     >
-                      {locales.route.addOrganization.createRequest}
+                      {
+                        locales.route.requestOrganizationMembership
+                          .createOrganizationMemberRequestCta
+                      }
                     </Button>
                   </createRequestFetcher.Form>
                 </ListItem>
@@ -234,7 +239,9 @@ function CreateOrganization(props: {
         </div>
         <Form method="get" action="/organization/create">
           <input type="hidden" name="search" value={props.name} />
-          <Button type="submit">{locales.route.addOrganization.create}</Button>
+          <Button type="submit">
+            {locales.route.requestOrganizationMembership.create}
+          </Button>
         </Form>
       </div>
     </div>

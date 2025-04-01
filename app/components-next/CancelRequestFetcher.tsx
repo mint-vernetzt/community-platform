@@ -47,7 +47,10 @@ export function CancelRequestFetcher(props: {
         type="submit"
         disabled={fetcher.state === "submitting"}
       >
-        {locales.route.addOrganization.cancelRequest}
+        {
+          locales.route.requestOrganizationMembership
+            .cancelOrganizationMemberRequestCta
+        }
       </Button>
     </fetcher.Form>
   );

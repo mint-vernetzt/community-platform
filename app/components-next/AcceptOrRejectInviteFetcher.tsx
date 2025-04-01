@@ -42,7 +42,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         aria-describedby={`invites-headline tab-description-${tabKey} reject-invite-${organizationId} invites-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >
-        {locales.route.invites.decline}
+        {locales.route.organizationMemberInvites.decline}
       </Button>
       <Button
         id={`accept-invite-${organizationId}`}
@@ -53,7 +53,7 @@ export function AcceptOrRejectInviteFetcher(props: {
         aria-describedby={`invites-headline tab-description-${tabKey} accept-invite-${organizationId} invites-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >
-        {locales.route.invites.accept}
+        {locales.route.organizationMemberInvites.accept}
       </Button>
     </inviteFetcher.Form>
   );

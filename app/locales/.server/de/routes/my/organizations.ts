@@ -32,20 +32,7 @@ export const locale = {
     more: "Infos ausklappen",
     less: "Infos einklappen",
   },
-  invites: {
-    headline: "Einladungen von Organisationen",
-    subline:
-      "Wenn Du Einladungen annimmst, wirst Du Teammitglied bzw. Admin der Organisation.",
-    tabbar: {
-      teamMember: "Teammitglied",
-      admin: "Admin",
-    },
-    decline: "Einladung ablehnen",
-    accept: "Einladung annehmen",
-    more: "{{count}} weitere anzeigen",
-    less: "{{count}} weniger anzeigen",
-  },
-  addOrganization: {
+  requestOrganizationMembership: {
     headline: "Mich zu einer Organisation hinzufügen",
     subline:
       "Suche Organisationen, füge Dich als Teammitglied hinzu oder lege eine Organisation an.",
@@ -54,8 +41,9 @@ export const locale = {
       organizationsFound:
         "Es existieren bereits Organisationen mit diesem Namen. Frage an, ob Du einer Organisation beitreten kannst.",
     },
-    createRequest: "Beitritt anfragen",
-    cancelRequest: "Beitrittsanfrage zurückziehen",
+    createOrganizationMemberRequestCta: "Beitritt anfragen",
+    cancelOrganizationMemberRequestCta: "Beitrittsanfrage zurückziehen",
+
     errors: {
       invalidRoute: "Keine gültige Route",
       alreadyInRelation:
@@ -68,20 +56,54 @@ export const locale = {
     helperText: "Mindestens 3 Buchstaben.",
     searchCta: "Suchen",
   },
-  requests: {
+  organizationMemberInvites: {
+    headline: "Einladungen von Organisationen",
+    subline:
+      "Wenn Du Einladungen annimmst, wirst Du Teammitglied bzw. Admin der Organisation.",
+    tabbar: {
+      teamMember: "Teammitglied",
+      admin: "Admin",
+    },
+    decline: "Einladung ablehnen",
+    accept: "Einladung annehmen",
+    more: "{{count}} weitere anzeigen",
+    less: "{{count}} weniger anzeigen",
+  },
+  networkInvites: {
+    headline: "Einladungen Deiner Organisationen zu Netzwerken",
+    subline:
+      "Wenn Du Einladungen bestätigst, wird Deine Organisation als Netzwerkmitglied sichtbar.",
+    decline: "Einladung ablehnen",
+    accept: "Einladung annehmen",
+    rejectNetworkInvite: "Du hast die Einladung von {{name}} abgelehnt.",
+    acceptNetworkInvite:
+      "Deine Organisation {{organizationName}} wurde zum Netzwerk {{networkName}} hinzugefügt.",
+  },
+  organizationMemberRequests: {
     headline: "Beitrittsanfragen an Deine Organisationen",
     subline:
       "Wenn Du Anfragen bestätigst, werden Personen als Teammitglied sichtbar.",
     decline: "Beitritt ablehnen",
     accept: "Beitritt annehmen",
-    createRequest:
-      "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
-    cancelRequest:
-      "Du hast die Beitrittsanfrage zur Organisation {{organization.name}} zurückgezogen.",
-    rejectRequest:
+    rejectOrganizationMemberRequest:
       "Du hast die Beitrittsanfrage von {{academicTitle}} {{firstName}} {{lastName}} abgelehnt.",
-    acceptRequest:
+    acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt.",
+    createOrganizationMemberRequest:
+      "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
+    cancelOrganizationMemberRequest:
+      "Du hast die Beitrittsanfrage zur Organisation {{organization.name}} zurückgezogen.",
+  },
+  networkRequests: {
+    headline: "Beitrittsanfragen an Deine Netzwerke",
+    subline:
+      "Wenn Du Anfragen bestätigst, werden die Organisationen als Netzwerkmitglied sichtbar.",
+    decline: "Beitritt ablehnen",
+    accept: "Beitritt annehmen",
+    rejectNetworkRequest:
+      "Du hast die Beitrittsanfrage von {{name}} abgelehnt.",
+    acceptNetworkRequest:
+      "Die Organisation {{organizationName}} wurde zu Deinem Netzwerk {{networkName}} hinzugefügt.",
   },
   quit: {
     success: "Du hast die Organisation {{organization}} erfolgreich verlassen.",

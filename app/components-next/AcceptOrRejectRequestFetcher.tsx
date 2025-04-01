@@ -46,7 +46,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         aria-describedby={`requests-headline tab-description-${tabKey} reject-request-${profileId}-${organizationId} requests-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >
-        {locales.route.requests.decline}
+        {locales.route.organizationMemberRequests.decline}
       </Button>
       <Button
         id={`accept-request-${profileId}-${organizationId}`}
@@ -57,7 +57,7 @@ export function AcceptOrRejectRequestFetcher(props: {
         aria-describedby={`requests-headline tab-description-${tabKey} accept-request-${profileId}-${organizationId} requests-subline`}
         className="mv-text-wrap @sm:mv-text-nowrap"
       >
-        {locales.route.requests.accept}
+        {locales.route.organizationMemberRequests.accept}
       </Button>
     </fetcher.Form>
   );
