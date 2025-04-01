@@ -115,7 +115,7 @@ export const getProjectsSchema = z.object({
       }
       return page;
     }),
-  search: z
+  prjAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -291,7 +291,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProjects.push(imageEnhancedProject);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.prjAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -488,7 +488,7 @@ export default function ExploreProjects() {
   );
 
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.prjAreaSearch
   );
 
   return (
@@ -894,8 +894,8 @@ export default function ExploreProjects() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.prjAreaSearch.id}
+                      name={fields.prjAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -909,7 +909,7 @@ export default function ExploreProjects() {
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.prjAreaSearch.id} hidden>
                         {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>

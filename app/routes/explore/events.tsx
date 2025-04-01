@@ -127,7 +127,7 @@ export const getEventsSchema = z.object({
       }
       return page;
     }),
-  search: z
+  evtAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -281,7 +281,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.evtAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -411,7 +411,7 @@ export default function ExploreOrganizations() {
   loadMoreSearchParams.set("evtPage", `${page + 1}`);
 
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.evtAreaSearch
   );
 
   return (
@@ -820,8 +820,8 @@ export default function ExploreOrganizations() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.evtAreaSearch.id}
+                      name={fields.evtAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -835,7 +835,7 @@ export default function ExploreOrganizations() {
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.evtAreaSearch.id} hidden>
                         {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>

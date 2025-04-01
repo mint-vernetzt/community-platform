@@ -103,7 +103,7 @@ export const getOrganizationsSchema = z.object({
       }
       return page;
     }),
-  search: z
+  orgAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -293,7 +293,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations.push(transformedOrganization);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.orgAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -405,7 +405,7 @@ export default function ExploreOrganizations() {
   );
 
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.orgAreaSearch
   );
 
   return (
@@ -681,8 +681,8 @@ export default function ExploreOrganizations() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.orgAreaSearch.id}
+                      name={fields.orgAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -696,7 +696,7 @@ export default function ExploreOrganizations() {
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
                         {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>

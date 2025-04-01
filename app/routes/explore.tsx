@@ -167,7 +167,12 @@ function MenuItem(props: {
   const match = useMatch(to);
 
   const url = new URL(to, origin);
+
   url.search = searchParams.toString();
+  url.searchParams.delete("prfAreaSearch");
+  url.searchParams.delete("orgAreaSearch");
+  url.searchParams.delete("evtAreaSearch");
+  url.searchParams.delete("prjAreaSearch");
 
   const isActive = match !== null;
 

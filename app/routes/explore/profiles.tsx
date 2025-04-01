@@ -14,6 +14,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
@@ -113,7 +114,7 @@ export const getProfilesSchema = z.object({
       }
       return page;
     }),
-  search: z
+  prfAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -129,6 +130,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const showFiltersValue = searchParams.getAll("showFilters");
+
+  if (showFiltersValue.length > 1) {
+    const cleanURL = new URL(request.url);
+    cleanURL.searchParams.delete("showFilters");
+    cleanURL.searchParams.append("showFilters", "on");
+    return redirect(cleanURL.toString(), { status: 301 });
+  }
 
   const submission = parseWithZod(searchParams, { schema: getProfilesSchema });
   invariantResponse(
@@ -285,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.prfAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -379,7 +389,7 @@ export default function ExploreProfiles() {
   );
 
   const [searchQuery, setSearchQuery] = React.useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.prfAreaSearch
   );
 
   const currentSortValue = sortValues.find((value) => {
@@ -586,8 +596,8 @@ export default function ExploreProfiles() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.prfAreaSearch.id}
+                      name={fields.prfAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -603,7 +613,7 @@ export default function ExploreProfiles() {
                         loaderData.locales.route.filter.searchAreaPlaceholder
                       }
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.prfAreaSearch.id} hidden>
                         {loaderData.locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
