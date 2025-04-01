@@ -656,17 +656,20 @@ const de = {
     projectTargetGroups: deProjectTargetGroups,
     specialTargetGroups: deSpecialTargetGroups,
     rte: deRTE,
+    components: deComponents,
   },
   "project/$slug/settings/general": {
     route: deGeneralProjectSettings,
     schemas: deSchemas,
     formats: deFormats,
+    components: deComponents,
   },
   "project/$slug/settings/index": deProjectSettingsIndex,
   "project/$slug/settings/requirements": {
     route: deProjectRequirementsSettings,
     financings: deFinancings,
     rte: deRTE,
+    components: deComponents,
   },
   "project/$slug/settings/responsible-orgs": {
     route: deResponsibleOrganizationsOfProject,
@@ -1064,17 +1067,20 @@ const en = {
     projectTargetGroups: enProjectTargetGroups,
     specialTargetGroups: enSpecialTargetGroups,
     rte: enRTE,
+    components: enComponents,
   },
   "project/$slug/settings/general": {
     route: enGeneralProjectSettings,
     schemas: enSchemas,
     formats: enFormats,
+    components: enComponents,
   },
   "project/$slug/settings/index": enProjectSettingsIndex,
   "project/$slug/settings/requirements": {
     route: enProjectRequirementsSettings,
     financings: enFinancings,
     rte: enRTE,
+    components: enComponents,
   },
   "project/$slug/settings/responsible-orgs": {
     route: enResponsibleOrganizationsOfProject,

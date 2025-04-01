@@ -532,10 +532,16 @@ function Manage() {
               <ConformSelect.Label htmlFor={manageFields.organizationTypes.id}>
                 {locales.route.content.types.label}
               </ConformSelect.Label>
-              {typeof manageFields.organizationTypes.errors !== "undefined" ? (
-                <ConformSelect.Error>
-                  {manageFields.organizationTypes.errors}
-                </ConformSelect.Error>
+              {typeof manageFields.organizationTypes.errors !== "undefined" &&
+              manageFields.organizationTypes.errors.length > 0 ? (
+                manageFields.organizationTypes.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={manageFields.organizationTypes.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
               ) : (
                 <ConformSelect.HelperText>
                   {locales.route.content.types.helper}
@@ -605,7 +611,7 @@ function Manage() {
                   }
                   return (
                     <Chip key={field.key}>
-                      <Input
+                      <input
                         {...getInputProps(field, { type: "hidden" })}
                         key="organizationTypes"
                       />
@@ -648,10 +654,16 @@ function Manage() {
                 </span>
               </ConformSelect.Label>
 
-              {typeof manageFields.networkTypes.errors !== "undefined" ? (
-                <ConformSelect.Error>
-                  {manageFields.networkTypes.errors}
-                </ConformSelect.Error>
+              {typeof manageFields.networkTypes.errors !== "undefined" &&
+              manageFields.networkTypes.errors.length > 0 ? (
+                manageFields.networkTypes.errors.map((error) => (
+                  <ConformSelect.Error
+                    id={manageFields.networkTypes.errorId}
+                    key={error}
+                  >
+                    {error}
+                  </ConformSelect.Error>
+                ))
               ) : (
                 <ConformSelect.HelperText>
                   <span
@@ -730,7 +742,7 @@ function Manage() {
                   }
                   return (
                     <Chip key={field.key}>
-                      <Input
+                      <input
                         {...getInputProps(field, {
                           type: "hidden",
                         })}

@@ -14,6 +14,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
@@ -130,6 +131,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const showFiltersValue = searchParams.getAll("showFilters");
+
+  if (showFiltersValue.length > 1) {
+    const cleanURL = new URL(request.url);
+    cleanURL.searchParams.delete("showFilters");
+    cleanURL.searchParams.append("showFilters", "on");
+    return redirect(cleanURL.toString(), { status: 301 });
+  }
+
   const submission = parseWithZod(searchParams, {
     schema: getProjectsSchema,
   });

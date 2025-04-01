@@ -7,7 +7,7 @@ import {
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { type LoaderFunctionArgs } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -104,6 +104,16 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const showFiltersValue = searchParams.getAll("showFilters");
+
+  if (showFiltersValue.length > 1) {
+    const cleanURL = new URL(request.url);
+    cleanURL.searchParams.delete("showFilters");
+    cleanURL.searchParams.append("showFilters", "on");
+    return redirect(cleanURL.toString(), { status: 301 });
+  }
+
   const submission = parseWithZod(searchParams, {
     schema: getFundingsSchema,
   });

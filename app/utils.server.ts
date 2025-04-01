@@ -202,6 +202,7 @@ const allowedTags = [
   "ul",
   "ol",
   "p",
+  "span",
   "li",
   "br",
 ];
@@ -214,7 +215,8 @@ const allowedAttributes = {
   strong: ["class", "style"],
   ul: ["class", "style"],
   ol: ["class", "style"],
-  p: ["class", "style"],
+  p: ["dir", "class", "style"],
+  span: ["class", "style"],
   li: ["class", "style"],
   br: ["class", "style"],
 };
@@ -240,6 +242,7 @@ export const sanitizeUserHtml = (
     options ?? {
       allowedTags,
       allowedAttributes,
+      parseStyleAttributes: false,
     }
   );
 };
