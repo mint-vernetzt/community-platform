@@ -10,7 +10,7 @@ export type ExploreEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["explore/events"];
 
-export function getTakeParam(page: GetEventsSchema["page"]) {
+export function getTakeParam(page: GetEventsSchema["evtPage"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -27,7 +27,7 @@ function dateToPostgresTimestamp(date: Date) {
 }
 
 function getWhereStatementFromPeriodOfTime(
-  periodOfTime: GetEventsSchema["filter"]["periodOfTime"],
+  periodOfTime: GetEventsSchema["evtFilter"]["periodOfTime"],
   sqlType: "prisma" | "raw" = "prisma"
 ) {
   const now = new Date();
@@ -142,7 +142,7 @@ type WhereClause = {
 };
 
 export async function getVisibilityFilteredEventsCount(options: {
-  filter: GetEventsSchema["filter"];
+  filter: GetEventsSchema["evtFilter"];
 }) {
   const whereClauses: {
     AND: WhereClause["AND"] & { OR: EventVisibility[] }[];
@@ -223,7 +223,7 @@ export async function getVisibilityFilteredEventsCount(options: {
 }
 
 export async function getEventsCount(options: {
-  filter: GetEventsSchema["filter"];
+  filter: GetEventsSchema["evtFilter"];
 }) {
   const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
@@ -281,8 +281,8 @@ export async function getEventsCount(options: {
 }
 
 export async function getAllEvents(options: {
-  filter: GetEventsSchema["filter"];
-  sortBy: GetEventsSchema["sortBy"];
+  filter: GetEventsSchema["evtFilter"];
+  sortBy: GetEventsSchema["evtSortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -526,8 +526,8 @@ export async function enhanceEventsWithParticipationStatus(
 
 // TODO: Where statement in raw sql for periodOfTime
 export async function getEventFilterVectorForAttribute(
-  attribute: keyof GetEventsSchema["filter"],
-  filter: GetEventsSchema["filter"]
+  attribute: keyof GetEventsSchema["evtFilter"],
+  filter: GetEventsSchema["evtFilter"]
 ) {
   const whereStatements = ["published = true"];
   for (const filterKey in filter) {

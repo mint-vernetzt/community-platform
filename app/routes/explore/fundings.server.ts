@@ -108,8 +108,8 @@ export async function updateFilterVectorOfFunding(fundingId: string) {
 }
 
 export async function getFundingFilterVectorForAttribute(
-  attribute: keyof GetFundingsSchema["filter"],
-  filter: GetFundingsSchema["filter"]
+  attribute: keyof GetFundingsSchema["fndFilter"],
+  filter: GetFundingsSchema["fndFilter"]
 ) {
   let whereClause = "";
   const whereStatements = [];
@@ -223,4 +223,56 @@ export function getFilterCountForSlug(
   const filterCount = filterKeyVector.count[valueIndex];
 
   return filterCount;
+}
+
+type FilterKeyWhereStatement = {
+  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+};
+
+type WhereClause = {
+  AND: FilterKeyWhereStatement[];
+};
+
+export async function getFundingsCount(options: {
+  filter: GetFundingsSchema["fndFilter"];
+}) {
+  const whereClauses: WhereClause = { AND: [] };
+  for (const key in options.filter) {
+    const typedKey = key as FilterKey;
+
+    const { singularKey, pluralKey } = getKeys(typedKey);
+
+    const values = options.filter[typedKey];
+    if (values.length === 0) {
+      continue;
+    }
+
+    const filterKeyWhereStatement: {
+      OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
+    } = { OR: [] };
+
+    for (const value of values) {
+      const whereStatement = {
+        [pluralKey]: {
+          some: {
+            [typedKey === "regions" ? "area" : singularKey]: {
+              // funding data for areas is stored in regions
+              slug: value,
+            },
+          },
+        },
+      };
+      filterKeyWhereStatement.OR.push(whereStatement);
+    }
+
+    whereClauses.AND.push(filterKeyWhereStatement);
+  }
+
+  const count = await prismaClient.funding.count({
+    where: {
+      AND: whereClauses,
+    },
+  });
+
+  return count;
 }

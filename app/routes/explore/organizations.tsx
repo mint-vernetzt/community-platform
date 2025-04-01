@@ -59,8 +59,8 @@ const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
 export type GetOrganizationsSchema = z.infer<typeof getOrganizationsSchema>;
 
-const getOrganizationsSchema = z.object({
-  filter: z
+export const getOrganizationsSchema = z.object({
+  orgFilter: z
     .object({
       type: z.array(z.string()),
       focus: z.array(z.string()),
@@ -77,7 +77,7 @@ const getOrganizationsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  orgSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -93,7 +93,7 @@ const getOrganizationsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  orgPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -130,7 +130,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/organizations"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.orgPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -139,15 +139,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredOrganizationsCount({
-      filter: submission.value.filter,
+      filter: submission.value.orgFilter,
     });
   }
   const organizationsCount = await getOrganizationsCount({
-    filter: submission.value.filter,
+    filter: submission.value.orgFilter,
   });
   const organizations = await getAllOrganizations({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.orgFilter,
+    sortBy: submission.value.orgSortBy,
     take,
     isLoggedIn,
   });
@@ -297,7 +297,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   const areaFilterVector = await getOrganizationFilterVectorForAttribute(
     "area",
-    submission.value.filter
+    submission.value.orgFilter
   );
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -305,7 +305,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.orgFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -314,7 +314,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.orgFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -331,7 +331,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const types = await getAllOrganizationTypes();
   const typeFilterVector = await getOrganizationFilterVectorForAttribute(
     "type",
-    submission.value.filter
+    submission.value.orgFilter
   );
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(
@@ -339,14 +339,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
       typeFilterVector,
       "type"
     );
-    const isChecked = submission.value.filter.type.includes(type.slug);
+    const isChecked = submission.value.orgFilter.type.includes(type.slug);
     return { ...type, vectorCount, isChecked };
   });
 
   const focuses = await getAllFocuses();
   const focusFilterVector = await getOrganizationFilterVectorForAttribute(
     "focus",
-    submission.value.filter
+    submission.value.orgFilter
   );
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
@@ -354,7 +354,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       focusFilterVector,
       "focus"
     );
-    const isChecked = submission.value.filter.focus.includes(focus.slug);
+    const isChecked = submission.value.orgFilter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
 
@@ -364,9 +364,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
-    selectedFocuses: submission.value.filter.focus,
+    selectedFocuses: submission.value.orgFilter.focus,
     types: enhancedTypes,
-    selectedTypes: submission.value.filter.type,
+    selectedTypes: submission.value.orgFilter.type,
     submission,
     filteredByVisibilityCount,
     organizationsCount,
@@ -385,10 +385,13 @@ export default function ExploreOrganizations() {
 
   const [form, fields] = useForm<GetOrganizationsSchema>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.orgFilter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "orgPage",
+    `${loaderData.submission.value.orgPage + 1}`
+  );
 
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search
@@ -417,7 +420,7 @@ export default function ExploreOrganizations() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="orgPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
@@ -427,7 +430,7 @@ export default function ExploreOrganizations() {
           >
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.orgFilter)}
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
             >
               <Dropdown>
@@ -759,7 +762,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.orgSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -768,7 +771,7 @@ export default function ExploreOrganizations() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
-                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      const currentValue = `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`;
                       let value;
                       if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
@@ -789,10 +792,10 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.orgSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -814,8 +817,8 @@ export default function ExploreOrganizations() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.orgSortBy !== undefined
+                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
                   : ""
               }`}
             >
@@ -929,8 +932,8 @@ export default function ExploreOrganizations() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.orgSortBy !== undefined
+                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
                   : ""
               }`}
               preventScrollReset

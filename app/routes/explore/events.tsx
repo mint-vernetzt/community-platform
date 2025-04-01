@@ -71,8 +71,8 @@ export const periodOfTimeValues = [
 
 export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 
-const getEventsSchema = z.object({
-  filter: z
+export const getEventsSchema = z.object({
+  evtFilter: z
     .object({
       stage: z.string(),
       focus: z.array(z.string()),
@@ -101,7 +101,7 @@ const getEventsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  evtSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -117,7 +117,7 @@ const getEventsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  evtPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -154,7 +154,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/events"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.evtPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -163,15 +163,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredEventsCount({
-      filter: submission.value.filter,
+      filter: submission.value.evtFilter,
     });
   }
   const eventsCount = await getEventsCount({
-    filter: submission.value.filter,
+    filter: submission.value.evtFilter,
   });
   const events = await getAllEvents({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.evtFilter,
+    sortBy: submission.value.evtSortBy,
     take,
     isLoggedIn,
   });
@@ -286,7 +286,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const areaFilterVector = await getEventFilterVectorForAttribute(
     "area",
-    submission.value.filter
+    submission.value.evtFilter
   );
 
   for (const area of areas) {
@@ -295,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.evtFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -304,7 +304,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.evtFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -321,7 +321,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const focuses = await getAllFocuses();
   const focusFilterVector = await getEventFilterVectorForAttribute(
     "focus",
-    submission.value.filter
+    submission.value.evtFilter
   );
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
@@ -329,14 +329,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
       focusFilterVector,
       "focus"
     );
-    const isChecked = submission.value.filter.focus.includes(focus.slug);
+    const isChecked = submission.value.evtFilter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
 
   const targetGroups = await getAllEventTargetGroups();
   const targetGroupFilterVector = await getEventFilterVectorForAttribute(
     "eventTargetGroup",
-    submission.value.filter
+    submission.value.evtFilter
   );
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
@@ -344,7 +344,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       targetGroupFilterVector,
       "eventTargetGroup"
     );
-    const isChecked = submission.value.filter.eventTargetGroup.includes(
+    const isChecked = submission.value.evtFilter.eventTargetGroup.includes(
       targetGroup.slug
     );
     return { ...targetGroup, vectorCount, isChecked };
@@ -360,7 +360,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ] as typeof stagesFromDB
   ).concat(stagesFromDB);
   const enhancedStages = stages.map((stage) => {
-    const isChecked = submission.value.filter.stage === stage.slug;
+    const isChecked = submission.value.evtFilter.stage === stage.slug;
     return { ...stage, isChecked };
   });
 
@@ -370,10 +370,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
-    selectedFocuses: submission.value.filter.focus,
+    selectedFocuses: submission.value.evtFilter.focus,
     targetGroups: enhancedTargetGroups,
     stages: enhancedStages,
-    selectedTargetGroups: submission.value.filter.eventTargetGroup,
+    selectedTargetGroups: submission.value.evtFilter.eventTargetGroup,
     submission,
     filteredByVisibilityCount,
     eventsCount,
@@ -393,11 +393,11 @@ export default function ExploreOrganizations() {
 
   const [form, fields] = useForm<GetEventsSchema>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.evtFilter.getFieldset();
 
-  const page = loaderData.submission.value.page;
+  const page = loaderData.submission.value.evtPage;
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${page + 1}`);
+  loadMoreSearchParams.set("evtPage", `${page + 1}`);
 
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search
@@ -426,7 +426,7 @@ export default function ExploreOrganizations() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="evtPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
@@ -437,7 +437,7 @@ export default function ExploreOrganizations() {
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.evtFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
@@ -451,20 +451,20 @@ export default function ExploreOrganizations() {
                     {(() => {
                       let title;
                       if (
-                        loaderData.submission.value.filter.stage in
+                        loaderData.submission.value.evtFilter.stage in
                         locales.stages
                       ) {
                         type LocaleKey = keyof typeof locales.stages;
                         title =
                           locales.stages[
-                            loaderData.submission.value.filter
+                            loaderData.submission.value.evtFilter
                               .stage as LocaleKey
                           ].title;
                       } else {
                         console.error(
-                          `Event stage ${loaderData.submission.value.filter.stage} not found in locales`
+                          `Event stage ${loaderData.submission.value.evtFilter.stage} not found in locales`
                         );
-                        title = loaderData.submission.value.filter.stage;
+                        title = loaderData.submission.value.evtFilter.stage;
                       }
                       return title;
                     })()}
@@ -599,14 +599,15 @@ export default function ExploreOrganizations() {
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
                       locales.route.filter.periodOfTime.values[
-                        loaderData.submission.value.filter.periodOfTime
+                        loaderData.submission.value.evtFilter.periodOfTime
                       ]
                     }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {periodOfTimeValues.map((periodOfTimeValue) => {
-                    const submissionFilter = loaderData.submission.value.filter;
+                    const submissionFilter =
+                      loaderData.submission.value.evtFilter;
                     return (
                       <FormControl
                         {...getInputProps(filter.periodOfTime, {
@@ -901,7 +902,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.evtSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -910,7 +911,7 @@ export default function ExploreOrganizations() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
-                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      const currentValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                       let value;
                       if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
@@ -931,10 +932,10 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.evtSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -956,8 +957,8 @@ export default function ExploreOrganizations() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.evtSortBy !== undefined
+                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
                   : ""
               }`}
             >
@@ -1079,8 +1080,8 @@ export default function ExploreOrganizations() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.evtSortBy !== undefined
+                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
                   : ""
               }`}
               preventScrollReset

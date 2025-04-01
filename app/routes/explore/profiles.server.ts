@@ -9,7 +9,7 @@ export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["explore/profiles"];
 
-export function getTakeParam(page: GetProfilesSchema["page"]) {
+export function getTakeParam(page: GetProfilesSchema["prfPage"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -24,7 +24,7 @@ type WhereClause = {
 };
 
 export async function getVisibilityFilteredProfilesCount(options: {
-  filter: GetProfilesSchema["filter"];
+  filter: GetProfilesSchema["prfFilter"];
 }) {
   const whereClauses: {
     AND: WhereClause["AND"] & { OR: ProfileVisibility[] }[];
@@ -75,7 +75,7 @@ export async function getVisibilityFilteredProfilesCount(options: {
 }
 
 export async function getProfilesCount(options: {
-  filter: GetProfilesSchema["filter"];
+  filter: GetProfilesSchema["prfFilter"];
 }) {
   const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
@@ -108,8 +108,8 @@ export async function getProfilesCount(options: {
 }
 
 export async function getAllProfiles(options: {
-  filter: GetProfilesSchema["filter"];
-  sortBy: GetProfilesSchema["sortBy"];
+  filter: GetProfilesSchema["prfFilter"];
+  sortBy: GetProfilesSchema["prfSortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -229,8 +229,8 @@ export async function getAllProfiles(options: {
 }
 
 export async function getProfileFilterVectorForAttribute(
-  attribute: keyof GetProfilesSchema["filter"],
-  filter: GetProfilesSchema["filter"]
+  attribute: keyof GetProfilesSchema["prfFilter"],
+  filter: GetProfilesSchema["prfFilter"]
 ) {
   let whereClause = "";
   const whereStatements: string[] = [];

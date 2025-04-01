@@ -72,8 +72,8 @@ const sortValues = [
 
 export type GetProfilesSchema = z.infer<typeof getProfilesSchema>;
 
-const getProfilesSchema = z.object({
-  filter: z
+export const getProfilesSchema = z.object({
+  prfFilter: z
     .object({
       offer: z.array(z.string()),
       area: z.array(z.string()),
@@ -88,7 +88,7 @@ const getProfilesSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  prfSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -104,7 +104,7 @@ const getProfilesSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  prfPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -140,7 +140,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const routeLocales = languageModuleMap[language]["explore/profiles"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.prfPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -149,15 +149,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
-      filter: submission.value.filter,
+      filter: submission.value.prfFilter,
     });
   }
   const profilesCount = await getProfilesCount({
-    filter: submission.value.filter,
+    filter: submission.value.prfFilter,
   });
   const profiles = await getAllProfiles({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.prfFilter,
+    sortBy: submission.value.prfSortBy,
     take,
     isLoggedIn,
   });
@@ -300,7 +300,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   const areaFilterVector = await getProfileFilterVectorForAttribute(
     "area",
-    submission.value.filter
+    submission.value.prfFilter
   );
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -308,7 +308,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.prfFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -317,7 +317,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.prfFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -334,7 +334,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const offers = await getAllOffers();
   const offerFilterVector = await getProfileFilterVectorForAttribute(
     "offer",
-    submission.value.filter
+    submission.value.prfFilter
   );
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
@@ -342,7 +342,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       offerFilterVector,
       "offer"
     );
-    const isChecked = submission.value.filter.offer.includes(offer.slug);
+    const isChecked = submission.value.prfFilter.offer.includes(offer.slug);
     return { ...offer, vectorCount, isChecked };
   });
 
@@ -352,7 +352,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     offers: enhancedOffers,
-    selectedOffers: submission.value.filter.offer,
+    selectedOffers: submission.value.prfFilter.offer,
     submission,
     filteredByVisibilityCount,
     profilesCount,
@@ -370,10 +370,13 @@ export default function ExploreProfiles() {
 
   const [form, fields] = useForm<GetProfilesSchema>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.prfFilter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "prfPage",
+    `${loaderData.submission.value.prfPage + 1}`
+  );
 
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search
@@ -382,7 +385,7 @@ export default function ExploreProfiles() {
   const currentSortValue = sortValues.find((value) => {
     return (
       value ===
-      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+      `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
     );
   });
 
@@ -410,7 +413,7 @@ export default function ExploreProfiles() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="prfPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
           <ShowFiltersButton>
             {loaderData.locales.route.filter.showFiltersLabel}
@@ -424,7 +427,7 @@ export default function ExploreProfiles() {
 
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.prfFilter)}
             >
               <Dropdown>
                 <Dropdown.Label>
@@ -674,7 +677,7 @@ export default function ExploreProfiles() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.prfSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -691,10 +694,10 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.prfSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -716,8 +719,8 @@ export default function ExploreProfiles() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prfSortBy !== undefined
+                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
                   : ""
               }`}
             >
@@ -805,8 +808,8 @@ export default function ExploreProfiles() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prfSortBy !== undefined
+                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
                   : ""
               }`}
               preventScrollReset

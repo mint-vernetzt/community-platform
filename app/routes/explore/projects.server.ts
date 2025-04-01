@@ -9,7 +9,7 @@ export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["explore/projects"];
 
-export function getTakeParam(page: GetProjectsSchema["page"]) {
+export function getTakeParam(page: GetProjectsSchema["prjPage"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -24,7 +24,7 @@ type WhereClause = {
 };
 
 export async function getVisibilityFilteredProjectsCount(options: {
-  filter: GetProjectsSchema["filter"];
+  filter: GetProjectsSchema["prjFilter"];
 }) {
   const whereClauses: {
     AND: WhereClause["AND"] & { OR: ProjectVisibility[] }[];
@@ -89,7 +89,7 @@ export async function getVisibilityFilteredProjectsCount(options: {
 }
 
 export async function getProjectsCount(options: {
-  filter: GetProjectsSchema["filter"];
+  filter: GetProjectsSchema["prjFilter"];
 }) {
   const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
@@ -129,8 +129,8 @@ export async function getProjectsCount(options: {
 }
 
 export async function getAllProjects(options: {
-  filter: GetProjectsSchema["filter"];
-  sortBy: GetProjectsSchema["sortBy"];
+  filter: GetProjectsSchema["prjFilter"];
+  sortBy: GetProjectsSchema["prjSortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -228,8 +228,8 @@ export async function getAllProjects(options: {
 }
 
 export async function getProjectFilterVectorForAttribute(
-  attribute: keyof GetProjectsSchema["filter"],
-  filter: GetProjectsSchema["filter"]
+  attribute: keyof GetProjectsSchema["prjFilter"],
+  filter: GetProjectsSchema["prjFilter"]
 ) {
   let whereClause = "";
   const whereStatements = ["published = true"];

@@ -63,8 +63,8 @@ const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
 export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
 
-const getProjectsSchema = z.object({
-  filter: z
+export const getProjectsSchema = z.object({
+  prjFilter: z
     .object({
       discipline: z.array(z.string()),
       additionalDiscipline: z.array(z.string()),
@@ -89,7 +89,7 @@ const getProjectsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  prjSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -105,7 +105,7 @@ const getProjectsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  prjPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -142,7 +142,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/projects"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.prjPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -151,15 +151,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
     filteredByVisibilityCount = await getVisibilityFilteredProjectsCount({
-      filter: submission.value.filter,
+      filter: submission.value.prjFilter,
     });
   }
   const projectsCount = await getProjectsCount({
-    filter: submission.value.filter,
+    filter: submission.value.prjFilter,
   });
   const projects = await getAllProjects({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.prjFilter,
+    sortBy: submission.value.prjSortBy,
     take,
     isLoggedIn,
   });
@@ -295,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
   const areaFilterVector = await getProjectFilterVectorForAttribute(
     "area",
-    submission.value.filter
+    submission.value.prjFilter
   );
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -303,7 +303,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.prjFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -312,7 +312,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.prjFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -329,7 +329,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const disciplines = await getAllDisciplines();
   const disciplineFilterVector = await getProjectFilterVectorForAttribute(
     "discipline",
-    submission.value.filter
+    submission.value.prjFilter
   );
   const enhancedDisciplines = disciplines.map((discipline) => {
     const vectorCount = getFilterCountForSlug(
@@ -337,7 +337,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       disciplineFilterVector,
       "discipline"
     );
-    const isChecked = submission.value.filter.discipline.includes(
+    const isChecked = submission.value.prjFilter.discipline.includes(
       discipline.slug
     );
     return { ...discipline, vectorCount, isChecked };
@@ -347,7 +347,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const additionalDisciplineFilterVector =
     await getProjectFilterVectorForAttribute(
       "additionalDiscipline",
-      submission.value.filter
+      submission.value.prjFilter
     );
   const enhancedAdditionalDisciplines = additionalDisciplines.map(
     (additionalDiscipline) => {
@@ -356,9 +356,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
         additionalDisciplineFilterVector,
         "additionalDiscipline"
       );
-      const isChecked = submission.value.filter.additionalDiscipline.includes(
-        additionalDiscipline.slug
-      );
+      const isChecked =
+        submission.value.prjFilter.additionalDiscipline.includes(
+          additionalDiscipline.slug
+        );
       return { ...additionalDiscipline, vectorCount, isChecked };
     }
   );
@@ -366,7 +367,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const targetGroups = await getAllProjectTargetGroups();
   const targetGroupFilterVector = await getProjectFilterVectorForAttribute(
     "projectTargetGroup",
-    submission.value.filter
+    submission.value.prjFilter
   );
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
@@ -374,7 +375,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       targetGroupFilterVector,
       "projectTargetGroup"
     );
-    const isChecked = submission.value.filter.projectTargetGroup.includes(
+    const isChecked = submission.value.prjFilter.projectTargetGroup.includes(
       targetGroup.slug
     );
     return { ...targetGroup, vectorCount, isChecked };
@@ -383,7 +384,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const formats = await getAllFormats();
   const formatFilterVector = await getProjectFilterVectorForAttribute(
     "format",
-    submission.value.filter
+    submission.value.prjFilter
   );
   const enhancedFormats = formats.map((format) => {
     const vectorCount = getFilterCountForSlug(
@@ -391,7 +392,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       formatFilterVector,
       "format"
     );
-    const isChecked = submission.value.filter.format.includes(format.slug);
+    const isChecked = submission.value.prjFilter.format.includes(format.slug);
     return { ...format, vectorCount, isChecked };
   });
 
@@ -399,7 +400,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const specialTargetGroupFilterVector =
     await getProjectFilterVectorForAttribute(
       "specialTargetGroup",
-      submission.value.filter
+      submission.value.prjFilter
     );
   const enhancedSpecialTargetGroups = specialTargetGroups.map(
     (specialTargetGroup) => {
@@ -408,7 +409,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         specialTargetGroupFilterVector,
         "specialTargetGroup"
       );
-      const isChecked = submission.value.filter.specialTargetGroup.includes(
+      const isChecked = submission.value.prjFilter.specialTargetGroup.includes(
         specialTargetGroup.slug
       );
       return { ...specialTargetGroup, vectorCount, isChecked };
@@ -418,7 +419,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const financings = await getAllFinancings();
   const financingFilterVector = await getProjectFilterVectorForAttribute(
     "financing",
-    submission.value.filter
+    submission.value.prjFilter
   );
   const enhancedFinancings = financings.map((financing) => {
     const vectorCount = getFilterCountForSlug(
@@ -426,7 +427,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       financingFilterVector,
       "financing"
     );
-    const isChecked = submission.value.filter.financing.includes(
+    const isChecked = submission.value.prjFilter.financing.includes(
       financing.slug
     );
     return { ...financing, vectorCount, isChecked };
@@ -435,19 +436,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
-    selectedDisciplines: submission.value.filter.discipline,
+    selectedDisciplines: submission.value.prjFilter.discipline,
     additionalDisciplines: enhancedAdditionalDisciplines,
-    selectedAdditionalDisciplines: submission.value.filter.additionalDiscipline,
+    selectedAdditionalDisciplines:
+      submission.value.prjFilter.additionalDiscipline,
     targetGroups: enhancedTargetGroups,
-    selectedTargetGroups: submission.value.filter.projectTargetGroup,
+    selectedTargetGroups: submission.value.prjFilter.projectTargetGroup,
     areas: enhancedAreas,
     selectedAreas,
     formats: enhancedFormats,
-    selectedFormats: submission.value.filter.format,
+    selectedFormats: submission.value.prjFilter.format,
     specialTargetGroups: enhancedSpecialTargetGroups,
-    selectedSpecialTargetGroups: submission.value.filter.specialTargetGroup,
+    selectedSpecialTargetGroups: submission.value.prjFilter.specialTargetGroup,
     financings: enhancedFinancings,
-    selectedFinancings: submission.value.filter.financing,
+    selectedFinancings: submission.value.prjFilter.financing,
     submission,
     filteredByVisibilityCount,
     projectsCount,
@@ -466,10 +468,13 @@ export default function ExploreProjects() {
 
   const [form, fields] = useForm<GetProjectsSchema>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.prjFilter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "prjPage",
+    `${loaderData.submission.value.prjPage + 1}`
+  );
 
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.search
@@ -509,7 +514,7 @@ export default function ExploreProjects() {
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.prjFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
@@ -1232,7 +1237,7 @@ export default function ExploreProjects() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.prjSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -1241,7 +1246,7 @@ export default function ExploreProjects() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
-                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      const currentValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                       let value;
                       if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
@@ -1262,10 +1267,10 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.prjSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -1287,8 +1292,8 @@ export default function ExploreProjects() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prjSortBy !== undefined
+                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
                   : ""
               }`}
             >
@@ -1562,8 +1567,8 @@ export default function ExploreProjects() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prjSortBy !== undefined
+                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
                   : ""
               }`}
               preventScrollReset

@@ -27,6 +27,7 @@ import { FundingCard } from "~/components-next/FundingCard";
 import {
   getFilterCountForSlug,
   getFundingFilterVectorForAttribute,
+  getFundingsCount,
   getKeys,
 } from "./fundings.server";
 import { H1 } from "~/components/Heading/Heading";
@@ -40,8 +41,8 @@ import { languageModuleMap } from "~/locales/.server";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
-const getFundingsSchema = z.object({
-  filter: z
+export const getFundingsSchema = z.object({
+  fndFilter: z
     .object({
       types: z.array(z.string()),
       areas: z.array(z.string()),
@@ -60,7 +61,7 @@ const getFundingsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  fndSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -76,7 +77,7 @@ const getFundingsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  fndPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -89,7 +90,7 @@ const getFundingsSchema = z.object({
 });
 
 export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
-export type FilterKey = keyof GetFundingsSchema["filter"];
+export type FilterKey = keyof GetFundingsSchema["fndFilter"];
 
 type FilterKeyWhereStatement = {
   OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
@@ -114,15 +115,15 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/fundings"];
 
-  const take = submission.value.page * 12;
+  const take = submission.value.fndPage * 12;
 
   const whereClauses: WhereClause = { AND: [] };
-  for (const key in submission.value.filter) {
+  for (const key in submission.value.fndFilter) {
     const typedKey = key as FilterKey;
 
     const { singularKey, pluralKey } = getKeys(typedKey);
 
-    const values = submission.value.filter[typedKey];
+    const values = submission.value.fndFilter[typedKey];
     if (values.length === 0) {
       continue;
     }
@@ -148,7 +149,7 @@ export async function loader(args: LoaderFunctionArgs) {
     whereClauses.AND.push(filterKeyWhereStatement);
   }
 
-  const sortBy = submission.value.sortBy;
+  const sortBy = submission.value.fndSortBy;
 
   const fundings = await prismaClient.funding.findMany({
     select: {
@@ -221,10 +222,8 @@ export async function loader(args: LoaderFunctionArgs) {
     ],
   });
 
-  const count = await prismaClient.funding.count({
-    where: {
-      AND: whereClauses,
-    },
+  const count = await getFundingsCount({
+    filter: submission.value.fndFilter,
   });
 
   const fundingTypes = await prismaClient.fundingType.findMany({
@@ -243,7 +242,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const typeFilterVector = await getFundingFilterVectorForAttribute(
     "types",
-    submission.value.filter
+    submission.value.fndFilter
   );
   const enhancedFundingTypes = fundingTypes
     .sort((a, b) => {
@@ -261,14 +260,14 @@ export async function loader(args: LoaderFunctionArgs) {
         typeFilterVector,
         "types"
       );
-      const isChecked = submission.value.filter.types.includes(type.slug);
+      const isChecked = submission.value.fndFilter.types.includes(type.slug);
       return {
         ...type,
         vectorCount,
         isChecked,
       };
     });
-  const selectedFundingTypes = submission.value.filter.types.map((slug) => {
+  const selectedFundingTypes = submission.value.fndFilter.types.map((slug) => {
     const fundingTypeMatch = fundingTypes.find((type) => type.slug === slug);
     return {
       slug,
@@ -291,7 +290,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const areaFilterVector = await getFundingFilterVectorForAttribute(
     "areas",
-    submission.value.filter
+    submission.value.fndFilter
   );
   const enhancedFundingAreas = fundingAreas
     .sort((a, b) => {
@@ -309,14 +308,14 @@ export async function loader(args: LoaderFunctionArgs) {
         areaFilterVector,
         "areas"
       );
-      const isChecked = submission.value.filter.areas.includes(area.slug);
+      const isChecked = submission.value.fndFilter.areas.includes(area.slug);
       return {
         ...area,
         vectorCount,
         isChecked,
       };
     });
-  const selectedFundingAreas = submission.value.filter.areas.map((slug) => {
+  const selectedFundingAreas = submission.value.fndFilter.areas.map((slug) => {
     const fundingAreaMatch = fundingAreas.find((area) => area.slug === slug);
     return {
       slug,
@@ -339,7 +338,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const eligibleEntitiesFilterVector = await getFundingFilterVectorForAttribute(
     "eligibleEntities",
-    submission.value.filter
+    submission.value.fndFilter
   );
   const enhancedEligibleEntities = eligibleEntities
     .sort((a, b) => {
@@ -357,7 +356,7 @@ export async function loader(args: LoaderFunctionArgs) {
         eligibleEntitiesFilterVector,
         "eligibleEntities"
       );
-      const isChecked = submission.value.filter.eligibleEntities.includes(
+      const isChecked = submission.value.fndFilter.eligibleEntities.includes(
         entity.slug
       );
       return {
@@ -366,8 +365,8 @@ export async function loader(args: LoaderFunctionArgs) {
         isChecked,
       };
     });
-  const selectedEligibleEntities = submission.value.filter.eligibleEntities.map(
-    (slug) => {
+  const selectedEligibleEntities =
+    submission.value.fndFilter.eligibleEntities.map((slug) => {
       const entityMatch = eligibleEntities.find(
         (entity) => entity.slug === slug
       );
@@ -375,8 +374,7 @@ export async function loader(args: LoaderFunctionArgs) {
         slug,
         title: entityMatch?.title || null,
       };
-    }
-  );
+    });
   const regions = await prismaClient.area.findMany({
     where: {
       type: {
@@ -393,7 +391,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const regionFilterVector = await getFundingFilterVectorForAttribute(
     "regions",
-    submission.value.filter
+    submission.value.fndFilter
   );
   const enhancedRegions = regions
     .sort((a) => {
@@ -408,14 +406,16 @@ export async function loader(args: LoaderFunctionArgs) {
         regionFilterVector,
         "regions"
       );
-      const isChecked = submission.value.filter.regions.includes(region.slug);
+      const isChecked = submission.value.fndFilter.regions.includes(
+        region.slug
+      );
       return {
         ...region,
         vectorCount,
         isChecked,
       };
     });
-  const selectedRegions = submission.value.filter.regions.map((slug) => {
+  const selectedRegions = submission.value.fndFilter.regions.map((slug) => {
     const regionMatch = regions.find((region) => region.slug === slug);
     return {
       slug,
@@ -449,14 +449,17 @@ function Fundings() {
   const location = useLocation();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "fndPage",
+    `${loaderData.submission.value.fndPage + 1}`
+  );
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.fndFilter.getFieldset();
 
   const currentSortValue = sortValues.find((value) => {
     return (
       value ===
-      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+      `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
     );
   });
 
@@ -556,7 +559,7 @@ function Fundings() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="fndPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
 
           <ShowFiltersButton>
@@ -568,7 +571,7 @@ function Fundings() {
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.fndFilter)}
               showMore={loaderData.locales.filter.showMore}
               showLess={loaderData.locales.filter.showLess}
               hideAfter={4}
@@ -634,7 +637,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.areas.includes(
+                        checked={loaderData.submission.value.fndFilter.areas.includes(
                           area.slug
                         )}
                         readOnly
@@ -673,7 +676,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.regions.includes(
+                        checked={loaderData.submission.value.fndFilter.regions.includes(
                           area.slug
                         )}
                         readOnly
@@ -712,7 +715,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.eligibleEntities.includes(
+                        checked={loaderData.submission.value.fndFilter.eligibleEntities.includes(
                           entity.slug
                         )}
                         readOnly
@@ -728,7 +731,7 @@ function Fundings() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.fndSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -747,7 +750,7 @@ function Fundings() {
                   {sortValues.map((sortValue) => {
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.fndSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
