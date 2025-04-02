@@ -58,6 +58,9 @@ export const locale = {
     placeholder: "Search for organization...",
     helperText: "At least 3 letters.",
     searchCta: "Search",
+    alreadyAdmin: "already admin",
+    alreadyMember: "already team member",
+    alreadyRequested: "already requested",
   },
   organizationMemberInvites: {
     headline: "Invites from organizations",
@@ -69,7 +72,10 @@ export const locale = {
     },
     decline: "Decline invitation",
     accept: "Accept invitation",
-    accepted: "You have successfully joined the organization {{name}}.",
+    adminAccepted:
+      "You have successfully joined the organization {{name}} as an admin.",
+    memberAccepted:
+      "You have successfully joined the organization {{name}} as a team member.",
     rejected: "You have declined to join the organization {{name}}.",
     more: "Show {{count}} more",
     less: "Show {{count}} less",
@@ -80,7 +86,8 @@ export const locale = {
       "When you confirm invitations, your organization becomes visible as a network member.",
     decline: "Decline invitation",
     accept: "Accept invitation",
-    rejectNetworkInvite: "You have declined the invitation from {{name}}.",
+    rejectNetworkInvite:
+      "You have declined the invitation from {{organizationName}}.",
     acceptNetworkInvite:
       "Your organization {{organizationName}} has been added to the network {{networkName}}.",
   },

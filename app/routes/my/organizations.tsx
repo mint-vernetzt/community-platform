@@ -1,13 +1,15 @@
-import { useForm } from "@conform-to/react-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { useState } from "react";
 import {
+  Form,
   Link,
   redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
@@ -25,7 +27,10 @@ import { Section } from "~/components-next/MyOrganizationsSection";
 import { detectLanguage } from "~/i18n.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { extendSearchParams } from "~/lib/utils/searchParams";
+import {
+  extendSearchParams,
+  SearchOrganizations,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { redirectWithToast } from "~/toast.server";
 import {
@@ -47,9 +52,14 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
-import { getOrganizationsToAdd } from "./organizations/get-organizations-to-add.server";
 import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { z } from "zod";
+import { searchOrganizations } from "../utils.server";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { searchOrganizationsSchema } from "~/form-helpers";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { CreateOrganization } from "~/components-next/CreateOrganization";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -84,7 +94,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const pendingRequestsToOrganizations =
     await getPendingRequestsToOrganizations(sessionUser.id, authClient);
-  const organizationsToAdd = await getOrganizationsToAdd(request, sessionUser);
+  const { searchedOrganizations, submission } = await searchOrganizations({
+    searchParams: new URL(request.url).searchParams,
+    authClient,
+    locales,
+    mode: "authenticated",
+  });
 
   const organizationMemberRequests = await getOrganizationMemberRequests(
     sessionUser.id
@@ -110,7 +125,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const currentTimestamp = Date.now();
 
   return {
-    organizationsToAdd,
+    searchedOrganizations,
+    submission,
     pendingRequestsToOrganizations,
     organizationMemberInvites: enhancedOrganizationMemberInvites,
     networkInvites: enhancedNetworkInvites,
@@ -127,19 +143,23 @@ export const createOrCancelOrganizationMemberRequestSchema = z.object({
 });
 
 export const updateOrganizationMemberInviteSchema = z.object({
-  inviteId: z.string(),
+  organizationId: z.string(),
+  role: z.enum(["admin", "member"]),
 });
 
 export const updateNetworkInviteSchema = z.object({
-  inviteId: z.string(),
+  organizationId: z.string(),
+  networkId: z.string(),
 });
 
 export const acceptOrRejectOrganizationMemberRequestSchema = z.object({
-  requestId: z.string(),
+  organizationId: z.string(),
+  profileId: z.string(),
 });
 
 export const updateNetworkRequestSchema = z.object({
-  requestId: z.string(),
+  organizationId: z.string(),
+  networkId: z.string(),
 });
 
 export const quitOrganizationSchema = z.object({
@@ -191,24 +211,52 @@ export const action = async (args: ActionFunctionArgs) => {
       locales,
       sessionUser,
     });
-  } else if (intent.startsWith("accept-organization-member-invite-")) {
+  } else if (intent.startsWith("accept-organization-invite-")) {
     const acceptOrganizationMemberInviteFormData = new FormData();
-    acceptOrganizationMemberInviteFormData.set(
-      "organizationId",
-      intent.replace("accept-organization-member-invite-", "")
-    );
+    const subIntent = intent.replace("accept-organization-invite-", "");
+    if (subIntent.startsWith("admin-")) {
+      acceptOrganizationMemberInviteFormData.set("role", "admin");
+      acceptOrganizationMemberInviteFormData.set(
+        "organizationId",
+        subIntent.replace("admin-", "")
+      );
+    } else if (subIntent.startsWith("teamMember-")) {
+      acceptOrganizationMemberInviteFormData.set("role", "member");
+      acceptOrganizationMemberInviteFormData.set(
+        "organizationId",
+        subIntent.replace("teamMember-", "")
+      );
+    } else {
+      invariantResponse(false, "Invalid intent", {
+        status: 400,
+      });
+    }
     result = await updateOrganizationMemberInvite({
       formData: acceptOrganizationMemberInviteFormData,
       intent: "acceptOrganizationMemberInvite",
       locales,
       sessionUser,
     });
-  } else if (intent.startsWith("reject-organization-member-invite-")) {
+  } else if (intent.startsWith("reject-organization-invite-")) {
     const rejectOrganizationMemberInviteFormData = new FormData();
-    rejectOrganizationMemberInviteFormData.set(
-      "organizationId",
-      intent.replace("reject-organization-member-invite-", "")
-    );
+    const subIntent = intent.replace("reject-organization-invite-", "");
+    if (subIntent.startsWith("admin-")) {
+      rejectOrganizationMemberInviteFormData.set("role", "admin");
+      rejectOrganizationMemberInviteFormData.set(
+        "organizationId",
+        subIntent.replace("admin-", "")
+      );
+    } else if (subIntent.startsWith("teamMember-")) {
+      rejectOrganizationMemberInviteFormData.set("role", "member");
+      rejectOrganizationMemberInviteFormData.set(
+        "organizationId",
+        subIntent.replace("teamMember-", "")
+      );
+    } else {
+      invariantResponse(false, "Invalid intent", {
+        status: 400,
+      });
+    }
     result = await updateOrganizationMemberInvite({
       formData: rejectOrganizationMemberInviteFormData,
       intent: "rejectOrganizationMemberInvite",
@@ -217,10 +265,9 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("accept-network-invite-")) {
     const acceptNetworkInviteFormData = new FormData();
-    acceptNetworkInviteFormData.set(
-      "organizationId",
-      intent.replace("accept-network-invite-", "")
-    );
+    const idPair = intent.replace("accept-network-invite-", "");
+    acceptNetworkInviteFormData.set("networkId", idPair.substring(0, 36));
+    acceptNetworkInviteFormData.set("organizationId", idPair.substring(37));
     result = await updateNetworkInvite({
       formData: acceptNetworkInviteFormData,
       intent: "acceptNetworkInvite",
@@ -229,10 +276,9 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("reject-network-invite-")) {
     const rejectNetworkInviteFormData = new FormData();
-    rejectNetworkInviteFormData.set(
-      "organizationId",
-      intent.replace("reject-network-invite-", "")
-    );
+    const idPair = intent.replace("reject-network-invite-", "");
+    rejectNetworkInviteFormData.set("networkId", idPair.substring(0, 36));
+    rejectNetworkInviteFormData.set("organizationId", idPair.substring(37));
     result = await updateNetworkInvite({
       formData: rejectNetworkInviteFormData,
       intent: "rejectNetworkInvite",
@@ -241,9 +287,14 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("accept-organization-member-request-")) {
     const acceptOrganizationMemberRequestFormData = new FormData();
+    const idPair = intent.replace("accept-organization-member-request-", "");
+    acceptOrganizationMemberRequestFormData.set(
+      "profileId",
+      idPair.substring(0, 36)
+    );
     acceptOrganizationMemberRequestFormData.set(
       "organizationId",
-      intent.replace("accept-organization-member-request-", "")
+      idPair.substring(37)
     );
     result = await acceptOrRejectOrganizationMemberRequest({
       formData: acceptOrganizationMemberRequestFormData,
@@ -253,9 +304,14 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("reject-organization-member-request-")) {
     const rejectOrganizationMemberRequestFormData = new FormData();
+    const idPair = intent.replace("reject-organization-member-request-", "");
+    rejectOrganizationMemberRequestFormData.set(
+      "profileId",
+      idPair.substring(0, 36)
+    );
     rejectOrganizationMemberRequestFormData.set(
       "organizationId",
-      intent.replace("reject-organization-member-request-", "")
+      idPair.substring(37)
     );
     result = await acceptOrRejectOrganizationMemberRequest({
       formData: rejectOrganizationMemberRequestFormData,
@@ -265,10 +321,9 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("accept-network-request-")) {
     const acceptNetworkRequestFormData = new FormData();
-    acceptNetworkRequestFormData.set(
-      "organizationId",
-      intent.replace("accept-network-request-", "")
-    );
+    const idPair = intent.replace("accept-network-request-", "");
+    acceptNetworkRequestFormData.set("organizationId", idPair.substring(0, 36));
+    acceptNetworkRequestFormData.set("networkId", idPair.substring(37));
     result = await updateNetworkRequest({
       formData: acceptNetworkRequestFormData,
       intent: "acceptNetworkRequest",
@@ -277,10 +332,9 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   } else if (intent.startsWith("reject-network-request-")) {
     const rejectNetworkRequestFormData = new FormData();
-    rejectNetworkRequestFormData.set(
-      "organizationId",
-      intent.replace("reject-network-request-", "")
-    );
+    const idPair = intent.replace("reject-network-request-", "");
+    rejectNetworkRequestFormData.set("organizationId", idPair.substring(0, 36));
+    rejectNetworkRequestFormData.set("networkId", idPair.substring(37));
     result = await updateNetworkRequest({
       formData: rejectNetworkRequestFormData,
       intent: "rejectNetworkRequest",
@@ -309,22 +363,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    const url = new URL(request.url);
-    const searchParams = url.searchParams;
-    if (searchParams.get("modal-quit-organization") === "true") {
-      searchParams.delete("modal-quit-organization");
-    }
-    const redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
-      url.pathname
-    }?${searchParams.toString()}`;
-    return redirectWithToast(redirectUrl, result.toast);
+    return redirectWithToast(request.url, result.toast);
   }
   return { submission: result.submission, currentTimestamp: Date.now() };
 };
 
 export default function MyOrganizations() {
   const {
-    organizationsToAdd,
+    searchedOrganizations: loaderSearchedOrganizations,
+    submission: loaderSubmission,
     pendingRequestsToOrganizations,
     organizationMemberInvites: organizationMemberInvitesFromLoader,
     networkInvites: networkInvitesFromLoader,
@@ -337,17 +384,42 @@ export default function MyOrganizations() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
   // JS for request to add yourself to an organization section
-  // TODO: Refactor to use conform and this routes action
-  const [createOrganizationMemberRequesteForm] = useForm({
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedOrganizations =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedOrganizations
+      : loaderSearchedOrganizations;
+  const currentSearchQuery =
+    searchFetcher.data?.submission.initialValue?.[SearchOrganizations] ||
+    searchParams.get(SearchOrganizations) ||
+    undefined;
+
+  const [searchForm, searchFields] = useForm({
+    id: "search-organizations",
+    defaultValue: {
+      [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
+    },
+    constraint: getZodConstraint(searchOrganizationsSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchOrganizationsSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+  const [createOrganizationMemberRequestForm] = useForm({
     id: `create-organization-member-request-${
       actionData?.currentTimestamp || currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
-  // TODO: Refactor to use conform and this routes action
-  const [cancelOrganizationMemberRequesteForm] = useForm({
+  const [cancelOrganizationMemberRequestForm] = useForm({
     id: `cancel-organization-member-request-${
       actionData?.currentTimestamp || currentTimestamp
     }`,
@@ -355,7 +427,6 @@ export default function MyOrganizations() {
   });
 
   // JS for incoming organization member invites section
-  // TODO: Refactor to use conform and this routes action
   const [acceptOrRejectOrganizationMemberInviteForm] = useForm({
     id: `accept-or-reject-organization-member-invite-${
       actionData?.currentTimestamp || currentTimestamp
@@ -416,7 +487,6 @@ export default function MyOrganizations() {
   });
 
   // JS for incoming organization member requests section
-  // TODO: Refactor to use conform and this routes action
   const [acceptOrRejectOrganizationMemberRequestForm] = useForm({
     id: `accept-or-reject-organization-member-request-${
       actionData?.currentTimestamp || currentTimestamp
@@ -449,7 +519,6 @@ export default function MyOrganizations() {
   );
 
   // JS for incoming network requests section
-  // TODO: conform form for accepting and rejecting network requests
   const [acceptOrRejectNetworkRequestForm] = useForm({
     id: `accept-or-reject-network-request-${
       actionData?.currentTimestamp || currentTimestamp
@@ -464,18 +533,17 @@ export default function MyOrganizations() {
           return organization.receivedNetworkJoinRequests.length > 0;
         })?.name
   );
-  const networkRequests = networkRequestsFromLoader.map((organization) => {
+  const networkRequests = networkRequestsFromLoader.map((network) => {
     return {
-      organization: organization,
-      active: activeNetworkRequestsTab === organization.name,
+      network: network,
+      active: activeNetworkRequestsTab === network.name,
       searchParams: extendSearchParams(searchParams, {
-        addOrReplace: { "network-requests-tab": organization.name },
+        addOrReplace: { "network-requests-tab": network.name },
       }),
     };
   });
 
   // JS for own organizations section
-  // TODO: Refactor to use conform and this routes action
   const [quitOrganizationForm] = useForm({
     id: `quit-organization-${actionData?.currentTimestamp || currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -666,45 +734,255 @@ export default function MyOrganizations() {
             <Section.Subline>
               {locales.route.requestOrganizationMembership.subline}
             </Section.Subline>
-            {/* TODO: Refactor to use conform and this routes action */}
-            {/* <AddOrganization
-              organizations={organizationsToAdd}
-              memberOrganizations={organizationsFromLoader}
-              pendingRequestsToOrganizations={pendingRequestsToOrganizations}
-              invites={organizationMemberInvitesFromLoader}
-              createRequestFetcher={createOrganizationMemberRequestFetcher}
-              locales={locales}
-            /> */}
+            <searchFetcher.Form
+              {...getFormProps(searchForm)}
+              method="get"
+              onChange={(event) => {
+                searchForm.validate();
+                if (searchForm.valid) {
+                  searchFetcher.submit(event.currentTarget, {
+                    preventScrollReset: true,
+                  });
+                }
+              }}
+              autoComplete="off"
+            >
+              <Input
+                {...getInputProps(searchFields[SearchOrganizations], {
+                  type: "search",
+                })}
+                key={searchFields[SearchOrganizations].id}
+                standalone
+              >
+                <Input.Label htmlFor={searchFields[SearchOrganizations].id}>
+                  {locales.route.requestOrganizationMembership.label}
+                </Input.Label>
+                <Input.SearchIcon />
+
+                {typeof searchFields[SearchOrganizations].errors !==
+                  "undefined" &&
+                searchFields[SearchOrganizations].errors.length > 0 ? (
+                  searchFields[SearchOrganizations].errors.map((error) => (
+                    <Input.Error
+                      id={searchFields[SearchOrganizations].errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                ) : (
+                  <Input.HelperText>
+                    {locales.route.requestOrganizationMembership.helperText}
+                  </Input.HelperText>
+                )}
+                <Input.ClearIcon
+                  onClick={() => {
+                    setTimeout(() => {
+                      searchForm.reset();
+                      searchFetcher.submit(null, {
+                        preventScrollReset: true,
+                      });
+                    }, 0);
+                  }}
+                />
+                <Input.Controls>
+                  <noscript>
+                    <Button type="submit" variant="outline">
+                      {locales.route.requestOrganizationMembership.searchCta}
+                    </Button>
+                  </noscript>
+                </Input.Controls>
+              </Input>
+              {typeof searchForm.errors !== "undefined" &&
+              searchForm.errors.length > 0 ? (
+                <div>
+                  {searchForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={searchForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </searchFetcher.Form>
+            {searchedOrganizations.length > 0 ? (
+              <Form
+                {...getFormProps(createOrganizationMemberRequestForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="organizations-to-request-membership-search-results"
+                  hideAfter={3}
+                >
+                  {searchedOrganizations.map((searchedOrganization, index) => {
+                    return (
+                      <ListItem
+                        key={`organizations-to-request-membership-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        {organizations.admin.organizations.some(
+                          (organization) => {
+                            return organization.id === searchedOrganization.id;
+                          }
+                        ) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.requestOrganizationMembership
+                                .alreadyAdmin
+                            }
+                          </div>
+                        ) : organizations.teamMember.organizations.some(
+                            (organization) => {
+                              return (
+                                organization.id === searchedOrganization.id
+                              );
+                            }
+                          ) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.requestOrganizationMembership
+                                .alreadyMember
+                            }
+                          </div>
+                        ) : pendingRequestsToOrganizations.some(
+                            (organization) => {
+                              return (
+                                organization.id === searchedOrganization.id
+                              );
+                            }
+                          ) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.requestOrganizationMembership
+                                .alreadyRequested
+                            }
+                          </div>
+                        ) : (
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`create-organization-member-request-${searchedOrganization.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.requestOrganizationMembership
+                                .createOrganizationMemberRequestCta
+                            }
+                          </Button>
+                        )}
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof createOrganizationMemberRequestForm.errors !==
+                  "undefined" &&
+                createOrganizationMemberRequestForm.errors.length > 0 ? (
+                  <div>
+                    {createOrganizationMemberRequestForm.errors.map(
+                      (error, index) => {
+                        return (
+                          <div
+                            id={createOrganizationMemberRequestForm.errorId}
+                            key={index}
+                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          >
+                            {error}
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                ) : null}
+              </Form>
+            ) : isHydrated === true &&
+              searchForm.valid &&
+              searchForm.dirty &&
+              typeof currentSearchQuery !== "undefined" ? (
+              <CreateOrganization
+                name={String(currentSearchQuery)}
+                locales={locales}
+              />
+            ) : typeof currentSearchQuery !== "undefined" &&
+              searchForm.status !== "error" ? (
+              <CreateOrganization
+                name={String(currentSearchQuery)}
+                locales={locales}
+              />
+            ) : null}
             {pendingRequestsToOrganizations.length > 0 ? (
               <>
                 <hr />
                 <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
                   {locales.route.organizationMemberRequests.headline}
                 </h4>
-                <ListContainer
-                  listKey="pending-requests-to-organizations"
-                  hideAfter={3}
-                  locales={locales}
+                <Form
+                  {...getFormProps(cancelOrganizationMemberRequestForm)}
+                  method="post"
+                  preventScrollReset
                 >
-                  {pendingRequestsToOrganizations.map((organization, index) => {
-                    return (
-                      <ListItem
-                        key={`cancel-request-from-${organization.id}`}
-                        listIndex={index}
-                        entity={organization}
-                        hideAfter={3}
-                        locales={locales}
-                      >
-                        {/* TODO: Refactor to use conform and this routes action */}
-                        {/* <CancelRequestFetcher
-                          fetcher={cancelOrganizationMemberRequestFetcher}
-                          organizationId={organization.id}
-                          locales={locales}
-                        /> */}
-                      </ListItem>
-                    );
-                  })}
-                </ListContainer>
+                  <ListContainer
+                    listKey="pending-requests-to-organizations"
+                    hideAfter={3}
+                    locales={locales}
+                  >
+                    {pendingRequestsToOrganizations.map(
+                      (organization, index) => {
+                        return (
+                          <ListItem
+                            key={`cancel-organization-member-request-${organization.id}`}
+                            listIndex={index}
+                            entity={organization}
+                            hideAfter={3}
+                            locales={locales}
+                          >
+                            <Button
+                              name="intent"
+                              variant="outline"
+                              value={`cancel-organization-member-request-${organization.id}`}
+                              type="submit"
+                              fullSize
+                            >
+                              {
+                                locales.route.requestOrganizationMembership
+                                  .cancelOrganizationMemberRequestCta
+                              }
+                            </Button>
+                          </ListItem>
+                        );
+                      }
+                    )}
+                  </ListContainer>
+                  {typeof cancelOrganizationMemberRequestForm.errors !==
+                    "undefined" &&
+                  cancelOrganizationMemberRequestForm.errors.length > 0 ? (
+                    <div>
+                      {cancelOrganizationMemberRequestForm.errors.map(
+                        (error, index) => {
+                          return (
+                            <div
+                              id={cancelOrganizationMemberRequestForm.errorId}
+                              key={index}
+                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            >
+                              {error}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  ) : null}
+                </Form>
               </>
             ) : null}
           </Section>
@@ -774,31 +1052,75 @@ export default function MyOrganizations() {
               </TabBar>
               {Object.entries(organizationMemberInvites).map(([key, value]) => {
                 return value.active && value.invites.length > 0 ? (
-                  <ListContainer
+                  <Form
+                    {...getFormProps(
+                      acceptOrRejectOrganizationMemberInviteForm
+                    )}
+                    method="post"
+                    preventScrollReset
                     key={key}
-                    listKey={`${key}-list`}
-                    locales={locales}
                   >
-                    {value.invites.map((invite, index) => {
-                      return (
-                        <ListItem
-                          key={`${key}-invite-${invite.organizationId}`}
-                          listIndex={index}
-                          entity={invite.organization}
-                          hideAfter={3}
-                          locales={locales}
-                        >
-                          {/* TODO: Refactor to use conform and this routes action */}
-                          {/* <AcceptOrRejectInviteFetcher
-                            inviteFetcher={organizationMemberInviteFetcher}
-                            organizationId={invite.organizationId}
-                            tabKey={key}
+                    <ListContainer listKey={`${key}-list`} locales={locales}>
+                      {value.invites.map((invite, index) => {
+                        return (
+                          <ListItem
+                            key={`${key}-member-invite-${invite.organizationId}`}
+                            listIndex={index}
+                            entity={invite.organization}
+                            hideAfter={3}
                             locales={locales}
-                          /> */}
-                        </ListItem>
-                      );
-                    })}
-                  </ListContainer>
+                          >
+                            <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                              <Button
+                                variant="outline"
+                                fullSize
+                                type="submit"
+                                name="intent"
+                                value={`reject-organization-invite-${key}-${invite.organizationId}`}
+                                className="mv-text-wrap @sm:mv-text-nowrap"
+                              >
+                                {
+                                  locales.route.organizationMemberInvites
+                                    .decline
+                                }
+                              </Button>
+                              <Button
+                                fullSize
+                                type="submit"
+                                name="intent"
+                                value={`accept-organization-invite-${key}-${invite.organizationId}`}
+                                className="mv-text-wrap @sm:mv-text-nowrap"
+                              >
+                                {locales.route.organizationMemberInvites.accept}
+                              </Button>
+                            </div>
+                          </ListItem>
+                        );
+                      })}
+                    </ListContainer>
+                    {typeof acceptOrRejectOrganizationMemberInviteForm.errors !==
+                      "undefined" &&
+                    acceptOrRejectOrganizationMemberInviteForm.errors.length >
+                      0 ? (
+                      <div>
+                        {acceptOrRejectOrganizationMemberInviteForm.errors.map(
+                          (error, index) => {
+                            return (
+                              <div
+                                id={
+                                  acceptOrRejectOrganizationMemberInviteForm.errorId
+                                }
+                                key={index}
+                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              >
+                                {error}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    ) : null}
+                  </Form>
                 ) : null;
               })}
             </section>
@@ -852,29 +1174,73 @@ export default function MyOrganizations() {
               {Object.entries(networkInvites).map(([key, value]) => {
                 return value.active &&
                   value.organization.receivedNetworkJoinInvites.length > 0 ? (
-                  <ListContainer
+                  <Form
+                    {...getFormProps(acceptOrRejectNetworkInviteForm)}
+                    method="post"
+                    preventScrollReset
                     key={key}
-                    listKey={`${key}-list`}
-                    hideAfter={3}
-                    locales={locales}
                   >
-                    {value.organization.receivedNetworkJoinInvites.map(
-                      (invite, index) => {
-                        return (
-                          <ListItem
-                            key={`${key}-request-${invite.network.id}`}
-                            listIndex={index}
-                            entity={invite.network}
-                            hideAfter={3}
-                            locales={locales}
-                          >
-                            {/* TODO: conform fetcher form to accept or reject network invites -> point to this routes action */}
-                            TODO
-                          </ListItem>
-                        );
-                      }
-                    )}
-                  </ListContainer>
+                    <ListContainer
+                      listKey={`${key}-list`}
+                      hideAfter={3}
+                      locales={locales}
+                    >
+                      {value.organization.receivedNetworkJoinInvites.map(
+                        (invite, index) => {
+                          return (
+                            <ListItem
+                              key={`${key}-network-invite-${invite.network.id}`}
+                              listIndex={index}
+                              entity={invite.network}
+                              hideAfter={3}
+                              locales={locales}
+                            >
+                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                                <Button
+                                  variant="outline"
+                                  fullSize
+                                  type="submit"
+                                  name="intent"
+                                  value={`reject-network-invite-${invite.network.id}-${value.organization.id}`}
+                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                >
+                                  {locales.route.networkInvites.decline}
+                                </Button>
+                                <Button
+                                  fullSize
+                                  type="submit"
+                                  name="intent"
+                                  value={`accept-network-invite-${invite.network.id}-${value.organization.id}`}
+                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                >
+                                  {locales.route.networkInvites.accept}
+                                </Button>
+                              </div>
+                            </ListItem>
+                          );
+                        }
+                      )}
+                    </ListContainer>
+                    {typeof acceptOrRejectNetworkInviteForm.errors !==
+                      "undefined" &&
+                    acceptOrRejectNetworkInviteForm.errors.length > 0 ? (
+                      <div>
+                        {acceptOrRejectNetworkInviteForm.errors.map(
+                          (error, index) => {
+                            return (
+                              <div
+                                id={acceptOrRejectNetworkInviteForm.errorId}
+                                key={index}
+                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              >
+                                {error}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    ) : null}
+                  </Form>
                 ) : null;
               })}
             </section>
@@ -929,35 +1295,78 @@ export default function MyOrganizations() {
                 ([key, value]) => {
                   return value.active &&
                     value.organization.profileJoinRequests.length > 0 ? (
-                    <ListContainer
-                      key={key}
-                      listKey={`${key}-list`}
-                      hideAfter={3}
-                      locales={locales}
-                    >
-                      {value.organization.profileJoinRequests.map(
-                        (request, index) => {
-                          return (
-                            <ListItem
-                              key={`${key}-request-${request.profile.id}`}
-                              listIndex={index}
-                              entity={request.profile}
-                              hideAfter={3}
-                              locales={locales}
-                            >
-                              {/* TODO: Refactor to use conform and this routes action */}
-                              {/* <AcceptOrRejectRequestFetcher
-                                fetcher={OrganizationMemberRequestFetcher}
-                                organizationId={value.organization.id}
-                                profileId={request.profile.id}
-                                tabKey={key}
-                                locales={locales}
-                              /> */}
-                            </ListItem>
-                          );
-                        }
+                    <Form
+                      {...getFormProps(
+                        acceptOrRejectOrganizationMemberRequestForm
                       )}
-                    </ListContainer>
+                      method="post"
+                      preventScrollReset
+                      key={key}
+                    >
+                      <ListContainer
+                        listKey={`${key}-list`}
+                        hideAfter={3}
+                        locales={locales}
+                      >
+                        {value.organization.profileJoinRequests.map(
+                          (request, index) => {
+                            return (
+                              <ListItem
+                                key={`${key}-member-request-${request.profile.id}`}
+                                listIndex={index}
+                                entity={request.profile}
+                                hideAfter={3}
+                                locales={locales}
+                              >
+                                <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                                  <Button
+                                    variant="outline"
+                                    fullSize
+                                    type="submit"
+                                    name="intent"
+                                    value={`reject-organization-member-request-${request.profile.id}-${value.organization.id}`}
+                                    className="mv-text-wrap @sm:mv-text-nowrap"
+                                  >
+                                    {locales.route.networkInvites.decline}
+                                  </Button>
+                                  <Button
+                                    fullSize
+                                    type="submit"
+                                    name="intent"
+                                    value={`accept-organization-member-request-${request.profile.id}-${value.organization.id}`}
+                                    className="mv-text-wrap @sm:mv-text-nowrap"
+                                  >
+                                    {locales.route.networkInvites.accept}
+                                  </Button>
+                                </div>
+                              </ListItem>
+                            );
+                          }
+                        )}
+                      </ListContainer>
+                      {typeof acceptOrRejectOrganizationMemberRequestForm.errors !==
+                        "undefined" &&
+                      acceptOrRejectOrganizationMemberRequestForm.errors
+                        .length > 0 ? (
+                        <div>
+                          {acceptOrRejectOrganizationMemberRequestForm.errors.map(
+                            (error, index) => {
+                              return (
+                                <div
+                                  id={
+                                    acceptOrRejectOrganizationMemberRequestForm.errorId
+                                  }
+                                  key={index}
+                                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                >
+                                  {error}
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      ) : null}
+                    </Form>
                   ) : null;
                 }
               )}
@@ -976,7 +1385,7 @@ export default function MyOrganizations() {
               </div>
               <TabBar>
                 {Object.entries(networkRequests).map(([key, value]) => {
-                  return value.organization.receivedNetworkJoinRequests.length >
+                  return value.network.receivedNetworkJoinRequests.length >
                     0 ? (
                     <TabBar.Item
                       key={`${key}-network-requests-tab`}
@@ -986,7 +1395,7 @@ export default function MyOrganizations() {
                         to={`?${value.searchParams.toString()}`}
                         onClick={(event) => {
                           event.preventDefault();
-                          setActiveNetworkRequestsTab(value.organization.name);
+                          setActiveNetworkRequestsTab(value.network.name);
                           return;
                         }}
                         preventScrollReset
@@ -995,12 +1404,9 @@ export default function MyOrganizations() {
                           id={`tab-description-${key}`}
                           className="mv-flex mv-gap-1.5 mv-items-center"
                         >
-                          <span>{value.organization.name}</span>
+                          <span>{value.network.name}</span>
                           <TabBar.Counter active={value.active}>
-                            {
-                              value.organization.receivedNetworkJoinRequests
-                                .length
-                            }
+                            {value.network.receivedNetworkJoinRequests.length}
                           </TabBar.Counter>
                         </div>
                       </Link>
@@ -1011,30 +1417,74 @@ export default function MyOrganizations() {
 
               {Object.entries(networkRequests).map(([key, value]) => {
                 return value.active &&
-                  value.organization.receivedNetworkJoinRequests.length > 0 ? (
-                  <ListContainer
+                  value.network.receivedNetworkJoinRequests.length > 0 ? (
+                  <Form
+                    {...getFormProps(acceptOrRejectNetworkRequestForm)}
+                    method="post"
+                    preventScrollReset
                     key={key}
-                    listKey={`${key}-list`}
-                    hideAfter={3}
-                    locales={locales}
                   >
-                    {value.organization.receivedNetworkJoinRequests.map(
-                      (invite, index) => {
-                        return (
-                          <ListItem
-                            key={`${key}-request-${invite.organization.id}`}
-                            listIndex={index}
-                            entity={invite.organization}
-                            hideAfter={3}
-                            locales={locales}
-                          >
-                            {/* TODO: conform fetcher form to accept or reject network requests -> point to this routes action */}
-                            TODO
-                          </ListItem>
-                        );
-                      }
-                    )}
-                  </ListContainer>
+                    <ListContainer
+                      listKey={`${key}-list`}
+                      hideAfter={3}
+                      locales={locales}
+                    >
+                      {value.network.receivedNetworkJoinRequests.map(
+                        (request, index) => {
+                          return (
+                            <ListItem
+                              key={`${key}-network-request-${request.organization.id}`}
+                              listIndex={index}
+                              entity={request.organization}
+                              hideAfter={3}
+                              locales={locales}
+                            >
+                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                                <Button
+                                  variant="outline"
+                                  fullSize
+                                  type="submit"
+                                  name="intent"
+                                  value={`reject-network-request-${request.organization.id}-${value.network.id}`}
+                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                >
+                                  {locales.route.networkInvites.decline}
+                                </Button>
+                                <Button
+                                  fullSize
+                                  type="submit"
+                                  name="intent"
+                                  value={`accept-network-request-${request.organization.id}-${value.network.id}`}
+                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                >
+                                  {locales.route.networkInvites.accept}
+                                </Button>
+                              </div>
+                            </ListItem>
+                          );
+                        }
+                      )}
+                    </ListContainer>
+                    {typeof acceptOrRejectNetworkRequestForm.errors !==
+                      "undefined" &&
+                    acceptOrRejectNetworkRequestForm.errors.length > 0 ? (
+                      <div>
+                        {acceptOrRejectNetworkRequestForm.errors.map(
+                          (error, index) => {
+                            return (
+                              <div
+                                id={acceptOrRejectNetworkRequestForm.errorId}
+                                key={index}
+                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              >
+                                {error}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    ) : null}
+                  </Form>
                 ) : null;
               })}
             </section>
@@ -1099,23 +1549,89 @@ export default function MyOrganizations() {
                           ]
                         }
                       </p>
-                      <CardContainer type="multi row">
-                        {value.organizations.map((organization) => {
-                          return (
-                            <OrganizationCard
-                              key={`${key}-organization-${organization.id}`}
-                              organization={organization}
-                              // TODO: Refactor to use conform and this routes action
-                              // menu={{
-                              //   mode: key === "admin" ? "admin" : "teamMember",
-                              //   quitOrganizationFetcher:
-                              //     quitOrganizationFetcher,
-                              // }}
-                              locales={locales}
-                            />
-                          );
-                        })}
-                      </CardContainer>
+                      <Form
+                        {...getFormProps(quitOrganizationForm)}
+                        method="post"
+                        preventScrollReset
+                      >
+                        <CardContainer type="multi row">
+                          {value.organizations.map((organization) => {
+                            return (
+                              <OrganizationCard
+                                key={`${key}-organization-${organization.id}`}
+                                organization={organization}
+                                locales={locales}
+                              >
+                                <OrganizationCard.ContextMenu>
+                                  {key === "admin" ? (
+                                    <OrganizationCard.ContextMenu.ListItem
+                                      key={`edit-organization-${organization.slug}`}
+                                    >
+                                      <Link
+                                        className="mv-w-full mv-h-full mv-flex mv-gap-3 mv-p-4"
+                                        to={`/organization/${organization.slug}/settings`}
+                                      >
+                                        <svg
+                                          width="20"
+                                          height="20"
+                                          viewBox="0 0 20 20"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
+                                            fill="CurrentColor"
+                                          />
+                                        </svg>
+                                        <span>
+                                          {locales.organizationCard.edit}
+                                        </span>
+                                      </Link>
+                                    </OrganizationCard.ContextMenu.ListItem>
+                                  ) : null}
+                                  {key === "admin" ? (
+                                    <OrganizationCard.ContextMenu.Divider key="edit-quit-divider" />
+                                  ) : null}
+                                  <OrganizationCard.ContextMenu.ListItem
+                                    key={`quit-organization-${organization.slug}`}
+                                  >
+                                    <label
+                                      htmlFor={`quit-organization-${organization.slug}`}
+                                      className="mv-w-full mv-h-full mv-flex mv-gap-3 mv-cursor-pointer mv-p-4"
+                                    >
+                                      <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 20 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          d="M10.625 12.5C10.2798 12.5 10 11.9404 10 11.25C10 10.5596 10.2798 10 10.625 10C10.9702 10 11.25 10.5596 11.25 11.25C11.25 11.9404 10.9702 12.5 10.625 12.5Z"
+                                          fill="CurrentColor"
+                                        />
+                                        <path
+                                          d="M13.5345 0.152845C13.6714 0.271556 13.75 0.443822 13.75 0.625004V1.25H14.375C15.4105 1.25 16.25 2.08947 16.25 3.125V18.75H18.125C18.4702 18.75 18.75 19.0298 18.75 19.375C18.75 19.7202 18.4702 20 18.125 20H1.875C1.52982 20 1.25 19.7202 1.25 19.375C1.25 19.0298 1.52982 18.75 1.875 18.75H3.75V1.875C3.75 1.56397 3.97871 1.30027 4.28661 1.25629L13.0366 0.00628568C13.216 -0.0193374 13.3976 0.0341345 13.5345 0.152845ZM14.375 2.5H13.75V18.75H15V3.125C15 2.77983 14.7202 2.5 14.375 2.5ZM5 2.41706V18.75H12.5V1.34564L5 2.41706Z"
+                                          fill="CurrentColor"
+                                        />
+                                      </svg>
+                                      <button
+                                        id={`quit-organization-${organization.slug}`}
+                                        type="submit"
+                                        name="intent"
+                                        value={`quit-organization-${organization.id}`}
+                                        className="mv-appearance-none"
+                                      >
+                                        {locales.organizationCard.quit}
+                                      </button>
+                                    </label>
+                                  </OrganizationCard.ContextMenu.ListItem>
+                                </OrganizationCard.ContextMenu>
+                              </OrganizationCard>
+                            );
+                          })}
+                        </CardContainer>
+                      </Form>
                     </div>
                   ) : null;
                 })}

@@ -396,7 +396,6 @@ export async function getOrganizationMemberInvites(id: string) {
   const [adminInvites, teamMemberInvites] = await prismaClient.$transaction([
     prismaClient.inviteForProfileToJoinOrganization.findMany({
       select: {
-        profileId: true,
         organizationId: true,
         organization: {
           select: {
@@ -429,7 +428,6 @@ export async function getOrganizationMemberInvites(id: string) {
     }),
     prismaClient.inviteForProfileToJoinOrganization.findMany({
       select: {
-        profileId: true,
         organizationId: true,
         organization: {
           select: {
@@ -971,6 +969,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
         async (data, ctx) => {
           // TODO:
           // profile id from session user and organization id from form data
+          // upsert the request with those ids
           // Send corresponding email
 
           // Old
@@ -1015,11 +1014,11 @@ export async function updateOrganizationMemberInvite(options: {
     schema: () =>
       updateOrganizationMemberInviteSchema.transform(async (data, ctx) => {
         // TODO:
-        // invite id from form data
-        // Check if the connected profile id is the session user id
+        // profile id from session user, organization id and role from form data
+        // Check if the profile id is the session user id
+        // Get the invite with those ids and the corresponding role
         // Check if the invite is pending
         // Set the invite to accepted or rejected
-        // Get the role from the invite
         // On accept check if the connection already exists (admin or member depending on role)
         // If not create the connection (admin or member depending on role)
         // If it exists, do nothing
@@ -1152,7 +1151,9 @@ export async function updateOrganizationMemberInvite(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         intent === "acceptOrganizationMemberInvite"
-          ? locales.route.organizationMemberInvites.accepted
+          ? submission.value.role === "admin"
+            ? locales.route.organizationMemberInvites.adminAccepted
+            : locales.route.organizationMemberInvites.memberAccepted
           : locales.route.organizationMemberInvites.rejected,
         {
           name: "TODO: organization name from database",
@@ -1173,8 +1174,9 @@ export async function updateNetworkInvite(options: {
     schema: () =>
       updateNetworkInviteSchema.transform(async (data, ctx) => {
         // TODO:
-        // invite id from form data
-        // Check if the session user is admin of the connected organization id
+        // organization id and network id from form data
+        // Check if the session user is admin of the organization id
+        // Get the invite with those ids
         // Check if the invite is pending
         // Set the invite to accepted or rejected
         // On accept check if the connection already exists
@@ -1221,8 +1223,9 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
       acceptOrRejectOrganizationMemberRequestSchema.transform(
         async (data, ctx) => {
           // TODO:
-          // request id from form data
-          // Check if the session user is admin of the connected organization id
+          // organization id and profile id from form data
+          // Check if the session user is admin of the organization id
+          // Get the request with those ids
           // Check if the request is pending
           // Set the request to accepted or rejected
           // On accept check if the connection already exists
@@ -1274,8 +1277,9 @@ export async function updateNetworkRequest(options: {
     schema: () =>
       updateNetworkRequestSchema.transform(async (data, ctx) => {
         // TODO:
-        // request id from form data
-        // Check if the session user is admin of the connected network id
+        // organization id and network id from form data
+        // Check if the session user is admin of the network id
+        // Get the request with those ids
         // Check if the request is pending
         // Set the request to accepted or rejected
         // On accept check if the connection already exists
@@ -1321,8 +1325,8 @@ export async function quitOrganization(options: {
         // TODO:
         // organization id from form data
         // Check if the session user is admin or team member of the organization
-        // Check if the session user is last admin of the organization
-        // If so, return custom issue -> locales.route.quit.lastAdmin
+        // Check if the session user is last admin or team member of the organization
+        // If so, return custom issue -> locales.route.quit.lastAdminOrTeamMember
         // If not, remove the connections (admin and team member)
 
         // Old
@@ -1339,7 +1343,7 @@ export async function quitOrganization(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "accept-or-reject-organization-member-request-toast",
+      id: "quit-organization-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(locales.route.quit.success, {
         name: "TODO: organization name from database",

@@ -11,6 +11,7 @@ import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slu
 import { type ProjectAdminSettingsLocales } from "./routes/project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "./routes/project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "./routes/project/$slug/settings/responsible-orgs.server";
+import { type MyOrganizationsLocales } from "./routes/my/organizations.server";
 
 // Field name for determining the intent of the submitted form when using multiple forms on one route -> Please use this as name attribute on form submit button
 export const INTENT_FIELD_NAME = "intent";
@@ -33,6 +34,7 @@ export const searchProfilesSchema = (
 
 export const searchOrganizationsSchema = (
   locales:
+    | MyOrganizationsLocales
     | ManageOrganizationSettingsLocales
     | ProjectResponsibleOrganizationsSettingsLocales
 ) => {

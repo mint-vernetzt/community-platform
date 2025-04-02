@@ -1,4 +1,4 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -6,6 +6,9 @@ import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { DefaultImages } from "~/images.shared";
+import { quitProjectSchema } from "./projects";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export type MyProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -18,6 +21,7 @@ export async function getProjects(options: {
   const { profileId, authClient } = options;
 
   const select = {
+    id: true,
     name: true,
     slug: true,
     description: true,
@@ -223,6 +227,45 @@ export async function getProjects(options: {
     count: {
       adminProjects: adminProjects.length,
       teamMemberProjects: teamMemberProjects.length,
+    },
+  };
+}
+
+export async function quitProject(options: {
+  formData: FormData;
+  locales: MyProjectsLocales;
+  sessionUser: User;
+}) {
+  const { formData, locales, sessionUser } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      quitProjectSchema.transform(async (data, ctx) => {
+        // TODO:
+        // project id from form data
+        // Check if the session user is admin or team member of the project
+        // Check if the session user is last admin or team member of the project
+        // If so -> return custom issue -> locales.route.quit.lastAdminOrTeamMember
+        // If not, remove the connections (admin and team member)
+
+        // Old
+        // see quit.tsx
+        return { ...data };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "quit-project-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.route.quit.success, {
+        project: "TODO: project name from database",
+      }),
     },
   };
 }
