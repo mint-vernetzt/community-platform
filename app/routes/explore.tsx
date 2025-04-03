@@ -31,47 +31,35 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore"];
 
-  const profilesSubmission = parseWithZod(searchParams, {
-    schema: getProfilesSchema,
-  });
-  const organizationSubmission = parseWithZod(searchParams, {
-    schema: getOrganizationsSchema,
-  });
-  const eventSubmission = parseWithZod(searchParams, {
-    schema: getEventsSchema,
-  });
-  const projectSubmission = parseWithZod(searchParams, {
-    schema: getProjectsSchema,
-  });
-  const fundingSubmission = parseWithZod(searchParams, {
-    schema: getFundingsSchema,
+  const submission = parseWithZod(searchParams, {
+    schema: getProfilesSchema
+      .merge(getOrganizationsSchema)
+      .merge(getEventsSchema)
+      .merge(getProjectsSchema)
+      .merge(getFundingsSchema),
   });
 
   invariantResponse(
-    profilesSubmission.status === "success" &&
-      organizationSubmission.status === "success" &&
-      eventSubmission.status === "success" &&
-      projectSubmission.status === "success" &&
-      fundingSubmission.status === "success",
+    submission.status === "success",
     "Validation failed for get request",
     { status: 400 }
   );
 
   const profileCount = await getProfilesCount({
-    filter: profilesSubmission.value.prfFilter,
+    filter: submission.value.prfFilter,
   });
 
   const organizationCount = await getOrganizationsCount({
-    filter: organizationSubmission.value.orgFilter,
+    filter: submission.value.orgFilter,
   });
   const eventCount = await getEventsCount({
-    filter: eventSubmission.value.evtFilter,
+    filter: submission.value.evtFilter,
   });
   const projectCount = await getProjectsCount({
-    filter: projectSubmission.value.prjFilter,
+    filter: submission.value.prjFilter,
   });
   const fundingCount = await getFundingsCount({
-    filter: fundingSubmission.value.fndFilter,
+    filter: submission.value.fndFilter,
   });
   const allContentCount =
     profileCount + organizationCount + eventCount + projectCount + fundingCount;

@@ -38,6 +38,13 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
+import { type GetProfilesSchema, getProfilesSchema } from "./profiles";
+import {
+  type GetOrganizationsSchema,
+  getOrganizationsSchema,
+} from "./organizations";
+import { type GetEventsSchema, getEventsSchema } from "./events";
+import { type GetProjectsSchema, getProjectsSchema } from "./projects";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -115,7 +122,11 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getFundingsSchema,
+    schema: getFundingsSchema
+      .merge(getProfilesSchema)
+      .merge(getOrganizationsSchema)
+      .merge(getEventsSchema)
+      .merge(getProjectsSchema),
   });
 
   invariantResponse(submission.status === "success", "Bad request", {
@@ -453,7 +464,13 @@ function Fundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
-  const [form, fields] = useForm<GetFundingsSchema>({});
+  const [form, fields] = useForm<
+    GetFundingsSchema &
+      GetProfilesSchema &
+      GetOrganizationsSchema &
+      GetEventsSchema &
+      GetProjectsSchema
+  >({});
 
   const navigation = useNavigation();
   const location = useLocation();
@@ -471,6 +488,17 @@ function Fundings() {
       value ===
       `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
     );
+  });
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getFundingsSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
   });
 
   return (
@@ -571,7 +599,16 @@ function Fundings() {
         >
           <input name="fndPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
-
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {loaderData.locales.showFiltersLabel}
           </ShowFiltersButton>

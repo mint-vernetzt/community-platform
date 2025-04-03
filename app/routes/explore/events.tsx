@@ -58,6 +58,13 @@ import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { type GetProfilesSchema, getProfilesSchema } from "./profiles";
+import {
+  type GetOrganizationsSchema,
+  getOrganizationsSchema,
+} from "./organizations";
+import { type GetProjectsSchema, getProjectsSchema } from "./projects";
+import { type GetFundingsSchema, getFundingsSchema } from "./fundings";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 
@@ -154,7 +161,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getEventsSchema,
+    schema: getEventsSchema
+      .merge(getProfilesSchema)
+      .merge(getOrganizationsSchema)
+      .merge(getProjectsSchema)
+      .merge(getFundingsSchema),
   });
   invariantResponse(
     submission.status === "success",
@@ -402,7 +413,13 @@ export default function ExploreOrganizations() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<GetEventsSchema>({});
+  const [form, fields] = useForm<
+    GetEventsSchema &
+      GetProfilesSchema &
+      GetOrganizationsSchema &
+      GetProjectsSchema &
+      GetFundingsSchema
+  >({});
 
   const filter = fields.evtFilter.getFieldset();
 
@@ -413,6 +430,17 @@ export default function ExploreOrganizations() {
   const [searchQuery, setSearchQuery] = React.useState(
     loaderData.submission.value.evtAreaSearch
   );
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getEventsSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
+  });
 
   return (
     <>
@@ -439,6 +467,16 @@ export default function ExploreOrganizations() {
         >
           <input name="evtPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>

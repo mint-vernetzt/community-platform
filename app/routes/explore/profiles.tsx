@@ -54,6 +54,13 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
+import {
+  getOrganizationsSchema,
+  type GetOrganizationsSchema,
+} from "./organizations";
+import { type GetEventsSchema, getEventsSchema } from "./events";
+import { type GetProjectsSchema, getProjectsSchema } from "./projects";
+import { type GetFundingsSchema, getFundingsSchema } from "./fundings";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -140,7 +147,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return redirect(cleanURL.toString(), { status: 301 });
   }
 
-  const submission = parseWithZod(searchParams, { schema: getProfilesSchema });
+  const submission = parseWithZod(searchParams, {
+    schema: getProfilesSchema
+      .merge(getOrganizationsSchema)
+      .merge(getEventsSchema)
+      .merge(getProjectsSchema)
+      .merge(getFundingsSchema),
+  });
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -378,7 +391,13 @@ export default function ExploreProfiles() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<GetProfilesSchema>({});
+  const [form, fields] = useForm<
+    GetProfilesSchema &
+      GetOrganizationsSchema &
+      GetEventsSchema &
+      GetProjectsSchema &
+      GetFundingsSchema
+  >({});
 
   const filter = fields.prfFilter.getFieldset();
 
@@ -397,6 +416,17 @@ export default function ExploreProfiles() {
       value ===
       `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
     );
+  });
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getProfilesSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
   });
 
   return (
@@ -429,6 +459,16 @@ export default function ExploreProfiles() {
         >
           <input name="prfPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
