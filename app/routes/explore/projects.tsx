@@ -59,13 +59,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
-import { type GetProfilesSchema, getProfilesSchema } from "./profiles";
-import {
-  type GetOrganizationsSchema,
-  getOrganizationsSchema,
-} from "./organizations";
-import { type GetFundingsSchema, getFundingsSchema } from "./fundings";
-import { type GetEventsSchema } from "./events";
+import { getFilterSchemes, type FilterSchemes } from "./index";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -149,10 +143,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getProjectsSchema
-      .merge(getProfilesSchema)
-      .merge(getOrganizationsSchema)
-      .merge(getFundingsSchema),
+    schema: getFilterSchemes,
   });
   invariantResponse(
     submission.status === "success",
@@ -487,13 +478,7 @@ export default function ExploreProjects() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<
-    GetProjectsSchema &
-      GetProfilesSchema &
-      GetOrganizationsSchema &
-      GetEventsSchema &
-      GetFundingsSchema
-  >({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
   const filter = fields.prjFilter.getFieldset();
 

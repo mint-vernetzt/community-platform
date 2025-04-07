@@ -38,13 +38,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { type GetProfilesSchema, getProfilesSchema } from "./profiles";
-import {
-  type GetOrganizationsSchema,
-  getOrganizationsSchema,
-} from "./organizations";
-import { type GetEventsSchema, getEventsSchema } from "./events";
-import { type GetProjectsSchema, getProjectsSchema } from "./projects";
+import { type FilterSchemes, getFilterSchemes } from "./index";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -122,11 +116,7 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getFundingsSchema
-      .merge(getProfilesSchema)
-      .merge(getOrganizationsSchema)
-      .merge(getEventsSchema)
-      .merge(getProjectsSchema),
+    schema: getFilterSchemes,
   });
 
   invariantResponse(submission.status === "success", "Bad request", {
@@ -464,13 +454,7 @@ function Fundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
-  const [form, fields] = useForm<
-    GetFundingsSchema &
-      GetProfilesSchema &
-      GetOrganizationsSchema &
-      GetEventsSchema &
-      GetProjectsSchema
-  >({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
   const navigation = useNavigation();
   const location = useLocation();

@@ -12,16 +12,15 @@ import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { getProfilesCount } from "./explore/profiles.server";
 import { parseWithZod } from "@conform-to/zod-v1";
-import { getProfilesSchema } from "./explore/profiles";
+
 import { invariantResponse } from "~/lib/utils/response";
-import { getOrganizationsSchema } from "./explore/organizations";
+
 import { getOrganizationsCount } from "./explore/organizations.server";
-import { getEventsSchema } from "./explore/events";
-import { getFundingsSchema } from "./explore/fundings";
-import { getProjectsSchema } from "./explore/projects";
+
 import { getEventsCount } from "./explore/events.server";
 import { getProjectsCount } from "./explore/projects.server";
 import { getFundingsCount } from "./explore/fundings.server";
+import { getFilterSchemes } from "./explore/index";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -32,11 +31,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales = languageModuleMap[language]["explore"];
 
   const submission = parseWithZod(searchParams, {
-    schema: getProfilesSchema
-      .merge(getOrganizationsSchema)
-      .merge(getEventsSchema)
-      .merge(getProjectsSchema)
-      .merge(getFundingsSchema),
+    schema: getFilterSchemes,
   });
 
   invariantResponse(

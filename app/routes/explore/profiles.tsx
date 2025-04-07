@@ -54,13 +54,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
-import {
-  getOrganizationsSchema,
-  type GetOrganizationsSchema,
-} from "./organizations";
-import { type GetEventsSchema, getEventsSchema } from "./events";
-import { type GetProjectsSchema, getProjectsSchema } from "./projects";
-import { type GetFundingsSchema, getFundingsSchema } from "./fundings";
+import { type FilterSchemes, getFilterSchemes } from "./index";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -148,11 +142,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getProfilesSchema
-      .merge(getOrganizationsSchema)
-      .merge(getEventsSchema)
-      .merge(getProjectsSchema)
-      .merge(getFundingsSchema),
+    schema: getFilterSchemes,
   });
   invariantResponse(
     submission.status === "success",
@@ -391,13 +381,7 @@ export default function ExploreProfiles() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<
-    GetProfilesSchema &
-      GetOrganizationsSchema &
-      GetEventsSchema &
-      GetProjectsSchema &
-      GetFundingsSchema
-  >({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
   const filter = fields.prfFilter.getFieldset();
 
