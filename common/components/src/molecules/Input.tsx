@@ -64,8 +64,13 @@ function InputSearchIcon() {
   );
 }
 
-function InputClearIcon(props: React.HTMLProps<HTMLButtonElement>) {
+function InputClearIcon(
+  props: React.HTMLProps<HTMLButtonElement> & {
+    onClick?: Pick<React.HTMLProps<HTMLButtonElement>, "onClick">["onClick"];
+  }
+) {
   const isHydrated = useHydrated();
+  const [characterCount, setCharacterCount] = useCharacterCount();
   const clearIcon = (
     <svg
       width="20"
@@ -82,7 +87,18 @@ function InputClearIcon(props: React.HTMLProps<HTMLButtonElement>) {
     </svg>
   );
   return isHydrated === true ? (
-    <button {...props} type="reset">
+    <button
+      {...props}
+      onClick={(event) => {
+        if (props.onClick !== undefined) {
+          props.onClick(event);
+        }
+        setCharacterCount(0);
+        event.currentTarget.form?.reset();
+      }}
+      type="reset"
+      hidden={characterCount === 0}
+    >
       {clearIcon}
     </button>
   ) : (
@@ -146,6 +162,18 @@ function InputControls(props: React.PropsWithChildren) {
   );
 }
 
+const CharacterCountContext = React.createContext<
+  [number, React.Dispatch<React.SetStateAction<number>>]
+>([0, () => {}]);
+
+function useCharacterCount() {
+  const context = React.useContext(CharacterCountContext);
+  if (context === null) {
+    throw new Error("Missing CharacterCounterContext.Provider");
+  }
+  return context;
+}
+
 export type InputProps = React.HTMLProps<HTMLInputElement> & {
   standalone?: boolean;
   withoutName?: boolean;
@@ -159,6 +187,7 @@ function Input(props: InputProps) {
   const defaultValueLength = inputProps.defaultValue
     ? inputProps.defaultValue.toString().length
     : 0;
+
   const [characterCount, updateCharacterCount] =
     React.useState(defaultValueLength);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,74 +288,74 @@ function Input(props: InputProps) {
   );
 
   return (
-    <div className="w-full">
-      <div className="mv-flex mv-gap-2">
-        <div className="mv-relative mv-flex mv-flex-col mv-gap-2 mv-flex-nowrap mv-grow">
-          {label}
-          <div className="mv-relative">
-            <input
-              className={inputClasses}
-              type={inputProps.type || "text"}
-              {...inputProps}
-              name={name}
-              onChange={
-                inputProps.maxLength !== undefined
-                  ? handleInputChange
-                  : inputProps.onChange
-              }
-            />
-            {typeof searchIcon !== "undefined" && (
-              <div className="mv-absolute mv-left-2 mv-top-0 mv-h-full mv-flex mv-items-center">
-                {searchIcon}
-              </div>
-            )}
-            {typeof clearIcon !== "undefined" && (
-              <div className="mv-absolute mv-right-2 mv-top-0 mv-h-full mv-flex mv-items-center">
-                {clearIcon}
-              </div>
-            )}
-          </div>
-        </div>
-        {typeof controls !== "undefined" && controls}
-      </div>
-      {inputProps.maxLength !== undefined ? (
-        <div className={inputCounterContainerClasses}>
-          {helperText !== undefined || errors.length > 0 ? (
-            <div className="mv-flex mv-flex-col">
-              {helperText !== undefined ? (
-                <div className="mv-pr-8">{helperText}</div>
-              ) : null}
-              {errors.length > 0 ? (
-                <ul>
-                  {errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              ) : null}
+    <CharacterCountContext.Provider
+      value={[characterCount, updateCharacterCount]}
+    >
+      <div className="w-full">
+        <div className="mv-flex mv-gap-2">
+          <div className="mv-relative mv-flex mv-flex-col mv-gap-2 mv-flex-nowrap mv-grow">
+            {label}
+            <div className="mv-relative">
+              <input
+                className={inputClasses}
+                type={inputProps.type || "text"}
+                {...inputProps}
+                name={name}
+                onChange={handleInputChange}
+              />
+              {typeof searchIcon !== "undefined" && (
+                <div className="mv-absolute mv-left-2 mv-top-0 mv-h-full mv-flex mv-items-center">
+                  {searchIcon}
+                </div>
+              )}
+              {typeof clearIcon !== "undefined" && (
+                <div className="mv-absolute mv-right-2 mv-top-0 mv-h-full mv-flex mv-items-center">
+                  {clearIcon}
+                </div>
+              )}
             </div>
-          ) : null}
-          <InputCounter
-            currentCount={characterCount}
-            maxCount={inputProps.maxLength}
-          />
+          </div>
+          {typeof controls !== "undefined" && controls}
         </div>
-      ) : null}
+        {inputProps.maxLength !== undefined ? (
+          <div className={inputCounterContainerClasses}>
+            {helperText !== undefined || errors.length > 0 ? (
+              <div className="mv-flex mv-flex-col">
+                {helperText !== undefined ? (
+                  <div className="mv-pr-8">{helperText}</div>
+                ) : null}
+                {errors.length > 0 ? (
+                  <ul>
+                    {errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ) : null}
+            <InputCounter
+              currentCount={characterCount}
+              maxCount={inputProps.maxLength}
+            />
+          </div>
+        ) : null}
 
-      {inputProps.maxLength === undefined && helperText !== undefined ? (
-        <div className="mv-pr-8">{helperText}</div>
-      ) : null}
+        {inputProps.maxLength === undefined && helperText !== undefined ? (
+          <div className="mv-pr-8">{helperText}</div>
+        ) : null}
 
-      {inputProps.maxLength === undefined && errors.length > 0 ? (
-        <ul>
-          {errors.map((error, index) => (
-            <li key={index}>{error}</li>
-          ))}
-        </ul>
-      ) : null}
-      {typeof standalone !== "undefined" && standalone !== false && (
-        <input type="submit" className="mv-hidden" />
-      )}
-    </div>
+        {inputProps.maxLength === undefined && errors.length > 0 ? (
+          <ul>
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        ) : null}
+        {typeof standalone !== "undefined" && standalone !== false && (
+          <input type="submit" className="mv-hidden" />
+        )}
+      </div>
+    </CharacterCountContext.Provider>
   );
 }
 
