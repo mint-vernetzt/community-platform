@@ -21,6 +21,7 @@ import { getEventsCount } from "./explore/events.server";
 import { getProjectsCount } from "./explore/projects.server";
 import { getFundingsCount } from "./explore/fundings.server";
 import { getFilterSchemes } from "./explore/index";
+import React from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -77,7 +78,7 @@ function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
-  const links = [
+  const [links] = React.useState([
     {
       to: "/explore",
       label: loaderData.locales.route.content.menu.allContent,
@@ -109,7 +110,20 @@ function Explore() {
       value: loaderData.counts.fundings,
       label: loaderData.locales.route.content.menu.fundings,
     },
-  ];
+  ]);
+  const [currentLink, setCurrentLink] = React.useState(links[0]);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const currentLink = links.find((link) => {
+        return link.to === currentPath;
+      });
+      if (currentLink) {
+        setCurrentLink(currentLink);
+      }
+    }
+  }, [links]);
 
   return (
     <>
@@ -123,13 +137,33 @@ function Explore() {
                 )
               : loaderData.locales.route.content.headline}
           </h1>
-          <menu className="mv-inline-flex mv-overflow-scroll mv-max-w-full mv-gap-2 mv-p mv-rounded-lg mv-bg-neutral-100 mv-font-semibold mv-text-sm">
-            {links.map((item) => {
-              return (
-                <MenuItem key={item.to} {...item} origin={loaderData.origin} />
-              );
-            })}
-          </menu>
+          <EntitiesSelect>
+            <EntitiesSelect.Label>
+              <EntitiesSelect.Menu.Item
+                origin={loaderData.origin}
+                {...currentLink}
+              >
+                <EntitiesSelect.Menu.Item.Label>
+                  {currentLink.label} <Badge>{currentLink.value}</Badge>{" "}
+                </EntitiesSelect.Menu.Item.Label>
+              </EntitiesSelect.Menu.Item>
+            </EntitiesSelect.Label>
+            <EntitiesSelect.Menu>
+              {links.map((item) => {
+                return (
+                  <EntitiesSelect.Menu.Item
+                    key={item.to}
+                    {...item}
+                    origin={loaderData.origin}
+                  >
+                    <EntitiesSelect.Menu.Item.Label>
+                      {item.label} <Badge>{item.value}</Badge>
+                    </EntitiesSelect.Menu.Item.Label>
+                  </EntitiesSelect.Menu.Item>
+                );
+              })}
+            </EntitiesSelect.Menu>
+          </EntitiesSelect>
         </div>
       </section>
       <Outlet />
@@ -137,14 +171,40 @@ function Explore() {
   );
 }
 
-function MenuItem(props: {
+const EntitiesSelectMenuItemContext =
+  React.createContext<DropDownMenuItemProps | null>(null);
+
+function useIsActive() {
+  const context = React.useContext(EntitiesSelectMenuItemContext);
+  if (context === null) {
+    throw new Error(
+      "useIsActive must be used within a EntitiesSelectMenuItemContext"
+    );
+  }
+  const { to } = context;
+  const match = useMatch(to);
+  return match !== null;
+}
+
+function Badge(props: React.PropsWithChildren) {
+  const isActive = useIsActive();
+
+  const classes = classNames(
+    "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-fit mv-py-0.5 mv-px-2.5 mv-rounded-lg",
+    "mv-text-white mv-bg-primary",
+    isActive && "@lg:mv-text-primary @lg:mv-bg-white"
+  );
+  return <span className={classes}>{props.children}</span>;
+}
+
+type DropDownMenuItemProps = React.PropsWithChildren & {
   to: string;
-  label: string;
-  end?: boolean;
   origin: string;
-  value: number;
-}) {
-  const { label, to, origin, ...otherProps } = props;
+  end?: boolean;
+};
+
+function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
+  const { to, origin, children, ...otherProps } = props;
 
   const [searchParams] = useSearchParams();
   const match = useMatch(to);
@@ -159,27 +219,110 @@ function MenuItem(props: {
 
   const isActive = match !== null;
 
-  const linkClasses = classNames(
+  const classes = classNames(
+    "mv-w-full",
+    "mv-text-base mv-font-semibold",
+    "mv-whitespace-normal",
     "mv-flex mv-gap-2 mv-items-center",
-    "mv-px-4 mv-py-2 mv-rounded-lg",
-    isActive ? "mv-bg-primary-500 mv-text-white" : "mv-bg-white"
+    "mv-grow mv-min-w-fit"
   );
 
-  const badgeClasses = classNames(
-    "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-fit mv-py-0.5 mv-px-2.5 mv-rounded-lg",
-    isActive
-      ? " mv-text-primary mv-bg-white"
-      : " mv-text-neutral-600 mv-bg-neutral-200"
+  const linkClasses = classNames(
+    "mv-w-full @lg:mv-max-w-content",
+    "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100"
   );
 
   return (
-    <li className="mv-p-2 mv-grow mv-min-w-fit">
-      <NavLink className={linkClasses} {...otherProps} to={url.toString()}>
-        {label}
-        <span className={badgeClasses}>{props.value}</span>
-      </NavLink>
-    </li>
+    <EntitiesSelectMenuItemContext.Provider
+      value={{ to, origin, end: otherProps.end }}
+    >
+      {isActive ? (
+        <li className={classes}>{children}</li>
+      ) : (
+        <li className={classes}>
+          <NavLink className={linkClasses} {...otherProps} to={url.toString()}>
+            {children}
+          </NavLink>
+        </li>
+      )}
+    </EntitiesSelectMenuItemContext.Provider>
   );
 }
+
+function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
+  const isActive = useIsActive();
+
+  const classes = classNames(
+    "mv-w-full",
+    "mv-flex mv-gap-2 mv-items-center",
+    "mv-mx-4 my-2 @lg:mv-mx-0",
+    "@lg:mv-px-4 @lg:mv-py-2",
+    "@lg:mv-bg-white",
+    isActive && "@lg:mv-bg-primary-500 @lg:mv-text-white",
+    "@lg:mv-rounded-lg",
+    "mv-text-base @lg:mv-text-sm mv-font-semibold",
+    "mv-text-neutral-700",
+    "mv-whitespace-normal"
+  );
+
+  return <span className={classes}>{props.children}</span>;
+}
+
+function EntitiesSelectLabel(props: React.PropsWithChildren) {
+  const classes = classNames(
+    "mv-w-full mv-py-1 mv-pr-4",
+    "mv-inline-flex @lg:mv-hidden mv-items-center mv-justify-between mv-cursor-pointer",
+    "mv-bg-neutral-50 mv-rounded-lg mv-border mv-border-neutral-200",
+    "group-has-[:focus-within]/dropdown-label:mv-bg-gray-100",
+    "group-has-[:focus-within]/dropdown-label:mv-border-blue-500 group-has-[:focus-within]/dropdown-label:mv-ring-1 group-has-[:focus-within]/dropdown-label:mv-ring-blue-500"
+  );
+
+  return (
+    <div className="mv-group/dropdown-label">
+      <label className={classes}>
+        {props.children}
+        <input type="checkbox" className="mv-h-0 mv-w-0 mv-opacity-0" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-shrink-0"
+        >
+          <path
+            fill="currentColor"
+            fillRule="nonzero"
+            d="M6.147 15.854a.5.5 0 0 1 0-.708L11.794 9.5 6.147 3.855a.5.5 0 1 1 .708-.708l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708 0v-.001Z"
+          ></path>
+        </svg>
+      </label>
+    </div>
+  );
+}
+
+function EntitiesSelectDropdown(props: React.PropsWithChildren) {
+  const classes = classNames(
+    "mv-w-full @lg:mv-max-w-full",
+    "mv-mt-2 @lg:mv-py @lg:mv-px-2",
+    "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-scroll",
+    "mv-flex-col @lg:mv-flex-row",
+    "mv-gap-2 @lg:mv-gap-6",
+    "mv-bg-white @lg:mv-bg-neutral-100",
+    "mv-border mv-rounded-lg mv-border-neutral-200 @lg:rounded-lg @lg:mv-border-0"
+  );
+
+  return <menu className={classes}>{props.children}</menu>;
+}
+
+function EntitiesSelect(props: React.PropsWithChildren) {
+  const classes = classNames("mv-group mv-peer", "mv-w-full @lg:mv-max-w-fit");
+
+  return <div className={classes}>{props.children}</div>;
+}
+
+EntitiesSelect.Menu = EntitiesSelectDropdown;
+EntitiesSelectDropdown.Item = EntitiesSelectDropdownItem;
+EntitiesSelectDropdownItem.Label = EntitiesSelectDropdownItemLabel;
+EntitiesSelect.Label = EntitiesSelectLabel;
 
 export default Explore;
