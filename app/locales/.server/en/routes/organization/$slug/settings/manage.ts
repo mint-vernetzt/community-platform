@@ -71,7 +71,7 @@ export const locale = {
         },
         alreadyMemberOf: "already confirmed",
         alreadyRequested: "already requested",
-        noNetwork: "No network",
+        noNetwork: "Not created as a network",
         success:
           "You have successfully requested membership for the network {{organization}}.",
         cancelSuccess:

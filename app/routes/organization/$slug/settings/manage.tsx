@@ -1486,7 +1486,7 @@ function Manage() {
                         ) : searchedOrganization.types.some((relation) => {
                             return relation.organizationType.slug === "network";
                           }) === false ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-negative-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
                             {
                               locales.route.content.networks.requestToJoin
                                 .noNetwork

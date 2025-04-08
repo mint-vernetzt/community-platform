@@ -65,7 +65,7 @@ export const locale = {
         cta: "Beitritt anfragen",
         alreadyMemberOf: "Beitritt bereits bestätigt",
         alreadyRequested: "Beitritt angefragt",
-        noNetwork: "Kein Netzwerk",
+        noNetwork: "Nicht als Netzwerk angelegt",
         email: {
           subject: {
             requested: "Du hast eine Anfrage erhalten!",
