@@ -16,6 +16,14 @@ import {
   updateNetworkRequestSchema,
   updateOrganizationMemberInviteSchema,
 } from "./organizations";
+import * as Sentry from "@sentry/node";
+import { z } from "zod";
+import { invariantResponse } from "~/lib/utils/response";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -967,14 +975,198 @@ export async function createOrCancelOrganizationMemberRequest(options: {
     schema: () =>
       createOrCancelOrganizationMemberRequestSchema.transform(
         async (data, ctx) => {
-          // TODO:
-          // profile id from session user and organization id from form data
-          // upsert the request with those ids
-          // Send corresponding email
+          const organization = await prismaClient.organization.findFirst({
+            select: {
+              id: true,
+              name: true,
+              teamMembers: {
+                select: {
+                  profileId: true,
+                },
+              },
+              admins: {
+                select: {
+                  profile: {
+                    select: {
+                      firstName: true,
+                      email: true,
+                    },
+                  },
+                },
+              },
+            },
+            where: {
+              id: data.organizationId,
+            },
+          });
 
-          // Old
-          // see requests.tsx
-          return { ...data };
+          invariantResponse(
+            organization !== null,
+            locales.route.error.notFound,
+            {
+              status: 404,
+            }
+          );
+          invariantResponse(
+            organization.teamMembers.every((relation) => {
+              return relation.profileId !== sessionUser.id;
+            }),
+            locales.route.error.alreadyMember,
+            { status: 403 }
+          );
+          const profile = await prismaClient.profile.findFirst({
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+            where: {
+              id: sessionUser.id,
+            },
+          });
+          invariantResponse(profile !== null, locales.route.error.notFound, {
+            status: 404,
+          });
+          try {
+            await prismaClient.requestToOrganizationToAddProfile.upsert({
+              where: {
+                profileId_organizationId: {
+                  profileId: sessionUser.id,
+                  organizationId: data.organizationId,
+                },
+              },
+              create: {
+                profileId: sessionUser.id,
+                organizationId: data.organizationId,
+                status:
+                  intent === "createOrganizationMemberRequest"
+                    ? "pending"
+                    : "canceled",
+              },
+              update: {
+                status:
+                  intent === "createOrganizationMemberRequest"
+                    ? "pending"
+                    : "canceled",
+              },
+            });
+
+            await Promise.all(
+              organization.admins.map(async (admin) => {
+                const sender = process.env.SYSTEM_MAIL_SENDER;
+                const subject =
+                  intent === "createOrganizationMemberRequest"
+                    ? locales.route.requestOrganizationMembership.email.subject
+                        .requested
+                    : locales.route.requestOrganizationMembership.email.subject
+                        .canceled;
+                const recipient = admin.profile.email;
+
+                const text =
+                  intent === "createOrganizationMemberRequest"
+                    ? getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/text.hbs">(
+                        "mail-templates/requests/organization-to-add-profile/text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: profile.firstName,
+                            lastName: profile.lastName,
+                          },
+                          organization: {
+                            name: organization.name,
+                          },
+                          button: {
+                            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                            text: locales.route.requestOrganizationMembership
+                              .email.button.text,
+                          },
+                        },
+                        "text"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/canceled-text.hbs">(
+                        "mail-templates/requests/organization-to-add-profile/canceled-text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: profile.firstName,
+                            lastName: profile.lastName,
+                          },
+                          organization: {
+                            name: organization.name,
+                          },
+                        },
+                        "text"
+                      );
+                const html =
+                  intent === "createOrganizationMemberRequest"
+                    ? getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/html.hbs">(
+                        "mail-templates/requests/organization-to-add-profile/html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: profile.firstName,
+                            lastName: profile.lastName,
+                          },
+                          organization: {
+                            name: organization.name,
+                          },
+                          button: {
+                            url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                            text: locales.route.requestOrganizationMembership
+                              .email.button.text,
+                          },
+                        },
+                        "html"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/canceled-html.hbs">(
+                        "mail-templates/requests/organization-to-add-profile/canceled-html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: profile.firstName,
+                            lastName: profile.lastName,
+                          },
+                          organization: {
+                            name: organization.name,
+                          },
+                        },
+                        "html"
+                      );
+
+                try {
+                  await mailer(
+                    mailerOptions,
+                    sender,
+                    recipient,
+                    subject,
+                    text,
+                    html
+                  );
+                } catch (error) {
+                  Sentry.captureException(error);
+                  ctx.addIssue({
+                    code: "custom",
+                    message:
+                      intent === "createOrganizationMemberRequest"
+                        ? locales.route.error.requestFailed
+                        : locales.route.error.cancelRequestFailed,
+                  });
+                  return z.NEVER;
+                }
+              })
+            );
+          } catch (error) {
+            Sentry.captureException(error);
+            ctx.addIssue({
+              code: "custom",
+              message:
+                intent === "createOrganizationMemberRequest"
+                  ? locales.route.error.requestFailed
+                  : locales.route.error.cancelRequestFailed,
+            });
+            return z.NEVER;
+          }
+          return { ...data, name: organization.name };
         }
       ),
     async: true,
@@ -996,7 +1188,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
           : locales.route.requestOrganizationMembership
               .cancelOrganizationMemberRequest,
         {
-          name: "TODO: organization name from database",
+          name: submission.value.name,
         }
       ),
     },

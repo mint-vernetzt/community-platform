@@ -1,4 +1,10 @@
 export const locale = {
+  error: {
+    notFound: "Organization or profile not found",
+    alreadyMember: "You are already a member of the organization",
+    requestFailed: "Membership request could not be sent",
+    cancelRequestFailed: "Membership request could not be withdrawn",
+  },
   headline: "My Organizations",
   cta: "Create Organization",
   networkInfo: {
@@ -47,13 +53,6 @@ export const locale = {
       "You have requested to join {{name}}. You will be notified as soon as an admin responds to your request.",
     cancelOrganizationMemberRequest:
       "You have withdrawn your membership request to {{name}}.",
-    errors: {
-      invalidRoute: "No valid route",
-      alreadyInRelation:
-        "You have still requested to add this profile to this organization, have an invite or are already a member.",
-      custom:
-        "The data could not be saved. Please try again or contact the support team.",
-    },
     label: "Organization name",
     placeholder: "Search for organization...",
     helperText: "At least 3 letters.",
@@ -61,6 +60,16 @@ export const locale = {
     alreadyAdmin: "already admin",
     alreadyMember: "already team member",
     alreadyRequested: "already requested",
+    email: {
+      subject: {
+        requested: "Your organization has received a membership request.",
+        canceled:
+          "A membership request to your organization has been withdrawn.",
+      },
+      button: {
+        text: "To the community platform",
+      },
+    },
   },
   organizationMemberInvites: {
     headline: "Invites from organizations",

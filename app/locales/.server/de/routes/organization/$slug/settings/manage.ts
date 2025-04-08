@@ -68,8 +68,9 @@ export const locale = {
         noNetwork: "Nicht als Netzwerk angelegt",
         email: {
           subject: {
-            requested: "Du hast eine Anfrage erhalten!",
-            canceled: "Die Anfrage wurde zurückgezogen!",
+            requested: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+            canceled:
+              "Eine Mitgliedsanfrage an Deine Organisation wurde zurückgezogen.",
           },
           button: {
             text: "Zur Community Plattform",

@@ -1,4 +1,10 @@
 export const locale = {
+  error: {
+    notFound: "Organisation oder Profile nicht gefunden",
+    alreadyMember: "Du bist bereits Mitglied der Organisation",
+    requestFailed: "Anfrage konnte nicht gesendet werden",
+    cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
+  },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
   networkInfo: {
@@ -47,13 +53,6 @@ export const locale = {
       "Du hast den Beitritt bei der Organisation {{name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
     cancelOrganizationMemberRequest:
       "Du hast die Beitrittsanfrage zur Organisation {{name}} zurückgezogen.",
-    errors: {
-      invalidRoute: "Keine gültige Route",
-      alreadyInRelation:
-        "Du hast schon angefragt, dieses Profil dieser Organisation hinzuzufügen, hast eine Einladung erhalten oder bist bereits Mitglied.",
-      custom:
-        "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
-    },
     label: "Organisationsname",
     placeholder: "Organisation suchen...",
     helperText: "Mindestens 3 Buchstaben.",
@@ -61,6 +60,16 @@ export const locale = {
     alreadyAdmin: "bereits Administrator:in",
     alreadyMember: "bereits Teammitglied",
     alreadyRequested: "bereits angefragt",
+    email: {
+      subject: {
+        requested: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+        canceled:
+          "Eine Mitgliedsanfrage an Deine Organisation wurde zurückgezogen.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   organizationMemberInvites: {
     headline: "Einladungen von Organisationen",

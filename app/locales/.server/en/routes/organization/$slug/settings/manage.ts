@@ -62,8 +62,9 @@ export const locale = {
         cta: "Request membership",
         email: {
           subject: {
-            requested: "You have received a membership request!",
-            canceled: "The membership request has been withdrawn!",
+            requested: "Your organization has received a membership request.",
+            canceled:
+              "A membership request to your organization has been withdrawn.",
           },
           button: {
             text: "To the community platform",

@@ -114,6 +114,19 @@ type RequestContent = {
     lastName: string;
   };
   organization: { name: string };
+  button: {
+    url: string;
+    text: string;
+  };
+};
+
+type RequestCanceledContent = {
+  firstName: string;
+  profile: {
+    firstName: string;
+    lastName: string;
+  };
+  organization: { name: string };
 };
 
 type RequestAcceptedOrRejectedContent = {
@@ -166,6 +179,8 @@ type TemplatePath =
   | "mail-templates/requests/organization-to-add-profile/text.hbs"
   | "mail-templates/requests/organization-to-add-profile/accepted-html.hbs"
   | "mail-templates/requests/organization-to-add-profile/accepted-text.hbs"
+  | "mail-templates/requests/organization-to-add-profile/canceled-html.hbs"
+  | "mail-templates/requests/organization-to-add-profile/canceled-text.hbs"
   | "mail-templates/requests/organization-to-add-profile/rejected-html.hbs"
   | "mail-templates/requests/organization-to-add-profile/rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-organization/html.hbs"
@@ -225,6 +240,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/requests/organization-to-add-profile/html.hbs"
       | "mail-templates/requests/organization-to-add-profile/text.hbs"
   ? RequestContent
+  : TemplatePath extends
+      | "mail-templates/requests/organization-to-add-profile/canceled-html.hbs"
+      | "mail-templates/requests/organization-to-add-profile/canceled-text.hbs"
+  ? RequestCanceledContent
   : TemplatePath extends
       | "mail-templates/requests/organization-to-add-profile/accepted-html.hbs"
       | "mail-templates/requests/organization-to-add-profile/accepted-text.hbs"
