@@ -1,9 +1,11 @@
 export const locale = {
   error: {
-    notFound: "Organisation oder Profile nicht gefunden",
+    notFound: "Datenbankeintrag nicht gefunden",
     alreadyMember: "Du bist bereits Mitglied der Organisation",
     requestFailed: "Anfrage konnte nicht gesendet werden",
     cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
+    acceptInviteFailed: "Einladung konnte nicht angenommen werden",
+    rejectInviteFailed: "Einladung konnte nicht abgelehnt werden",
   },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
@@ -88,6 +90,15 @@ export const locale = {
     rejected: "Du hast den Beitritt zur Organisation {{name}} abgelehnt.",
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
+    email: {
+      subject: {
+        accepted: "Deine Einladung wurde angenommen.",
+        rejected: "Deine Einladung wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   networkInvites: {
     headline: "Einladungen Deiner Organisationen zu Netzwerken",

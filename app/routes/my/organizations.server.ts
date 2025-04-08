@@ -1205,129 +1205,298 @@ export async function updateOrganizationMemberInvite(options: {
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateOrganizationMemberInviteSchema.transform(async (data, ctx) => {
-        // TODO:
-        // profile id from session user, organization id and role from form data
-        // Check if the profile id is the session user id
-        // Get the invite with those ids and the corresponding role
-        // Check if the invite is pending
-        // Set the invite to accepted or rejected
-        // On accept check if the connection already exists (admin or member depending on role)
-        // If not create the connection (admin or member depending on role)
-        // If it exists, do nothing
-        // Send corresponding email
+        const invite =
+          await prismaClient.inviteForProfileToJoinOrganization.findFirst({
+            select: {
+              organization: {
+                select: {
+                  id: true,
+                  name: true,
+                  admins: {
+                    select: {
+                      profile: {
+                        select: {
+                          id: true,
+                          firstName: true,
+                          email: true,
+                        },
+                      },
+                    },
+                  },
+                  teamMembers: {
+                    select: {
+                      profileId: true,
+                    },
+                  },
+                },
+              },
+              profile: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+            where: {
+              profileId: sessionUser.id,
+              organizationId: data.organizationId,
+              role: data.role,
+              status: "pending",
+            },
+          });
+        invariantResponse(invite !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        try {
+          await prismaClient.inviteForProfileToJoinOrganization.update({
+            where: {
+              profileId_organizationId_role: {
+                profileId: sessionUser.id,
+                organizationId: data.organizationId,
+                role: data.role,
+              },
+            },
+            data: {
+              status:
+                intent === "acceptOrganizationMemberInvite"
+                  ? "accepted"
+                  : "rejected",
+            },
+          });
+          if (intent === "acceptOrganizationMemberInvite") {
+            const correspondingPendingRequest =
+              await prismaClient.requestToOrganizationToAddProfile.findFirst({
+                select: {
+                  profileId: true,
+                  organizationId: true,
+                },
+                where: {
+                  profileId: sessionUser.id,
+                  organizationId: data.organizationId,
+                  status: "pending",
+                },
+              });
+            if (correspondingPendingRequest !== null) {
+              await prismaClient.requestToOrganizationToAddProfile.update({
+                where: {
+                  profileId_organizationId: {
+                    profileId: sessionUser.id,
+                    organizationId: data.organizationId,
+                  },
+                },
+                data: {
+                  status: "accepted",
+                },
+              });
+            }
+            if (
+              data.role === "admin" &&
+              invite.organization.admins.every((relation) => {
+                return relation.profile.id !== sessionUser.id;
+              })
+            ) {
+              await prismaClient.adminOfOrganization.create({
+                data: {
+                  organizationId: data.organizationId,
+                  profileId: sessionUser.id,
+                },
+              });
+            }
+            if (
+              data.role === "member" &&
+              invite.organization.teamMembers.every((relation) => {
+                return relation.profileId !== sessionUser.id;
+              })
+            ) {
+              await prismaClient.memberOfOrganization.create({
+                data: {
+                  organizationId: data.organizationId,
+                  profileId: sessionUser.id,
+                },
+              });
+            }
+          } else {
+            await prismaClient.inviteForProfileToJoinOrganization.update({
+              where: {
+                profileId_organizationId_role: {
+                  profileId: sessionUser.id,
+                  organizationId: data.organizationId,
+                  role: data.role,
+                },
+              },
+              data: {
+                status: "rejected",
+              },
+            });
+          }
 
-        // Old
-        // // Even if typescript claims that role and intent has the correct type i needed to add the below typecheck to make the compiler happy when running npm run typecheck
-        // invariantResponse(
-        //   submission.value.role === "admin" || submission.value.role === "member",
-        //   "Only admin and member are valid roles.",
-        //   { status: 400 }
-        // );
-        // invariantResponse(
-        //   submission.value.intent === "accepted" ||
-        //     submission.value.intent === "rejected",
-        //   "Only accepted and rejected are valid intents.",
-        //   { status: 400 }
-        // );
+          await Promise.all(
+            invite.organization.admins.map(async (admin) => {
+              const sender = process.env.SYSTEM_MAIL_SENDER;
+              const subject =
+                intent === "acceptOrganizationMemberInvite"
+                  ? locales.route.organizationMemberInvites.email.subject
+                      .accepted
+                  : locales.route.organizationMemberInvites.email.subject
+                      .rejected;
+              const recipient = admin.profile.email;
 
-        // const pendingInvite = await getPendingOrganizationInvite(
-        //   submission.value.organizationId,
-        //   sessionUser.id,
-        //   submission.value.role
-        // );
-        // invariantResponse(pendingInvite !== null, "Pending invite not found.", {
-        //   status: 404,
-        // });
+              const text =
+                intent === "acceptOrganizationMemberInvite"
+                  ? data.role === "member"
+                    ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/accepted-text.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/accepted-text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
+                        },
+                        "text"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
+                        },
+                        "text"
+                      )
+                  : data.role === "member"
+                  ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-text.hbs">(
+                      "mail-templates/invites/profile-to-join-organization/rejected-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        profile: {
+                          firstName: invite.profile.firstName,
+                          lastName: invite.profile.lastName,
+                        },
+                        organization: {
+                          name: invite.organization.name,
+                        },
+                      },
+                      "text"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs">(
+                      "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        profile: {
+                          firstName: invite.profile.firstName,
+                          lastName: invite.profile.lastName,
+                        },
+                        organization: {
+                          name: invite.organization.name,
+                        },
+                      },
+                      "text"
+                    );
+              const html =
+                intent === "acceptOrganizationMemberInvite"
+                  ? data.role === "member"
+                    ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/accepted-html.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/accepted-html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
+                        },
+                        "html"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
+                        },
+                        "html"
+                      )
+                  : data.role === "member"
+                  ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-html.hbs">(
+                      "mail-templates/invites/profile-to-join-organization/rejected-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        profile: {
+                          firstName: invite.profile.firstName,
+                          lastName: invite.profile.lastName,
+                        },
+                        organization: {
+                          name: invite.organization.name,
+                        },
+                      },
+                      "html"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs">(
+                      "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        profile: {
+                          firstName: invite.profile.firstName,
+                          lastName: invite.profile.lastName,
+                        },
+                        organization: {
+                          name: invite.organization.name,
+                        },
+                      },
+                      "html"
+                    );
 
-        // const invite = await updateOrganizationInvite({
-        //   profileId: sessionUser.id,
-        //   organizationId: submission.value.organizationId,
-        //   role: submission.value.role,
-        //   intent: submission.value.intent,
-        // });
+              try {
+                await mailer(
+                  mailerOptions,
+                  sender,
+                  recipient,
+                  subject,
+                  text,
+                  html
+                );
+              } catch (error) {
+                Sentry.captureException(error);
+                ctx.addIssue({
+                  code: "custom",
+                  message:
+                    intent === "acceptOrganizationMemberInvite"
+                      ? locales.route.error.acceptInviteFailed
+                      : locales.route.error.rejectInviteFailed,
+                });
+                return z.NEVER;
+              }
+            })
+          );
+        } catch (error) {
+          Sentry.captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message:
+              intent === "acceptOrganizationMemberInvite"
+                ? locales.route.error.acceptInviteFailed
+                : locales.route.error.rejectInviteFailed,
+          });
+          return z.NEVER;
+        }
 
-        // const sender = process.env.SYSTEM_MAIL_SENDER;
-        // try {
-        //   await Promise.all(
-        //     invite.organization.admins.map(async (admin) => {
-        //       let textTemplatePath:
-        //         | "mail-templates/invites/profile-to-join-organization/accepted-text.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs";
-        //       let htmlTemplatePath:
-        //         | "mail-templates/invites/profile-to-join-organization/accepted-html.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/rejected-html.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-        //         | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs";
-
-        //       let subject: string;
-
-        //       if (submission.value.intent === "accepted") {
-        //         textTemplatePath =
-        //           submission.value.role === "admin"
-        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-text.hbs"
-        //             : "mail-templates/invites/profile-to-join-organization/accepted-text.hbs";
-        //         htmlTemplatePath =
-        //           submission.value.role === "admin"
-        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-accepted-html.hbs"
-        //             : "mail-templates/invites/profile-to-join-organization/accepted-html.hbs";
-        //         subject =
-        //           submission.value.role === "admin"
-        //             ? locales.route.email.inviteAsAdminAccepted.subject
-        //             : locales.route.email.inviteAccepted.subject;
-        //       } else {
-        //         textTemplatePath =
-        //           submission.value.role === "admin"
-        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
-        //             : "mail-templates/invites/profile-to-join-organization/rejected-text.hbs";
-        //         htmlTemplatePath =
-        //           submission.value.role === "admin"
-        //             ? "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
-        //             : "mail-templates/invites/profile-to-join-organization/rejected-html.hbs";
-        //         subject =
-        //           submission.value.role === "admin"
-        //             ? locales.route.email.inviteAsAdminRejected.subject
-        //             : locales.route.email.inviteRejected.subject;
-        //       }
-
-        //       const content = {
-        //         firstName: admin.profile.firstName,
-        //         organization: {
-        //           name: invite.organization.name,
-        //         },
-        //         profile: {
-        //           firstName: invite.profile.firstName,
-        //           lastName: invite.profile.lastName,
-        //         },
-        //       };
-
-        //       const text = getCompiledMailTemplate<typeof textTemplatePath>(
-        //         textTemplatePath,
-        //         content,
-        //         "text"
-        //       );
-        //       const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
-        //         htmlTemplatePath,
-        //         content,
-        //         "html"
-        //       );
-
-        //       await mailer(
-        //         mailerOptions,
-        //         sender,
-        //         admin.profile.email,
-        //         subject,
-        //         text,
-        //         html
-        //       );
-        //     })
-        //   );
-        // } catch (error) {
-        //   console.error({ error });
-        //   invariantResponse(false, "Server Error: Mailer", { status: 500 });
-        // }
-        return { ...data };
+        return { ...data, name: invite.organization.name };
       }),
     async: true,
   });
@@ -1348,7 +1517,7 @@ export async function updateOrganizationMemberInvite(options: {
             : locales.route.organizationMemberInvites.memberAccepted
           : locales.route.organizationMemberInvites.rejected,
         {
-          name: "TODO: organization name from database",
+          name: submission.value.name,
         }
       ),
     },
