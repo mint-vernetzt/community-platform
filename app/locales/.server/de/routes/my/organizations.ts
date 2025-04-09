@@ -9,6 +9,12 @@ export const locale = {
     notAdmin: "Du bist kein Admin der Organisation",
     acceptRequestFailed: "Beitrittsanfrage konnte nicht angenommen werden",
     rejectRequestFailed: "Beitrittsanfrage konnte nicht abgelehnt werden",
+    notAdminOrTeamMember:
+      "Du bist kein Admin oder Teammitglied der Organisation",
+    lastAdmin:
+      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
+    lastTeamMember:
+      "Du kannst die Organisation nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder die Organisation zu löschen.",
   },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
@@ -164,9 +170,25 @@ export const locale = {
     },
   },
   quit: {
-    success: "Du hast die Organisation {{name}} erfolgreich verlassen.",
-    lastAdmin:
-      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
+    modal: {
+      admin: {
+        headline: "Nicht mehr Admin sein",
+        subline:
+          "Bist Du Dir sicher, dass du die nicht mehr Administrator:in der Organisation {{name}} sein möchtest?",
+        cta: "Organisation verlassen",
+      },
+      teamMember: {
+        headline: "Nicht mehr Teammitglied sein",
+        subline:
+          "Bist Du Dir sicher, dass du nicht mehr Teammitglied der Organisation {{name}} sein möchtest?",
+        cta: "Organisation verlassen",
+      },
+      cancelCta: "Abbrechen",
+    },
+    successAdmin:
+      "Du bist jetzt nicht mehr Administrator:in der Organisation {{name}}.",
+    successMember:
+      "Du bist jetzt nicht mehr Teammitglied der Organisation {{name}}.",
   },
   organizations: {
     tabbar: {

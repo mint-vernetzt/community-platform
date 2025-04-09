@@ -9,6 +9,12 @@ export const locale = {
     notAdmin: "You are not an admin of the organization",
     acceptRequestFailed: "Membership request could not be accepted",
     rejectRequestFailed: "Membership request could not be rejected",
+    notAdminOrTeamMember:
+      "You are neither an admin nor a team member of the organization",
+    lastAdmin:
+      "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
+    lastTeamMember:
+      "You cannot leave the organization because you are the last team member. Contact the admins to appoint another team member or delete the organization.",
   },
   headline: "My Organizations",
   cta: "Create Organization",
@@ -164,9 +170,24 @@ export const locale = {
     },
   },
   quit: {
-    success: "You have successfully left the organization {{name}}.",
-    lastAdmin:
-      "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
+    modal: {
+      admin: {
+        headline: "Not an admin anymore",
+        subline:
+          "Are you sure you don't want to be an admin of the organization {{name}} anymore?",
+        cta: "Leave organization",
+      },
+      teamMember: {
+        headline: "Not a team member anymore",
+        subline:
+          "Are you sure you don't want to be a team member of the organization {{name}} anymore?",
+        cta: "Leave organization",
+      },
+      cancelCta: "Cancel",
+    },
+    successAdmin: "You are no longer an admin of the organization {{name}}.",
+    successMember:
+      "You are no longer a team member of the organization {{name}}.",
   },
   organizations: {
     tabbar: {

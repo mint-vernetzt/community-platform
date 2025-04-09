@@ -25,7 +25,10 @@ import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
 import { detectLanguage } from "~/i18n.server";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   extendSearchParams,
@@ -60,6 +63,7 @@ import { searchOrganizationsSchema } from "~/form-helpers";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { CreateOrganization } from "~/components-next/CreateOrganization";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { Modal } from "~/components-next/Modal";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -181,6 +185,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   let result;
+  let redirectUrl = request.url;
   const formData = await request.formData();
   const intent = formData.get("intent");
   invariantResponse(typeof intent === "string", "Intent is not a string.", {
@@ -341,17 +346,51 @@ export const action = async (args: ActionFunctionArgs) => {
       locales,
       sessionUser,
     });
-  } else if (intent.startsWith("quit-organization-")) {
+  } else if (intent.startsWith("quit-organization-admin-")) {
     const quitOrganizationFormData = new FormData();
-    quitOrganizationFormData.set(
-      "organizationId",
-      intent.replace("quit-organization-", "")
-    );
+    const organizationId = intent.replace("quit-organization-admin-", "");
+    quitOrganizationFormData.set("organizationId", organizationId);
     result = await quitOrganization({
       formData: quitOrganizationFormData,
       locales,
       sessionUser,
+      role: "admin",
     });
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    if (
+      searchParams.get(`modal-quit-organization-admin-${organizationId}`) ===
+      "true"
+    ) {
+      searchParams.delete(`modal-quit-organization-admin-${organizationId}`);
+    }
+    redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
+      url.pathname
+    }?${searchParams.toString()}`;
+  } else if (intent.startsWith("quit-organization-teamMember-")) {
+    const quitOrganizationFormData = new FormData();
+    const organizationId = intent.replace("quit-organization-teamMember-", "");
+    quitOrganizationFormData.set("organizationId", organizationId);
+    result = await quitOrganization({
+      formData: quitOrganizationFormData,
+      locales,
+      sessionUser,
+      role: "teamMember",
+    });
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    if (
+      searchParams.get(
+        `modal-quit-organization-teamMember-${organizationId}`
+      ) === "true"
+    ) {
+      searchParams.delete(
+        `modal-quit-organization-teamMember-${organizationId}`
+      );
+    }
+    redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
+      url.pathname
+    }?${searchParams.toString()}`;
   } else {
     invariantResponse(false, "Invalid intent", {
       status: 400,
@@ -363,7 +402,7 @@ export const action = async (args: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    return redirectWithToast(redirectUrl, result.toast);
   }
   return { submission: result.submission, currentTimestamp: Date.now() };
 };
@@ -1556,6 +1595,12 @@ export default function MyOrganizations() {
                       >
                         <CardContainer type="multi row">
                           {value.organizations.map((organization) => {
+                            const doubleCheckModalSearchParams =
+                              new URLSearchParams(searchParams);
+                            doubleCheckModalSearchParams.set(
+                              `modal-quit-organization-${key}-${organization.id}`,
+                              "true"
+                            );
                             return (
                               <OrganizationCard
                                 key={`${key}-organization-${organization.id}`}
@@ -1595,8 +1640,9 @@ export default function MyOrganizations() {
                                   <OrganizationCard.ContextMenu.ListItem
                                     key={`quit-organization-${organization.slug}`}
                                   >
-                                    <label
-                                      htmlFor={`quit-organization-${organization.slug}`}
+                                    <Link
+                                      id={`quit-organization-${organization.slug}`}
+                                      to={`?${doubleCheckModalSearchParams.toString()}`}
                                       className="mv-w-full mv-h-full mv-flex mv-gap-3 mv-cursor-pointer mv-p-4"
                                     >
                                       <svg
@@ -1615,16 +1661,71 @@ export default function MyOrganizations() {
                                           fill="CurrentColor"
                                         />
                                       </svg>
-                                      <button
-                                        id={`quit-organization-${organization.slug}`}
+
+                                      <span>
+                                        {locales.organizationCard.quit}
+                                      </span>
+                                    </Link>
+                                    <Modal
+                                      searchParam={`modal-quit-organization-${key}-${organization.id}`}
+                                    >
+                                      <Modal.Title>
+                                        {
+                                          locales.route.quit.modal[
+                                            key as keyof typeof organizations
+                                          ].headline
+                                        }
+                                      </Modal.Title>
+                                      <Modal.Section>
+                                        {insertParametersIntoLocale(
+                                          locales.route.quit.modal[
+                                            key as keyof typeof organizations
+                                          ].subline,
+                                          {
+                                            name: organization.name,
+                                          }
+                                        )}
+                                      </Modal.Section>
+                                      <Modal.Section>
+                                        {typeof quitOrganizationForm.errors !==
+                                          "undefined" &&
+                                        quitOrganizationForm.errors.length >
+                                          0 ? (
+                                          <div>
+                                            {quitOrganizationForm.errors.map(
+                                              (error, index) => {
+                                                return (
+                                                  <div
+                                                    id={
+                                                      quitOrganizationForm.errorId
+                                                    }
+                                                    key={index}
+                                                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                                  >
+                                                    {error}
+                                                  </div>
+                                                );
+                                              }
+                                            )}
+                                          </div>
+                                        ) : null}
+                                      </Modal.Section>
+                                      <Modal.SubmitButton
+                                        form={quitOrganizationForm.id}
                                         type="submit"
                                         name="intent"
-                                        value={`quit-organization-${organization.id}`}
-                                        className="mv-appearance-none"
+                                        value={`quit-organization-${key}-${organization.id}`}
                                       >
-                                        {locales.organizationCard.quit}
-                                      </button>
-                                    </label>
+                                        {
+                                          locales.route.quit.modal[
+                                            key as keyof typeof organizations
+                                          ].cta
+                                        }
+                                      </Modal.SubmitButton>
+                                      <Modal.CloseButton>
+                                        {locales.route.quit.modal.cancelCta}
+                                      </Modal.CloseButton>
+                                    </Modal>
                                   </OrganizationCard.ContextMenu.ListItem>
                                 </OrganizationCard.ContextMenu>
                               </OrganizationCard>

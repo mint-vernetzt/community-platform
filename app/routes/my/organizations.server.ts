@@ -1751,30 +1751,34 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
             });
             if (intent === "acceptOrganizationMemberRequest") {
               const correspondingPendingInvites =
-                await prismaClient.inviteForProfileToJoinOrganization.findMany({
-                  select: {
-                    profileId: true,
-                    organizationId: true,
-                  },
-                  where: {
-                    profileId: data.profileId,
-                    organizationId: data.organizationId,
-                    status: "pending",
-                  },
-                });
-              if (correspondingPendingInvites.length > 0) {
-                await prismaClient.inviteForProfileToJoinOrganization.updateMany(
+                await prismaClient.inviteForProfileToJoinOrganization.findFirst(
                   {
+                    select: {
+                      profileId: true,
+                      organizationId: true,
+                    },
                     where: {
                       profileId: data.profileId,
                       organizationId: data.organizationId,
                       status: "pending",
-                    },
-                    data: {
-                      status: "accepted",
+                      role: "member",
                     },
                   }
                 );
+              if (correspondingPendingInvites !== null) {
+                await prismaClient.inviteForProfileToJoinOrganization.update({
+                  where: {
+                    profileId_organizationId_role: {
+                      profileId: data.profileId,
+                      organizationId: data.organizationId,
+                      role: "member",
+                    },
+                    status: "pending",
+                  },
+                  data: {
+                    status: "accepted",
+                  },
+                });
               }
               if (
                 request.organization.teamMembers.every((relation) => {
@@ -2157,21 +2161,79 @@ export async function quitOrganization(options: {
   formData: FormData;
   locales: MyOrganizationsLocales;
   sessionUser: User;
+  role: "admin" | "teamMember";
 }) {
-  const { formData, locales, sessionUser } = options;
+  const { formData, locales, sessionUser, role } = options;
   const submission = await parseWithZod(formData, {
     schema: () =>
       quitOrganizationSchema.transform(async (data, ctx) => {
-        // TODO:
-        // organization id from form data
-        // Check if the session user is admin or team member of the organization
-        // Check if the session user is last admin or team member of the organization
-        // If so, return custom issue -> locales.route.quit.lastAdminOrTeamMember
-        // If not, remove the connections (admin and team member)
-
-        // Old
-        // see quit.tsx
-        return { ...data };
+        const organization = await prismaClient.organization.findFirst({
+          select: {
+            id: true,
+            name: true,
+            _count: {
+              select: {
+                admins: true,
+                teamMembers: true,
+              },
+            },
+          },
+          where:
+            role === "admin"
+              ? {
+                  id: data.organizationId,
+                  admins: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                }
+              : {
+                  id: data.organizationId,
+                  teamMembers: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                },
+        });
+        invariantResponse(organization !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        if (role === "admin" && organization._count.admins <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastAdmin,
+          });
+          return z.NEVER;
+        }
+        if (role === "teamMember" && organization._count.teamMembers <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastTeamMember,
+          });
+          return z.NEVER;
+        }
+        if (role === "admin") {
+          await prismaClient.adminOfOrganization.delete({
+            where: {
+              profileId_organizationId: {
+                profileId: sessionUser.id,
+                organizationId: data.organizationId,
+              },
+            },
+          });
+        } else {
+          await prismaClient.memberOfOrganization.delete({
+            where: {
+              profileId_organizationId: {
+                profileId: sessionUser.id,
+                organizationId: data.organizationId,
+              },
+            },
+          });
+        }
+        return { ...data, name: organization.name };
       }),
     async: true,
   });
@@ -2185,9 +2247,14 @@ export async function quitOrganization(options: {
     toast: {
       id: "quit-organization-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(locales.route.quit.success, {
-        name: "TODO: organization name from database",
-      }),
+      message: insertParametersIntoLocale(
+        role === "admin"
+          ? locales.route.quit.successAdmin
+          : locales.route.quit.successMember,
+        {
+          name: submission.value.name,
+        }
+      ),
     },
   };
 }
