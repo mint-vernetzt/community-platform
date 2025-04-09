@@ -6,6 +6,7 @@ export const locale = {
     cancelRequestFailed: "Membership request could not be withdrawn",
     acceptInviteFailed: "Invitation could not be accepted",
     rejectInviteFailed: "Invitation could not be rejected",
+    notAdmin: "You are not an admin of the organization",
   },
   headline: "My Organizations",
   cta: "Create Organization",
@@ -110,6 +111,15 @@ export const locale = {
       "You have declined the invitation from {{organizationName}}.",
     acceptNetworkInvite:
       "Your organization {{organizationName}} has been added to the network {{networkName}}.",
+    email: {
+      subject: {
+        accepted: "Your invitation has been accepted.",
+        rejected: "Your invitation has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   organizationMemberRequests: {
     headline: "Membership requests to your organizations",

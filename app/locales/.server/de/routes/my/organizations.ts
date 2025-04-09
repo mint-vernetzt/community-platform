@@ -6,6 +6,7 @@ export const locale = {
     cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
     acceptInviteFailed: "Einladung konnte nicht angenommen werden",
     rejectInviteFailed: "Einladung konnte nicht abgelehnt werden",
+    notAdmin: "Du bist kein Admin der Organisation",
   },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
@@ -110,6 +111,15 @@ export const locale = {
       "Du hast die Einladung von {{organizationName}} abgelehnt.",
     acceptNetworkInvite:
       "Deine Organisation {{organizationName}} wurde zum Netzwerk {{networkName}} hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Einladung wurde angenommen.",
+        rejected: "Deine Einladung wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   organizationMemberRequests: {
     headline: "Beitrittsanfragen an Deine Organisationen",

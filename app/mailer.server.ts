@@ -160,6 +160,12 @@ type InviteNetworkContent = {
   };
 };
 
+type InviteNetworkAcceptedOrRejectedContent = {
+  firstName: string;
+  organization: { name: string };
+  network: { name: string };
+};
+
 type InviteCanceledNetworkContent = {
   firstName: string;
   organization: { name: string };
@@ -201,6 +207,10 @@ type TemplatePath =
   | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/text.hbs"
   | "mail-templates/invites/organization-to-join-network/html.hbs"
+  | "mail-templates/invites/organization-to-join-network/accepted-text.hbs"
+  | "mail-templates/invites/organization-to-join-network/accepted-html.hbs"
+  | "mail-templates/invites/organization-to-join-network/rejected-text.hbs"
+  | "mail-templates/invites/organization-to-join-network/rejected-html.hbs"
   | "mail-templates/invites/organization-to-join-network/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/canceled-html.hbs";
 
@@ -262,6 +272,12 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/invites/organization-to-join-network/html.hbs"
       | "mail-templates/invites/organization-to-join-network/text.hbs"
   ? InviteNetworkContent
+  : TemplatePath extends
+      | "mail-templates/invites/organization-to-join-network/accepted-html.hbs"
+      | "mail-templates/invites/organization-to-join-network/accepted-text.hbs"
+      | "mail-templates/invites/organization-to-join-network/rejected-html.hbs"
+      | "mail-templates/invites/organization-to-join-network/rejected-text.hbs"
+  ? InviteNetworkAcceptedOrRejectedContent
   : TemplatePath extends
       | "mail-templates/invites/organization-to-join-network/canceled-html.hbs"
       | "mail-templates/invites/organization-to-join-network/canceled-text.hbs"
