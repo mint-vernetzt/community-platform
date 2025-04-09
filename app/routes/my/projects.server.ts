@@ -9,6 +9,8 @@ import { DefaultImages } from "~/images.shared";
 import { quitProjectSchema } from "./projects";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { z } from "zod";
 
 export type MyProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -235,21 +237,79 @@ export async function quitProject(options: {
   formData: FormData;
   locales: MyProjectsLocales;
   sessionUser: User;
+  role: "admin" | "teamMember";
 }) {
-  const { formData, locales, sessionUser } = options;
+  const { formData, locales, sessionUser, role } = options;
   const submission = await parseWithZod(formData, {
     schema: () =>
       quitProjectSchema.transform(async (data, ctx) => {
-        // TODO:
-        // project id from form data
-        // Check if the session user is admin or team member of the project
-        // Check if the session user is last admin or team member of the project
-        // If so -> return custom issue -> locales.route.quit.lastAdminOrTeamMember
-        // If not, remove the connections (admin and team member)
-
-        // Old
-        // see quit.tsx
-        return { ...data };
+        const project = await prismaClient.project.findFirst({
+          select: {
+            id: true,
+            name: true,
+            _count: {
+              select: {
+                admins: true,
+                teamMembers: true,
+              },
+            },
+          },
+          where:
+            role === "admin"
+              ? {
+                  id: data.projectId,
+                  admins: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                }
+              : {
+                  id: data.projectId,
+                  teamMembers: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                },
+        });
+        invariantResponse(project !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        if (role === "admin" && project._count.admins <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastAdmin,
+          });
+          return z.NEVER;
+        }
+        if (role === "teamMember" && project._count.teamMembers <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastTeamMember,
+          });
+          return z.NEVER;
+        }
+        if (role === "admin") {
+          await prismaClient.adminOfProject.delete({
+            where: {
+              profileId_projectId: {
+                profileId: sessionUser.id,
+                projectId: data.projectId,
+              },
+            },
+          });
+        } else {
+          await prismaClient.teamMemberOfProject.delete({
+            where: {
+              profileId_projectId: {
+                profileId: sessionUser.id,
+                projectId: data.projectId,
+              },
+            },
+          });
+        }
+        return { ...data, name: project.name };
       }),
     async: true,
   });
@@ -261,11 +321,16 @@ export async function quitProject(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "quit-project-toast",
+      id: "quit-organization-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(locales.route.quit.success, {
-        project: "TODO: project name from database",
-      }),
+      message: insertParametersIntoLocale(
+        role === "admin"
+          ? locales.route.quit.successAdmin
+          : locales.route.quit.successMember,
+        {
+          name: submission.value.name,
+        }
+      ),
     },
   };
 }
