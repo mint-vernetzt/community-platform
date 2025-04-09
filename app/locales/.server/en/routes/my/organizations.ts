@@ -7,6 +7,8 @@ export const locale = {
     acceptInviteFailed: "Invitation could not be accepted",
     rejectInviteFailed: "Invitation could not be rejected",
     notAdmin: "You are not an admin of the organization",
+    acceptRequestFailed: "Membership request could not be accepted",
+    rejectRequestFailed: "Membership request could not be rejected",
   },
   headline: "My Organizations",
   cta: "Create Organization",
@@ -131,6 +133,15 @@ export const locale = {
       "You have declined the membership request of {{academicTitle}} {{firstName}} {{lastName}}.",
     acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} has been added to your organization.",
+    email: {
+      subject: {
+        accepted: "Your membership request has been accepted.",
+        rejected: "Your membership request has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   networkRequests: {
     headline: "Membership requests to your networks",
@@ -142,6 +153,15 @@ export const locale = {
       "You have declined the membership request from {{organizationName}}.",
     acceptNetworkRequest:
       "The organization {{organizationName}} has been added to your network {{networkName}}.",
+    email: {
+      subject: {
+        accepted: "Your membership request has been accepted.",
+        rejected: "Your membership request has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   quit: {
     success: "You have successfully left the organization {{name}}.",
@@ -156,32 +176,6 @@ export const locale = {
     subline: {
       teamMember: "You are assigned to these organizations as a team member.",
       admin: "You are assigned to these organizations as an administrator.",
-    },
-  },
-  email: {
-    createRequest: {
-      subject: "Your organization has received a membership request.",
-      button: {
-        text: "To the community platform",
-      },
-    },
-    acceptRequest: {
-      subject: "Your request has been accepted.",
-    },
-    rejectRequest: {
-      subject: "Your request has been declined.",
-    },
-    inviteAccepted: {
-      subject: "Your invitation has been accepted.",
-    },
-    inviteAsAdminAccepted: {
-      subject: "Your invitation has been accepted.",
-    },
-    inviteRejected: {
-      subject: "Your invitation has been declined.",
-    },
-    inviteAsAdminRejected: {
-      subject: "Your invitation has been declined.",
     },
   },
 } as const;

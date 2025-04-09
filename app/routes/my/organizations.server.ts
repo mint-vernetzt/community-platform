@@ -544,102 +544,6 @@ export function addImageUrlToOrganizationMemberInvites(
   return { adminInvites, teamMemberInvites };
 }
 
-export async function getPendingOrganizationInvite(
-  organizationId: string,
-  profileId: string,
-  role: "admin" | "member"
-) {
-  const invite =
-    await prismaClient.inviteForProfileToJoinOrganization.findFirst({
-      select: {
-        profileId: true,
-        organizationId: true,
-        role: true,
-      },
-      where: {
-        organizationId,
-        profileId,
-        role,
-        status: "pending",
-      },
-    });
-  return invite;
-}
-
-export async function updateOrganizationInvite(options: {
-  profileId: string;
-  organizationId: string;
-  role: "admin" | "member";
-  intent: "rejected" | "accepted";
-}) {
-  const { profileId, organizationId, role, intent } = options;
-  const inviteQuery = prismaClient.inviteForProfileToJoinOrganization.update({
-    select: {
-      organization: {
-        select: {
-          slug: true,
-          name: true,
-          admins: {
-            select: {
-              profile: {
-                select: {
-                  firstName: true,
-                  email: true,
-                },
-              },
-            },
-          },
-        },
-      },
-      profile: {
-        select: {
-          firstName: true,
-          lastName: true,
-          email: true,
-        },
-      },
-      role: true,
-    },
-    where: {
-      profileId_organizationId_role: {
-        organizationId,
-        profileId,
-        role,
-      },
-    },
-    data: {
-      status: intent,
-    },
-  });
-  let connectToOrganizationQuery;
-  if (intent === "accepted") {
-    connectToOrganizationQuery =
-      role === "admin"
-        ? prismaClient.adminOfOrganization.create({
-            data: {
-              organizationId,
-              profileId,
-            },
-          })
-        : prismaClient.memberOfOrganization.create({
-            data: {
-              organizationId,
-              profileId,
-            },
-          });
-  }
-  if (connectToOrganizationQuery) {
-    const [invite] = await prismaClient.$transaction([
-      inviteQuery,
-      connectToOrganizationQuery,
-    ]);
-    return invite;
-  }
-  const invite = await inviteQuery;
-
-  return invite;
-}
-
 export async function getOrganizationMemberRequests(id: string) {
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -1262,6 +1166,7 @@ export async function updateOrganizationMemberInvite(options: {
                 organizationId: data.organizationId,
                 role: data.role,
               },
+              status: "pending",
             },
             data: {
               status:
@@ -1290,6 +1195,7 @@ export async function updateOrganizationMemberInvite(options: {
                     profileId: sessionUser.id,
                     organizationId: data.organizationId,
                   },
+                  status: "pending",
                 },
                 data: {
                   status: "accepted",
@@ -1322,19 +1228,6 @@ export async function updateOrganizationMemberInvite(options: {
                 },
               });
             }
-          } else {
-            await prismaClient.inviteForProfileToJoinOrganization.update({
-              where: {
-                profileId_organizationId_role: {
-                  profileId: sessionUser.id,
-                  organizationId: data.organizationId,
-                  role: data.role,
-                },
-              },
-              data: {
-                status: "rejected",
-              },
-            });
           }
 
           await Promise.all(
@@ -1602,6 +1495,7 @@ export async function updateNetworkInvite(options: {
                 organizationId: data.organizationId,
                 networkId: data.networkId,
               },
+              status: "pending",
             },
             data: {
               status:
@@ -1628,6 +1522,7 @@ export async function updateNetworkInvite(options: {
                     networkId: data.networkId,
                     organizationId: data.organizationId,
                   },
+                  status: "pending",
                 },
                 data: {
                   status: "accepted",
@@ -1646,18 +1541,6 @@ export async function updateNetworkInvite(options: {
                 },
               });
             }
-          } else {
-            await prismaClient.inviteForOrganizationToJoinNetwork.update({
-              where: {
-                organizationId_networkId: {
-                  organizationId: data.organizationId,
-                  networkId: data.networkId,
-                },
-              },
-              data: {
-                status: "rejected",
-              },
-            });
           }
 
           await Promise.all(
@@ -1802,20 +1685,205 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
     schema: () =>
       acceptOrRejectOrganizationMemberRequestSchema.transform(
         async (data, ctx) => {
-          // TODO:
-          // organization id and profile id from form data
-          // Check if the session user is admin of the organization id
-          // Get the request with those ids
-          // Check if the request is pending
-          // Set the request to accepted or rejected
-          // On accept check if the connection already exists
-          // If not create the connection
-          // If it exists, do nothing
-          // Send corresponding email
+          const request =
+            await prismaClient.requestToOrganizationToAddProfile.findFirst({
+              select: {
+                profile: {
+                  select: {
+                    id: true,
+                    academicTitle: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
+                },
+                organization: {
+                  select: {
+                    id: true,
+                    name: true,
+                    admins: {
+                      select: {
+                        profileId: true,
+                      },
+                    },
+                    teamMembers: {
+                      select: {
+                        profileId: true,
+                      },
+                    },
+                  },
+                },
+              },
+              where: {
+                profileId: data.profileId,
+                organizationId: data.organizationId,
+                status: "pending",
+              },
+            });
+          invariantResponse(request !== null, locales.route.error.notFound, {
+            status: 404,
+          });
+          invariantResponse(
+            request.organization.admins.some((relation) => {
+              return relation.profileId === sessionUser.id;
+            }),
+            locales.route.error.notAdmin,
+            {
+              status: 403,
+            }
+          );
 
-          // Old
-          // see requests.tsx
-          return { ...data };
+          try {
+            await prismaClient.requestToOrganizationToAddProfile.update({
+              where: {
+                profileId_organizationId: {
+                  profileId: data.profileId,
+                  organizationId: data.organizationId,
+                },
+                status: "pending",
+              },
+              data: {
+                status:
+                  intent === "acceptOrganizationMemberRequest"
+                    ? "accepted"
+                    : "rejected",
+              },
+            });
+            if (intent === "acceptOrganizationMemberRequest") {
+              const correspondingPendingInvites =
+                await prismaClient.inviteForProfileToJoinOrganization.findMany({
+                  select: {
+                    profileId: true,
+                    organizationId: true,
+                  },
+                  where: {
+                    profileId: data.profileId,
+                    organizationId: data.organizationId,
+                    status: "pending",
+                  },
+                });
+              if (correspondingPendingInvites.length > 0) {
+                await prismaClient.inviteForProfileToJoinOrganization.updateMany(
+                  {
+                    where: {
+                      profileId: data.profileId,
+                      organizationId: data.organizationId,
+                      status: "pending",
+                    },
+                    data: {
+                      status: "accepted",
+                    },
+                  }
+                );
+              }
+              if (
+                request.organization.teamMembers.every((relation) => {
+                  return relation.profileId !== data.profileId;
+                })
+              ) {
+                await prismaClient.memberOfOrganization.create({
+                  data: {
+                    profileId: data.profileId,
+                    organizationId: data.organizationId,
+                  },
+                });
+              }
+            }
+
+            const sender = process.env.SYSTEM_MAIL_SENDER;
+            const subject =
+              intent === "acceptOrganizationMemberRequest"
+                ? locales.route.organizationMemberRequests.email.subject
+                    .accepted
+                : locales.route.organizationMemberRequests.email.subject
+                    .rejected;
+            const recipient = request.profile.email;
+
+            const text =
+              intent === "acceptOrganizationMemberRequest"
+                ? getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/accepted-text.hbs">(
+                    "mail-templates/requests/organization-to-add-profile/accepted-text.hbs",
+                    {
+                      firstName: request.profile.firstName,
+                      organization: {
+                        name: request.organization.name,
+                      },
+                    },
+                    "text"
+                  )
+                : getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/rejected-text.hbs">(
+                    "mail-templates/requests/organization-to-add-profile/rejected-text.hbs",
+                    {
+                      firstName: request.profile.firstName,
+                      organization: {
+                        name: request.organization.name,
+                      },
+                    },
+                    "text"
+                  );
+            const html =
+              intent === "acceptOrganizationMemberRequest"
+                ? getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/accepted-html.hbs">(
+                    "mail-templates/requests/organization-to-add-profile/accepted-html.hbs",
+                    {
+                      firstName: request.profile.firstName,
+                      organization: {
+                        name: request.organization.name,
+                      },
+                    },
+                    "html"
+                  )
+                : getCompiledMailTemplate<"mail-templates/requests/organization-to-add-profile/rejected-html.hbs">(
+                    "mail-templates/requests/organization-to-add-profile/rejected-html.hbs",
+                    {
+                      firstName: request.profile.firstName,
+                      organization: {
+                        name: request.organization.name,
+                      },
+                    },
+                    "html"
+                  );
+
+            try {
+              await mailer(
+                mailerOptions,
+                sender,
+                recipient,
+                subject,
+                text,
+                html
+              );
+            } catch (error) {
+              Sentry.captureException(error);
+              ctx.addIssue({
+                code: "custom",
+                message:
+                  intent === "acceptOrganizationMemberRequest"
+                    ? locales.route.error.acceptRequestFailed
+                    : locales.route.error.rejectRequestFailed,
+              });
+              return z.NEVER;
+            }
+          } catch (error) {
+            Sentry.captureException(error);
+            ctx.addIssue({
+              code: "custom",
+              message:
+                intent === "acceptOrganizationMemberRequest"
+                  ? locales.route.error.acceptRequestFailed
+                  : locales.route.error.rejectRequestFailed,
+            });
+            return z.NEVER;
+          }
+
+          return {
+            ...data,
+            profile: {
+              academicTitle: request.profile.academicTitle,
+              firstName: request.profile.firstName,
+              lastName: request.profile.lastName,
+            },
+          };
         }
       ),
     async: true,
@@ -1837,9 +1905,9 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
           : locales.route.organizationMemberRequests
               .rejectOrganizationMemberRequest,
         {
-          academicTitle: "TODO: from database",
-          firstName: "TODO: from database",
-          lastName: "TODO: from database",
+          academicTitle: submission.value.profile.academicTitle || "",
+          firstName: submission.value.profile.firstName,
+          lastName: submission.value.profile.lastName,
         }
       ),
     },
@@ -1856,17 +1924,209 @@ export async function updateNetworkRequest(options: {
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateNetworkRequestSchema.transform(async (data, ctx) => {
-        // TODO:
-        // organization id and network id from form data
-        // Check if the session user is admin of the network id
-        // Get the request with those ids
-        // Check if the request is pending
-        // Set the request to accepted or rejected
-        // On accept check if the connection already exists
-        // If not create the connection
-        // If it exists, do nothing
-        // Send corresponding email
-        return { ...data };
+        const request =
+          await prismaClient.requestToNetworkToAddOrganization.findFirst({
+            select: {
+              network: {
+                select: {
+                  id: true,
+                  name: true,
+                  networkMembers: {
+                    select: {
+                      networkMemberId: true,
+                    },
+                  },
+                  admins: {
+                    select: {
+                      profileId: true,
+                    },
+                  },
+                },
+              },
+              organization: {
+                select: {
+                  id: true,
+                  name: true,
+                  admins: {
+                    select: {
+                      profile: {
+                        select: {
+                          id: true,
+                          firstName: true,
+                          email: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            where: {
+              networkId: data.networkId,
+              organizationId: data.organizationId,
+              status: "pending",
+            },
+          });
+        invariantResponse(request !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        invariantResponse(
+          request.network.admins.some((relation) => {
+            return relation.profileId === sessionUser.id;
+          }),
+          locales.route.error.notAdmin,
+          {
+            status: 403,
+          }
+        );
+
+        try {
+          await prismaClient.requestToNetworkToAddOrganization.update({
+            where: {
+              networkId_organizationId: {
+                networkId: data.networkId,
+                organizationId: data.organizationId,
+              },
+              status: "pending",
+            },
+            data: {
+              status:
+                intent === "acceptNetworkRequest" ? "accepted" : "rejected",
+            },
+          });
+          if (intent === "acceptNetworkRequest") {
+            const correspondingPendingInvite =
+              await prismaClient.inviteForOrganizationToJoinNetwork.findFirst({
+                select: {
+                  networkId: true,
+                  organizationId: true,
+                },
+                where: {
+                  networkId: data.networkId,
+                  organizationId: data.organizationId,
+                  status: "pending",
+                },
+              });
+            if (correspondingPendingInvite !== null) {
+              await prismaClient.inviteForOrganizationToJoinNetwork.update({
+                where: {
+                  organizationId_networkId: {
+                    organizationId: data.organizationId,
+                    networkId: data.networkId,
+                  },
+                  status: "pending",
+                },
+                data: {
+                  status: "accepted",
+                },
+              });
+            }
+            if (
+              request.network.networkMembers.every((relation) => {
+                return relation.networkMemberId !== data.organizationId;
+              })
+            ) {
+              await prismaClient.memberOfNetwork.create({
+                data: {
+                  networkId: data.networkId,
+                  networkMemberId: data.organizationId,
+                },
+              });
+            }
+          }
+
+          await Promise.all(
+            request.organization.admins.map(async (admin) => {
+              const sender = process.env.SYSTEM_MAIL_SENDER;
+              const subject =
+                intent === "acceptNetworkRequest"
+                  ? locales.route.networkRequests.email.subject.accepted
+                  : locales.route.networkRequests.email.subject.rejected;
+              const recipient = admin.profile.email;
+
+              const text =
+                intent === "acceptNetworkRequest"
+                  ? getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/accepted-text.hbs">(
+                      "mail-templates/requests/network-to-add-organization/accepted-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        network: {
+                          name: request.network.name,
+                        },
+                      },
+                      "text"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/rejected-text.hbs">(
+                      "mail-templates/requests/network-to-add-organization/accepted-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        network: {
+                          name: request.network.name,
+                        },
+                      },
+                      "text"
+                    );
+              const html =
+                intent === "acceptNetworkRequest"
+                  ? getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/accepted-html.hbs">(
+                      "mail-templates/requests/network-to-add-organization/accepted-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        network: {
+                          name: request.network.name,
+                        },
+                      },
+                      "html"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/rejected-html.hbs">(
+                      "mail-templates/requests/network-to-add-organization/rejected-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        network: {
+                          name: request.network.name,
+                        },
+                      },
+                      "html"
+                    );
+
+              try {
+                await mailer(
+                  mailerOptions,
+                  sender,
+                  recipient,
+                  subject,
+                  text,
+                  html
+                );
+              } catch (error) {
+                Sentry.captureException(error);
+                ctx.addIssue({
+                  code: "custom",
+                  message:
+                    intent === "acceptNetworkRequest"
+                      ? locales.route.error.acceptRequestFailed
+                      : locales.route.error.rejectRequestFailed,
+                });
+                return z.NEVER;
+              }
+            })
+          );
+        } catch (error) {
+          Sentry.captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message:
+              intent === "acceptNetworkRequest"
+                ? locales.route.error.acceptRequestFailed
+                : locales.route.error.rejectRequestFailed,
+          });
+          return z.NEVER;
+        }
+        return {
+          ...data,
+          organizationName: request.organization.name,
+          networkName: request.network.name,
+        };
       }),
     async: true,
   });
@@ -1885,8 +2145,8 @@ export async function updateNetworkRequest(options: {
           ? locales.route.networkRequests.acceptNetworkRequest
           : locales.route.networkRequests.rejectNetworkRequest,
         {
-          organizationName: "TODO: organization name from database",
-          networkName: "TODO: network name from database",
+          organizationName: submission.value.organizationName,
+          networkName: submission.value.networkName,
         }
       ),
     },

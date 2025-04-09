@@ -7,6 +7,8 @@ export const locale = {
     acceptInviteFailed: "Einladung konnte nicht angenommen werden",
     rejectInviteFailed: "Einladung konnte nicht abgelehnt werden",
     notAdmin: "Du bist kein Admin der Organisation",
+    acceptRequestFailed: "Beitrittsanfrage konnte nicht angenommen werden",
+    rejectRequestFailed: "Beitrittsanfrage konnte nicht abgelehnt werden",
   },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
@@ -131,6 +133,15 @@ export const locale = {
       "Du hast die Beitrittsanfrage von {{academicTitle}} {{firstName}} {{lastName}} abgelehnt.",
     acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Beitrittsanfrage wurde bestätigt.",
+        rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   networkRequests: {
     headline: "Beitrittsanfragen an Deine Netzwerke",
@@ -142,6 +153,15 @@ export const locale = {
       "Du hast die Beitrittsanfrage von {{organizationName}} abgelehnt.",
     acceptNetworkRequest:
       "Die Organisation {{organizationName}} wurde zu Deinem Netzwerk {{networkName}} hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Beitrittsanfrage wurde bestätigt.",
+        rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   quit: {
     success: "Du hast die Organisation {{name}} erfolgreich verlassen.",
@@ -156,32 +176,6 @@ export const locale = {
     subline: {
       teamMember: "Diesen Organisationen bist Du als Teammitglied zugeordnet.",
       admin: "Diesen Organisationen bist Du als Administrator:in zugeordnet.",
-    },
-  },
-  email: {
-    createRequest: {
-      subject: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
-      button: {
-        text: "Zur Community Plattform",
-      },
-    },
-    acceptRequest: {
-      subject: "Deine Anfrage wurde bestätigt.",
-    },
-    rejectRequest: {
-      subject: "Deine Anfrage wurde abgelehnt.",
-    },
-    inviteAccepted: {
-      subject: "Deine Einladung wurde akzeptiert.",
-    },
-    inviteAsAdminAccepted: {
-      subject: "Deine Einladung wurde akzeptiert.",
-    },
-    inviteRejected: {
-      subject: "Deine Einladung wurde abgelehnt.",
-    },
-    inviteAsAdminRejected: {
-      subject: "Deine Einladung wurde abgelehnt.",
     },
   },
 } as const;

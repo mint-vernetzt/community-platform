@@ -144,6 +144,11 @@ type RequestNetworkContent = {
   };
 };
 
+type RequestNetworkAcceptedOrRejectedContent = {
+  firstName: string;
+  network: { name: string };
+};
+
 type RequestCanceledNetworkContent = {
   firstName: string;
   organization: { name: string };
@@ -203,6 +208,10 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
   | "mail-templates/requests/network-to-add-organization/html.hbs"
   | "mail-templates/requests/network-to-add-organization/text.hbs"
+  | "mail-templates/requests/network-to-add-organization/accepted-html.hbs"
+  | "mail-templates/requests/network-to-add-organization/accepted-text.hbs"
+  | "mail-templates/requests/network-to-add-organization/rejected-html.hbs"
+  | "mail-templates/requests/network-to-add-organization/rejected-text.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/text.hbs"
@@ -264,6 +273,12 @@ type TemplateContent<TemplatePath> = TemplatePath extends
       | "mail-templates/requests/network-to-add-organization/html.hbs"
       | "mail-templates/requests/network-to-add-organization/text.hbs"
   ? RequestNetworkContent
+  : TemplatePath extends
+      | "mail-templates/requests/network-to-add-organization/accepted-html.hbs"
+      | "mail-templates/requests/network-to-add-organization/accepted-text.hbs"
+      | "mail-templates/requests/network-to-add-organization/rejected-html.hbs"
+      | "mail-templates/requests/network-to-add-organization/rejected-text.hbs"
+  ? RequestNetworkAcceptedOrRejectedContent
   : TemplatePath extends
       | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
       | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
