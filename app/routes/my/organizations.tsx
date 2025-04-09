@@ -50,12 +50,12 @@ import {
   getOrganizationMemberInvites,
   getOrganizationMemberRequests,
   getOrganizationsFromProfile,
+  getPendingRequestsToOrganizations,
   quitOrganization,
   updateNetworkInvite,
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
-import { getPendingRequestsToOrganizations } from "./organizations/requests.server";
 import { z } from "zod";
 import { searchOrganizations } from "../utils.server";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";

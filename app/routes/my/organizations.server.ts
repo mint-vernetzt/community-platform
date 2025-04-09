@@ -544,6 +544,76 @@ export function addImageUrlToOrganizationMemberInvites(
   return { adminInvites, teamMemberInvites };
 }
 
+export async function getPendingRequestsToOrganizations(
+  profileId: string,
+  authClient: SupabaseClient
+) {
+  const requests = (
+    await prismaClient.requestToOrganizationToAddProfile.findMany({
+      where: {
+        profileId,
+        status: "pending",
+      },
+      select: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            types: {
+              select: {
+                organizationType: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+  ).map((relation) => {
+    return relation.organization;
+  });
+
+  const enhancedRequests = requests.map((request) => {
+    let logo = request.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return {
+      ...request,
+      logo,
+      blurredLogo,
+    };
+  });
+
+  return enhancedRequests;
+}
+
 export async function getOrganizationMemberRequests(id: string) {
   const organizations = await prismaClient.organization.findMany({
     select: {
