@@ -1412,7 +1412,6 @@ function Manage() {
                       });
                     }, 0);
                   }}
-                  disabled={isNetwork === false}
                 />
                 {isHydrated === false ? (
                   <Input.Controls>
