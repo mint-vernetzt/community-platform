@@ -27,7 +27,7 @@ export const locale = {
           question:
             "Welche Mehrwerte bietet die MINTvernetzt-Community-Plattform?",
           answer:
-            "<p>Die bundesweite MINT-Community lebt davon, sich auszutauschen, Wissen zu teilen, von- und miteinander zu lernen. Auf der Community-Plattform könnt Ihr Euch untereinander und mit Organisationen vernetzen und Inspiration oder Expert:innen zu konkreten Themen in Eurer Umgebung finden. Auf der Plattform erwarten Euch eine Vielzahl an Funktionen und Möglichkeiten:</p><ul><li>Die MINT-Welt an einem Ort: Findet Akteur:innen, Initiativen, Projekte und Veranstaltungen.</li><li>MINT-Projekte sichtbar machen: Präsentiert Eure Projekte und lernt voneinander.</li><li>Meldet Euch für aktuelle Events an oder durchstöbert bereits von Euch besuchte: Findet andere Interessierte unter den Teilnehmer:innen und ladet Präsentationen herunter.</li><li>Nutzt erweiterte Filter- und Suchfunktionen: Sucht gezielt nach Kompetenzen, Zielgruppen, Regionen oder Themen.</li><li>Schnelle Antworten: Durchstöbert die FAQ-Seite mit häufig gestellten Fragen und Antworten rund um die Community-Plattform.</li><li>Ideen einbringen: Schlagt neue Funktionen oder Ideen vor, um die Plattform weiterzuentwickeln.</li></ul><p>Geplante weitere Funktionen:</p><ul><li>Eure Veranstaltungen für die MINT-Community: Teilt Eure Veranstaltungen für die Zielgruppe MINT-Akteur:innen.</li><li>Stärkt Eure Social-Media-Arbeit: Nutzt zukünftig unser Grafikdesign-Einsteiger-Tool und die Mediendatenbank mit MINT-Bezug.</li><li>Entdeckt Fördermöglichkeiten: Testet schon bald unseren Fundraising-Crawler, der ausgewählte bestehende Förder-Datenbanken durchsucht und passende MINT-Förderungen in unserer Plattform ausspielt.</li><li>Vernetzt Euch gezielt: Profitiert in Zukunft vom Matching-System, das passende Personen, Projekte oder Initiativen basierend auf Interessen vorschlägt.</li></ul>",
+            "<p>Die bundesweite MINT-Community lebt davon, sich auszutauschen, Wissen zu teilen und von- und miteinander zu lernen. Auf der Plattform erwarten Dich eine Vielzahl an Funktionen, Tools und Möglichkeiten:</p><ul><li>Die MINT-Welt an einem Ort. <b>Finde Akteur:innen</b> mit bestimmten Kompetenzen, <b>Organisationen</b> in Deiner Region, inspirierende <b>Projekte</b> und relevante <b>Events</b> durch unsere Filter- und Suchfunktion.</li><li><b>Bilde Dich weiter</b> und <b>vernetze Dich</b> mit anderen Akteur:innen. Melde Dich für spannende Events an. Finde andere Eventbesucher:innen und lade Präsentationen herunter.</li><li>Entdecke aktuelle <b>Förderungen</b> für die Finanzierung Deiner Projekte in unserer <b>Fördermittelsuche</b>.</li><li>Finde Unterstützung für Deine Arbeit durch den Zugang zur <b>MINT-Mediendatenbank</b> und in Kürze auch zu unserem <b>MINT-Sharepic-Generator</b>.</li></ul>",
         },
         isItFree: {
           question: "Ist die Nutzung der Plattform kostenfrei?",
@@ -36,7 +36,7 @@ export const locale = {
         whoOperatesThePlatform: {
           question: "Wer betreibt die Plattform?",
           answer:
-            "<p>Die MINT-Vernetzungsstelle Deutschland, kurz MINTvernetzt, ist die zentrale Service- und Anlaufstelle für (außerschulische) MINT-Akteur:innen im deutschsprachigen Raum. Wir schaffen Vernetzungsräume und bieten verschiedene kostenfreie, praxisorientierte Workshopformate, u.a. zu zielgruppengerechter und klischeefreier Ansprache, innovativer Gestaltung sowie Finanzierung und Verstetigung von MINT-Angeboten.</p><p>MINTvernetzt wird vom Bundesministerium für Bildung und Forschung gefördert und von Mitarbeitenden der Körber-Stiftung, der matrix gGmbH, des Nationalen MINT Forums e. V., des Stifterverbands und der Universität Regensburg als Verbund gemeinsam umgesetzt.</p><p>Die matrix gGmbH ist zuständig für die Entwicklung und Umsetzung der Community-Plattform. Seit Herbst 2022 ist die MINTvernetzt-Community-Plattform live. Unser ko-kreativer Ansatz mit partizipativen Prozessen ermöglicht die stetige Weiterentwicklung nach den Wünschen und Bedarfen der MINT-Community. So erweitern wir die Plattform stetig weiter. Auf der Startseite der Plattform unter „Fahrplan“ könnt Ihr nachlesen, welche Funktionen als nächstes geplant sind.</p>",
+            '<p>Die MINT-Vernetzungsstelle Deutschland, kurz <b>MINTvernetzt</b>, ist die zentrale Service- und Anlaufstelle für (außerschulische) MINT-Akteur:innen im deutschsprachigen Raum. Wir schaffen Vernetzungsräume und bieten verschiedene kostenfreie, praxisorientierte Workshopformate, u.a. zu zielgruppengerechter und klischeefreier Ansprache, innovativer Gestaltung sowie Finanzierung und Verstetigung von MINT-Angeboten.</br></br><b>MINTvernetzt</b> wird vom <b>Bundesministerium für Bildung und Forschung</b> gefördert und von Mitarbeitenden der <b>Körber-Stiftung</b>, der <b>matrix gGmbH</b>, des <b>Nationalen MINT Forums e. V.</b>, des <b>Stifterverbands</b> und der <b>Universität Regensburg</b> als Verbund gemeinsam umgesetzt.</br></br>Die <b>matrix gGmbH</b> ist zuständig für die Entwicklung und Umsetzung der Community-Plattform. Seit Herbst 2022 ist die <b>MINTvernetzt Community-Plattform</b> live. Unser ko-kreativer Ansatz mit partizipativen Prozessen ermöglicht die stetige Weiterentwicklung nach den Wünschen und Bedarfen der MINT-Community. So erweitern wir die Plattform stetig weiter. Auf der Startseite der Plattform unter <b>"Fahrplan"</b> kannst Du nachlesen, welche Funktionen als nächstes geplant sind.</p>',
         },
       },
     },
@@ -47,12 +47,12 @@ export const locale = {
           question:
             "Warum soll ich mich anmelden? Ich sehe doch auch so schon Inhalte.",
           answer:
-            "<p>Wir wollen viele Funktionen frei zugänglich machen, so dass man unkompliziert Inhalte sehen kann. Nicht alle Inhalte sind im nicht-eingeloggten Zustand sichtbar, daher empfehlen wir eine Anmeldung. Hinzukommt, dass eigene Profile, Organisationen und Projekte nur nach Registrierung angelegt werden können. Auch zu Events könnt Ihr Euch erst mit erstelltem Profil anmelden. Andere MINT-Akteur:innen finden Euch zudem nur, wenn Ihr über Euer Profil auffindbar seid.</p>",
+            "<p>Wir wollen viele Funktionen frei zugänglich machen, so dass man unkompliziert Inhalte sehen kann. Nicht alle Inhalte sind im nicht-eingeloggten Zustand sichtbar, daher empfehlen wir eine Anmeldung. Hinzukommt, dass eigene Profile, Organisationen und Projekte nur nach Registrierung angelegt werden können. Auch zu Events kannst Du Dich erst mit erstelltem Profil anmelden.</p>",
         },
         mintId: {
           question: "Was ist die MINT-ID?",
           answer:
-            '<p>Mit der MINT-ID könnt ihr Euch gleichzeitig für die MINTvernetzt-Community-Plattform und dem MINT-Campus registrieren. Ihr meldet Euch nur einmal an und könnt damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der MINT-Campus ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</p><p>Mit der MINT-ID spart Ihr also Zeit bei der Registrierung und habt anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Ihr könnt auch ohne eine MINT-ID weiterhin Euren MINTvernetzt-Account nutzen.</p><p>Weitere Informationen zur MINT-ID findest Du hier: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
+            '<p>Mit der MINT-ID kannst Du Dich gleichzeitig für die <b>MINTvernetzt Community-Plattform</b> und den <b>MINT-Campus</b> registrieren. Du meldest Dich nur einmal an und kannst damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der <b>MINT-Campus</b> ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</br></br>Mit der MINT-ID sparst Du also Zeit bei der Registrierung und hast anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Du kannst auch ohne eine MINT-ID weiterhin Deinen MINTvernetzt-Account nutzen.</br></br>Eine MINT-ID brauchst Du auch um die <b>MINT-Mediendatenbank</b> zu nutzen. Die <b>MINT-Mediendatenbank</b> ist eine stetig wachsende Datenbank mit freien MINT-Bildern und Grafiken, die Du nutzen kannst, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>In Kürze kannst Du mit der MINT-ID auch auf den <b>MINT-Sharepic Generator</b> zugreifen. Mit Hilfe des Sharepic Generators erstellst Du ganz einfach und kostenlos Grafiken für Deine Öffentlichkeitsarbeit.</br></br>👉 Weitere Informationen zur MINT-ID findest Du hier: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
         },
         registrationProblems: {
           question:
@@ -60,17 +60,28 @@ export const locale = {
           answer:
             '<p>Schreibt uns eine Nachricht an unseren technischen Support: <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></p>',
         },
+        changeEmail: {
+          question: "Wie kann ich meine E-Mail-Adresse ändern?",
+          answer:
+            "<p>Auf <b>Einstellungen > Profil bearbeiten - Allgemein</b> siehst Du Deine primäre E-Mail-Adresse. Über diese E-Mail-Adresse läuft Deine Anmeldung. Du kannst hier eine <b>zusätzliche E-Mail-Adresse</b> anlegen, die neben Deiner primären E-Mail-Adresse auf Deinem Profil gezeigt wird.</br></br>Deine primäre E-Mail-Adresse, kannst Du unter <b>Einstellungen > Profil bearbeiten – Login und Sicherheit</b> ändern. Damit läuft Deine Anmeldung über diese neue E-Mail-Adresse.</p>",
+        },
+        multipleEmails: {
+          question:
+            "Ich möchte mehrere Kontaktadressen angeben. Wie kann ich das machen?",
+          answer:
+            "<p>Unter <b>Einstellungen > Profil bearbeiten – Allgemein</b> kannst du zwei E-Mail-Adressen anlegen. Diese erscheinen dann beide auf Deinem Profil unter Kontakt.</p>",
+        },
         addToOrganization: {
           question:
             "Wie kann ich mich als Team-Mitglied zu meiner Organisation hinzufügen?",
           answer:
-            "<p>Der/Die Admininistrator:in Eurer Organisation kann Euch hinzufügen. Wir arbeiten derzeit an einer Möglichkeit, sich selbst einer Organisation hinzuzufügen.</p>",
+            "<p>Gehe auf <b>Mein MINT-Bereich > Meine Organisationen</b>. Unter <b>“Mich zu einer Organisation hinzufügen”</b> kannst Du nach Deiner Organisation bzw. Deinem Netzwerk auf der Plattform suchen und Dich hinzufügen. Falls Deine Organisation/Netzwerk noch nicht angelegt ist, kannst Du sie im folgenden Schritt anlegen. Klicke dafür auf den Button <b>Neue Organisation anlegen</b>.</p>",
         },
         removeFromOrganization: {
           question:
             "Ich bin nicht länger in der Organisation oder als Akteur:in aktiv.",
           answer:
-            "<p>Wenn Ihr Eure Organisation verlasst, könnt Ihr der Administrator:in Eurer Organisation Bescheid geben, Euch von der Organisation zu entfernen. Zukünftig wird dies auch selbstständig möglich sein. Wenn Ihr innerhalb der MINT-Community bleibt, lasst Euch gerne von Eurer neuen Organisation als Team-Mitglied hinzufügen. Verlasst Ihr die MINT-Community, könnt Ihr Euer Profil auch löschen. Klickt unten links auf „Einstellungen“, dort könnt Ihr Euer „Profil bearbeiten“ und findet den Reiter „Profil löschen“.</p>",
+            '<p>Du kannst Dich auf der Plattform selbst von Deiner Organisation als <b>Teammitglied oder Admin</b> entfernen. Gehe auf <b>Mein MINT-Bereich > Meine Organisationen</b>. Über das Drei-Punkte Menü auf der Organisationskarte <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> kannst Du Dich von der Organisation entfernen. Bist Du <b>der einzige Admin oder alleiniges Team-Mitglied</b> der Organisation, musst Du zunächst eine andere Person einladen, Deine Admin-Rolle oder Team-Mitglieds-Rolle zu übernehmen, bevor Du Dich als Admin oder Teammitglied der Organisation entfernen kannst.</br></br>Wenn Du innerhalb des MINT-Bereichs tätig bleibst, füge Dich gern Deiner neuen Organisation als Team-Mitglied hinzu. Gehe auf <b>Mein MINT-Bereich > Meine Organisationen</b>. Unter <b>“Mich zu einer Organisation hinzufügen”</b> kannst Du nach Deiner Organisation bzw. Deinem Netzwerk auf der Plattform suchen und Dich hinzufügen. Falls Deine Organisation/Netzwerk noch nicht angelegt ist, kannst Du sie im folgenden Schritt anlegen. Klicke dafür auf den Button <b>Neue Organisation anlegen</b>.</br></br>Verlässt Du das MINT-Tätigkeitsfeld, kannst Du Dein Profil auch löschen. Klick dafür auf <b>Einstellungen</b>. Dort kannst Du unter <b>Profil bearbeiten</b> im Reiter <b>"Profil löschen"</b>, Dein Profil von der Plattform entfernen.</p>',
         },
         emailChanged: {
           question:
@@ -80,15 +91,55 @@ export const locale = {
         },
       },
     },
-    contentCreation: {
-      headline:
-        "Fragen zum Anlegen von Organisationen, Projekten und Veranstaltungen",
+    organizations: {
+      headline: "Fragen zu Organisation / Netzwerk",
       qAndAs: {
-        networkVsOrganization: {
+        networkVsOrganizationVsProject: {
+          question:
+            "Organisation, Netzwerk oder Projekt – was ist der Unterschied?",
+          answer:
+            "<p><b>Netzwerke</b> sind in der MINTvernetzt Community-Plattform Organisationen, die in ihren Organisations-Einstellungen unter Organisationsform “Netzwerk” angegeben haben. Es ist möglich mehrere Organisationsformen auszuwählen und damit z.B. ein Verein und ein Netzwerk zu sein. Zudem können bei Netzwerken auch verschiedene Netzwerkformen zutreffen. Zur Auswahl stehen z.B. Bündnis, MINT-Cluster, MINT-Region, Landesinitiative, Sonstiges Netzwerk. Diese können unter “Organisation bearbeiten” durch Mehrfachauswahl angegebenen werden.</br></br><b>Organisationen</b> sind Vereine, Stiftungen, Bildungseinrichtungen, gemeinnützige Organisationen, Unternehmen, Initiativen oder auch Netzwerke. Eine Organisation ist eine selbstständige Einheit, die Projekte durchführt. Sie hat ihre eigenen Strukturen, Prozesse und Ressourcen. Eine Organisation kann mehrere Projekte durchführen und hat im Allgemeinen eine langfristige Existenz.</br></br><b>Projekte</b> sind spezifische Aktivitäten oder Initiativen, die von einer oder mehreren Organisationen oder einzelnen Personen durchgeführt werden. Sie haben oft eine bestimmte Laufzeit und ein bestimmtes Budget. Ein Projekt kann z.B. ein Hackathon, ein Schüler:innenlabor, eine Projektwoche, ein Mobiles MINT-Format, ein Leihsystem, ein Online-Format, ein Ganztagsangebot und vieles mehr sein.</p>",
+        },
+        networkVsNetworkMember: {
           question:
             "Was ist der Unterschied zwischen einem Netzwerk und einer Mitgliedsorganisation?",
           answer:
             "<p>Ein Netzwerk besteht aus mehreren Mitgliedsorganisationen, die an der Erreichung gemeinsamer Ziele arbeiten. Mitgliedsorganisationen sind die einzelnen Institutionen, die an diesen Netzwerken teilnehmen.</p>",
+        },
+        transformOrganizationToNetwork: {
+          question:
+            "Wie kann ich meine Organisation zur Netzwerk-Organisation machen?",
+          answer:
+            '<p>Wenn Du auf der Community-Plattform Admin Deiner Organisation bist, kannst Du auf Deine Organisation gehen und diese bearbeiten.</br></br>Du gelangst zu Deinen Organisationen über den Navigationspunkt <b>Mein MINT-Bereich > Meine Organisationen</b>. In einer Tabelle siehst Du die Organisationen, bei denen Du Admin bist. Klicke auf das Symbol mit den drei Punkten <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> und wähle <b>Bearbeiten</b>. So gelangst Du in Deine <b>Organisationseinstellungen</b>. <i>Alternativ kannst Du auch auf die Karte Deiner Organisation (Box mit Infos zu Deiner Organisation) klicken. Du wirst dann auf die Detailseite Deiner Organisation geführt. Klicke hier auf den Bearbeiten-Button.</i> Unter <b>"Organisation verwalten"</b> kannst Du dann als <b>Organisationsform "Netzwerk"</b> wählen und im folgenden Schritt die Netzwerkformen, wie z.B. Bündnis, MINT-Cluster, MINT-Region, Landesinitiative, Sonstiges Netzwerk auswählen. Diese Angaben erscheinen dann zum einen auf Deiner Organisations-Karte und auf Deiner Organisations-Detailseite.</br></br>Du kannst im nächsten Schritt Deine <b>Netzwerkmitglieder hinzufügen</b>, indem Du ihnen <b>eine Einladung zu Deinem Netzwerk</b> sendest. Sobald sie die Einladung bestätigt haben, werden Deine Mitgliedsorganisationen auf Deiner Organisations-Detailseite unter "Netzwerk" aufgelistet. Die Netzwerkmitglieder müssen ein Profil auf der Community-Plattform haben, damit Du sie als Netzwerkmitglied einladen kannst.</p>',
+        },
+        automaticNetworkMembers: {
+          question:
+            "Wenn ich meine Organisation als Netzwerk-Organisation anlege, werden mir dann die Netzwerkmitglieder automatisch zugeordnet?",
+          answer:
+            '<p>Nein, Du kannst zu Deiner Organisation <b>Netzwerkmitglieder hinzufügen</b>, indem Du ihnen eine <b>Einladung zu Deinem Netzwerk</b> sendest. Sobald sie die Einladung bestätigt haben, werden Deine Mitgliedsorganisationen auf Deiner Organisations-Detailseite unter "Netzwerk" aufgelistet. Die Netzwerkmitglieder müssen ein Profil auf der Community-Plattform haben, damit Du sie als Netzwerkmitglied einladen kannst.</p>',
+        },
+        whyNetwork: {
+          question:
+            "Warum sollte ich in der Community-Plattform sichtbar machen, dass meine Organisation ein Netzwerk ist.",
+          answer:
+            "<p>Als MINTvernetzt Community-Plattform ist es unser Ziel Netzwerke sichtbar zu machen und damit die Community zu unterstützen. MINT-Akteur:innen können sich auf der Plattform über Organisationen informieren und dabei sehen in welchen Netzwerken diese organisiert sind. Zudem kann man über die Such- und Filterfunktionen nach verschiedenen Netzwerkformen suchen bzw. filtern.</p>",
+        },
+        organizationIsNetworkMember: {
+          question:
+            "Meine Organisation ist kein Netzwerk, aber Teil eines Netzwerks. Wie kann ich das angeben?",
+          answer:
+            '<p>Du gelangst zu Deinen Organisationen über den Navigationspunkt <b>Mein MINT-Bereich > Meine Organisationen</b>. In einer Tabelle siehst Du die Organisationen, bei denen Du Admin bist. Klicke auf das Symbol mit den drei Punkten <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> und wähle <b>Bearbeiten</b>. <i>Alternativ kannst Du auch auf die Karte Deiner Organisation (Box mit Infos zu Deiner Organisation) klicken. Du wirst dann auf die Detailseite Deiner Organisation geführt. Klicke hier auf den Bearbeiten-Button.</i> So gelangst Du in Deine <b>Organisationseinstellungen</b>. Unter <b>"Organisation verwalten"</b> kannst unter der Abfrage <b>"Ist Deine Organisation Teil eines Netzwerks?"</b> Organisationen auswählen, die auf der Plattform bereits angelegt sind, und fragst den <b>Beitritt zum Netzwerk</b> an. Sobald die Admins dieser Organisationen Deine Beitrittsanfrage bestätigen, wird Deine Organisation als Netzwerkmitglied gelistet. Das ist zum einen auf der Organisations-Detailseite Deiner Organisation unter "Netzwerk" sichtbar und zum anderen wird Deine Organisation auch als Netzwerkmitglied auf der Detailseite der Netzwerk-Organisation gelistet.</p>',
+        },
+      },
+    },
+    projects: {
+      headline: "Fragen zu Projekten",
+      qAndAs: {
+        projectWithoutOrganization: {
+          question:
+            "Kann ich auch Projekte ohne eine übergeordnete Organisation anlegen?",
+          answer:
+            "<p>Ja, da Projekte auch von einzelnen Personen durchgeführt werden, kannst du auch ohne dahinter stehende Organisation ein Projekt bei uns anlegen.</p>",
         },
       },
     },
@@ -99,13 +150,13 @@ export const locale = {
           question:
             "Ich möchte an einer Veranstaltung teilnehmen. Wie kann ich mich anmelden?",
           answer:
-            '<p>Klickt in der linken Navigation auf den Reiter „Veranstaltungen“ und wählt dort das gewünschte Event aus. Klickt dann auf „Teilnehmen“. Bitte beachtet, dass Ihr auf der Plattform angemeldet sein müsst, um Euch für ein Event anmelden zu können. Ihr habt noch kein Profil auf der MINTvernetzt-Community-Plattform? Hier könnt Ihr Euch <a href="/register">registrieren</a>.</p>',
+            '<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf <b>"Teilnehmen"</b>. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können. Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <a href="/register">registrieren</a>.</p>',
         },
         eventCreation: {
           question:
             "Ich möchte eine Veranstaltung erstellen. Was muss ich beachten?",
           answer:
-            "<p>Aktuell stellen wir ausschließlich MINTvernetzt- und MINT-Campus-Events auf der Community-Plattform zur Verfügung. Im nächsten Schritt sollt Ihr auch die Möglichkeit haben, Eure eigenen Events mit der Community zu teilen und eigene Veranstaltungen zu erstellen.</p><p>Wichtig: Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen etc. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>",
+            "<p>Aktuell stellen wir ausschließlich MINTvernetzt-, MINT-Campus und interessierten Beta-Tester:innen die Veranstaltungserstellung auf der Community-Plattform zur Verfügung. Im nächsten Schritt öffnen wir die Möglichkeit für die Community, eigene Events zu erstellen.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich <b>NICHT</b> an Kinder und Jugendliche, sondern <b>ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc</b>. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>",
         },
       },
     },
@@ -116,7 +167,7 @@ export const locale = {
           question:
             "Wo finde ich Förderungen auf der MINTvernetzt Community Plattform?",
           answer:
-            'Über die Navigation „Entdecken“ > „Förderungen“ gelangst Du auf die MINTvernetzt Fördermittelsuche. Oder Du nutzt diesen Link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings',
+            '<p>Über die Navigation „Entdecken“ > „Förderungen“ gelangst Du auf die MINTvernetzt Fördermittelsuche. Oder Du nutzt diesen Link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
         },
         beta: {
           question: 'Was bedeutet "Beta"?',
@@ -126,7 +177,7 @@ export const locale = {
         whatIs: {
           question: "Was ist die Fördermittelsuche?",
           answer:
-            "Die Fördermittelsuche listet MINT-relevante Förderungen, die jeden Montag neu von vier Fördermitteldatenbanken eingespeist werden. Die zusammengestellten Förderungen lassen sich filtern, so kannst Du passendere Ergebnisse zu erhalten.",
+            "<p>Die Fördermittelsuche listet MINT-relevante Förderungen, die jeden Montag neu von vier Fördermitteldatenbanken eingespeist werden. Die zusammengestellten Förderungen lassen sich filtern, so kannst Du passendere Ergebnisse zu erhalten.</p>",
         },
         howTo: {
           question: "Wie kann ich eine spezifische Förderung finden?",
@@ -136,7 +187,7 @@ export const locale = {
         availableTypes: {
           question: "Welche Fördertypen sind verfügbar?",
           answer:
-            'Wir listen Förderungen, die in den Bereichen Beratung, Beteiligung, Finanzierung, Kredit / Darlehen, Pauschale / Preisgeld, Qualifizierung, Vernetzung und Zuschüsse liegen. Wir erhalten aber auch Einträge von Förderungen, die diesen Kategorien nicht zugeordnet werden können, weil die Daten auf den Ursprungsseiten der Förderungen nicht angegeben wurden. Diese werden dann in unserer Fördermittelsuche unter "Ohne Kategorie" oder "Sonstige" gelistet.',
+            '<p>Wir listen Förderungen, die in den Bereichen Beratung, Beteiligung, Finanzierung, Kredit / Darlehen, Pauschale / Preisgeld, Qualifizierung, Vernetzung und Zuschüsse liegen. Wir erhalten aber auch Einträge von Förderungen, die diesen Kategorien nicht zugeordnet werden können, weil die Daten auf den Ursprungsseiten der Förderungen nicht angegeben wurden. Diese werden dann in unserer Fördermittelsuche unter "Ohne Kategorie" oder "Sonstige" gelistet.</p>',
         },
         sources: {
           question:
@@ -147,18 +198,99 @@ export const locale = {
         updateInterval: {
           question: "Wie häufig wird die Förderdatenbank aktualisiert?",
           answer:
-            "Jeden Montag werden neue Ergebnisse aus den vier hinterlegten Fördermitteldatenbanken eingespielt.",
+            "<p>Jeden Montag werden neue Ergebnisse aus den vier hinterlegten Fördermitteldatenbanken eingespielt.</p>",
         },
         onError: {
           question:
             "Die Fördermittelsuche funktioniert nicht. / Ich erhalte eine Error-Mitteilung. Was kann ich tun?",
           answer:
-            'Du kannst uns helfen diesen Fehler zu beheben, indem Du uns einen Screenshot erstellst und diesen per Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a> sendest. Im besten Fall teilst Du uns auch Deinen Browser mit. Probiere auch die Seite neu zu laden, oft ist das Problem dann auch schon behoben.',
+            '<p>Du kannst uns helfen diesen Fehler zu beheben, indem Du uns einen Screenshot erstellst und diesen per Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a> sendest. Im besten Fall teilst Du uns auch Deinen Browser mit. Probiere auch die Seite neu zu laden, oft ist das Problem dann auch schon behoben.</p>',
         },
         feedback: {
           question: "Kann ich Feedback zur Fördermittelsuche geben?",
           answer:
             '<p>Ja, sehr gern. Sende uns eine Mail mit dem Betreff: "Fördermittelsuche" an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p><p>Die Fördermittelsuche ist aktuell in der Beta-Version zugänglich. Wir sind daher über jedes Feedback und jede Idee dankbar. So können wir die Fördermittelsuche weiter verbessern.</p>',
+        },
+      },
+    },
+    sharepicAndMediaDatabase: {
+      headline:
+        "Fragen zum MINT Sharepic-Generator und zur MINT-Mediendatenbank",
+      qAndAs: {
+        whatsASharepic: {
+          question: "Was ist ein Sharepic?",
+          answer:
+            "<p>Ein Sharepic ist eine Grafik, die Du für Deine Öffentlichkeitsarbeit nutzen kannst – zum Beispiel für Social Media, Deine Website oder Newsletter.</br></br>Sharepics sollen informieren, auffallen und emotional berühren und eine Reaktion bei den Betrachtenden auslösen. Durch die Kombination von Text- und Bildelementen lassen sich Fakten, Zitate, Aussagen und Veranstaltungsankündigungen ansprechend vermitteln.</p>",
+        },
+        forWhomIsIt: {
+          question: "Für wen ist der Sharepic-Generator?",
+          answer:
+            "<p>Der MINT Sharepic-Generator richtet sich an die Akteur:innen der MINT-Community, die ihre Angebote über Social Media, Newsletter und andere Kanäle sichtbar machen möchten.</br></br>Der Generator bietet eine einfache, benutzerfreundliche Oberfläche – ideal für Menschen mit wenig oder keiner Erfahrung in Design oder Social Media. So kannst Du schnell Grafiken in den passenden Formaten erstellen und herunterladen.</p>",
+        },
+        whatKnowledgeIsNeeded: {
+          question:
+            "Welche Kenntnisse benötige ich, um den MINT Sharepic-Generator nutzen zu können?",
+          answer:
+            "<p>Du brauchst keinerlei Vorkenntnisse. Der Sharepic-Generator ist so aufgebaut, dass Du nach der Anmeldung direkt loslegen kannst.</p>",
+        },
+        whatsTheMintId: {
+          question: "Was ist die MINT-ID?",
+          answer:
+            '<p>Mit der MINT-ID kannst Du Dich gleichzeitig für die <b>MINTvernetzt Community-Plattform</b> und den <b>MINT-Campus</b> registrieren. Du meldest Dich nur einmal an und kannst damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der <b>MINT-Campus</b> ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</br></br>Mit der MINT-ID sparst Du also Zeit bei der Registrierung und hast anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Du kannst auch ohne eine MINT-ID weiterhin Deinen MINTvernetzt-Account nutzen.</br></br>Eine MINT-ID brauchst Du auch um die <b>MINT-Mediendatenbank</b> zu nutzen. Die <b>MINT-Mediendatenbank</b> ist eine stetig wachsende Datenbank mit freien MINT-Bildern und Grafiken, die Du nutzen kannst, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>In Kürze kannst Du mit der MINT-ID auch auf den <b>MINT-Sharepic Generator</b> zugreifen. Mit Hilfe des Sharepic Generators erstellst Du ganz einfach und kostenlos Grafiken für Deine Öffentlichkeitsarbeit.</br></br>👉 Weitere Informationen zur MINT-ID findest Du hier: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
+        },
+        whatsTheMediaDatabase: {
+          question: "Was ist die MINT-Mediendatenbank?",
+          answer:
+            '<p>Die MINT-Mediendatenbank ist eine ständig wachsende Sammlung von kostenlosen MINT-Bildern und Grafiken. Du kannst diese nutzen, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>Innerhalb des MINT-Sharepic-Generators kannst Du direkt auf die MINT-Mediendatenbank zugreifen und die Bilder in Deine Sharepics einfügen – ohne Dich separat anmelden zu müssen.</br></br>Du kannst die MINT-Mediendatenbank auch direkt aufrufen:</br>👉 <a href="https://mediendatenbank.mint-vernetzt.de/" target="_blank" rel="noreferrer">https://mediendatenbank.mint-vernetzt.de/</a></br></br>Hierfür ist eine Anmeldung mit Deiner MINT-ID erforderlich.</p>',
+        },
+        canIUploadOwnImagesAndLogos: {
+          question: "Kann ich eigene Bilder und Logos hochladen?",
+          answer:
+            "<p>Ja, Du kannst eigene Bilder (Fotos, Logos, Formen und Sticker) im Format <b>JPG/JPEG</b>, <b>PNG</b> und <b>SVG</b> hochladen. Das Hochladen von GIFs und PDFs ist nicht möglich.</br></br><b>Unsere Server stehen in Deutschland</b>, sodass alle Datenschutzbestimmungen (DSGVO) eingehalten werden.</p>",
+        },
+        dataProtectionCompliantUploading: {
+          question: "Was bedeutet datenschutzkonformes Hochladen von Bildern?",
+          answer:
+            "<p>Datenschutzkonformes Hochladen bedeutet, dass Deine Bilder sicher verarbeitet, gespeichert und geschützt werden – im Einklang mit der Datenschutz-Grundverordnung (DSGVO).</br></br>✔️ <b>Serverstandort in Deutschland</b></br>Deine Bilder werden ausschließlich auf Servern in Deutschland gespeichert – entsprechend den strengen deutschen und europäischen Datenschutzbestimmungen.</br></br>✔️ <b>Verschlüsselte Datenübertragung</b></br>Alle Dateien werden sicher über moderne Verschlüsselungstechnologien (z. B. TLS) übertragen.</br></br>✔️ <b>Keine Weitergabe an Dritte</b></br>Deine Bilder werden nicht an Dritte weitergegeben oder für Werbezwecke genutzt. Die Verarbeitung erfolgt ausschließlich zur Bereitstellung unseres Services.</br></br>✔️ <b>Recht auf Löschung und Auskunft</b></br>Du kannst jederzeit Auskunft über Deine Daten verlangen und sie dauerhaft löschen lassen – gemäß den Vorgaben der DSGVO.</p>",
+        },
+        whatMeansBeta: {
+          question: 'Was bedeutet "BETA"?',
+          answer:
+            '<p>Der Status "BETA" bedeutet, dass der MINT-Sharepic-Generator noch weiterentwickelt wird. Wir freuen uns über Dein Feedback zu neuen Funktionen oder Verbesserungsvorschläge.</br></br>👉 Sende uns eine Mail an: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a></p>',
+        },
+        mobileSupport: {
+          question: "Ist der MINT Sharepic-Generator auch mobil nutzbar?",
+          answer:
+            "<p>Nein, der Sharepic-Generator ist nur als Desktop-Anwendung verfügbar.</p>",
+        },
+        sharepicUsage: {
+          question:
+            "Darf ich die Sharepics für Veranstaltungen, Websites oder Flyer verwenden?",
+          answer:
+            "<p>Ja, Du darfst die Sharepics für alles nutzen – mit einer Ausnahme:</br>Wenn Du Bilder aus der MINT-Mediendatenbank verwendest, dürfen diese nur im MINT-Kontext und unter Angabe des Urheberrechtshinweises veröffentlicht werden.</br></br>Keine Sorge: Der richtige Hinweis wird automatisch in die Grafik eingefügt, wenn Du ein Bild aus der MINT-Mediendatenbank nutzt.</p>",
+        },
+        sharepicGeneratorNotWorking: {
+          question:
+            "Was mache ich, wenn der Sharepic-Generator nicht richtig funktioniert?",
+          answer:
+            '<p>Schick uns gerne eine Nachricht an: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a>.</br></br>Der MINT-Sharepic-Generator befindet sich noch im Beta-Status. Fehler können vorkommen – wir sind auf Dein Feedback angewiesen, um den Sharepic-Generator weiter zu verbessern.</p>',
+        },
+        supportedFormatsAndAspects: {
+          question: "Welche Bildgrößen und -formate unterstützt das Tool?",
+          answer:
+            "<p>Du kannst alle gängigen Social-Media-Formate erstellen. Du hast die Wahl zwischen vordefinierten Formaten und eigenen benutzerdefinierten Formaten. Die Größen werden in Pixelmaßen angegeben.</p>",
+        },
+        saveSharepics: {
+          question:
+            "Kann ich erstellte Sharepics speichern und später weiterbearbeiten?",
+          answer:
+            "<p>Ja, Du kannst Deine Grafiken unter einem selbstgewählten Titel speichern und später weiterbearbeiten.</br>👉 Menüpunkt: <b>Datei > Zwischenspeichern</b></p>",
+        },
+        whichDesignElementsAreCustomizable: {
+          question:
+            "Welche Designelemente kann ich anpassen (Farben, Schriften, Logos etc.)?",
+          answer:
+            "<p>Du kannst verschiedene Schriften und grafische Elemente auswählen und farblich anpassen.</br>Selbst hochgeladene Grafiken (Logos, Sticker, Formen) können allerdings <b>nicht</b> umgefärbt werden.</p>",
         },
       },
     },
