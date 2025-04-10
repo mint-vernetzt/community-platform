@@ -26,7 +26,7 @@ export const locale = {
           question:
             "What added value does the MINTvernetzt community platform offer?",
           answer:
-            "<p>The nationwide STEM community thrives on exchanging ideas, sharing knowledge and learning from one another. On the community platform, you can connect with others and organizations to find inspiration or experts on specific topics in your area. A wide range of functions and opportunities await you on the platform:</p><ul><li>The STEM world in one place: Find stakeholders, initiatives, projects and events.</li><li>Make STEM projects visible: Showcase your projects and learn from others.</li><li>Register for upcoming events or browse through events you have already attended: Find other interested parties among participants and download presentations.</li><li>Utilize advanced filter and search functions: Search specifically for skills, target groups, regions or topics.</li><li>Quick answers: Browse the FAQ page with commonly asked questions and answers about the community platform.</li><li>Contribute ideas: Propose new functions or ideas to enhance the platform.</li></ul><p>Upcoming functions:</p><ul><li>Your events for the STEM community: Share your events with STEM stakeholders.</li><li>Strengthen your social presence: Use our graphic design beginner's tool and the STEM-related media database in the future.</li><li>Discover funding opportunities: Soon, try our fundraising crawler, which searches selected existing funding databases and displays suitable STEM funding on our platform.</li><li>Targeted networking: Benefit from a future matching system that suggests suitable people, projects or initiatives based on interests.</li></ul>",
+            "<p>The nationwide STEM community thrives on exchanging ideas, sharing knowledge, and learning from and with each other. A variety of functions, tools, and opportunities await you on the platform:</p><ul><li>The STEM world in one place. <b>Find stakeholders</b> with specific skills, <b>organizations</b> in your region, inspiring <b>projects</b>, and relevant <b>events</b> using our filter and search functions.</li><li><b>Continue your education</b> and <b>network</b> with other stakeholders. Register for exciting events. Find other event attendees and download presentations.</li><li>Discover current <b>funding opportunities</b> for your projects in our <b>funding search</b>.</li><li>Find support for your work through access to the <b>MINT media database</b> and, soon, our <b>MINT sharepic generator</b>.</li></ul>",
         },
         isItFree: {
           question: "Is the platform free to use?",
@@ -35,7 +35,7 @@ export const locale = {
         whoOperatesThePlatform: {
           question: "Who operates the platform?",
           answer:
-            "<p>The MINT-Vernetzungsstelle Deutschlands, or MINTvernetzt, is the central service and contact point for (extracurricular) STEM stakeholders in German-speaking countries. We create networking spaces and offer various free, practice-oriented workshop formats, including on how to address specific target groups in a targeted and non-stereotypical manner, innovative design and the financing and sustainanability of STEM offerings.</p><p>MINTvernetzt is funded by the Federal Ministry of Education and Research and is jointly implemented by employees of Körber Foundation, matrix gGmbH, Nationales MINT Forum e. V., Stifterverband and University of Regensburg.</p><p>matrix gGmbH is responsible developing and implementing the community platform. The MINTvernetzt community platform has been live since fall 2022. Our co-creative approach with participatory processes allows us to continuously develop the platform based on the needs and wishes of the STEM community. We are constantly expanding the platform. You can check the planned features on the platform's homepage under “Roadmap”.</p>",
+            '<p>The MINT-Vernetzungsstelle Deutschland, or <b>MINTvernetzt</b> for short, is the central service and contact point for (extracurricular) MINT stakeholders in German-speaking countries. We create networking spaces and offer various free, practice-oriented workshop formats, including topics on target group-specific and cliché-free communication, innovative design, as well as financing and sustaining STEM offerings.</br></br><b>MINTvernetzt</b> is funded by the <b>Federal Ministry of Education and Research</b> and is jointly implemented by employees of the <b>Körber Stiftung</b>, <b>matrix gGmbH</b>, the <b>Nationales MINT Forum e. V.</b>, the <b>Stifterverband</b>, and the <b>University of Regensburg</b>.</br></br><b>matrix gGmbH</b> is responsible for the development and implementation of the community platform. The <b>MINTvernetzt community platform</b> has been live since fall 2022. Our co-creative approach with participatory processes enables continuous development based on the wishes and needs of the MINT community. We are constantly expanding the platform. You can find out which features are planned next on the platform\'s homepage under <b<"Roadmap"</b>.',
         },
       },
     },
@@ -45,12 +45,12 @@ export const locale = {
         benefitsOfRegistration: {
           question: "Why should I register? I can already see content.",
           answer:
-            "<p>We aim to make many functions freely accessible so that you can view content easily. However, not all content is visible when you are not logged in, so we recommend registering. Additionally, profiles, organizations and projects can only be created after registration. You can also only register for events once you have created a profile. Other STEM stakeholders will only be able to find you if you can be found via your profile.</p>",
+            "<p>We want to make many features freely accessible so that you can easily view content. Not all content is visible when you're not logged in, so we recommend registering. Additionally, you can only create your own profiles, organizations, and projects after registering. You can also register for events only after you've created a profile.</p>",
         },
         mintId: {
           question: "What is the MINT-ID?",
           answer:
-            '<p>With the MINT-ID, you can register for the MINTvernetzt community platform and the MINT-Campus at the same time. You only need to register once to access all features and offers of both platforms. The MINT Campus is the digital learning platform for the MINT community with freely accessible materials and learning opportunities for educational and project work.</p><p>The MINT-ID saves you time during registration and allows you to switch easily between the two platforms. You can continue using your MINTvernetzt account without a MINT-ID.</p><p>You can find more information about the MINT-ID here: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
+            '<p>With the MINT ID, you can register for the <b>MINTvernetzt community platform</b> and the <b>MINT Campus</b> simultaneously. You only log in once and can then use all the features and offerings of both platforms. The <b>MINT Campus</b> is the digital learning platform for the STEM community with freely accessible materials and learning opportunities for educational and project work.</br></br>With the MINT ID, you save time during registration and then have the option to easily switch between the two platforms. You can continue to use your MINTvernetzt account even without a MINT ID.</br></br>You also need a MINT ID to use the <b>MINT Media Database</b>. The <b>MINT Media Database</b> is a constantly growing database of free STEM images and graphics that you can use to make your public relations work appealing and targeted.</br></br>Soon, you will also be able to access the <b>MINT Sharepic Generator</b> with the MINT ID. With the help of the Sharepic Generator, you can easily create graphics for your public relations work for free.</br></br>👉 You can find more information about the MINT ID here: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
         },
         registrationProblems: {
           question:
@@ -58,15 +58,26 @@ export const locale = {
           answer:
             '<p>Please send a message to our technical support: <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></p>',
         },
+        changeEmail: {
+          question: "How can I change my email address?",
+          answer:
+            "<p>Under <b>Settings > Edit Profile - General</b>, you'll see your primary email address. Your login will be handled using this email address. You can create an <b>additional email address</b> here, which will be displayed next to your primary email address on your profile.</br></br>You can change your primary email address under <b>Settings > Edit Profile - Login and Security</b>. Your login will then be handled using this new email address.</p>",
+        },
+        multipleEmails: {
+          question:
+            "I would like to provide multiple contact addresses. How can I do this?",
+          answer:
+            "<p>Under <b>Settings > Edit Profile – General</b> you can create two email addresses. These will both appear on your profile under Contact.</p>",
+        },
         addToOrganization: {
           question: "How can I add myself as a team member to my organization?",
           answer:
-            "<p>The administrator of your organization can add you. We are currently working on a feature that will allow you to add yourself to an organization.</p>",
+            '<p>Go to <b>My space > My organizations</b>. Under <b>"Add me to an organization"</b>, you can search for your organization or network on the platform and add yourself. If your organization/network hasn\'t been created yet, you can create it in the next step. To do so, click the <b>Create organization</b> button.</p>',
         },
         removeFromOrganization: {
           question: "I am no longer active in the organization/as an actor.",
           answer:
-            "<p>If you leave your organization, inform the administrator to remove your organization from the organization. In the future, this will be possible independently. If you remain within the MINT community, your new organization will be happy to add you as a team member. If you leave the MINT Community, you can also delete your profile. Click on “Settings” at the bottom left, where you can “Edit your profile” and find the “Delete profile” tab.</p>",
+            '<p>You can remove yourself from your organization as a <b>team member or admin</b> on the platform. Go to <b>My space > My organizations</b>. Via the three-dot menu on the organization card <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> you can remove yourself from the organization. If you are <b>the only admin or sole team member</b> of the organization, you must first invite another person to assume your admin or team member role before you can remove yourself as an admin or team member of the organization.</br></br>If you remain active within the STEM field, feel free to add yourself to your new organization as a team member. Go to <b>My space > My organizations</b>. Under <b>“Add me to an organization”</b> you can search for your organization or network on the platform and add yourself. If your organization/network hasn\'t been created yet, you can create it in the next step. To do so, click the <b>Create new organization</b> button.</br></br>If you leave the STEM field, you can also delete your profile. To do so, click <b>Settings</b>. There, under <b>Edit profile</b>, in the <b>"Delete profile"</b> tab, you can remove your profile from the platform.</p>',
         },
         emailChanged: {
           question:
@@ -76,29 +87,68 @@ export const locale = {
         },
       },
     },
-    contentCreation: {
-      headline: "Questions about creating organizations, projects and events",
+    organizations: {
+      headline: "Questions about organization / network",
       qAndAs: {
-        networkVsOrganization: {
+        networkVsOrganizationVsProject: {
           question:
-            "What is the difference between a network and a member organization?",
+            "Organization, network or project – what is the difference?",
           answer:
-            "<p>A network consists of several member organizations that work together to achieve common goals. Member organizations are the individual institutions that participate in these networks.</p>",
+            '<p><b>Networks</b> on the MINTvernetzt community platform are organizations that have specified "Network" as the organizational form in their organizational settings. It is possible to select multiple organizational forms, making them, for example, an association and a network. Furthermore, networks can also have different network forms. Options include alliance, MINT cluster, MINT region, state initiative, and other network. These can be specified by selecting multiple options under "Edit organization."</br></br><b>Organizations</b> are associations, foundations, educational institutions, non-profit organizations, companies, initiatives, or networks. An organization is an independent entity that carries out projects. It has its own structures, processes, and resources. An organization can carry out multiple projects and generally has a long-term existence.</br></br><b>Projects</b> are specific activities or initiatives carried out by one or more organizations or individuals. They often have a specific duration and budget. A project can be, for example, a hackathon, a student lab, a project week, a mobile STEM format, a lending system, an online format, an all-day program, and much more.</p>',
+        },
+        networkVsNetworkMember: {
+          question:
+            "What is the difference between a network and a network member organization?",
+          answer:
+            "<p>A network consists of several member organizations that work toward achieving common goals. Member organizations are the individual institutions that participate in these networks.</p>",
+        },
+        transformOrganizationToNetwork: {
+          question: "How can I make my organization a network organization?",
+          answer:
+            '<p>If you are an admin of your organization on the community platform, you can go to your organization and edit it.</br></br>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>. This will take you to your <b>organization settings</b>. <i>Alternatively, you can click on your organization\'s card (the box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here.</i> Under <b>"Manage organization"</b> you can then select "Network" as the <b>organizational form</b> and in the next step select the network forms, such as alliance, MINT cluster, MINT region, state initiative, other network. This information will then appear on your organization card and on your organization details page.</br></br>In the next step, you can add your <b>network members</b> by sending them <b>an invitation to join your network.</b> Once they have confirmed the invitation, your member organizations will be listed under "Network" on your organization details page. Network members must have a profile on the community platform for you to invite them as network members.</p>',
+        },
+        automaticNetworkMembers: {
+          question:
+            "If I create my organization as a network organization, will the network members be automatically assigned to me?",
+          answer:
+            '<p>No, you can <b>add network members</b> to your organization by sending them an <b>invitation to join your network</b>. Once they confirm the invitation, your member organizations will be listed under "Network" on your organization details page. Network members must have a profile on the community platform before you can invite them as a network member.</p>',
+        },
+        whyNetwork: {
+          question:
+            "Why should I make it visible on the community platform that my organization is a network?",
+          answer:
+            "<p>As the MINTvernetzt community platform, our goal is to make networks visible and thus support the community. STEM practitioners can use the platform to learn about organizations and see which networks they are part of. They can also search and filter for different network types using the search and filter functions.</p>",
+        },
+        organizationIsNetworkMember: {
+          question:
+            "My organization is not a network, but is part of a network. How do I indicate this?",
+          answer:
+            '<p>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-p-2 mv-w-8 mv-h-8 mv-inline-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>. <i>Alternatively, you can click on your organization\'s card (box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here.</i> This will take you to your <b>organization settings</b>. Under <b>"Manage organization"</b>, under the query <b>"Is your organization part of a network?"</b>, you can select organizations that are already created on the platform and request to <b>join the network</b>. As soon as the admins of these organizations confirm your request to join, your organization will be listed as a network member. This is visible on the organization\'s details page under "Network", and your organization will also be listed as a network member on the network organization\'s details page.</p>',
         },
       },
-      events: {
-        headline: "Questions about events",
-        eventParticipation: {
-          question:
-            "I would like to take part in an event. How can I register?",
+    },
+    projects: {
+      headline: "Questions about projects",
+      qAndAs: {
+        projectWithoutOrganization: {
+          question: "Can I create projects without a responsible organization?",
           answer:
-            '<p>Click on the “Events” tab in the navigation on the left and select the desired event. Then click on “Participate”. Please note that you must be registered on the platform to register for an event. Don\'t have a profile on the MINTvernetzt community platform yet? You can register <a href="/register">here</a>.</p>',
+            "<p>Yes, since projects are also carried out by individuals, you can create a project with us even without an organization behind it.</p>",
+        },
+      },
+    },
+    events: {
+      headline: "Questions about events",
+      qAndAs: {
+        eventParticipation: {
+          question: "I would like to attend an event. How do I register?",
+          answer:
+            '<p>Under <b>Explore > Events</b> you will find a list of current events. Select the desired event and click <b>"Participate"</b>. Please note that you must be logged in to the platform to register for an event. Don\'t have a profile on the MINTvernetzt community platform yet? You can <a href="/register">register</a> here.</p>',
         },
         eventCreation: {
-          question:
-            "I would like to create an event. What do I have to consider?",
+          question: "I want to create an event. What do I need to consider?",
           answer:
-            "<p>Currently, we only provide MINTvernetzt and MINT-Campus events on the community platform. In the future, you will be able to share and create your own events.</p><p>Important: Our platform is NOT intended for children and young people, but exclusively at STEM stakeholders, education providers, network coordinators, etc. Events such as STEM vacation courses or weekly offers in a school lab are not included here.</p>",
+            "<p>Currently, we only offer event creation on the community platform to MINTvernetzt, MINT-Campus, and interested beta testers. In the next step, we will open up the possibility for the community to create their own events.</br></br><b>Important:</b> Our platform is <b>NOT</b> aimed at children and young people, but <b>exclusively at MINT stakeholders, education providers, network coordinators, etc</b>. Events such as MINT holiday courses or weekly offerings in a student lab do not belong here.</p>",
         },
       },
     },
@@ -109,7 +159,7 @@ export const locale = {
           question:
             "Where can I find fundings on the MINTvernetzt Community Platform?",
           answer:
-            'You can find the funding search on the MINTvernetzt Community platform via the navigation "Explore" > "Funding". Or you can use this link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings',
+            '<p>You can find the funding search on the MINTvernetzt Community platform via the navigation "Explore" > "Funding". Or you can use this link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
         },
         beta: {
           question: 'What does "Beta" mean?',
@@ -119,7 +169,7 @@ export const locale = {
         whatIs: {
           question: "What is the funding search?",
           answer:
-            "The funding search lists STEM-relevant funding opportunities that are updated every Monday from four funding databases. The compiled funding opportunities can be filtered to get more suitable results.",
+            "<p>The funding search lists STEM-relevant funding opportunities that are updated every Monday from four funding databases. The compiled funding opportunities can be filtered to get more suitable results.</p>",
         },
         howTo: {
           question: "How can I find specific funding?",
@@ -129,7 +179,7 @@ export const locale = {
         availableTypes: {
           question: "What types of funding are available?",
           answer:
-            "We list funding in the areas of consulting, participation, financing, credit/loan, lump sum/prize money, qualification, networking, and grants. However, we also receive entries for funding that cannot be assigned to these categories because the data is not provided on the original funding pages. These are then listed in our funding search under 'Without category' or 'Other'.",
+            "<p>We list funding in the areas of consulting, participation, financing, credit/loan, lump sum/prize money, qualification, networking, and grants. However, we also receive entries for funding that cannot be assigned to these categories because the data is not provided on the original funding pages. These are then listed in our funding search under 'Without category' or 'Other'.</p>",
         },
         sources: {
           question:
@@ -140,18 +190,98 @@ export const locale = {
         updateInterval: {
           question: "How often is the funding database updated?",
           answer:
-            "New results from the four underlying funding databases are imported every Monday.",
+            "<p>New results from the four underlying funding databases are imported every Monday.</p>",
         },
         onError: {
           question:
             "The funding search is not working. / I receive an error message. What can I do?",
           answer:
-            "You can help us fix this error by creating a screenshot and sending it by email with the subject: 'Funding search' to <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. Ideally, also let us know your browser. Try reloading the page, often the problem is then already solved.",
+            "<p>You can help us fix this error by creating a screenshot and sending it by email with the subject: 'Funding search' to <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. Ideally, also let us know your browser. Try reloading the page, often the problem is then already solved.</p>",
         },
         feedback: {
           question: "Can I give feedback on the funding search?",
           answer:
             '<p>Yes, very gladly. Send us an email with the subject: "Funding search" to <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</p><p>The funding search is currently accessible in the beta version. We are therefore grateful for any feedback and ideas. This way we can further improve the funding search.</p>',
+        },
+      },
+    },
+    sharepicAndMediaDatabase: {
+      headline:
+        "Questions about the MINT Sharepic Generator and the MINT Media Database",
+      qAndAs: {
+        whatsASharepic: {
+          question: "What is a sharepic?",
+          answer:
+            "<p>A sharepic is a graphic that you can use for your public relations work — for example, on social media, your website, or newsletter.</br></br>Sharepics are intended to inform, attract attention, and evoke an emotional response from viewers. By combining text and image elements, facts, quotes, statements, and event announcements can be conveyed in an appealing way.</p>",
+        },
+        forWhomIsIt: {
+          question: "Who is the Sharepic Generator for?",
+          answer:
+            "<p>The MINT Sharepic Generator is aimed at STEM community members who want to make their offerings visible via social media, newsletters, and other channels.</br></br>The generator offers a simple, user-friendly interface — ideal for people with little or no experience in design or social media. This allows you to quickly create and download graphics in the appropriate formats.</p>",
+        },
+        whatKnowledgeIsNeeded: {
+          question:
+            "What knowledge do I need to use the MINT Sharepic Generator?",
+          answer:
+            "<p>You don't need any prior knowledge. The Sharepic generator is designed to get started right after registration.</p>",
+        },
+        whatsTheMintId: {
+          question: "What is the MINT-ID?",
+          answer:
+            '<p>With the MINT ID, you can register for the <b>MINTvernetzt community platform</b> and the <b>MINT Campus</b> simultaneously. You only log in once and can then use all the features and offerings of both platforms. The <b>MINT Campus</b> is the digital learning platform for the STEM community with freely accessible materials and learning opportunities for educational and project work.</br></br>With the MINT ID, you save time during registration and then have the option to easily switch between the two platforms. You can continue to use your MINTvernetzt account even without a MINT ID.</br></br>You also need a MINT ID to use the <b>MINT Media Database</b>. The <b>MINT Media Database</b> is a constantly growing database of free STEM images and graphics that you can use to make your public relations work appealing and targeted.</br></br>Soon, you will also be able to access the <b>MINT Sharepic Generator</b> with the MINT ID. With the help of the Sharepic Generator, you can easily create graphics for your public relations work for free.</br></br>👉 You can find more information about the MINT ID here: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer">https://mintcampus.org/mint-id/</a></p>',
+        },
+        whatsTheMediaDatabase: {
+          question: "What is the MINT media database?",
+          answer:
+            '<p>The MINT Media Database is a constantly growing collection of free STEM images and graphics. You can use these to make your public relations work appealing and targeted to your target group.</br></br>Within the MINT Sharepic Generator, you can directly access the MINT Media Database and insert the images into your sharepics – without having to register separately.</br></br>You can also access the MINT Media Database directly:</br>👉 <a href="https://mediendatenbank.mint-vernetzt.de/" target="_blank" rel="noreferrer">https://mediendatenbank.mint-vernetzt.de/</a></br></br>You must register with your MINT ID for this.</p>',
+        },
+        canIUploadOwnImagesAndLogos: {
+          question: "Can I upload my own images and logos?",
+          answer:
+            "<p>Yes, you can upload your own images (photos, logos, shapes, and stickers) in <b>JPG/JPEG</b>, <b>PNG</b>, and <b>SVG</b> formats. Uploading GIFs and PDFs is not possible.</br></br><b>Our servers are located in Germany</b>, so all data protection regulations (GDPR) are adhered to.</p>",
+        },
+        dataProtectionCompliantUploading: {
+          question: "What does data protection-compliant image uploading mean?",
+          answer:
+            "<p>Uploading in compliance with data protection regulations means that your images are processed, stored, and protected securely – in accordance with the General Data Protection Regulation (GDPR).</br></br>✔️ <b>Server location in Germany</b></br>Your images are stored exclusively on servers in Germany – in accordance with strict German and European data protection regulations.</br></br>✔️ <b>Encrypted data transfer</b></br>All files are transferred securely using modern encryption technologies (e.g., TLS).</br></br>✔️ <b>No disclosure to third parties</b></br>Your images will not be passed on to third parties or used for advertising purposes. Processing is carried out solely to provide our service.</br></br>✔️ <b>Right to erasure and information</b></br>You can request information about your data at any time and have it permanently deleted – in accordance with the requirements of the GDPR.</p>",
+        },
+        whatMeansBeta: {
+          question: 'What does "BETA" mean?',
+          answer:
+            '<p>The status "BETA" means that the MINT Sharepic Generator is still being developed. We welcome your feedback on new features or suggestions for improvement.</br></br>👉 Send us an email to: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a></p>',
+        },
+        mobileSupport: {
+          question:
+            "Is the MINT Sharepic Generator also available on mobile devices?",
+          answer:
+            "<p>No, the Sharepic Generator is only available as a desktop application.</p>",
+        },
+        sharepicUsage: {
+          question: "Can I use the sharepics for events, websites or flyers?",
+          answer:
+            "<p>Yes, you can use the sharepics for anything – with one exception:</br>If you use images from the MINT media database, they may only be published in a MINT context and with the copyright notice.</br></br>Don't worry: The correct notice will be automatically inserted into the graphic if you use an image from the MINT media database.</p>",
+        },
+        sharepicGeneratorNotWorking: {
+          question:
+            "What do I do if the Sharepic generator doesn't work properly?",
+          answer:
+            '<p>Feel free to send us a message to: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a>.</br></br>The MINT Sharepic Generator is still in beta. Bugs may occur – we rely on your feedback to further improve the Sharepic Generator.</p>',
+        },
+        supportedFormatsAndAspects: {
+          question: "Which image sizes and formats does the tool support?",
+          answer:
+            "<p>You can create all common social media formats. You can choose between predefined formats and your own custom formats. The sizes are specified in pixels.</p>",
+        },
+        saveSharepics: {
+          question: "Can I save created sharepics and edit them later?",
+          answer:
+            "<p>Yes, you can save your graphics under a title of your choice and edit them later.</br>👉 Menu item: <b>File > Save</b></p>",
+        },
+        whichDesignElementsAreCustomizable: {
+          question:
+            "Which design elements can I customize (colors, fonts, logos, etc.)?",
+          answer:
+            "<p>You can select various fonts and graphic elements and customize their colors.</br>However, selfly uploaded graphics (logos, stickers, shapes) cannot be recolored.</p>",
         },
       },
     },
