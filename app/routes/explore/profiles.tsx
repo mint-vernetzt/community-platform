@@ -167,12 +167,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
   const profilesCount = await getProfilesCount({
     filter: submission.value.prfFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
   const profiles = await getAllProfiles({
     filter: submission.value.prfFilter,
     sortBy: submission.value.prfSortBy,
+    search: submission.value.search,
     take,
-    isLoggedIn,
+    sessionUser,
+    language,
   });
 
   const enhancedProfiles = [];

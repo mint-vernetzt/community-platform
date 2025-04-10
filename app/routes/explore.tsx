@@ -22,6 +22,7 @@ import { getProjectsCount } from "./explore/projects.server";
 import { getFundingsCount } from "./explore/fundings.server";
 import { getFilterSchemes } from "./explore/index";
 import React from "react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -35,6 +36,9 @@ export async function loader(args: LoaderFunctionArgs) {
     schema: getFilterSchemes,
   });
 
+  const { authClient } = await createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -43,6 +47,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const profileCount = await getProfilesCount({
     filter: submission.value.prfFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
 
   const organizationCount = await getOrganizationsCount({
@@ -78,40 +85,47 @@ function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
-  const [links] = React.useState([
-    {
-      to: "/explore",
-      label: loaderData.locales.route.content.menu.allContent,
-      value: loaderData.counts.allContent,
-      end: true,
-    },
-    {
-      to: "/explore/profiles",
-      value: loaderData.counts.profiles,
-      label: loaderData.locales.route.content.menu.profiles,
-    },
-    {
-      to: "/explore/organizations",
-      value: loaderData.counts.organizations,
-      label: loaderData.locales.route.content.menu.organizations,
-    },
-    {
-      to: "/explore/events",
-      value: loaderData.counts.events,
-      label: loaderData.locales.route.content.menu.events,
-    },
-    {
-      to: "/explore/projects",
-      value: loaderData.counts.projects,
-      label: loaderData.locales.route.content.menu.projects,
-    },
-    {
-      to: "/explore/fundings",
-      value: loaderData.counts.fundings,
-      label: loaderData.locales.route.content.menu.fundings,
-    },
-  ]);
+  const [links, setLinks] = React.useState<
+    { to: string; label: string; value: number; end?: boolean }[]
+  >([]);
   const [currentLink, setCurrentLink] = React.useState(links[0]);
+
+  React.useEffect(() => {
+    const newLinks = [
+      {
+        to: "/explore",
+        label: loaderData.locales.route.content.menu.allContent,
+        value: loaderData.counts.allContent,
+        end: true,
+      },
+      {
+        to: "/explore/profiles",
+        value: loaderData.counts.profiles,
+        label: loaderData.locales.route.content.menu.profiles,
+      },
+      {
+        to: "/explore/organizations",
+        value: loaderData.counts.organizations,
+        label: loaderData.locales.route.content.menu.organizations,
+      },
+      {
+        to: "/explore/events",
+        value: loaderData.counts.events,
+        label: loaderData.locales.route.content.menu.events,
+      },
+      {
+        to: "/explore/projects",
+        value: loaderData.counts.projects,
+        label: loaderData.locales.route.content.menu.projects,
+      },
+      {
+        to: "/explore/fundings",
+        value: loaderData.counts.fundings,
+        label: loaderData.locales.route.content.menu.fundings,
+      },
+    ];
+    setLinks(newLinks);
+  }, [loaderData]);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -119,7 +133,7 @@ function Explore() {
       const currentLink = links.find((link) => {
         return link.to === currentPath;
       });
-      if (currentLink) {
+      if (typeof currentLink !== "undefined") {
         setCurrentLink(currentLink);
       }
     }
@@ -138,16 +152,18 @@ function Explore() {
               : loaderData.locales.route.content.headline}
           </h1>
           <EntitiesSelect>
-            <EntitiesSelect.Label>
-              <EntitiesSelect.Menu.Item
-                origin={loaderData.origin}
-                {...currentLink}
-              >
-                <EntitiesSelect.Menu.Item.Label>
-                  {currentLink.label} <Badge>{currentLink.value}</Badge>{" "}
-                </EntitiesSelect.Menu.Item.Label>
-              </EntitiesSelect.Menu.Item>
-            </EntitiesSelect.Label>
+            {typeof currentLink !== "undefined" && (
+              <EntitiesSelect.Label>
+                <EntitiesSelect.Menu.Item
+                  origin={loaderData.origin}
+                  {...currentLink}
+                >
+                  <EntitiesSelect.Menu.Item.Label>
+                    {currentLink.label} <Badge>{currentLink.value}</Badge>{" "}
+                  </EntitiesSelect.Menu.Item.Label>
+                </EntitiesSelect.Menu.Item>
+              </EntitiesSelect.Label>
+            )}
             <EntitiesSelect.Menu>
               {links.map((item) => {
                 return (
@@ -258,7 +274,7 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
     "mv-mx-4 my-2 @lg:mv-mx-0",
     "@lg:mv-px-4 @lg:mv-py-2",
     "@lg:mv-bg-white",
-    isActive && "@lg:mv-bg-primary-500 @lg:mv-text-white",
+    isActive && "@lg:mv-bg-primary @lg:mv-text-white",
     "@lg:mv-rounded-lg",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
     "mv-text-neutral-700",

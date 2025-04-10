@@ -1,9 +1,17 @@
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
+import { type GetSearchSchema } from "./index";
+import { type User } from "@supabase/supabase-js";
+import {
+  type Organization,
+  type Prisma,
+  type Profile,
+  type Project,
+} from "@prisma/client";
 
 export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -19,8 +27,63 @@ type ProfileVisibility = { profileVisibility: { [x: string]: boolean } };
 type FilterKeyWhereStatement = {
   OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
 };
+type SearchWhereStatement = {
+  OR: {
+    AND: (
+      | {
+          [K in Profile as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }
+      | {
+          [K in "areas" | "offers" | "seekings"]?: {
+            some: {
+              [K in "area" | "offer"]?: {
+                [K in "name" | "slug"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in "memberOf" | "teamMemberOfProjects"]?: {
+            some: {
+              [K in "organization" | "project"]?: {
+                AND: (
+                  | {
+                      [K in "name"]?: {
+                        contains: string;
+                        mode: Prisma.QueryMode;
+                      };
+                    }
+                  | {
+                      [K in "organizationVisibility" | "projectVisibility"]?: {
+                        [K in Organization | Project as string]: boolean;
+                      };
+                    }
+                )[];
+              };
+            };
+          };
+        }
+      | {
+          [K in "skills" | "interests"]?: {
+            has: string;
+          };
+        }
+      | {
+          [K in "profileVisibility"]?: {
+            [K in Profile as string]: boolean;
+          };
+        }
+    )[];
+  }[];
+};
 type WhereClause = {
-  AND: ProfileVisibility[] & FilterKeyWhereStatement[];
+  AND: ProfileVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
 
 export async function getVisibilityFilteredProfilesCount(options: {
@@ -74,13 +137,38 @@ export async function getVisibilityFilteredProfilesCount(options: {
   return count;
 }
 
-export async function getProfilesCount(options: {
-  filter: GetProfilesSchema["prfFilter"];
+function getSlugFromLocaleThatContainsWord(options: {
+  language: ArrayElement<typeof supportedCookieLanguages>;
+  locales: keyof (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >];
+  word: string;
 }) {
+  const { language, locales, word } = options;
+  const slugs = Object.entries(languageModuleMap[language][locales]).find(
+    ([, value]) => {
+      if (
+        typeof value !== "object" &&
+        "title" in value === false &&
+        typeof value.title !== "string"
+      ) {
+        return false;
+      }
+      return (value.title as string).toLowerCase().includes(word.toLowerCase());
+    }
+  );
+
+  if (typeof slugs === "undefined") {
+    return;
+  }
+  return slugs[0];
+}
+
+function getProfilesFilterWhereClause(filter: GetProfilesSchema["prfFilter"]) {
   const whereClauses: WhereClause = { AND: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    const filterValues = filter[typedFilterKey];
 
     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
@@ -100,6 +188,340 @@ export async function getProfilesCount(options: {
     whereClauses.AND.push(filterKeyWhereStatement);
   }
 
+  return whereClauses;
+}
+
+function getProfilesSearchWhereClauses(
+  words: string[],
+  sessionUser: User | null,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) {
+  const whereClauses = [];
+  for (const word of words) {
+    const offerOrSeekingSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "offers",
+      word,
+    });
+    const contains: SearchWhereStatement = {
+      OR: [
+        {
+          AND: [
+            {
+              username: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    username: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              email: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    email: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              email2: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    email2: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              bio: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    bio: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              skills: {
+                has: word,
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    skills: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              interests: {
+                has: word,
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    interests: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              firstName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    firstName: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              lastName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    lastName: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              position: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    position: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    areas: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              memberOf: {
+                some: {
+                  organization: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    memberOf: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            offerOrSeekingSlug !== undefined
+              ? [
+                  {
+                    offers: {
+                      some: {
+                        offer: {
+                          slug: {
+                            contains: offerOrSeekingSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        profileVisibility: {
+                          offers: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            offerOrSeekingSlug !== undefined
+              ? [
+                  {
+                    seekings: {
+                      some: {
+                        offer: {
+                          slug: {
+                            contains: offerOrSeekingSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        profileVisibility: {
+                          seekings: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND: [
+            {
+              teamMemberOfProjects: {
+                some: {
+                  project: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            projectVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  profileVisibility: {
+                    teamMemberOfProjects: true,
+                  },
+                }
+              : {},
+          ],
+        },
+      ],
+    };
+    whereClauses.push(contains);
+  }
+  return whereClauses;
+}
+
+export async function getProfilesCount(options: {
+  filter: GetProfilesSchema["prfFilter"];
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const filterWhereClause = getProfilesFilterWhereClause(options.filter);
+  const searchWhereClauses = getProfilesSearchWhereClauses(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+  const whereClauses = {
+    AND: [filterWhereClause, ...searchWhereClauses],
+  };
+
   const count = await prismaClient.profile.count({
     where: whereClauses,
   });
@@ -111,16 +533,19 @@ export async function getAllProfiles(options: {
   filter: GetProfilesSchema["prfFilter"];
   sortBy: GetProfilesSchema["prfSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  isLoggedIn: boolean;
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
   const whereClauses: WhereClause = { AND: [] };
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.isLoggedIn === false) {
+    if (options.sessionUser !== null) {
       const visibilityWhereStatement: ProfileVisibility = {
         profileVisibility: {
           [`${typedFilterKey}s`]: true,
@@ -146,6 +571,13 @@ export async function getAllProfiles(options: {
 
     whereClauses.AND.push(filterKeyWhereStatement);
   }
+
+  const searchWhereClauses = getProfilesSearchWhereClauses(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+  whereClauses.AND.push(...searchWhereClauses);
 
   const profiles = await prismaClient.profile.findMany({
     select: {
