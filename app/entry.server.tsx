@@ -1,15 +1,12 @@
-import type {
-  AppLoadContext,
-  EntryContext,
-  HandleErrorFunction,
-} from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter } from "react-router";
+import * as Sentry from "@sentry/node";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
+import type { EntryContext, HandleErrorFunction } from "react-router";
+import { ServerRouter } from "react-router";
 import { getEnv, init as initEnv } from "./env.server";
-import * as Sentry from "@sentry/node";
+import { NonceProvider } from "./nonce-provider";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
@@ -30,24 +27,29 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext,
-  loadContext?: AppLoadContext
+  reactRouterContext: EntryContext
 ) {
-  // Appending global security response headers
-  console.log("Entry server - handleRequest");
+  // Setting global security response headers
   const nonce = crypto.randomUUID();
-  responseHeaders.append(
-    "Content-Security-Policy",
-    `default-src 'self' 'nonce-${nonce}'; frame-ancestors 'none'; upgrade-insecure-requests; report-to csp-endpoint`
-  );
-  responseHeaders.append(
+  responseHeaders.set(
     "Reporting-Endpoints",
     `csp-endpoint='${process.env.COMMUNITY_BASE_URL}/csp-reports'`
   );
-  const enhancedAppLoadContext = {
-    ...loadContext,
-    nonce,
-  };
+  responseHeaders.set(
+    "Content-Security-Policy",
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' ${
+      process.env.IMGPROXY_URL
+    } ${
+      process.env.COMMUNITY_BASE_URL
+    }; worker-src 'self'; frame-ancestors 'none'; report-to csp-endpoint;${
+      process.env.NODE_ENV === "production" ? " upgrade-insecure-requests;" : ""
+    }${
+      process.env.NODE_ENV === "production" &&
+      typeof process.env.SENTRY_DSN !== "undefined"
+        ? ` connect-src 'self' *.sentry.io;`
+        : ""
+    }`
+  );
 
   // Appending profiling policy header to the response when sentry is enabled
   if (
@@ -67,14 +69,14 @@ export default async function handleRequest(
         responseStatusCode,
         responseHeaders,
         reactRouterContext,
-        enhancedAppLoadContext
+        nonce
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
         reactRouterContext,
-        enhancedAppLoadContext
+        nonce
       );
 }
 
@@ -93,16 +95,18 @@ function handleBotRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
-  loadContext?: AppLoadContext
+  nonce: `${string}-${string}-${string}-${string}-${string}`
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter
-        context={reactRouterContext}
-        url={request.url}
-        nonce={loadContext?.nonce}
-      />,
+      <NonceProvider value={nonce}>
+        <ServerRouter
+          context={reactRouterContext}
+          url={request.url}
+          nonce={nonce}
+        />
+      </NonceProvider>,
       {
         onAllReady() {
           shellRendered = true;
@@ -133,6 +137,7 @@ function handleBotRequest(
             Sentry.captureException(error);
           }
         },
+        nonce: nonce,
       }
     );
 
@@ -145,16 +150,18 @@ function handleBrowserRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
-  loadContext?: AppLoadContext
+  nonce: `${string}-${string}-${string}-${string}-${string}`
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter
-        context={reactRouterContext}
-        url={request.url}
-        nonce={loadContext?.nonce}
-      />,
+      <NonceProvider value={nonce}>
+        <ServerRouter
+          context={reactRouterContext}
+          url={request.url}
+          nonce={nonce}
+        />
+      </NonceProvider>,
       {
         onShellReady() {
           shellRendered = true;
@@ -185,6 +192,7 @@ function handleBrowserRequest(
             Sentry.captureException(error);
           }
         },
+        nonce: nonce,
       }
     );
 

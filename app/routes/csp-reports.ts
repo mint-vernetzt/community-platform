@@ -3,6 +3,7 @@ import { invariantResponse } from "~/lib/utils/response";
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
+  console.log("Action - csp-reports");
   const contentType = request.headers.get("content-type");
   invariantResponse(
     contentType === "application/reports+json",
