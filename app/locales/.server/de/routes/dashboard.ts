@@ -128,7 +128,7 @@ export const locale = {
       headline_other:
         "Deine Organisation hat {{count}} offene Beitrittsanfragen.",
       description:
-        "Wenn Du Anfragen bestätigst, werden Personen als <0>Teammitglied/Admin</0> Deiner Organisation sichtbar.",
+        "Wenn Du Anfragen bestätigst, werden Personen als <0>Teammitglieder/Admins</0> Deiner Organisation sichtbar.",
       linkDescription: "Zu meinen Organisationen",
     },
     networkInvites: {
@@ -146,7 +146,7 @@ export const locale = {
       headline_other:
         "Dein Netzwerk hat {{count}} offene Beitrittsanfragen von Organisationen.",
       description:
-        "Wenn Du Anfragen bestätigst, werden die Organisationen als <0>Netzwerkmitglied</0> sichtbar.",
+        "Wenn Du Anfragen bestätigst, werden die Organisationen als <0>Netzwerkmitglieder</0> sichtbar.",
       linkDescription: "Zu meinen Organisationen",
     },
   },
