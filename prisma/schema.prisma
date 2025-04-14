@@ -260,7 +260,11 @@ model Organization {
   profileJoinRequests    RequestToOrganizationToAddProfile[]
   profileJoinInvites     InviteForProfileToJoinOrganization[]
 
-  filterVector Unsupported("tsvector")? @map("filter_vector")
+  filterVector                Unsupported("tsvector")?             @map("filter_vector")
+  sentNetworkJoinRequests     RequestToNetworkToAddOrganization[]  @relation("sent_requests")
+  receivedNetworkJoinRequests RequestToNetworkToAddOrganization[]  @relation("received_requests")
+  sentNetworkJoinInvites      InviteForOrganizationToJoinNetwork[] @relation("sent_invites")
+  receivedNetworkJoinInvites  InviteForOrganizationToJoinNetwork[] @relation("received_invites")
 
   @@index([filterVector], type: Gin)
   @@map("organizations")
@@ -1511,4 +1515,30 @@ model RequestToOrganizationToAddProfile {
 
   @@id([profileId, organizationId])
   @@map("requests_to_organizations_to_add_profiles")
+}
+
+model InviteForOrganizationToJoinNetwork {
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(name: "received_invites", fields: [organizationId], references: [id], onDelete: Cascade)
+  networkId      String       @map("network_id")
+  network        Organization @relation(name: "sent_invites", fields: [networkId], references: [id], onDelete: Cascade)
+  status         JoinStatus
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@id([organizationId, networkId])
+  @@map("invites_for_organizations_to_join_networks")
+}
+
+model RequestToNetworkToAddOrganization {
+  networkId      String       @map("network_id")
+  network        Organization @relation(name: "received_requests", fields: [networkId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(name: "sent_requests", fields: [organizationId], references: [id], onDelete: Cascade)
+  status         JoinStatus
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@id([networkId, organizationId])
+  @@map("requests_to_networks_to_add_organizations")
 }

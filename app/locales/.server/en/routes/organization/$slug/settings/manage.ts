@@ -10,6 +10,12 @@ export const locale = {
     notAllowed:
       "Your organization must have the organizational form network to make this action",
     networkTypesRequired: "Please select at least one network form.",
+    requestFailed: "Membership request could not be sent",
+    cancelRequestFailed: "Membership request could not be withdrawn",
+    inviteFailed: "Invitation could not be sent",
+    cancelInviteFailed: "Invitation could not be withdrawn",
+    alreadyMember: "Organization is already a member",
+    thisOrganization: "The own organization cannot be added",
   },
   content: {
     notFound: "Not found",
@@ -37,42 +43,67 @@ export const locale = {
     },
     networks: {
       current: {
-        headline_one: "Current network",
-        headline_other: "Current networks",
-        subline_one: "Your organization is part of this network",
-        subline_other: "Your organization is part of these networks",
+        headline_one: "Your organization is part of the following network",
+        headline_other: "Your organization is part of the following networks",
+        blankState: "Your organization is not yet part of any other networks.",
         leave: {
-          cta: "Leave",
+          cta: "End membership",
           success: "You have successfully left the network {{organization}}.",
         },
       },
-      join: {
-        headline_zero: "Is your organization part of a network?",
-        headline_other: "Is your organization part of other networks?",
+      requestToJoin: {
+        headline: "Add your organization to networks",
         subline:
           "Search for network organizations and add your organization as a network member.",
         label: "Name of network organization",
         placeholder: "Search...",
         helper: "At least 3 characters.",
         searchCta: "Search",
-        cta: "Join",
-        success: "You have successfully joined the network {{organization}}.",
+        cta: "Request membership",
+        email: {
+          subject: {
+            requested: "Your network has received a membership request.",
+            canceled:
+              "A membership request to your network has been withdrawn.",
+          },
+          button: {
+            text: "To the community platform",
+          },
+        },
+        alreadyMemberOf: "already confirmed",
+        alreadyRequested: "already requested",
+        noNetwork: "Not created as a network",
+        success:
+          "You have successfully requested membership for the network {{organization}}.",
+        cancelSuccess:
+          "You have successfully withdrawn the membership request for the network {{organization}}.",
+      },
+      pendingRequests: {
+        headline: "Pending membership requests",
+        cancel: {
+          cta: "Withdraw request",
+          success:
+            "You have successfully withdrawn the membership request for the network {{organization}}.",
+        },
       },
     },
     networkMembers: {
       current: {
-        headline_one: "Current member organization",
-        headline_other: "Current member organizations",
-        subline_one: "Your network consists of this member organization",
-        subline_other: "Your network consists of these member organizations",
+        headline_one: "Current member organization of your network",
+        headline_other: "Current member organizations of your network",
+        subline_one:
+          "Your network consists of the following member organization.",
+        subline_other:
+          "Your network consists of the following member organizations.",
+        blankState: "Your network does not yet have any member organizations.",
         remove: {
           cta: "Remove",
           success:
             "You have successfully removed the member organization {{organization}} from your network.",
         },
       },
-      add: {
-        headline: "Add organizations to your network organization",
+      invite: {
+        headline: "Add organizations to your network",
         subline:
           "Search for organizations and add them to your network organization.",
         label: "Name of organization",
@@ -80,9 +111,30 @@ export const locale = {
         helper: "At least 3 characters.",
         helperWithoutNetwork: 'Requires organizational form "Network"',
         searchCta: "Search",
-        cta: "Add",
+        cta: "Invite",
+        email: {
+          subject: {
+            invited: "You have received an invitation!",
+            canceled: "The invitation has been withdrawn!",
+          },
+          button: {
+            text: "To the community platform",
+          },
+        },
+        alreadyInvited: "already invited",
+        alreadyMember: "already member",
         success:
-          "You have successfully added the organization {{organization}} to your network organization.",
+          "You have successfully invited the organization {{organization}} to your network organization.",
+        cancelSuccess:
+          "You have successfully withdrawn the invitation for the organization {{organization}}.",
+      },
+      pendingInvites: {
+        headline: "Organizations invited as members",
+        cancel: {
+          cta: "Withdraw invitation",
+          success:
+            "You have successfully withdrawn the invitation for the organization {{organization}}.",
+        },
       },
     },
   },

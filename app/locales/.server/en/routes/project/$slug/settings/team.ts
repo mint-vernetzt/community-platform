@@ -8,6 +8,7 @@ export const locale = {
       entitiesForRemovalNotFound: "Profile or project for removal not found",
       teamMemberCount:
         "There must always be a team member. Please add someone else as a team member first.",
+      alreadyMember: "Person is already a team member",
     },
   },
   email: {
@@ -36,6 +37,8 @@ export const locale = {
       search: "Search",
       criteria: "At least 3 characters.",
       submitSearch: "Search",
+      alreadyMember: "already member",
+      alreadyInvited: "already invited",
       submit: "Invite",
     },
     add: {
@@ -43,6 +46,7 @@ export const locale = {
       search: "Search",
       criteria: "At least 3 characters.",
       submitSearch: "Search",
+      alreadyMember: "already member",
       submit: "Add",
     },
     invites: {

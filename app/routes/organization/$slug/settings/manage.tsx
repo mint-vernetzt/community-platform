@@ -53,13 +53,14 @@ import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { deriveMode, createHashFromObject } from "~/utils.server";
 import {
-  addNetworkMember,
+  updateNetworkMemberInvite,
   getOrganizationWithNetworksAndNetworkMembers,
-  joinNetwork,
+  updateJoinNetworkRequest,
   leaveNetwork,
   removeNetworkMember,
   updateOrganization,
 } from "./manage.server";
+import { QuestionMark } from "~/components-next/icons/QuestionMark";
 
 export const manageSchema = z.object({
   organizationTypes: z.array(z.string().uuid()),
@@ -112,10 +113,6 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const searchParams = new URL(request.url).searchParams;
-  // TODO: Add pending network join requests here to exclude them from the search
-  const currentNetworkIds = [
-    ...organization.memberOf.map((relation) => relation.network.id),
-  ];
   const networkSearchParams = new URLSearchParams(searchParams);
   const searchNetworksParam = networkSearchParams.get(SearchNetworks);
   if (searchNetworksParam !== null) {
@@ -127,16 +124,12 @@ export async function loader(args: LoaderFunctionArgs) {
     submission: searchNetworksSubmission,
   } = await searchOrganizations({
     searchParams: networkSearchParams,
-    idsToExclude: currentNetworkIds,
+    idsToExclude: [organization.id],
     authClient,
     locales,
     mode,
   });
 
-  // TODO: Add pending network member invites here to exclude them from the search
-  const currentNetworkMemberIds = [
-    ...organization.networkMembers.map((relation) => relation.networkMember.id),
-  ];
   const networkMemberSearchParams = new URLSearchParams(searchParams);
   const searchNetworkMembersParam =
     networkMemberSearchParams.get(SearchNetworkMembers);
@@ -152,7 +145,7 @@ export async function loader(args: LoaderFunctionArgs) {
     submission: searchNetworkMembersSubmission,
   } = await searchOrganizations({
     searchParams: networkMemberSearchParams,
-    idsToExclude: currentNetworkMemberIds,
+    idsToExclude: [organization.id],
     authClient,
     locales,
     mode,
@@ -269,15 +262,28 @@ export async function action(args: ActionFunctionArgs) {
       organizationTypeNetwork,
       locales,
     });
-  } else if (intent.startsWith("join-network-")) {
-    const joinNetworkFormData = new FormData();
-    joinNetworkFormData.set(
+  } else if (intent.startsWith("request-to-join-network-")) {
+    const requestToJoinNetworkFormData = new FormData();
+    requestToJoinNetworkFormData.set(
       "organizationId",
-      intent.replace("join-network-", "")
+      intent.replace("request-to-join-network-", "")
     );
-    result = await joinNetwork({
-      formData: joinNetworkFormData,
+    result = await updateJoinNetworkRequest({
+      formData: requestToJoinNetworkFormData,
       organization,
+      intent: "requestToJoinNetwork",
+      locales,
+    });
+  } else if (intent.startsWith("cancel-network-join-request-")) {
+    const cancelNetworkJoinRequestFormData = new FormData();
+    cancelNetworkJoinRequestFormData.set(
+      "organizationId",
+      intent.replace("cancel-network-join-request-", "")
+    );
+    result = await updateJoinNetworkRequest({
+      formData: cancelNetworkJoinRequestFormData,
+      organization,
+      intent: "cancelNetworkJoinRequest",
       locales,
     });
   } else if (intent.startsWith("leave-network-")) {
@@ -291,26 +297,40 @@ export async function action(args: ActionFunctionArgs) {
       organization,
       locales,
     });
-  } else if (intent.startsWith("add-network-member-")) {
-    const leaveNetworkFormData = new FormData();
-    leaveNetworkFormData.set(
+  } else if (intent.startsWith("invite-network-member-")) {
+    const inviteNetworkMemberFormData = new FormData();
+    inviteNetworkMemberFormData.set(
       "organizationId",
-      intent.replace("add-network-member-", "")
+      intent.replace("invite-network-member-", "")
     );
-    result = await addNetworkMember({
-      formData: leaveNetworkFormData,
+    result = await updateNetworkMemberInvite({
+      formData: inviteNetworkMemberFormData,
       organization,
       organizationTypeNetwork,
+      intent: "inviteNetworkMember",
+      locales,
+    });
+  } else if (intent.startsWith("cancel-network-member-invitation-")) {
+    const cancelNetworkMemberInvitationFormData = new FormData();
+    cancelNetworkMemberInvitationFormData.set(
+      "organizationId",
+      intent.replace("cancel-network-member-invitation-", "")
+    );
+    result = await updateNetworkMemberInvite({
+      formData: cancelNetworkMemberInvitationFormData,
+      organization,
+      organizationTypeNetwork,
+      intent: "cancelNetworkMemberInvitation",
       locales,
     });
   } else if (intent.startsWith("remove-network-member-")) {
-    const leaveNetworkFormData = new FormData();
-    leaveNetworkFormData.set(
+    const removeNetworkMemberFormData = new FormData();
+    removeNetworkMemberFormData.set(
       "organizationId",
       intent.replace("remove-network-member-", "")
     );
     result = await removeNetworkMember({
-      formData: leaveNetworkFormData,
+      formData: removeNetworkMemberFormData,
       organization,
       locales,
     });
@@ -370,7 +390,9 @@ function Manage() {
   const {
     types: organizationTypes,
     networkTypes,
+    sentNetworkJoinRequests,
     memberOf,
+    sentNetworkJoinInvites,
     networkMembers,
   } = organization;
 
@@ -431,9 +453,11 @@ function Manage() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? searchNetworksSubmission : null,
   });
+  const clearNetworkQuerySearchParams = new URLSearchParams(searchParams);
+  clearNetworkQuerySearchParams.delete(SearchNetworks);
 
-  const [joinNetworkForm] = useForm({
-    id: `join-network-${
+  const [requestToJoinNetworkForm] = useForm({
+    id: `request-to-join-network-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -441,6 +465,13 @@ function Manage() {
 
   const [leaveNetworkForm] = useForm({
     id: `leave-network-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [cancelNetworkJoinRequestForm] = useForm({
+    id: `cancel-network-join-request-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -460,9 +491,11 @@ function Manage() {
     lastResult:
       navigation.state === "idle" ? searchNetworkMembersSubmission : null,
   });
+  const clearNetworkMemberQuerySearchParams = new URLSearchParams(searchParams);
+  clearNetworkMemberQuerySearchParams.delete(SearchNetworks);
 
-  const [addNetworkMemberForm] = useForm({
-    id: `add-network-member-${
+  const [inviteNetworkMemberForm] = useForm({
+    id: `invite-network-member-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -470,6 +503,13 @@ function Manage() {
 
   const [removeNetworkMemberForm] = useForm({
     id: `remove-network-member-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [cancelNetworkJoinInviteForm] = useForm({
+    id: `cancel-network-member-invitation-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -521,263 +561,286 @@ function Manage() {
         />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {locales.route.content.types.headline}
-            </h2>
-            {/* TODO: When removing network from this list and there are networkMembers -> Show modal on submit by switching the submit button. Modal text: something like -> Are you sure? The connections will be lost. */}
-            <ConformSelect
-              id={manageFields.organizationTypes.id}
-              cta={locales.route.content.types.option}
-            >
-              <ConformSelect.Label htmlFor={manageFields.organizationTypes.id}>
-                {locales.route.content.types.label}
-              </ConformSelect.Label>
-              {typeof manageFields.organizationTypes.errors !== "undefined" &&
-              manageFields.organizationTypes.errors.length > 0 ? (
-                manageFields.organizationTypes.errors.map((error) => (
-                  <ConformSelect.Error
-                    id={manageFields.organizationTypes.errorId}
-                    key={error}
+            <div className="mv-flex mv-flex-col mv-gap-6">
+              <div className="mv-flex mv-flex-col mv-gap-4">
+                <div className="mv-flex mv-items-center mv-justify-between">
+                  <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                    {locales.route.content.types.headline}
+                  </h2>
+                  <Link
+                    // TODO: Link to specific question when its available
+                    to="/help"
+                    className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                   >
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.types.helper}
-                </ConformSelect.HelperText>
-              )}
-              {allOrganizationTypes
-                .filter((organizationType) => {
-                  return !organizationTypeList.some((field) => {
-                    return field.initialValue === organizationType.id;
-                  });
-                })
-                .map((organizationType) => {
-                  let title;
-                  if (organizationType.slug in locales.organizationTypes) {
-                    type LocaleKey = keyof typeof locales.organizationTypes;
-                    title =
-                      locales.organizationTypes[
-                        organizationType.slug as LocaleKey
-                      ].title;
-                  } else {
-                    console.error(
-                      `Organization type ${organizationType.slug} not found in locales`
-                    );
-                    title = organizationType.slug;
-                  }
-                  return (
-                    <button
-                      key={organizationType.id}
-                      {...manageForm.insert.getButtonProps({
-                        name: manageFields.organizationTypes.name,
-                        defaultValue: organizationType.id,
-                      })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
-                    >
-                      {title}
-                    </button>
-                  );
-                })}
-            </ConformSelect>
-            {organizationTypeList.length > 0 && (
-              <Chip.Container>
-                {organizationTypeList.map((field, index) => {
-                  const organizationTypeSlug = allOrganizationTypes.find(
-                    (organizationType) => {
-                      return organizationType.id === field.initialValue;
-                    }
-                  )?.slug;
-                  let title;
-                  if (organizationTypeSlug === undefined) {
-                    console.error(
-                      `Organization type with id ${field.id} not found in allTypes`
-                    );
-                    title = null;
-                  } else {
-                    if (organizationTypeSlug in locales.organizationTypes) {
-                      type LocaleKey = keyof typeof locales.organizationTypes;
-                      title =
-                        locales.organizationTypes[
-                          organizationTypeSlug as LocaleKey
-                        ].title;
-                    } else {
-                      console.error(
-                        `Organization type ${organizationTypeSlug} not found in locales`
-                      );
-                      title = organizationTypeSlug;
-                    }
-                  }
-                  return (
-                    <Chip key={field.key}>
-                      <input
-                        {...getInputProps(field, { type: "hidden" })}
-                        key="organizationTypes"
-                      />
-                      {title || locales.route.content.notFound}
-                      <Chip.Delete>
-                        <button
-                          {...manageForm.remove.getButtonProps({
-                            name: manageFields.organizationTypes.name,
-                            index,
-                          })}
-                        />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
-            )}
-
-            <h2
-              className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
-                hasSelectedNetwork === false
-                  ? "mv-text-neutral-300"
-                  : "mv-text-primary"
-              }`}
-            >
-              {locales.route.content.networkTypes.headline}
-            </h2>
-            <ConformSelect
-              id={manageFields.networkTypes.id}
-              cta={locales.route.content.networkTypes.option}
-              disabled={hasSelectedNetwork === false}
-            >
-              <ConformSelect.Label htmlFor={manageFields.networkTypes.id}>
-                <span
-                  className={
-                    hasSelectedNetwork === false ? "mv-text-neutral-300" : ""
-                  }
+                    <QuestionMark />
+                  </Link>
+                </div>
+                <ConformSelect
+                  id={manageFields.organizationTypes.id}
+                  cta={locales.route.content.types.option}
                 >
-                  {locales.route.content.networkTypes.label}
-                </span>
-              </ConformSelect.Label>
-
-              {typeof manageFields.networkTypes.errors !== "undefined" &&
-              manageFields.networkTypes.errors.length > 0 ? (
-                manageFields.networkTypes.errors.map((error) => (
-                  <ConformSelect.Error
-                    id={manageFields.networkTypes.errorId}
-                    key={error}
+                  <ConformSelect.Label
+                    htmlFor={manageFields.organizationTypes.id}
                   >
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  <span
-                    className={
-                      hasSelectedNetwork === false ? "mv-text-neutral-300" : ""
-                    }
-                  >
-                    {hasSelectedNetwork === false
-                      ? locales.route.content.networkTypes.helperWithoutNetwork
-                      : locales.route.content.networkTypes.helper}
-                  </span>
-                </ConformSelect.HelperText>
-              )}
-              {allNetworkTypes
-                .filter((networkType) => {
-                  return !networkTypeList.some((field) => {
-                    return field.initialValue === networkType.id;
-                  });
-                })
-                .map((filteredNetworkType) => {
-                  let title;
-                  if (filteredNetworkType.slug in locales.networkTypes) {
-                    type LocaleKey = keyof typeof locales.networkTypes;
-                    title =
-                      locales.networkTypes[
-                        filteredNetworkType.slug as LocaleKey
-                      ].title;
-                  } else {
-                    console.error(
-                      `Network type ${filteredNetworkType.slug} not found in locales`
-                    );
-                    title = filteredNetworkType.slug;
-                  }
-                  return (
-                    <button
-                      {...manageForm.insert.getButtonProps({
-                        name: manageFields.networkTypes.name,
-                        defaultValue: filteredNetworkType.id,
-                      })}
-                      form={manageForm.id}
-                      key={filteredNetworkType.id}
-                      disabled={!hasSelectedNetwork}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
-                    >
-                      {title}
-                    </button>
-                  );
-                })}
-            </ConformSelect>
-            {networkTypeList.length > 0 && (
-              <Chip.Container>
-                {networkTypeList.map((field, index) => {
-                  const networkTypeSlug = allNetworkTypes.find(
-                    (networkType) => {
-                      return networkType.id === field.initialValue;
-                    }
-                  )?.slug;
-                  let title;
-                  if (networkTypeSlug === undefined) {
-                    console.error(
-                      `Network type with id ${field.id} not found in allNetworkTypes`
-                    );
-                    title = null;
-                  } else {
-                    if (networkTypeSlug in locales.networkTypes) {
-                      type LocaleKey = keyof typeof locales.networkTypes;
-                      title =
-                        locales.networkTypes[networkTypeSlug as LocaleKey]
-                          .title;
-                    } else {
-                      console.error(
-                        `Network type ${networkTypeSlug} not found in locales`
-                      );
-                      title = networkTypeSlug;
-                    }
-                  }
-                  return (
-                    <Chip key={field.key}>
-                      <input
-                        {...getInputProps(field, {
-                          type: "hidden",
-                        })}
-                        key="networkTypes"
-                      />
-                      {title || locales.route.content.notFound}
-                      <Chip.Delete>
+                    {locales.route.content.types.label}
+                  </ConformSelect.Label>
+                  {typeof manageFields.organizationTypes.errors !==
+                    "undefined" &&
+                  manageFields.organizationTypes.errors.length > 0 ? (
+                    manageFields.organizationTypes.errors.map((error) => (
+                      <ConformSelect.Error
+                        id={manageFields.organizationTypes.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  ) : (
+                    <ConformSelect.HelperText>
+                      {locales.route.content.types.helper}
+                    </ConformSelect.HelperText>
+                  )}
+                  {allOrganizationTypes
+                    .filter((organizationType) => {
+                      return !organizationTypeList.some((field) => {
+                        return field.initialValue === organizationType.id;
+                      });
+                    })
+                    .map((organizationType) => {
+                      let title;
+                      if (organizationType.slug in locales.organizationTypes) {
+                        type LocaleKey = keyof typeof locales.organizationTypes;
+                        title =
+                          locales.organizationTypes[
+                            organizationType.slug as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Organization type ${organizationType.slug} not found in locales`
+                        );
+                        title = organizationType.slug;
+                      }
+                      return (
                         <button
-                          {...manageForm.remove.getButtonProps({
-                            name: manageFields.networkTypes.name,
-                            index,
+                          key={organizationType.id}
+                          {...manageForm.insert.getButtonProps({
+                            name: manageFields.organizationTypes.name,
+                            defaultValue: organizationType.id,
                           })}
-                        />
-                      </Chip.Delete>
-                    </Chip>
-                  );
-                })}
-              </Chip.Container>
-            )}
-            {typeof manageForm.errors !== "undefined" &&
-            manageForm.errors.length > 0 ? (
-              <div>
-                {manageForm.errors.map((error, index) => {
-                  return (
-                    <div
-                      id={manageForm.errorId}
-                      key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                    >
-                      {error}
-                    </div>
-                  );
-                })}
+                          className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                        >
+                          {title}
+                        </button>
+                      );
+                    })}
+                </ConformSelect>
+                {organizationTypeList.length > 0 && (
+                  <Chip.Container>
+                    {organizationTypeList.map((field, index) => {
+                      const organizationTypeSlug = allOrganizationTypes.find(
+                        (organizationType) => {
+                          return organizationType.id === field.initialValue;
+                        }
+                      )?.slug;
+                      let title;
+                      if (organizationTypeSlug === undefined) {
+                        console.error(
+                          `Organization type with id ${field.id} not found in allTypes`
+                        );
+                        title = null;
+                      } else {
+                        if (organizationTypeSlug in locales.organizationTypes) {
+                          type LocaleKey =
+                            keyof typeof locales.organizationTypes;
+                          title =
+                            locales.organizationTypes[
+                              organizationTypeSlug as LocaleKey
+                            ].title;
+                        } else {
+                          console.error(
+                            `Organization type ${organizationTypeSlug} not found in locales`
+                          );
+                          title = organizationTypeSlug;
+                        }
+                      }
+                      return (
+                        <Chip key={field.key}>
+                          <input
+                            {...getInputProps(field, { type: "hidden" })}
+                            key="organizationTypes"
+                          />
+                          {title || locales.route.content.notFound}
+                          <Chip.Delete>
+                            <button
+                              {...manageForm.remove.getButtonProps({
+                                name: manageFields.organizationTypes.name,
+                                index,
+                              })}
+                            />
+                          </Chip.Delete>
+                        </Chip>
+                      );
+                    })}
+                  </Chip.Container>
+                )}
               </div>
-            ) : null}
+              <div className="mv-flex mv-flex-col mv-gap-4">
+                <div className="mv-flex mv-items-center mv-justify-between">
+                  <h2
+                    className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                      hasSelectedNetwork === false
+                        ? "mv-text-neutral-300"
+                        : "mv-text-primary"
+                    }`}
+                  >
+                    {locales.route.content.networkTypes.headline}
+                  </h2>
+                  <Link
+                    // TODO: Link to specific question when its available
+                    to="/help"
+                    className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-pl-[1px] mv-pt-[1px] mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                  >
+                    <QuestionMark />
+                  </Link>
+                </div>
+                <ConformSelect
+                  id={manageFields.networkTypes.id}
+                  cta={locales.route.content.networkTypes.option}
+                  disabled={hasSelectedNetwork === false}
+                >
+                  <ConformSelect.Label htmlFor={manageFields.networkTypes.id}>
+                    <span
+                      className={
+                        hasSelectedNetwork === false
+                          ? "mv-text-neutral-300"
+                          : ""
+                      }
+                    >
+                      {locales.route.content.networkTypes.label}
+                    </span>
+                  </ConformSelect.Label>
+
+                  {typeof manageFields.networkTypes.errors !== "undefined" &&
+                  manageFields.networkTypes.errors.length > 0 ? (
+                    manageFields.networkTypes.errors.map((error) => (
+                      <ConformSelect.Error
+                        id={manageFields.networkTypes.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  ) : (
+                    <ConformSelect.HelperText>
+                      {hasSelectedNetwork === false
+                        ? locales.route.content.networkTypes
+                            .helperWithoutNetwork
+                        : locales.route.content.networkTypes.helper}
+                    </ConformSelect.HelperText>
+                  )}
+                  {allNetworkTypes
+                    .filter((networkType) => {
+                      return !networkTypeList.some((field) => {
+                        return field.initialValue === networkType.id;
+                      });
+                    })
+                    .map((filteredNetworkType) => {
+                      let title;
+                      if (filteredNetworkType.slug in locales.networkTypes) {
+                        type LocaleKey = keyof typeof locales.networkTypes;
+                        title =
+                          locales.networkTypes[
+                            filteredNetworkType.slug as LocaleKey
+                          ].title;
+                      } else {
+                        console.error(
+                          `Network type ${filteredNetworkType.slug} not found in locales`
+                        );
+                        title = filteredNetworkType.slug;
+                      }
+                      return (
+                        <button
+                          {...manageForm.insert.getButtonProps({
+                            name: manageFields.networkTypes.name,
+                            defaultValue: filteredNetworkType.id,
+                          })}
+                          form={manageForm.id}
+                          key={filteredNetworkType.id}
+                          disabled={!hasSelectedNetwork}
+                          className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                        >
+                          {title}
+                        </button>
+                      );
+                    })}
+                </ConformSelect>
+                {networkTypeList.length > 0 && (
+                  <Chip.Container>
+                    {networkTypeList.map((field, index) => {
+                      const networkTypeSlug = allNetworkTypes.find(
+                        (networkType) => {
+                          return networkType.id === field.initialValue;
+                        }
+                      )?.slug;
+                      let title;
+                      if (networkTypeSlug === undefined) {
+                        console.error(
+                          `Network type with id ${field.id} not found in allNetworkTypes`
+                        );
+                        title = null;
+                      } else {
+                        if (networkTypeSlug in locales.networkTypes) {
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          title =
+                            locales.networkTypes[networkTypeSlug as LocaleKey]
+                              .title;
+                        } else {
+                          console.error(
+                            `Network type ${networkTypeSlug} not found in locales`
+                          );
+                          title = networkTypeSlug;
+                        }
+                      }
+                      return (
+                        <Chip key={field.key}>
+                          <input
+                            {...getInputProps(field, {
+                              type: "hidden",
+                            })}
+                            key="networkTypes"
+                          />
+                          {title || locales.route.content.notFound}
+                          <Chip.Delete>
+                            <button
+                              {...manageForm.remove.getButtonProps({
+                                name: manageFields.networkTypes.name,
+                                index,
+                              })}
+                            />
+                          </Chip.Delete>
+                        </Chip>
+                      );
+                    })}
+                  </Chip.Container>
+                )}
+                {typeof manageForm.errors !== "undefined" &&
+                manageForm.errors.length > 0 ? (
+                  <div>
+                    {manageForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={manageForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            </div>
             <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
               <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
                 <Controls>
@@ -873,173 +936,46 @@ function Manage() {
               </div>
             </div>
           </div>
-          {/* Current Networks and Leave Network Section */}
+          {/* Current Network Members and Remove Network Member Section */}
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            {memberOf.length > 0 ? (
-              <>
-                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networks.current.headline_one,
-                    locales.route.content.networks.current.headline_other,
-                    memberOf.length
-                  )}
-                </h2>
-                <p>
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networks.current.subline_one,
-                    locales.route.content.networks.current.subline_other,
-                    memberOf.length
-                  )}
-                </p>
-                <Form
-                  {...getFormProps(leaveNetworkForm)}
-                  method="post"
-                  preventScrollReset
-                >
-                  <ListContainer
-                    locales={locales}
-                    listKey="networks"
-                    hideAfter={3}
-                  >
-                    {memberOf.map((relation, index) => {
-                      return (
-                        <ListItem
-                          key={`network-${relation.network.slug}`}
-                          entity={relation.network}
-                          locales={locales}
-                          listIndex={index}
-                          hideAfter={3}
-                        >
-                          <Button
-                            name="intent"
-                            variant="outline"
-                            value={`leave-network-${relation.network.id}`}
-                            type="submit"
-                            fullSize
-                          >
-                            {locales.route.content.networks.current.leave.cta}
-                          </Button>
-                        </ListItem>
-                      );
-                    })}
-                  </ListContainer>
-                  {typeof leaveNetworkForm.errors !== "undefined" &&
-                  leaveNetworkForm.errors.length > 0 ? (
-                    <div>
-                      {leaveNetworkForm.errors.map((error, index) => {
-                        return (
-                          <div
-                            id={leaveNetworkForm.errorId}
-                            key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                          >
-                            {error}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </Form>
-              </>
-            ) : null}
-            {/* Search Networks To Join Section */}
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
-              {memberOf.length === 0
-                ? locales.route.content.networks.join.headline_zero
-                : locales.route.content.networks.join.headline_other}
-            </h2>
-            <p>{locales.route.content.networks.join.subline}</p>
-            <searchNetworksFetcher.Form
-              {...getFormProps(searchNetworksForm)}
-              method="get"
-              onChange={(event) => {
-                searchNetworksForm.validate();
-                if (searchNetworksForm.valid) {
-                  searchNetworksFetcher.submit(event.currentTarget, {
-                    preventScrollReset: true,
-                  });
-                }
-              }}
-              autoComplete="off"
+            <h2
+              className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              }`}
             >
-              <Input name={Deep} defaultValue="true" type="hidden" />
-              <Input
-                name={SearchNetworkMembers}
-                defaultValue={
-                  searchParams.get(SearchNetworkMembers) || undefined
-                }
-                type="hidden"
-              />
-              <Input
-                {...getInputProps(searchNetworksFields[SearchNetworks], {
-                  type: "search",
-                })}
-                defaultValue={searchParams.get(SearchNetworks) || undefined}
-                key={searchNetworksFields[SearchNetworks].id}
-                standalone
-              >
-                <Input.Label htmlFor={searchNetworksFields[SearchNetworks].id}>
-                  {locales.route.content.networks.join.label}
-                </Input.Label>
-                <Input.SearchIcon />
-
-                {typeof searchNetworksFields[SearchNetworks].errors !==
-                  "undefined" &&
-                searchNetworksFields[SearchNetworks].errors.length > 0 ? (
-                  searchNetworksFields[SearchNetworks].errors.map((error) => (
-                    <Input.Error
-                      id={searchNetworksFields[SearchNetworks].errorId}
-                      key={error}
-                    >
-                      {error}
-                    </Input.Error>
-                  ))
-                ) : (
-                  <Input.HelperText>
-                    {locales.route.content.networks.join.helper}
-                  </Input.HelperText>
-                )}
-                <Input.Controls>
-                  <noscript>
-                    <Button type="submit" variant="outline">
-                      {locales.route.content.networks.join.searchCta}
-                    </Button>
-                  </noscript>
-                </Input.Controls>
-              </Input>
-              {typeof searchNetworksForm.errors !== "undefined" &&
-              searchNetworksForm.errors.length > 0 ? (
-                <div>
-                  {searchNetworksForm.errors.map((error, index) => {
-                    return (
-                      <div
-                        id={searchNetworksForm.errorId}
-                        key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                      >
-                        {error}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </searchNetworksFetcher.Form>
-            {searchedNetworks.length > 0 ? (
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networkMembers.current.headline_one,
+                locales.route.content.networkMembers.current.headline_other,
+                networkMembers.length
+              )}
+            </h2>
+            <p
+              className={
+                isNetwork === false ? "mv-text-neutral-300" : undefined
+              }
+            >
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networkMembers.current.subline_one,
+                locales.route.content.networkMembers.current.subline_other,
+                networkMembers.length
+              )}
+            </p>
+            {networkMembers.length > 0 ? (
               <Form
-                {...getFormProps(joinNetworkForm)}
+                {...getFormProps(removeNetworkMemberForm)}
                 method="post"
                 preventScrollReset
               >
                 <ListContainer
                   locales={locales}
-                  listKey="network-search-results"
+                  listKey="network-members"
                   hideAfter={3}
                 >
-                  {searchedNetworks.map((organization, index) => {
+                  {networkMembers.map((relation, index) => {
                     return (
                       <ListItem
-                        key={`network-search-result-${organization.slug}`}
-                        entity={organization}
+                        key={`network-member-${relation.networkMember.slug}`}
+                        entity={relation.networkMember}
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
@@ -1047,23 +983,27 @@ function Manage() {
                         <Button
                           name="intent"
                           variant="outline"
-                          value={`join-network-${organization.id}`}
+                          value={`remove-network-member-${relation.networkMember.id}`}
                           type="submit"
                           fullSize
+                          disabled={isNetwork === false}
                         >
-                          {locales.route.content.networks.join.cta}
+                          {
+                            locales.route.content.networkMembers.current.remove
+                              .cta
+                          }
                         </Button>
                       </ListItem>
                     );
                   })}
                 </ListContainer>
-                {typeof joinNetworkForm.errors !== "undefined" &&
-                joinNetworkForm.errors.length > 0 ? (
+                {typeof removeNetworkMemberForm.errors !== "undefined" &&
+                removeNetworkMemberForm.errors.length > 0 ? (
                   <div>
-                    {joinNetworkForm.errors.map((error, index) => {
+                    {removeNetworkMemberForm.errors.map((error, index) => {
                       return (
                         <div
-                          id={joinNetworkForm.errorId}
+                          id={removeNetworkMemberForm.errorId}
                           key={index}
                           className="mv-text-sm mv-font-semibold mv-text-negative-600"
                         >
@@ -1074,97 +1014,27 @@ function Manage() {
                   </div>
                 ) : null}
               </Form>
-            ) : null}
-          </div>
-          {/* Current Network Members and Remove Network Member Section */}
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            {networkMembers.length > 0 ? (
-              <>
-                <h2
-                  className={`mv-text-lg mv-font-semibold mv-mb-0 ${
-                    isNetwork === false
-                      ? "mv-text-neutral-300"
-                      : "mv-text-primary"
-                  }`}
-                >
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networkMembers.current.headline_one,
-                    locales.route.content.networkMembers.current.headline_other,
-                    networkMembers.length
-                  )}
-                </h2>
-                <p>
-                  {decideBetweenSingularOrPlural(
-                    locales.route.content.networkMembers.current.subline_one,
-                    locales.route.content.networkMembers.current.subline_other,
-                    networkMembers.length
-                  )}
-                </p>
-                <Form
-                  {...getFormProps(removeNetworkMemberForm)}
-                  method="post"
-                  preventScrollReset
-                >
-                  <ListContainer
-                    locales={locales}
-                    listKey="network-members"
-                    hideAfter={3}
-                  >
-                    {networkMembers.map((relation, index) => {
-                      return (
-                        <ListItem
-                          key={`network-member-${relation.networkMember.slug}`}
-                          entity={relation.networkMember}
-                          locales={locales}
-                          listIndex={index}
-                          hideAfter={3}
-                        >
-                          <Button
-                            name="intent"
-                            variant="outline"
-                            value={`remove-network-member-${relation.networkMember.id}`}
-                            type="submit"
-                            fullSize
-                            disabled={isNetwork === false}
-                          >
-                            {
-                              locales.route.content.networkMembers.current
-                                .remove.cta
-                            }
-                          </Button>
-                        </ListItem>
-                      );
-                    })}
-                  </ListContainer>
-                  {typeof removeNetworkMemberForm.errors !== "undefined" &&
-                  removeNetworkMemberForm.errors.length > 0 ? (
-                    <div>
-                      {removeNetworkMemberForm.errors.map((error, index) => {
-                        return (
-                          <div
-                            id={removeNetworkMemberForm.errorId}
-                            key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                          >
-                            {error}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </Form>
-              </>
-            ) : null}
-            {/* Search Network Members To Add Section */}
+            ) : (
+              <div
+                className={`mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-base leading-5 mv-font-normal ${
+                  isNetwork === false
+                    ? "mv-text-neutral-300"
+                    : "mv-text-neutral-700"
+                }`}
+              >
+                {locales.route.content.networkMembers.current.blankState}
+              </div>
+            )}
+            {/* Search Network Members To Invite Section */}
             <h2
               className={`mv-text-lg mv-font-semibold mv-mb-0 ${
                 isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
               }`}
             >
-              {locales.route.content.networkMembers.add.headline}
+              {locales.route.content.networkMembers.invite.headline}
             </h2>
             <p className={isNetwork === false ? "mv-text-neutral-300" : ""}>
-              {locales.route.content.networkMembers.add.subline}
+              {locales.route.content.networkMembers.invite.subline}
             </p>
             <searchNetworkMembersFetcher.Form
               {...getFormProps(searchNetworkMembersForm)}
@@ -1203,7 +1073,7 @@ function Manage() {
                   htmlFor={searchNetworkMembersFields[SearchNetworkMembers].id}
                   disabled={isNetwork === false}
                 >
-                  {locales.route.content.networkMembers.add.label}
+                  {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
                 <Input.SearchIcon />
 
@@ -1225,24 +1095,37 @@ function Manage() {
                     )
                   )
                 ) : (
-                  <Input.HelperText disabled={isNetwork === false}>
+                  <Input.HelperText>
                     {isNetwork !== false
-                      ? locales.route.content.networkMembers.add.helper
-                      : locales.route.content.networkMembers.add
+                      ? locales.route.content.networkMembers.invite.helper
+                      : locales.route.content.networkMembers.invite
                           .helperWithoutNetwork}
                   </Input.HelperText>
                 )}
-                <Input.Controls>
-                  <noscript>
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      disabled={isNetwork === false}
-                    >
-                      {locales.route.content.networkMembers.add.searchCta}
-                    </Button>
-                  </noscript>
-                </Input.Controls>
+                <Input.ClearIcon
+                  onClick={() => {
+                    setTimeout(() => {
+                      searchNetworkMembersForm.reset();
+                      searchNetworkMembersFetcher.submit(null, {
+                        preventScrollReset: true,
+                      });
+                    }, 0);
+                  }}
+                  disabled={isNetwork === false}
+                />
+                {isHydrated === false ? (
+                  <Input.Controls>
+                    <noscript>
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        disabled={isNetwork === false}
+                      >
+                        {locales.route.content.networkMembers.invite.searchCta}
+                      </Button>
+                    </noscript>
+                  </Input.Controls>
+                ) : null}
               </Input>
               {typeof searchNetworksForm.errors !== "undefined" &&
               searchNetworksForm.errors.length > 0 ? (
@@ -1263,7 +1146,7 @@ function Manage() {
             </searchNetworkMembersFetcher.Form>
             {isNetwork === true && searchedNetworkMembers.length > 0 ? (
               <Form
-                {...getFormProps(addNetworkMemberForm)}
+                {...getFormProps(inviteNetworkMemberForm)}
                 method="post"
                 preventScrollReset
               >
@@ -1272,35 +1155,61 @@ function Manage() {
                   listKey="network-member-search-results"
                   hideAfter={3}
                 >
-                  {searchedNetworkMembers.map((organization, index) => {
+                  {searchedNetworkMembers.map((searchedOrganization, index) => {
                     return (
                       <ListItem
-                        key={`network-member-search-result-${organization.slug}`}
-                        entity={organization}
+                        key={`network-member-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
                       >
-                        <Button
-                          name="intent"
-                          variant="outline"
-                          value={`add-network-member-${organization.id}`}
-                          type="submit"
-                          fullSize
-                        >
-                          {locales.route.content.networkMembers.add.cta}
-                        </Button>
+                        {networkMembers.some((relation) => {
+                          return (
+                            relation.networkMember.id ===
+                            searchedOrganization.id
+                          );
+                        }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networkMembers.invite
+                                .alreadyMember
+                            }
+                          </div>
+                        ) : sentNetworkJoinInvites.some((relation) => {
+                            return (
+                              relation.organization.id ===
+                              searchedOrganization.id
+                            );
+                          }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networkMembers.invite
+                                .alreadyInvited
+                            }
+                          </div>
+                        ) : (
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`invite-network-member-${searchedOrganization.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {locales.route.content.networkMembers.invite.cta}
+                          </Button>
+                        )}
                       </ListItem>
                     );
                   })}
                 </ListContainer>
-                {typeof addNetworkMemberForm.errors !== "undefined" &&
-                addNetworkMemberForm.errors.length > 0 ? (
+                {typeof inviteNetworkMemberForm.errors !== "undefined" &&
+                inviteNetworkMemberForm.errors.length > 0 ? (
                   <div>
-                    {addNetworkMemberForm.errors.map((error, index) => {
+                    {inviteNetworkMemberForm.errors.map((error, index) => {
                       return (
                         <div
-                          id={addNetworkMemberForm.errorId}
+                          id={inviteNetworkMemberForm.errorId}
                           key={index}
                           className="mv-text-sm mv-font-semibold mv-text-negative-600"
                         >
@@ -1311,6 +1220,371 @@ function Manage() {
                   </div>
                 ) : null}
               </Form>
+            ) : null}
+            {/* Pending invited network members section */}
+            {sentNetworkJoinInvites.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {locales.route.content.networkMembers.pendingInvites.headline}
+                </h2>
+                <Form
+                  {...getFormProps(cancelNetworkJoinInviteForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer
+                    locales={locales}
+                    listKey="pending-network-member-invitations"
+                    hideAfter={3}
+                  >
+                    {sentNetworkJoinInvites.map((relation, index) => {
+                      return (
+                        <ListItem
+                          key={`network-member-invitation-${relation.organization.slug}`}
+                          entity={relation.organization}
+                          locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
+                        >
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`cancel-network-member-invitation-${relation.organization.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.content.networkMembers
+                                .pendingInvites.cancel.cta
+                            }
+                          </Button>
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                  {typeof cancelNetworkJoinInviteForm.errors !== "undefined" &&
+                  cancelNetworkJoinInviteForm.errors.length > 0 ? (
+                    <div>
+                      {cancelNetworkJoinInviteForm.errors.map(
+                        (error, index) => {
+                          return (
+                            <div
+                              id={cancelNetworkJoinInviteForm.errorId}
+                              key={index}
+                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            >
+                              {error}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  ) : null}
+                </Form>
+              </>
+            ) : null}
+          </div>
+          {/* Current Networks and Leave Network Section */}
+          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {decideBetweenSingularOrPlural(
+                locales.route.content.networks.current.headline_one,
+                locales.route.content.networks.current.headline_other,
+                memberOf.length
+              )}
+            </h2>
+            {memberOf.length > 0 ? (
+              <Form
+                {...getFormProps(leaveNetworkForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="networks"
+                  hideAfter={3}
+                >
+                  {memberOf.map((relation, index) => {
+                    return (
+                      <ListItem
+                        key={`network-${relation.network.slug}`}
+                        entity={relation.network}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`leave-network-${relation.network.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.networks.current.leave.cta}
+                        </Button>
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof leaveNetworkForm.errors !== "undefined" &&
+                leaveNetworkForm.errors.length > 0 ? (
+                  <div>
+                    {leaveNetworkForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={leaveNetworkForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
+            ) : (
+              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base leading-5 mv-font-normal">
+                {locales.route.content.networks.current.blankState}
+              </div>
+            )}
+            {/* Search Networks To Join Section */}
+            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+              {locales.route.content.networks.requestToJoin.headline}
+            </h2>
+            <p>{locales.route.content.networks.requestToJoin.subline}</p>
+            <searchNetworksFetcher.Form
+              {...getFormProps(searchNetworksForm)}
+              method="get"
+              onChange={(event) => {
+                searchNetworksForm.validate();
+                if (searchNetworksForm.valid) {
+                  searchNetworksFetcher.submit(event.currentTarget, {
+                    preventScrollReset: true,
+                  });
+                }
+              }}
+              autoComplete="off"
+            >
+              <Input name={Deep} defaultValue="true" type="hidden" />
+              <Input
+                name={SearchNetworkMembers}
+                defaultValue={
+                  searchParams.get(SearchNetworkMembers) || undefined
+                }
+                type="hidden"
+              />
+              <Input
+                {...getInputProps(searchNetworksFields[SearchNetworks], {
+                  type: "search",
+                })}
+                defaultValue={searchParams.get(SearchNetworks) || undefined}
+                key={searchNetworksFields[SearchNetworks].id}
+                standalone
+              >
+                <Input.Label htmlFor={searchNetworksFields[SearchNetworks].id}>
+                  {locales.route.content.networks.requestToJoin.label}
+                </Input.Label>
+                <Input.SearchIcon />
+
+                {typeof searchNetworksFields[SearchNetworks].errors !==
+                  "undefined" &&
+                searchNetworksFields[SearchNetworks].errors.length > 0 ? (
+                  searchNetworksFields[SearchNetworks].errors.map((error) => (
+                    <Input.Error
+                      id={searchNetworksFields[SearchNetworks].errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                ) : (
+                  <Input.HelperText>
+                    {locales.route.content.networks.requestToJoin.helper}
+                  </Input.HelperText>
+                )}
+                <Input.ClearIcon
+                  onClick={() => {
+                    setTimeout(() => {
+                      searchNetworksForm.reset();
+                      searchNetworksFetcher.submit(null, {
+                        preventScrollReset: true,
+                      });
+                    }, 0);
+                  }}
+                />
+                {isHydrated === false ? (
+                  <Input.Controls>
+                    <noscript>
+                      <Button type="submit" variant="outline">
+                        {locales.route.content.networks.requestToJoin.searchCta}
+                      </Button>
+                    </noscript>
+                  </Input.Controls>
+                ) : null}
+              </Input>
+              {typeof searchNetworksForm.errors !== "undefined" &&
+              searchNetworksForm.errors.length > 0 ? (
+                <div>
+                  {searchNetworksForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={searchNetworksForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </searchNetworksFetcher.Form>
+            {searchedNetworks.length > 0 ? (
+              <Form
+                {...getFormProps(requestToJoinNetworkForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="network-search-results"
+                  hideAfter={3}
+                >
+                  {searchedNetworks.map((searchedOrganization, index) => {
+                    return (
+                      <ListItem
+                        key={`network-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
+                        locales={locales}
+                        listIndex={index}
+                        hideAfter={3}
+                      >
+                        {memberOf.some((relation) => {
+                          return (
+                            relation.network.id === searchedOrganization.id
+                          );
+                        }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networks.requestToJoin
+                                .alreadyMemberOf
+                            }
+                          </div>
+                        ) : sentNetworkJoinRequests.some((relation) => {
+                            return (
+                              relation.network.id === searchedOrganization.id
+                            );
+                          }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networks.requestToJoin
+                                .alreadyRequested
+                            }
+                          </div>
+                        ) : searchedOrganization.types.some((relation) => {
+                            return relation.organizationType.slug === "network";
+                          }) === false ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.content.networks.requestToJoin
+                                .noNetwork
+                            }
+                          </div>
+                        ) : (
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`request-to-join-network-${searchedOrganization.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {locales.route.content.networks.requestToJoin.cta}
+                          </Button>
+                        )}
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof requestToJoinNetworkForm.errors !== "undefined" &&
+                requestToJoinNetworkForm.errors.length > 0 ? (
+                  <div>
+                    {requestToJoinNetworkForm.errors.map((error, index) => {
+                      return (
+                        <div
+                          id={requestToJoinNetworkForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </Form>
+            ) : null}
+            {/* Pending requests to be member of network section */}
+            {sentNetworkJoinRequests.length > 0 ? (
+              <>
+                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                  {locales.route.content.networks.pendingRequests.headline}
+                </h2>
+                <Form
+                  {...getFormProps(cancelNetworkJoinRequestForm)}
+                  method="post"
+                  preventScrollReset
+                >
+                  <ListContainer
+                    locales={locales}
+                    listKey="pending-join-network-requests"
+                    hideAfter={3}
+                  >
+                    {sentNetworkJoinRequests.map((relation, index) => {
+                      return (
+                        <ListItem
+                          key={`join-network-request-${relation.network.slug}`}
+                          entity={relation.network}
+                          locales={locales}
+                          listIndex={index}
+                          hideAfter={3}
+                        >
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`cancel-network-join-request-${relation.network.id}`}
+                            type="submit"
+                            fullSize
+                          >
+                            {
+                              locales.route.content.networks.pendingRequests
+                                .cancel.cta
+                            }
+                          </Button>
+                        </ListItem>
+                      );
+                    })}
+                  </ListContainer>
+                  {typeof cancelNetworkJoinRequestForm.errors !== "undefined" &&
+                  cancelNetworkJoinRequestForm.errors.length > 0 ? (
+                    <div>
+                      {cancelNetworkJoinRequestForm.errors.map(
+                        (error, index) => {
+                          return (
+                            <div
+                              id={cancelNetworkJoinRequestForm.errorId}
+                              key={index}
+                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            >
+                              {error}
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  ) : null}
+                </Form>
+              </>
             ) : null}
           </div>
         </div>

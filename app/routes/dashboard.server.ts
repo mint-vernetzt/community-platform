@@ -315,11 +315,11 @@ export async function enhanceEventsWithParticipationStatus(
   }
 }
 
-export async function getOrganizationsFromInvites(
+export async function getOrganizationMemberInvites(
   authClient: SupabaseClient,
   profileId: string
 ) {
-  const organizations =
+  const organizationMemberInvites =
     await prismaClient.inviteForProfileToJoinOrganization.findMany({
       where: {
         profileId,
@@ -336,7 +336,225 @@ export async function getOrganizationsFromInvites(
       },
     });
 
-  const enhancedOrganizations = organizations.map((relation) => {
+  const enhancedOrganizationMemberInvites = organizationMemberInvites.map(
+    (relation) => {
+      if (relation.organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, relation.organization.logo);
+        if (publicURL !== null) {
+          const logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.ListItem.Logo.width,
+              height: ImageSizes.Organization.ListItem.Logo.height,
+            },
+            gravity: GravityType.center,
+          });
+          const blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+              height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+            },
+            blur: BlurFactor,
+          });
+          return {
+            ...relation,
+            organization: { ...relation.organization, logo, blurredLogo },
+          };
+        }
+      }
+      return relation;
+    }
+  );
+
+  const flat = enhancedOrganizationMemberInvites.map((relation) => {
+    return {
+      ...relation.organization,
+    };
+  });
+
+  return flat;
+}
+
+export async function getOrganizationMemberRequests(
+  authClient: SupabaseClient,
+  profileId: string
+) {
+  const organizationMemberRequests =
+    await prismaClient.requestToOrganizationToAddProfile.findMany({
+      where: {
+        organization: {
+          admins: {
+            some: {
+              profileId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+  const enhancedOrganizationMemberRequests = organizationMemberRequests.map(
+    (relation) => {
+      if (relation.profile.avatar !== null) {
+        const publicURL = getPublicURL(authClient, relation.profile.avatar);
+        if (publicURL !== null) {
+          const avatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItem.Avatar.width,
+              height: ImageSizes.Profile.ListItem.Avatar.height,
+            },
+            gravity: GravityType.center,
+          });
+          const blurredAvatar = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
+              height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
+            },
+            blur: BlurFactor,
+          });
+          return {
+            ...relation,
+            profile: { ...relation.profile, avatar, blurredAvatar },
+          };
+        }
+      }
+      return relation;
+    }
+  );
+
+  const flat = enhancedOrganizationMemberRequests.map((relation) => {
+    return {
+      ...relation.profile,
+    };
+  });
+
+  return flat;
+}
+
+export async function getNetworkInvites(
+  authClient: SupabaseClient,
+  profileId: string
+) {
+  const adminOrganizations = await prismaClient.organization.findMany({
+    where: {
+      admins: {
+        some: {
+          profileId,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const networkInvites =
+    await prismaClient.inviteForOrganizationToJoinNetwork.findMany({
+      where: {
+        organizationId: {
+          in: adminOrganizations.map((organization) => organization.id),
+        },
+        status: "pending",
+      },
+      select: {
+        network: {
+          select: {
+            name: true,
+            logo: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+  const enhancedNetworkInvites = networkInvites.map((relation) => {
+    if (relation.network.logo !== null) {
+      const publicURL = getPublicURL(authClient, relation.network.logo);
+      if (publicURL !== null) {
+        const logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.Logo.width,
+            height: ImageSizes.Organization.ListItem.Logo.height,
+          },
+          gravity: GravityType.center,
+        });
+        const blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.ListItem.BlurredLogo.width,
+            height: ImageSizes.Organization.ListItem.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+        return {
+          ...relation,
+          network: { ...relation.network, logo, blurredLogo },
+        };
+      }
+    }
+    return relation;
+  });
+
+  const flat = enhancedNetworkInvites.map((relation) => {
+    return {
+      ...relation.network,
+    };
+  });
+
+  return flat;
+}
+
+export async function getNetworkRequests(
+  authClient: SupabaseClient,
+  profileId: string
+) {
+  const adminOrganizations = await prismaClient.organization.findMany({
+    where: {
+      admins: {
+        some: {
+          profileId,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const networkRequests =
+    await prismaClient.requestToNetworkToAddOrganization.findMany({
+      where: {
+        networkId: {
+          in: adminOrganizations.map((organization) => organization.id),
+        },
+        status: "pending",
+      },
+      select: {
+        organization: {
+          select: {
+            name: true,
+            logo: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+  const enhancedNetworkRequests = networkRequests.map((relation) => {
     if (relation.organization.logo !== null) {
       const publicURL = getPublicURL(authClient, relation.organization.logo);
       if (publicURL !== null) {
@@ -365,75 +583,9 @@ export async function getOrganizationsFromInvites(
     return relation;
   });
 
-  const flat = enhancedOrganizations.map((relation) => {
+  const flat = enhancedNetworkRequests.map((relation) => {
     return {
       ...relation.organization,
-    };
-  });
-
-  return flat;
-}
-
-export async function getProfilesFromRequests(
-  authClient: SupabaseClient,
-  profileId: string
-) {
-  const profiles =
-    await prismaClient.requestToOrganizationToAddProfile.findMany({
-      where: {
-        organization: {
-          admins: {
-            some: {
-              profileId,
-            },
-          },
-        },
-        status: "pending",
-      },
-      select: {
-        profile: {
-          select: {
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            username: true,
-          },
-        },
-      },
-    });
-
-  const enhancedProfiles = profiles.map((relation) => {
-    if (relation.profile.avatar !== null) {
-      const publicURL = getPublicURL(authClient, relation.profile.avatar);
-      if (publicURL !== null) {
-        const avatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.ListItem.Avatar.width,
-            height: ImageSizes.Profile.ListItem.Avatar.height,
-          },
-          gravity: GravityType.center,
-        });
-        const blurredAvatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
-            height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
-          },
-          blur: BlurFactor,
-        });
-        return {
-          ...relation,
-          profile: { ...relation.profile, avatar, blurredAvatar },
-        };
-      }
-    }
-    return relation;
-  });
-
-  const flat = enhancedProfiles.map((relation) => {
-    return {
-      ...relation.profile,
     };
   });
 

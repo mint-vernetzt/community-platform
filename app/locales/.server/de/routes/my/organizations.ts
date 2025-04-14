@@ -1,4 +1,21 @@
 export const locale = {
+  error: {
+    notFound: "Datenbankeintrag nicht gefunden",
+    alreadyMember: "Du bist bereits Mitglied der Organisation",
+    requestFailed: "Anfrage konnte nicht gesendet werden",
+    cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
+    acceptInviteFailed: "Einladung konnte nicht angenommen werden",
+    rejectInviteFailed: "Einladung konnte nicht abgelehnt werden",
+    notAdmin: "Du bist kein Admin der Organisation",
+    acceptRequestFailed: "Beitrittsanfrage konnte nicht angenommen werden",
+    rejectRequestFailed: "Beitrittsanfrage konnte nicht abgelehnt werden",
+    notAdminOrTeamMember:
+      "Du bist kein Admin oder Teammitglied der Organisation",
+    lastAdmin:
+      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
+    lastTeamMember:
+      "Du kannst die Organisation nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder die Organisation zu löschen.",
+  },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
   networkInfo: {
@@ -32,20 +49,7 @@ export const locale = {
     more: "Infos ausklappen",
     less: "Infos einklappen",
   },
-  invites: {
-    headline: "Einladungen",
-    subline:
-      "Ein Admin wird benachrichtigt, sobald Du Dich zu der Einladung äußerst.",
-    tabbar: {
-      teamMember: "Teammitglied",
-      admin: "Admin",
-    },
-    decline: "Ablehnen",
-    accept: "Annehmen",
-    more: "{{count}} weitere anzeigen",
-    less: "{{count}} weniger anzeigen",
-  },
-  addOrganization: {
+  requestOrganizationMembership: {
     headline: "Mich zu einer Organisation hinzufügen",
     subline:
       "Suche Organisationen, füge Dich als Teammitglied hinzu oder lege eine Organisation an.",
@@ -54,74 +58,146 @@ export const locale = {
       organizationsFound:
         "Es existieren bereits Organisationen mit diesem Namen. Frage an, ob Du einer Organisation beitreten kannst.",
     },
-    createRequest: "Beitritt anfragen",
-    cancelRequest: "Beitrittsanfrage zurückziehen",
-    errors: {
-      invalidRoute: "Keine gültige Route",
-      alreadyInRelation:
-        "Du hast schon angefragt, dieses Profil dieser Organisation hinzuzufügen, hast eine Einladung erhalten oder bist bereits Mitglied.",
-      custom:
-        "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
-    },
+    createOrganizationMemberRequestCta: "Beitritt anfragen",
+    cancelOrganizationMemberRequestCta: "Beitrittsanfrage zurückziehen",
+    createOrganizationMemberRequest:
+      "Du hast den Beitritt bei der Organisation {{name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
+    cancelOrganizationMemberRequest:
+      "Du hast die Beitrittsanfrage zur Organisation {{name}} zurückgezogen.",
+    label: "Organisationsname",
     placeholder: "Organisation suchen...",
     helperText: "Mindestens 3 Buchstaben.",
+    searchCta: "Suchen",
+    alreadyAdmin: "bereits Administrator:in",
+    alreadyMember: "bereits Teammitglied",
+    alreadyRequested: "bereits angefragt",
+    email: {
+      subject: {
+        requested: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+        canceled:
+          "Eine Mitgliedsanfrage an Deine Organisation wurde zurückgezogen.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
-  requests: {
-    headline: "Beitrittsanfragen",
-    subline: "Du hast {{count}} neue Beitrittsanfragen.",
-    singleCountSubline: "Du hast 1 neue Beitrittsanfrage.",
-    decline: "Ablehnen",
-    accept: "Hinzufügen",
-    createRequest:
-      "Du hast den Beitritt bei der Organisation {{organization.name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
-    cancelRequest:
-      "Du hast die Beitrittsanfrage zur Organisation {{organization.name}} zurückgezogen.",
-    rejectRequest:
+  organizationMemberInvites: {
+    headline: "Einladungen von Organisationen",
+    subline:
+      "Wenn Du Einladungen annimmst, wirst Du Teammitglied bzw. Admin der Organisation.",
+    tabbar: {
+      teamMember: "Teammitglied",
+      admin: "Admin",
+    },
+    decline: "Einladung ablehnen",
+    accept: "Einladung annehmen",
+    adminAccepted:
+      "Du bist erfolgreich der Organisation {{name}} als Administrator:in beigetreten.",
+    memberAccepted:
+      "Du bist erfolgreich der Organisation {{name}} als Teammitglied beigetreten.",
+    rejected: "Du hast den Beitritt zur Organisation {{name}} abgelehnt.",
+    more: "{{count}} weitere anzeigen",
+    less: "{{count}} weniger anzeigen",
+    email: {
+      subject: {
+        accepted: "Deine Einladung wurde angenommen.",
+        rejected: "Deine Einladung wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  networkInvites: {
+    headline: "Einladungen Deiner Organisationen zu Netzwerken",
+    subline:
+      "Wenn Du Einladungen bestätigst, wird Deine Organisation als Netzwerkmitglied sichtbar.",
+    decline: "Einladung ablehnen",
+    accept: "Einladung annehmen",
+    rejectNetworkInvite:
+      "Du hast die Einladung von {{organizationName}} abgelehnt.",
+    acceptNetworkInvite:
+      "Deine Organisation {{organizationName}} wurde zum Netzwerk {{networkName}} hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Einladung wurde angenommen.",
+        rejected: "Deine Einladung wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  organizationMemberRequests: {
+    headline: "Beitrittsanfragen an Deine Organisationen",
+    subline:
+      "Wenn Du Anfragen bestätigst, werden Personen als Teammitglied sichtbar.",
+    decline: "Beitritt ablehnen",
+    accept: "Beitritt annehmen",
+    rejectOrganizationMemberRequest:
       "Du hast die Beitrittsanfrage von {{academicTitle}} {{firstName}} {{lastName}} abgelehnt.",
-    acceptRequest:
+    acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} wurde zu Deiner Organisation hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Beitrittsanfrage wurde bestätigt.",
+        rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  networkRequests: {
+    headline: "Beitrittsanfragen an Deine Netzwerke",
+    subline:
+      "Wenn Du Anfragen bestätigst, werden die Organisationen als Netzwerkmitglied sichtbar.",
+    decline: "Beitritt ablehnen",
+    accept: "Beitritt annehmen",
+    rejectNetworkRequest:
+      "Du hast die Beitrittsanfrage von {{organizationName}} abgelehnt.",
+    acceptNetworkRequest:
+      "Die Organisation {{organizationName}} wurde zu Deinem Netzwerk {{networkName}} hinzugefügt.",
+    email: {
+      subject: {
+        accepted: "Deine Beitrittsanfrage wurde bestätigt.",
+        rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   quit: {
-    success: "Du hast die Organisation {{organization}} erfolgreich verlassen.",
-    lastAdmin:
-      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
+    modal: {
+      admin: {
+        headline: "Nicht mehr Admin sein",
+        subline:
+          "Bist Du Dir sicher, dass du die nicht mehr Administrator:in der Organisation {{name}} sein möchtest?",
+        cta: "Organisation verlassen",
+      },
+      teamMember: {
+        headline: "Nicht mehr Teammitglied sein",
+        subline:
+          "Bist Du Dir sicher, dass du nicht mehr Teammitglied der Organisation {{name}} sein möchtest?",
+        cta: "Organisation verlassen",
+      },
+      cancelCta: "Abbrechen",
+    },
+    successAdmin:
+      "Du bist jetzt nicht mehr Administrator:in der Organisation {{name}}.",
+    successMember:
+      "Du bist jetzt nicht mehr Teammitglied der Organisation {{name}}.",
   },
   organizations: {
     tabbar: {
       teamMember: "Teammitglied",
       admin: "Admin",
     },
-  },
-  alerts: {
-    accepted:
-      "Du bist erfolgreich der Organisation {{organization}} beigetreten.",
-    rejected:
-      "Du hast den Beitritt zur Organisation {{organization}} abgelehnt.",
-  },
-  email: {
-    createRequest: {
-      subject: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
-      button: {
-        text: "Zur Community Plattform",
-      },
-    },
-    acceptRequest: {
-      subject: "Deine Anfrage wurde bestätigt.",
-    },
-    rejectRequest: {
-      subject: "Deine Anfrage wurde abgelehnt.",
-    },
-    inviteAccepted: {
-      subject: "Deine Einladung wurde akzeptiert.",
-    },
-    inviteAsAdminAccepted: {
-      subject: "Deine Einladung wurde akzeptiert.",
-    },
-    inviteRejected: {
-      subject: "Deine Einladung wurde abgelehnt.",
-    },
-    inviteAsAdminRejected: {
-      subject: "Deine Einladung wurde abgelehnt.",
+    subline: {
+      teamMember: "Diesen Organisationen bist Du als Teammitglied zugeordnet.",
+      admin: "Diesen Organisationen bist Du als Administrator:in zugeordnet.",
     },
   },
 } as const;

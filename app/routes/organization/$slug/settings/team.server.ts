@@ -169,6 +169,11 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     select: {
       id: true,
       name: true,
+      teamMembers: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
 
@@ -188,6 +193,13 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     {
       status: 404,
     }
+  );
+  invariantResponse(
+    organization.teamMembers.some(
+      (teamMember) => teamMember.profileId === submission.value.profileId
+    ) === false,
+    locales.route.error.invariant.alreadyMember,
+    { status: 400 }
   );
 
   await prismaClient.inviteForProfileToJoinOrganization.upsert({
@@ -281,6 +293,11 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     where: { slug },
     select: {
       id: true,
+      teamMembers: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
   const profile = await prismaClient.profile.findFirst({
@@ -295,6 +312,13 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     organization !== null && profile !== null,
     locales.route.error.invariant.entitiesForInviteNotFound,
     { status: 404 }
+  );
+  invariantResponse(
+    organization.teamMembers.some(
+      (teamMember) => teamMember.profileId === submission.value.profileId
+    ) === false,
+    locales.route.error.invariant.alreadyMember,
+    { status: 400 }
   );
 
   await prismaClient.inviteForProfileToJoinOrganization.update({
