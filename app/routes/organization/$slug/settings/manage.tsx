@@ -568,8 +568,8 @@ function Manage() {
                     {locales.route.content.types.headline}
                   </h2>
                   <Link
-                    // TODO: Link to specific question when its available
-                    to="/help"
+                    to="/help#organizations-networkVsOrganizationVsProject"
+                    target="_blank"
                     className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                   >
                     <QuestionMark />
@@ -696,8 +696,8 @@ function Manage() {
                     {locales.route.content.networkTypes.headline}
                   </h2>
                   <Link
-                    // TODO: Link to specific question when its available
-                    to="/help"
+                    to="/help#organizations-transformOrganizationToNetwork"
+                    target="_blank"
                     className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-pl-[1px] mv-pt-[1px] mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
                   >
                     <QuestionMark />
