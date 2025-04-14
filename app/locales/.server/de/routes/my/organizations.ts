@@ -132,7 +132,7 @@ export const locale = {
   organizationMemberRequests: {
     headline: "Beitrittsanfragen an Deine Organisationen",
     subline:
-      "Wenn Du Anfragen bestätigst, werden Personen als Teammitglied sichtbar.",
+      "Wenn Du Anfragen bestätigst, werden Personen als Teammitglieder sichtbar.",
     decline: "Beitritt ablehnen",
     accept: "Beitritt annehmen",
     rejectOrganizationMemberRequest:
@@ -152,7 +152,7 @@ export const locale = {
   networkRequests: {
     headline: "Beitrittsanfragen an Deine Netzwerke",
     subline:
-      "Wenn Du Anfragen bestätigst, werden die Organisationen als Netzwerkmitglied sichtbar.",
+      "Wenn Du Anfragen bestätigst, werden die Organisationen als Netzwerkmitglieder sichtbar.",
     decline: "Beitritt ablehnen",
     accept: "Beitritt annehmen",
     rejectNetworkRequest:
