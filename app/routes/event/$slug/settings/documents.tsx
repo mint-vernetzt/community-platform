@@ -562,16 +562,17 @@ function Documents() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.event.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field
+                        name="publish"
+                        value={!loaderData.event.published}
+                      />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.event.published
                         ? locales.route.content.form.hide.label

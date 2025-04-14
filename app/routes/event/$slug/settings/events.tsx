@@ -287,10 +287,6 @@ function Events() {
             schema={setParentSchema}
             fetcher={setParentFetcher}
             action={`/event/${slug}/settings/events/set-parent`}
-            hiddenFields={["parentEventId"]}
-            values={{
-              parentEventId: undefined,
-            }}
           >
             {(remixFormsProps) => {
               if (
@@ -298,7 +294,7 @@ function Events() {
                 parentEventStartTime !== undefined &&
                 parentEventEndTime !== undefined
               ) {
-                const { Field, Button } = remixFormsProps;
+                const { Button } = remixFormsProps;
                 let stageTitle;
                 if (loaderData.parentEvent.stage === null) {
                   stageTitle = null;
@@ -394,7 +390,7 @@ function Events() {
                         )}
                       </div>
                     </Link>
-                    <Field name="parentEventId" />
+                    <input name="parentEventId" hidden />
                     <Button className="ml-auto btn-none" title="entfernen">
                       <svg
                         viewBox="0 0 10 10"
@@ -523,13 +519,9 @@ function Events() {
                   schema={removeChildSchema}
                   fetcher={removeChildFetcher}
                   action={`/event/${slug}/settings/events/remove-child`}
-                  hiddenFields={["childEventId"]}
-                  values={{
-                    childEventId: childEvent.id,
-                  }}
                 >
                   {(remixFormsProps) => {
-                    const { Field, Button } = remixFormsProps;
+                    const { Button } = remixFormsProps;
                     return (
                       <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
                         <Link className="flex" to={`/event/${childEvent.slug}`}>
@@ -602,7 +594,11 @@ function Events() {
                             )}
                           </div>
                         </Link>
-                        <Field name="childEventId" />
+                        <input
+                          name="childEventId"
+                          defaultValue={childEvent.id}
+                          hidden
+                        />
                         <Button
                           className="ml-auto btn-none"
                           title={locales.route.form.remove.label}
@@ -636,16 +632,14 @@ function Events() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.route.form.hide.label

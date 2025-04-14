@@ -76,19 +76,15 @@ export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
       action={props.action}
       fetcher={fetcher}
       schema={schema}
-      hiddenFields={["profileId"]}
-      values={{
-        profileId: props.profileId,
-      }}
       onSubmit={() => {
         setSearchParam(newSearchParams);
       }}
     >
       {(formProps) => {
-        const { Field, Errors } = formProps;
+        const { Errors } = formProps;
         return (
           <>
-            <Field name="profileId" />
+            <input name="profileId" defaultValue={props.profileId} hidden />
             {props.modalSearchParam === undefined ? (
               <button className="btn btn-primary" type="submit">
                 {locales.removeParticipant.action}

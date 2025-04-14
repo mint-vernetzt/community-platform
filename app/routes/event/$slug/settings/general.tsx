@@ -608,16 +608,14 @@ function General() {
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
-          hiddenFields={["cancel"]}
-          values={{
-            cancel: !event.canceled,
-          }}
         >
           {(remixFormsProps) => {
             const { Button, Field } = remixFormsProps;
             return (
               <>
-                <Field name="cancel"></Field>
+                <div className="mv-hidden">
+                  <Field name="cancel" value={!event.canceled} />
+                </div>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
                     {event.canceled
@@ -1099,16 +1097,14 @@ function General() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !event.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!event.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {event.published
                         ? locales.route.form.hide.label

@@ -117,10 +117,6 @@ function AcceptTerms() {
           <RemixFormsForm
             method="post"
             schema={schema}
-            hiddenFields={["redirectTo"]}
-            values={{
-              redirectTo: redirectTo,
-            }}
             onKeyDown={handleKeyPress}
           >
             {({ Field, Errors, register }) => (
@@ -128,7 +124,11 @@ function AcceptTerms() {
                 <div className="mb-8">
                   <div className="form-control checkbox-privacy">
                     <label className="label cursor-pointer items-start">
-                      <Field name="redirectTo" />
+                      <input
+                        name="redirectTo"
+                        defaultValue={redirectTo || undefined}
+                        hidden
+                      />
                       <Field name="termsAccepted">
                         {({ Errors }) => {
                           const ForwardRefComponent = React.forwardRef<
