@@ -1,4 +1,5 @@
 import type {
+  AppLoadContext,
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
@@ -97,8 +98,13 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: legacyStyles },
 ];
 
-export const loader = async (args: LoaderFunctionArgs) => {
-  const { request } = args;
+export const loader = async (args: LoaderFunctionArgs<AppLoadContext>) => {
+  const { request, context } = args;
+  invariantResponse(
+    typeof context !== "undefined",
+    "AppLoadContext is missing",
+    { status: 400 }
+  );
   const language = await detectLanguage(request);
   const languageCookieHeaders = {
     "Set-Cookie": await localeCookie.serialize(language),
@@ -174,6 +180,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         baseUrl: process.env.COMMUNITY_BASE_URL,
         url: request.url,
       },
+      nonce: context.nonce,
     },
     {
       headers: combineHeaders(
@@ -332,7 +339,7 @@ export const ErrorBoundary = () => {
             }}
           />
         ) : null}
-        <Scripts />
+        {hasRootLoaderData ? <Scripts nonce={rootLoaderData.nonce} /> : null}
       </body>
     </html>
   );
@@ -350,6 +357,7 @@ export default function App() {
     mode,
     ENV,
     abilities,
+    nonce,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
 
@@ -479,6 +487,7 @@ export default function App() {
         {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
           <script
             async
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `
                 var _paq = window._paq = window._paq || [];
@@ -488,7 +497,7 @@ export default function App() {
                   _paq.push(['setTrackerUrl', u+'matomo.php']);
                   _paq.push(['setSiteId', '${matomoSiteId}']);
                   var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-                  g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+                  g.async=true; g.nonce=${nonce}; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
                 })();
               `,
             }}
@@ -542,13 +551,14 @@ export default function App() {
           </div>
           <ModalRoot />
         </div>
-        <ScrollRestoration />
+        <ScrollRestoration nonce={nonce} />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(ENV)}`,
           }}
         />
-        <Scripts />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   );

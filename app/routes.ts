@@ -10,6 +10,7 @@ export default [
   route("/goodbye", "./routes/goodbye.tsx"),
   route("/error", "./routes/error.tsx"),
   route("/dashboard", "./routes/dashboard.tsx"),
+  route("/csp-reports", "./routes/csp-reports.ts"),
   route("/accept-terms", "./routes/accept-terms.tsx"),
   route("/search", "./routes/search.tsx", [
     index("./routes/search/index.tsx"),

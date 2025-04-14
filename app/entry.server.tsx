@@ -1,4 +1,8 @@
-import type { EntryContext, HandleErrorFunction } from "react-router";
+import type {
+  AppLoadContext,
+  EntryContext,
+  HandleErrorFunction,
+} from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter } from "react-router";
 import * as isbotModule from "isbot";
@@ -26,8 +30,26 @@ export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext
+  reactRouterContext: EntryContext,
+  loadContext?: AppLoadContext
 ) {
+  // Appending global security response headers
+  console.log("Entry server - handleRequest");
+  const nonce = crypto.randomUUID();
+  responseHeaders.append(
+    "Content-Security-Policy",
+    `default-src 'self' 'nonce-${nonce}'; frame-ancestors 'none'; upgrade-insecure-requests; report-to csp-endpoint`
+  );
+  responseHeaders.append(
+    "Reporting-Endpoints",
+    `csp-endpoint='${process.env.COMMUNITY_BASE_URL}/csp-reports'`
+  );
+  const enhancedAppLoadContext = {
+    ...loadContext,
+    nonce,
+  };
+
+  // Appending profiling policy header to the response when sentry is enabled
   if (
     process.env.NODE_ENV === "production" &&
     typeof process.env.SENTRY_DSN !== "undefined"
@@ -44,13 +66,15 @@ export default async function handleRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        reactRouterContext
+        reactRouterContext,
+        enhancedAppLoadContext
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        reactRouterContext
+        reactRouterContext,
+        enhancedAppLoadContext
       );
 }
 
@@ -68,12 +92,17 @@ function handleBotRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext
+  reactRouterContext: EntryContext,
+  loadContext?: AppLoadContext
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter context={reactRouterContext} url={request.url} />,
+      <ServerRouter
+        context={reactRouterContext}
+        url={request.url}
+        nonce={loadContext?.nonce}
+      />,
       {
         onAllReady() {
           shellRendered = true;
@@ -115,12 +144,17 @@ function handleBrowserRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext
+  reactRouterContext: EntryContext,
+  loadContext?: AppLoadContext
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter context={reactRouterContext} url={request.url} />,
+      <ServerRouter
+        context={reactRouterContext}
+        url={request.url}
+        nonce={loadContext?.nonce}
+      />,
       {
         onShellReady() {
           shellRendered = true;
