@@ -37,16 +37,18 @@ export default async function handleRequest(
   );
   responseHeaders.set(
     "Content-Security-Policy",
-    `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' ${
-      process.env.IMGPROXY_URL
-    } ${
-      process.env.COMMUNITY_BASE_URL
-    }; worker-src 'self'; frame-ancestors 'none'; report-to csp-endpoint;${
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' ${process.env.IMGPROXY_URL.replace(
+      /https?:\/\//,
+      ""
+    )}; worker-src 'self'; frame-ancestors 'none'; report-to csp-endpoint;${
       process.env.NODE_ENV === "production" ? " upgrade-insecure-requests;" : ""
     }${
       process.env.NODE_ENV === "production" &&
       typeof process.env.SENTRY_DSN !== "undefined"
-        ? ` connect-src 'self' *.sentry.io;`
+        ? ` connect-src 'self' ${process.env.SENTRY_DSN.replace(
+            /https?:\/\//,
+            ""
+          )};`
         : ""
     }`
   );
