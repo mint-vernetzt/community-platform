@@ -208,17 +208,17 @@ const allowedTags = [
 ];
 
 const allowedAttributes = {
-  a: ["href", "rel", "target", "class", "style"],
-  b: ["class", "style"],
-  i: ["class", "style"],
-  em: ["class", "style"],
-  strong: ["class", "style"],
-  ul: ["class", "style"],
-  ol: ["class", "style"],
-  p: ["dir", "class", "style"],
-  span: ["class", "style"],
-  li: ["class", "style"],
-  br: ["class", "style"],
+  a: ["href", "rel", "target", "class"],
+  b: ["class"],
+  i: ["class"],
+  em: ["class"],
+  strong: ["class"],
+  ul: ["class"],
+  ol: ["class"],
+  p: ["dir", "class"],
+  span: ["class"],
+  li: ["class"],
+  br: ["class"],
 };
 
 export const sanitizeUserHtml = (
@@ -242,7 +242,6 @@ export const sanitizeUserHtml = (
     options ?? {
       allowedTags,
       allowedAttributes,
-      parseStyleAttributes: false,
     }
   );
 };
