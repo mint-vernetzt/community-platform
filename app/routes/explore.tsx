@@ -273,11 +273,11 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
     "mv-flex mv-gap-2 mv-items-center",
     "mv-mx-4 my-2 @lg:mv-mx-0",
     "@lg:mv-px-4 @lg:mv-py-2",
-    "@lg:mv-bg-white",
-    isActive && "@lg:mv-bg-primary @lg:mv-text-white",
+    isActive
+      ? "@lg:mv-bg-primary @lg:mv-text-white"
+      : "@lg:mv-bg-white mv-text-neutral-700",
     "@lg:mv-rounded-lg",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
-    "mv-text-neutral-700",
     "mv-whitespace-normal"
   );
 

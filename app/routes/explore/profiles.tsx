@@ -180,6 +180,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
   });
 
+  console.log(
+    "profilesCount:",
+    profilesCount,
+    "profiles.length:",
+    profiles.length
+  );
+
   const enhancedProfiles = [];
   for (const profile of profiles) {
     let enhancedProfile = {
@@ -303,6 +310,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
+  const ids = enhancedProfiles.map((profile) => {
+    return profile.id;
+  });
+
   const areas = await getAreasBySearchQuery(submission.value.prfAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -316,10 +327,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
-  const areaFilterVector = await getProfileFilterVectorForAttribute(
-    "area",
-    submission.value.prfFilter
-  );
+
+  const areaFilterVector = await getProfileFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.prfFilter,
+    ids,
+  });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,
@@ -350,10 +363,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const offers = await getAllOffers();
-  const offerFilterVector = await getProfileFilterVectorForAttribute(
-    "offer",
-    submission.value.prfFilter
-  );
+  const offerFilterVector = await getProfileFilterVectorForAttribute({
+    attribute: "offer",
+    filter: submission.value.prfFilter,
+    ids,
+  });
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
       offer.slug,

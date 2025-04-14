@@ -10,7 +10,7 @@ export type ExploreOrganizationsLocales =
     typeof supportedCookieLanguages
   >]["explore/organizations"];
 
-export function getTakeParam(page: GetOrganizationsSchema["page"]) {
+export function getTakeParam(page: GetOrganizationsSchema["orgPage"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -27,7 +27,7 @@ type WhereClause = {
 };
 
 export async function getVisibilityFilteredOrganizationsCount(options: {
-  filter: GetOrganizationsSchema["filter"];
+  filter: GetOrganizationsSchema["orgFilter"];
 }) {
   const whereClauses: {
     AND: WhereClause["AND"] & { OR: OrganizationVisibility[] }[];
@@ -79,7 +79,7 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
 }
 
 export async function getOrganizationsCount(options: {
-  filter: GetOrganizationsSchema["filter"];
+  filter: GetOrganizationsSchema["orgFilter"];
 }) {
   const whereClauses: WhereClause = { AND: [] };
   for (const filterKey in options.filter) {
@@ -114,8 +114,8 @@ export async function getOrganizationsCount(options: {
 }
 
 export async function getAllOrganizations(options: {
-  filter: GetOrganizationsSchema["filter"];
-  sortBy: GetOrganizationsSchema["sortBy"];
+  filter: GetOrganizationsSchema["orgFilter"];
+  sortBy: GetOrganizationsSchema["orgSortBy"];
   take: ReturnType<typeof getTakeParam>;
   isLoggedIn: boolean;
 }) {
@@ -245,8 +245,8 @@ export async function getAllOrganizations(options: {
 }
 
 export async function getOrganizationFilterVectorForAttribute(
-  attribute: keyof GetOrganizationsSchema["filter"],
-  filter: GetOrganizationsSchema["filter"]
+  attribute: keyof GetOrganizationsSchema["orgFilter"],
+  filter: GetOrganizationsSchema["orgFilter"]
 ) {
   let whereClause = "";
   const whereStatements = [];

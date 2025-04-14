@@ -660,10 +660,12 @@ export async function getAllProfiles(options: {
   return profiles;
 }
 
-export async function getProfileFilterVectorForAttribute(
-  attribute: keyof GetProfilesSchema["prfFilter"],
-  filter: GetProfilesSchema["prfFilter"]
-) {
+export async function getProfileFilterVectorForAttribute(options: {
+  attribute: keyof GetProfilesSchema["prfFilter"];
+  filter: GetProfilesSchema["prfFilter"];
+  ids: string[];
+}) {
+  const { attribute, filter, ids } = options;
   let whereClause = "";
   const whereStatements: string[] = [];
   for (const filterKey in filter) {
@@ -710,6 +712,10 @@ export async function getProfileFilterVectorForAttribute(
     }
 
     whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
+  }
+
+  if (ids.length > 0) {
+    whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
   }
 
   if (whereStatements.length > 0) {
