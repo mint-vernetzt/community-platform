@@ -5,17 +5,13 @@ export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
   console.log("Action - csp-reports");
   const contentType = request.headers.get("content-type");
+  console.log("Content-Type", contentType);
   invariantResponse(
-    contentType === "application/reports+json",
+    contentType === "application/csp-report",
     "Invalid content type",
     { status: 400 }
   );
   const body = await request.json();
-  invariantResponse(body instanceof Report, "Invalid body", { status: 400 });
-  invariantResponse(body.type === "csp-violation", "Invalid report type", {
-    status: 400,
-  });
-
   // TODO: Handle the CSP report
   console.error(body);
 

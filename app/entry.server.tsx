@@ -40,7 +40,9 @@ export default async function handleRequest(
     `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' ${process.env.IMGPROXY_URL.replace(
       /https?:\/\//,
       ""
-    )}; worker-src 'self'; frame-ancestors 'none'; report-to csp-endpoint;${
+    )}; worker-src 'self'; frame-ancestors 'none'; report-uri ${
+      process.env.COMMUNITY_BASE_URL
+    }/csp-reports; report-to csp-endpoint;${
       process.env.NODE_ENV === "production" ? " upgrade-insecure-requests;" : ""
     }${
       process.env.NODE_ENV === "production" &&
