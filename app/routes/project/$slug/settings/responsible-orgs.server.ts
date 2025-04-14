@@ -92,9 +92,8 @@ export async function getProjectWithResponsibleOrganizations(options: {
 
 export async function getOwnOrganizationSuggestions(options: {
   sessionUser: User | null;
-  pendingAndCurrentResponsibleOrganizationIds: string[];
 }) {
-  const { sessionUser, pendingAndCurrentResponsibleOrganizationIds } = options;
+  const { sessionUser } = options;
 
   if (sessionUser === null) {
     return [];
@@ -161,7 +160,6 @@ export async function getOwnOrganizationSuggestions(options: {
           ),
           ...profile.memberOf.map((relation) => relation.organization.id),
         ],
-        notIn: pendingAndCurrentResponsibleOrganizationIds,
       },
     },
     select: {
@@ -226,6 +224,11 @@ export async function addResponsibleOrganizationToProject(options: {
     where: { slug },
     select: {
       id: true,
+      responsibleOrganizations: {
+        select: {
+          organizationId: true,
+        },
+      },
     },
   });
   const organization = await prismaClient.organization.findFirst({
@@ -239,6 +242,13 @@ export async function addResponsibleOrganizationToProject(options: {
     project !== null && organization !== null,
     locales.route.error.invariant.entitiesForRemovalNotFound,
     { status: 404 }
+  );
+  invariantResponse(
+    project.responsibleOrganizations.some(
+      (relation) => relation.organizationId === submission.value.organizationId
+    ) === false,
+    locales.route.error.invariant.alreadyResponsible,
+    { status: 400 }
   );
 
   await prismaClient.responsibleOrganizationOfProject.create({
@@ -347,6 +357,11 @@ export async function addResponsibleOrganizationToProject(options: {
 //     select: {
 //       id: true,
 //       name: true,
+// responsibleOrganizations: {
+//   select: {
+//     organizationId: true,
+//   },
+// },
 //     },
 //   });
 
@@ -367,6 +382,14 @@ export async function addResponsibleOrganizationToProject(options: {
 //       status: 404,
 //     }
 //   );
+
+// invariantResponse(
+//   project.responsibleOrganizations.some(
+//     (relation) => relation.organizationId === submission.value.organizationId
+//   ) === false,
+//   locales.route.error.invariant.alreadyResponsible,
+//   { status: 400 }
+// );
 
 //   await prismaClient.inviteForOrganizationToJoinProject.upsert({
 //     where: {
@@ -458,6 +481,11 @@ export async function addResponsibleOrganizationToProject(options: {
 //     where: { slug },
 //     select: {
 //       id: true,
+// responsibleOrganizations: {
+//   select: {
+//     organizationId: true,
+//   },
+// },
 //     },
 //   });
 //   const organization = await prismaClient.organization.findFirst({
@@ -472,6 +500,14 @@ export async function addResponsibleOrganizationToProject(options: {
 //     locales.route.error.invariant.entitiesForInviteNotFound,
 //     { status: 404 }
 //   );
+
+// invariantResponse(
+//   project.responsibleOrganizations.some(
+//     (relation) => relation.organizationId === submission.value.organizationId
+//   ) === false,
+//   locales.route.error.invariant.alreadyResponsible,
+//   { status: 400 }
+// );
 
 //   await prismaClient.inviteForOrganizationToJoinProject.update({
 //     where: {

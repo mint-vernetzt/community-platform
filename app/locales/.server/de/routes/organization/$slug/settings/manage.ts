@@ -11,6 +11,12 @@ export const locale = {
     notAllowed:
       "Deine Organisation muss die Organisationsform Netzwerk haben um die Aktion durchzuführen",
     networkTypesRequired: "Bitte wähle mindestens eine Netzwerkform aus.",
+    requestFailed: "Anfrage konnte nicht gesendet werden",
+    cancelRequestFailed: "Anfrage konnte nicht zurückgezogen werden",
+    inviteFailed: "Einladung konnte nicht gesendet werden",
+    cancelInviteFailed: "Einladung konnte nicht zurückgezogen werden",
+    alreadyMember: "Organisation ist bereits Mitglied",
+    thisOrganization: "Die eigene Organisation kann nicht hinzugefügt werden",
   },
   content: {
     notFound: "Nicht gefunden",
@@ -38,45 +44,70 @@ export const locale = {
     },
     networks: {
       current: {
-        headline_one: "Aktuelles Netzwerk",
-        headline_other: "Aktuelle Netzwerke",
-        subline_one: "Deine Organisation ist Teil dieses Netzwerks",
-        subline_other: "Deine Organisation ist Teil dieser Netzwerke",
+        headline_one: "Deine Organisation ist Teil von folgendem Netzwerk",
+        headline_other: "Deine Organisation ist Teil von folgenden Netzwerken",
+        blankState:
+          "Deine Organisation ist bisher noch nicht Teil anderer Netzwerke.",
         leave: {
-          cta: "Austreten",
+          cta: "Mitgliedschaft beenden",
           success:
-            "Du bist aus dem Netzwerk {{organization}} erfolgreich ausgetreten.",
+            "Du bist erfolgreich aus dem Netzwerk {{organization}} ausgetreten.",
         },
       },
-      join: {
-        headline_zero: "Ist Deine Organisation Teil eines Netzwerks?",
-        headline_other: "Ist Deine Organisation Teil von anderen Netzwerken?",
+      requestToJoin: {
+        headline: "Deine Organisation zu Netzwerken hinzufügen",
         subline:
-          "Suche ein Netzwerk und füge Deine Organisation als Netzwerk-Mitglied hinzu.",
+          "Suche die Netzwerk-Organisationen und füge Deine Organisation als Netzwerkmitglied hinzu.",
         label: "Name der Netzwerk-Organisation",
         placeholder: "Suche...",
         helper: "Mindestens 3 Buchstaben.",
         searchCta: "Suchen",
-        cta: "Beitreten",
+        cta: "Beitritt anfragen",
+        alreadyMemberOf: "Beitritt bereits bestätigt",
+        alreadyRequested: "Beitritt angefragt",
+        noNetwork: "Nicht als Netzwerk angelegt",
+        email: {
+          subject: {
+            requested: "Dein Netzwerk hat eine Mitgliedsanfrage erhalten.",
+            canceled:
+              "Eine Mitgliedsanfrage an Dein Netzwerk wurde zurückgezogen.",
+          },
+          button: {
+            text: "Zur Community Plattform",
+          },
+        },
         success:
-          "Du bist dem Netzwerk {{organization}} erfolgreich beigetreten.",
+          "Du hast den Beitritt zum Netzwerk {{organization}} erfolgreich angefragt.",
+        cancelSuccess:
+          "Du hast die Beitrittsanfrage zum Netzwerk {{organization}} erfolgreich zurückgezogen.",
+      },
+      pendingRequests: {
+        headline: "Angefragte Netzwerkmitgliedschaften",
+        cancel: {
+          cta: "Beitrittsanfrage zurückziehen",
+          success:
+            "Du hast die Beitrittsanfrage zur Netzwerkmitgliedschaft bei {{organization}} erfolgreich zurückgezogen.",
+        },
       },
     },
     networkMembers: {
       current: {
-        headline_one: "Aktuelle Mitgliedsorganisation",
-        headline_other: "Aktuelle Mitgliedsorganisationen",
-        subline_one: "Dein Netzwerk besteht aus dieser Mitgliedsorganisation",
+        headline_one: "Aktuelle Mitgliedsorganisation Deines Netzwerks",
+        headline_other: "Aktuelle Mitgliedsorganisationen Deines Netzwerks",
+        subline_one:
+          "Dein Netzwerk besteht aus folgender Mitgliedsorganisation.",
         subline_other:
-          "Dein Netzwerk besteht aus diesen Mitgliedsorganisationen",
+          "Dein Netzwerk besteht aus folgenden Mitgliedsorganisationen.",
+        blankState:
+          "Du hast noch keine Mitgliedsorganisationen in Deinem Netzwerk.",
         remove: {
           cta: "Entfernen",
           success:
             "Du hast die Mitgliedsorganisation {{organization}} erfolgreich aus Deinem Netzwerk entfernt.",
         },
       },
-      add: {
-        headline: "Organisationen zu Deiner Netzwerk-Organisation hinzufügen",
+      invite: {
+        headline: "Organisationen zu Deinem Netzwerk hinzufügen",
         subline:
           "Suche die Organisationen, die zu Deiner Netzwerk-Organisation gehören und füge sie hinzu.",
         label: "Organisationsname",
@@ -84,9 +115,30 @@ export const locale = {
         helper: "Mindestens 3 Buchstaben.",
         helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
         searchCta: "Suchen",
-        cta: "Hinzufügen",
+        cta: "Einladen",
+        email: {
+          subject: {
+            invited: "Du hast eine Einladung erhalten!",
+            canceled: "Die Einladung wurde zurückgezogen!",
+          },
+          button: {
+            text: "Zur Community Plattform",
+          },
+        },
+        alreadyInvited: "bereits eingeladen",
+        alreadyMember: "bereits Mitglied",
         success:
-          "Du hast die Organisation {{organization}} erfolgreich zu Deiner Netzwerk-Organisation hinzugefügt.",
+          "Du hast die Organisation {{organization}} erfolgreich zu Deiner Netzwerk-Organisation eingeladen.",
+        cancelSuccess:
+          "Du hast die Einladung an die Organisation {{organization}} erfolgreich zurückgezogen.",
+      },
+      pendingInvites: {
+        headline: "Als Mitglied eingeladene Organisationen",
+        cancel: {
+          cta: "Einladung zurückziehen",
+          success:
+            "Du hast die Einladung an die Organisation {{organization}} erfolgreich zurückgezogen.",
+        },
       },
     },
   },

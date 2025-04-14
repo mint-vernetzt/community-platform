@@ -8,6 +8,7 @@ export const locale = {
       entitiesForRemovalNotFound: "Profile or project for removal not found",
       adminCount:
         "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.",
+      alreadyAdmin: "Diese Person ist bereits Administrator:in.",
     },
   },
   email: {
@@ -36,6 +37,7 @@ export const locale = {
       search: "Suche",
       criteria: "Mindestens 3 Buchstaben.",
       submitSearch: "Suchen",
+      alreadyAdmin: "bereits Administrator:in",
       submit: "Hinzufügen",
     },
     invite: {
@@ -43,6 +45,8 @@ export const locale = {
       search: "Suche",
       criteria: "Mindestens 3 Buchstaben.",
       submitSearch: "Suchen",
+      alreadyAdmin: "bereits Administrator:in",
+      alreadyInvited: "bereits eingeladen",
       submit: "Einladen",
     },
     invites: {

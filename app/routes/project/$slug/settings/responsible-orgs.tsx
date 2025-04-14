@@ -7,11 +7,11 @@ import {
   Form,
   redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
-  useSubmit,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -61,21 +61,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   //   authClient
   // );
 
-  const pendingAndCurrentResponsibleOrganizationIds = [
-    ...project.responsibleOrganizations.map(
-      (relation) => relation.organization.id
-    ),
-    // ...pendingResponsibleOrganizationInvites.map((invite) => invite.id),
-  ];
-
   const ownOrganizationSuggestions = await getOwnOrganizationSuggestions({
     sessionUser,
-    pendingAndCurrentResponsibleOrganizationIds,
   });
 
   const { searchedOrganizations, submission } = await searchOrganizations({
     searchParams: new URL(request.url).searchParams,
-    idsToExclude: pendingAndCurrentResponsibleOrganizationIds,
     authClient,
     locales,
     mode,
@@ -189,7 +180,7 @@ function Team() {
     project,
     ownOrganizationSuggestions,
     // pendingResponsibleOrganizationInvites,
-    searchedOrganizations,
+    searchedOrganizations: loaderSearchedOrganizations,
     submission: loaderSubmission,
     locales,
     currentTimestamp,
@@ -198,9 +189,13 @@ function Team() {
 
   const location = useLocation();
   const navigation = useNavigation();
-  const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedOrganizations =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedOrganizations
+      : loaderSearchedOrganizations;
   const [searchForm, searchFields] = useForm({
     id: "search-organizations",
     defaultValue: {
@@ -347,24 +342,45 @@ function Team() {
                 listKey="own-organization-suggestions"
                 hideAfter={3}
               >
-                {ownOrganizationSuggestions.map((organization, index) => {
+                {ownOrganizationSuggestions.map((ownOrganization, index) => {
                   return (
                     <ListItem
-                      key={`own-organization-${organization.slug}`}
-                      entity={organization}
+                      key={`own-organization-${ownOrganization.slug}`}
+                      entity={ownOrganization}
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
                     >
-                      <Button
-                        name="intent"
-                        variant="outline"
-                        value={`add-responsible-organization-${organization.id}`}
-                        type="submit"
-                        fullSize
-                      >
-                        {locales.route.content.addOwn.submit}
-                      </Button>
+                      {project.responsibleOrganizations.some((relation) => {
+                        return relation.organization.id === ownOrganization.id;
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.addOwn.alreadyResponsible}
+                        </div>
+                      ) : (
+                        // TODO: Implement this when project responsible organization invites are implemented
+                        // pendingResponsibleOrganizationInvites.some((relation) => {
+                        //     return (
+                        //       relation.organization.id === ownOrganization.id
+                        //     );
+                        //   }) ? (
+                        //   <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                        //     {
+                        //       locales.route.content.addOwn
+                        //         .alreadyInvited
+                        //     }
+                        //   </div>
+                        // ) :
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`add-responsible-organization-${ownOrganization.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.addOwn.submit}
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}
@@ -393,13 +409,15 @@ function Team() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.addOther.headline}
           </h2>
-          <Form
+          <searchFetcher.Form
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                submit(event.currentTarget, { preventScrollReset: true });
+                searchFetcher.submit(event.currentTarget, {
+                  preventScrollReset: true,
+                });
               }
             }}
             autoComplete="off"
@@ -433,6 +451,16 @@ function Team() {
                   {locales.route.content.addOwn.criteria}
                 </Input.HelperText>
               )}
+              <Input.ClearIcon
+                onClick={() => {
+                  setTimeout(() => {
+                    searchForm.reset();
+                    searchFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }, 0);
+                }}
+              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
@@ -457,7 +485,7 @@ function Team() {
                 })}
               </div>
             ) : null}
-          </Form>
+          </searchFetcher.Form>
           {searchedOrganizations.length > 0 ? (
             <Form
               {...getFormProps(addResponsibleOrganizationForm)}
@@ -469,24 +497,47 @@ function Team() {
                 listKey="responsible-organization-search-results"
                 hideAfter={3}
               >
-                {searchedOrganizations.map((organization, index) => {
+                {searchedOrganizations.map((searchedOrganization, index) => {
                   return (
                     <ListItem
-                      key={`responsible-organization-search-result-${organization.slug}`}
-                      entity={organization}
+                      key={`responsible-organization-search-result-${searchedOrganization.slug}`}
+                      entity={searchedOrganization}
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
                     >
-                      <Button
-                        name="intent"
-                        variant="outline"
-                        value={`add-responsible-organization-${organization.id}`}
-                        type="submit"
-                        fullSize
-                      >
-                        {locales.route.content.addOwn.submit}
-                      </Button>
+                      {project.responsibleOrganizations.some((relation) => {
+                        return (
+                          relation.organization.id === searchedOrganization.id
+                        );
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.addOther.alreadyResponsible}
+                        </div>
+                      ) : (
+                        // TODO: Implement this when project responsible organization invites are implemented
+                        // pendingResponsibleOrganizationInvites.some((relation) => {
+                        //     return (
+                        //       relation.organization.id === ownOrganization.id
+                        //     );
+                        //   }) ? (
+                        //   <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                        //     {
+                        //       locales.route.content.invite
+                        //         .alreadyInvited
+                        //     }
+                        //   </div>
+                        // ) :
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`add-responsible-organization-${searchedOrganization.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.addOther.add}
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}

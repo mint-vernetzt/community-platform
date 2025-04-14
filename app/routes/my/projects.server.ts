@@ -1,4 +1,4 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -6,6 +6,11 @@ import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { DefaultImages } from "~/images.shared";
+import { quitProjectSchema } from "./projects";
+import { parseWithZod } from "@conform-to/zod-v1";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { z } from "zod";
 
 export type MyProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -18,6 +23,7 @@ export async function getProjects(options: {
   const { profileId, authClient } = options;
 
   const select = {
+    id: true,
     name: true,
     slug: true,
     description: true,
@@ -223,6 +229,108 @@ export async function getProjects(options: {
     count: {
       adminProjects: adminProjects.length,
       teamMemberProjects: teamMemberProjects.length,
+    },
+  };
+}
+
+export async function quitProject(options: {
+  formData: FormData;
+  locales: MyProjectsLocales;
+  sessionUser: User;
+  role: "admin" | "teamMember";
+}) {
+  const { formData, locales, sessionUser, role } = options;
+  const submission = await parseWithZod(formData, {
+    schema: () =>
+      quitProjectSchema.transform(async (data, ctx) => {
+        const project = await prismaClient.project.findFirst({
+          select: {
+            id: true,
+            name: true,
+            _count: {
+              select: {
+                admins: true,
+                teamMembers: true,
+              },
+            },
+          },
+          where:
+            role === "admin"
+              ? {
+                  id: data.projectId,
+                  admins: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                }
+              : {
+                  id: data.projectId,
+                  teamMembers: {
+                    some: {
+                      profileId: sessionUser.id,
+                    },
+                  },
+                },
+        });
+        invariantResponse(project !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        if (role === "admin" && project._count.admins <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastAdmin,
+          });
+          return z.NEVER;
+        }
+        if (role === "teamMember" && project._count.teamMembers <= 1) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.lastTeamMember,
+          });
+          return z.NEVER;
+        }
+        if (role === "admin") {
+          await prismaClient.adminOfProject.delete({
+            where: {
+              profileId_projectId: {
+                profileId: sessionUser.id,
+                projectId: data.projectId,
+              },
+            },
+          });
+        } else {
+          await prismaClient.teamMemberOfProject.delete({
+            where: {
+              profileId_projectId: {
+                profileId: sessionUser.id,
+                projectId: data.projectId,
+              },
+            },
+          });
+        }
+        return { ...data, name: project.name };
+      }),
+    async: true,
+  });
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+    };
+  }
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "quit-organization-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        role === "admin"
+          ? locales.route.quit.successAdmin
+          : locales.route.quit.successMember,
+        {
+          name: submission.value.name,
+        }
+      ),
     },
   };
 }

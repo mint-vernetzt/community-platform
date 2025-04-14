@@ -4,18 +4,16 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
-import {
   Form,
+  redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
-  useSubmit,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
@@ -63,13 +61,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     authClient
   );
 
-  const pendingAndCurrentAdminIds = [
-    ...organization.admins.map((relation) => relation.profile.id),
-    ...pendingAdminInvites.map((invite) => invite.id),
-  ];
   const { searchedProfiles, submission } = await searchProfiles({
     searchParams: new URL(request.url).searchParams,
-    idsToExclude: pendingAndCurrentAdminIds,
     authClient,
     locales,
     mode,
@@ -163,7 +156,7 @@ function Admins() {
   const {
     organization,
     pendingAdminInvites,
-    searchedProfiles,
+    searchedProfiles: loaderSearchedProfiles,
     submission: loaderSubmission,
     locales,
     currentTimestamp,
@@ -172,11 +165,15 @@ function Admins() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
 
-  const submit = useSubmit();
   const [searchParams] = useSearchParams();
 
   const location = useLocation();
 
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedProfiles =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedProfiles
+      : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
@@ -282,13 +279,15 @@ function Admins() {
           <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
             {locales.route.content.invite.headline}
           </h2>
-          <Form
+          <searchFetcher.Form
             {...getFormProps(searchForm)}
             method="get"
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                submit(event.currentTarget, { preventScrollReset: true });
+                searchFetcher.submit(event.currentTarget, {
+                  preventScrollReset: true,
+                });
               }
             }}
             autoComplete="off"
@@ -321,6 +320,16 @@ function Admins() {
                   {locales.route.content.invite.criteria}
                 </Input.HelperText>
               )}
+              <Input.ClearIcon
+                onClick={() => {
+                  setTimeout(() => {
+                    searchForm.reset();
+                    searchFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }, 0);
+                }}
+              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">
@@ -345,7 +354,7 @@ function Admins() {
                 })}
               </div>
             ) : null}
-          </Form>
+          </searchFetcher.Form>
           {searchedProfiles.length > 0 ? (
             <Form
               {...getFormProps(inviteAdminForm)}
@@ -357,24 +366,38 @@ function Admins() {
                 listKey="admin-search-results"
                 hideAfter={3}
               >
-                {searchedProfiles.map((profile, index) => {
+                {searchedProfiles.map((searchedProfile, index) => {
                   return (
                     <ListItem
-                      key={`admin-search-result-${profile.username}`}
-                      entity={profile}
+                      key={`admin-search-result-${searchedProfile.username}`}
+                      entity={searchedProfile}
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
                     >
-                      <Button
-                        name="intent"
-                        variant="outline"
-                        value={`invite-admin-${profile.id}`}
-                        type="submit"
-                        fullSize
-                      >
-                        {locales.route.content.invite.submit}
-                      </Button>
+                      {organization.admins.some((relation) => {
+                        return relation.profile.id === searchedProfile.id;
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.invite.alreadyAdmin}
+                        </div>
+                      ) : pendingAdminInvites.some((invitedProfile) => {
+                          return invitedProfile.id === searchedProfile.id;
+                        }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          {locales.route.content.invite.alreadyInvited}
+                        </div>
+                      ) : (
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`invite-admin-${searchedProfile.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {locales.route.content.invite.submit}
+                        </Button>
+                      )}
                     </ListItem>
                   );
                 })}

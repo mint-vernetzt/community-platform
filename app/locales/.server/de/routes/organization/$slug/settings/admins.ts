@@ -9,6 +9,7 @@ export const locale = {
         "Profile or organization for removal not found",
       adminCount:
         "Es muss immer eine:n Administrator:in geben. Bitte füge zuerst jemand anderen als Administrator:in hinzu.",
+      alreadyAdmin: "Diese Person ist bereits Administrator:in.",
     },
   },
   email: {
@@ -36,6 +37,8 @@ export const locale = {
       search: "Suche",
       criteria: "Mindestens 3 Buchstaben.",
       submitSearch: "Suchen",
+      alreadyInvited: "bereits eingeladen",
+      alreadyAdmin: "bereits Administrator:in",
       submit: "Einladen",
     },
     invites: {

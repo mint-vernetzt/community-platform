@@ -101,6 +101,11 @@ export async function addTeamMemberToProject(options: {
     where: { slug },
     select: {
       id: true,
+      teamMembers: {
+        select: {
+          profileId: true,
+        },
+      },
     },
   });
   const profile = await prismaClient.profile.findFirst({
@@ -115,6 +120,13 @@ export async function addTeamMemberToProject(options: {
     project !== null && profile !== null,
     locales.route.error.invariant.entitiesForRemovalNotFound,
     { status: 404 }
+  );
+  invariantResponse(
+    project.teamMembers.some(
+      (member) => member.profileId === submission.value.profileId
+    ) === false,
+    locales.route.error.invariant.alreadyMember,
+    { status: 400 }
   );
 
   await prismaClient.teamMemberOfProject.create({
@@ -209,13 +221,18 @@ export async function addTeamMemberToProject(options: {
 //     return { submission: submission.reply() };
 //   }
 
-//   const project = await prismaClient.project.findFirst({
-//     where: { slug },
-//     select: {
-//       id: true,
-//       name: true,
+// const project = await prismaClient.project.findFirst({
+//   where: { slug },
+//   select: {
+//     id: true,
+//     name: true,
+//     teamMembers: {
+//       select: {
+//         profileId: true,
+//       },
 //     },
-//   });
+//   },
+// });
 
 //   const profile = await prismaClient.profile.findFirst({
 //     where: { id: submission.value.profileId },
@@ -234,6 +251,14 @@ export async function addTeamMemberToProject(options: {
 //       status: 404,
 //     }
 //   );
+
+// invariantResponse(
+//   project.teamMembers.some(
+//     (teamMember) => teamMember.profileId === submission.value.profileId
+//   ) === false,
+//   locales.route.error.invariant.alreadyMember,
+//   { status: 400 }
+// );
 
 //   await prismaClient.inviteForProfileToJoinProject.upsert({
 //     where: {
@@ -326,6 +351,11 @@ export async function addTeamMemberToProject(options: {
 //     where: { slug },
 //     select: {
 //       id: true,
+//     teamMembers: {
+//       select: {
+//         profileId: true,
+//       },
+//     },
 //     },
 //   });
 //   const profile = await prismaClient.profile.findFirst({
@@ -341,6 +371,14 @@ export async function addTeamMemberToProject(options: {
 //     locales.route.error.invariant.entitiesForInviteNotFound,
 //     { status: 404 }
 //   );
+
+// invariantResponse(
+//   project.teamMembers.some(
+//     (teamMember) => teamMember.profileId === submission.value.profileId
+//   ) === false,
+//   locales.route.error.invariant.alreadyMember,
+//   { status: 400 }
+// );
 
 //   await prismaClient.inviteForProfileToJoinProject.update({
 //     where: {

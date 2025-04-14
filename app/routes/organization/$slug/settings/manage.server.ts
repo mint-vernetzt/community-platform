@@ -13,6 +13,11 @@ import { manageSchema, updateNetworkSchema } from "./manage";
 import { invariantResponse } from "~/lib/utils/response";
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { triggerEntityScore } from "~/utils.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export type ManageOrganizationSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -47,6 +52,35 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
           },
         },
       },
+      sentNetworkJoinRequests: {
+        select: {
+          network: {
+            select: {
+              id: true,
+              slug: true,
+              logo: true,
+              name: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          status: "pending",
+        },
+        orderBy: {
+          network: {
+            name: "asc",
+          },
+        },
+      },
       memberOf: {
         select: {
           network: {
@@ -69,6 +103,35 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
         },
         orderBy: {
           network: {
+            name: "asc",
+          },
+        },
+      },
+      sentNetworkJoinInvites: {
+        select: {
+          organization: {
+            select: {
+              id: true,
+              slug: true,
+              logo: true,
+              name: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          status: "pending",
+        },
+        orderBy: {
+          organization: {
             name: "asc",
           },
         },
@@ -104,9 +167,33 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   if (organization === null) {
     return null;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id, ...rest } = organization;
-  // enhance networks and networkMembers with avatar
+  // enhance pendingNetworkRequests, networks, pendingNetworkMemberInvitations nad networkMembers with avatar
+  const sentNetworkJoinRequests = organization.sentNetworkJoinRequests.map(
+    (relation) => {
+      let logo = relation.network.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return { network: { ...relation.network, logo, blurredLogo } };
+    }
+  );
+
   const memberOf = organization.memberOf.map((relation) => {
     let logo = relation.network.logo;
     let blurredLogo;
@@ -131,6 +218,32 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
     return { network: { ...relation.network, logo, blurredLogo } };
   });
 
+  const sentNetworkJoinInvites = organization.sentNetworkJoinInvites.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return { organization: { ...relation.organization, logo, blurredLogo } };
+    }
+  );
+
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo = relation.networkMember.logo;
     let blurredLogo;
@@ -154,7 +267,14 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
     }
     return { networkMember: { ...relation.networkMember, logo, blurredLogo } };
   });
-  const enhancedOrganization = { ...rest, memberOf, networkMembers };
+
+  const enhancedOrganization = {
+    ...organization,
+    memberOf,
+    networkMembers,
+    sentNetworkJoinRequests,
+    sentNetworkJoinInvites,
+  };
 
   return enhancedOrganization;
 }
@@ -280,37 +400,215 @@ export async function updateOrganization(options: {
   };
 }
 
-export async function joinNetwork(options: {
+export async function updateJoinNetworkRequest(options: {
   formData: FormData;
   organization: {
     id: string;
     name: string;
   };
+  intent: "requestToJoinNetwork" | "cancelNetworkJoinRequest";
   locales: ManageOrganizationSettingsLocales;
 }) {
-  const { formData, organization, locales } = options;
-  const { id: organizationId, name } = organization;
+  const { formData, organization, intent, locales } = options;
+  const { id: organizationId } = organization;
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateNetworkSchema.transform(async (data, ctx) => {
         const { organizationId: networkId } = data;
+        const network = await prismaClient.organization.findFirst({
+          select: {
+            id: true,
+            name: true,
+            types: {
+              select: {
+                organizationType: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            networkMembers: {
+              select: {
+                networkMember: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
+          where: {
+            id: networkId,
+            types: {
+              some: {
+                organizationType: {
+                  slug: "network",
+                },
+              },
+            },
+          },
+        });
+        invariantResponse(network !== null, locales.route.error.notFound, {
+          status: 404,
+        });
+        invariantResponse(
+          network.networkMembers.some((relation) => {
+            return relation.networkMember.id === organizationId;
+          }) === false,
+          locales.route.error.alreadyMember,
+          { status: 400 }
+        );
+        invariantResponse(
+          networkId !== organizationId,
+          locales.route.error.thisOrganization,
+          {
+            status: 400,
+          }
+        );
         try {
-          await prismaClient.memberOfNetwork.create({
-            data: {
-              networkMemberId: organizationId,
+          await prismaClient.requestToNetworkToAddOrganization.upsert({
+            where: {
+              networkId_organizationId: {
+                networkId,
+                organizationId,
+              },
+            },
+            create: {
               networkId,
+              organizationId,
+              status:
+                intent === "requestToJoinNetwork" ? "pending" : "canceled",
+            },
+            update: {
+              status:
+                intent === "requestToJoinNetwork" ? "pending" : "canceled",
             },
           });
+
+          await Promise.all(
+            network.admins.map(async (admin) => {
+              const sender = process.env.SYSTEM_MAIL_SENDER;
+              const subject =
+                intent === "requestToJoinNetwork"
+                  ? locales.route.content.networks.requestToJoin.email.subject
+                      .requested
+                  : locales.route.content.networks.requestToJoin.email.subject
+                      .canceled;
+              const recipient = admin.profile.email;
+
+              const text =
+                intent === "requestToJoinNetwork"
+                  ? getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/text.hbs">(
+                      "mail-templates/requests/network-to-add-organization/text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: organization.name,
+                        },
+                        network: {
+                          name: network.name,
+                        },
+                        button: {
+                          url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                          text: locales.route.content.networks.requestToJoin
+                            .email.button.text,
+                        },
+                      },
+                      "text"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/canceled-text.hbs">(
+                      "mail-templates/requests/network-to-add-organization/canceled-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: organization.name,
+                        },
+                        network: {
+                          name: network.name,
+                        },
+                      },
+                      "text"
+                    );
+              const html =
+                intent === "requestToJoinNetwork"
+                  ? getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/html.hbs">(
+                      "mail-templates/requests/network-to-add-organization/html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: organization.name,
+                        },
+                        network: {
+                          name: network.name,
+                        },
+                        button: {
+                          url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                          text: locales.route.content.networks.requestToJoin
+                            .email.button.text,
+                        },
+                      },
+                      "html"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/requests/network-to-add-organization/canceled-html.hbs">(
+                      "mail-templates/requests/network-to-add-organization/canceled-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: organization.name,
+                        },
+                        network: {
+                          name: network.name,
+                        },
+                      },
+                      "html"
+                    );
+
+              try {
+                await mailer(
+                  mailerOptions,
+                  sender,
+                  recipient,
+                  subject,
+                  text,
+                  html
+                );
+              } catch (error) {
+                Sentry.captureException(error);
+                ctx.addIssue({
+                  code: "custom",
+                  message:
+                    intent === "requestToJoinNetwork"
+                      ? locales.route.error.requestFailed
+                      : locales.route.error.cancelRequestFailed,
+                });
+                return z.NEVER;
+              }
+            })
+          );
         } catch (error) {
           Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.updateFailed,
+            message:
+              intent === "requestToJoinNetwork"
+                ? locales.route.error.requestFailed
+                : locales.route.error.cancelRequestFailed,
           });
           return z.NEVER;
         }
 
-        return { ...data };
+        return { ...data, name: network.name };
       }),
     async: true,
   });
@@ -323,11 +621,13 @@ export async function joinNetwork(options: {
   return {
     submission: submission.reply(),
     toast: {
-      id: "join-network-toast",
+      id: "request-to-join-network-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
-        locales.route.content.networks.join.success,
-        { organization: name }
+        intent === "requestToJoinNetwork"
+          ? locales.route.content.networks.requestToJoin.success
+          : locales.route.content.networks.requestToJoin.cancelSuccess,
+        { organization: submission.value.name }
       ),
     },
   };
@@ -389,7 +689,7 @@ export async function leaveNetwork(options: {
   };
 }
 
-export async function addNetworkMember(options: {
+export async function updateNetworkMemberInvite(options: {
   formData: FormData;
   organization: {
     id: string;
@@ -399,14 +699,21 @@ export async function addNetworkMember(options: {
         id: string;
       };
     }[];
+    networkMembers: {
+      networkMember: {
+        id: string;
+      };
+    }[];
   };
   organizationTypeNetwork: {
     id: string;
   };
+  intent: "inviteNetworkMember" | "cancelNetworkMemberInvitation";
   locales: ManageOrganizationSettingsLocales;
 }) {
-  const { formData, organization, organizationTypeNetwork, locales } = options;
-  const { id: organizationId, name } = organization;
+  const { formData, organization, organizationTypeNetwork, intent, locales } =
+    options;
+  const { id: organizationId } = organization;
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateNetworkSchema.transform(async (data, ctx) => {
@@ -417,23 +724,177 @@ export async function addNetworkMember(options: {
         invariantResponse(isNetwork !== false, locales.route.error.notAllowed, {
           status: 400,
         });
+        invariantResponse(
+          organization.networkMembers.some((relation) => {
+            return relation.networkMember.id === networkMemberId;
+          }) === false,
+          locales.route.error.alreadyMember,
+          { status: 400 }
+        );
+        invariantResponse(
+          networkMemberId !== organizationId,
+          locales.route.error.thisOrganization,
+          {
+            status: 400,
+          }
+        );
+        const networkMember = await prismaClient.organization.findFirst({
+          select: {
+            id: true,
+            name: true,
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+          where: {
+            id: networkMemberId,
+          },
+        });
+        invariantResponse(
+          networkMember !== null,
+          locales.route.error.notFound,
+          {
+            status: 404,
+          }
+        );
         try {
-          await prismaClient.memberOfNetwork.create({
-            data: {
-              networkMemberId,
+          await prismaClient.inviteForOrganizationToJoinNetwork.upsert({
+            where: {
+              organizationId_networkId: {
+                networkId: organizationId,
+                organizationId: networkMemberId,
+              },
+            },
+            create: {
               networkId: organizationId,
+              organizationId: networkMemberId,
+              status: intent === "inviteNetworkMember" ? "pending" : "canceled",
+            },
+            update: {
+              status: intent === "inviteNetworkMember" ? "pending" : "canceled",
             },
           });
+
+          await Promise.all(
+            networkMember.admins.map(async (admin) => {
+              const sender = process.env.SYSTEM_MAIL_SENDER;
+              const subject =
+                intent === "inviteNetworkMember"
+                  ? locales.route.content.networkMembers.invite.email.subject
+                      .invited
+                  : locales.route.content.networkMembers.invite.email.subject
+                      .canceled;
+              const recipient = admin.profile.email;
+
+              const text =
+                intent === "inviteNetworkMember"
+                  ? getCompiledMailTemplate<"mail-templates/invites/organization-to-join-network/text.hbs">(
+                      "mail-templates/invites/organization-to-join-network/text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: networkMember.name,
+                        },
+                        network: {
+                          name: organization.name,
+                        },
+                        button: {
+                          url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                          text: locales.route.content.networkMembers.invite
+                            .email.button.text,
+                        },
+                      },
+                      "text"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/invites/organization-to-join-network/canceled-text.hbs">(
+                      "mail-templates/invites/organization-to-join-network/canceled-text.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: networkMember.name,
+                        },
+                        network: {
+                          name: organization.name,
+                        },
+                      },
+                      "text"
+                    );
+              const html =
+                intent === "inviteNetworkMember"
+                  ? getCompiledMailTemplate<"mail-templates/invites/organization-to-join-network/html.hbs">(
+                      "mail-templates/invites/organization-to-join-network/html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: networkMember.name,
+                        },
+                        network: {
+                          name: organization.name,
+                        },
+                        button: {
+                          url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
+                          text: locales.route.content.networkMembers.invite
+                            .email.button.text,
+                        },
+                      },
+                      "html"
+                    )
+                  : getCompiledMailTemplate<"mail-templates/invites/organization-to-join-network/canceled-html.hbs">(
+                      "mail-templates/invites/organization-to-join-network/canceled-html.hbs",
+                      {
+                        firstName: admin.profile.firstName,
+                        organization: {
+                          name: networkMember.name,
+                        },
+                        network: {
+                          name: organization.name,
+                        },
+                      },
+                      "html"
+                    );
+
+              try {
+                await mailer(
+                  mailerOptions,
+                  sender,
+                  recipient,
+                  subject,
+                  text,
+                  html
+                );
+              } catch (error) {
+                Sentry.captureException(error);
+                ctx.addIssue({
+                  code: "custom",
+                  message:
+                    intent === "inviteNetworkMember"
+                      ? locales.route.error.inviteFailed
+                      : locales.route.error.cancelInviteFailed,
+                });
+                return z.NEVER;
+              }
+            })
+          );
         } catch (error) {
           Sentry.captureException(error);
           ctx.addIssue({
             code: "custom",
-            message: locales.route.error.updateFailed,
+            message:
+              intent === "inviteNetworkMember"
+                ? locales.route.error.inviteFailed
+                : locales.route.error.cancelInviteFailed,
           });
           return z.NEVER;
         }
 
-        return { ...data };
+        return { ...data, name: networkMember.name };
       }),
     async: true,
   });
@@ -449,8 +910,10 @@ export async function addNetworkMember(options: {
       id: "add-network-member-toast",
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
-        locales.route.content.networkMembers.add.success,
-        { organization: name }
+        intent === "inviteNetworkMember"
+          ? locales.route.content.networkMembers.invite.success
+          : locales.route.content.networkMembers.invite.cancelSuccess,
+        { organization: submission.value.name }
       ),
     },
   };
