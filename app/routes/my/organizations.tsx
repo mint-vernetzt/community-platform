@@ -869,24 +869,11 @@ export default function MyOrganizations() {
                         listIndex={index}
                         hideAfter={3}
                       >
-                        {organizations.admin.organizations.some(
+                        {organizations.teamMember.organizations.some(
                           (organization) => {
                             return organization.id === searchedOrganization.id;
                           }
                         ) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
-                            {
-                              locales.route.requestOrganizationMembership
-                                .alreadyAdmin
-                            }
-                          </div>
-                        ) : organizations.teamMember.organizations.some(
-                            (organization) => {
-                              return (
-                                organization.id === searchedOrganization.id
-                              );
-                            }
-                          ) ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
                             {
                               locales.route.requestOrganizationMembership

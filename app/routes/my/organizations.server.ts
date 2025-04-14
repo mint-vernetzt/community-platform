@@ -997,10 +997,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
           invariantResponse(
             organization.teamMembers.every((relation) => {
               return relation.profileId !== sessionUser.id;
-            }) &&
-              organization.admins.every((relation) => {
-                return relation.profile.id !== sessionUser.id;
-              }),
+            }),
             locales.route.error.alreadyMember,
             { status: 403 }
           );
