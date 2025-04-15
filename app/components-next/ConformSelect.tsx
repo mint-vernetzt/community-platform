@@ -30,12 +30,28 @@ function ConformSelectInput(props: {
         disabled={disabled === true}
       />
       <label
-        className={`mv-bg-white mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/conform-select:mv-border-blue-400 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 ${
+        className={`mv-relative mv-bg-white mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/conform-select:mv-border-blue-400 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 ${
           disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
         }`}
         htmlFor={id}
       >
         {cta}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="21"
+          fill="none"
+          viewBox="0 0 20 21"
+          className="mv-absolute mv-right-2 mv-top-2 group-has-[:checked]/conform-select:mv-rotate-180"
+        >
+          <path
+            stroke="#262D38"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.4"
+            d="m5 7.5 5 5.5 5-5.5"
+          />
+        </svg>
       </label>
       <ul className="mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
         {listItems.map((button) => {
