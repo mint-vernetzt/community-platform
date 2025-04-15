@@ -4,6 +4,15 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetOrganizationsSchema } from "./organizations";
+import { type GetSearchSchema } from "./index";
+import { type User } from "@supabase/supabase-js";
+import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
+import {
+  type Profile,
+  type Project,
+  type Organization,
+  type Prisma,
+} from "@prisma/client";
 
 export type ExploreOrganizationsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -22,20 +31,84 @@ type OrganizationVisibility = {
 type FilterKeyWhereStatement = {
   OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
 };
+type SearchWhereStatement = {
+  OR: {
+    AND: (
+      | {
+          [K in Organization as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }
+      | {
+          [K in "areas" | "types" | "networkTypes" | "focuses"]?: {
+            some: {
+              [K in "area" | "organizationType" | "networkType" | "focus"]?: {
+                [K in "name" | "slug"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in
+            | "networkMembers"
+            | "memberOf"
+            | "teamMembers"
+            | "responsibleForProject"]?: {
+            some: {
+              [K in "networkMember" | "network" | "profile" | "project"]?: {
+                AND: (
+                  | {
+                      [K in "name" | "firstName" | "lastName"]?: {
+                        contains: string;
+                        mode: Prisma.QueryMode;
+                      };
+                    }
+                  | {
+                      [K in
+                        | "organizationVisibility"
+                        | "projectVisibility"
+                        | "profileVisibility"]?: {
+                        [K in
+                          | Organization
+                          | Project
+                          | Profile as string]: boolean;
+                      };
+                    }
+                )[];
+              };
+            };
+          };
+        }
+      | {
+          supportedBy: {
+            has: string;
+          };
+        }
+      | {
+          [K in "organizationVisibility"]?: {
+            [K in Organization as string]: boolean;
+          };
+        }
+    )[];
+  }[];
+};
 type WhereClause = {
-  AND: OrganizationVisibility[] & FilterKeyWhereStatement[];
+  AND: OrganizationVisibility[] &
+    FilterKeyWhereStatement[] &
+    SearchWhereStatement[];
 };
 
-export async function getVisibilityFilteredOrganizationsCount(options: {
-  filter: GetOrganizationsSchema["orgFilter"];
-}) {
-  const whereClauses: {
-    AND: WhereClause["AND"] & { OR: OrganizationVisibility[] }[];
-  } = { AND: [] };
-  const visibilityWhereClauses: { OR: OrganizationVisibility[] } = { OR: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+function getOrganizationsFilterWhereClause(
+  filter: GetOrganizationsSchema["orgFilter"]
+) {
+  const whereClauses: WhereClause = { AND: [] };
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    const filterValues = filter[typedFilterKey];
 
     if (filterValues.length === 0) {
       continue;
@@ -43,13 +116,6 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
 
     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
-    const visibilityWhereStatement = {
-      organizationVisibility: {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: false,
-      },
-    };
-    visibilityWhereClauses.OR.push(visibilityWhereStatement);
-
     for (const slug of filterValues) {
       const filterWhereStatement = {
         [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -66,67 +132,479 @@ export async function getVisibilityFilteredOrganizationsCount(options: {
     }
     whereClauses.AND.push(filterKeyWhereStatement);
   }
-  if (visibilityWhereClauses.OR.length === 0) {
-    return 0;
-  }
-  whereClauses.AND.push(visibilityWhereClauses);
 
-  const count = await prismaClient.organization.count({
-    where: whereClauses,
-  });
-
-  return count;
+  return whereClauses;
 }
 
-export async function getOrganizationsCount(options: {
-  filter: GetOrganizationsSchema["orgFilter"];
-}) {
-  const whereClauses: WhereClause = { AND: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+function getOrganizationsSearchWhereClause(
+  words: string[],
+  sessionUser: User | null,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) {
+  const whereClauses = [];
 
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-          some: {
-            [`${
-              typedFilterKey === "type" ? "organizationType" : typedFilterKey
-            }`]: {
-              slug,
+  for (const word of words) {
+    const focusSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "focuses",
+      word,
+    });
+    const organizationTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "organizationTypes",
+      word,
+    });
+    const networkTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "networkTypes",
+      word,
+    });
+    const contains: SearchWhereStatement = {
+      OR: [
+        {
+          AND: [
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
             },
-          },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    name: true,
+                  },
+                }
+              : {},
+          ],
         },
-      };
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
+        {
+          AND: [
+            {
+              slug: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    slug: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              email: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    email: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              street: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    street: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              city: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    city: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              bio: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    bio: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              supportedBy: {
+                has: word,
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    supportedBy: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    areas: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            focusSlug !== undefined
+              ? [
+                  {
+                    focuses: {
+                      some: {
+                        focus: {
+                          slug: {
+                            contains: focusSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          focuses: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND: [
+            {
+              networkMembers: {
+                some: {
+                  networkMember: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    networkMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              memberOf: {
+                some: {
+                  network: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    memberOf: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        firstName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              firstName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        lastName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              lastName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            organizationTypeSlug !== undefined
+              ? [
+                  {
+                    types: {
+                      some: {
+                        organizationType: {
+                          slug: {
+                            contains: organizationTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          types: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            networkTypeSlug !== undefined
+              ? [
+                  {
+                    networkTypes: {
+                      some: {
+                        networkType: {
+                          slug: {
+                            contains: networkTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        organizationVisibility: {
+                          networkTypes: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND: [
+            {
+              responsibleForProject: {
+                some: {
+                  project: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            projectVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  organizationVisibility: {
+                    responsibleForProject: true,
+                  },
+                }
+              : {},
+          ],
+        },
+      ],
+    };
+    whereClauses.push(contains);
   }
+  return whereClauses;
+}
 
-  const count = await prismaClient.organization.count({
+export async function getOrganizationsIds(options: {
+  filter: GetOrganizationsSchema["orgFilter"];
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const filterWhereClause = getOrganizationsFilterWhereClause(options.filter);
+  const searchWhereClauses = getOrganizationsSearchWhereClause(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+
+  filterWhereClause.AND.push(...searchWhereClauses);
+
+  const whereClauses = filterWhereClause;
+
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+    },
     where: whereClauses,
   });
 
-  return count;
+  const ids = organizations.map((organization) => {
+    return organization.id;
+  });
+
+  return ids;
 }
 
 export async function getAllOrganizations(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  isLoggedIn: boolean;
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const whereClauses: WhereClause = { AND: [] };
+  const whereClauses = getOrganizationsFilterWhereClause(options.filter);
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.isLoggedIn === false) {
+    if (options.sessionUser === null) {
       const visibilityWhereStatement = {
         organizationVisibility: {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
@@ -134,26 +612,14 @@ export async function getAllOrganizations(options: {
       };
       whereClauses.AND.push(visibilityWhereStatement);
     }
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-          some: {
-            [`${
-              typedFilterKey === "type" ? "organizationType" : typedFilterKey
-            }`]: {
-              slug,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
   }
+
+  const searchWhereClauses = getOrganizationsSearchWhereClause(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+  whereClauses.AND.push(...searchWhereClauses);
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -244,10 +710,12 @@ export async function getAllOrganizations(options: {
   return organizations;
 }
 
-export async function getOrganizationFilterVectorForAttribute(
-  attribute: keyof GetOrganizationsSchema["orgFilter"],
-  filter: GetOrganizationsSchema["orgFilter"]
-) {
+export async function getOrganizationFilterVectorForAttribute(options: {
+  attribute: keyof GetOrganizationsSchema["orgFilter"];
+  filter: GetOrganizationsSchema["orgFilter"];
+  ids: string[];
+}) {
+  const { attribute, filter, ids } = options;
   let whereClause = "";
   const whereStatements = [];
   for (const filterKey in filter) {
@@ -323,6 +791,14 @@ export async function getOrganizationFilterVectorForAttribute(
     }
 
     whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
+  }
+
+  if (whereStatements.length > 0) {
+    whereClause = `WHERE ${whereStatements.join(" AND ")}`;
+  }
+
+  if (ids.length > 0) {
+    whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
   }
 
   if (whereStatements.length > 0) {

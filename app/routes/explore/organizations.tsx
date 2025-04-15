@@ -43,9 +43,8 @@ import {
   getAllOrganizations,
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
-  getOrganizationsCount,
+  getOrganizationsIds,
   getTakeParam,
-  getVisibilityFilteredOrganizationsCount,
 } from "./organizations.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
@@ -150,18 +149,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredOrganizationsCount({
+    const organizationIdsFilteredByVisibility = await getOrganizationsIds({
       filter: submission.value.orgFilter,
+      search: submission.value.search,
+      sessionUser: null,
+      language,
     });
+    filteredByVisibilityCount = organizationIdsFilteredByVisibility.length;
   }
-  const organizationsCount = await getOrganizationsCount({
+
+  const organizationsIds = await getOrganizationsIds({
     filter: submission.value.orgFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+
+  const organizationsCount = organizationsIds.length;
+
   const organizations = await getAllOrganizations({
     filter: submission.value.orgFilter,
     sortBy: submission.value.orgSortBy,
+    search: submission.value.search,
+    sessionUser,
     take,
-    isLoggedIn,
+    language,
   });
 
   const enhancedOrganizations = [];
@@ -307,10 +319,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
-  const areaFilterVector = await getOrganizationFilterVectorForAttribute(
-    "area",
-    submission.value.orgFilter
-  );
+  const areaFilterVector = await getOrganizationFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.orgFilter,
+    ids: organizationsIds,
+  });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,
@@ -341,10 +354,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const types = await getAllOrganizationTypes();
-  const typeFilterVector = await getOrganizationFilterVectorForAttribute(
-    "type",
-    submission.value.orgFilter
-  );
+  const typeFilterVector = await getOrganizationFilterVectorForAttribute({
+    attribute: "type",
+    filter: submission.value.orgFilter,
+    ids: organizationsIds,
+  });
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(
       type.slug,
@@ -356,10 +370,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const focuses = await getAllFocuses();
-  const focusFilterVector = await getOrganizationFilterVectorForAttribute(
-    "focus",
-    submission.value.orgFilter
-  );
+  const focusFilterVector = await getOrganizationFilterVectorForAttribute({
+    attribute: "focus",
+    filter: submission.value.orgFilter,
+    ids: organizationsIds,
+  });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
       focus.slug,

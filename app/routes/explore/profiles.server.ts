@@ -12,6 +12,7 @@ import {
   type Profile,
   type Project,
 } from "@prisma/client";
+import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 
 export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -85,33 +86,6 @@ type SearchWhereStatement = {
 type WhereClause = {
   AND: ProfileVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
-
-function getSlugFromLocaleThatContainsWord(options: {
-  language: ArrayElement<typeof supportedCookieLanguages>;
-  locales: keyof (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >];
-  word: string;
-}) {
-  const { language, locales, word } = options;
-  const slugs = Object.entries(languageModuleMap[language][locales]).find(
-    ([, value]) => {
-      if (
-        typeof value !== "object" &&
-        "title" in value === false &&
-        typeof value.title !== "string"
-      ) {
-        return false;
-      }
-      return (value.title as string).toLowerCase().includes(word.toLowerCase());
-    }
-  );
-
-  if (typeof slugs === "undefined") {
-    return;
-  }
-  return slugs[0];
-}
 
 function getProfilesFilterWhereClause(filter: GetProfilesSchema["prfFilter"]) {
   const whereClauses: WhereClause = { AND: [] };
@@ -494,7 +468,7 @@ export async function getAllProfiles(options: {
   sessionUser: User | null;
   language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const whereClauses: WhereClause = { AND: [] };
+  const whereClauses = getProfilesFilterWhereClause(options.filter);
 
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
@@ -510,23 +484,6 @@ export async function getAllProfiles(options: {
       };
       whereClauses.AND.push(visibilityWhereStatement);
     }
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
-          some: {
-            [typedFilterKey]: {
-              slug,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
   }
 
   const searchWhereClauses = getProfilesSearchWhereClauses(

@@ -15,7 +15,7 @@ import { parseWithZod } from "@conform-to/zod-v1";
 
 import { invariantResponse } from "~/lib/utils/response";
 
-import { getOrganizationsCount } from "./explore/organizations.server";
+import { getOrganizationsIds } from "./explore/organizations.server";
 
 import { getEventsCount } from "./explore/events.server";
 import { getProjectsCount } from "./explore/projects.server";
@@ -54,9 +54,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const profileCount = profileIds.length;
 
-  const organizationCount = await getOrganizationsCount({
+  const organizationIds = await getOrganizationsIds({
     filter: submission.value.orgFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+
+  const organizationCount = organizationIds.length;
   const eventCount = await getEventsCount({
     filter: submission.value.evtFilter,
   });
