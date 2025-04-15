@@ -198,20 +198,8 @@ export default [
   ),
   route("/my", "./routes/my/index.tsx"),
   route("/my/events", "./routes/my/events.tsx"),
-  route("/my/organizations", "./routes/my/organizations.tsx", [
-    route(
-      "/my/organizations/get-organizations-to-add",
-      "./routes/my/organizations/get-organizations-to-add.tsx"
-    ),
-    route("/my/organizations/quit", "./routes/my/organizations/quit.tsx"),
-    route(
-      "/my/organizations/requests",
-      "./routes/my/organizations/requests.tsx"
-    ),
-  ]),
-  route("/my/projects", "./routes/my/projects.tsx", [
-    route("/my/projects/quit", "./routes/my/projects/quit.tsx"),
-  ]),
+  route("/my/organizations", "./routes/my/organizations.tsx"),
+  route("/my/projects", "./routes/my/projects.tsx"),
   route("/logout", "./routes/logout/index.tsx"),
   route("/login", "./routes/login/index.tsx"),
   route("/explore", "./routes/explore.tsx", [

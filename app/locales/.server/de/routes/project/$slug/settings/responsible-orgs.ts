@@ -7,6 +7,7 @@ export const locale = {
       entitiesForInviteNotFound: "Organization or project for invite not found",
       entitiesForRemovalNotFound:
         "Organization or project for removal not found",
+      alreadyResponsible: "Organisation ist bereits verantwortlich",
     },
   },
   email: {
@@ -35,6 +36,7 @@ export const locale = {
       search: "Suche",
       criteria: "Mindestens 3 Buchstaben.",
       submitSearch: "Suchen",
+      alreadyResponsible: "bereits verantwortlich",
       submit: "Hinzufügen",
     },
     addOther: {
@@ -43,6 +45,7 @@ export const locale = {
         label: "Suche",
         helper: "Mindestens 3 Buchstaben.",
       },
+      alreadyResponsible: "bereits verantwortlich",
       add: "Hinzufügen",
     },
     invite: {
@@ -50,6 +53,8 @@ export const locale = {
       search: "Suche",
       criteria: "Mindestens 3 Buchstaben.",
       submitSearch: "Suchen",
+      alreadyResponsible: "bereits verantwortlich",
+      alreadyInvited: "bereits eingeladen",
       submit: "Einladen",
     },
     invites: {

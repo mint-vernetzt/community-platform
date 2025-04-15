@@ -1,4 +1,21 @@
 export const locale = {
+  error: {
+    notFound: "Database entry not found",
+    alreadyMember: "You are already a member of the organization",
+    requestFailed: "Membership request could not be sent",
+    cancelRequestFailed: "Membership request could not be withdrawn",
+    acceptInviteFailed: "Invitation could not be accepted",
+    rejectInviteFailed: "Invitation could not be rejected",
+    notAdmin: "You are not an admin of the organization",
+    acceptRequestFailed: "Membership request could not be accepted",
+    rejectRequestFailed: "Membership request could not be rejected",
+    notAdminOrTeamMember:
+      "You are neither an admin nor a team member of the organization",
+    lastAdmin:
+      "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
+    lastTeamMember:
+      "You cannot leave the organization because you are the last team member. Contact the admins to appoint another team member or delete the organization.",
+  },
   headline: "My Organizations",
   cta: "Create Organization",
   networkInfo: {
@@ -32,20 +49,7 @@ export const locale = {
     more: "Show more information",
     less: "Show less information",
   },
-  invites: {
-    headline: "Invites",
-    subline:
-      "An admin will be notified as soon as you respond to the invitation.",
-    tabbar: {
-      teamMember: "Team Member",
-      admin: "Admin",
-    },
-    decline: "Decline",
-    accept: "Accept",
-    more: "Show {{count}} more",
-    less: "Show {{count}} less",
-  },
-  addOrganization: {
+  requestOrganizationMembership: {
     headline: "Add me to an organization",
     subline:
       "Search for organizations, add yourself as a team member or create an organization.",
@@ -54,72 +58,145 @@ export const locale = {
       organizationsFound:
         "Organizations with this name already exist. Ask if you can join an organization.",
     },
-    createRequest: "Request to join",
-    cancelRequest: "Cancel request to join",
-    errors: {
-      invalidRoute: "No valid route",
-      alreadyInRelation:
-        "You have still requested to add this profile to this organization, have an invite or are already a member.",
-      custom:
-        "The data could not be saved. Please try again or contact the support team.",
-    },
+    createOrganizationMemberRequestCta: "Request to join",
+    cancelOrganizationMemberRequestCta: "Cancel request to join",
+    createOrganizationMemberRequest:
+      "You have requested to join {{name}}. You will be notified as soon as an admin responds to your request.",
+    cancelOrganizationMemberRequest:
+      "You have withdrawn your membership request to {{name}}.",
+    label: "Organization name",
     placeholder: "Search for organization...",
     helperText: "At least 3 letters.",
+    searchCta: "Search",
+    alreadyAdmin: "already admin",
+    alreadyMember: "already team member",
+    alreadyRequested: "already requested",
+    email: {
+      subject: {
+        requested: "Your organization has received a membership request.",
+        canceled:
+          "A membership request to your organization has been withdrawn.",
+      },
+      button: {
+        text: "To the community platform",
+      },
+    },
   },
-  requests: {
-    headline: "Join Requests",
-    subline: "You have {{count}} new membership requests.",
-    singleCountSubline: "You have 1 new membership request.",
-    decline: "Decline",
-    accept: "Add",
-    createRequest:
-      "You have requested to join {{organization.name}}. You will be notified as soon as an admin responds to your request.",
-    cancelRequest:
-      "You have withdrawn your membership request to {{organization.name}}.",
-    rejectRequest:
+  organizationMemberInvites: {
+    headline: "Invites from organizations",
+    subline:
+      "If you accept invitations, you will become a team member or admin of the organization.",
+    tabbar: {
+      teamMember: "Team Member",
+      admin: "Admin",
+    },
+    decline: "Decline invitation",
+    accept: "Accept invitation",
+    adminAccepted:
+      "You have successfully joined the organization {{name}} as an admin.",
+    memberAccepted:
+      "You have successfully joined the organization {{name}} as a team member.",
+    rejected: "You have declined to join the organization {{name}}.",
+    more: "Show {{count}} more",
+    less: "Show {{count}} less",
+    email: {
+      subject: {
+        accepted: "Your invitation has been accepted.",
+        rejected: "Your invitation has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  networkInvites: {
+    headline: "Invitations from your organizations to networks",
+    subline:
+      "When you confirm invitations, your organization becomes visible as a network member.",
+    decline: "Decline invitation",
+    accept: "Accept invitation",
+    rejectNetworkInvite:
+      "You have declined the invitation from {{organizationName}}.",
+    acceptNetworkInvite:
+      "Your organization {{organizationName}} has been added to the network {{networkName}}.",
+    email: {
+      subject: {
+        accepted: "Your invitation has been accepted.",
+        rejected: "Your invitation has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  organizationMemberRequests: {
+    headline: "Membership requests to your organizations",
+    subline:
+      "If you confirm membership requests, people will be visible as team members.",
+    decline: "Decline membership",
+    accept: "Accept membership",
+    rejectOrganizationMemberRequest:
       "You have declined the membership request of {{academicTitle}} {{firstName}} {{lastName}}.",
-    acceptRequest:
+    acceptOrganizationMemberRequest:
       "{{academicTitle}} {{firstName}} {{lastName}} has been added to your organization.",
+    email: {
+      subject: {
+        accepted: "Your membership request has been accepted.",
+        rejected: "Your membership request has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+  },
+  networkRequests: {
+    headline: "Membership requests to your networks",
+    subline:
+      "When you confirm requests, the organizations become visible as network members.",
+    decline: "Decline membership",
+    accept: "Accept membership",
+    rejectNetworkRequest:
+      "You have declined the membership request from {{organizationName}}.",
+    acceptNetworkRequest:
+      "The organization {{organizationName}} has been added to your network {{networkName}}.",
+    email: {
+      subject: {
+        accepted: "Your membership request has been accepted.",
+        rejected: "Your membership request has been declined.",
+      },
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
   },
   quit: {
-    success: "You have successfully left the organization {{organization}}.",
-    lastAdmin:
-      "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
+    modal: {
+      admin: {
+        headline: "Not an admin anymore",
+        subline:
+          "Are you sure you don't want to be an admin of the organization {{name}} anymore?",
+        cta: "Leave organization",
+      },
+      teamMember: {
+        headline: "Not a team member anymore",
+        subline:
+          "Are you sure you don't want to be a team member of the organization {{name}} anymore?",
+        cta: "Leave organization",
+      },
+      cancelCta: "Cancel",
+    },
+    successAdmin: "You are no longer an admin of the organization {{name}}.",
+    successMember:
+      "You are no longer a team member of the organization {{name}}.",
   },
   organizations: {
     tabbar: {
       teamMember: "Team Member",
       admin: "Admin",
     },
-  },
-  alerts: {
-    accepted: "You have successfully joined the {{organization}} organization.",
-    rejected: "You have declined to join the {{organization}} organization.",
-  },
-  email: {
-    createRequest: {
-      subject: "Your organization has received a membership request.",
-      button: {
-        text: "To the community platform",
-      },
-    },
-    acceptRequest: {
-      subject: "Your request has been accepted.",
-    },
-    rejectRequest: {
-      subject: "Your request has been declined.",
-    },
-    inviteAccepted: {
-      subject: "Your invitation has been accepted.",
-    },
-    inviteAsAdminAccepted: {
-      subject: "Your invitation has been accepted.",
-    },
-    inviteRejected: {
-      subject: "Your invitation has been declined.",
-    },
-    inviteAsAdminRejected: {
-      subject: "Your invitation has been declined.",
+    subline: {
+      teamMember: "You are assigned to these organizations as a team member.",
+      admin: "You are assigned to these organizations as an administrator.",
     },
   },
 } as const;

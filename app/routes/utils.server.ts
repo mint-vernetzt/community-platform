@@ -20,6 +20,7 @@ import { type OrganizationTeamSettingsLocales } from "./organization/$slug/setti
 import { type ProjectAdminSettingsLocales } from "./project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "./project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "./project/$slug/settings/responsible-orgs.server";
+import { type MyOrganizationsLocales } from "./my/organizations.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -378,6 +379,7 @@ export async function searchOrganizations(options: {
   idsToExclude?: string[];
   authClient: SupabaseClient;
   locales:
+    | MyOrganizationsLocales
     | ManageOrganizationSettingsLocales
     | ProjectResponsibleOrganizationsSettingsLocales;
   mode: Mode;

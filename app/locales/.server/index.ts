@@ -512,6 +512,7 @@ const de = {
     focuses: deFocuses,
     organizationCard: deOrganizationCard,
     components: deComponents,
+    searchOrganizationsSchema: deSearchOrganizationsSchema,
   },
   "my/projects": { route: deMyProjects, projectCard: deProjectCard },
   // organization routes
@@ -923,6 +924,7 @@ const en = {
     focuses: enFocuses,
     organizationCard: enOrganizationCard,
     components: enComponents,
+    searchOrganizationsSchema: enSearchOrganizationsSchema,
   },
   "my/projects": { route: enMyProjects, projectCard: enProjectCard },
   // organization routes

@@ -9,6 +9,7 @@ export const locale = {
         "Profile or organization for removal not found",
       teamMemberCount:
         "There must always be a team member. Please add someone else as a team member first.",
+      alreadyMember: "Already member",
     },
   },
   email: {
@@ -31,11 +32,13 @@ export const locale = {
       headline_other: "Team members",
       remove: "Remove",
     },
-    add: {
+    invite: {
       headline: "Invite team member",
       search: "Search",
       criteria: "At least 3 characters.",
       submitSearch: "Search",
+      alreadyInvited: "Already invited",
+      alreadyMember: "Already member",
       submit: "Invite",
     },
     invites: {

@@ -114,16 +114,35 @@ export const locale = {
       },
     },
     invites: {
-      headline_one: "You have received {{count}} invitation.",
-      headline_other: "You have received {{count}} invitations.",
+      headline_one: "You have {{count}} open invitation from an organization.",
+      headline_other: "You have {{count}} open invitations from organizations.",
       description:
-        "Answer the request and become visible as a team member of the organization.",
+        "When you confirm invitations, you become visible as a <0>team member/admin</0> of the organization.",
       linkDescription: "To my organizations",
     },
     requests: {
-      headline_one: "You have {{count}} open membership request.",
-      headline_other: "You have {{count}} open membership requests.",
-      description: "Respond to membership requests for your organizations.",
+      headline_one: "Your organization has {{count}} open membership request.",
+      headline_other:
+        "Your organization has {{count}} open membership requests.",
+      description:
+        "When you confirm requests, people become visible as <0>team members/admins</0> of your organization.",
+      linkDescription: "To my organizations",
+    },
+    networkInvites: {
+      headline_one: "Your organization has {{count}} open network invitation.",
+      headline_other:
+        "Your organization has {{count}} open network invitations.",
+      description:
+        "When you confirm invitations, your organization becomes visible as a <0>network member</0>.",
+      linkDescription: "To my organizations",
+    },
+    networkRequests: {
+      headline_one:
+        "Your network has {{count}} open network membership request from an organization.",
+      headline_other:
+        "Your network has {{count}} open network membership requests from organizations.",
+      description:
+        "When you confirm requests, organizations become visible as <0>network members</0>.",
       linkDescription: "To my organizations",
     },
   },

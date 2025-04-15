@@ -115,16 +115,38 @@ export const locale = {
       },
     },
     invites: {
-      headline_one: "Du hast {{count}} offene Einladung.",
-      headline_other: "Du hast {{count}} offene Einladungen.",
+      headline_one:
+        "Du hast {{count}} offene Einladung von einer Organisation.",
+      headline_other:
+        "Du hast {{count}} offene Einladungen von Organisationen.",
       description:
-        "Beantworte die Anfrage und werde damit als Teammitglied der Organisation sichtbar.",
+        "Wenn Du Einladungen bestätigst, wirst Du als <0>Teammitglied/Admin</0> der Organisation sichtbar.",
       linkDescription: "Zu meinen Organisationen",
     },
     requests: {
-      headline_one: "Du hast {{count}} offene Beitrittsanfrage.",
-      headline_other: "Du hast {{count}} offene Beitrittsanfragen.",
-      description: "Beantworte die Anfragen für Deine Organisationen.",
+      headline_one: "Deine Organisation hat {{count}} offene Beitrittsanfrage.",
+      headline_other:
+        "Deine Organisation hat {{count}} offene Beitrittsanfragen.",
+      description:
+        "Wenn Du Anfragen bestätigst, werden Personen als <0>Teammitglieder/Admins</0> Deiner Organisation sichtbar.",
+      linkDescription: "Zu meinen Organisationen",
+    },
+    networkInvites: {
+      headline_one:
+        "Deine Organisation hat {{count}} offene Netzwerkeinladung.",
+      headline_other:
+        "Deine Organisation hat {{count}} offene Netzwerkeinladungen.",
+      description:
+        "Wenn Du Einladungen bestätigst, wird Deine Organisation als <0>Netzwerkmitglied</0> sichtbar.",
+      linkDescription: "Zu meinen Organisationen",
+    },
+    networkRequests: {
+      headline_one:
+        "Dein Netzwerk hat {{count}} offene Beitrittsanfrage einer Organisation.",
+      headline_other:
+        "Dein Netzwerk hat {{count}} offene Beitrittsanfragen von Organisationen.",
+      description:
+        "Wenn Du Anfragen bestätigst, werden die Organisationen als <0>Netzwerkmitglieder</0> sichtbar.",
       linkDescription: "Zu meinen Organisationen",
     },
   },
