@@ -10,11 +10,7 @@ export default defineConfig({
     allowedHosts: [process.env.COMMUNITY_BASE_URL],
   },
   build: {
-    sourcemap:
-      process.env.TRIGGER_SENTRY_RELEASE === "true" &&
-      typeof process.env.SENTRY_ORGANIZATION_NAME !== "undefined" &&
-      typeof process.env.SENTRY_PROJECT_NAME !== "undefined" &&
-      typeof process.env.SENTRY_AUTH_TOKEN !== "undefined",
+    sourcemap: true,
     target: "es2022",
   },
   optimizeDeps: {
@@ -43,12 +39,6 @@ export default defineConfig({
             deploy: {
               env: process.env.COMMUNITY_BASE_URL.replace(/https?:\/\//, ""),
             },
-          },
-          sourcemaps: {
-            filesToDeleteAfterUpload: [
-              "./build/**/*.map",
-              ".server-build/**/*.map",
-            ],
           },
         })
       : undefined,
