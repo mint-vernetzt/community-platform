@@ -253,7 +253,9 @@ function ImageCropper(props: ImageCropperProps) {
     targetCanvas.width = Math.ceil(width * (isLandScape ? 1 : canvasAspect));
     targetCanvas.height = Math.ceil(width / (!isLandScape ? 1 : canvasAspect));
 
-    const pica = new Pica();
+    const pica = new Pica({
+      features: ["js"],
+    });
     const result = await pica.resize(canvas, targetCanvas);
     return result;
   }
