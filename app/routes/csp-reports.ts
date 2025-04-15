@@ -1,5 +1,6 @@
 import { type ActionFunctionArgs } from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
+import * as Sentry from "@sentry/node";
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
@@ -10,8 +11,6 @@ export const action = async (args: ActionFunctionArgs) => {
     { status: 400 }
   );
   const body = await request.json();
-  // TODO: Handle the CSP report
-  console.error(body);
-
+  Sentry.captureException(body);
   return null;
 };
