@@ -242,6 +242,7 @@ export const sanitizeUserHtml = (
     options ?? {
       allowedTags,
       allowedAttributes,
+      parseStyleAttributes: true,
     }
   );
 };

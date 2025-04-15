@@ -42,7 +42,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
 import { updateFilterVectorOfOrganization } from "./utils.server";
-import { triggerEntityScore } from "~/utils.server";
+import { sanitizeUserHtml, triggerEntityScore } from "~/utils.server";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;
@@ -299,6 +299,7 @@ export async function action(args: ActionFunctionArgs) {
             },
             data: {
               ...organizationData,
+              bio: sanitizeUserHtml(organizationData.bio),
               areas: {
                 deleteMany: {},
                 connectOrCreate: areas.map((areaId: string) => {

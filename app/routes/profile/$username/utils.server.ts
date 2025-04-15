@@ -11,7 +11,12 @@ import {
 } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { deriveMode, triggerEntityScore, type Mode } from "~/utils.server";
+import {
+  deriveMode,
+  sanitizeUserHtml,
+  triggerEntityScore,
+  type Mode,
+} from "~/utils.server";
 import { type ProfileQuery } from "./index.server";
 
 export type ProfileMode = Mode | "owner";
@@ -155,6 +160,7 @@ export async function updateProfileById(
       },
       data: {
         ...rest,
+        bio: sanitizeUserHtml(profileData.bio),
         areas: {
           deleteMany: {},
           connectOrCreate: profileData.areas.map((areaId) => ({
