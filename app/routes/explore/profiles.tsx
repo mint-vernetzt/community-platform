@@ -42,9 +42,8 @@ import {
   getAllProfiles,
   getFilterCountForSlug,
   getProfileFilterVectorForAttribute,
-  getProfilesCount,
+  getProfilesIds,
   getTakeParam,
-  getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
@@ -144,6 +143,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const submission = parseWithZod(searchParams, {
     schema: getFilterSchemes,
   });
+
+  // console.log(JSON.stringify(submission, null, 2));
+
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -161,16 +163,24 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
+    const profileIdsFilteredByVisibility = await getProfilesIds({
       filter: submission.value.prfFilter,
+      search: submission.value.search,
+      sessionUser: null,
+      language,
     });
+    filteredByVisibilityCount = profileIdsFilteredByVisibility.length;
   }
-  const profilesCount = await getProfilesCount({
+
+  const profilesIds = await getProfilesIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
+
+  const profilesCount = profilesIds.length;
+
   const profiles = await getAllProfiles({
     filter: submission.value.prfFilter,
     sortBy: submission.value.prfSortBy,
@@ -179,13 +189,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser,
     language,
   });
-
-  console.log(
-    "profilesCount:",
-    profilesCount,
-    "profiles.length:",
-    profiles.length
-  );
 
   const enhancedProfiles = [];
   for (const profile of profiles) {
@@ -310,10 +313,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  const ids = enhancedProfiles.map((profile) => {
-    return profile.id;
-  });
-
   const areas = await getAreasBySearchQuery(submission.value.prfAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -331,7 +330,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areaFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.prfFilter,
-    ids,
+    ids: profilesIds,
   });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -366,7 +365,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const offerFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "offer",
     filter: submission.value.prfFilter,
-    ids,
+    ids: profilesIds,
   });
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(

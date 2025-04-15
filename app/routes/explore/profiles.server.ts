@@ -86,57 +86,6 @@ type WhereClause = {
   AND: ProfileVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
 
-export async function getVisibilityFilteredProfilesCount(options: {
-  filter: GetProfilesSchema["prfFilter"];
-}) {
-  const whereClauses: {
-    AND: WhereClause["AND"] & { OR: ProfileVisibility[] }[];
-  } = { AND: [] };
-  const visibilityWhereClauses: { OR: ProfileVisibility[] } = { OR: [] };
-
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-
-    if (filterValues.length === 0) {
-      continue;
-    }
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    const visibilityWhereStatement = {
-      profileVisibility: {
-        [`${typedFilterKey}s`]: false,
-      },
-    };
-    visibilityWhereClauses.OR.push(visibilityWhereStatement);
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
-          some: {
-            [typedFilterKey]: {
-              slug,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-    whereClauses.AND.push(filterKeyWhereStatement);
-  }
-  if (visibilityWhereClauses.OR.length === 0) {
-    return 0;
-  }
-  whereClauses.AND.push(visibilityWhereClauses);
-
-  const count = await prismaClient.profile.count({
-    where: whereClauses,
-  });
-
-  return count;
-}
-
 function getSlugFromLocaleThatContainsWord(options: {
   language: ArrayElement<typeof supportedCookieLanguages>;
   locales: keyof (typeof languageModuleMap)[ArrayElement<
@@ -506,7 +455,7 @@ function getProfilesSearchWhereClauses(
   return whereClauses;
 }
 
-export async function getProfilesCount(options: {
+export async function getProfilesIds(options: {
   filter: GetProfilesSchema["prfFilter"];
   search: GetSearchSchema["search"];
   sessionUser: User | null;
@@ -518,15 +467,23 @@ export async function getProfilesCount(options: {
     options.sessionUser,
     options.language
   );
-  const whereClauses = {
-    AND: [filterWhereClause, ...searchWhereClauses],
-  };
 
-  const count = await prismaClient.profile.count({
+  filterWhereClause.AND.push(...searchWhereClauses);
+
+  const whereClauses = filterWhereClause;
+
+  const profiles = await prismaClient.profile.findMany({
     where: whereClauses,
+    select: {
+      id: true,
+    },
   });
 
-  return count;
+  const ids = profiles.map((profile) => {
+    return profile.id;
+  });
+
+  return ids;
 }
 
 export async function getAllProfiles(options: {
@@ -545,7 +502,7 @@ export async function getAllProfiles(options: {
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.sessionUser !== null) {
+    if (options.sessionUser === null) {
       const visibilityWhereStatement: ProfileVisibility = {
         profileVisibility: {
           [`${typedFilterKey}s`]: true,

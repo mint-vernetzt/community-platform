@@ -10,7 +10,7 @@ import {
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
-import { getProfilesCount } from "./explore/profiles.server";
+import { getProfilesIds } from "./explore/profiles.server";
 import { parseWithZod } from "@conform-to/zod-v1";
 
 import { invariantResponse } from "~/lib/utils/response";
@@ -45,12 +45,14 @@ export async function loader(args: LoaderFunctionArgs) {
     { status: 400 }
   );
 
-  const profileCount = await getProfilesCount({
+  const profileIds = await getProfilesIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
+
+  const profileCount = profileIds.length;
 
   const organizationCount = await getOrganizationsCount({
     filter: submission.value.orgFilter,
