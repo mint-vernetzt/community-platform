@@ -92,8 +92,9 @@ export async function getProjectWithResponsibleOrganizations(options: {
 
 export async function getOwnOrganizationSuggestions(options: {
   sessionUser: User | null;
+  authClient: SupabaseClient;
 }) {
-  const { sessionUser } = options;
+  const { sessionUser, authClient } = options;
 
   if (sessionUser === null) {
     return [];
@@ -184,19 +185,22 @@ export async function getOwnOrganizationSuggestions(options: {
       let logo = organization.logo;
       let blurredLogo;
       if (logo !== null) {
-        logo = getImageURL(logo, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Organization.ListItem.Logo,
-          },
-        });
-        blurredLogo = getImageURL(logo, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Organization.ListItem.BlurredLogo,
-          },
-          blur: BlurFactor,
-        });
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
       }
       return { ...organization, logo, blurredLogo };
     }
