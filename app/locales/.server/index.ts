@@ -475,6 +475,7 @@ const de = {
   "explore/organizations": {
     route: deExploreOrganizations,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     focuses: deFocuses,
     organizationCard: deOrganizationCard,
   },
@@ -504,6 +505,7 @@ const de = {
   "my/organizations": {
     route: deMyOrganizations,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     focuses: deFocuses,
     organizationCard: deOrganizationCard,
     components: deComponents,
@@ -712,6 +714,7 @@ const de = {
     route: deSearchOrganizations,
     focuses: deFocuses,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     organizationCard: deOrganizationCard,
   },
   "search/profiles": {
@@ -733,6 +736,7 @@ const de = {
     organizationCard: deOrganizationCard,
     focuses: deFocuses,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     eventCard: deEventCard,
     stages: deStages,
     projectCard: deProjectCard,
@@ -884,6 +888,7 @@ const en = {
   "explore/organizations": {
     route: enExploreOrganizations,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     focuses: enFocuses,
     organizationCard: enOrganizationCard,
   },
@@ -913,6 +918,7 @@ const en = {
   "my/organizations": {
     route: enMyOrganizations,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     focuses: enFocuses,
     organizationCard: enOrganizationCard,
     components: enComponents,
@@ -1121,6 +1127,7 @@ const en = {
     route: enSearchOrganizations,
     focuses: enFocuses,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     organizationCard: enOrganizationCard,
   },
   "search/profiles": {
@@ -1142,6 +1149,7 @@ const en = {
     organizationCard: enOrganizationCard,
     focuses: enFocuses,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     eventCard: enEventCard,
     stages: enStages,
     projectCard: enProjectCard,

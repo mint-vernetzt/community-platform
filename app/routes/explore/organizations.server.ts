@@ -172,6 +172,15 @@ export async function getAllOrganizations(options: {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       focuses: {
         select: {
           focus: {
