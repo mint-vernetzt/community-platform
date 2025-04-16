@@ -42,10 +42,9 @@ import {
   getAllFocuses,
   getAllStages,
   getEventFilterVectorForAttribute,
-  getEventsCount,
+  getEventIds,
   getFilterCountForSlug,
   getTakeParam,
-  getVisibilityFilteredEventsCount,
 } from "./events.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
@@ -174,18 +173,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredEventsCount({
+    const eventIdsFilteredByVisibility = await getEventIds({
       filter: submission.value.evtFilter,
+      search: submission.value.search,
+      sessionUser: null,
+      language,
     });
+    filteredByVisibilityCount = eventIdsFilteredByVisibility.length;
   }
-  const eventsCount = await getEventsCount({
+
+  const eventIds = await getEventIds({
     filter: submission.value.evtFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+
+  const eventsCount = eventIds.length;
+
   const events = await getAllEvents({
     filter: submission.value.evtFilter,
     sortBy: submission.value.evtSortBy,
+    search: submission.value.search,
+    sessionUser,
     take,
-    isLoggedIn,
+    language,
   });
 
   const enhancedEvents = [];
@@ -296,10 +308,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     district: [] as EnhancedAreas,
   };
 
-  const areaFilterVector = await getEventFilterVectorForAttribute(
-    "area",
-    submission.value.evtFilter
-  );
+  const areaFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.evtFilter,
+    ids: eventIds,
+  });
 
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -331,10 +344,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const focuses = await getAllFocuses();
-  const focusFilterVector = await getEventFilterVectorForAttribute(
-    "focus",
-    submission.value.evtFilter
-  );
+  const focusFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "focus",
+    filter: submission.value.evtFilter,
+    ids: eventIds,
+  });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
       focus.slug,
@@ -346,10 +360,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const targetGroups = await getAllEventTargetGroups();
-  const targetGroupFilterVector = await getEventFilterVectorForAttribute(
-    "eventTargetGroup",
-    submission.value.evtFilter
-  );
+  const targetGroupFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "eventTargetGroup",
+    filter: submission.value.evtFilter,
+    ids: eventIds,
+  });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,

@@ -10,14 +10,14 @@ import {
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
-import { getProfilesIds } from "./explore/profiles.server";
+import { getProfileIds } from "./explore/profiles.server";
 import { parseWithZod } from "@conform-to/zod-v1";
 
 import { invariantResponse } from "~/lib/utils/response";
 
-import { getOrganizationsIds } from "./explore/organizations.server";
+import { getOrganizationIds } from "./explore/organizations.server";
 
-import { getEventsCount } from "./explore/events.server";
+import { getEventIds } from "./explore/events.server";
 import { getProjectsCount } from "./explore/projects.server";
 import { getFundingsCount } from "./explore/fundings.server";
 import { getFilterSchemes } from "./explore/index";
@@ -45,26 +45,30 @@ export async function loader(args: LoaderFunctionArgs) {
     { status: 400 }
   );
 
-  const profileIds = await getProfilesIds({
+  const profileIds = await getProfileIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
-
   const profileCount = profileIds.length;
 
-  const organizationIds = await getOrganizationsIds({
+  const organizationIds = await getOrganizationIds({
     filter: submission.value.orgFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
-
   const organizationCount = organizationIds.length;
-  const eventCount = await getEventsCount({
+
+  const eventIds = await getEventIds({
     filter: submission.value.evtFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+  const eventCount = eventIds.length;
+
   const projectCount = await getProjectsCount({
     filter: submission.value.prjFilter,
   });
