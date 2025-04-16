@@ -63,6 +63,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const ownOrganizationSuggestions = await getOwnOrganizationSuggestions({
     sessionUser,
+    authClient,
   });
 
   const { searchedOrganizations, submission } = await searchOrganizations({
