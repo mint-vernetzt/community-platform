@@ -49,6 +49,15 @@ export async function getOrganizationsFromProfile(id: string) {
               },
             },
           },
+          networkTypes: {
+            select: {
+              networkType: {
+                select: {
+                  slug: true,
+                },
+              },
+            },
+          },
           focuses: {
             select: {
               focus: {
@@ -105,6 +114,15 @@ export async function getOrganizationsFromProfile(id: string) {
           types: {
             select: {
               organizationType: {
+                select: {
+                  slug: true,
+                },
+              },
+            },
+          },
+          networkTypes: {
+            select: {
+              networkType: {
                 select: {
                   slug: true,
                 },
@@ -367,6 +385,9 @@ export function flattenOrganizationRelations(
         types: organization.types.map((relation) => {
           return relation.organizationType.slug;
         }),
+        networkTypes: organization.networkTypes.map((relation) => {
+          return relation.networkType.slug;
+        }),
         focuses: organization.focuses.map((relation) => {
           return relation.focus.slug;
         }),
@@ -386,6 +407,9 @@ export function flattenOrganizationRelations(
         }),
         types: organization.types.map((relation) => {
           return relation.organizationType.slug;
+        }),
+        networkTypes: organization.networkTypes.map((relation) => {
+          return relation.networkType.slug;
         }),
         focuses: organization.focuses.map((relation) => {
           return relation.focus.slug;

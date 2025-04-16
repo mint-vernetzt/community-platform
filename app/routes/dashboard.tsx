@@ -224,7 +224,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
       focuses: string[];
       areas: string[];
       types: string[];
-    } = { teamMembers: [], focuses: [], areas: [], types: [] };
+      networkTypes: string[];
+    } = {
+      teamMembers: [],
+      focuses: [],
+      areas: [],
+      types: [],
+      networkTypes: [],
+    };
 
     let logoImage: string | null = null;
     let blurredLogo;
@@ -312,6 +319,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     extensions.types = organization.types.map((relation) => {
       return relation.organizationType.slug;
     });
+
+    extensions.networkTypes = organization.networkTypes.map((relation) => {
+      return relation.networkType.slug;
+    });
+
     return {
       ...otherFields,
       ...extensions,
