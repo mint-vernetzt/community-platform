@@ -239,17 +239,17 @@ function Team() {
                   schema={removeMemberSchema}
                   fetcher={removeMemberFetcher}
                   action={`/event/${slug}/settings/team/remove-member`}
-                  hiddenFields={["profileId"]}
-                  values={{
-                    profileId: teamMember.id,
-                  }}
                 >
                   {(remixFormsProps) => {
-                    const { Field, Button, Errors } = remixFormsProps;
+                    const { Button, Errors } = remixFormsProps;
                     return (
                       <>
                         <Errors />
-                        <Field name="profileId" />
+                        <input
+                          name="profileId"
+                          defaultValue={teamMember.id}
+                          hidden
+                        />
                         {loaderData.teamMembers.length > 1 ? (
                           <Button
                             className="ml-auto btn-none"
@@ -285,16 +285,14 @@ function Team() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.route.content.hide

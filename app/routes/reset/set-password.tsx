@@ -102,20 +102,17 @@ export default function SetPassword() {
   return (
     <>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        <RemixFormsForm
-          method="post"
-          schema={schema}
-          hiddenFields={["loginRedirect"]}
-          values={{
-            loginRedirect: loginRedirect,
-          }}
-        >
+        <RemixFormsForm method="post" schema={schema}>
           {({ Field, Errors, register }) => (
             <div className="flex flex-col mv-w-full mv-items-center">
               <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
                 <div className="mv-mb-6 mv-mt-12"> </div>
                 <h1 className="mb-8">Neues Passwort vergeben</h1>
-                <Field name="loginRedirect" />
+                <input
+                  name="loginRedirect"
+                  defaultValue={loginRedirect || undefined}
+                  hidden
+                />
                 <div className="mb-4">
                   <Field name="password" label="Neues Passwort">
                     {({ Errors }) => (

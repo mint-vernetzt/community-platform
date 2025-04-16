@@ -193,10 +193,6 @@ export default function Register() {
               <RemixFormsForm
                 method="post"
                 schema={schema}
-                hiddenFields={["loginRedirect"]}
-                values={{
-                  loginRedirect: loginRedirect,
-                }}
                 onKeyDown={handleKeyPress}
               >
                 {({ Field, Errors, register }) => (
@@ -204,7 +200,11 @@ export default function Register() {
                     <p className="mb-4">{locales.form.intro}</p>
                     <div className="flex flex-row -mx-4 mb-4">
                       <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
-                        <Field name="loginRedirect" />
+                        <input
+                          name="loginRedirect"
+                          defaultValue={loginRedirect || undefined}
+                          hidden
+                        />
                         <Field name="academicTitle" label="Titel">
                           {({ Errors }) => (
                             <>

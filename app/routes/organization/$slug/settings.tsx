@@ -128,7 +128,6 @@ function Settings() {
             </span>
             <Link
               to={`/organization/${loaderData.organization.slug}`}
-              prefetch="intent"
               className="mv-px-4"
             >
               <svg
@@ -177,7 +176,6 @@ function Settings() {
                   <Link
                     to={`${navLink.to}?${Deep}=true`}
                     className={linkClasses}
-                    prefetch="intent"
                     preventScrollReset
                   >
                     <span className="mv-text-wrap">{navLink.label}</span>

@@ -309,18 +309,18 @@ function Participants() {
                     schema={moveToParticipantsSchema}
                     fetcher={moveToParticipantsFetcher}
                     action={`/event/${slug}/settings/waiting-list/move-to-participants`}
-                    hiddenFields={["profileId"]}
-                    values={{
-                      profileId: waitingParticipant.id,
-                    }}
                     className="ml-auto"
                   >
                     {(remixFormsProps) => {
-                      const { Field, Button, Errors } = remixFormsProps;
+                      const { Button, Errors } = remixFormsProps;
                       return (
                         <>
                           <Errors />
-                          <Field name="profileId" />
+                          <input
+                            name="profileId"
+                            defaultValue={waitingParticipant.id}
+                            hidden
+                          />
                           <Button className="btn btn-outline-primary ml-auto btn-small">
                             {locales.route.content.current.action}
                           </Button>
@@ -332,17 +332,17 @@ function Participants() {
                     schema={removeFromWaitingListSchema}
                     fetcher={removeFromWaitingListFetcher}
                     action={`/event/${slug}/settings/waiting-list/remove-from-waiting-list`}
-                    hiddenFields={["profileId"]}
-                    values={{
-                      profileId: waitingParticipant.id,
-                    }}
                   >
                     {(remixFormsProps) => {
-                      const { Field, Button, Errors } = remixFormsProps;
+                      const { Button, Errors } = remixFormsProps;
                       return (
                         <>
                           <Errors />
-                          <Field name="profileId" />
+                          <input
+                            name="profileId"
+                            defaultValue={waitingParticipant.id}
+                            hidden
+                          />
                           <Button
                             className="ml-auto btn-none"
                             title={locales.route.content.current.remove}
@@ -377,16 +377,14 @@ function Participants() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.route.content.hide

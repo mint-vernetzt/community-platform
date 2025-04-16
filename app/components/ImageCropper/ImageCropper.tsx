@@ -253,7 +253,9 @@ function ImageCropper(props: ImageCropperProps) {
     targetCanvas.width = Math.ceil(width * (isLandScape ? 1 : canvasAspect));
     targetCanvas.height = Math.ceil(width / (!isLandScape ? 1 : canvasAspect));
 
-    const pica = new Pica();
+    const pica = new Pica({
+      features: ["js"],
+    });
     const result = await pica.resize(canvas, targetCanvas);
     return result;
   }
@@ -384,14 +386,14 @@ function ImageCropper(props: ImageCropperProps) {
               aspect={aspect ?? undefined}
               minWidth={minCropWidth}
               minHeight={minCropHeight}
-              style={{ maxHeight: "288px" }}
+              className="mv-max-h-[288px]"
               circularCrop={circularCrop}
             >
               <img
                 ref={imgRef}
                 alt="Crop Preview"
                 src={imgSrc}
-                style={{ transform: `scale(${scale})` }}
+                className={`mv-transform-[scale(${scale})]`}
                 onLoad={onImageLoad}
               />
             </ReactCrop>
@@ -402,12 +404,9 @@ function ImageCropper(props: ImageCropperProps) {
         {Boolean(completedCrop) && (
           <canvas
             ref={previewCanvasRef}
-            style={{
-              objectFit: "contain",
-              width: completedCrop?.width ?? 0,
-              height: completedCrop?.height ?? 0,
-              display: "none",
-            }}
+            className="mv-hidden mv-object-contain"
+            width={completedCrop?.width ?? 0}
+            height={completedCrop?.height ?? 0}
           />
         )}
       </div>

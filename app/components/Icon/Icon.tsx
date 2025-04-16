@@ -126,7 +126,6 @@ export function Icon(props: IconProps) {
   } = props;
   return (
     <svg
-      style={{}}
       viewBox={`0 0 ${parseInt(width) * scaleFactor} ${
         parseInt(height) * scaleFactor
       }`}

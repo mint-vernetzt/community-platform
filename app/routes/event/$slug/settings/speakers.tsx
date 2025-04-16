@@ -243,18 +243,18 @@ function Speakers() {
                 schema={removeSpeakerSchema}
                 fetcher={removeSpeakerFetcher}
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
-                hiddenFields={["profileId"]}
-                values={{
-                  profileId: profile.id,
-                }}
                 className="ml-auto"
               >
                 {(remixFormsProps) => {
-                  const { Field, Button, Errors } = remixFormsProps;
+                  const { Button, Errors } = remixFormsProps;
                   return (
                     <>
                       <Errors />
-                      <Field name="profileId" />
+                      <input
+                        name="profileId"
+                        defaultValue={profile.id}
+                        hidden
+                      />
                       <Button
                         className="ml-auto btn-none"
                         title={locales.route.content.current.remove}
@@ -287,16 +287,14 @@ function Speakers() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.route.content.hide

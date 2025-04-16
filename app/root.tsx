@@ -48,6 +48,8 @@ import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButt
 import { ModalRoot } from "./components-next/ModalRoot";
 import { invariantResponse } from "./lib/utils/response";
 import { getFeatureAbilities } from "./routes/feature-access.server";
+import { useNonce } from "./nonce-provider";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -189,6 +191,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 export const ErrorBoundary = () => {
   const error = useRouteError();
   const isResponse = isRouteErrorResponse(error);
+  const nonce = useNonce();
 
   if (typeof document !== "undefined") {
     console.error(error);
@@ -324,15 +327,14 @@ export const ErrorBoundary = () => {
             </div>
           </div>
         </div>
-        <ScrollRestoration />
-        {hasRootLoaderData ? (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
-          />
-        ) : null}
-        <Scripts />
+        <ScrollRestoration nonce={nonce} />
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   );
@@ -352,6 +354,8 @@ export default function App() {
     abilities,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
+  const nonce = useNonce();
+  const isHydrated = useHydrated();
 
   React.useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -476,9 +480,12 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
+        {typeof matomoSiteId !== "undefined" &&
+        matomoSiteId !== "" &&
+        isHydrated === true ? (
           <script
             async
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `
                 var _paq = window._paq = window._paq || [];
@@ -488,7 +495,7 @@ export default function App() {
                   _paq.push(['setTrackerUrl', u+'matomo.php']);
                   _paq.push(['setSiteId', '${matomoSiteId}']);
                   var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-                  g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+                  g.async=true; g.nonce="${nonce}"; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
                 })();
               `,
             }}
@@ -542,13 +549,14 @@ export default function App() {
           </div>
           <ModalRoot />
         </div>
-        <ScrollRestoration />
+        <ScrollRestoration nonce={nonce} />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(ENV)}`,
           }}
         />
-        <Scripts />
+        <Scripts nonce={nonce} />
       </body>
     </html>
   );

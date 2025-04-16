@@ -115,20 +115,12 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
   const fetcher = useFetcher<typeof action>();
   const locales = props.locales;
   return (
-    <RemixFormsForm
-      action={props.action}
-      fetcher={fetcher}
-      schema={schema}
-      hiddenFields={["profileId"]}
-      values={{
-        profileId: props.profileId,
-      }}
-    >
+    <RemixFormsForm action={props.action} fetcher={fetcher} schema={schema}>
       {(remixFormsProps) => {
-        const { Field, Errors } = remixFormsProps;
+        const { Errors } = remixFormsProps;
         return (
           <>
-            <Field name="profileId" />
+            <input name="profileId" defaultValue={props.profileId} hidden />
             <button type="submit" className="btn btn-primary">
               {locales.addToWaitingList.action}
             </button>

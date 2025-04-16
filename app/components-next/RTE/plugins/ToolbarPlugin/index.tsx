@@ -199,7 +199,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       <div className="mv-group">
         <div>
           <input
-            id="add-link"
+            id={`add-link-${editor.getKey()}`}
             disabled={canInsertLink === false}
             type="checkbox"
             className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]:mv-w-screen group-has-[:checked]:mv-h-dvh"
@@ -216,7 +216,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           {/* TODO: fix a11y issue */}
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <label
-            htmlFor="add-link"
+            htmlFor={`add-link-${editor.getKey()}`}
             className={`${baseButtonClassName} ${
               canInsertLink === true ? enabledClassName : disabledClassName
             }`}
@@ -234,7 +234,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border-x mv-border-b mv-border-gray-200 mv-px-2 mv-pb-2 mv-rounded-br-lg">
             <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
               <Input
-                id="linkInput"
+                id={`link-input-${editor.getKey()}`}
                 withoutName
                 ref={linkInputRef}
                 value={linkInputValue}
@@ -242,7 +242,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                   setLinkInputValue(event.currentTarget.value)
                 }
               >
-                <Input.Label htmlFor="linkInput">
+                <Input.Label htmlFor={`link-input-${editor.getKey()}`}>
                   {locales.rte.toolbar.link.cta}
                 </Input.Label>
                 <Input.Controls>

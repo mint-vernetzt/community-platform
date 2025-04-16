@@ -8,7 +8,7 @@ function InputForFormPlugin(props: OverrideableInputProps) {
   const [editor] = useLexicalComposerContext();
   const [value, setValue] = React.useState(defaultValue || "");
 
-  // Set editor default value
+  // Synchronize the value of the input with the editor content
   React.useEffect(() => {
     return editor.registerUpdateListener(() => {
       editor.read(() => {
@@ -16,7 +16,7 @@ function InputForFormPlugin(props: OverrideableInputProps) {
         if (htmlString === "<p><br></p>") {
           setValue("");
         } else {
-          setValue(htmlString);
+          setValue(htmlString.replaceAll(/\s?style="[^"]*\s?"/g, ""));
         }
       });
     });

@@ -65,9 +65,25 @@ function Select(props: SelectProps) {
       <div className="mv-relative">
         <select
           {...selectProps}
-          className="mv-appearance-none mv-bg-select-arrow mv-bg-no-repeat mv-bg-[right_0.5rem_center] mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 invalid:mv-text-gray-400 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0"
+          className="mv-relative mv-appearance-none mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 invalid:mv-text-gray-400 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0"
         >
           {options}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="21"
+            fill="none"
+            viewBox="0 0 20 21"
+            className="mv-absolute mv-right-2 mv-top-2 group-has-[:checked]/conform-select:mv-rotate-180"
+          >
+            <path
+              stroke="#262D38"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.4"
+              d="m5 7.5 5 5.5 5-5.5"
+            />
+          </svg>
         </select>
       </div>
       {helperText}
