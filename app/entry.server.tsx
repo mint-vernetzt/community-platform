@@ -50,7 +50,9 @@ export default async function handleRequest(
         ? ` connect-src 'self' ${process.env.SENTRY_DSN.replace(
             /https?:\/\//,
             ""
-          )};`
+          )
+            .replace(/sentry\.io.*/, "sentry.io")
+            .replace(/^.*@/, "")};`
         : ""
     }`
   );
