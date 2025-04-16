@@ -14,13 +14,7 @@ export default function Status() {
   return (
     <>
       <h1>Status</h1>
-      <p
-        style={{
-          opacity: 0.5,
-        }}
-      >
-        {loaderData.message}
-      </p>
+      <p>{loaderData.message}</p>
     </>
   );
 }
