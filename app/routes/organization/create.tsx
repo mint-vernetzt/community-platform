@@ -7,11 +7,12 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  redirect,
   useActionData,
+  useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
-  redirect,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
@@ -26,27 +27,30 @@ import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
 import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
+import { searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
+import { SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { getPublicURL } from "~/storage.server";
-import { generateOrganizationSlug } from "~/utils.server";
+import { redirectWithToast } from "~/toast.server";
+import { searchOrganizations } from "../utils.server";
 import {
-  countOrganizationsBySearchQuery,
-  createOrganizationOnProfile,
+  addImageUrlToOrganizations,
+  createOrganization,
+  createOrganizationMemberRequest,
+  flattenOrganizationRelations,
   getAllNetworkTypes,
   getAllOrganizationTypes,
-  getOrganizationTypesWithSlugs as getOrganizationTypeNetwork,
-  searchForOrganizationsByName,
+  getOrganizationsFromProfile,
+  getPendingRequestsToOrganizations,
   type CreateOrganizationLocales,
 } from "./create.server";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 80;
 
-const createSchema = (locales: CreateOrganizationLocales) => {
+export const createSchema = (locales: CreateOrganizationLocales) => {
   return z.object({
     organizationName: z
       .string({
@@ -88,57 +92,33 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["organization/create"];
 
-  const url = new URL(request.url);
-
-  const queryString = url.searchParams.get("search");
-  const query =
-    queryString !== null && queryString.length >= NAME_MIN_LENGTH
-      ? queryString.split(" ")
-      : [];
-
-  let searchResult: Awaited<ReturnType<typeof searchForOrganizationsByName>> =
-    [];
-
-  if (query.length > 0) {
-    searchResult = await searchForOrganizationsByName(query);
-    searchResult = searchResult.map((relation) => {
-      let logo = relation.logo;
-      let blurredLogo;
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width:
-                ImageSizes.Organization.ListItemCreateOrganization.Logo.width,
-              height:
-                ImageSizes.Organization.ListItemCreateOrganization.Logo.height,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width:
-                ImageSizes.Organization.ListItemCreateOrganization.BlurredLogo
-                  .width,
-              height:
-                ImageSizes.Organization.ListItemCreateOrganization.BlurredLogo
-                  .height,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      return { ...relation, logo, blurredLogo };
-    });
-  }
-
   const allOrganizationTypes = await getAllOrganizationTypes();
   const allNetworkTypes = await getAllNetworkTypes();
 
+  const organizations = await getOrganizationsFromProfile(sessionUser.id);
+  const enhancedOrganizations = addImageUrlToOrganizations(
+    authClient,
+    organizations
+  );
+  const flattenedOrganizations = flattenOrganizationRelations(
+    enhancedOrganizations
+  );
+
+  const pendingRequestsToOrganizations =
+    await getPendingRequestsToOrganizations(sessionUser.id, authClient);
+
+  const { searchedOrganizations, submission } = await searchOrganizations({
+    searchParams: new URL(request.url).searchParams,
+    authClient,
+    locales,
+    mode: "authenticated",
+  });
+
   return {
-    searchResult,
+    organizations: flattenedOrganizations,
+    pendingRequestsToOrganizations,
+    searchedOrganizations,
+    submission,
     allOrganizationTypes,
     allNetworkTypes,
     locales,
@@ -146,104 +126,121 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
+export const createOrganizationMemberRequestSchema = z.object({
+  organizationId: z.string(),
+});
+
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
 
-  const url = new URL(request.url);
-
-  const queryString = url.searchParams.get("search");
-
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["organization/create"];
 
+  let result;
+  let redirectUrl = request.url;
   const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema: createSchema(locales) });
+  const intent = formData.get("intent");
+  invariantResponse(typeof intent === "string", "Intent is not a string.", {
+    status: 400,
+  });
 
-  if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-    };
-  }
-
-  const { organizationName } = submission.value;
-
-  const query = organizationName.split(" ");
-  const similarOrganizationsCount = await countOrganizationsBySearchQuery(
-    query
-  );
-
-  if (
-    similarOrganizationsCount === 0 ||
-    // This condition is for the second submission, when the user wants to create the organization even if a similar exists
-    (queryString !== null && queryString === organizationName)
-  ) {
-    const slug = generateOrganizationSlug(organizationName);
-    const organizationTypeNetwork = await getOrganizationTypeNetwork();
-    invariantResponse(
-      organizationTypeNetwork !== null,
-      locales.route.validation.organizationTypeNetworkNotFound,
-      { status: 404 }
+  if (intent.startsWith("create-organization-member-request-")) {
+    const requestToJoinOrganizationFormData = new FormData();
+    requestToJoinOrganizationFormData.set(
+      "organizationId",
+      intent.replace("create-organization-member-request-", "")
     );
-    const isNetwork = submission.value.organizationTypes.some(
-      (id) => id === organizationTypeNetwork.id
-    );
-    invariantResponse(
-      (isNetwork === false && submission.value.networkTypes.length > 0) ===
-        false,
-      locales.route.validation.notANetwork,
-      { status: 400 }
-    );
-    if (isNetwork === true && submission.value.networkTypes.length === 0) {
-      const newSubmission = parseWithZod(formData, {
-        schema: () =>
-          createSchema(locales).transform(async (data, ctx) => {
-            ctx.addIssue({
-              code: "custom",
-              message: locales.route.validation.networkTypesRequired,
-              path: ["networkTypes"],
-            });
-            return z.NEVER;
-          }),
-      });
-      return {
-        submission: newSubmission.reply(),
-        currentTimestamp: Date.now(),
-      };
-    }
-    await createOrganizationOnProfile(sessionUser.id, submission.value, slug);
-    return redirectWithAlert(`/organization/${slug}/detail/about`, {
-      message: insertParametersIntoLocale(locales.route.successAlert, {
-        name: submission.value.organizationName,
-        slug: slug,
-      }),
-      isRichtext: true,
+    result = await createOrganizationMemberRequest({
+      formData: requestToJoinOrganizationFormData,
+      locales,
+      sessionUser,
+    });
+  } else if (intent === "create-organization") {
+    // TODO: Same returns as above only with alert
+    result = await createOrganization({
+      formData,
+      locales,
+      sessionUser,
     });
   } else {
-    const redirectURL = new URL(request.url);
-    redirectURL.searchParams.set("search", submission.value.organizationName);
-    return redirect(
-      `${redirectURL.pathname}?${redirectURL.searchParams.toString()}`
-    );
+    invariantResponse(false, "Invalid intent", {
+      status: 400,
+    });
   }
+
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(redirectUrl, result.toast);
+  }
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.alert !== undefined
+  ) {
+    return redirectWithAlert(redirectUrl, result.alert);
+    // return redirectWithAlert(`/organization/${slug}/detail/about`, {
+    //   message: insertParametersIntoLocale(locales.route.successAlert, {
+    //     name: submission.value.organizationName,
+    //     slug: slug,
+    //   }),
+    //   isRichtext: true,
+    // });
+  }
+  return { submission: result.submission, currentTimestamp: Date.now() };
 }
 
 function CreateOrganization() {
   const loaderData = useLoaderData<typeof loader>();
   const {
-    searchResult,
+    organizations,
+    pendingRequestsToOrganizations,
+    searchedOrganizations: loaderSearchedOrganizations,
     allOrganizationTypes,
     allNetworkTypes,
     locales,
     currentTimestamp,
+    submission: loaderSubmission,
   } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("search") || undefined;
+
+  const searchQuery = searchParams.get(SearchOrganizations) || undefined;
+  const searchFetcher = useFetcher<typeof loader>();
+  const searchedOrganizations =
+    searchFetcher.data !== undefined
+      ? searchFetcher.data.searchedOrganizations
+      : loaderSearchedOrganizations;
+
+  const [searchForm, searchFields] = useForm({
+    id: "search-organizations",
+    defaultValue: {
+      [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
+    },
+    constraint: getZodConstraint(searchOrganizationsSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: searchOrganizationsSchema(locales),
+      });
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? loaderSubmission : null,
+  });
+  const [createOrganizationMemberRequestForm] = useForm({
+    id: `create-organization-member-request-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
 
   const [form, fields] = useForm({
     id: `create-organization-${
@@ -337,52 +334,164 @@ function CreateOrganization() {
           <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
             {locales.route.form.organizationName.headline}
           </h2>
-          <Input
-            {...getInputProps(fields.organizationName, { type: "text" })}
-            key="organizationName"
-            minLength={NAME_MIN_LENGTH}
-            maxLength={NAME_MAX_LENGTH}
+          <searchFetcher.Form
+            {...getFormProps(searchForm)}
+            method="get"
+            onChange={(event) => {
+              searchForm.validate();
+              if (searchForm.valid) {
+                searchFetcher.submit(event.currentTarget, {
+                  preventScrollReset: true,
+                });
+              }
+            }}
+            autoComplete="off"
           >
-            <Input.Label htmlFor={fields.organizationName.id}>
-              {locales.route.form.organizationName.label}
-            </Input.Label>
-            {typeof fields.organizationName.errors !== "undefined" &&
-            fields.organizationName.errors.length > 0
-              ? fields.organizationName.errors.map((error) => (
-                  <Input.Error id={fields.organizationName.errorId} key={error}>
-                    {error}
-                  </Input.Error>
-                ))
-              : null}
-          </Input>
-          {/* Already existing organizations section */}
-          {searchResult.length > 0 && (
-            <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-8">
-              <p>
-                {insertParametersIntoLocale(
-                  locales.route.form.organizationName.sameOrganization,
-                  {
-                    searchQuery,
-                  }
-                )}
-              </p>
+            <Input
+              {...getInputProps(searchFields[SearchOrganizations], {
+                type: "search",
+              })}
+              key={searchFields[SearchOrganizations].id}
+              standalone
+            >
+              <Input.Label htmlFor={searchFields[SearchOrganizations].id}>
+                {
+                  locales.route.form.organizationName
+                    .requestOrganizationMembership.label
+                }
+              </Input.Label>
+
+              {typeof searchFields[SearchOrganizations].errors !==
+                "undefined" &&
+              searchFields[SearchOrganizations].errors.length > 0
+                ? searchFields[SearchOrganizations].errors.map((error) => (
+                    <Input.Error
+                      id={searchFields[SearchOrganizations].errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {
+                      locales.route.form.organizationName
+                        .requestOrganizationMembership.searchCta
+                    }
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+            {typeof searchForm.errors !== "undefined" &&
+            searchForm.errors.length > 0 ? (
+              <div>
+                {searchForm.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={searchForm.errorId}
+                      key={index}
+                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </searchFetcher.Form>
+          {searchedOrganizations.length > 0 ? (
+            <Form
+              {...getFormProps(createOrganizationMemberRequestForm)}
+              method="post"
+              preventScrollReset
+            >
               <ListContainer
-                listKey="already-existing-organizations"
                 locales={locales}
+                listKey="organizations-to-request-membership-search-results"
+                hideAfter={3}
               >
-                {searchResult.map((organization, index) => {
+                {searchedOrganizations.map((searchedOrganization, index) => {
                   return (
                     <ListItem
-                      key={`already-existing-organization-${organization.id}`}
-                      listIndex={index}
-                      entity={organization}
+                      key={`organizations-to-request-membership-search-result-${searchedOrganization.slug}`}
+                      entity={searchedOrganization}
                       locales={locales}
-                    />
+                      listIndex={index}
+                      hideAfter={3}
+                    >
+                      {organizations.adminOrganizations.some((organization) => {
+                        return organization.id === searchedOrganization.id;
+                      }) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {
+                            locales.route.form.organizationName
+                              .requestOrganizationMembership.alreadyAdmin
+                          }
+                        </div>
+                      ) : organizations.teamMemberOrganizations.some(
+                          (organization) => {
+                            return organization.id === searchedOrganization.id;
+                          }
+                        ) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          {
+                            locales.route.form.organizationName
+                              .requestOrganizationMembership.alreadyMember
+                          }
+                        </div>
+                      ) : pendingRequestsToOrganizations.some(
+                          (organization) => {
+                            return organization.id === searchedOrganization.id;
+                          }
+                        ) ? (
+                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          {
+                            locales.route.form.organizationName
+                              .requestOrganizationMembership.alreadyRequested
+                          }
+                        </div>
+                      ) : (
+                        <Button
+                          name="intent"
+                          variant="outline"
+                          value={`create-organization-member-request-${searchedOrganization.id}`}
+                          type="submit"
+                          fullSize
+                        >
+                          {
+                            locales.route.form.organizationName
+                              .requestOrganizationMembership
+                              .createOrganizationMemberRequestCta
+                          }
+                        </Button>
+                      )}
+                    </ListItem>
                   );
                 })}
               </ListContainer>
-            </div>
-          )}
+              {typeof createOrganizationMemberRequestForm.errors !==
+                "undefined" &&
+              createOrganizationMemberRequestForm.errors.length > 0 ? (
+                <div>
+                  {createOrganizationMemberRequestForm.errors.map(
+                    (error, index) => {
+                      return (
+                        <div
+                          id={createOrganizationMemberRequestForm.errorId}
+                          key={index}
+                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        >
+                          {error}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              ) : null}
+            </Form>
+          ) : null}
         </div>
         {/* Organization types section */}
         <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">

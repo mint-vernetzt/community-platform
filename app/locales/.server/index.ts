@@ -516,6 +516,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
     components: deComponents,
+    searchOrganizationsSchema: deSearchOrganizationsSchema,
   },
   "organization/$slug/detail": {
     route: deOrganizationDetail,
@@ -925,6 +926,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
     components: enComponents,
+    searchOrganizationsSchema: enSearchOrganizationsSchema,
   },
   "organization/$slug/detail": {
     route: enOrganizationDetail,

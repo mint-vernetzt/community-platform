@@ -2,6 +2,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Form } from "react-router";
 import { type MyOrganizationsLocales } from "./../routes/my/organizations.server";
+import { SearchOrganizations } from "~/lib/utils/searchParams";
 
 export function CreateOrganization(props: {
   name: string;
@@ -20,7 +21,7 @@ export function CreateOrganization(props: {
           </p>
         </div>
         <Form method="get" action="/organization/create">
-          <input type="hidden" name="search" value={props.name} />
+          <input type="hidden" name={SearchOrganizations} value={props.name} />
           <Button type="submit">
             {locales.route.requestOrganizationMembership.create}
           </Button>
