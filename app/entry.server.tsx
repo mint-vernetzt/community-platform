@@ -37,7 +37,7 @@ export default async function handleRequest(
   );
   responseHeaders.set(
     "Content-Security-Policy",
-    `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' data: ${process.env.IMGPROXY_URL.replace(
+    `default-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' data: ${process.env.IMGPROXY_URL.replace(
       /https?:\/\//,
       ""
     )}; worker-src blob:; frame-src 'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'; base-uri 'self'; frame-ancestors 'none'; report-uri ${
@@ -53,7 +53,7 @@ export default async function handleRequest(
           )
             .replace(/sentry\.io.*/, "sentry.io")
             .replace(/^.*@/, "")};`
-        : ""
+        : " connect-src 'self'"
     }`
   );
 
