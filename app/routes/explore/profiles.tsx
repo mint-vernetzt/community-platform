@@ -42,7 +42,7 @@ import {
   getAllProfiles,
   getFilterCountForSlug,
   getProfileFilterVectorForAttribute,
-  getProfilesIds,
+  getProfileIds,
   getTakeParam,
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
@@ -163,7 +163,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    const profileIdsFilteredByVisibility = await getProfilesIds({
+    const profileIdsFilteredByVisibility = await getProfileIds({
       filter: submission.value.prfFilter,
       search: submission.value.search,
       sessionUser: null,
@@ -172,14 +172,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount = profileIdsFilteredByVisibility.length;
   }
 
-  const profilesIds = await getProfilesIds({
+  const profileIds = await getProfileIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
 
-  const profilesCount = profilesIds.length;
+  const profileCount = profileIds.length;
 
   const profiles = await getAllProfiles({
     filter: submission.value.prfFilter,
@@ -330,7 +330,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areaFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.prfFilter,
-    ids: profilesIds,
+    search: submission.value.search,
+    ids: profileIds,
   });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -361,11 +362,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     })
   );
 
+  console.log({ profileIds });
+
   const offers = await getAllOffers();
   const offerFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "offer",
     filter: submission.value.prfFilter,
-    ids: profilesIds,
+    search: submission.value.search,
+    ids: profileIds,
   });
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
@@ -386,7 +390,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedOffers: submission.value.prfFilter.offer,
     submission,
     filteredByVisibilityCount,
-    profilesCount,
+    profilesCount: profileCount,
     locales: routeLocales,
   };
 };

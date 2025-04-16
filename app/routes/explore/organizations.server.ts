@@ -557,7 +557,7 @@ function getOrganizationsSearchWhereClause(
   return whereClauses;
 }
 
-export async function getOrganizationsIds(options: {
+export async function getOrganizationIds(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   search: GetSearchSchema["search"];
   sessionUser: User | null;
@@ -713,6 +713,7 @@ export async function getAllOrganizations(options: {
 export async function getOrganizationFilterVectorForAttribute(options: {
   attribute: keyof GetOrganizationsSchema["orgFilter"];
   filter: GetOrganizationsSchema["orgFilter"];
+  search: GetSearchSchema["search"];
   ids: string[];
 }) {
   const { attribute, filter, ids } = options;
@@ -799,6 +800,11 @@ export async function getOrganizationFilterVectorForAttribute(options: {
 
   if (ids.length > 0) {
     whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
+  }
+
+  // Special case: if no profiles are found, but search isn't
+  if (ids.length === 0 && options.search.length > 0) {
+    whereStatements.push("id IN ('some-random-organization-id')");
   }
 
   if (whereStatements.length > 0) {

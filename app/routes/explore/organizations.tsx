@@ -43,7 +43,7 @@ import {
   getAllOrganizations,
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
-  getOrganizationsIds,
+  getOrganizationIds,
   getTakeParam,
 } from "./organizations.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
@@ -149,7 +149,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    const organizationIdsFilteredByVisibility = await getOrganizationsIds({
+    const organizationIdsFilteredByVisibility = await getOrganizationIds({
       filter: submission.value.orgFilter,
       search: submission.value.search,
       sessionUser: null,
@@ -158,14 +158,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount = organizationIdsFilteredByVisibility.length;
   }
 
-  const organizationsIds = await getOrganizationsIds({
+  const organizationIds = await getOrganizationIds({
     filter: submission.value.orgFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
 
-  const organizationsCount = organizationsIds.length;
+  const organizationCount = organizationIds.length;
 
   const organizations = await getAllOrganizations({
     filter: submission.value.orgFilter,
@@ -322,7 +322,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areaFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.orgFilter,
-    ids: organizationsIds,
+    search: submission.value.search,
+    ids: organizationIds,
   });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -357,7 +358,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const typeFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "type",
     filter: submission.value.orgFilter,
-    ids: organizationsIds,
+    search: submission.value.search,
+    ids: organizationIds,
   });
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(
@@ -373,7 +375,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const focusFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "focus",
     filter: submission.value.orgFilter,
-    ids: organizationsIds,
+    search: submission.value.search,
+    ids: organizationIds,
   });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
@@ -396,7 +399,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedTypes: submission.value.orgFilter.type,
     submission,
     filteredByVisibilityCount,
-    organizationsCount,
+    organizationsCount: organizationCount,
     locales,
   };
 };

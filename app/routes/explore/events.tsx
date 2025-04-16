@@ -311,6 +311,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areaFilterVector = await getEventFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.evtFilter,
+    search: submission.value.search,
     ids: eventIds,
   });
 
@@ -347,6 +348,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const focusFilterVector = await getEventFilterVectorForAttribute({
     attribute: "focus",
     filter: submission.value.evtFilter,
+    search: submission.value.search,
     ids: eventIds,
   });
   const enhancedFocuses = focuses.map((focus) => {
@@ -363,6 +365,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const targetGroupFilterVector = await getEventFilterVectorForAttribute({
     attribute: "eventTargetGroup",
     filter: submission.value.evtFilter,
+    search: submission.value.search,
     ids: eventIds,
   });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {

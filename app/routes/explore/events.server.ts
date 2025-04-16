@@ -972,6 +972,7 @@ export async function enhanceEventsWithParticipationStatus(
 export async function getEventFilterVectorForAttribute(options: {
   attribute: keyof GetEventsSchema["evtFilter"];
   filter: GetEventsSchema["evtFilter"];
+  search: GetSearchSchema["search"];
   ids: string[];
 }) {
   const { attribute, filter, ids } = options;
@@ -1075,6 +1076,11 @@ export async function getEventFilterVectorForAttribute(options: {
 
   if (ids.length > 0) {
     whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
+  }
+
+  // Special case: if no profiles are found, but search isn't
+  if (ids.length === 0 && options.search.length > 0) {
+    whereStatements.push("id IN ('some-random-event-id')");
   }
 
   const whereClause = `WHERE ${whereStatements.join(" AND ")}`;

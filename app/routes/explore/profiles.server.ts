@@ -1,7 +1,7 @@
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
-import { languageModuleMap } from "~/locales/.server";
+import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetProfilesSchema } from "./profiles";
 import { type GetSearchSchema } from "./index";
@@ -429,7 +429,7 @@ function getProfilesSearchWhereClauses(
   return whereClauses;
 }
 
-export async function getProfilesIds(options: {
+export async function getProfileIds(options: {
   filter: GetProfilesSchema["prfFilter"];
   search: GetSearchSchema["search"];
   sessionUser: User | null;
@@ -577,6 +577,7 @@ export async function getAllProfiles(options: {
 export async function getProfileFilterVectorForAttribute(options: {
   attribute: keyof GetProfilesSchema["prfFilter"];
   filter: GetProfilesSchema["prfFilter"];
+  search: GetSearchSchema["search"];
   ids: string[];
 }) {
   const { attribute, filter, ids } = options;
@@ -630,6 +631,11 @@ export async function getProfileFilterVectorForAttribute(options: {
 
   if (ids.length > 0) {
     whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
+  }
+
+  // Special case: if no profiles are found, but search isn't
+  if (ids.length === 0 && options.search.length > 0) {
+    whereStatements.push("id IN ('some-random-profile-id')");
   }
 
   if (whereStatements.length > 0) {
