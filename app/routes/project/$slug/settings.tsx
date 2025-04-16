@@ -126,7 +126,6 @@ function ProjectSettings() {
             </span>
             <Link
               to={`/project/${loaderData.project.slug}`}
-              prefetch="intent"
               className="mv-px-4"
             >
               <svg
@@ -175,7 +174,6 @@ function ProjectSettings() {
                   <Link
                     to={`${navLink.to}?${Deep}=true`}
                     className={linkClasses}
-                    prefetch="intent"
                     preventScrollReset
                   >
                     <span className="mv-text-wrap">{navLink.label}</span>
