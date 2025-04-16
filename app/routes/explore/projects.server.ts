@@ -4,6 +4,10 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetProjectsSchema } from "./projects";
+import { type GetSearchSchema } from "./index";
+import { type User } from "@supabase/supabase-js";
+import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
+import type { Organization, Prisma, Profile, Project } from "@prisma/client";
 
 export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -19,32 +23,91 @@ type ProjectVisibility = { projectVisibility: { [x: string]: boolean } };
 type FilterKeyWhereStatement = {
   OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
 };
+type SearchWhereStatement = {
+  OR: {
+    AND: (
+      | {
+          [K in Project as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }
+      | {
+          [K in "areas"]?: {
+            some: {
+              [K in "area"]?: {
+                [K in "name"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in
+            | "formats"
+            | "disciplines"
+            | "projectTargetGroups"
+            | "specialTargetGroups"]?: {
+            some: {
+              [K in
+                | "format"
+                | "discipline"
+                | "projectTargetGroup"
+                | "specialTargetGroup"]?: {
+                [K in "slug"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in "responsibleOrganizations" | "teamMembers"]?: {
+            some: {
+              [K in "organization" | "profile"]?: {
+                AND: (
+                  | {
+                      [K in "name" | "firstName" | "lastName"]?: {
+                        contains: string;
+                        mode: Prisma.QueryMode;
+                      };
+                    }
+                  | {
+                      [K in "organizationVisibility" | "profileVisibility"]?: {
+                        [K in Organization | Profile as string]: boolean;
+                      };
+                    }
+                )[];
+              };
+            };
+          };
+        }
+      | {
+          [K in "projectVisibility"]?: {
+            [K in Project as string]: boolean;
+          };
+        }
+    )[];
+  }[];
+};
 type WhereClause = {
-  AND: ProjectVisibility[] & FilterKeyWhereStatement[];
+  AND: ProjectVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
 
-export async function getVisibilityFilteredProjectsCount(options: {
-  filter: GetProjectsSchema["prjFilter"];
-}) {
-  const whereClauses: {
-    AND: WhereClause["AND"] & { OR: ProjectVisibility[] }[];
-  } = { AND: [] };
-  const visibilityWhereClauses: { OR: ProjectVisibility[] } = { OR: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+function getProjectsFilterWhereClause(filter: GetProjectsSchema["prjFilter"]) {
+  const whereClauses: WhereClause = { AND: [] };
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    const filterValues = filter[typedFilterKey];
 
     if (filterValues.length === 0) {
       continue;
     }
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
-    const visibilityWhereStatement = {
-      projectVisibility: {
-        [`${typedFilterKey}s`]: false,
-      },
-    };
-    visibilityWhereClauses.OR.push(visibilityWhereStatement);
+    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
     for (const slug of filterValues) {
       const filterWhereStatement = {
@@ -56,92 +119,446 @@ export async function getVisibilityFilteredProjectsCount(options: {
           },
         },
       };
+
       filterKeyWhereStatement.OR.push(filterWhereStatement);
     }
+
     whereClauses.AND.push(filterKeyWhereStatement);
   }
-  if (visibilityWhereClauses.OR.length === 0) {
-    return 0;
-  }
-  whereClauses.AND.push(visibilityWhereClauses);
-
-  const count = await prismaClient.project.count({
-    where: {
-      AND: [...whereClauses.AND, { published: true }],
-    },
-  });
-
-  console.log("\ngetVisibilityFilteredProjectsCount");
-
-  console.log(
-    JSON.stringify(
-      {
-        where: {
-          AND: [...whereClauses.AND, { published: true }],
-        },
-      },
-      null,
-      2
-    )
-  );
-
-  return count;
+  return whereClauses;
 }
 
-export async function getProjectsCount(options: {
-  filter: GetProjectsSchema["prjFilter"];
-}) {
-  const whereClauses: WhereClause = { AND: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+function getProjectsSearchWhereClauses(
+  words: string[],
+  sessionUser: User | null,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) {
+  const whereClauses = [];
+  for (const word of words) {
+    const formatSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "formats",
+      word,
+    });
+    const disciplineSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "disciplines",
+      word,
+    });
+    const projectTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "projectTargetGroups",
+      word,
+    });
+    const specialTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "specialTargetGroups",
+      word,
+    });
 
-    if (filterValues.length === 0) {
-      continue;
-    }
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
-          some: {
-            [typedFilterKey]: {
-              slug,
+    const contains: SearchWhereStatement = {
+      OR: [
+        {
+          AND: [
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
             },
-          },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    name: true,
+                  },
+                }
+              : {},
+          ],
         },
-      };
-
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
+        {
+          AND: [
+            {
+              slug: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    slug: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              headline: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    headline: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              excerpt: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    excerpt: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              description: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    description: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              email: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    email: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              city: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    city: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            disciplineSlug !== undefined
+              ? [
+                  {
+                    disciplines: {
+                      some: {
+                        discipline: {
+                          slug: {
+                            contains: disciplineSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          disciplines: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND: [
+            {
+              responsibleOrganizations: {
+                some: {
+                  organization: {
+                    AND: [
+                      {
+                        name: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            organizationVisibility: {
+                              name: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    responsibleOrganizations: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            projectTargetGroupSlug !== undefined
+              ? [
+                  {
+                    projectTargetGroups: {
+                      some: {
+                        projectTargetGroup: {
+                          slug: {
+                            contains: projectTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          projectTargetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            specialTargetGroupSlug !== undefined
+              ? [
+                  {
+                    specialTargetGroups: {
+                      some: {
+                        specialTargetGroup: {
+                          slug: {
+                            contains: specialTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          specialTargetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            formatSlug !== undefined
+              ? [
+                  {
+                    formats: {
+                      some: {
+                        format: {
+                          slug: {
+                            contains: formatSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  sessionUser === null
+                    ? {
+                        projectVisibility: {
+                          formats: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        firstName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              firstName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    areas: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              teamMembers: {
+                some: {
+                  profile: {
+                    AND: [
+                      {
+                        lastName: {
+                          contains: word,
+                          mode: "insensitive",
+                        },
+                      },
+                      sessionUser === null
+                        ? {
+                            profileVisibility: {
+                              lastName: true,
+                            },
+                          }
+                        : {},
+                    ],
+                  },
+                },
+              },
+            },
+            sessionUser === null
+              ? {
+                  projectVisibility: {
+                    teamMembers: true,
+                  },
+                }
+              : {},
+          ],
+        },
+      ],
+    };
+    whereClauses.push(contains);
   }
+  return whereClauses;
+}
 
-  const count = await prismaClient.project.count({
-    where: {
-      AND: [...whereClauses.AND, { published: true }],
+export async function getProjectIds(options: {
+  filter: GetProjectsSchema["prjFilter"];
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const filterWhereClause = getProjectsFilterWhereClause(options.filter);
+  const searchWhereClauses = getProjectsSearchWhereClauses(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+  filterWhereClause.AND.push(...searchWhereClauses);
+
+  const whereClauses = filterWhereClause;
+
+  const projects = await prismaClient.project.findMany({
+    where: whereClauses,
+    select: {
+      id: true,
     },
   });
+  const ids = projects.map((project) => {
+    return project.id;
+  });
 
-  return count;
+  return ids;
 }
 
 export async function getAllProjects(options: {
   filter: GetProjectsSchema["prjFilter"];
   sortBy: GetProjectsSchema["prjSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  isLoggedIn: boolean;
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const whereClauses: WhereClause = { AND: [] };
+  const whereClauses = getProjectsFilterWhereClause(options.filter);
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.isLoggedIn === false) {
+    if (options.sessionUser === null) {
       const visibilityWhereStatement = {
         projectVisibility: {
           [`${typedFilterKey}s`]: true,
@@ -167,6 +584,13 @@ export async function getAllProjects(options: {
 
     whereClauses.AND.push(filterKeyWhereStatement);
   }
+
+  const searchWhereClauses = getProjectsSearchWhereClauses(
+    options.search,
+    options.sessionUser,
+    options.language
+  );
+  whereClauses.AND.push(...searchWhereClauses);
 
   const projects = await prismaClient.project.findMany({
     select: {
@@ -227,10 +651,13 @@ export async function getAllProjects(options: {
   return projects;
 }
 
-export async function getProjectFilterVectorForAttribute(
-  attribute: keyof GetProjectsSchema["prjFilter"],
-  filter: GetProjectsSchema["prjFilter"]
-) {
+export async function getProjectFilterVectorForAttribute(options: {
+  attribute: keyof GetProjectsSchema["prjFilter"];
+  filter: GetProjectsSchema["prjFilter"];
+  search: GetSearchSchema["search"];
+  ids: string[];
+}) {
+  const { attribute, filter, ids } = options;
   let whereClause = "";
   const whereStatements = ["published = true"];
   for (const filterKey in filter) {
@@ -304,6 +731,15 @@ export async function getProjectFilterVectorForAttribute(
     }
 
     whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
+  }
+
+  if (ids.length > 0 && options.search.length > 0) {
+    whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
+  }
+
+  // Special case: if no profiles are found, but search isn't
+  if (ids.length === 0 && options.search.length > 0) {
+    whereStatements.push("id IN ('some-random-project-id')");
   }
 
   if (whereStatements.length > 0) {

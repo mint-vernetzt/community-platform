@@ -794,10 +794,6 @@ export async function getOrganizationFilterVectorForAttribute(options: {
     whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
-  if (whereStatements.length > 0) {
-    whereClause = `WHERE ${whereStatements.join(" AND ")}`;
-  }
-
   if (ids.length > 0 && options.search.length > 0) {
     whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
   }

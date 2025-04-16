@@ -18,8 +18,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getOrganizationIds } from "./explore/organizations.server";
 
 import { getEventIds } from "./explore/events.server";
-import { getProjectsCount } from "./explore/projects.server";
-import { getFundingsCount } from "./explore/fundings.server";
+import { getProjectIds } from "./explore/projects.server";
+import { getFundingIds } from "./explore/fundings.server";
 import { getFilterSchemes } from "./explore/index";
 import React from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -69,12 +69,22 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const eventCount = eventIds.length;
 
-  const projectCount = await getProjectsCount({
+  const projectIds = await getProjectIds({
     filter: submission.value.prjFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
-  const fundingCount = await getFundingsCount({
+  const projectCount = projectIds.length;
+
+  const fundingIds = await getFundingIds({
     filter: submission.value.fndFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+  const fundingCount = fundingIds.length;
+
   const allContentCount =
     profileCount + organizationCount + eventCount + projectCount + fundingCount;
 

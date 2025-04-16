@@ -25,10 +25,11 @@ import { Filters, ShowFiltersButton } from "~/components-next/Filters";
 import { FormControl } from "~/components-next/FormControl";
 import { FundingCard } from "~/components-next/FundingCard";
 import {
+  getAllFundings,
   getFilterCountForSlug,
   getFundingFilterVectorForAttribute,
-  getFundingsCount,
-  getKeys,
+  getFundingIds,
+  getTakeParam,
 } from "./fundings.server";
 import { H1 } from "~/components/Heading/Heading";
 import { detectLanguage } from "~/root.server";
@@ -39,6 +40,7 @@ import {
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { type FilterSchemes, getFilterSchemes } from "./index";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -91,14 +93,6 @@ export const getFundingsSchema = z.object({
 });
 
 export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
-export type FilterKey = keyof GetFundingsSchema["fndFilter"];
-
-type FilterKeyWhereStatement = {
-  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
-};
-type WhereClause = {
-  AND: FilterKeyWhereStatement[];
-};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -126,116 +120,28 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/fundings"];
 
-  const take = submission.value.fndPage * 12;
+  const take = getTakeParam(submission.value.fndPage);
+  const { authClient } = createAuthClient(request);
 
-  const whereClauses: WhereClause = { AND: [] };
-  for (const key in submission.value.fndFilter) {
-    const typedKey = key as FilterKey;
+  const sessionUser = await getSessionUser(authClient);
 
-    const { singularKey, pluralKey } = getKeys(typedKey);
-
-    const values = submission.value.fndFilter[typedKey];
-    if (values.length === 0) {
-      continue;
-    }
-
-    const filterKeyWhereStatement: {
-      OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
-    } = { OR: [] };
-
-    for (const value of values) {
-      const whereStatement = {
-        [pluralKey]: {
-          some: {
-            [typedKey === "regions" ? "area" : singularKey]: {
-              // funding data for areas is stored in regions
-              slug: value,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(whereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
-  }
-
-  const sortBy = submission.value.fndSortBy;
-
-  const fundings = await prismaClient.funding.findMany({
-    select: {
-      title: true,
-      url: true,
-      funders: {
-        select: {
-          funder: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      types: {
-        select: {
-          type: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      areas: {
-        select: {
-          area: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      eligibleEntities: {
-        select: {
-          entity: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      regions: {
-        select: {
-          area: {
-            select: {
-              slug: true,
-              name: true,
-            },
-          },
-        },
-      },
-      sourceEntities: true,
-      sourceAreas: true,
-    },
-    where: {
-      AND: whereClauses,
-    },
-    take: take,
-    orderBy: [
-      {
-        [sortBy.value]: sortBy.direction,
-      },
-      {
-        id: "asc",
-      },
-    ],
-  });
-
-  const count = await getFundingsCount({
+  const fundings = await getAllFundings({
     filter: submission.value.fndFilter,
+    sortBy: submission.value.fndSortBy,
+    search: submission.value.search,
+    sessionUser,
+    take,
+    language,
   });
+
+  const fundingIds = await getFundingIds({
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
+  });
+
+  const count = fundingIds.length;
 
   const fundingTypes = await prismaClient.fundingType.findMany({
     where: {
@@ -251,10 +157,12 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
-  const typeFilterVector = await getFundingFilterVectorForAttribute(
-    "types",
-    submission.value.fndFilter
-  );
+  const typeFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "types",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: fundingIds,
+  });
   const enhancedFundingTypes = fundingTypes
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -299,10 +207,12 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
-  const areaFilterVector = await getFundingFilterVectorForAttribute(
-    "areas",
-    submission.value.fndFilter
-  );
+  const areaFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "areas",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: fundingIds,
+  });
   const enhancedFundingAreas = fundingAreas
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -348,8 +258,12 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
   const eligibleEntitiesFilterVector = await getFundingFilterVectorForAttribute(
-    "eligibleEntities",
-    submission.value.fndFilter
+    {
+      attribute: "eligibleEntities",
+      filter: submission.value.fndFilter,
+      search: submission.value.search,
+      ids: fundingIds,
+    }
   );
   const enhancedEligibleEntities = eligibleEntities
     .sort((a, b) => {
@@ -400,10 +314,12 @@ export async function loader(args: LoaderFunctionArgs) {
       name: "asc",
     },
   });
-  const regionFilterVector = await getFundingFilterVectorForAttribute(
-    "regions",
-    submission.value.fndFilter
-  );
+  const regionFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "regions",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: fundingIds,
+  });
   const enhancedRegions = regions
     .sort((a) => {
       if (a.name === "Bundesweit" || a.name === "International") {

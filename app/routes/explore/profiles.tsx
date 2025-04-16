@@ -331,6 +331,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     search: submission.value.search,
     ids: profileIds,
   });
+
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,

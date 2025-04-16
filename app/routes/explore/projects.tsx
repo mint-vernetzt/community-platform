@@ -47,9 +47,8 @@ import {
   getAllSpecialTargetGroups,
   getFilterCountForSlug,
   getProjectFilterVectorForAttribute,
-  getProjectsCount,
+  getProjectIds,
   getTakeParam,
-  getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
@@ -162,18 +161,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredProjectsCount({
+    const projectIdsFilteredByVisibility = await getProjectIds({
       filter: submission.value.prjFilter,
+      search: submission.value.search,
+      sessionUser: null,
+      language,
     });
+    filteredByVisibilityCount = await projectIdsFilteredByVisibility.length;
   }
-  const projectsCount = await getProjectsCount({
+
+  const projectIds = await getProjectIds({
     filter: submission.value.prjFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+
+  const projectCount = projectIds.length;
+
   const projects = await getAllProjects({
     filter: submission.value.prjFilter,
     sortBy: submission.value.prjSortBy,
+    search: submission.value.search,
+    sessionUser,
     take,
-    isLoggedIn,
+    language,
   });
 
   const enhancedProjects = [];
@@ -305,10 +317,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
-  const areaFilterVector = await getProjectFilterVectorForAttribute(
-    "area",
-    submission.value.prjFilter
-  );
+  const areaFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: projectIds,
+  });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,
@@ -339,10 +353,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const disciplines = await getAllDisciplines();
-  const disciplineFilterVector = await getProjectFilterVectorForAttribute(
-    "discipline",
-    submission.value.prjFilter
-  );
+  const disciplineFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "discipline",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: projectIds,
+  });
   const enhancedDisciplines = disciplines.map((discipline) => {
     const vectorCount = getFilterCountForSlug(
       discipline.slug,
@@ -357,10 +373,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const additionalDisciplines = await getAllAdditionalDisciplines();
   const additionalDisciplineFilterVector =
-    await getProjectFilterVectorForAttribute(
-      "additionalDiscipline",
-      submission.value.prjFilter
-    );
+    await getProjectFilterVectorForAttribute({
+      attribute: "additionalDiscipline",
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      ids: projectIds,
+    });
   const enhancedAdditionalDisciplines = additionalDisciplines.map(
     (additionalDiscipline) => {
       const vectorCount = getFilterCountForSlug(
@@ -377,10 +395,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const targetGroups = await getAllProjectTargetGroups();
-  const targetGroupFilterVector = await getProjectFilterVectorForAttribute(
-    "projectTargetGroup",
-    submission.value.prjFilter
-  );
+  const targetGroupFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "projectTargetGroup",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: projectIds,
+  });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,
@@ -394,10 +414,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const formats = await getAllFormats();
-  const formatFilterVector = await getProjectFilterVectorForAttribute(
-    "format",
-    submission.value.prjFilter
-  );
+  const formatFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "format",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: projectIds,
+  });
   const enhancedFormats = formats.map((format) => {
     const vectorCount = getFilterCountForSlug(
       format.slug,
@@ -410,10 +432,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const specialTargetGroups = await getAllSpecialTargetGroups();
   const specialTargetGroupFilterVector =
-    await getProjectFilterVectorForAttribute(
-      "specialTargetGroup",
-      submission.value.prjFilter
-    );
+    await getProjectFilterVectorForAttribute({
+      attribute: "specialTargetGroup",
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      ids: projectIds,
+    });
   const enhancedSpecialTargetGroups = specialTargetGroups.map(
     (specialTargetGroup) => {
       const vectorCount = getFilterCountForSlug(
@@ -429,10 +453,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const financings = await getAllFinancings();
-  const financingFilterVector = await getProjectFilterVectorForAttribute(
-    "financing",
-    submission.value.prjFilter
-  );
+  const financingFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "financing",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: projectIds,
+  });
   const enhancedFinancings = financings.map((financing) => {
     const vectorCount = getFilterCountForSlug(
       financing.slug,
@@ -464,7 +490,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedFinancings: submission.value.prjFilter.financing,
     submission,
     filteredByVisibilityCount,
-    projectsCount,
+    projectsCount: projectCount,
     locales,
   };
 };
