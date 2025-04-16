@@ -7,7 +7,11 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { createOrganizationMemberRequestSchema, createSchema } from "./create";
+import {
+  createOrganizationMemberRequestSchema,
+  createOrganizationSchema,
+  createSchema,
+} from "./create";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   getCompiledMailTemplate,
@@ -17,6 +21,7 @@ import {
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import * as Sentry from "@sentry/node";
+import { generateOrganizationSlug } from "~/utils.server";
 
 export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -750,47 +755,77 @@ export async function createOrganization(options: {
   const { formData, locales, sessionUser } = options;
 
   // TODO: Same structure as above
-  const submission = parseWithZod(formData, { schema: createSchema(locales) });
-
+  const submission = parseWithZod(formData, {
+    schema: () =>
+      createOrganizationSchema(locales).transform(async (data, ctx) => {
+        const slug = generateOrganizationSlug(data.organizationName);
+        const organizationTypeNetwork = await getOrganizationTypeNetwork();
+        invariantResponse(
+          organizationTypeNetwork !== null,
+          locales.route.validation.organizationTypeNetworkNotFound,
+          { status: 404 }
+        );
+        const isNetwork = submission.value.organizationTypes.some(
+          (id) => id === organizationTypeNetwork.id
+        );
+        invariantResponse(
+          (isNetwork === false && submission.value.networkTypes.length > 0) ===
+            false,
+          locales.route.validation.notANetwork,
+          { status: 400 }
+        );
+        if (isNetwork === true && submission.value.networkTypes.length === 0) {
+          const newSubmission = parseWithZod(formData, {
+            schema: () =>
+              createSchema(locales).transform(async (data, ctx) => {
+                ctx.addIssue({
+                  code: "custom",
+                  message: locales.route.validation.networkTypesRequired,
+                  path: ["networkTypes"],
+                });
+                return z.NEVER;
+              }),
+          });
+          return {
+            submission: newSubmission.reply(),
+            currentTimestamp: Date.now(),
+          };
+        }
+        try {
+          await createOrganizationOnProfile(
+            sessionUser.id,
+            submission.value,
+            slug
+          );
+        } catch (error) {
+          Sentry.captureException(error);
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.requestFailed,
+          });
+          return z.NEVER;
+        }
+        return { ...data, name: organization.name };
+      }),
+    async: true,
+  });
   if (submission.status !== "success") {
     return {
       submission: submission.reply(),
     };
   }
-
-  const { organizationName } = submission.value;
-
-  const slug = generateOrganizationSlug(organizationName);
-  const organizationTypeNetwork = await getOrganizationTypeNetwork();
-  invariantResponse(
-    organizationTypeNetwork !== null,
-    locales.route.validation.organizationTypeNetworkNotFound,
-    { status: 404 }
-  );
-  const isNetwork = submission.value.organizationTypes.some(
-    (id) => id === organizationTypeNetwork.id
-  );
-  invariantResponse(
-    (isNetwork === false && submission.value.networkTypes.length > 0) === false,
-    locales.route.validation.notANetwork,
-    { status: 400 }
-  );
-  if (isNetwork === true && submission.value.networkTypes.length === 0) {
-    const newSubmission = parseWithZod(formData, {
-      schema: () =>
-        createSchema(locales).transform(async (data, ctx) => {
-          ctx.addIssue({
-            code: "custom",
-            message: locales.route.validation.networkTypesRequired,
-            path: ["networkTypes"],
-          });
-          return z.NEVER;
-        }),
-    });
-    return {
-      submission: newSubmission.reply(),
-      currentTimestamp: Date.now(),
-    };
-  }
-  await createOrganizationOnProfile(sessionUser.id, submission.value, slug);
+  return {
+    submission: submission.reply(),
+    toast: {
+      id: "create-organization-member-request-toast",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(
+        locales.route.form.organizationName.requestOrganizationMembership
+          .createOrganizationMemberRequest,
+        {
+          name: submission.value.name,
+        }
+      ),
+    },
+  };
 }
