@@ -144,8 +144,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     schema: getFilterSchemes,
   });
 
-  // console.log(JSON.stringify(submission, null, 2));
-
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -361,8 +359,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       };
     })
   );
-
-  console.log({ profileIds });
 
   const offers = await getAllOffers();
   const offerFilterVector = await getProfileFilterVectorForAttribute({

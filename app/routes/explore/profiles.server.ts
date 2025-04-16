@@ -629,7 +629,7 @@ export async function getProfileFilterVectorForAttribute(options: {
     whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
   }
 
-  if (ids.length > 0) {
+  if (ids.length > 0 && options.search.length > 0) {
     whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
   }
 
