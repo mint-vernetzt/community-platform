@@ -40,7 +40,7 @@ export default async function handleRequest(
     `default-src 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' data: ${process.env.IMGPROXY_URL.replace(
       /https?:\/\//,
       ""
-    )}; worker-src blob:; frame-src 'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'; frame-ancestors 'none'; report-uri ${
+    )}; worker-src blob:; frame-src 'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'; base-uri 'self'; frame-ancestors 'none'; report-uri ${
       process.env.COMMUNITY_BASE_URL
     }/csp-reports; report-to csp-endpoint;${
       process.env.NODE_ENV === "production" ? " upgrade-insecure-requests;" : ""
