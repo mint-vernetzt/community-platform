@@ -174,13 +174,13 @@ export const locale = {
       admin: {
         headline: "Nicht mehr Admin sein",
         subline:
-          "Bist Du Dir sicher, dass du die nicht mehr Administrator:in der Organisation {{name}} sein möchtest?",
+          "Bist Du Dir sicher, dass Du nicht mehr Administrator:in der Organisation <0>{{name}}</0> sein möchtest?",
         cta: "Organisation verlassen",
       },
       teamMember: {
         headline: "Nicht mehr Teammitglied sein",
         subline:
-          "Bist Du Dir sicher, dass du nicht mehr Teammitglied der Organisation {{name}} sein möchtest?",
+          "Bist Du Dir sicher, dass Du nicht mehr Teammitglied der Organisation <0>{{name}}</0> sein möchtest?",
         cta: "Organisation verlassen",
       },
       cancelCta: "Abbrechen",
