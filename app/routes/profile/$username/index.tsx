@@ -244,12 +244,18 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ...profileWithoutEvents
   } = enhancedProfile;
   // Combine participated and waiting events to show them both in one list in the frontend
+
   const events = {
-    contributedEvents,
+    contributedEvents: contributedEvents,
     teamMemberOfEvents,
-    participatedEvents: [...participatedEvents, ...waitingForEvents],
-    administeredEvents,
+    participatedEvents: mode !== "anon" ? participatedEvents : [],
+    administeredEvents: mode === "owner" ? administeredEvents : [],
   };
+
+  if (mode === "owner") {
+    events.participatedEvents.concat(waitingForEvents);
+  }
+
   // Split events into future and past (Note: The events are already ordered by startTime: descending from the database)
   type Events = typeof events;
   const { futureEvents, pastEvents } =
@@ -446,22 +452,6 @@ function hasWebsiteOrSocialService(
   return externalServices.some((item) => notEmptyData(item, data));
 }
 
-// TODO: fix any type
-function canViewEvents(events: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  teamMemberOfEvents: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  participatedEvents: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  contributedEvents: any[];
-}) {
-  return (
-    events.teamMemberOfEvents.length > 0 ||
-    events.participatedEvents.length > 0 ||
-    events.contributedEvents.length > 0
-  );
-}
-
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
@@ -512,6 +502,17 @@ export default function Index() {
     ),
     [background, blurredBackground, locales]
   );
+
+  const hasFutureEvents =
+    loaderData.futureEvents.teamMemberOfEvents.length > 0 ||
+    loaderData.futureEvents.contributedEvents.length > 0 ||
+    loaderData.futureEvents.participatedEvents.length > 0 ||
+    loaderData.futureEvents.administeredEvents.length > 0;
+  const hasPastEvents =
+    loaderData.pastEvents.teamMemberOfEvents.length > 0 ||
+    loaderData.pastEvents.contributedEvents.length > 0 ||
+    loaderData.pastEvents.participatedEvents.length > 0 ||
+    loaderData.pastEvents.administeredEvents.length > 0;
 
   return (
     <>
@@ -1027,9 +1028,7 @@ export default function Index() {
                 ) : null}
               </>
             ) : null}
-            {canViewEvents(loaderData.futureEvents) ||
-            (loaderData.mode === "owner" &&
-              loaderData.abilities.events.hasAccess) ? (
+            {hasFutureEvents ? (
               <>
                 <div
                   id="events"
@@ -1741,9 +1740,7 @@ export default function Index() {
                 ) : null}
               </>
             ) : null}
-            {canViewEvents(loaderData.pastEvents) ||
-            (loaderData.mode === "owner" &&
-              loaderData.abilities.events.hasAccess) ? (
+            {hasPastEvents ? (
               <>
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
                   <div className="flex-auto pr-4">
