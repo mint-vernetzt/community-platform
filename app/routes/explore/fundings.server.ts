@@ -5,8 +5,8 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetFundingsSchema } from "./fundings";
 import { type Prisma } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
-import { GetSearchSchema } from "./index";
+import { type User } from "@supabase/supabase-js";
+import { type GetSearchSchema } from "./index";
 
 export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
