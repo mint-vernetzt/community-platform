@@ -174,13 +174,13 @@ export const locale = {
       admin: {
         headline: "Not an admin anymore",
         subline:
-          "Are you sure you don't want to be an admin of the organization {{name}} anymore?",
+          "Are you sure you don't want to be an admin of the organization <0>{{name}}</0> anymore?",
         cta: "Leave organization",
       },
       teamMember: {
         headline: "Not a team member anymore",
         subline:
-          "Are you sure you don't want to be a team member of the organization {{name}} anymore?",
+          "Are you sure you don't want to be a team member of the organization <0>{{name}}</0> anymore?",
         cta: "Leave organization",
       },
       cancelCta: "Cancel",

@@ -1664,13 +1664,21 @@ export default function MyOrganizations() {
                                         }
                                       </Modal.Title>
                                       <Modal.Section>
-                                        {insertParametersIntoLocale(
-                                          locales.route.quit.modal[
-                                            key as keyof typeof organizations
-                                          ].subline,
-                                          {
-                                            name: organization.name,
-                                          }
+                                        {insertComponentsIntoLocale(
+                                          insertParametersIntoLocale(
+                                            locales.route.quit.modal[
+                                              key as keyof typeof organizations
+                                            ].subline,
+                                            {
+                                              name: organization.name,
+                                            }
+                                          ),
+                                          [
+                                            <span
+                                              key="highlighted-organization-name"
+                                              className="mv-font-semibold"
+                                            />,
+                                          ]
                                         )}
                                       </Modal.Section>
                                       <Modal.Section>
@@ -1702,6 +1710,12 @@ export default function MyOrganizations() {
                                         type="submit"
                                         name="intent"
                                         value={`quit-organization-${key}-${organization.id}`}
+                                        disabled={
+                                          isHydrated === true
+                                            ? quitOrganizationForm.valid ===
+                                              false
+                                            : false
+                                        }
                                       >
                                         {
                                           locales.route.quit.modal[
