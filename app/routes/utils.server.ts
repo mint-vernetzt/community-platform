@@ -21,6 +21,7 @@ import { type ProjectAdminSettingsLocales } from "./project/$slug/settings/admin
 import { type ProjectTeamSettingsLocales } from "./project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "./project/$slug/settings/responsible-orgs.server";
 import { type MyOrganizationsLocales } from "./my/organizations.server";
+import { type CreateOrganizationLocales } from "./organization/create.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -381,7 +382,8 @@ export async function searchOrganizations(options: {
   locales:
     | MyOrganizationsLocales
     | ManageOrganizationSettingsLocales
-    | ProjectResponsibleOrganizationsSettingsLocales;
+    | ProjectResponsibleOrganizationsSettingsLocales
+    | CreateOrganizationLocales;
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, locales, mode } = options;
