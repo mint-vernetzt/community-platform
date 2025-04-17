@@ -46,6 +46,7 @@ import {
   getPendingRequestsToOrganizations,
   type CreateOrganizationLocales,
 } from "./create.server";
+import React from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -167,6 +168,7 @@ export async function action(args: ActionFunctionArgs) {
       locales,
       sessionUser,
     });
+    redirectUrl = result.redirectUrl || request.url;
   } else {
     invariantResponse(false, "Invalid intent", {
       status: 400,
@@ -176,23 +178,16 @@ export async function action(args: ActionFunctionArgs) {
   if (
     result.submission !== undefined &&
     result.submission.status === "success" &&
-    result.toast !== undefined
+    typeof result.toast !== "undefined"
   ) {
     return redirectWithToast(redirectUrl, result.toast);
   }
   if (
     result.submission !== undefined &&
     result.submission.status === "success" &&
-    result.alert !== undefined
+    typeof result.alert !== "undefined"
   ) {
     return redirectWithAlert(redirectUrl, result.alert);
-    // return redirectWithAlert(`/organization/${slug}/detail/about`, {
-    //   message: insertParametersIntoLocale(locales.route.successAlert, {
-    //     name: submission.value.organizationName,
-    //     slug: slug,
-    //   }),
-    //   isRichtext: true,
-    // });
   }
   return { submission: result.submission, currentTimestamp: Date.now() };
 }
@@ -221,6 +216,7 @@ function CreateOrganization() {
       ? searchFetcher.data.searchedOrganizations
       : loaderSearchedOrganizations;
 
+  const searchFormRef = React.useRef<HTMLFormElement>(null);
   const [searchForm, searchFields] = useForm({
     id: "search-organizations",
     defaultValue: {
@@ -244,11 +240,11 @@ function CreateOrganization() {
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
-  const [form, fields] = useForm({
+  const [createOrganizationForm, createOrganizationFields] = useForm({
     id: `create-organization-${
       actionData?.currentTimestamp || currentTimestamp
     }`,
-    constraint: getZodConstraint(createSchema(locales)),
+    constraint: getZodConstraint(createOrganizationSchema(locales)),
     defaultValue: {
       organizationName: searchQuery,
       organizationTypes: [],
@@ -260,7 +256,7 @@ function CreateOrganization() {
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: () =>
-          createSchema(locales).transform((data, ctx) => {
+          createOrganizationSchema(locales).transform((data, ctx) => {
             const { organizationTypes: types, networkTypes } = data;
             const organizationTypeNetwork = allOrganizationTypes.find(
               (organizationType) => {
@@ -288,8 +284,9 @@ function CreateOrganization() {
       return submission;
     },
   });
-  const organizationTypeList = fields.organizationTypes.getFieldList();
-  let networkTypeList = fields.networkTypes.getFieldList();
+  const organizationTypeList =
+    createOrganizationFields.organizationTypes.getFieldList();
+  let networkTypeList = createOrganizationFields.networkTypes.getFieldList();
   const organizationTypeNetwork = allOrganizationTypes.find(
     (organizationType) => {
       return organizationType.slug === "network";
@@ -311,13 +308,13 @@ function CreateOrganization() {
   return (
     <Container>
       <Form
-        {...getFormProps(form)}
+        {...getFormProps(createOrganizationForm)}
         method="post"
         preventScrollReset
         autoComplete="off"
         className="mv-absolute"
       />
-      <button form={form.id} type="submit" hidden />
+      <button form={createOrganizationForm.id} type="submit" hidden />
       <TextButton
         as="a"
         href="/my/organizations"
@@ -339,29 +336,98 @@ function CreateOrganization() {
           <searchFetcher.Form
             {...getFormProps(searchForm)}
             method="get"
+            ref={searchFormRef}
+            autoComplete="off"
+          />
+          <Input
+            {...getInputProps(createOrganizationFields.organizationName, {
+              type: "text",
+            })}
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                searchFetcher.submit(event.currentTarget, {
+                const searchSearchParams = new URLSearchParams(searchParams);
+                searchSearchParams.set(
+                  SearchOrganizations,
+                  event.currentTarget.value.trim()
+                );
+                searchFetcher.submit(searchSearchParams, {
                   preventScrollReset: true,
                 });
               }
             }}
-            autoComplete="off"
+            key={createOrganizationFields.organizationName.id}
+            standalone
           >
+            <Input.Label htmlFor={createOrganizationFields.organizationName.id}>
+              {
+                locales.route.form.organizationName
+                  .requestOrganizationMembership.label
+              }
+            </Input.Label>
+
+            {typeof searchFields[SearchOrganizations].errors !== "undefined" &&
+            searchFields[SearchOrganizations].errors.length > 0
+              ? searchFields[SearchOrganizations].errors.map((error) => (
+                  <Input.Error
+                    id={searchFields[SearchOrganizations].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+            {typeof createOrganizationFields.organizationName.errors !==
+              "undefined" &&
+            createOrganizationFields.organizationName.errors.length > 0
+              ? createOrganizationFields.organizationName.errors.map(
+                  (error) => (
+                    <Input.Error
+                      id={createOrganizationFields.organizationName.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  )
+                )
+              : null}
+          </Input>
+          {typeof searchForm.errors !== "undefined" &&
+          searchForm.errors.length > 0 ? (
+            <div>
+              {searchForm.errors.map((error, index) => {
+                return (
+                  <div
+                    id={searchForm.errorId}
+                    key={index}
+                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                  >
+                    {error}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+          <noscript>
             <Input
               {...getInputProps(searchFields[SearchOrganizations], {
                 type: "search",
               })}
+              placeholder={
+                locales.route.form.organizationName.noJsSearchForm.placeholder
+              }
               key={searchFields[SearchOrganizations].id}
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchOrganizations].id}>
-                {
-                  locales.route.form.organizationName
-                    .requestOrganizationMembership.label
-                }
+                {locales.route.form.organizationName.noJsSearchForm.label}
               </Input.Label>
+
+              <Input.Controls>
+                <Button form={searchForm.id} type="submit" variant="outline">
+                  {locales.route.form.organizationName.noJsSearchForm.searchCta}
+                </Button>
+              </Input.Controls>
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&
@@ -375,34 +441,8 @@ function CreateOrganization() {
                     </Input.Error>
                   ))
                 : null}
-              <Input.Controls>
-                <noscript>
-                  <Button type="submit" variant="outline">
-                    {
-                      locales.route.form.organizationName
-                        .requestOrganizationMembership.searchCta
-                    }
-                  </Button>
-                </noscript>
-              </Input.Controls>
             </Input>
-            {typeof searchForm.errors !== "undefined" &&
-            searchForm.errors.length > 0 ? (
-              <div>
-                {searchForm.errors.map((error, index) => {
-                  return (
-                    <div
-                      id={searchForm.errorId}
-                      key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                    >
-                      {error}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-          </searchFetcher.Form>
+          </noscript>
           {searchedOrganizations.length > 0 ? (
             <Form
               {...getFormProps(createOrganizationMemberRequestForm)}
@@ -423,20 +463,9 @@ function CreateOrganization() {
                       listIndex={index}
                       hideAfter={3}
                     >
-                      {organizations.adminOrganizations.some((organization) => {
+                      {organizations.some((organization) => {
                         return organization.id === searchedOrganization.id;
                       }) ? (
-                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
-                          {
-                            locales.route.form.organizationName
-                              .requestOrganizationMembership.alreadyAdmin
-                          }
-                        </div>
-                      ) : organizations.teamMemberOrganizations.some(
-                          (organization) => {
-                            return organization.id === searchedOrganization.id;
-                          }
-                        ) ? (
                         <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
                           {
                             locales.route.form.organizationName
@@ -501,18 +530,21 @@ function CreateOrganization() {
             {locales.route.form.organizationTypes.headline}
           </h2>
           <ConformSelect
-            id={fields.organizationTypes.id}
+            id={createOrganizationFields.organizationTypes.id}
             cta={locales.route.form.organizationTypes.cta}
           >
-            <ConformSelect.Label htmlFor={fields.organizationTypes.id}>
+            <ConformSelect.Label
+              htmlFor={createOrganizationFields.organizationTypes.id}
+            >
               {locales.route.form.organizationTypes.label}
             </ConformSelect.Label>
 
-            {typeof fields.organizationTypes.errors !== "undefined" &&
-            fields.organizationTypes.errors.length > 0 ? (
-              fields.organizationTypes.errors.map((error) => (
+            {typeof createOrganizationFields.organizationTypes.errors !==
+              "undefined" &&
+            createOrganizationFields.organizationTypes.errors.length > 0 ? (
+              createOrganizationFields.organizationTypes.errors.map((error) => (
                 <ConformSelect.Error
-                  id={fields.organizationTypes.errorId}
+                  id={createOrganizationFields.organizationTypes.errorId}
                   key={error}
                 >
                   {error}
@@ -549,11 +581,11 @@ function CreateOrganization() {
                 }
                 return (
                   <button
-                    {...form.insert.getButtonProps({
-                      name: fields.organizationTypes.name,
+                    {...createOrganizationForm.insert.getButtonProps({
+                      name: createOrganizationFields.organizationTypes.name,
                       defaultValue: filteredOrganizationType.id,
                     })}
-                    form={form.id}
+                    form={createOrganizationForm.id}
                     key={filteredOrganizationType.id}
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
                   >
@@ -603,8 +635,8 @@ function CreateOrganization() {
                     {title || locales.route.form.organizationTypes.notFound}
                     <Chip.Delete>
                       <button
-                        {...form.remove.getButtonProps({
-                          name: fields.organizationTypes.name,
+                        {...createOrganizationForm.remove.getButtonProps({
+                          name: createOrganizationFields.organizationTypes.name,
                           index,
                         })}
                       />
@@ -625,22 +657,25 @@ function CreateOrganization() {
             {locales.route.form.networkTypes.headline}
           </h2>
           <ConformSelect
-            id={fields.networkTypes.id}
+            id={createOrganizationFields.networkTypes.id}
             cta={locales.route.form.networkTypes.cta}
             disabled={isNetwork === false}
           >
-            <ConformSelect.Label htmlFor={fields.networkTypes.id}>
+            <ConformSelect.Label
+              htmlFor={createOrganizationFields.networkTypes.id}
+            >
               <span
                 className={isNetwork === false ? "mv-text-neutral-300" : ""}
               >
                 {locales.route.form.networkTypes.label}
               </span>
             </ConformSelect.Label>
-            {typeof fields.networkTypes.errors !== "undefined" &&
-            fields.networkTypes.errors.length > 0 ? (
-              fields.networkTypes.errors.map((error) => (
+            {typeof createOrganizationFields.networkTypes.errors !==
+              "undefined" &&
+            createOrganizationFields.networkTypes.errors.length > 0 ? (
+              createOrganizationFields.networkTypes.errors.map((error) => (
                 <ConformSelect.Error
-                  id={fields.networkTypes.errorId}
+                  id={createOrganizationFields.networkTypes.errorId}
                   key={error}
                 >
                   {error}
@@ -678,11 +713,11 @@ function CreateOrganization() {
                 }
                 return (
                   <button
-                    {...form.insert.getButtonProps({
-                      name: fields.networkTypes.name,
+                    {...createOrganizationForm.insert.getButtonProps({
+                      name: createOrganizationFields.networkTypes.name,
                       defaultValue: filteredNetworkType.id,
                     })}
-                    form={form.id}
+                    form={createOrganizationForm.id}
                     key={filteredNetworkType.id}
                     disabled={!isNetwork}
                     className="mv-text-start mv-w-full mv-py-1 mv-px-2"
@@ -727,8 +762,8 @@ function CreateOrganization() {
                     {title || locales.route.form.networkTypes.notFound}
                     <Chip.Delete>
                       <button
-                        {...form.remove.getButtonProps({
-                          name: fields.networkTypes.name,
+                        {...createOrganizationForm.remove.getButtonProps({
+                          name: createOrganizationFields.networkTypes.name,
                           index,
                         })}
                       />
@@ -742,12 +777,13 @@ function CreateOrganization() {
 
         {/* TODO: FAQ Section */}
       </Section>
-      {typeof form.errors !== "undefined" && form.errors.length > 0 ? (
+      {typeof createOrganizationForm.errors !== "undefined" &&
+      createOrganizationForm.errors.length > 0 ? (
         <div>
-          {form.errors.map((error, index) => {
+          {createOrganizationForm.errors.map((error, index) => {
             return (
               <div
-                id={form.errorId}
+                id={createOrganizationForm.errorId}
                 key={index}
                 className="mv-text-sm mv-font-semibold mv-text-negative-600"
               >
@@ -767,14 +803,17 @@ function CreateOrganization() {
             {locales.route.form.cancel}
           </Button>
           <Button
-            form={form.id}
+            form={createOrganizationForm.id}
             type="submit"
             name="intent"
-            defaultValue="submit"
+            value="create-organization"
             fullSize
             // Don't disable button when js is disabled
             disabled={
-              isHydrated ? form.dirty === false || form.valid === false : false
+              isHydrated
+                ? createOrganizationForm.dirty === false ||
+                  createOrganizationForm.valid === false
+                : false
             }
           >
             {locales.route.form.submit}

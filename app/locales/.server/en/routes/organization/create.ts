@@ -20,13 +20,16 @@ export const locale = {
   form: {
     organizationName: {
       headline: "What is the name of your organization or network?",
+      noJsSearchForm: {
+        label: "Search for existing organization",
+        placeholder: "Name of the organization or network",
+        searchCta: "Search",
+      },
       requestOrganizationMembership: {
         createOrganizationMemberRequestCta: "Request to join",
         createOrganizationMemberRequest:
           "You have requested to join {{name}}. You will be notified as soon as an admin responds to your request.",
         label: "Name of the organization / network*",
-        searchCta: "Search",
-        alreadyAdmin: "already admin",
         alreadyMember: "already team member",
         alreadyRequested: "already requested",
         email: {

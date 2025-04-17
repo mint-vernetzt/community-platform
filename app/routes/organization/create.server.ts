@@ -2,7 +2,6 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -10,7 +9,6 @@ import { getPublicURL } from "~/storage.server";
 import {
   createOrganizationMemberRequestSchema,
   createOrganizationSchema,
-  createSchema,
 } from "./create";
 import { invariantResponse } from "~/lib/utils/response";
 import {
@@ -94,374 +92,91 @@ export async function createOrganizationOnProfile(
 }
 
 export async function getOrganizationsFromProfile(id: string) {
-  const [adminOrganizations, teamMemberOrganizations] =
-    await prismaClient.$transaction([
-      prismaClient.organization.findMany({
+  const organizations = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      bio: true,
+      logo: true,
+      types: {
         select: {
-          id: true,
-          slug: true,
-          name: true,
-          bio: true,
-          logo: true,
-          background: true,
-          types: {
+          organizationType: {
             select: {
-              organizationType: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          },
-          focuses: {
-            select: {
-              focus: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          },
-          areas: {
-            select: {
-              area: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-          teamMembers: {
-            select: {
-              profile: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                  avatar: true,
-                  username: true,
-                  id: true,
-                },
-              },
+              slug: true,
             },
           },
         },
-        where: {
-          admins: {
-            some: {
-              profile: {
-                id: id,
-              },
-            },
+      },
+    },
+    where: {
+      teamMembers: {
+        some: {
+          profile: {
+            id: id,
           },
         },
-        orderBy: {
-          name: "asc",
-        },
-      }),
-      prismaClient.organization.findMany({
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          bio: true,
-          logo: true,
-          background: true,
-          types: {
-            select: {
-              organizationType: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          },
-          focuses: {
-            select: {
-              focus: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          },
-          areas: {
-            select: {
-              area: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          },
-          teamMembers: {
-            select: {
-              profile: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                  avatar: true,
-                  username: true,
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-        where: {
-          teamMembers: {
-            some: {
-              profile: {
-                id: id,
-              },
-            },
-          },
-        },
-        orderBy: {
-          name: "asc",
-        },
-      }),
-    ]);
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
 
-  return { adminOrganizations, teamMemberOrganizations };
+  return organizations;
 }
 
 export function addImageUrlToOrganizations(
   authClient: SupabaseClient,
   organizations: Awaited<ReturnType<typeof getOrganizationsFromProfile>>
 ) {
-  const adminOrganizations = organizations.adminOrganizations.map(
-    (organization) => {
-      let background = organization.background;
-      let blurredBackground;
-      let logo = organization.logo;
-      let blurredLogo;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          background = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.Background.width,
-              height: ImageSizes.Organization.Card.Background.height,
-            },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.BlurredBackground.width,
-              height: ImageSizes.Organization.Card.BlurredBackground.height,
-            },
-            blur: BlurFactor,
-          });
-        }
-      } else {
-        background = DefaultImages.Organization.Background;
-        blurredBackground = DefaultImages.Organization.BlurredBackground;
-      }
+  const enhancedOrganizations = organizations.map((organization) => {
+    let logo = organization.logo;
+    let blurredLogo;
 
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.Logo.width,
-              height: ImageSizes.Organization.Card.Logo.height,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.BlurredLogo.width,
-              height: ImageSizes.Organization.Card.BlurredLogo.height,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      const teamMembers = organization.teamMembers.map((relation) => {
-        let avatar = relation.profile.avatar;
-        let blurredAvatar;
-        if (avatar !== null) {
-          const publicURL = getPublicURL(authClient, avatar);
-          if (publicURL !== null) {
-            avatar = getImageURL(publicURL, {
-              resize: {
-                type: "fill",
-                width: ImageSizes.Profile.CardFooter.Avatar.width,
-                height: ImageSizes.Profile.CardFooter.Avatar.height,
-              },
-            });
-            blurredAvatar = getImageURL(publicURL, {
-              resize: {
-                type: "fill",
-                width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
-                height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
-              },
-              blur: BlurFactor,
-            });
-          }
-        }
-        return {
-          ...relation,
-          profile: {
-            ...relation.profile,
-            avatar,
-            blurredAvatar,
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Logo.width,
+            height: ImageSizes.Organization.Card.Logo.height,
           },
-        };
-      });
-      return {
-        ...organization,
-        logo,
-        blurredLogo,
-        background,
-        blurredBackground,
-        teamMembers,
-      };
-    }
-  );
-
-  const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
-    (organization) => {
-      let background = organization.background;
-      let blurredBackground;
-      let logo = organization.logo;
-      let blurredLogo;
-      if (background !== null) {
-        const publicURL = getPublicURL(authClient, background);
-        if (publicURL !== null) {
-          background = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.Background.width,
-              height: ImageSizes.Organization.Card.Background.height,
-            },
-          });
-          blurredBackground = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.BlurredBackground.width,
-              height: ImageSizes.Organization.Card.BlurredBackground.height,
-            },
-            blur: BlurFactor,
-          });
-        }
-      } else {
-        background = DefaultImages.Organization.Background;
-        blurredBackground = DefaultImages.Organization.BlurredBackground;
-      }
-
-      if (logo !== null) {
-        const publicURL = getPublicURL(authClient, logo);
-        if (publicURL !== null) {
-          logo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.Logo.width,
-              height: ImageSizes.Organization.Card.Logo.height,
-            },
-          });
-          blurredLogo = getImageURL(publicURL, {
-            resize: {
-              type: "fill",
-              width: ImageSizes.Organization.Card.BlurredLogo.width,
-              height: ImageSizes.Organization.Card.BlurredLogo.height,
-            },
-            blur: BlurFactor,
-          });
-        }
-      }
-      const teamMembers = organization.teamMembers.map((relation) => {
-        let avatar = relation.profile.avatar;
-        let blurredAvatar;
-        if (avatar !== null) {
-          const publicURL = getPublicURL(authClient, avatar);
-          if (publicURL !== null) {
-            avatar = getImageURL(publicURL, {
-              resize: {
-                type: "fill",
-                width: ImageSizes.Profile.CardFooter.Avatar.width,
-                height: ImageSizes.Profile.CardFooter.Avatar.height,
-              },
-            });
-            blurredAvatar = getImageURL(publicURL, {
-              resize: {
-                type: "fill",
-                width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
-                height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
-              },
-              blur: BlurFactor,
-            });
-          }
-        }
-        return {
-          ...relation,
-          profile: {
-            ...relation.profile,
-            avatar,
-            blurredAvatar,
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredLogo.width,
+            height: ImageSizes.Organization.Card.BlurredLogo.height,
           },
-        };
-      });
-      return {
-        ...organization,
-        logo,
-        blurredLogo,
-        background,
-        blurredBackground,
-        teamMembers,
-      };
+          blur: BlurFactor,
+        });
+      }
     }
-  );
+    return {
+      ...organization,
+      logo,
+      blurredLogo,
+    };
+  });
 
-  return { adminOrganizations, teamMemberOrganizations };
+  return enhancedOrganizations;
 }
 
 export function flattenOrganizationRelations(
   organizations: Awaited<ReturnType<typeof getOrganizationsFromProfile>>
 ) {
-  const adminOrganizations = organizations.adminOrganizations.map(
-    (organization) => {
-      return {
-        ...organization,
-        teamMembers: organization.teamMembers.map((relation) => {
-          return relation.profile;
-        }),
-        types: organization.types.map((relation) => {
-          return relation.organizationType.slug;
-        }),
-        focuses: organization.focuses.map((relation) => {
-          return relation.focus.slug;
-        }),
-        areas: organization.areas.map((relation) => {
-          return relation.area.name;
-        }),
-      };
-    }
-  );
+  const flattendOrganizations = organizations.map((organization) => {
+    return {
+      ...organization,
+      types: organization.types.map((relation) => {
+        return relation.organizationType.slug;
+      }),
+    };
+  });
 
-  const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
-    (organization) => {
-      return {
-        ...organization,
-        teamMembers: organization.teamMembers.map((relation) => {
-          return relation.profile;
-        }),
-        types: organization.types.map((relation) => {
-          return relation.organizationType.slug;
-        }),
-        focuses: organization.focuses.map((relation) => {
-          return relation.focus.slug;
-        }),
-        areas: organization.areas.map((relation) => {
-          return relation.area.name;
-        }),
-      };
-    }
-  );
-
-  return { adminOrganizations, teamMemberOrganizations };
+  return flattendOrganizations;
 }
 
 export async function getPendingRequestsToOrganizations(
@@ -744,6 +459,7 @@ export async function createOrganizationMemberRequest(options: {
         }
       ),
     },
+    alert: undefined,
   };
 }
 
@@ -755,48 +471,42 @@ export async function createOrganization(options: {
   const { formData, locales, sessionUser } = options;
 
   // TODO: Same structure as above
-  const submission = parseWithZod(formData, {
+  const submission = await parseWithZod(formData, {
     schema: () =>
       createOrganizationSchema(locales).transform(async (data, ctx) => {
-        const slug = generateOrganizationSlug(data.organizationName);
-        const organizationTypeNetwork = await getOrganizationTypeNetwork();
+        const organizationTypeNetwork =
+          await prismaClient.organizationType.findFirst({
+            select: {
+              id: true,
+            },
+            where: {
+              slug: "network",
+            },
+          });
         invariantResponse(
           organizationTypeNetwork !== null,
           locales.route.validation.organizationTypeNetworkNotFound,
           { status: 404 }
         );
-        const isNetwork = submission.value.organizationTypes.some(
+        const isNetwork = data.organizationTypes.some(
           (id) => id === organizationTypeNetwork.id
         );
         invariantResponse(
-          (isNetwork === false && submission.value.networkTypes.length > 0) ===
-            false,
+          (isNetwork === false && data.networkTypes.length > 0) === false,
           locales.route.validation.notANetwork,
           { status: 400 }
         );
-        if (isNetwork === true && submission.value.networkTypes.length === 0) {
-          const newSubmission = parseWithZod(formData, {
-            schema: () =>
-              createSchema(locales).transform(async (data, ctx) => {
-                ctx.addIssue({
-                  code: "custom",
-                  message: locales.route.validation.networkTypesRequired,
-                  path: ["networkTypes"],
-                });
-                return z.NEVER;
-              }),
+        if (isNetwork === true && data.networkTypes.length === 0) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.validation.networkTypesRequired,
+            path: ["networkTypes"],
           });
-          return {
-            submission: newSubmission.reply(),
-            currentTimestamp: Date.now(),
-          };
+          return z.NEVER;
         }
+        const slug = generateOrganizationSlug(data.organizationName);
         try {
-          await createOrganizationOnProfile(
-            sessionUser.id,
-            submission.value,
-            slug
-          );
+          await createOrganizationOnProfile(sessionUser.id, data, slug);
         } catch (error) {
           Sentry.captureException(error);
           ctx.addIssue({
@@ -805,7 +515,7 @@ export async function createOrganization(options: {
           });
           return z.NEVER;
         }
-        return { ...data, name: organization.name };
+        return { ...data, slug };
       }),
     async: true,
   });
@@ -816,16 +526,14 @@ export async function createOrganization(options: {
   }
   return {
     submission: submission.reply(),
-    toast: {
-      id: "create-organization-member-request-toast",
-      key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.form.organizationName.requestOrganizationMembership
-          .createOrganizationMemberRequest,
-        {
-          name: submission.value.name,
-        }
-      ),
+    redirectUrl: `/organization/${submission.value.slug}/detail/about`,
+    alert: {
+      message: insertParametersIntoLocale(locales.route.successAlert, {
+        name: submission.value.organizationName,
+        slug: submission.value.slug,
+      }),
+      isRichtext: true,
     },
+    toast: undefined,
   };
 }

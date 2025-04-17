@@ -21,13 +21,16 @@ export const locale = {
   form: {
     organizationName: {
       headline: "Wie heißt Deine Organisation oder Dein Netzwerk?",
+      noJsSearchForm: {
+        label: "Vorhandene Organisation suchen",
+        placeholder: "Name der Organisation oder des Netzwerks",
+        searchCta: "Suchen",
+      },
       requestOrganizationMembership: {
         createOrganizationMemberRequestCta: "Beitritt anfragen",
         createOrganizationMemberRequest:
           "Du hast den Beitritt bei der Organisation {{name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
         label: "Name der Organisation / des Netzwerks*",
-        searchCta: "Suchen",
-        alreadyAdmin: "bereits Administrator:in",
         alreadyMember: "bereits Teammitglied",
         alreadyRequested: "bereits angefragt",
         email: {
