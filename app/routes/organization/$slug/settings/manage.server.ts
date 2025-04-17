@@ -642,13 +642,22 @@ export async function leaveNetwork(options: {
   locales: ManageOrganizationSettingsLocales;
 }) {
   const { formData, organization, locales } = options;
-  const { id: organizationId, name } = organization;
+  const { id: organizationId } = organization;
   const submission = await parseWithZod(formData, {
     schema: () =>
       updateNetworkSchema.transform(async (data, ctx) => {
         const { organizationId: networkId } = data;
+        let relation;
         try {
-          await prismaClient.memberOfNetwork.delete({
+          relation = await prismaClient.memberOfNetwork.delete({
+            select: {
+              network: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
             where: {
               networkId_networkMemberId: {
                 networkId,
@@ -665,7 +674,7 @@ export async function leaveNetwork(options: {
           return z.NEVER;
         }
 
-        return { ...data };
+        return { ...data, name: relation.network.name };
       }),
     async: true,
   });
@@ -683,7 +692,7 @@ export async function leaveNetwork(options: {
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         locales.route.content.networks.current.leave.success,
-        { organization: name }
+        { organization: submission.value.name }
       ),
     },
   };
