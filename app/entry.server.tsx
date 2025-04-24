@@ -56,6 +56,7 @@ export default async function handleRequest(
         : " connect-src 'self'"
     }`
   );
+  responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
 
   // Appending profiling policy header to the response when sentry is enabled
   if (
