@@ -54,6 +54,7 @@ function ListItemImage(props: {
             setBlurredImgLoaded(true);
           }}
           className={blurredClasses}
+          crossOrigin="use-credentials"
         />
         <img
           ref={imgRef}
@@ -63,9 +64,15 @@ function ListItemImage(props: {
             setImgLoaded(true);
           }}
           className={classes}
+          crossOrigin="use-credentials"
         />
         <noscript>
-          <img src={props.src} alt={props.alt} className={baseClasses} />
+          <img
+            src={props.src}
+            alt={props.alt}
+            className={baseClasses}
+            crossOrigin="use-credentials"
+          />
         </noscript>
       </div>
     </div>

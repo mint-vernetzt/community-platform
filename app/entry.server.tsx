@@ -58,6 +58,8 @@ export default async function handleRequest(
   );
   responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
   responseHeaders.set("Referrer-Policy", "same-origin");
+  responseHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+  responseHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
   // Appending profiling policy header to the response when sentry is enabled
   if (

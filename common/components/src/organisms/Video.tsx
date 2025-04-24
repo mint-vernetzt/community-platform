@@ -52,6 +52,13 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               allow="fullscreen"
               allowFullScreen
               nonce={nonce}
+              // The credentialless attribute is considered experimental and not widely supported accross all browsers.
+              // It is used to prevent the browser from sending cookies and other credentials to the iframe's origin.
+              // It is needed to fully levarage the COEP Header.
+              // Further reading: https://developer.mozilla.org/en-US/docs/Web/Security/IFrame_credentialless
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              credentialless="true" // eslint-disable-line react/no-unknown-property
             ></iframe>
           )}
         </div>

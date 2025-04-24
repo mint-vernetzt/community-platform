@@ -24,7 +24,11 @@ function ProfileCard(props: ProfileCardProps) {
         <div className="w-full flex items-center flex-row">
           <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
             {props.avatar !== null && props.avatar !== "" ? (
-              <img src={props.avatar} alt={props.name} />
+              <img
+                src={props.avatar}
+                alt={props.name}
+                crossOrigin="use-credentials"
+              />
             ) : (
               props.initials
             )}
