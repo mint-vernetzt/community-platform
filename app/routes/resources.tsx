@@ -345,6 +345,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     src={typedResourceValue.imagePath}
                     alt={locales.sections.learn[typedResourceKey].imgAlt}
                     className="mv-w-full mv-h-full mv-object-cover"
+                    crossOrigin="use-credentials"
                   />
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>

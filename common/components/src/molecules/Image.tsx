@@ -33,6 +33,7 @@ function Image(props: ImageProps) {
               className={`mv-w-full mv-h-full ${
                 resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
               }`}
+              crossOrigin="use-credentials"
             />
           </noscript>
         ) : null}
@@ -49,6 +50,7 @@ function Image(props: ImageProps) {
                 ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
                 : "mv-opacity-0 mv-invisible"
             }`}
+            crossOrigin="use-credentials"
           />
         ) : null}
         {props.src ? (
@@ -66,6 +68,7 @@ function Image(props: ImageProps) {
                 ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
                 : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
             }`}
+            crossOrigin="use-credentials"
           />
         ) : null}
       </div>

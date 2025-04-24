@@ -185,6 +185,7 @@ export function CardImage(props: {
               src={props.blurSrc}
               alt="Rahmen des Hintergrundbildes"
               className="mv-w-full mv-h-full mv-object-cover"
+              crossOrigin="use-credentials"
             />
           ) : null}
           <img
@@ -199,6 +200,7 @@ export function CardImage(props: {
                   }
                   `}
             alt=""
+            crossOrigin="use-credentials"
           />
           {props.isHydrated !== undefined && (
             <noscript>
@@ -206,6 +208,7 @@ export function CardImage(props: {
                 src={props.src}
                 className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0`}
                 alt=""
+                crossOrigin="use-credentials"
               />
             </noscript>
           )}
@@ -215,6 +218,7 @@ export function CardImage(props: {
           src={props.src}
           className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
           alt=""
+          crossOrigin="use-credentials"
         />
       )}
     </>

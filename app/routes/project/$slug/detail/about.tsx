@@ -2,7 +2,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Video } from "@mint-vernetzt/components/src/organisms/Video";
-import { type LoaderFunctionArgs } from "react-router";
+import { type HeadersArgs, type LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
@@ -25,6 +25,11 @@ import { Xing } from "~/components-next/icons/Xing";
 import { YouTube } from "~/components-next/icons/YouTube";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+
+export function headers({ parentHeaders }: HeadersArgs) {
+  parentHeaders.set("Cross-Origin-Resource-Policy", "cross-origin");
+  return parentHeaders;
+}
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

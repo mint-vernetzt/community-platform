@@ -58,7 +58,7 @@ function Avatar(props: AvatarProps) {
     props.to &&
       "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
-  // const child = src ? <img src={src} alt={displayName} /> : <>{initials}</>;
+
   const child = src ? (
     <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
   ) : (

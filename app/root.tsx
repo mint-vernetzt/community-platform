@@ -1,4 +1,5 @@
 import type {
+  HeadersArgs,
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
@@ -98,6 +99,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: legacyStyles },
 ];
+
+export function headers({ parentHeaders }: HeadersArgs) {
+  parentHeaders.set("Cross-Origin-Resource-Policy", "same-origin");
+  return parentHeaders;
+}
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
