@@ -53,10 +53,11 @@ export default async function handleRequest(
           )
             .replace(/sentry\.io.*/, "sentry.io")
             .replace(/^.*@/, "")};`
-        : " connect-src 'self'"
+        : " connect-src 'self';"
     }`
   );
   responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
+  responseHeaders.set("Referrer-Policy", "same-origin");
 
   // Appending profiling policy header to the response when sentry is enabled
   if (
