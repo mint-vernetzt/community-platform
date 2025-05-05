@@ -25,37 +25,54 @@ const entitiesSchema = z.object({
     z.object({
       id: z.string(),
       bio: z.string().nullable(),
+      bioRTEState: z.string().nullable(),
     })
   ),
   organizations: z.array(
     z.object({
       id: z.string(),
       bio: z.string().nullable(),
+      bioRTEState: z.string().nullable(),
     })
   ),
   projects: z.array(
     z.object({
       id: z.string(),
       idea: z.string().nullable(),
+      ideaRTEState: z.string().nullable(),
       goals: z.string().nullable(),
+      goalsRTEState: z.string().nullable(),
       implementation: z.string().nullable(),
+      implementationRTEState: z.string().nullable(),
       furtherDescription: z.string().nullable(),
+      furtherDescriptionRTEState: z.string().nullable(),
       targeting: z.string().nullable(),
+      targetingRTEState: z.string().nullable(),
       hints: z.string().nullable(),
+      hintsRTEState: z.string().nullable(),
       timeframe: z.string().nullable(),
+      timeframeRTEState: z.string().nullable(),
       jobFillings: z.string().nullable(),
+      jobFillingsRTEState: z.string().nullable(),
       furtherJobFillings: z.string().nullable(),
+      furtherJobFillingsRTEState: z.string().nullable(),
       furtherFinancings: z.string().nullable(),
+      furtherFinancingsRTEState: z.string().nullable(),
       technicalRequirements: z.string().nullable(),
+      technicalRequirementsRTEState: z.string().nullable(),
       furtherTechnicalRequirements: z.string().nullable(),
+      furtherTechnicalRequirementsRTEState: z.string().nullable(),
       roomSituation: z.string().nullable(),
+      roomSituationRTEState: z.string().nullable(),
       furtherRoomSituation: z.string().nullable(),
+      furtherRoomSituationRTEState: z.string().nullable(),
     })
   ),
   events: z.array(
     z.object({
       id: z.string(),
       description: z.string().nullable(),
+      descriptionRTEState: z.string().nullable(),
     })
   ),
 });

@@ -26,6 +26,8 @@ import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { $insertNodes } from "lexical";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { prismaClient } from "~/prisma.server";
 import fs from "fs-extra";
@@ -83,6 +85,22 @@ async function getNewValueFromRTE(options: {
                 });
                 const editorState = editor.parseEditorState(oldRTEStateValue);
                 editor.setEditorState(editorState);
+              } else {
+                if (
+                  oldHtmlValue !== null &&
+                  oldHtmlValue !== "" &&
+                  oldHtmlValue !== "<p><br></p>"
+                ) {
+                  const parser = new DOMParser();
+                  const dom = parser.parseFromString(
+                    String(oldHtmlValue),
+                    "text/html"
+                  );
+                  const nodes = $generateNodesFromDOM(editor, dom);
+                  $insertNodes(nodes);
+                } else {
+                  $insertNodes([]);
+                }
               }
             });
           }, [editor]);
@@ -93,53 +111,36 @@ async function getNewValueFromRTE(options: {
           oldRTEStateInputValue: string | null;
           contentRef: React.RefObject<HTMLDivElement | null>;
         }) => {
-          const { oldHtmlInputValue, oldRTEStateInputValue, contentRef } =
-            props;
+          const { contentRef } = props;
           const [editor] = useLexicalComposerContext();
-          const [htmlValue, setHtmlValue] = React.useState(oldHtmlInputValue);
-          const [editorStateValue, setEditorStateValue] = React.useState(
-            oldRTEStateInputValue
-          );
           React.useEffect(() => {
             return editor.registerUpdateListener(() => {
               if (contentRef.current !== null) {
                 editor.read(() => {
                   if (contentRef.current !== null) {
-                    const htmlString = contentRef.current.innerHTML;
-                    if (htmlString === "<p><br></p>") {
-                      setHtmlValue("");
-                    } else {
-                      setHtmlValue(htmlString);
-                    }
+                    const htmlString =
+                      contentRef.current.innerHTML === "<p><br></p>" ||
+                      contentRef.current.innerHTML === ""
+                        ? null
+                        : contentRef.current.innerHTML;
                     const editorState = editor.getEditorState();
                     const editorStateJSON = JSON.stringify(editorState);
-                    setEditorStateValue(editorStateJSON);
+                    const event = new CustomEvent(EDITOR_VALUE_SET_EVENT, {
+                      detail: {
+                        htmlValue: htmlString,
+                        editorStateValue: editorStateJSON,
+                      },
+                      bubbles: true,
+                      cancelable: false,
+                    });
+                    document.body.dispatchEvent(event);
                   }
                 });
               }
             });
           }, [editor, contentRef]);
-          return (
-            <>
-              <input
-                id="rte-input"
-                value={htmlValue || undefined}
-                onChange={() => {
-                  if (editorStateValue !== null) {
-                    window.dispatchEvent(new Event(EDITOR_VALUE_SET_EVENT));
-                  }
-                  return;
-                }}
-              />
-              <input
-                id="rte-state-input"
-                value={editorStateValue || undefined}
-                onChange={() => {
-                  return;
-                }}
-              />
-            </>
-          );
+
+          return null;
         };
         const contentEditableRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -209,26 +210,19 @@ async function getNewValueFromRTE(options: {
       global.document = dom.window.document;
       global.DOMParser = dom.window.DOMParser;
       global.MutationObserver = dom.window.MutationObserver;
-      global.Event = dom.window.Event;
-      window.addEventListener(EDITOR_VALUE_SET_EVENT, () => {
-        const inputElement = document.querySelector(
-          "#rte-input"
-        ) as HTMLInputElement | null;
-        const inputStateElement = document.querySelector(
-          "#rte-state-input"
-        ) as HTMLInputElement | null;
-        if (inputElement !== null && inputStateElement !== null) {
-          console.log("InputElement Value", inputElement.value);
-          console.log("InputStateElement Value", inputStateElement.value);
-          resolve(
-            JSON.stringify({
-              htmlValue: inputElement.value,
-              editorStateValue: inputStateElement.value,
-            })
-          );
-        } else {
-          reject(new Error("Could not find the input elements."));
-        }
+      global.CustomEvent = dom.window.CustomEvent;
+      window.addEventListener(EDITOR_VALUE_SET_EVENT, (event) => {
+        console.log("Successfully hydrated RTE and read its values");
+        resolve(
+          JSON.stringify({
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            htmlValue: event.detail.htmlValue,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            editorStateValue: event.detail.editorStateValue,
+          })
+        );
       });
       const container = document.getElementById("root");
       if (container !== null) {
@@ -341,7 +335,8 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
-          newProfile[typedRteField] = result.htmlValue;
+          newProfile[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
           newProfile[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -370,7 +365,8 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
-          newOrganization[typedRteField] = result.htmlValue;
+          newOrganization[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
           newOrganization[
             `${typedRteField}RTEState` as keyof typeof rteFields
           ] = result.editorStateValue;
@@ -400,7 +396,8 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
-          newProject[typedRteField] = result.htmlValue;
+          newProject[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
           newProject[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -429,7 +426,8 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
-          newEvent[typedRteField] = result.htmlValue;
+          newEvent[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
           newEvent[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
