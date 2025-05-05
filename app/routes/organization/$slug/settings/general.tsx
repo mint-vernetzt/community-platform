@@ -141,7 +141,15 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         }
         return value.trim();
       }),
-    bioRTEState: z.string().optional(),
+    bioRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     supportedBy: z
       .array(z.string().transform((value) => value.trim()))
       .optional(),

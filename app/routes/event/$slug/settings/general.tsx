@@ -133,7 +133,14 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     ),
     subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
     description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
-    descriptionRTEState: nullOrString(string()),
+    descriptionRTEState: nullOrString(
+      string().transform((value: string | null | undefined) => {
+        if (typeof value === "undefined" || value === "") {
+          return null;
+        }
+        return value;
+      })
+    ),
     focuses: array(string().required()).required(),
     eventTargetGroups: array(string().required()).required(),
     experienceLevel: nullOrString(string()),

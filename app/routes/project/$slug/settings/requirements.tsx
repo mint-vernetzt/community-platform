@@ -73,7 +73,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    timeframeRTEState: z.string().optional(),
+    timeframeRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     jobFillings: z
       .string()
       .optional()
@@ -97,7 +105,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    jobFillingsRTEState: z.string().optional(),
+    jobFillingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     furtherJobFillings: z
       .string()
       .optional()
@@ -121,7 +137,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    furtherJobFillingsRTEState: z.string().optional(),
+    furtherJobFillingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     yearlyBudget: z
       .string()
       .max(
@@ -161,7 +185,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    furtherFinancingsRTEState: z.string().optional(),
+    furtherFinancingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     technicalRequirements: z
       .string()
       .optional()
@@ -185,7 +217,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    technicalRequirementsRTEState: z.string().optional(),
+    technicalRequirementsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     furtherTechnicalRequirements: z
       .string()
       .optional()
@@ -209,7 +249,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    furtherTechnicalRequirementsRTEState: z.string().optional(),
+    furtherTechnicalRequirementsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     roomSituation: z
       .string()
       .optional()
@@ -233,7 +281,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    roomSituationRTEState: z.string().optional(),
+    roomSituationRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     furtherRoomSituation: z
       .string()
       .optional()
@@ -257,7 +313,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
-    furtherRoomSituationRTEState: z.string().optional(),
+    furtherRoomSituationRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {

@@ -121,7 +121,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    ideaRTEState: z.string().optional(),
+    ideaRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     goals: z
       .string()
       .optional()
@@ -145,7 +153,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    goalsRTEState: z.string().optional(),
+    goalsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     implementation: z
       .string()
       .optional()
@@ -169,7 +185,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    implementationRTEState: z.string().optional(),
+    implementationRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     furtherDescription: z
       .string()
       .optional()
@@ -193,7 +217,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    furtherDescriptionRTEState: z.string().optional(),
+    furtherDescriptionRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     targeting: z
       .string()
       .optional()
@@ -217,7 +249,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    targetingRTEState: z.string().optional(),
+    targetingRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     hints: z
       .string()
       .optional()
@@ -241,7 +281,15 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
-    hintsRTEState: z.string().optional(),
+    hintsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     video: createYoutubeEmbedSchema(locales),
     videoSubline: z
       .string()
