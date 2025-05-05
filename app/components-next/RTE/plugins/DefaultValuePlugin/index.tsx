@@ -11,14 +11,12 @@ function DefaultValuePlugin(props: Pick<InputForFormProps, "defaultValue">) {
   // Reset editor to default state on form reset
   React.useEffect(() => {
     const handleFormReset = () => {
-      if (typeof defaultValue !== "undefined") {
-        editor.update(() => {
-          if (typeof defaultValue !== "undefined") {
-            const editorState = editor.parseEditorState(String(defaultValue));
-            editor.setEditorState(editorState);
-          }
-        });
-      }
+      editor.update(() => {
+        if (typeof defaultValue !== "undefined") {
+          const editorState = editor.parseEditorState(String(defaultValue));
+          editor.setEditorState(editorState);
+        }
+      });
     };
 
     document.addEventListener("reset", handleFormReset);
@@ -30,7 +28,7 @@ function DefaultValuePlugin(props: Pick<InputForFormProps, "defaultValue">) {
 
   React.useEffect(() => {
     // Reset editor to default state on idle but only if there is difference between default value and editor value
-    if (navigation.state === "idle" && typeof defaultValue !== "undefined") {
+    if (navigation.state === "idle") {
       return editor.update(() => {
         if (typeof defaultValue !== "undefined") {
           const editorState = editor.parseEditorState(String(defaultValue));
