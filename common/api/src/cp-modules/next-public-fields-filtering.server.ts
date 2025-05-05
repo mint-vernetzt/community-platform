@@ -55,7 +55,7 @@ export function filterProfileByVisibility<
   T extends EntitySubset<ProfileWithRelations, T> &
     Pick<ProfileWithRelations, "profileVisibility">
 >(profile: T) {
-  // TODO: Fix type issue
+  // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredFields: { [key: string]: any } = {};
   for (const key in profile.profileVisibility) {
@@ -130,6 +130,7 @@ export function filterProfileByVisibility<
         key === "twitter" ||
         key === "xing" ||
         key === "bio" ||
+        key === "bioRTEState" ||
         key === "academicTitle" ||
         key === "position" ||
         key === "instagram" ||
@@ -156,7 +157,7 @@ export function filterProfileByVisibility<
 }
 
 type OrganizationWithRelations = Organization & {
-  // TODO: Fix type issues
+  // TODO: fix type issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   areas: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,13 +188,15 @@ type OrganizationWithRelations = Organization & {
   profileJoinRequests: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileJoinInvites: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  _count: any;
 };
 
 export function filterOrganizationByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T> &
     Pick<OrganizationWithRelations, "organizationVisibility">
 >(organization: T) {
-  // TODO: Fix type issue
+  // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredFields: { [key: string]: any } = {};
   for (const key in organization.organizationVisibility) {
@@ -255,6 +258,7 @@ export function filterOrganizationByVisibility<
         key === "twitter" ||
         key === "xing" ||
         key === "bio" ||
+        key === "bioRTEState" ||
         key === "quote" ||
         key === "quoteAuthor" ||
         key === "quoteAuthorInformation" ||
@@ -284,7 +288,7 @@ export function filterOrganizationByVisibility<
 }
 
 type EventWithRelations = Event & {
-  // TODO: Fix type issues
+  // TODO: fix type issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   areas: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -333,7 +337,7 @@ export function filterEventByVisibility<
   T extends EntitySubset<EventWithRelations, T> &
     Pick<EventWithRelations, "eventVisibility">
 >(event: T) {
-  // TODO: Fix type issue
+  // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredFields: { [key: string]: any } = {};
   for (const key in event.eventVisibility) {
@@ -386,6 +390,7 @@ export function filterEventByVisibility<
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
         key === "description" ||
+        key === "descriptionRTEState" ||
         key === "background" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
@@ -420,7 +425,7 @@ export function filterEventByVisibility<
 }
 
 type ProjectWithRelations = Project & {
-  // TODO: Fix type issues
+  // TODO: fix type issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   awards: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -463,7 +468,7 @@ export function filterProjectByVisibility<
   T extends EntitySubset<ProjectWithRelations, T> &
     Pick<ProjectWithRelations, "projectVisibility">
 >(project: T) {
-  // TODO: Fix type issue
+  // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredFields: { [key: string]: any } = {};
   for (const key in project.projectVisibility) {
@@ -512,6 +517,7 @@ export function filterProjectByVisibility<
         key === "excerpt" ||
         key === "description" || // legacy
         key === "furtherDescription" ||
+        key === "furtherDescriptionRTEState" ||
         key === "email" ||
         key === "phone" ||
         key === "website" ||
@@ -529,21 +535,34 @@ export function filterProjectByVisibility<
         key === "mastodon" ||
         key === "tiktok" ||
         key === "idea" ||
+        key === "ideaRTEState" ||
         key === "goals" ||
+        key === "goalsRTEState" ||
         key === "implementation" ||
+        key === "implementationRTEState" ||
         key === "targeting" ||
+        key === "targetingRTEState" ||
         key === "hints" ||
+        key === "hintsRTEState" ||
         key === "video" ||
         key === "videoSubline" ||
         key === "jobFillings" ||
+        key === "jobFillingsRTEState" ||
         key === "furtherJobFillings" ||
+        key === "furtherJobFillingsRTEState" ||
         key === "yearlyBudget" ||
         key === "furtherFinancings" ||
+        key === "furtherFinancingsRTEState" ||
         key === "technicalRequirements" ||
+        key === "technicalRequirementsRTEState" ||
         key === "furtherTechnicalRequirements" ||
+        key === "furtherTechnicalRequirementsRTEState" ||
         key === "roomSituation" ||
+        key === "roomSituationRTEState" ||
         key === "furtherRoomSituation" ||
+        key === "furtherRoomSituationRTEState" ||
         key === "timeframe" ||
+        key === "timeframeRTEState" ||
         key === "participantLimit" ||
         key === "targetGroupAdditions" ||
         key === "backgroundImage" ||
