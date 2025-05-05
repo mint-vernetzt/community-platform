@@ -133,6 +133,7 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     ),
     subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
     description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
+    descriptionRTEState: nullOrString(string()),
     focuses: array(string().required()).required(),
     eventTargetGroups: array(string().required()).required(),
     experienceLevel: nullOrString(string()),
@@ -922,7 +923,10 @@ function General() {
               maxLength={DESCRIPTION_MAX_LENGTH}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: event.descriptionRTEState || undefined,
+              }}
             />
             {errors?.description?.message ? (
               <div>{errors.description.message}</div>

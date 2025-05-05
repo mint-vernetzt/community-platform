@@ -15,18 +15,13 @@ function InputForFormPlugin(props: Omit<InputForFormProps, "defaultValue">) {
         editor.read(() => {
           if (contentEditableRef.current !== null) {
             const htmlString = contentEditableRef.current.getHTML();
-            console.log("InputForFormPlugin - htmlString", htmlString);
             if (htmlString === "<p><br></p>") {
               setHtmlValue("");
             } else {
-              setHtmlValue(htmlString.replaceAll(/\s?style="[^"]*\s?"/g, ""));
+              setHtmlValue(htmlString);
             }
             const editorState = editor.getEditorState();
             const editorStateJSON = JSON.stringify(editorState);
-            console.log(
-              "InputForFormPlugin - editorStateJSON",
-              editorStateJSON
-            );
             setEditorStateValue(editorStateJSON);
           }
         });

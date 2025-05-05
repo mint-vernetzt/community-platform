@@ -15,6 +15,7 @@ export async function getEventBySlug(slug: string) {
       name: true,
       subline: true,
       description: true,
+      descriptionRTEState: true,
       published: true,
       startTime: true,
       endTime: true,

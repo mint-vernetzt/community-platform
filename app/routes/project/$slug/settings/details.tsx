@@ -121,6 +121,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    ideaRTEState: z.string().optional(),
     goals: z
       .string()
       .optional()
@@ -144,6 +145,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    goalsRTEState: z.string().optional(),
     implementation: z
       .string()
       .optional()
@@ -167,6 +169,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    implementationRTEState: z.string().optional(),
     furtherDescription: z
       .string()
       .optional()
@@ -190,6 +193,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    furtherDescriptionRTEState: z.string().optional(),
     targeting: z
       .string()
       .optional()
@@ -213,6 +217,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    targetingRTEState: z.string().optional(),
     hints: z
       .string()
       .optional()
@@ -236,6 +241,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
         return value.trim();
       }),
+    hintsRTEState: z.string().optional(),
     video: createYoutubeEmbedSchema(locales),
     videoSubline: z
       .string()
@@ -274,11 +280,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
       video: true,
       videoSubline: true,
       hints: true,
+      hintsRTEState: true,
       targeting: true,
+      targetingRTEState: true,
       furtherDescription: true,
+      furtherDescriptionRTEState: true,
       implementation: true,
+      implementationRTEState: true,
       goals: true,
+      goalsRTEState: true,
       idea: true,
+      ideaRTEState: true,
       excerpt: true,
       participantLimit: true,
       furtherDisciplines: true,
@@ -1357,7 +1369,10 @@ function Details() {
               }
               errorId={fields.idea.errorId}
               maxLength={IDEA_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.ideaRTEState.initialValue,
+              }}
             />
 
             <TextArea
@@ -1375,7 +1390,10 @@ function Details() {
               }
               errorId={fields.goals.errorId}
               maxLength={GOALS_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.goalsRTEState.initialValue,
+              }}
             />
 
             <TextArea
@@ -1395,7 +1413,10 @@ function Details() {
               }
               errorId={fields.implementation.errorId}
               maxLength={IMPLEMENTATION_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.implementationRTEState.initialValue,
+              }}
             />
 
             <TextArea
@@ -1417,7 +1438,10 @@ function Details() {
               }
               errorId={fields.furtherDescription.errorId}
               maxLength={FURTHER_DESCRIPTION_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.furtherDescriptionRTEState.initialValue,
+              }}
             />
 
             <TextArea
@@ -1435,7 +1459,10 @@ function Details() {
               }
               errorId={fields.targeting.errorId}
               maxLength={TARGETING_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.targetingRTEState.initialValue,
+              }}
             />
 
             <TextArea
@@ -1453,7 +1480,10 @@ function Details() {
               }
               errorId={fields.hints.errorId}
               maxLength={HINTS_MAX_LENGTH}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: fields.hintsRTEState.initialValue,
+              }}
             />
           </div>
 

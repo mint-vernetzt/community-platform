@@ -141,7 +141,7 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         }
         return value.trim();
       }),
-    bioRTEState: z.string(),
+    bioRTEState: z.string().optional(),
     supportedBy: z
       .array(z.string().transform((value) => value.trim()))
       .optional(),
@@ -429,9 +429,6 @@ function General() {
   ) => {
     setSupportedBy(event.currentTarget.value);
   };
-
-  console.log("Default values - bio", defaultValues.bio);
-  console.log("Default values - bioRTEState", defaultValues.bioRTEState);
 
   return (
     <Section>
