@@ -14,6 +14,7 @@ export interface TextAreaProps {
   publicPosition?: "top" | "side";
   rte?: {
     locales: RTELocales;
+    defaultValue?: string;
   };
   helperText?: string;
 }
@@ -104,7 +105,7 @@ const TextArea = (
                     {...rteInputProps}
                     id={inputProps.id || label}
                     maxLength={inputProps.maxLength}
-                    defaultValue={inputProps.defaultValue}
+                    defaultValue={rte.defaultValue}
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                   />

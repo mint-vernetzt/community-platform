@@ -1,48 +1,46 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import * as Sentry from "@sentry/node";
+import React from "react";
 import {
   type ActionFunctionArgs,
+  Form,
   type LoaderFunctionArgs,
   redirect,
-} from "react-router";
-import { z } from "zod";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
-import { prismaClient } from "~/prisma.server";
-import { detectLanguage } from "~/i18n.server";
-import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import {
-  createAreaOptions,
-  type GeneralOrganizationSettingsLocales,
-} from "./general.server";
-import {
-  Form,
   useActionData,
   useLoaderData,
   useLocation,
   useNavigation,
 } from "react-router";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { BackButton } from "~/components-next/BackButton";
-import { TextArea } from "~/components-next/TextArea";
-import { ConformSelect } from "~/components-next/ConformSelect";
-import React from "react";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
-import * as Sentry from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { languageModuleMap } from "~/locales/.server";
+import { z } from "zod";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BackButton } from "~/components-next/BackButton";
+import { ConformSelect } from "~/components-next/ConformSelect";
+import { TextArea } from "~/components-next/TextArea";
+import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { detectLanguage } from "~/i18n.server";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
 import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
-import { updateFilterVectorOfOrganization } from "./utils.server";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
+import { redirectWithToast } from "~/toast.server";
 import { sanitizeUserHtml, triggerEntityScore } from "~/utils.server";
+import {
+  createAreaOptions,
+  type GeneralOrganizationSettingsLocales,
+} from "./general.server";
+import { updateFilterVectorOfOrganization } from "./utils.server";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;
@@ -143,6 +141,7 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         }
         return value.trim();
       }),
+    bioRTEState: z.string(),
     supportedBy: z
       .array(z.string().transform((value) => value.trim()))
       .optional(),
@@ -185,6 +184,7 @@ export async function loader(args: LoaderFunctionArgs) {
       zipCode: true,
       city: true,
       bio: true,
+      bioRTEState: true,
       supportedBy: true,
       areas: {
         select: {
@@ -430,6 +430,9 @@ function General() {
     setSupportedBy(event.currentTarget.value);
   };
 
+  console.log("Default values - bio", defaultValues.bio);
+  console.log("Default values - bioRTEState", defaultValues.bioRTEState);
+
   return (
     <Section>
       {UnsavedChangesBlockerModal}
@@ -637,7 +640,10 @@ function General() {
                 }
                 errorId={fields.bio.errorId}
                 maxLength={BIO_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.bioRTEState.initialValue,
+                }}
               />
               <div className="mv-min-w-[44px] mv-pt-[32px]">
                 <VisibilityCheckbox

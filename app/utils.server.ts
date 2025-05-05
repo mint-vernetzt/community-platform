@@ -208,16 +208,16 @@ const allowedTags = [
 ];
 
 const allowedAttributes = {
-  a: ["href", "rel", "target", "class"],
-  b: ["class"],
-  i: ["class"],
-  em: ["class"],
-  strong: ["class"],
+  a: ["href", "rel", "target", "class", "dir"],
+  b: ["class", "data-lexical-text"],
+  i: ["class", "data-lexical-text"],
+  em: ["class", "data-lexical-text"],
+  strong: ["class", "data-lexical-text"],
   ul: ["class"],
   ol: ["class"],
-  p: ["dir", "class"],
-  span: ["class"],
-  li: ["class"],
+  p: ["dir", "class", "data-lexical-text"],
+  span: ["class", "data-lexical-text"],
+  li: ["class", "value", "dir"],
   br: ["class"],
 };
 
