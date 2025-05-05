@@ -53,12 +53,10 @@ function Avatar(props: AvatarProps) {
         textSize === "sm" ||
         textSize === "xs",
     },
-    "mv-bg-neutral-600 mv-border-neutral-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
-    "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
+    "mv-bg-neutral-600 mv-border-neutral-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-text-white mv-font-normal mv-relative",
     props.to &&
       "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
-  // const child = src ? <img src={src} alt={displayName} /> : <>{initials}</>;
   const child = src ? (
     <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
   ) : (
