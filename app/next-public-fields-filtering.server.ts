@@ -130,6 +130,7 @@ export function filterProfileByVisibility<
         key === "twitter" ||
         key === "xing" ||
         key === "bio" ||
+        key === "bioRTEState" ||
         key === "academicTitle" ||
         key === "position" ||
         key === "instagram" ||
@@ -257,6 +258,7 @@ export function filterOrganizationByVisibility<
         key === "twitter" ||
         key === "xing" ||
         key === "bio" ||
+        key === "bioRTEState" ||
         key === "quote" ||
         key === "quoteAuthor" ||
         key === "quoteAuthorInformation" ||
@@ -388,6 +390,7 @@ export function filterEventByVisibility<
       // All other fields in Event that are optional (String?, Int?, Relation?, etc...)
       else if (
         key === "description" ||
+        key === "descriptionRTEState" ||
         key === "background" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
@@ -514,6 +517,7 @@ export function filterProjectByVisibility<
         key === "excerpt" ||
         key === "description" || // legacy
         key === "furtherDescription" ||
+        key === "furtherDescriptionRTEState" ||
         key === "email" ||
         key === "phone" ||
         key === "website" ||
@@ -531,21 +535,34 @@ export function filterProjectByVisibility<
         key === "mastodon" ||
         key === "tiktok" ||
         key === "idea" ||
+        key === "ideaRTEState" ||
         key === "goals" ||
+        key === "goalsRTEState" ||
         key === "implementation" ||
+        key === "implementationRTEState" ||
         key === "targeting" ||
+        key === "targetingRTEState" ||
         key === "hints" ||
+        key === "hintsRTEState" ||
         key === "video" ||
         key === "videoSubline" ||
         key === "jobFillings" ||
+        key === "jobFillingsRTEState" ||
         key === "furtherJobFillings" ||
+        key === "furtherJobFillingsRTEState" ||
         key === "yearlyBudget" ||
         key === "furtherFinancings" ||
+        key === "furtherFinancingsRTEState" ||
         key === "technicalRequirements" ||
+        key === "technicalRequirementsRTEState" ||
         key === "furtherTechnicalRequirements" ||
+        key === "furtherTechnicalRequirementsRTEState" ||
         key === "roomSituation" ||
+        key === "roomSituationRTEState" ||
         key === "furtherRoomSituation" ||
+        key === "furtherRoomSituationRTEState" ||
         key === "timeframe" ||
+        key === "timeframeRTEState" ||
         key === "participantLimit" ||
         key === "targetGroupAdditions" ||
         key === "backgroundImage" ||

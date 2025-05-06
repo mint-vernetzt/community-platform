@@ -26,6 +26,7 @@ model Profile {
   twitter                   String?
   xing                      String?
   bio                       String?
+  bioRTEState               String?                              @map("bio_rte_state")
   skills                    String[]
   interests                 String[]
   academicTitle             String?                              @map("academic_title")
@@ -86,6 +87,7 @@ model ProfileVisibility {
   twitter                   Boolean @default(false)
   xing                      Boolean @default(false)
   bio                       Boolean @default(false)
+  bioRTEState               Boolean @default(false) @map("bio_rte_state")
   skills                    Boolean @default(false)
   interests                 Boolean @default(false)
   academicTitle             Boolean @default(true) @map("academic_title")
@@ -231,6 +233,7 @@ model Organization {
   twitter                String?
   xing                   String?
   bio                    String?
+  bioRTEState            String?                              @map("bio_rte_state")
   quote                  String?
   createdAt              DateTime                             @default(now()) @map("created_at")
   publicFields           String[]                             @map("public_fields") // legacy
@@ -288,6 +291,7 @@ model OrganizationVisibility {
   twitter                Boolean      @default(true)
   xing                   Boolean      @default(true)
   bio                    Boolean      @default(false)
+  bioRTEState            Boolean      @default(false) @map("bio_rte_state")
   quote                  Boolean      @default(true)
   createdAt              Boolean      @default(true) @map("created_at")
   quoteAuthor            Boolean      @default(true) @map("quote_author")
@@ -449,6 +453,7 @@ model Event {
   endTime                  DateTime                         @map("end_time")
   parentEventId            String?                          @map("parent_event_id")
   description              String?
+  descriptionRTEState      String?                          @map("description_rte_state")
   published                Boolean                          @default(false)
   createdAt                DateTime                         @default(now()) @map("created_at")
   updatedAt                DateTime                         @default(now()) @updatedAt @map("updated_at")
@@ -503,6 +508,7 @@ model EventVisibility {
   endTime                  Boolean @default(true) @map("end_time")
   parentEventId            Boolean @default(true) @map("parent_event_id")
   description              Boolean @default(true)
+  descriptionRTEState      Boolean @default(false) @map("description_rte_state")
   published                Boolean @default(true)
   createdAt                Boolean @default(true) @map("created_at")
   updatedAt                Boolean @default(true) @map("updated_at")
@@ -956,74 +962,88 @@ model Document {
 }
 
 model Project {
-  id                           String                             @id @default(uuid())
-  name                         String
-  subline                      String?
-  slug                         String                             @unique
-  logo                         String?
-  background                   String? // legacy
-  backgroundImage              Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId            String?                            @map("background_image_id")
-  headline                     String?
-  excerpt                      String?
-  description                  String? // legacy
-  furtherDescription           String?                            @map("further_description")
-  email                        String?
-  phone                        String?
-  website                      String?
-  contactName                  String?                            @map("contact_name")
-  street                       String?
-  streetNumber                 String?                            @map("street_number")
-  streetNumberAddition         String?                            @map("street_number_addition")
-  zipCode                      String?                            @map("zip_code")
-  facebook                     String?
-  linkedin                     String?
-  twitter                      String?
-  youtube                      String?
-  instagram                    String?
-  xing                         String?
-  mastodon                     String?
-  tiktok                       String?
-  createdAt                    DateTime                           @default(now()) @map("created_at")
-  updatedAt                    DateTime                           @default(now()) @updatedAt @map("updated_at")
-  published                    Boolean                            @default(false)
-  city                         String?
-  idea                         String?
-  goals                        String?
-  implementation               String?
-  targeting                    String?
-  hints                        String?
-  video                        String?
-  videoSubline                 String?                            @map("video_subline")
-  jobFillings                  String?                            @map("job_fillings")
-  furtherJobFillings           String?                            @map("further_job_fillings")
-  yearlyBudget                 String?                            @map("yearly_budget")
-  participantLimit             String?                            @map("participant_limit")
-  targetGroupAdditions         String?                            @map("target_group_additions")
-  furtherFinancings            String?                            @map("further_financings")
-  technicalRequirements        String?                            @map("technical_requirements")
-  furtherTechnicalRequirements String?                            @map("further_technical_requirements")
-  roomSituation                String?                            @map("room_situation")
-  furtherRoomSituation         String?                            @map("further_room_situation")
-  timeframe                    String?
-  furtherDisciplines           String[]                           @map("further_disciplines")
-  furtherFormats               String[]                           @map("further_formats")
-  awards                       AwardOfProject[]
-  disciplines                  DisciplineOfProject[]
-  additionalDisciplines        AdditionalDisciplineOfProject[]
-  responsibleOrganizations     ResponsibleOrganizationOfProject[]
-  targetGroups                 TargetGroupOfProject[] // Legacy
-  projectTargetGroups          ProjectTargetGroupOfProject[]
-  specialTargetGroups          SpecialTargetGroupOfProject[]
-  formats                      FormatOfProject[]
-  financings                   FinancingOfProject[]
-  teamMembers                  TeamMemberOfProject[]
-  projectVisibility            ProjectVisibility?
-  admins                       AdminOfProject[]
-  areas                        AreasOnProjects[]
-  documents                    DocumentOfProject[]
-  images                       ImageOfProject[]
-  abuseReports                 ProjectAbuseReport[]               @relation("project_of_project_abuse_report")
+  id                                   String                             @id @default(uuid())
+  name                                 String
+  subline                              String?
+  slug                                 String                             @unique
+  logo                                 String?
+  background                           String? // legacy
+  backgroundImage                      Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId                    String?                            @map("background_image_id")
+  headline                             String?
+  excerpt                              String?
+  description                          String? // legacy
+  furtherDescription                   String?                            @map("further_description")
+  furtherDescriptionRTEState           String?                            @map("further_description_rte_state")
+  email                                String?
+  phone                                String?
+  website                              String?
+  contactName                          String?                            @map("contact_name")
+  street                               String?
+  streetNumber                         String?                            @map("street_number")
+  streetNumberAddition                 String?                            @map("street_number_addition")
+  zipCode                              String?                            @map("zip_code")
+  facebook                             String?
+  linkedin                             String?
+  twitter                              String?
+  youtube                              String?
+  instagram                            String?
+  xing                                 String?
+  mastodon                             String?
+  tiktok                               String?
+  createdAt                            DateTime                           @default(now()) @map("created_at")
+  updatedAt                            DateTime                           @default(now()) @updatedAt @map("updated_at")
+  published                            Boolean                            @default(false)
+  city                                 String?
+  idea                                 String?
+  ideaRTEState                         String?                            @map("idea_rte_state")
+  goals                                String?
+  goalsRTEState                        String?                            @map("goals_rte_state")
+  implementation                       String?
+  implementationRTEState               String?                            @map("implementation_rte_state")
+  targeting                            String?
+  targetingRTEState                    String?                            @map("targeting_rte_state")
+  hints                                String?
+  hintsRTEState                        String?                            @map("hints_rte_state")
+  video                                String?
+  videoSubline                         String?                            @map("video_subline")
+  jobFillings                          String?                            @map("job_fillings")
+  jobFillingsRTEState                  String?                            @map("job_fillings_rte_state")
+  furtherJobFillings                   String?                            @map("further_job_fillings")
+  furtherJobFillingsRTEState           String?                            @map("further_job_fillings_rte_state")
+  yearlyBudget                         String?                            @map("yearly_budget")
+  participantLimit                     String?                            @map("participant_limit")
+  targetGroupAdditions                 String?                            @map("target_group_additions")
+  furtherFinancings                    String?                            @map("further_financings")
+  furtherFinancingsRTEState            String?                            @map("further_financings_rte_state")
+  technicalRequirements                String?                            @map("technical_requirements")
+  technicalRequirementsRTEState        String?                            @map("technical_requirements_rte_state")
+  furtherTechnicalRequirements         String?                            @map("further_technical_requirements")
+  furtherTechnicalRequirementsRTEState String?                            @map("further_technical_requirements_rte_state")
+  roomSituation                        String?                            @map("room_situation")
+  roomSituationRTEState                String?                            @map("room_situation_rte_state")
+  furtherRoomSituation                 String?                            @map("further_room_situation")
+  furtherRoomSituationRTEState         String?                            @map("further_room_situation_rte_state")
+  timeframe                            String?
+  timeframeRTEState                    String?                            @map("timeframe_rte_state")
+  furtherDisciplines                   String[]                           @map("further_disciplines")
+  furtherFormats                       String[]                           @map("further_formats")
+  awards                               AwardOfProject[]
+  disciplines                          DisciplineOfProject[]
+  additionalDisciplines                AdditionalDisciplineOfProject[]
+  responsibleOrganizations             ResponsibleOrganizationOfProject[]
+  targetGroups                         TargetGroupOfProject[] // Legacy
+  projectTargetGroups                  ProjectTargetGroupOfProject[]
+  specialTargetGroups                  SpecialTargetGroupOfProject[]
+  formats                              FormatOfProject[]
+  financings                           FinancingOfProject[]
+  teamMembers                          TeamMemberOfProject[]
+  projectVisibility                    ProjectVisibility?
+  admins                               AdminOfProject[]
+  areas                                AreasOnProjects[]
+  documents                            DocumentOfProject[]
+  images                               ImageOfProject[]
+  abuseReports                         ProjectAbuseReport[]               @relation("project_of_project_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -1032,75 +1052,89 @@ model Project {
 }
 
 model ProjectVisibility {
-  id                           String  @id @default(uuid())
-  name                         Boolean @default(true)
-  slug                         Boolean @default(true)
-  logo                         Boolean @default(true)
-  background                   Boolean @default(true) // legacy
-  backgroundImage              Boolean @default(true) @map("background_image")
-  backgroundImageId            Boolean @default(true) @map("background_image_id")
-  headline                     Boolean @default(true)
-  subline                      Boolean @default(true)
-  excerpt                      Boolean @default(true)
-  description                  Boolean @default(true) // legacy
-  furtherDescription           Boolean @default(true) @map("further_description")
-  email                        Boolean @default(true)
-  phone                        Boolean @default(true)
-  website                      Boolean @default(true)
-  contactName                  Boolean @default(true) @map("contact_name")
-  street                       Boolean @default(true)
-  streetNumber                 Boolean @default(true) @map("street_number")
-  streetNumberAddition         Boolean @default(true) @map("street_number_addition")
-  zipCode                      Boolean @default(true) @map("zip_code")
-  facebook                     Boolean @default(true)
-  linkedin                     Boolean @default(true)
-  twitter                      Boolean @default(true)
-  youtube                      Boolean @default(true)
-  instagram                    Boolean @default(true)
-  xing                         Boolean @default(true)
-  mastodon                     Boolean @default(true)
-  tiktok                       Boolean @default(true)
-  createdAt                    Boolean @default(true) @map("created_at")
-  updatedAt                    Boolean @default(true) @map("updated_at")
-  published                    Boolean @default(true)
-  city                         Boolean @default(true)
-  idea                         Boolean @default(true)
-  goals                        Boolean @default(true)
-  implementation               Boolean @default(true)
-  targeting                    Boolean @default(true)
-  hints                        Boolean @default(true)
-  video                        Boolean @default(true)
-  videoSubline                 Boolean @default(true)
-  participantLimit             Boolean @default(true) @map("participant_limit")
-  timeframe                    Boolean @default(true)
-  jobFillings                  Boolean @default(true) @map("job_fillings")
-  furtherJobFillings           Boolean @default(true) @map("further_job_fillings")
-  yearlyBudget                 Boolean @default(true) @map("yearly_budget")
-  financings                   Boolean @default(true)
-  furtherFinancings            Boolean @default(true) @map("further_financings")
-  technicalRequirements        Boolean @default(true) @map("technical_requirements")
-  furtherTechnicalRequirements Boolean @default(true) @map("further_technical_requirements")
-  roomSituation                Boolean @default(true) @map("room_situation")
-  furtherRoomSituation         Boolean @default(true) @map("further_room_situation")
-  furtherDisciplines           Boolean @default(true) @map("further_disciplines")
-  targetGroupAdditions         Boolean @default(true) @map("target_group_additions")
-  furtherFormats               Boolean @default(true)
-  awards                       Boolean @default(true)
-  disciplines                  Boolean @default(true)
-  additionalDisciplines        Boolean @default(true) @map("additional_disciplines")
-  responsibleOrganizations     Boolean @default(true)
-  targetGroups                 Boolean @default(true) // Legacy
-  projectTargetGroups          Boolean @default(true)
-  specialTargetGroups          Boolean @default(true)
-  formats                      Boolean @default(true)
-  teamMembers                  Boolean @default(true)
-  areas                        Boolean @default(true)
-  documents                    Boolean @default(true)
-  images                       Boolean @default(true)
-  admins                       Boolean @default(false)
-  abuseReports                 Boolean @default(false)
-  project                      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId                    String  @unique
+  id                                   String  @id @default(uuid())
+  name                                 Boolean @default(true)
+  slug                                 Boolean @default(true)
+  logo                                 Boolean @default(true)
+  background                           Boolean @default(true) // legacy
+  backgroundImage                      Boolean @default(true) @map("background_image")
+  backgroundImageId                    Boolean @default(true) @map("background_image_id")
+  headline                             Boolean @default(true)
+  subline                              Boolean @default(true)
+  excerpt                              Boolean @default(true)
+  description                          Boolean @default(true) // legacy
+  furtherDescription                   Boolean @default(true) @map("further_description")
+  furtherDescriptionRTEState           Boolean @default(false) @map("further_description_rte_state")
+  email                                Boolean @default(true)
+  phone                                Boolean @default(true)
+  website                              Boolean @default(true)
+  contactName                          Boolean @default(true) @map("contact_name")
+  street                               Boolean @default(true)
+  streetNumber                         Boolean @default(true) @map("street_number")
+  streetNumberAddition                 Boolean @default(true) @map("street_number_addition")
+  zipCode                              Boolean @default(true) @map("zip_code")
+  facebook                             Boolean @default(true)
+  linkedin                             Boolean @default(true)
+  twitter                              Boolean @default(true)
+  youtube                              Boolean @default(true)
+  instagram                            Boolean @default(true)
+  xing                                 Boolean @default(true)
+  mastodon                             Boolean @default(true)
+  tiktok                               Boolean @default(true)
+  createdAt                            Boolean @default(true) @map("created_at")
+  updatedAt                            Boolean @default(true) @map("updated_at")
+  published                            Boolean @default(true)
+  city                                 Boolean @default(true)
+  idea                                 Boolean @default(true)
+  ideaRTEState                         Boolean @default(false) @map("idea_rte_state")
+  goals                                Boolean @default(true)
+  goalsRTEState                        Boolean @default(false) @map("goals_rte_state")
+  implementation                       Boolean @default(true)
+  implementationRTEState               Boolean @default(false) @map("implementation_rte_state")
+  targeting                            Boolean @default(true)
+  targetingRTEState                    Boolean @default(false) @map("targeting_rte_state")
+  hints                                Boolean @default(true)
+  hintsRTEState                        Boolean @default(false) @map("hints_rte_state")
+  video                                Boolean @default(true)
+  videoSubline                         Boolean @default(true)
+  participantLimit                     Boolean @default(true) @map("participant_limit")
+  timeframe                            Boolean @default(true)
+  timeframeRTEState                    Boolean @default(false) @map("timeframe_rte_state")
+  jobFillings                          Boolean @default(true) @map("job_fillings")
+  jobFillingsRTEState                  Boolean @default(false) @map("job_fillings_rte_state")
+  furtherJobFillings                   Boolean @default(true) @map("further_job_fillings")
+  furtherJobFillingsRTEState           Boolean @default(false) @map("further_job_fillings_rte_state")
+  yearlyBudget                         Boolean @default(true) @map("yearly_budget")
+  financings                           Boolean @default(true)
+  furtherFinancings                    Boolean @default(true) @map("further_financings")
+  furtherFinancingsRTEState            Boolean @default(false) @map("further_financings_rte_state")
+  technicalRequirements                Boolean @default(true) @map("technical_requirements")
+  technicalRequirementsRTEState        Boolean @default(false) @map("technical_requirements_rte_state")
+  furtherTechnicalRequirements         Boolean @default(true) @map("further_technical_requirements")
+  furtherTechnicalRequirementsRTEState Boolean @default(false) @map("further_technical_requirements_rte_state")
+  roomSituation                        Boolean @default(true) @map("room_situation")
+  roomSituationRTEState                Boolean @default(false) @map("room_situation_rte_state")
+  furtherRoomSituation                 Boolean @default(true) @map("further_room_situation")
+  furtherRoomSituationRTEState         Boolean @default(false) @map("further_room_situation_rte_state")
+  furtherDisciplines                   Boolean @default(true) @map("further_disciplines")
+  targetGroupAdditions                 Boolean @default(true) @map("target_group_additions")
+  furtherFormats                       Boolean @default(true)
+  awards                               Boolean @default(true)
+  disciplines                          Boolean @default(true)
+  additionalDisciplines                Boolean @default(true) @map("additional_disciplines")
+  responsibleOrganizations             Boolean @default(true)
+  targetGroups                         Boolean @default(true) // Legacy
+  projectTargetGroups                  Boolean @default(true)
+  specialTargetGroups                  Boolean @default(true)
+  formats                              Boolean @default(true)
+  teamMembers                          Boolean @default(true)
+  areas                                Boolean @default(true)
+  documents                            Boolean @default(true)
+  images                               Boolean @default(true)
+  admins                               Boolean @default(false)
+  abuseReports                         Boolean @default(false)
+  project                              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId                            String  @unique
 
   @@map("project_visibilities")
 }

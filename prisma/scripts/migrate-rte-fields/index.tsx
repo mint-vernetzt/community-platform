@@ -1,4 +1,3 @@
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import {
   type InitialConfigType,
   LexicalComposer,
@@ -7,7 +6,6 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { $getRoot, $insertNodes } from "lexical";
 import React from "react";
 import ReactDOMClient from "react-dom/client";
 import ReactDOMServer from "react-dom/server";
@@ -28,6 +26,8 @@ import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { $insertNodes } from "lexical";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { prismaClient } from "~/prisma.server";
 import fs from "fs-extra";
@@ -40,7 +40,11 @@ const __filename = fileURLToPath(import.meta.url);
 // Get the current directory path
 const __dirname = dirname(__filename);
 
-async function getNewValueFromRTE(oldValue: string) {
+async function getNewValueFromRTE(options: {
+  oldHtmlValue: string | null;
+  oldRTEStateValue: string | null;
+}) {
+  const { oldHtmlValue, oldRTEStateValue } = options;
   const promise = new Promise<string | Error>((resolve, reject) => {
     try {
       const EDITOR_VALUE_SET_EVENT = "editor-value-set-event";
@@ -75,50 +79,70 @@ async function getNewValueFromRTE(oldValue: string) {
           const [editor] = useLexicalComposerContext();
           React.useEffect(() => {
             return editor.update(() => {
-              const root = $getRoot();
-              root.clear();
-              const parser = new DOMParser();
-              const dom = parser.parseFromString(String(oldValue), "text/html");
-              const nodes = $generateNodesFromDOM(editor, dom);
-              $insertNodes(nodes);
+              if (oldRTEStateValue !== null && oldRTEStateValue !== "") {
+                console.log("DefaultValuePlugin - Old RTE State Value", {
+                  oldRTEStateValue,
+                });
+                const editorState = editor.parseEditorState(oldRTEStateValue);
+                editor.setEditorState(editorState);
+              } else {
+                if (
+                  oldHtmlValue !== null &&
+                  oldHtmlValue !== "" &&
+                  oldHtmlValue !== "<p><br></p>"
+                ) {
+                  const parser = new DOMParser();
+                  const dom = parser.parseFromString(
+                    String(oldHtmlValue),
+                    "text/html"
+                  );
+                  const nodes = $generateNodesFromDOM(editor, dom);
+                  $insertNodes(nodes);
+                } else {
+                  $insertNodes([]);
+                }
+              }
             });
           }, [editor]);
           return null;
         };
-        const InputForFormPlugin = (props: { oldValue: string }) => {
-          const { oldValue } = props;
+        const InputForFormPlugin = (props: {
+          oldHtmlInputValue: string | null;
+          oldRTEStateInputValue: string | null;
+          contentRef: React.RefObject<HTMLDivElement | null>;
+        }) => {
+          const { contentRef } = props;
           const [editor] = useLexicalComposerContext();
-          const [value, setValue] = React.useState(oldValue);
-          const [isInitialized, setIsInitialized] = React.useState(false);
           React.useEffect(() => {
             return editor.registerUpdateListener(() => {
-              editor.read(() => {
-                const htmlString = $generateHtmlFromNodes(editor);
-                if (htmlString === "<p><br></p>") {
-                  setValue("");
-                } else {
-                  setValue(htmlString);
-                }
-              });
+              if (contentRef.current !== null) {
+                editor.read(() => {
+                  if (contentRef.current !== null) {
+                    const htmlString =
+                      contentRef.current.innerHTML === "<p><br></p>" ||
+                      contentRef.current.innerHTML === ""
+                        ? null
+                        : contentRef.current.innerHTML;
+                    const editorState = editor.getEditorState();
+                    const editorStateJSON = JSON.stringify(editorState);
+                    const event = new CustomEvent(EDITOR_VALUE_SET_EVENT, {
+                      detail: {
+                        htmlValue: htmlString,
+                        editorStateValue: editorStateJSON,
+                      },
+                      bubbles: true,
+                      cancelable: false,
+                    });
+                    document.body.dispatchEvent(event);
+                  }
+                });
+              }
             });
-          }, [editor]);
-          React.useEffect(() => {
-            if (isInitialized === false) {
-              setIsInitialized(true);
-            } else {
-              window.dispatchEvent(new Event(EDITOR_VALUE_SET_EVENT));
-            }
-          }, [value, oldValue, isInitialized]);
-          return (
-            <input
-              id="rte-input"
-              value={value}
-              onChange={() => {
-                return;
-              }}
-            />
-          );
+          }, [editor, contentRef]);
+
+          return null;
         };
+        const contentEditableRef = React.useRef<HTMLDivElement | null>(null);
 
         // Regex to detect URLs and email addresses
         const URL_REGEX =
@@ -129,11 +153,15 @@ async function getNewValueFromRTE(oldValue: string) {
         return (
           <LexicalComposer initialConfig={initialConfig}>
             <RichTextPlugin
-              contentEditable={<ContentEditable />}
+              contentEditable={<ContentEditable ref={contentEditableRef} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <DefaultValuePlugin />
-            <InputForFormPlugin oldValue={oldValue} />
+            <InputForFormPlugin
+              oldHtmlInputValue={oldHtmlValue}
+              oldRTEStateInputValue={oldRTEStateValue}
+              contentRef={contentEditableRef}
+            />
             <HistoryPlugin />
             <LinkPlugin
               validateUrl={(url: string) => {
@@ -182,16 +210,19 @@ async function getNewValueFromRTE(oldValue: string) {
       global.document = dom.window.document;
       global.DOMParser = dom.window.DOMParser;
       global.MutationObserver = dom.window.MutationObserver;
-      global.Event = dom.window.Event;
-      window.addEventListener(EDITOR_VALUE_SET_EVENT, () => {
-        const inputElement = document.querySelector(
-          "#rte-input"
-        ) as HTMLInputElement | null;
-        if (inputElement !== null) {
-          resolve(inputElement.value);
-        } else {
-          reject(new Error("Could not find the input element."));
-        }
+      global.CustomEvent = dom.window.CustomEvent;
+      window.addEventListener(EDITOR_VALUE_SET_EVENT, (event) => {
+        console.log("Successfully hydrated RTE and read its values");
+        resolve(
+          JSON.stringify({
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            htmlValue: event.detail.htmlValue,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            editorStateValue: event.detail.editorStateValue,
+          })
+        );
       });
       const container = document.getElementById("root");
       if (container !== null) {
@@ -217,37 +248,54 @@ async function main() {
       select: {
         id: true,
         bio: true,
+        bioRTEState: true,
       },
     }),
     organizations: await prismaClient.organization.findMany({
       select: {
         id: true,
         bio: true,
+        bioRTEState: true,
       },
     }),
     projects: await prismaClient.project.findMany({
       select: {
         id: true,
         idea: true,
+        ideaRTEState: true,
         goals: true,
+        goalsRTEState: true,
         implementation: true,
+        implementationRTEState: true,
         furtherDescription: true,
+        furtherDescriptionRTEState: true,
         targeting: true,
+        targetingRTEState: true,
         hints: true,
+        hintsRTEState: true,
         timeframe: true,
+        timeframeRTEState: true,
         jobFillings: true,
+        jobFillingsRTEState: true,
         furtherJobFillings: true,
+        furtherJobFillingsRTEState: true,
         furtherFinancings: true,
+        furtherFinancingsRTEState: true,
         technicalRequirements: true,
+        technicalRequirementsRTEState: true,
         furtherTechnicalRequirements: true,
+        furtherTechnicalRequirementsRTEState: true,
         roomSituation: true,
+        roomSituationRTEState: true,
         furtherRoomSituation: true,
+        furtherRoomSituationRTEState: true,
       },
     }),
     events: await prismaClient.event.findMany({
       select: {
         id: true,
         description: true,
+        descriptionRTEState: true,
       },
     }),
   };
@@ -272,14 +320,25 @@ async function main() {
     const newProfile = { ...oldProfile };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
-      if (rteFields[typedRteField] !== null) {
-        const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
+      if (typedRteField.endsWith("RTEState") === false) {
+        const newValue = await getNewValueFromRTE({
+          oldHtmlValue: rteFields[typedRteField],
+          oldRTEStateValue:
+            rteFields[`${typedRteField}RTEState` as keyof typeof rteFields],
+        });
         if (newValue instanceof Error) {
           console.error(
             `Skipped field ${typedRteField} for profile ${id} because of following error: ${newValue.message}`
           );
         } else {
-          newProfile[typedRteField] = newValue;
+          const result: {
+            htmlValue: string;
+            editorStateValue: string;
+          } = JSON.parse(newValue);
+          newProfile[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
+          newProfile[`${typedRteField}RTEState` as keyof typeof rteFields] =
+            result.editorStateValue;
         }
       }
     }
@@ -291,14 +350,26 @@ async function main() {
     const newOrganization = { ...oldOrganization };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
-      if (rteFields[typedRteField] !== null) {
-        const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
+      if (typedRteField.endsWith("RTEState") === false) {
+        const newValue = await getNewValueFromRTE({
+          oldHtmlValue: rteFields[typedRteField],
+          oldRTEStateValue:
+            rteFields[`${typedRteField}RTEState` as keyof typeof rteFields],
+        });
         if (newValue instanceof Error) {
           console.error(
-            `Skipped field ${typedRteField} for organization ${id} because of following error: ${newValue.message}`
+            `Skipped field ${typedRteField} for profile ${id} because of following error: ${newValue.message}`
           );
         } else {
-          newOrganization[typedRteField] = newValue;
+          const result: {
+            htmlValue: string;
+            editorStateValue: string;
+          } = JSON.parse(newValue);
+          newOrganization[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
+          newOrganization[
+            `${typedRteField}RTEState` as keyof typeof rteFields
+          ] = result.editorStateValue;
         }
       }
     }
@@ -310,14 +381,25 @@ async function main() {
     const newProject = { ...oldProject };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
-      if (rteFields[typedRteField] !== null) {
-        const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
+      if (typedRteField.endsWith("RTEState") === false) {
+        const newValue = await getNewValueFromRTE({
+          oldHtmlValue: rteFields[typedRteField],
+          oldRTEStateValue:
+            rteFields[`${typedRteField}RTEState` as keyof typeof rteFields],
+        });
         if (newValue instanceof Error) {
           console.error(
-            `Skipped field ${typedRteField} for project ${id} because of following error: ${newValue.message}`
+            `Skipped field ${typedRteField} for profile ${id} because of following error: ${newValue.message}`
           );
         } else {
-          newProject[typedRteField] = newValue;
+          const result: {
+            htmlValue: string;
+            editorStateValue: string;
+          } = JSON.parse(newValue);
+          newProject[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
+          newProject[`${typedRteField}RTEState` as keyof typeof rteFields] =
+            result.editorStateValue;
         }
       }
     }
@@ -329,14 +411,25 @@ async function main() {
     const newEvent = { ...oldEvent };
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
-      if (rteFields[typedRteField] !== null) {
-        const newValue = await getNewValueFromRTE(rteFields[typedRteField]);
+      if (typedRteField.endsWith("RTEState") === false) {
+        const newValue = await getNewValueFromRTE({
+          oldHtmlValue: rteFields[typedRteField],
+          oldRTEStateValue:
+            rteFields[`${typedRteField}RTEState` as keyof typeof rteFields],
+        });
         if (newValue instanceof Error) {
           console.error(
-            `Skipped field ${typedRteField} for event ${id} because of following error: ${newValue.message}`
+            `Skipped field ${typedRteField} for profile ${id} because of following error: ${newValue.message}`
           );
         } else {
-          newEvent[typedRteField] = newValue;
+          const result: {
+            htmlValue: string;
+            editorStateValue: string;
+          } = JSON.parse(newValue);
+          newEvent[typedRteField] =
+            result.htmlValue === "" ? null : result.htmlValue;
+          newEvent[`${typedRteField}RTEState` as keyof typeof rteFields] =
+            result.editorStateValue;
         }
       }
     }

@@ -14,6 +14,7 @@ export interface TextAreaProps {
   publicPosition?: "top" | "side";
   rte?: {
     locales: RTELocales;
+    defaultValue?: string;
   };
   helperText?: string;
 }
@@ -104,7 +105,7 @@ const TextArea = (
                     {...rteInputProps}
                     id={inputProps.id || label}
                     maxLength={inputProps.maxLength}
-                    defaultValue={inputProps.defaultValue}
+                    defaultValue={rte.defaultValue}
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                   />
@@ -121,6 +122,13 @@ const TextArea = (
                         )
                       )}
                       className="mv-relative mv-w-full mv-h-[194px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-b-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
+                    />
+                    <input
+                      type="hidden"
+                      id={`${inputProps.id || label}-rte-state`}
+                      name={`${inputProps.name}RTEState`}
+                      defaultValue={undefined}
+                      tabIndex={-1}
                     />
                   </noscript>
                 </div>

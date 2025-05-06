@@ -68,6 +68,14 @@ const createProfileSchema = (locales: GeneralProfileSettingsLocales) => {
     email2: nullOrString(string().email()),
     phone: nullOrString(phone()),
     bio: nullOrString(multiline(BIO_MAX_LENGTH)),
+    bioRTEState: nullOrString(
+      string().transform((value: string | null | undefined) => {
+        if (typeof value === "undefined" || value === "") {
+          return null;
+        }
+        return value;
+      })
+    ),
     areas: array(string().required()).required(),
     skills: array(string().required()).required(),
     offers: array(string().required()).required(),
@@ -506,7 +514,10 @@ export default function Index() {
                 isPublic={profileVisibilities.bio}
                 errorMessage={errors?.bio?.message}
                 maxLength={BIO_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: profile.bioRTEState || undefined,
+                }}
               />
             </div>
 
