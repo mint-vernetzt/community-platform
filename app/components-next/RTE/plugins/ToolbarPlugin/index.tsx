@@ -269,6 +269,20 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                 onChange={(event) =>
                   setLinkInputValue(event.currentTarget.value)
                 }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    editor.update(() => {
+                      if (lastValidSelection !== null) {
+                        $setSelection(lastValidSelection);
+                      }
+                    });
+                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkInputValue);
+                    setLinkInputValue("https://");
+                    setShowInsertLinkMenu(false);
+                  }
+                }}
                 disabled={showInsertLinkMenu === false}
               >
                 <Input.Label htmlFor={`link-input-${editor.getKey()}`}>
