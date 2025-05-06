@@ -9,8 +9,6 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import {
   $getSelection,
   $isRangeSelection,
-  $setSelection,
-  type BaseSelection,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_LOW,
@@ -45,8 +43,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
   const [isBoldActive, setIsBoldActive] = React.useState(false);
   const [isItalicActive, setIsItalicActive] = React.useState(false);
   const [isUnderlineActive, setIsUnderlineActive] = React.useState(false);
-  const [lastValidSelection, setLastValidSelection] =
-    React.useState<null | BaseSelection>(null);
 
   const baseButtonClassName =
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
@@ -119,9 +115,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           setIsBoldActive(false);
           setIsItalicActive(false);
           setIsUnderlineActive(false);
-        }
-        if (selection !== null) {
-          setLastValidSelection(selection.clone());
         }
         return false;
       },
@@ -246,12 +239,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           onClick={(event) => {
             event.preventDefault();
             editor.getEditorState().read(() => {
-              const selection = $getSelection();
-              let clonedSelection = null;
-              if (selection !== null) {
-                clonedSelection = selection.clone();
-              }
-              setLastValidSelection(clonedSelection);
               setShowInsertLinkMenu(!showInsertLinkMenu);
             });
           }}
@@ -281,11 +268,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                   if (event.key === "Enter") {
                     event.preventDefault();
                     event.stopPropagation();
-                    editor.update(() => {
-                      if (lastValidSelection !== null) {
-                        $setSelection(lastValidSelection);
-                      }
-                    });
                     editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkInputValue);
                     setLinkInputValue("https://");
                     setShowInsertLinkMenu(false);
@@ -300,11 +282,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      editor.update(() => {
-                        if (lastValidSelection !== null) {
-                          $setSelection(lastValidSelection);
-                        }
-                      });
                       editor.dispatchCommand(
                         TOGGLE_LINK_COMMAND,
                         linkInputValue
