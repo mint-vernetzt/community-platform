@@ -52,7 +52,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
   const disabledClassName = "mv-bg-neutral-50 mv-text-neutral-300";
   const enabledClassName =
-    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
+    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-200 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
 
   React.useEffect(() => {
     window.addEventListener("click", (event) => {
