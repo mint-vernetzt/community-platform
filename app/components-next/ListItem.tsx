@@ -99,7 +99,11 @@ export function ListItem(
               ? `/project/${entity.slug}`
               : `/organization/${entity.slug}`
           }
-          className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
+          className={`mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow ${
+            validChildren.length > 0
+              ? "mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
+              : "mv-p-4"
+          }`}
         >
           <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
             <Avatar size="full" {...entity} />

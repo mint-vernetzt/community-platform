@@ -73,6 +73,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
+    timeframeRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     jobFillings: z
       .string()
       .optional()
@@ -96,6 +105,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
+    jobFillingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     furtherJobFillings: z
       .string()
       .optional()
@@ -118,6 +136,15 @@ const createRequirementsSchema = (
           return null;
         }
         return value.trim();
+      }),
+    furtherJobFillingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
       }),
     yearlyBudget: z
       .string()
@@ -158,6 +185,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
+    furtherFinancingsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     technicalRequirements: z
       .string()
       .optional()
@@ -180,6 +216,15 @@ const createRequirementsSchema = (
           return null;
         }
         return value.trim();
+      }),
+    technicalRequirementsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
       }),
     furtherTechnicalRequirements: z
       .string()
@@ -204,6 +249,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
+    furtherTechnicalRequirementsRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
     roomSituation: z
       .string()
       .optional()
@@ -226,6 +280,15 @@ const createRequirementsSchema = (
           return null;
         }
         return value.trim();
+      }),
+    roomSituationRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
       }),
     furtherRoomSituation: z
       .string()
@@ -250,6 +313,15 @@ const createRequirementsSchema = (
         }
         return value.trim();
       }),
+    furtherRoomSituationRTEState: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
   });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -262,14 +334,22 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const project = await prismaClient.project.findUnique({
     select: {
       timeframe: true,
+      timeframeRTEState: true,
       jobFillings: true,
+      jobFillingsRTEState: true,
       furtherJobFillings: true,
+      furtherJobFillingsRTEState: true,
       yearlyBudget: true,
       furtherFinancings: true,
+      furtherFinancingsRTEState: true,
       technicalRequirements: true,
+      technicalRequirementsRTEState: true,
       furtherTechnicalRequirements: true,
+      furtherTechnicalRequirementsRTEState: true,
       roomSituation: true,
+      roomSituationRTEState: true,
       furtherRoomSituation: true,
+      furtherRoomSituationRTEState: true,
       financings: {
         select: {
           financing: {
@@ -503,7 +583,10 @@ function Requirements() {
                 }
                 errorId={fields.timeframe.errorId}
                 maxLength={TIMEFRAME_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.timeframeRTEState.initialValue,
+                }}
               />
             </div>
 
@@ -527,7 +610,10 @@ function Requirements() {
                 }
                 errorId={fields.jobFillings.errorId}
                 maxLength={JOB_FILLINGS_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.jobFillingsRTEState.initialValue,
+                }}
               />
 
               <TextArea
@@ -548,7 +634,10 @@ function Requirements() {
                 }
                 errorId={fields.furtherJobFillings.errorId}
                 maxLength={FURTHER_JOB_FILLINGS_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.furtherJobFillingsRTEState.initialValue,
+                }}
               />
             </div>
 
@@ -691,7 +780,10 @@ function Requirements() {
                 }
                 errorId={fields.furtherFinancings.errorId}
                 maxLength={FURTHER_FINANCINGS_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.furtherFinancingsRTEState.initialValue,
+                }}
               />
             </div>
 
@@ -716,7 +808,11 @@ function Requirements() {
                 }
                 errorId={fields.technicalRequirements.errorId}
                 maxLength={TECHNICAL_REQUIREMENTS_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue:
+                    fields.technicalRequirementsRTEState.initialValue,
+                }}
               />
 
               <TextArea
@@ -736,7 +832,11 @@ function Requirements() {
                 }
                 errorId={fields.furtherTechnicalRequirements.errorId}
                 maxLength={FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue:
+                    fields.furtherTechnicalRequirementsRTEState.initialValue,
+                }}
               />
             </div>
 
@@ -760,7 +860,10 @@ function Requirements() {
                 }
                 errorId={fields.roomSituation.errorId}
                 maxLength={ROOM_SITUATION_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue: fields.roomSituationRTEState.initialValue,
+                }}
               />
 
               <TextArea
@@ -779,7 +882,11 @@ function Requirements() {
                 }
                 errorId={fields.furtherRoomSituation.errorId}
                 maxLength={FURTHER_ROOM_SITUATION_MAX_LENGTH}
-                rte={{ locales: locales }}
+                rte={{
+                  locales: locales,
+                  defaultValue:
+                    fields.furtherRoomSituationRTEState.initialValue,
+                }}
               />
             </div>
             {typeof form.errors !== "undefined" && form.errors.length > 0 ? (

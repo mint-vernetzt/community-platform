@@ -563,6 +563,15 @@ export function searchOrganizationsViaLike(options: {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       focuses: {
         select: {
           focus: {

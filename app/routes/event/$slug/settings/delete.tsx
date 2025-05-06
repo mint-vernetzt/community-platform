@@ -192,16 +192,14 @@ function Delete() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.form.hide.label

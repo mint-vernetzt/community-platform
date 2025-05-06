@@ -318,18 +318,18 @@ function Organizations() {
                       schema={addOrganizationSchema}
                       fetcher={addOrganizationFetcher}
                       action={`/event/${slug}/settings/organizations/add-organization`}
-                      hiddenFields={["organizationId"]}
-                      values={{
-                        organizationId: organization.id,
-                      }}
                       className="ml-auto"
                     >
                       {(remixFormsProps) => {
-                        const { Field, Errors } = remixFormsProps;
+                        const { Errors } = remixFormsProps;
                         return (
                           <>
                             <Errors />
-                            <Field name="organizationId" />
+                            <input
+                              name="organizationId"
+                              defaultValue={organization.id}
+                              hidden
+                            />
                             <button
                               className="btn btn-outline-primary ml-auto btn-small"
                               title="Hinzufügen"
@@ -414,18 +414,18 @@ function Organizations() {
                   schema={removeOrganizationSchema}
                   fetcher={removeOrganizationFetcher}
                   action={`/event/${slug}/settings/organizations/remove-organization`}
-                  hiddenFields={["organizationId"]}
-                  values={{
-                    organizationId: organization.id,
-                  }}
                   className="ml-auto"
                 >
                   {(remixFormsProps) => {
-                    const { Field, Button, Errors } = remixFormsProps;
+                    const { Button, Errors } = remixFormsProps;
                     return (
                       <>
                         <Errors />
-                        <Field name="organizationId" />
+                        <input
+                          name="organizationId"
+                          defaultValue={organization.id}
+                          hidden
+                        />
                         <Button
                           className="ml-auto btn-none"
                           title={locales.route.content.current.remove}
@@ -459,16 +459,14 @@ function Organizations() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !loaderData.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!loaderData.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {loaderData.published
                         ? locales.route.content.hide

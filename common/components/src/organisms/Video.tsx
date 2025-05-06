@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "./../molecules/Button";
 import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.server";
+import { useNonce } from "~/nonce-provider";
 
 export type VideoProps = {
   src: string;
@@ -18,6 +19,7 @@ function VideoSubline(props: React.PropsWithChildren) {
 function Video(props: React.PropsWithChildren<VideoProps>) {
   const { locales } = props;
   const [cookiesAccepted, setCookiesAccepted] = React.useState(false);
+  const nonce = useNonce();
 
   const handleClick = () => {
     setCookiesAccepted(true);
@@ -47,8 +49,9 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               src={props.src}
               title="YouTube video player"
               className="mv-border-none mv-rounded-sm"
-              allow=""
+              allow="fullscreen"
               allowFullScreen
+              nonce={nonce}
             ></iframe>
           )}
         </div>

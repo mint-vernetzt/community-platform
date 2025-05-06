@@ -234,10 +234,6 @@ export default function Index() {
                   <LoginForm
                     method="post"
                     schema={schema}
-                    hiddenFields={["loginRedirect"]}
-                    values={{
-                      loginRedirect: loginRedirect || undefined,
-                    }}
                     onKeyDown={handleKeyPress}
                   >
                     {({ Field, Errors, register }) => (
@@ -286,7 +282,11 @@ export default function Index() {
                           )}
                         </Field>
 
-                        <Field name="loginRedirect" />
+                        <input
+                          name="loginRedirect"
+                          defaultValue={loginRedirect || undefined}
+                          hidden
+                        />
                         <div className="mv-mt-4 mv-mb-2">
                           <Button
                             size="large"

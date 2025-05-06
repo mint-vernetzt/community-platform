@@ -116,6 +116,7 @@ export async function getOrganizationsForCards(take: number) {
       focuses: { select: { focus: { select: { slug: true } } } },
       areas: { select: { area: { select: { name: true } } } },
       types: { select: { organizationType: { select: { slug: true } } } },
+      networkTypes: { select: { networkType: { select: { slug: true } } } },
       teamMembers: {
         select: {
           profile: {

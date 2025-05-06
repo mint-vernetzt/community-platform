@@ -133,6 +133,14 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     ),
     subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
     description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
+    descriptionRTEState: nullOrString(
+      string().transform((value: string | null | undefined) => {
+        if (typeof value === "undefined" || value === "") {
+          return null;
+        }
+        return value;
+      })
+    ),
     focuses: array(string().required()).required(),
     eventTargetGroups: array(string().required()).required(),
     experienceLevel: nullOrString(string()),
@@ -608,16 +616,14 @@ function General() {
           schema={cancelSchema}
           fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
-          hiddenFields={["cancel"]}
-          values={{
-            cancel: !event.canceled,
-          }}
         >
           {(remixFormsProps) => {
             const { Button, Field } = remixFormsProps;
             return (
               <>
-                <Field name="cancel"></Field>
+                <div className="mv-hidden">
+                  <Field name="cancel" value={!event.canceled} />
+                </div>
                 <div className="mt-2">
                   <Button className="btn btn-outline-primary ml-auto btn-small">
                     {event.canceled
@@ -924,7 +930,10 @@ function General() {
               maxLength={DESCRIPTION_MAX_LENGTH}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.description}
-              rte={{ locales: locales }}
+              rte={{
+                locales: locales,
+                defaultValue: event.descriptionRTEState || undefined,
+              }}
             />
             {errors?.description?.message ? (
               <div>{errors.description.message}</div>
@@ -1099,16 +1108,14 @@ function General() {
               schema={publishSchema}
               fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
-              hiddenFields={["publish"]}
-              values={{
-                publish: !event.published,
-              }}
             >
               {(remixFormsProps) => {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <Field name="publish"></Field>
+                    <div className="mv-hidden">
+                      <Field name="publish" value={!event.published} />
+                    </div>
                     <Button className="btn btn-outline-primary">
                       {event.published
                         ? locales.route.form.hide.label

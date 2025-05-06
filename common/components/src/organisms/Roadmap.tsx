@@ -22,9 +22,10 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           type="checkbox"
           id={`collapse-col-${props.id}`}
           className="mv-peer mv-order-2 mv-h-0 mv-w-0 mv-opacity-0"
+          disabled={countRoadmapCards <= 3}
         />
         <div
-          className={`mv-bg-blue-50 mv-rounded-lg mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(99,_0fr)] @md:mv-grid-rows-[repeat(3,_1fr)_repeat(99,_0fr)] peer-checked:mv-grid-rows-${countRoadmapCards} mv-order-1`}
+          className={`mv-bg-blue-50 mv-rounded-lg mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(99,_0fr)] @md:mv-grid-rows-[repeat(3,_1fr)_repeat(99,_0fr)] peer-checked:mv-auto-rows-fr peer-checked:mv-grid-rows-none mv-order-1`}
         >
           {props.children}
         </div>
@@ -94,94 +95,99 @@ function Roadmap(props: { locales: LandingPageLocales }) {
         <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-y-8 @md:mv-gap-y-12 @md:mv-gap-x-4 @xl:mv-gap-x-4">
           <RoadmapColumn
             locales={locales}
-            title={locales.roadmap.firstColumn.title}
+            title={locales.roadmap.ideas.title}
             id="1"
           >
             <RoadmapCard
-              title={locales.roadmap.firstColumn.firstCard.title}
-              text={locales.roadmap.firstColumn.firstCard.description}
+              title={locales.roadmap.ideas.networkingFeature.title}
+              text={locales.roadmap.ideas.networkingFeature.description}
             />
             <RoadmapCard
-              title={locales.roadmap.firstColumn.secondCard.title}
-              text={locales.roadmap.firstColumn.secondCard.description}
+              title={locales.roadmap.ideas.matching.title}
+              text={locales.roadmap.ideas.matching.description}
             />
             <RoadmapCard
-              title={locales.roadmap.firstColumn.thirdCard.title}
-              text={locales.roadmap.firstColumn.thirdCard.description}
+              title={locales.roadmap.ideas.interaction.title}
+              text={locales.roadmap.ideas.interaction.description}
             />
             <RoadmapCard
-              title={locales.roadmap.firstColumn.fourthCard.title}
-              text={locales.roadmap.firstColumn.fourthCard.description}
-            />
-            <RoadmapCard
-              title={locales.roadmap.firstColumn.fifthCard.title}
-              text={locales.roadmap.firstColumn.fifthCard.description}
+              title={locales.roadmap.ideas.mintCampusIntegration.title}
+              text={locales.roadmap.ideas.mintCampusIntegration.description}
             />
           </RoadmapColumn>
 
           <RoadmapColumn
             locales={locales}
-            title={locales.roadmap.secondColumn.title}
+            title={locales.roadmap.inDevelopment.title}
             id="2"
           >
             <RoadmapCard
-              title={locales.roadmap.secondColumn.firstCard.title}
-              text={locales.roadmap.secondColumn.firstCard.description}
+              title={locales.roadmap.inDevelopment.createOwnEvents.title}
+              text={locales.roadmap.inDevelopment.createOwnEvents.description}
             />
             <RoadmapCard
-              title={locales.roadmap.secondColumn.secondCard.title}
-              text={locales.roadmap.secondColumn.secondCard.description}
-            />
-            <RoadmapCard
-              title={locales.roadmap.secondColumn.thirdCard.title}
-              text={locales.roadmap.secondColumn.thirdCard.description}
+              title={
+                locales.roadmap.inDevelopment.sharepicAndMediaDatabase.title
+              }
+              text={
+                locales.roadmap.inDevelopment.sharepicAndMediaDatabase
+                  .description
+              }
             />
           </RoadmapColumn>
 
           <RoadmapColumn
             locales={locales}
-            title={locales.roadmap.thirdColumn.title}
+            title={locales.roadmap.done.title}
             id="3"
           >
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.firstCard.title}
-              text={locales.roadmap.thirdColumn.firstCard.description}
+              title={locales.roadmap.done.visualizeNetworks.title}
+              text={locales.roadmap.done.visualizeNetworks.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.secondCard.title}
-              text={locales.roadmap.thirdColumn.secondCard.description}
+              title={locales.roadmap.done.fundingSearch.title}
+              text={locales.roadmap.done.fundingSearch.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.thirdCard.title}
-              text={locales.roadmap.thirdColumn.thirdCard.description}
+              title={locales.roadmap.done.addYourselfToOrganizations.title}
+              text={locales.roadmap.done.addYourselfToOrganizations.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.fourthCard.title}
-              text={locales.roadmap.thirdColumn.fourthCard.description}
+              title={locales.roadmap.done.faq.title}
+              text={locales.roadmap.done.faq.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.fifthCard.title}
-              text={locales.roadmap.thirdColumn.fifthCard.description}
+              title={locales.roadmap.done.dashboard.title}
+              text={locales.roadmap.done.dashboard.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.sixthCard.title}
-              text={locales.roadmap.thirdColumn.sixthCard.description}
+              title={locales.roadmap.done.filter.title}
+              text={locales.roadmap.done.filter.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.seventhCard.title}
-              text={locales.roadmap.thirdColumn.seventhCard.description}
+              title={locales.roadmap.done.projects.title}
+              text={locales.roadmap.done.projects.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.eighthCard.title}
-              text={locales.roadmap.thirdColumn.eighthCard.description}
+              title={locales.roadmap.done.internationalization.title}
+              text={locales.roadmap.done.internationalization.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.ninthCard.title}
-              text={locales.roadmap.thirdColumn.ninthCard.description}
+              title={locales.roadmap.done.eventManagement.title}
+              text={locales.roadmap.done.eventManagement.description}
             />
             <RoadmapCard
-              title={locales.roadmap.thirdColumn.tenthCard.title}
-              text={locales.roadmap.thirdColumn.tenthCard.description}
+              title={locales.roadmap.done.profilesAndOrganizations.title}
+              text={locales.roadmap.done.profilesAndOrganizations.description}
+            />
+            <RoadmapCard
+              title={locales.roadmap.done.search.title}
+              text={locales.roadmap.done.search.description}
+            />
+            <RoadmapCard
+              title={locales.roadmap.done.mintId.title}
+              text={locales.roadmap.done.mintId.description}
             />
           </RoadmapColumn>
         </div>

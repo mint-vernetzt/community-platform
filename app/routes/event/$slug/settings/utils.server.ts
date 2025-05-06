@@ -263,6 +263,7 @@ export async function updateEventById(
       where: { id },
       data: {
         ...eventData,
+        description: sanitizeUserHtml(eventData.description),
         updatedAt: new Date(),
         focuses: {
           deleteMany: {},

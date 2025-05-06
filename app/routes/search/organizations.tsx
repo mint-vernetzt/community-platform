@@ -73,6 +73,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       areas: organization.areas.map((relation) => relation.area.name),
       focuses: organization.focuses.map((relation) => relation.focus.slug),
       types: organization.types.map((item) => item.organizationType.slug),
+      networkTypes: organization.networkTypes.map(
+        (item) => item.networkType.slug
+      ),
       teamMembers: organization.teamMembers.map((relation) => {
         return relation.profile;
       }),

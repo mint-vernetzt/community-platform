@@ -40,10 +40,12 @@ import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$
 import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 
-export type OverrideableInputProps = Omit<
+export type InputForFormProps = Omit<
   React.HTMLProps<HTMLInputElement>,
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
->;
+> & {
+  contentEditableRef: React.RefObject<HTMLDivElement | null>;
+};
 
 export type RTELocales =
   | GeneralProfileSettingsLocales
@@ -53,13 +55,14 @@ export type RTELocales =
   | GeneralEventSettingsLocales;
 
 function RTE(
-  props: OverrideableInputProps & {
+  props: Omit<InputForFormProps, "contentEditableRef"> & {
     locales: RTELocales;
   }
 ) {
   const { defaultValue, placeholder, maxLength, locales, ...rest } = props;
 
   const editorRef = React.useRef<LexicalEditor | null>(null);
+  const contentEditableRef = React.useRef<HTMLDivElement | null>(null);
   const isHydrated = useHydrated();
 
   const theme: EditorThemeClasses = {
@@ -132,6 +135,7 @@ function RTE(
             <RichTextPlugin
               contentEditable={
                 <ContentEditable
+                  ref={contentEditableRef}
                   className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-w-full mv-overflow-y-scroll focus:mv-outline-none"
                   placeholder={
                     placeholder !== undefined ? (
@@ -147,7 +151,10 @@ function RTE(
               ErrorBoundary={LexicalErrorBoundary}
             />
             <DefaultValuePlugin defaultValue={defaultValue} />
-            <InputForFormPlugin {...rest} defaultValue={defaultValue} />
+            <InputForFormPlugin
+              {...rest}
+              contentEditableRef={contentEditableRef}
+            />
             <HistoryPlugin />
             <LinkPlugin
               validateUrl={(url: string) => {

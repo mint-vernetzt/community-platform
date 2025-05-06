@@ -1,4 +1,9 @@
 export const locale = {
+  error: {
+    notFound: "Datenbankeintrag nicht gefunden",
+    alreadyMember: "Du bist bereits Mitglied der Organisation",
+    requestFailed: "Anfrage konnte nicht gesendet werden",
+  },
   validation: {
     organizationName: {
       required: "Bitte gib den Namen Deiner Organisation ein.",
@@ -16,9 +21,29 @@ export const locale = {
   form: {
     organizationName: {
       headline: "Wie heißt Deine Organisation oder Dein Netzwerk?",
-      label: "Name der Organisation / des Netzwerks*",
-      sameOrganization:
-        'Es wurden Organisationen mit ähnlichem Namen gefunden. Falls Du trotzdem die Organisation mit Namen "{{searchQuery}}" anlegen willst, klicke erneut auf "Organisation anlegen".',
+      noJsSearchForm: {
+        label: "Vorhandene Organisation suchen",
+        placeholder: "Name der Organisation oder des Netzwerks",
+        searchCta: "Suchen",
+      },
+      requestOrganizationMembership: {
+        createOrganizationMemberRequestCta: "Beitritt anfragen",
+        createOrganizationMemberRequest:
+          "Du hast den Beitritt bei der Organisation {{name}} angefragt. Du wirst benachrichtigt, sobald sich ein Admin zu Deiner Anfrage äußert.",
+        label: "Name der Organisation / des Netzwerks*",
+        alreadyMember: "bereits Teammitglied",
+        alreadyRequested: "bereits angefragt",
+        email: {
+          subject: {
+            requested: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
+            canceled:
+              "Eine Mitgliedsanfrage an Deine Organisation wurde zurückgezogen.",
+          },
+          button: {
+            text: "Zur Community Plattform",
+          },
+        },
+      },
     },
     organizationTypes: {
       cta: "Bitte auswählen",

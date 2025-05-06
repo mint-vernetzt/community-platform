@@ -154,15 +154,7 @@ export default function Index() {
   const schema = createSchema(locales);
 
   return (
-    <LoginForm
-      method="post"
-      schema={schema}
-      hiddenFields={["loginRedirect"]}
-      values={{
-        loginRedirect: loginRedirect || undefined,
-      }}
-      onKeyDown={handleKeyPress}
-    >
+    <LoginForm method="post" schema={schema} onKeyDown={handleKeyPress}>
       {({ Field, Errors, register }) => (
         <>
           <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
@@ -231,7 +223,11 @@ export default function Index() {
                   </Field>
                 </div>
 
-                <Field name="loginRedirect" />
+                <input
+                  name="loginRedirect"
+                  defaultValue={loginRedirect || undefined}
+                  hidden
+                />
                 <div className="flex flex-row -mx-4 mb-8 items-center">
                   <div className="basis-6/12 px-4">
                     <button type="submit" className="btn btn-primary">

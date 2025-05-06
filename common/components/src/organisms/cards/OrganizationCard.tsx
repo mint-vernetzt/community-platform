@@ -143,6 +143,7 @@ export type OrganizationCardProps = {
     focuses: string[];
     areas: string[];
     types: string[];
+    networkTypes: string[];
     teamMembers: {
       firstName: string;
       lastName: string;
@@ -197,9 +198,10 @@ function OrganizationCard(
                     {organization.name}
                   </h4>
                 </div>
-                <div className="mv-h-5 mv-overflow-hidden">
-                  {organization.types.length > 0 && (
-                    <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate">
+                <div className="mv-overflow-hidden">
+                  {(organization.types.length > 0 ||
+                    organization.networkTypes.length > 0) && (
+                    <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate mv-line-clamp-2 mv-text-wrap">
                       {organization.types
                         .map((type) => {
                           if (type in locales.organizationTypes === false) {
@@ -213,7 +215,20 @@ function OrganizationCard(
                           return locales.organizationTypes[type as LocaleKey]
                             .title;
                         })
-                        .join("/")}
+                        .join(", ")}
+                      {organization.networkTypes.length > 0 ? ", " : null}
+                      {organization.networkTypes
+                        .map((type) => {
+                          if (type in locales.networkTypes === false) {
+                            console.error(
+                              `No locale found for network type ${type}`
+                            );
+                            return type;
+                          }
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          return locales.networkTypes[type as LocaleKey].title;
+                        })
+                        .join(", ")}
                     </p>
                   )}
                 </div>

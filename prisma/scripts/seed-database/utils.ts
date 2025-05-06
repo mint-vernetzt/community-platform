@@ -6751,10 +6751,10 @@ function generateDescription<
   // event, project, document
   let description;
   if (entityType === "event") {
-    const descriptionForLargest = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem
+    const descriptionForLargest = `<p dir="ltr"><span data-lexical-text="true">${faker.lorem
       .paragraphs(7)
       .substring(0, 1000)}</span></p>`;
-    const descriptionForStandard = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem.paragraphs(
+    const descriptionForStandard = `<p dir="ltr"><span data-lexical-text="true">${faker.lorem.paragraphs(
       3
     )}</span></p>`;
     if (entityStructure === "Smallest") {
@@ -6763,7 +6763,7 @@ function generateDescription<
       description = "";
     } else if (entityStructure === "Unicode") {
       description =
-        '<p dir="ltr"><span style="white-space: pre-wrap;">A description containing unicode character_Γ</span></p>';
+        '<p dir="ltr"><span data-lexical-text="true">A description containing unicode character_Γ</span></p>';
     } else if (entityStructure === "Largest") {
       description = descriptionForLargest;
     } else {
@@ -7419,10 +7419,10 @@ function generateBio<
   // profile, organization
   let bio;
   if (entityType === "profile" || entityType === "organization") {
-    const bioForStandard = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem.paragraphs(
+    const bioForStandard = `<p dir="ltr"><span data-lexical-text="true">${faker.lorem.paragraphs(
       1
     )}</span></p>`;
-    const bioForLargest = `<p dir="ltr"><span style="white-space: pre-wrap;">${faker.lorem
+    const bioForLargest = `<p dir="ltr"><span data-lexical-text="true">${faker.lorem
       .paragraphs(7)
       .substring(0, 500)}</span></p>`;
     if (entityStructure === "Smallest") {
@@ -7431,7 +7431,7 @@ function generateBio<
       bio = "";
     } else if (entityStructure === "Unicode") {
       bio =
-        '<p dir="ltr"><span style="white-space: pre-wrap;">A bio containing unicode character_Γ</span></p>';
+        '<p dir="ltr"><span data-lexical-text="true">A bio containing unicode character_Γ</span></p>';
     } else if (entityStructure === "Largest") {
       bio = bioForLargest;
     } else {

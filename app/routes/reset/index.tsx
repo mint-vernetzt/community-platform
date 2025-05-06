@@ -156,19 +156,16 @@ export default function Index() {
                 <p className="mb-4">{locales.response.notice}</p>
               </>
             ) : (
-              <RemixFormsForm
-                method="post"
-                schema={schema}
-                hiddenFields={["loginRedirect"]}
-                values={{
-                  loginRedirect: loginRedirect || undefined,
-                }}
-              >
+              <RemixFormsForm method="post" schema={schema}>
                 {({ Field, Errors, register }) => (
                   <>
                     <p className="mb-4">{locales.form.intro}</p>
 
-                    <Field name="loginRedirect" />
+                    <input
+                      name="loginRedirect"
+                      defaultValue={loginRedirect || undefined}
+                      hidden
+                    />
                     <div className="mb-8">
                       <Field name="email" label="E-Mail">
                         {({ Errors }) => (

@@ -295,6 +295,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       types: imageEnhancedOrganization.types.map((relation) => {
         return relation.organizationType.slug;
       }),
+      networkTypes: imageEnhancedOrganization.networkTypes.map((relation) => {
+        return relation.networkType.slug;
+      }),
       focuses: imageEnhancedOrganization.focuses.map((relation) => {
         return relation.focus.slug;
       }),
