@@ -164,7 +164,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const projectIdsFilteredByVisibility = await getProjectIds({
       filter: submission.value.prjFilter,
       search: submission.value.search,
-      sessionUser: null,
+      isLoggedIn,
       language,
     });
     filteredByVisibilityCount = await projectIdsFilteredByVisibility.length;
@@ -173,7 +173,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const projectIds = await getProjectIds({
     filter: submission.value.prjFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn: true,
     language,
   });
 
@@ -528,6 +528,14 @@ export default function ExploreProjects() {
       additionalSearchParams.push({ key, value });
     }
   });
+
+  let showMore = false;
+  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
+    showMore =
+      loaderData.filteredByVisibilityCount > loaderData.projects.length;
+  } else {
+    showMore = loaderData.projectsCount > loaderData.projects.length;
+  }
 
   return (
     <>
@@ -1645,16 +1653,20 @@ export default function ExploreProjects() {
       </section>
 
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {loaderData.filteredByVisibilityCount !== undefined &&
-        loaderData.filteredByVisibilityCount > 0 ? (
+        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+        loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 locales.route.notShown_one,
                 locales.route.notShown_other,
-                loaderData.filteredByVisibilityCount
+                loaderData.projectsCount - loaderData.filteredByVisibilityCount
               ),
-              { count: loaderData.filteredByVisibilityCount }
+              {
+                count:
+                  loaderData.projectsCount -
+                  loaderData.filteredByVisibilityCount,
+              }
             )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
@@ -1687,7 +1699,7 @@ export default function ExploreProjects() {
                 );
               })}
             </CardContainer>
-            {loaderData.projectsCount > loaderData.projects.length && (
+            {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

@@ -38,6 +38,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const { authClient } = await createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  const isLoggedIn = sessionUser !== null;
 
   invariantResponse(
     submission.status === "success",
@@ -48,7 +49,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const profileIds = await getProfileIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn,
     language,
   });
   const profileCount = profileIds.length;
@@ -56,7 +57,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const organizationIds = await getOrganizationIds({
     filter: submission.value.orgFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn,
     language,
   });
   const organizationCount = organizationIds.length;
@@ -64,7 +65,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const eventIds = await getEventIds({
     filter: submission.value.evtFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn,
     language,
   });
   const eventCount = eventIds.length;
@@ -72,7 +73,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const projectIds = await getProjectIds({
     filter: submission.value.prjFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn,
     language,
   });
   const projectCount = projectIds.length;

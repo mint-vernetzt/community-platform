@@ -116,7 +116,7 @@ function getProfilesFilterWhereClause(filter: GetProfilesSchema["prfFilter"]) {
 
 function getProfilesSearchWhereClauses(
   words: string[],
-  sessionUser: User | null,
+  isLoggedIn: boolean,
   language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const whereClauses = [];
@@ -136,7 +136,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     username: true,
@@ -153,7 +153,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     email: true,
@@ -170,7 +170,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     email2: true,
@@ -187,7 +187,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     bio: true,
@@ -203,7 +203,7 @@ function getProfilesSearchWhereClauses(
                 has: word,
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     skills: true,
@@ -219,7 +219,7 @@ function getProfilesSearchWhereClauses(
                 has: word,
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     interests: true,
@@ -236,7 +236,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     firstName: true,
@@ -253,7 +253,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     lastName: true,
@@ -270,7 +270,7 @@ function getProfilesSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     position: true,
@@ -293,7 +293,7 @@ function getProfilesSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     areas: true,
@@ -315,7 +315,7 @@ function getProfilesSearchWhereClauses(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn === false
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -327,7 +327,7 @@ function getProfilesSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     memberOf: true,
@@ -352,7 +352,7 @@ function getProfilesSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         profileVisibility: {
                           offers: true,
@@ -378,7 +378,7 @@ function getProfilesSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         profileVisibility: {
                           seekings: true,
@@ -401,7 +401,7 @@ function getProfilesSearchWhereClauses(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn === false
                         ? {
                             projectVisibility: {
                               name: true,
@@ -413,7 +413,7 @@ function getProfilesSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   profileVisibility: {
                     teamMemberOfProjects: true,
@@ -432,19 +432,34 @@ function getProfilesSearchWhereClauses(
 export async function getProfileIds(options: {
   filter: GetProfilesSchema["prfFilter"];
   search: GetSearchSchema["search"];
-  sessionUser: User | null;
+  isLoggedIn: boolean;
   language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const filterWhereClause = getProfilesFilterWhereClause(options.filter);
+  const whereClauses = getProfilesFilterWhereClause(options.filter);
+
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement: ProfileVisibility = {
+        profileVisibility: {
+          [`${typedFilterKey}s`]: true,
+        },
+      };
+      whereClauses.AND.push(visibilityWhereStatement);
+    }
+  }
+
   const searchWhereClauses = getProfilesSearchWhereClauses(
     options.search,
-    options.sessionUser,
+    options.isLoggedIn,
     options.language
   );
 
-  filterWhereClause.AND.push(...searchWhereClauses);
-
-  const whereClauses = filterWhereClause;
+  whereClauses.AND.push(...searchWhereClauses);
 
   const profiles = await prismaClient.profile.findMany({
     where: whereClauses,
@@ -470,13 +485,15 @@ export async function getAllProfiles(options: {
 }) {
   const whereClauses = getProfilesFilterWhereClause(options.filter);
 
+  const isLoggedIn = options.sessionUser !== null;
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
     const filterValues = options.filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.sessionUser === null) {
+    if (isLoggedIn === false) {
       const visibilityWhereStatement: ProfileVisibility = {
         profileVisibility: {
           [`${typedFilterKey}s`]: true,
@@ -488,7 +505,7 @@ export async function getAllProfiles(options: {
 
   const searchWhereClauses = getProfilesSearchWhereClauses(
     options.search,
-    options.sessionUser,
+    isLoggedIn,
     options.language
   );
   whereClauses.AND.push(...searchWhereClauses);

@@ -164,7 +164,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const profileIdsFilteredByVisibility = await getProfileIds({
       filter: submission.value.prfFilter,
       search: submission.value.search,
-      sessionUser: null,
+      isLoggedIn,
       language,
     });
     filteredByVisibilityCount = profileIdsFilteredByVisibility.length;
@@ -173,7 +173,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const profileIds = await getProfileIds({
     filter: submission.value.prfFilter,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn: true,
     language,
   });
 
@@ -378,6 +378,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...offer, vectorCount, isChecked };
   });
 
+  console.log({
+    filteredByVisibilityCount,
+    profileCount,
+    profileLength: profiles.length,
+  });
+
   return {
     isLoggedIn,
     profiles: enhancedProfiles,
@@ -431,6 +437,14 @@ export default function ExploreProfiles() {
       additionalSearchParams.push({ key, value });
     }
   });
+
+  let showMore = false;
+  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
+    showMore =
+      loaderData.filteredByVisibilityCount > loaderData.profiles.length;
+  } else {
+    showMore = loaderData.profilesCount > loaderData.profiles.length;
+  }
 
   return (
     <>
@@ -884,16 +898,20 @@ export default function ExploreProfiles() {
       </section>
 
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {loaderData.filteredByVisibilityCount !== undefined &&
-        loaderData.filteredByVisibilityCount > 0 ? (
+        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+        loaderData.filteredByVisibilityCount !== loaderData.profilesCount ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 loaderData.locales.route.notShown_singular,
                 loaderData.locales.route.notShown_plural,
-                loaderData.filteredByVisibilityCount
+                loaderData.profilesCount - loaderData.filteredByVisibilityCount
               ),
-              { count: loaderData.filteredByVisibilityCount }
+              {
+                count:
+                  loaderData.profilesCount -
+                  loaderData.filteredByVisibilityCount,
+              }
             )}
           </p>
         ) : loaderData.profilesCount > 0 ? (
@@ -924,7 +942,7 @@ export default function ExploreProfiles() {
                 );
               })}
             </CardContainer>
-            {loaderData.profilesCount > loaderData.profiles.length && (
+            {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

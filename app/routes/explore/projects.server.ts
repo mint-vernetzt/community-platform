@@ -130,7 +130,7 @@ function getProjectsFilterWhereClause(filter: GetProjectsSchema["prjFilter"]) {
 
 function getProjectsSearchWhereClauses(
   words: string[],
-  sessionUser: User | null,
+  isLoggedIn: boolean,
   language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const whereClauses = [];
@@ -166,7 +166,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     name: true,
@@ -183,7 +183,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     slug: true,
@@ -200,7 +200,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     headline: true,
@@ -217,7 +217,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     excerpt: true,
@@ -234,7 +234,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     description: true,
@@ -251,7 +251,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     email: true,
@@ -268,7 +268,7 @@ function getProjectsSearchWhereClauses(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     city: true,
@@ -293,7 +293,7 @@ function getProjectsSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         projectVisibility: {
                           disciplines: true,
@@ -316,7 +316,7 @@ function getProjectsSearchWhereClauses(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn === false
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -328,7 +328,7 @@ function getProjectsSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     responsibleOrganizations: true,
@@ -353,7 +353,7 @@ function getProjectsSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         projectVisibility: {
                           projectTargetGroups: true,
@@ -379,7 +379,7 @@ function getProjectsSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         projectVisibility: {
                           specialTargetGroups: true,
@@ -405,7 +405,7 @@ function getProjectsSearchWhereClauses(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         projectVisibility: {
                           formats: true,
@@ -428,7 +428,7 @@ function getProjectsSearchWhereClauses(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn === false
                         ? {
                             profileVisibility: {
                               firstName: true,
@@ -440,7 +440,7 @@ function getProjectsSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     teamMembers: true,
@@ -463,7 +463,7 @@ function getProjectsSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     areas: true,
@@ -485,7 +485,7 @@ function getProjectsSearchWhereClauses(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn === false
                         ? {
                             profileVisibility: {
                               lastName: true,
@@ -497,7 +497,7 @@ function getProjectsSearchWhereClauses(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   projectVisibility: {
                     teamMembers: true,
@@ -516,18 +516,33 @@ function getProjectsSearchWhereClauses(
 export async function getProjectIds(options: {
   filter: GetProjectsSchema["prjFilter"];
   search: GetSearchSchema["search"];
-  sessionUser: User | null;
+  isLoggedIn: boolean;
   language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const filterWhereClause = getProjectsFilterWhereClause(options.filter);
+  const whereClauses = getProjectsFilterWhereClause(options.filter);
+
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        projectVisibility: {
+          [`${typedFilterKey}s`]: true,
+        },
+      };
+      whereClauses.AND.push(visibilityWhereStatement);
+    }
+  }
+
   const searchWhereClauses = getProjectsSearchWhereClauses(
     options.search,
-    options.sessionUser,
+    options.isLoggedIn,
     options.language
   );
-  filterWhereClause.AND.push(...searchWhereClauses);
-
-  const whereClauses = filterWhereClause;
+  whereClauses.AND.push(...searchWhereClauses);
 
   const projects = await prismaClient.project.findMany({
     where: whereClauses,
@@ -587,7 +602,7 @@ export async function getAllProjects(options: {
 
   const searchWhereClauses = getProjectsSearchWhereClauses(
     options.search,
-    options.sessionUser,
+    options.sessionUser !== null,
     options.language
   );
   whereClauses.AND.push(...searchWhereClauses);

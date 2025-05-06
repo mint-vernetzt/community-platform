@@ -325,7 +325,7 @@ function getEventsFilterWhereClause(filter: GetEventsSchema["evtFilter"]) {
 
 function getEventsSearchWhereClause(
   words: string[],
-  sessionUser: User | null,
+  isLoggedIn: boolean,
   language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const whereClauses = [];
@@ -417,7 +417,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     name: true,
@@ -434,7 +434,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     slug: true,
@@ -451,7 +451,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     description: true,
@@ -468,7 +468,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     venueName: true,
@@ -485,7 +485,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     venueStreet: true,
@@ -502,7 +502,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     venueStreetNumber: true,
@@ -519,7 +519,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     venueCity: true,
@@ -536,7 +536,7 @@ function getEventsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     subline: true,
@@ -559,7 +559,7 @@ function getEventsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn === false
               ? {
                   eventVisibility: {
                     areas: true,
@@ -584,7 +584,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           types: true,
@@ -606,7 +606,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           experienceLevel: true,
@@ -628,7 +628,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           stage: true,
@@ -654,7 +654,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           focuses: true,
@@ -680,7 +680,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           tags: true,
@@ -706,7 +706,7 @@ function getEventsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn === false
                     ? {
                         eventVisibility: {
                           targetGroups: true,
@@ -726,19 +726,40 @@ function getEventsSearchWhereClause(
 export async function getEventIds(options: {
   filter: GetEventsSchema["evtFilter"];
   search: GetSearchSchema["search"];
-  sessionUser: User | null;
+  isLoggedIn: boolean;
   language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const filterWhereClauses = getEventsFilterWhereClause(options.filter);
+  const whereClauses = getEventsFilterWhereClause(options.filter);
+
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement = {
+        eventVisibility: {
+          [`${
+            typedFilterKey === "periodOfTime"
+              ? "startTime"
+              : typedFilterKey === "stage"
+              ? "stage"
+              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+          }`]: true,
+        },
+      };
+      whereClauses.AND.push(visibilityWhereStatement);
+    }
+  }
+
   const searchWhereClauses = getEventsSearchWhereClause(
     options.search,
-    options.sessionUser,
+    options.isLoggedIn,
     options.language
   );
 
-  filterWhereClauses.AND.push(...searchWhereClauses);
-
-  const whereClauses = filterWhereClauses;
+  whereClauses.AND.push(...searchWhereClauses);
 
   const events = await prismaClient.event.findMany({
     where: whereClauses,
@@ -787,7 +808,7 @@ export async function getAllEvents(options: {
 
   const searchWhereClauses = getEventsSearchWhereClause(
     options.search,
-    options.sessionUser,
+    options.sessionUser !== null,
     options.language
   );
   whereClauses.AND.push(...searchWhereClauses);

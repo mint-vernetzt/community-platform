@@ -138,7 +138,7 @@ function getOrganizationsFilterWhereClause(
 
 function getOrganizationsSearchWhereClause(
   words: string[],
-  sessionUser: User | null,
+  isLoggedIn: boolean,
   language: ArrayElement<typeof supportedCookieLanguages>
 ) {
   const whereClauses = [];
@@ -169,7 +169,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     name: true,
@@ -186,7 +186,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     slug: true,
@@ -203,7 +203,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     email: true,
@@ -220,7 +220,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     street: true,
@@ -237,7 +237,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     city: true,
@@ -254,7 +254,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     bio: true,
@@ -270,7 +270,7 @@ function getOrganizationsSearchWhereClause(
                 has: word,
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     supportedBy: true,
@@ -293,7 +293,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     areas: true,
@@ -318,7 +318,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn
                     ? {
                         organizationVisibility: {
                           focuses: true,
@@ -341,7 +341,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -353,7 +353,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     networkMembers: true,
@@ -375,7 +375,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -387,7 +387,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     memberOf: true,
@@ -409,7 +409,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn
                         ? {
                             profileVisibility: {
                               firstName: true,
@@ -421,7 +421,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     teamMembers: true,
@@ -443,7 +443,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn
                         ? {
                             profileVisibility: {
                               lastName: true,
@@ -455,7 +455,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     teamMembers: true,
@@ -480,7 +480,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn
                     ? {
                         organizationVisibility: {
                           types: true,
@@ -506,7 +506,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  sessionUser === null
+                  isLoggedIn
                     ? {
                         organizationVisibility: {
                           networkTypes: true,
@@ -529,7 +529,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      sessionUser === null
+                      isLoggedIn
                         ? {
                             projectVisibility: {
                               name: true,
@@ -541,7 +541,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            sessionUser === null
+            isLoggedIn
               ? {
                   organizationVisibility: {
                     responsibleForProject: true,
@@ -560,19 +560,34 @@ function getOrganizationsSearchWhereClause(
 export async function getOrganizationIds(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   search: GetSearchSchema["search"];
-  sessionUser: User | null;
+  isLoggedIn: boolean;
   language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const filterWhereClause = getOrganizationsFilterWhereClause(options.filter);
+  const whereClauses = getOrganizationsFilterWhereClause(options.filter);
+
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
+    if (options.isLoggedIn === false) {
+      const visibilityWhereStatement: OrganizationVisibility = {
+        organizationVisibility: {
+          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
+        },
+      };
+      whereClauses.AND.push(visibilityWhereStatement);
+    }
+  }
+
   const searchWhereClauses = getOrganizationsSearchWhereClause(
     options.search,
-    options.sessionUser,
+    options.isLoggedIn,
     options.language
   );
 
-  filterWhereClause.AND.push(...searchWhereClauses);
-
-  const whereClauses = filterWhereClause;
+  whereClauses.AND.push(...searchWhereClauses);
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -616,7 +631,7 @@ export async function getAllOrganizations(options: {
 
   const searchWhereClauses = getOrganizationsSearchWhereClause(
     options.search,
-    options.sessionUser,
+    options.sessionUser !== null,
     options.language
   );
   whereClauses.AND.push(...searchWhereClauses);
