@@ -136,6 +136,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           canUndo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canUndo === false}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
@@ -150,6 +152,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           canRedo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canRedo === false}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
@@ -163,6 +167,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isBoldActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
@@ -176,6 +182,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isItalicActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
@@ -189,6 +197,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isUnderlineActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
@@ -200,6 +210,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
         }}
@@ -211,6 +223,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
         }}
@@ -227,6 +241,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
             canInsertLink === true ? enabledClassName : disabledClassName
           }`}
           disabled={canInsertLink === false}
+          // This is added for Safari which would otherwise lead to focus loss
+          onMouseDown={(event) => event.preventDefault()}
           onClick={(event) => {
             event.preventDefault();
             editor.getEditorState().read(() => {
@@ -236,16 +252,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                 clonedSelection = selection.clone();
               }
               setLastValidSelection(clonedSelection);
-            });
-          }}
-          // Did this in those handlers instead of onClick because Safari handles this different...
-          onMouseDown={() => {
-            setShowInsertLinkMenu(!showInsertLinkMenu);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === " ") {
               setShowInsertLinkMenu(!showInsertLinkMenu);
-            }
+            });
           }}
           title={locales.rte.toolbar.link.title}
           aria-label={locales.rte.toolbar.link.title}
