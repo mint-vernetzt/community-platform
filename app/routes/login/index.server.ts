@@ -8,6 +8,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { createLoginSchema } from ".";
+import { type LandingPageLocales } from "../index.server";
 
 export type LoginLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -17,7 +18,7 @@ export async function login(options: {
   formData: FormData;
   request: Request;
   authClient: SupabaseClient;
-  locales: LoginLocales;
+  locales: LoginLocales | LandingPageLocales["route"];
 }) {
   const { formData, locales, request, authClient } = options;
   const submission = await parseWithZod(formData, {

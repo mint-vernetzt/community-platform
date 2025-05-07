@@ -23,6 +23,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login, type LoginLocales } from "./index.server";
 import { z } from "zod";
+import { type LandingPageLocales } from "../index.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -51,7 +52,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return { error: null, locales, currentTimestamp: Date.now() };
 };
 
-export const createLoginSchema = (locales: LoginLocales) => {
+export const createLoginSchema = (
+  locales: LoginLocales | LandingPageLocales["route"]
+) => {
   return z.object({
     email: z
       .string()
@@ -104,7 +107,6 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = React.useState(false);
 
-  // Conform
   const [loginForm, loginFields] = useForm({
     id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales)),

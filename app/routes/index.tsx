@@ -1,53 +1,39 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
+import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   Link,
+  redirect,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
-  useSubmit,
-  redirect,
 } from "react-router";
-import { makeDomainFunction } from "domain-functions";
-import type { KeyboardEvent } from "react";
-import type { FormProps } from "remix-forms";
-import { performMutation } from "remix-forms";
-import type { SomeZodObject } from "zod";
-import { z } from "zod";
-import { createAuthClient, getSessionUser, signIn } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import { H1, H3 } from "~/components/Heading/Heading";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { RichText } from "~/components/Richtext/RichText";
-import { CountUp } from "~/components-next/CountUp";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
+import { CountUp } from "~/components-next/CountUp";
+import { HidePassword } from "~/components-next/icons/HidePassword";
+import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { H1, H3 } from "~/components/Heading/Heading";
+import { RichText } from "~/components/Richtext/RichText";
+import { detectLanguage } from "~/i18n.server";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { languageModuleMap } from "~/locales/.server";
+import { createLoginSchema } from "./login";
+import { login } from "./login/index.server";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
-
-const schema = z.object({
-  email: z
-    .string()
-    .email("Bitte gib eine gültige E-Mail-Adresse ein.")
-    .min(1, "Bitte gib eine gültige E-Mail-Adresse ein."),
-  password: z
-    .string()
-    .min(8, "Dein Passwort muss mindestens 8 Zeichen lang sein."),
-  loginRedirect: z.string().optional(),
-});
-
-function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <RemixFormsForm<Schema> {...props} />;
-}
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -75,87 +61,72 @@ export const loader = async (args: LoaderFunctionArgs) => {
     eventCount,
     projectCount,
     locales,
+    currentTimestamp: Date.now(),
   };
 };
-
-const mutation = makeDomainFunction(schema)(async (values) => {
-  return { ...values };
-});
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["index"];
+  const { authClient } = createAuthClient(request);
 
-  const submission = await performMutation({
+  // Conform
+  const formData = await request.formData();
+  const { submission } = await login({
+    formData,
     request,
-    schema,
-    mutation,
+    authClient,
+    locales: locales.route,
   });
 
-  if (submission.success) {
-    const { error, headers } = await signIn(
-      request,
-      submission.data.email,
-      submission.data.password
-    );
-
-    if (error !== null) {
-      if (
-        error.code === "invalid_credentials" ||
-        error.message === "Invalid login credentials"
-      ) {
-        return {
-          error: {
-            message: locales.route.login.invalidCredentials,
-          },
-        };
-      } else if (
-        error.code === "email_not_confirmed" ||
-        error.message === "Email not confirmed"
-      ) {
-        return {
-          error: {
-            message: locales.route.login.notConfirmed,
-            supportMail: process.env.SUPPORT_MAIL,
-          },
-        };
-      } else {
-        console.error({ error });
-        invariantResponse(false, "Server error", { status: 500 });
-      }
-    }
-    if (submission.data.loginRedirect) {
-      return redirect(submission.data.loginRedirect, {
-        headers: headers,
-      });
-    } else {
-      return redirect("/dashboard", {
-        headers: headers,
-      });
-    }
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
-  return submission;
+  if (typeof submission.value.loginRedirect !== "undefined") {
+    return redirect(submission.value.loginRedirect, {
+      headers: submission.value.headers,
+    });
+  } else {
+    return redirect("/dashboard", {
+      headers: submission.value.headers,
+    });
+  }
 };
 
 export default function Index() {
-  const submit = useSubmit();
-  const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
-  const loginError =
-    actionData !== undefined && "error" in actionData ? actionData.error : null;
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales, currentTimestamp } = loaderData;
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      submit(event.currentTarget);
-    }
-  };
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  ///* Verlauf (weiß) */
-  //background: linear-gradient(358.45deg, #FFFFFF 12.78%, rgba(255, 255, 255, 0.4) 74.48%, rgba(255, 255, 255, 0.4) 98.12%);
+  const [loginForm, loginFields] = useForm({
+    id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
+    constraint: getZodConstraint(createLoginSchema(locales.route)),
+    defaultValue:
+      loginRedirect !== null
+        ? {
+            loginRedirect: loginRedirect,
+          }
+        : {},
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createLoginSchema(locales.route),
+      });
+      return submission;
+    },
+  });
+
   return (
     <>
       <section className="mv-bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
@@ -231,74 +202,118 @@ export default function Index() {
                       </span>
                     </div>
                   </div>
-                  <LoginForm
+                  <Form
+                    {...getFormProps(loginForm)}
                     method="post"
-                    schema={schema}
-                    onKeyDown={handleKeyPress}
+                    preventScrollReset
+                    autoComplete="off"
                   >
-                    {({ Field, Errors, register }) => (
-                      <>
-                        {loginError !== null ? (
-                          <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
-                            {"supportMail" in loginError
-                              ? insertComponentsIntoLocale(
-                                  locales.route.login.notConfirmed,
-                                  [
-                                    <a
-                                      key="support-mail"
-                                      href={`mailto:${loginError.supportMail}`}
-                                      className="mv-text-primary mv-font-bold hover:mv-underline"
-                                    >
-                                      {" "}
-                                    </a>,
-                                  ]
-                                )
-                              : loginError.message}
-                          </Errors>
-                        ) : null}
-
-                        <Field name="email" label="E-Mail">
-                          {({ Errors }) => (
-                            <div className="mv-mb-4">
-                              <Input
-                                id="email"
-                                label={locales.route.form.label.email}
-                                {...register("email")}
-                              />
-                              <Errors />
+                    {typeof loginForm.errors !== "undefined" &&
+                    loginForm.errors.length > 0 ? (
+                      <div>
+                        {loginForm.errors.map((error, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md"
+                            >
+                              <RichText id={loginForm.errorId} html={error} />
                             </div>
-                          )}
-                        </Field>
-                        <Field name="password" label="Passwort">
-                          {({ Errors }) => (
-                            <div className="mv-mb-4">
-                              <InputPassword
-                                id="password"
-                                label={locales.route.form.label.password}
-                                {...register("password")}
-                              />
-                              <Errors />
-                            </div>
-                          )}
-                        </Field>
+                          );
+                        })}
+                      </div>
+                    ) : null}
 
-                        <input
-                          name="loginRedirect"
-                          defaultValue={loginRedirect || undefined}
-                          hidden
-                        />
-                        <div className="mv-mt-4 mv-mb-2">
-                          <Button
-                            size="large"
-                            fullSize
-                            name={locales.route.form.label.submit}
-                          >
-                            {locales.route.form.label.submit}
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </LoginForm>
+                    <div className="mv-mb-4">
+                      <Input
+                        {...getInputProps(loginFields.email, { type: "text" })}
+                        key="email"
+                      >
+                        <Input.Label htmlFor={loginFields.email.id}>
+                          {locales.route.form.label.email}
+                        </Input.Label>
+                        {typeof loginFields.email.errors !== "undefined" &&
+                        loginFields.email.errors.length > 0
+                          ? loginFields.email.errors.map((error) => (
+                              <Input.Error
+                                id={loginFields.email.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                      </Input>
+                    </div>
+                    <Input
+                      {...getInputProps(loginFields.password, {
+                        type: showPassword ? "text" : "password",
+                      })}
+                      key="password"
+                    >
+                      <Input.Label htmlFor={loginFields.password.id}>
+                        {locales.route.form.label.password}
+                      </Input.Label>
+                      {typeof loginFields.password.errors !== "undefined" &&
+                      loginFields.password.errors.length > 0
+                        ? loginFields.password.errors.map((error) => (
+                            <Input.Error
+                              id={loginFields.password.errorId}
+                              key={error}
+                            >
+                              {error}
+                            </Input.Error>
+                          ))
+                        : null}
+                      {isHydrated === true ? (
+                        <Input.Controls>
+                          <div className="mv-h-10 mv-w-10">
+                            <CircleButton
+                              type="button"
+                              onClick={() => {
+                                setShowPassword(!showPassword);
+                              }}
+                              variant="outline"
+                              fullSize
+                              aria-label={
+                                showPassword
+                                  ? locales.route.form.label.hidePassword
+                                  : locales.route.form.label.showPassword
+                              }
+                            >
+                              {showPassword ? (
+                                <HidePassword />
+                              ) : (
+                                <ShowPassword />
+                              )}
+                            </CircleButton>
+                          </div>
+                        </Input.Controls>
+                      ) : null}
+                    </Input>
+
+                    <input
+                      {...getInputProps(loginFields.loginRedirect, {
+                        type: "hidden",
+                      })}
+                      key="loginRedirect"
+                    />
+                    <div className="mv-mt-4 mv-mb-2">
+                      <Button
+                        type="submit"
+                        fullSize
+                        // Don't disable button when js is disabled
+                        disabled={
+                          isHydrated
+                            ? loginForm.dirty === false ||
+                              loginForm.valid === false
+                            : false
+                        }
+                      >
+                        {locales.route.form.label.submit}
+                      </Button>
+                    </div>
+                  </Form>
                   <>
                     <div className="mv-mb-6 mv-text-center">
                       <Link
