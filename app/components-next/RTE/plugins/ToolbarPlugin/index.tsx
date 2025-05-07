@@ -9,8 +9,6 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import {
   $getSelection,
   $isRangeSelection,
-  $setSelection,
-  type BaseSelection,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_LOW,
@@ -45,14 +43,12 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
   const [isBoldActive, setIsBoldActive] = React.useState(false);
   const [isItalicActive, setIsItalicActive] = React.useState(false);
   const [isUnderlineActive, setIsUnderlineActive] = React.useState(false);
-  const [lastValidSelection, setLastValidSelection] =
-    React.useState<null | BaseSelection>(null);
 
   const baseButtonClassName =
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
   const disabledClassName = "mv-bg-neutral-50 mv-text-neutral-300";
   const enabledClassName =
-    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-50 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
+    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-200 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
 
   React.useEffect(() => {
     window.addEventListener("click", (event) => {
@@ -120,9 +116,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           setIsItalicActive(false);
           setIsUnderlineActive(false);
         }
-        if (selection !== null) {
-          setLastValidSelection(selection.clone());
-        }
         return false;
       },
       COMMAND_PRIORITY_LOW
@@ -136,6 +129,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           canUndo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canUndo === false}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
@@ -150,6 +145,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
           canRedo === true ? enabledClassName : disabledClassName
         }`}
         disabled={canRedo === false}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
@@ -163,6 +160,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isBoldActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
@@ -176,6 +175,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isItalicActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
@@ -189,6 +190,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         className={`${baseButtonClassName} ${enabledClassName}${
           isUnderlineActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
         }`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
@@ -200,6 +203,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
         }}
@@ -211,6 +216,8 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}`}
+        // This is added for Safari which would otherwise lead to focus loss
+        onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
         }}
@@ -227,25 +234,13 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
             canInsertLink === true ? enabledClassName : disabledClassName
           }`}
           disabled={canInsertLink === false}
+          // This is added for Safari which would otherwise lead to focus loss
+          onMouseDown={(event) => event.preventDefault()}
           onClick={(event) => {
             event.preventDefault();
             editor.getEditorState().read(() => {
-              const selection = $getSelection();
-              let clonedSelection = null;
-              if (selection !== null) {
-                clonedSelection = selection.clone();
-              }
-              setLastValidSelection(clonedSelection);
-            });
-          }}
-          // Did this in those handlers instead of onClick because Safari handles this different...
-          onMouseDown={() => {
-            setShowInsertLinkMenu(!showInsertLinkMenu);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === " ") {
               setShowInsertLinkMenu(!showInsertLinkMenu);
-            }
+            });
           }}
           title={locales.rte.toolbar.link.title}
           aria-label={locales.rte.toolbar.link.title}
@@ -269,6 +264,21 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                 onChange={(event) =>
                   setLinkInputValue(event.currentTarget.value)
                 }
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setLinkInputValue("https://");
+                    setShowInsertLinkMenu(false);
+                  }
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkInputValue);
+                    setLinkInputValue("https://");
+                    setShowInsertLinkMenu(false);
+                  }
+                }}
                 disabled={showInsertLinkMenu === false}
               >
                 <Input.Label htmlFor={`link-input-${editor.getKey()}`}>
@@ -278,11 +288,6 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      editor.update(() => {
-                        if (lastValidSelection !== null) {
-                          $setSelection(lastValidSelection);
-                        }
-                      });
                       editor.dispatchCommand(
                         TOGGLE_LINK_COMMAND,
                         linkInputValue
