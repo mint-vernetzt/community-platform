@@ -166,7 +166,7 @@ function AcceptTerms() {
                               key="terms-of-use-confirmation"
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noreferrer noopener"
                               className="text-primary font-bold hover:underline"
                             >
                               {" "}
@@ -175,7 +175,7 @@ function AcceptTerms() {
                               key="privacy-policy-confirmation"
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noreferrer noopener"
                               className="text-primary font-bold hover:underline"
                             >
                               {" "}

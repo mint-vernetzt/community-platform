@@ -81,7 +81,7 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
       href={props.to}
       className="hover:mv-underline"
       target="_blank"
-      rel="noreferrer nofollow"
+      rel="noreferrer nofollow noopenner"
     >
       {" "}
       <span className="mv-flex mv-rounded-lg mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-max-w-fit mv-text-sm mv-px-4 mv-py-2 mv-gap-2 mv-items-center">

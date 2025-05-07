@@ -37,29 +37,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["login/index"];
 
-  const searchParams = new URL(request.url).searchParams;
-  const error = searchParams.get("error");
-  if (error !== null) {
-    if (error === "confirmationLinkExpired") {
-      return {
-        error: locales.error.confirmationLinkExpired,
-        locales,
-        currentTimestamp: Date.now(),
-      };
-    }
-  }
-
-  return { error: null, locales, currentTimestamp: Date.now() };
+  return { locales, currentTimestamp: Date.now() };
 };
 
 export const createLoginSchema = (
   locales: LoginLocales | LandingPageLocales["route"]
 ) => {
   return z.object({
-    email: z
-      .string()
-      .email(locales.validation.email.email)
-      .min(1, locales.validation.email.min),
+    email: z.string().email(locales.validation.email),
     password: z.string().min(8, locales.validation.password.min),
     loginRedirect: z.string().optional(),
   });
@@ -100,7 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp, error: loaderError } = loaderData;
+  const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const [urlSearchParams] = useSearchParams();
@@ -110,12 +95,9 @@ export default function Index() {
   const [loginForm, loginFields] = useForm({
     id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales)),
-    defaultValue:
-      loginRedirect !== null
-        ? {
-            loginRedirect: loginRedirect,
-          }
-        : {},
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -136,7 +118,7 @@ export default function Index() {
     >
       <>
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-          <div className="flex flex-col mv-w-full mv-items-center">
+          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
             <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
               <div className="mv-mb-6 mv-mt-12">
                 {locales.content.question}{" "}
@@ -144,12 +126,12 @@ export default function Index() {
                   to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
-                  className="text-primary font-bold"
+                  className="mv-text-primary mv-font-bold"
                 >
                   {locales.content.action}
                 </Link>
               </div>
-              <h1 className="mb-8">{locales.content.headline}</h1>
+              <h1 className="mv-mb-8">{locales.content.headline}</h1>
 
               {typeof loginForm.errors !== "undefined" &&
               loginForm.errors.length > 0 ? (
@@ -166,13 +148,8 @@ export default function Index() {
                   })}
                 </div>
               ) : null}
-              {loaderError !== null ? (
-                <div className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
-                  {loaderError}
-                </div>
-              ) : null}
 
-              <div className="mb-4">
+              <div className="mv-mb-4">
                 <Input
                   {...getInputProps(loginFields.email, { type: "text" })}
                   key="email"
@@ -190,7 +167,7 @@ export default function Index() {
                     : null}
                 </Input>
               </div>
-              <div className="mb-10">
+              <div className="mv-mb-10">
                 <Input
                   {...getInputProps(loginFields.password, {
                     type: showPassword ? "text" : "password",
@@ -241,8 +218,8 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="flex flex-row -mx-4 mb-8 items-center">
-                <div className="basis-6/12 px-4">
+              <div className="mv-flex mv-flex-row -mv-mx-4 mb-8 mv-items-center">
+                <div className="mv-basis-6/12 mv-px-4">
                   <Button
                     type="submit"
                     // Don't disable button when js is disabled
@@ -255,12 +232,12 @@ export default function Index() {
                     {locales.label.submit}
                   </Button>
                 </div>
-                <div className="basis-6/12 px-4 text-right">
+                <div className="mv-basis-6/12 mv-px-4 mv-text-right">
                   <Link
                     to={`/reset${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
-                    className="text-primary font-bold"
+                    className="mv-text-primary mv-font-bold"
                   >
                     {locales.label.reset}
                   </Link>

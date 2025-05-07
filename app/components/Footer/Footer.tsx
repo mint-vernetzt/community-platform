@@ -59,7 +59,7 @@ function Footer(props: FooterProps) {
                 <a
                   href="https://mint-vernetzt.de/privacy-policy-community-platform"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noreferrer noopenner"
                   className="block hover:underline hover:text-primary"
                 >
                   Datenschutzerklärung
@@ -73,7 +73,7 @@ function Footer(props: FooterProps) {
                 <a
                   href="https://mint-vernetzt.de/terms-of-use-community-platform"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noreferrer noopener"
                   className="block hover:underline hover:text-primary"
                 >
                   Nutzungsbedingungen

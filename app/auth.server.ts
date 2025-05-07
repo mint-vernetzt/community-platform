@@ -125,39 +125,6 @@ export const setSession = async (
 
 // Note from the docs:
 /*
-  Returns the session, refreshing it if necessary.
-  This method retrieves the current local session (i.e local storage).
-  The session contains a signed JWT and unencoded session data.
-  Since the unencoded session data is retrieved from the local storage medium, do not rely on it as a source of trusted data on the server.
-  It could be tampered with by the sender. If you need verified, trustworthy user data, call getUser instead.
-  If the session has an expired access token, this method will use the refresh token to get a new session.
-*/
-export const getSession = async (authClient: SupabaseClient) => {
-  let session;
-  try {
-    const { data } = await authClient.auth.getSession();
-    session = data.session;
-  } catch (error) {
-    console.error({ error });
-    Sentry.captureException(error);
-  }
-  if (session !== undefined && session !== null) {
-    return session;
-  }
-  return null;
-};
-
-export const getSessionOrThrow = async (authClient: SupabaseClient) => {
-  const session = await getSession(authClient);
-  if (session === null) {
-    console.error("No session found");
-    invariantResponse(false, "No session found", { status: 401 });
-  }
-  return session;
-};
-
-// Note from the docs:
-/*
   Gets the current user details if there is an existing session. This method performs a network request to the Supabase Auth server,
   so the returned value is authentic and can be used to base authorization rules on.
   This method fetches the user object from the database instead of local session.

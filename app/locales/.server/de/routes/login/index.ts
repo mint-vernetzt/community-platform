@@ -1,9 +1,6 @@
 export const locale = {
   validation: {
-    email: {
-      email: "Bitte gib eine gültige E-Mail-Adresse ein.",
-      min: "Bitte gib eine gültige E-Mail-Adresse ein.",
-    },
+    email: "Bitte gib eine gültige E-Mail-Adresse ein.",
     password: {
       min: "Dein Passwort muss mindestens 8 Zeichen lang sein.",
     },
@@ -13,8 +10,6 @@ export const locale = {
       "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
     notConfirmed:
       'Deine E-Mail-Adresse wurde noch nicht bestätigt. Deshalb haben wir Dir einen neuen Bestätigungslink gesendet. Bitte überprüfe Dein Postfach und klicke auf den Bestätigungslink. Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder melde Dich beim <a href="mailto:{{supportMail}}" className="mv-text-primary mv-font-bold hover:mv-underline">Support</a>.',
-    confirmationLinkExpired:
-      "Dein Bestätigungslink ist abgelaufen. Bitte melde Dich mit Deinen Zugangsdaten an um einen neuen anzufordern.",
   },
   content: {
     headline: "Anmelden",

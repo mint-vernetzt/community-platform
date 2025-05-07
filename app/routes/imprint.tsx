@@ -39,7 +39,7 @@ export default function Imprint() {
           className="text-primary hover:underline"
           href="mailto:info@matrix-ggmbh.de"
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
         >
           info@matrix-ggmbh.de
         </a>

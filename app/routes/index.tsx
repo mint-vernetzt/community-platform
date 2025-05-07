@@ -110,12 +110,9 @@ export default function Index() {
   const [loginForm, loginFields] = useForm({
     id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales.route)),
-    defaultValue:
-      loginRedirect !== null
-        ? {
-            loginRedirect: loginRedirect,
-          }
-        : {},
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -190,7 +187,7 @@ export default function Index() {
                     <a
                       href="https://mint-id.org/faq"
                       target="_blank"
-                      rel="noreferrer "
+                      rel="noreferrer noopener"
                       className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
                     >
                       {locales.route.login.moreInformation}
@@ -516,13 +513,13 @@ export default function Index() {
           variant="outline"
           href="https://mint-vernetzt.de/"
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
         >
           <span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
-              className="w-4 h-4"
+              className="mv-w-4 mv-h-4"
             >
               <path
                 fill="currentColor"
