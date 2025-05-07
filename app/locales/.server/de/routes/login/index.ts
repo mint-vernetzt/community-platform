@@ -12,9 +12,9 @@ export const locale = {
     invalidCredentials:
       "Deine Anmeldedaten (E-Mail oder Passwort) sind nicht korrekt. Bitte überprüfe Deine Eingaben.",
     notConfirmed:
-      "Deine E-Mail-Adresse wurde noch nicht bestätigt. Bitte überprüfe Dein Postfach und klicke auf den Bestätigungslink. Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder melde Dich beim <0>Support</0>.",
+      'Deine E-Mail-Adresse wurde noch nicht bestätigt. Deshalb haben wir Dir einen neuen Bestätigungslink gesendet. Bitte überprüfe Dein Postfach und klicke auf den Bestätigungslink. Wenn Du keine E-Mail erhalten hast, überprüfe bitte Deinen Spam-Ordner oder melde Dich beim <a href="mailto:{{supportMail}}" className="mv-text-primary mv-font-bold hover:mv-underline">Support</a>.',
     confirmationLinkExpired:
-      "Dein Bestätigungslink ist abgelaufen. Bitte melde Dich beim <0>Support</0> um einen neuen anzufordern.",
+      "Dein Bestätigungslink ist abgelaufen. Bitte melde Dich mit Deinen Zugangsdaten an um einen neuen anzufordern.",
   },
   content: {
     headline: "Anmelden",
@@ -24,6 +24,8 @@ export const locale = {
   label: {
     email: "E-Mail",
     password: "Passwort",
+    showPassword: "Passwort anzeigen",
+    hidePassword: "Passwort ausblenden",
     submit: "Login",
     reset: "Passwort vergessen?",
   },

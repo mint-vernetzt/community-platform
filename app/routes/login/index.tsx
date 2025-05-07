@@ -1,42 +1,29 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   Link,
+  redirect,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
-  useSubmit,
-  redirect,
 } from "react-router";
-import { makeDomainFunction } from "domain-functions";
-import type { KeyboardEvent } from "react";
-import type { FormProps } from "remix-forms";
-import { performMutation } from "remix-forms";
-import type { SomeZodObject } from "zod";
-import { z } from "zod";
-import Input from "~/components/FormElements/Input/Input";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { HidePassword } from "~/components-next/icons/HidePassword";
+import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { RichText } from "~/components/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
-import { createAuthClient, getSessionUser, signIn } from "../../auth.server";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import { type LoginLocales } from "./index.server";
 import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
-
-const createSchema = (locales: LoginLocales) => {
-  return z.object({
-    email: z
-      .string()
-      .email(locales.validation.email.email)
-      .min(1, locales.validation.email.min),
-    password: z.string().min(8, locales.validation.password.min),
-    loginRedirect: z.string().optional(),
-  });
-};
-
-function LoginForm<Schema extends SomeZodObject>(props: FormProps<Schema>) {
-  return <RemixFormsForm<Schema> {...props} />;
-}
+import { createAuthClient, getSessionUser } from "../../auth.server";
+import { login, type LoginLocales } from "./index.server";
+import { z } from "zod";
+import { type LandingPageLocales } from "../index.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -55,201 +42,234 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (error !== null) {
     if (error === "confirmationLinkExpired") {
       return {
-        error: {
-          message: locales.error.confirmationLinkExpired,
-          type: "confirmationLinkExpired",
-          supportMail: process.env.SUPPORT_MAIL,
-        },
+        error: locales.error.confirmationLinkExpired,
         locales,
+        currentTimestamp: Date.now(),
       };
     }
   }
 
-  return { error: null, locales };
+  return { error: null, locales, currentTimestamp: Date.now() };
+};
+
+export const createLoginSchema = (
+  locales: LoginLocales | LandingPageLocales["route"]
+) => {
+  return z.object({
+    email: z
+      .string()
+      .email(locales.validation.email.email)
+      .min(1, locales.validation.email.min),
+    password: z.string().min(8, locales.validation.password.min),
+    loginRedirect: z.string().optional(),
+  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["login/index"];
+  const { authClient } = createAuthClient(request);
 
-  const schema = createSchema(locales);
-  const mutation = makeDomainFunction(schema)(async (values) => {
-    return { ...values };
-  });
-
-  const submission = await performMutation({
+  // Conform
+  const formData = await request.formData();
+  const { submission } = await login({
+    formData,
     request,
-    schema,
-    mutation,
+    authClient,
+    locales,
   });
 
-  if (submission.success) {
-    const { error, headers } = await signIn(
-      request,
-      submission.data.email,
-      submission.data.password
-    );
-
-    if (error !== null) {
-      if (
-        error.code === "invalid_credentials" ||
-        error.message === "Invalid login credentials"
-      ) {
-        return {
-          error: {
-            message: locales.error.invalidCredentials,
-          },
-        };
-      } else if (
-        error.code === "email_not_confirmed" ||
-        error.message === "Email not confirmed"
-      ) {
-        return {
-          error: {
-            message: locales.error.notConfirmed,
-            type: "notConfirmed",
-            supportMail: process.env.SUPPORT_MAIL,
-          },
-        };
-      } else {
-        invariantResponse(false, `${error.code}: ${error.message}`, {
-          status: 500,
-        });
-      }
-    }
-    if (submission.data.loginRedirect) {
-      return redirect(submission.data.loginRedirect, {
-        headers: headers,
-      });
-    } else {
-      return redirect("/dashboard", {
-        headers: headers,
-      });
-    }
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
 
-  return { submission };
+  if (typeof submission.value.loginRedirect !== "undefined") {
+    return redirect(submission.value.loginRedirect, {
+      headers: submission.value.headers,
+    });
+  } else {
+    return redirect("/dashboard", {
+      headers: submission.value.headers,
+    });
+  }
 };
 
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const loginError =
-    loaderData.error !== null
-      ? loaderData.error
-      : actionData !== undefined && "error" in actionData
-      ? actionData.error
-      : null;
-  const { locales } = loaderData;
+  const { locales, currentTimestamp, error: loaderError } = loaderData;
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const submit = useSubmit();
-  const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      submit(event.currentTarget);
-    }
-  };
+  const [showPassword, setShowPassword] = React.useState(false);
 
-  const schema = createSchema(locales);
+  const [loginForm, loginFields] = useForm({
+    id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
+    constraint: getZodConstraint(createLoginSchema(locales)),
+    defaultValue:
+      loginRedirect !== null
+        ? {
+            loginRedirect: loginRedirect,
+          }
+        : {},
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createLoginSchema(locales),
+      });
+      return submission;
+    },
+  });
 
   return (
-    <LoginForm method="post" schema={schema} onKeyDown={handleKeyPress}>
-      {({ Field, Errors, register }) => (
-        <>
-          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-            <div className="flex flex-col mv-w-full mv-items-center">
-              <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-                <div className="mv-mb-6 mv-mt-12">
-                  {locales.content.question}{" "}
+    <Form
+      {...getFormProps(loginForm)}
+      method="post"
+      preventScrollReset
+      autoComplete="off"
+    >
+      <>
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
+          <div className="flex flex-col mv-w-full mv-items-center">
+            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+              <div className="mv-mb-6 mv-mt-12">
+                {locales.content.question}{" "}
+                <Link
+                  to={`/register${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="text-primary font-bold"
+                >
+                  {locales.content.action}
+                </Link>
+              </div>
+              <h1 className="mb-8">{locales.content.headline}</h1>
+
+              {typeof loginForm.errors !== "undefined" &&
+              loginForm.errors.length > 0 ? (
+                <div>
+                  {loginForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md"
+                      >
+                        <RichText id={loginForm.errorId} html={error} />
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+              {loaderError !== null ? (
+                <div className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
+                  {loaderError}
+                </div>
+              ) : null}
+
+              <div className="mb-4">
+                <Input
+                  {...getInputProps(loginFields.email, { type: "text" })}
+                  key="email"
+                >
+                  <Input.Label htmlFor={loginFields.email.id}>
+                    {locales.label.email}
+                  </Input.Label>
+                  {typeof loginFields.email.errors !== "undefined" &&
+                  loginFields.email.errors.length > 0
+                    ? loginFields.email.errors.map((error) => (
+                        <Input.Error id={loginFields.email.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div className="mb-10">
+                <Input
+                  {...getInputProps(loginFields.password, {
+                    type: showPassword ? "text" : "password",
+                  })}
+                  key="password"
+                >
+                  <Input.Label htmlFor={loginFields.password.id}>
+                    {locales.label.password}
+                  </Input.Label>
+                  {typeof loginFields.password.errors !== "undefined" &&
+                  loginFields.password.errors.length > 0
+                    ? loginFields.password.errors.map((error) => (
+                        <Input.Error
+                          id={loginFields.password.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                  {isHydrated === true ? (
+                    <Input.Controls>
+                      <div className="mv-h-10 mv-w-10">
+                        <CircleButton
+                          type="button"
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                          variant="outline"
+                          fullSize
+                          aria-label={
+                            showPassword
+                              ? locales.label.hidePassword
+                              : locales.label.showPassword
+                          }
+                        >
+                          {showPassword ? <HidePassword /> : <ShowPassword />}
+                        </CircleButton>
+                      </div>
+                    </Input.Controls>
+                  ) : null}
+                </Input>
+              </div>
+
+              <input
+                {...getInputProps(loginFields.loginRedirect, {
+                  type: "hidden",
+                })}
+                key="loginRedirect"
+              />
+              <div className="flex flex-row -mx-4 mb-8 items-center">
+                <div className="basis-6/12 px-4">
+                  <Button
+                    type="submit"
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? loginForm.dirty === false || loginForm.valid === false
+                        : false
+                    }
+                  >
+                    {locales.label.submit}
+                  </Button>
+                </div>
+                <div className="basis-6/12 px-4 text-right">
                   <Link
-                    to={`/register${
+                    to={`/reset${
                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                     }`}
                     className="text-primary font-bold"
                   >
-                    {locales.content.action}
+                    {locales.label.reset}
                   </Link>
-                </div>
-                <h1 className="mb-8">{locales.content.headline}</h1>
-
-                {loginError !== null && loginError !== undefined ? (
-                  <Errors className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md">
-                    {"supportMail" in loginError && "type" in loginError
-                      ? insertComponentsIntoLocale(
-                          loginError.type === "notConfirmed"
-                            ? locales.error.notConfirmed
-                            : locales.error.confirmationLinkExpired,
-                          [
-                            <a
-                              key="support-mail"
-                              href={`mailto:${loginError.supportMail}`}
-                              className="mv-text-primary font-bold hover:underline"
-                            >
-                              {" "}
-                            </a>,
-                          ]
-                        )
-                      : loginError.message}
-                  </Errors>
-                ) : null}
-
-                <div className="mb-4">
-                  <Field name="email" label="E-Mail">
-                    {({ Errors }) => (
-                      <>
-                        <Input
-                          id="email"
-                          label={locales.label.email}
-                          {...register("email")}
-                        />
-                        <Errors />
-                      </>
-                    )}
-                  </Field>
-                </div>
-                <div className="mb-10">
-                  <Field name="password" label="Passwort">
-                    {({ Errors }) => (
-                      <>
-                        <InputPassword
-                          id="password"
-                          label={locales.label.password}
-                          {...register("password")}
-                        />
-                        <Errors />
-                      </>
-                    )}
-                  </Field>
-                </div>
-
-                <input
-                  name="loginRedirect"
-                  defaultValue={loginRedirect || undefined}
-                  hidden
-                />
-                <div className="flex flex-row -mx-4 mb-8 items-center">
-                  <div className="basis-6/12 px-4">
-                    <button type="submit" className="btn btn-primary">
-                      {locales.label.submit}
-                    </button>
-                  </div>
-                  <div className="basis-6/12 px-4 text-right">
-                    <Link
-                      to={`/reset${
-                        loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                      }`}
-                      className="text-primary font-bold"
-                    >
-                      {locales.label.reset}
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </>
-      )}
-    </LoginForm>
+        </div>
+      </>
+    </Form>
   );
 }
