@@ -10,6 +10,7 @@ export type CircleButtonProps = {
   size?: CircleButtonSize;
   as?: CircleButtonType;
   floating?: boolean;
+  fullSize?: boolean;
 };
 
 function CircleButton(
@@ -24,6 +25,7 @@ function CircleButton(
     variant = "normal",
     floating = false,
     size = "medium",
+    fullSize = false,
     ...otherProps
   } = props;
 
@@ -31,12 +33,17 @@ function CircleButton(
   const isDisabled = "disabled" in props && props.disabled;
 
   const classes = classNames(
-    "mv-btn",
-    "mv-btn-circle",
-    size === "small" && "mv-w-8 mv-h-8 mv-border-1  mv-text-xl",
-    size === "medium" && "mv-w-12 mv-h-12 mv-border-1  mv-text-5xl",
-    size === "large" && "mv-w-16 mv-h-16 mv-border-2 mv-text-6xl", // TODO: design 54px (7xl is 48px) see: common/design/tailwind.config.js
-    "mv-font-normal",
+    "mv-rounded-full mv-flex mv-items-center mv-justify-center mv-font-normal",
+    size === "small" &&
+      fullSize === false &&
+      "mv-w-8 mv-h-8 mv-border-1  mv-text-xl",
+    size === "medium" &&
+      fullSize === false &&
+      "mv-w-12 mv-h-12 mv-border-1  mv-text-5xl",
+    size === "large" &&
+      fullSize === false &&
+      "mv-w-16 mv-h-16 mv-border-2 mv-text-6xl", // TODO: design 54px (7xl is 48px) see: common/design/tailwind.config.js
+    fullSize && "mv-w-full mv-h-full",
     // button disabled
     isDisabled &&
       variant === "normal" &&
