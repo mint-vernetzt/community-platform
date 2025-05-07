@@ -265,6 +265,12 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
                   setLinkInputValue(event.currentTarget.value)
                 }
                 onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setLinkInputValue("https://");
+                    setShowInsertLinkMenu(false);
+                  }
                   if (event.key === "Enter") {
                     event.preventDefault();
                     event.stopPropagation();
