@@ -1,5 +1,4 @@
 import { type FormMetadata } from "@conform-to/react-v1";
-import React from "react";
 import {
   Form,
   useBlocker,
@@ -18,6 +17,7 @@ import { type ProjectWebAndSocialLocales } from "~/routes/project/$slug/settings
 import { type GeneralProjectSettingsLocales } from "~/routes/project/$slug/settings/general.server";
 import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
 import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
+import { useEffect, useState } from "react";
 
 export function useUnsavedChangesBlockerWithModal(options: {
   searchParam: string;
@@ -46,7 +46,7 @@ export function useUnsavedChangesBlockerWithModal(options: {
     remove: [searchParam],
   });
   const submit = useSubmit();
-  const [nextLocationPathname, setNextLocationPathname] = React.useState<
+  const [nextLocationPathname, setNextLocationPathname] = useState<
     string | null
   >(null);
   useBlocker(({ currentLocation, nextLocation }) => {
@@ -67,7 +67,7 @@ export function useUnsavedChangesBlockerWithModal(options: {
     return isBlocked;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (searchParams.has(searchParam) === false) {
       setNextLocationPathname(null);
     }

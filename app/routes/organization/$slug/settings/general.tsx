@@ -5,8 +5,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import * as Sentry from "@sentry/node";
-import React from "react";
+import { captureException } from "@sentry/node";
 import {
   type ActionFunctionArgs,
   Form,
@@ -41,6 +40,7 @@ import {
   type GeneralOrganizationSettingsLocales,
 } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
+import { useState } from "react";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;
@@ -357,7 +357,7 @@ export async function action(args: ActionFunctionArgs) {
             where: { id: organization.id },
           });
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -431,7 +431,7 @@ function General() {
     locales,
   });
 
-  const [supportedBy, setSupportedBy] = React.useState<string>("");
+  const [supportedBy, setSupportedBy] = useState<string>("");
   const handleSupportedByInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {

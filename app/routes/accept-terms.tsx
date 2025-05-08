@@ -5,7 +5,6 @@ import {
 } from "react-router";
 import { useLoaderData, useSearchParams, useSubmit } from "react-router";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import React from "react";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -16,6 +15,7 @@ import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { type AcceptTermsLocales } from "./accept-terms.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { forwardRef } from "react";
 
 const schema = z.object({
   termsAccepted: z.boolean(),
@@ -131,7 +131,7 @@ function AcceptTerms() {
                       />
                       <Field name="termsAccepted">
                         {({ Errors }) => {
-                          const ForwardRefComponent = React.forwardRef<
+                          const ForwardRefComponent = forwardRef<
                             HTMLInputElement,
                             React.DetailedHTMLProps<
                               React.InputHTMLAttributes<HTMLInputElement>,

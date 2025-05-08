@@ -1,7 +1,7 @@
-import nodemailer from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
 import fs from "fs-extra";
 import Handlebars from "handlebars";
+import { createTransport } from "nodemailer";
 
 // Mailer configuration
 type MailerOptions = {
@@ -30,7 +30,7 @@ export async function mailer(
   text: Mail.Options["text"],
   html: Mail.Options["html"]
 ) {
-  const transporter = nodemailer.createTransport(
+  const transporter = createTransport(
     options.auth?.user !== ""
       ? options
       : { host: options.host, port: options.port }

@@ -1,4 +1,4 @@
-import * as React from "react";
+import { createRef } from "react";
 import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import SelectField, { type SelectFieldProps } from "../SelectField/SelectField";
 
@@ -14,7 +14,7 @@ export type SelectAddProps = React.HTMLProps<HTMLSelectElement> &
   };
 
 function SelectAdd(props: SelectAddProps) {
-  const buttonRef = React.createRef<HTMLButtonElement>();
+  const buttonRef = createRef<HTMLButtonElement>();
   const { name, entries = [], isPublic, ...selectProps } = props;
   const singularName = name.slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);

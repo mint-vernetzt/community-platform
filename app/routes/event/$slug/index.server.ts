@@ -1,5 +1,4 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import * as Sentry from "@sentry/node";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { z } from "zod";
 import {
@@ -18,6 +17,7 @@ import { prismaClient } from "~/prisma.server";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { createAbuseReportSchema } from ".";
+import { captureException } from "@sentry/node";
 
 export type EventDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -41,7 +41,7 @@ export async function uploadBackgroundImage(options: {
       });
       if (error !== null) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -68,7 +68,7 @@ export async function uploadBackgroundImage(options: {
         });
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -132,7 +132,7 @@ export async function disconnectBackgroundImage(options: {
         });
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -234,7 +234,7 @@ export async function submitEventAbuseReport(options: {
         await sendNewReportMailToSupport(report);
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,

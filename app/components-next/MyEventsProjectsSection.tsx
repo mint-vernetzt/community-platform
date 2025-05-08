@@ -1,5 +1,5 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import React from "react";
+import { Children, isValidElement } from "react";
 
 export function Section(
   props: { children: React.ReactNode } & Pick<
@@ -8,11 +8,9 @@ export function Section(
   >
 ) {
   const { className } = props;
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const title = validChildren.find((child) => {
     return (child as React.ReactElement).type === SectionTitle;

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, isValidElement } from "react";
 
 function FormControlLabel(props: React.PropsWithChildren) {
   return (
@@ -164,18 +164,18 @@ export function FormControl(
 ) {
   const { children, ...otherProps } = props;
 
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
 
   const label = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FormControlLabel;
+    return isValidElement(child) && child.type === FormControlLabel;
   });
 
   const counter = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FormControlCounter;
+    return isValidElement(child) && child.type === FormControlCounter;
   });
 
   const info = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FromControlInfo;
+    return isValidElement(child) && child.type === FromControlInfo;
   });
 
   const classes = classNames(

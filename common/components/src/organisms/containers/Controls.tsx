@@ -1,15 +1,15 @@
 import classNames from "classnames";
-import React, { type ReactNode } from "react";
+import { Children, isValidElement } from "react";
 
 export type ControlsProps = {
   direction?: "horizontal" | "vertical";
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 function Controls(props: ControlsProps) {
   const { direction = "horizontal" } = props;
-  const children = React.Children.toArray(props.children).filter((child) => {
-    const isValid = React.isValidElement(child);
+  const children = Children.toArray(props.children).filter((child) => {
+    const isValid = isValidElement(child);
     if (!isValid) {
       console.warn(
         `The child you passed to <Controls> is not a valid element and will be ignored: ${child}`

@@ -1,10 +1,10 @@
 import type { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { createClient } from "@supabase/supabase-js";
 import { program } from "commander";
+import { config } from "dotenv";
 import { prismaClient } from "~/prisma.server";
-import * as dotenv from "dotenv";
 
-dotenv.config({ path: "./.env" });
+config({ path: "./.env" });
 
 program
   .name("apply-bucket-rls")

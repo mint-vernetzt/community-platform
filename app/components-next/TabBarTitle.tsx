@@ -1,9 +1,9 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import React from "react";
+import { Children } from "react";
 
 // TODO: Integrate Counter into TabBar
 export function TabBarTitle(props: { children: React.ReactNode }) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const counter = children.find((child) => {
     return (child as React.ReactElement).type === TabBar.Counter;

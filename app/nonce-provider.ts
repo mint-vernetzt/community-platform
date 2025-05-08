@@ -1,5 +1,5 @@
-import * as React from "react";
+import { createContext, useContext } from "react";
 
-export const NonceContext = React.createContext<string>("");
+export const NonceContext = createContext<string>("");
 export const NonceProvider = NonceContext.Provider;
-export const useNonce = () => React.useContext(NonceContext);
+export const useNonce = () => useContext(NonceContext);

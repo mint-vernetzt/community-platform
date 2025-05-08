@@ -1,8 +1,8 @@
-import * as childProcess from "node:child_process";
+import { spawn } from "node:child_process";
 
 export function executeCommand(command: string, options: string[]) {
   return new Promise((resolve) => {
-    const runningCommand = childProcess.spawn(command, options, {
+    const runningCommand = spawn(command, options, {
       stdio: "inherit",
     });
     runningCommand.on("data", (data) => {

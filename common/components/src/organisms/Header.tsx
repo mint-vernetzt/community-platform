@@ -2,31 +2,31 @@ import { Controls } from "./../organisms/containers/Controls";
 import { Avatar } from "./../molecules/Avatar";
 import { Image } from "./../molecules/Image";
 import { Status } from "./../molecules/Status";
-import React, { type ReactNode } from "react";
+import { Children, isValidElement } from "react";
 
 type HeaderProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 function Header(props: HeaderProps) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const status = children.find((child) => {
-    return React.isValidElement(child) && child.type === Status;
+    return isValidElement(child) && child.type === Status;
   });
   const image = children.find((child) => {
-    return React.isValidElement(child) && child.type === Image;
+    return isValidElement(child) && child.type === Image;
   });
   const avatar = children.find((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
+    return isValidElement(child) && child.type === Avatar;
   });
   const controls = children.find((child) => {
-    return React.isValidElement(child) && child.type === Controls;
+    return isValidElement(child) && child.type === Controls;
   });
   const body = children.find((child) => {
-    return React.isValidElement(child) && child.type === Body;
+    return isValidElement(child) && child.type === Body;
   });
   const footer = children.find((child) => {
-    return React.isValidElement(child) && child.type === Footer;
+    return isValidElement(child) && child.type === Footer;
   });
 
   if (body === undefined && avatar !== undefined) {
@@ -70,12 +70,12 @@ function Header(props: HeaderProps) {
 }
 
 type BodyProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 function Body(props: BodyProps) {
-  const children = React.Children.toArray(props.children).filter((child) => {
-    const isValid = React.isValidElement(child);
+  const children = Children.toArray(props.children).filter((child) => {
+    const isValid = isValidElement(child);
     if (!isValid) {
       console.warn(
         `The child you passed to <HeaderBody> is not a valid element and will be ignored: ${child}`
@@ -84,10 +84,10 @@ function Body(props: BodyProps) {
     return isValid;
   });
   const controls = children.find((child) => {
-    return React.isValidElement(child) && child.type === Controls;
+    return isValidElement(child) && child.type === Controls;
   });
   const otherChilds = children.filter((child) => {
-    return React.isValidElement(child) && child.type !== Controls;
+    return isValidElement(child) && child.type !== Controls;
   });
 
   return (
@@ -101,12 +101,12 @@ function Body(props: BodyProps) {
 }
 
 type FooterProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 function Footer(props: FooterProps) {
-  const children = React.Children.toArray(props.children).filter((child) => {
-    const isValid = React.isValidElement(child) || typeof child === "string";
+  const children = Children.toArray(props.children).filter((child) => {
+    const isValid = isValidElement(child) || typeof child === "string";
     if (!isValid) {
       console.warn(
         `The child you passed to <HeaderFooter> is not a valid element and will be ignored: ${child}`
@@ -115,10 +115,10 @@ function Footer(props: FooterProps) {
     return isValid;
   });
   const controls = children.find((child) => {
-    return React.isValidElement(child) && child.type === Controls;
+    return isValidElement(child) && child.type === Controls;
   });
   const otherChilds = children.filter((child) => {
-    return React.isValidElement(child) && child.type !== Controls;
+    return isValidElement(child) && child.type !== Controls;
   });
 
   return (

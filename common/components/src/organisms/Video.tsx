@@ -1,7 +1,7 @@
-import React from "react";
 import { Button } from "./../molecules/Button";
 import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.server";
 import { useNonce } from "~/nonce-provider";
+import { Children, isValidElement, useState } from "react";
 
 export type VideoProps = {
   src: string;
@@ -18,15 +18,15 @@ function VideoSubline(props: React.PropsWithChildren) {
 
 function Video(props: React.PropsWithChildren<VideoProps>) {
   const { locales } = props;
-  const [cookiesAccepted, setCookiesAccepted] = React.useState(false);
+  const [cookiesAccepted, setCookiesAccepted] = useState(false);
   const nonce = useNonce();
 
   const handleClick = () => {
     setCookiesAccepted(true);
   };
 
-  const subline = React.Children.toArray(props.children).find((child) => {
-    return React.isValidElement(child) && child.type === VideoSubline;
+  const subline = Children.toArray(props.children).find((child) => {
+    return isValidElement(child) && child.type === VideoSubline;
   });
 
   return (

@@ -1,13 +1,5 @@
 import { prismaClient } from "~/prisma.server";
 import { generateValidSlug } from "~/utils.server";
-// import crypto from "node:crypto";
-
-// function hashFunction(slug: string) {
-//   const hash = crypto.createHash("md5").update(slug).digest("hex");
-//   const hashValue = parseInt(hash, 16);
-//   console.log(hash, hashValue, hashValue.toString(36));
-//   return hashValue.toString(36);
-// }
 
 async function main() {
   console.log("Add slugs to areas...");

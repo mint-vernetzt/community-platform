@@ -1,23 +1,23 @@
-import React from "react";
+import { Children, cloneElement, Fragment, isValidElement } from "react";
 import { Input, type InputLabelProps } from "./Input";
 
 export type SelectProps = React.ButtonHTMLAttributes<HTMLSelectElement>;
 
 function Select(props: SelectProps) {
   const { children, ...selectProps } = props;
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child) || typeof child === "string";
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child) || typeof child === "string";
   });
 
   const error = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Error;
+    return isValidElement(child) && child.type === Input.Error;
   });
 
   const labelString = validChildren.find((child) => {
     return typeof child === "string";
   });
   const labelComponent = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Label;
+    return isValidElement(child) && child.type === Input.Label;
   });
   type LabelComponentType = React.DetailedReactHTMLElement<
     React.PropsWithChildren<InputLabelProps>,
@@ -36,7 +36,7 @@ function Select(props: SelectProps) {
       </Input.Label>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+    label = cloneElement<React.PropsWithChildren<InputLabelProps>>(
       labelComponent as LabelComponentType,
       {
         hasError: typeof error !== "undefined",
@@ -50,13 +50,13 @@ function Select(props: SelectProps) {
 
   const options = validChildren.filter((child) => {
     return (
-      React.isValidElement(child) &&
-      (child.type === "option" || child.type === React.Fragment)
+      isValidElement(child) &&
+      (child.type === "option" || child.type === Fragment)
     );
   });
 
   const helperText = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.HelperText;
+    return isValidElement(child) && child.type === Input.HelperText;
   });
 
   return (

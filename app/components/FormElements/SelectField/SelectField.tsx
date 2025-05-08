@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 
 export interface OptionsProps {
@@ -63,7 +63,7 @@ function SelectField(
           >
             <option></option>
             {options.map((option, index) => (
-              <React.Fragment key={index}>
+              <Fragment key={index}>
                 {"value" in option && (
                   <option
                     key={`${selectProps.id}-option-${index}`}
@@ -88,7 +88,7 @@ function SelectField(
                     ))}
                   </optgroup>
                 )}
-              </React.Fragment>
+              </Fragment>
             ))}
           </select>
         </div>

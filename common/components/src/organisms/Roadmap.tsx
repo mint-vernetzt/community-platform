@@ -1,5 +1,5 @@
+import { Children } from "react";
 import { Button } from "./../molecules/Button";
-import React from "react";
 import { type LandingPageLocales } from "~/routes/index.server";
 
 export type RoadmapColumnProps = {
@@ -11,7 +11,7 @@ export type RoadmapColumnProps = {
 
 function RoadmapColumn(props: RoadmapColumnProps) {
   const { locales } = props;
-  const countRoadmapCards = React.Children.count(props.children);
+  const countRoadmapCards = Children.count(props.children);
   return (
     <div>
       <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, cloneElement, createElement, isValidElement } from "react";
 
 export type SectionVariant = "primary";
 export type SectionType = "section" | "div";
@@ -48,10 +48,10 @@ export function SectionFooter(
 function Section(props: React.PropsWithChildren<SectionProps>) {
   const { as = "section" } = props;
 
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const validChildren = children.filter((child) => {
-    return React.isValidElement(child);
+    return isValidElement(child);
   }) as React.ReactElement[];
 
   const header = validChildren.find((child) => {
@@ -60,7 +60,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
 
   let headerClone = null;
   if (header) {
-    headerClone = React.cloneElement(header, {
+    headerClone = cloneElement(header, {
       // TODO: fix any type
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -74,7 +74,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
   });
   let bodyClone = null;
   if (body) {
-    bodyClone = React.cloneElement(body, {
+    bodyClone = cloneElement(body, {
       // TODO: fix any type
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -88,7 +88,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
 
   let footerClone = null;
   if (footer) {
-    footerClone = React.cloneElement(footer, {
+    footerClone = cloneElement(footer, {
       // TODO: fix any type
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -107,7 +107,7 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
     noSectionItems && props.withBorder && "mv-border mv-border-gray-200"
   );
 
-  const element = React.createElement(
+  const element = createElement(
     as,
     { className: classes },
     noSectionItems ? (

@@ -1,10 +1,10 @@
-import * as Sentry from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { updateProfileEmailByUserId } from "./verify.server";
+import { captureException } from "@sentry/node";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       { status: 400 }
     );
     sendWelcomeMail(profile).catch((error) => {
-      Sentry.captureException(error);
+      captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,

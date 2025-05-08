@@ -2,8 +2,6 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import * as Sentry from "@sentry/node";
-import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -50,6 +48,8 @@ import {
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { useEffect, useState } from "react";
+import { captureException } from "@sentry/node";
 
 export const createDocumentUploadSchema = (
   locales: EventDocumentsSettingsLocales
@@ -139,7 +139,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
     console.error({ error });
-    Sentry.captureException(error);
+    captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
@@ -205,8 +205,9 @@ function Documents() {
   const publishFetcher = useFetcher<typeof publishAction>();
 
   // Document upload form
-  const [selectedDocumentFileNames, setSelectedDocumentFileNames] =
-    React.useState<SelectedFile[]>([]);
+  const [selectedDocumentFileNames, setSelectedDocumentFileNames] = useState<
+    SelectedFile[]
+  >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
     id: `upload-document-form-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
@@ -228,7 +229,7 @@ function Documents() {
       return submission;
     },
   });
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedDocumentFileNames([]);
   }, [loaderData]);
 

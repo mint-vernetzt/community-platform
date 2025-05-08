@@ -8,8 +8,7 @@ import {
   redirect,
 } from "react-router";
 import { makeDomainFunction } from "domain-functions";
-import type { KeyboardEvent } from "react";
-import React from "react";
+import { forwardRef, type KeyboardEvent } from "react";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUser, signUp } from "~/auth.server";
@@ -308,7 +307,7 @@ export default function Register() {
                         <label className="label cursor-pointer items-start">
                           <Field name="termsAccepted">
                             {({ Errors }) => {
-                              const ForwardRefComponent = React.forwardRef<
+                              const ForwardRefComponent = forwardRef<
                                 HTMLInputElement,
                                 React.DetailedHTMLProps<
                                   React.InputHTMLAttributes<HTMLInputElement>,

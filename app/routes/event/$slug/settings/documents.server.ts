@@ -10,10 +10,10 @@ import {
   disconnectAttachmentSchema,
 } from "./documents";
 import { uploadFileToStorage } from "~/storage.server";
-import * as Sentry from "@sentry/node";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { captureException } from "@sentry/node";
 
 export type EventDocumentsSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -64,7 +64,7 @@ export async function uploadFile(options: {
       });
       if (error !== null) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -90,7 +90,7 @@ export async function uploadFile(options: {
         });
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onStoring,
@@ -147,7 +147,7 @@ export async function editDocument(options: {
         });
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,
@@ -203,7 +203,7 @@ export async function disconnectDocument(options: {
         });
       } catch (error) {
         console.error({ error });
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.route.error.onUpdating,

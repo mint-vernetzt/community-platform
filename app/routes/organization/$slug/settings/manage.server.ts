@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { type supportedCookieLanguages } from "~/i18n.shared";
@@ -372,7 +372,7 @@ export async function updateOrganization(options: {
             where: { id: organization.id },
           });
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -584,7 +584,7 @@ export async function updateJoinNetworkRequest(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message:
@@ -597,7 +597,7 @@ export async function updateJoinNetworkRequest(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message:
@@ -666,7 +666,7 @@ export async function leaveNetwork(options: {
             },
           });
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -879,7 +879,7 @@ export async function updateNetworkMemberInvite(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message:
@@ -892,7 +892,7 @@ export async function updateNetworkMemberInvite(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message:
@@ -952,7 +952,7 @@ export async function removeNetworkMember(options: {
             },
           });
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,

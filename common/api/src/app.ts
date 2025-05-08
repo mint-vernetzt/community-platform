@@ -5,10 +5,10 @@ import type {
   NextFunction,
 } from "express";
 import { RegisterRoutes } from "./routes";
-import swaggerUI from "swagger-ui-express";
 import swaggerDocument from "../swagger.json";
 import { ValidateError } from "tsoa";
 import matomoMiddleware from "./middlewares/express-matomo-middleware";
+import { serve, setup } from "swagger-ui-express";
 
 export const app = express();
 
@@ -31,11 +31,7 @@ app.use(
   })
 );
 app.use(json());
-app.use(
-  "/docs",
-  swaggerUI.serve,
-  swaggerUI.setup(swaggerDocument, { explorer: true })
-);
+app.use("/docs", serve, setup(swaggerDocument, { explorer: true }));
 
 RegisterRoutes(app);
 

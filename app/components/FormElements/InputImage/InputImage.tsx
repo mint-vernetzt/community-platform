@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 export type InputImageProps = {
   maxSize?: number;
@@ -27,9 +27,10 @@ function InputImage(props: InputImageProps) {
     ...otherProps
   } = props;
 
-  const [error, setError] = React.useState<Error | null>(null);
-  const [selectedImage, setSelectedImage] =
-    React.useState<HTMLImageElement | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(
+    null
+  );
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const fileList = event.target.files;

@@ -8,7 +8,6 @@ import {
   useParams,
   redirect,
 } from "react-router";
-import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
@@ -55,6 +54,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { RichText } from "~/components/Richtext/RichText";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { createRef, useEffect } from "react";
 
 const BIO_MAX_LENGTH = 500;
 
@@ -242,7 +242,7 @@ export default function Index() {
   const actionData = useActionData<typeof action>();
   const profile = actionData?.profile ?? dbProfile;
 
-  const formRef = React.createRef<HTMLFormElement>();
+  const formRef = createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
   const errors = actionData?.errors;
   const methods = useForm<ProfileFormType>({
@@ -329,7 +329,7 @@ export default function Index() {
           })
       : [];
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSubmitting) {
       const $inputsToClear =
         formRef?.current?.getElementsByClassName("clear-after-submit");
@@ -342,7 +342,7 @@ export default function Index() {
     }
   }, [isSubmitting, formRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       actionData?.lastSubmit === "submit" &&
       actionData?.errors !== undefined &&

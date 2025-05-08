@@ -1,9 +1,9 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Form, Link, useLocation } from "react-router";
 import Cookies from "js-cookie";
-import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { type RootLocales } from "~/root.server";
+import { useEffect, useState } from "react";
 
 export function LoginOrRegisterCTA(props: {
   isAnon?: boolean;
@@ -14,8 +14,8 @@ export function LoginOrRegisterCTA(props: {
   const isHydrated = useHydrated();
 
   const [hideLoginOrRegisterCookie, setHideLoginOrRegisterCookie] =
-    React.useState(false);
-  React.useEffect(() => {
+    useState(false);
+  useEffect(() => {
     const cookie = Cookies.get("mv-hide-login-or-register-cta");
     if (cookie === "true") {
       setHideLoginOrRegisterCookie(true);

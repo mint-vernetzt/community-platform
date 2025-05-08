@@ -1,6 +1,6 @@
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import React from "react";
+import { Children, Fragment, isValidElement } from "react";
 
 export function MaterialList(props: React.PropsWithChildren<unknown>) {
   return (
@@ -157,16 +157,14 @@ function MaterialListItemControlsDownload() {
 function MaterialListItem(
   props: React.PropsWithChildren<unknown> & { id?: string }
 ) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child) || typeof child === "string";
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child) || typeof child === "string";
+  });
 
   const otherChildren = validChildren.filter((child) => {
     return (
       typeof child === "string" ||
-      (React.isValidElement(child) &&
+      (isValidElement(child) &&
         child.type !== Image &&
         child.type !== PDFIcon &&
         child.type !== JPGIcon &&
@@ -177,29 +175,27 @@ function MaterialListItem(
   });
 
   const image = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Image;
+    return isValidElement(child) && child.type === Image;
   });
   const pdfIcon = validChildren.find((child) => {
     return (
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       (child.type === PDFIcon || child.type === JPGIcon)
     );
   });
   const title = validChildren.find((child) => {
     return (
       typeof child === "string" ||
-      (React.isValidElement(child) && child.type === MaterialListItemTitle)
+      (isValidElement(child) && child.type === MaterialListItemTitle)
     );
   });
 
   const meta = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === MaterialListItemMeta;
+    return isValidElement(child) && child.type === MaterialListItemMeta;
   });
 
   const paragraphes = validChildren.filter((child) => {
-    return (
-      React.isValidElement(child) && child.type === MaterialListItemParagraph
-    );
+    return isValidElement(child) && child.type === MaterialListItemParagraph;
   });
 
   return (
@@ -218,11 +214,7 @@ function MaterialListItem(
           {typeof meta !== "undefined" && meta}
         </h4>
         {paragraphes.map((paragraph, index) => {
-          return (
-            <React.Fragment key={`${props.id}-${index}`}>
-              {paragraph}
-            </React.Fragment>
-          );
+          return <Fragment key={`${props.id}-${index}`}>{paragraph}</Fragment>;
         })}
       </div>
       {otherChildren}

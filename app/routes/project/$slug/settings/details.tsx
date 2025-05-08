@@ -5,7 +5,6 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import React from "react";
 import {
   Form,
   redirect,
@@ -37,6 +36,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
+import { useState } from "react";
 
 const TARGET_GROUP_ADDITIONS_MAX_LENGTH = 200;
 const EXCERPT_MAX_LENGTH = 250;
@@ -711,7 +711,7 @@ function Details() {
   if (hasDisciplines === false) {
     additionalDisciplineFieldList = [];
   }
-  const [furtherDiscipline, setFurtherDiscipline] = React.useState<string>("");
+  const [furtherDiscipline, setFurtherDiscipline] = useState<string>("");
   const handleFurtherDisciplineInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {

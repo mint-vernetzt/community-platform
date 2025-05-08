@@ -1,6 +1,5 @@
 import { InvalidArgumentError, program } from "commander";
 import { executeCommand } from "../../../scripts/utils";
-// import * as dotenv from "dotenv";
 import {
   checkLocalEnvironment,
   createSupabaseAdmin,

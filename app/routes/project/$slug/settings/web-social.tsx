@@ -4,7 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import {
   Form,
   redirect,
@@ -98,7 +98,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
         if (error !== null) {
           console.error("Error updating project", error);
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,

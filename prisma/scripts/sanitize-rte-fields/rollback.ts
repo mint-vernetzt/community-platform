@@ -67,6 +67,7 @@ const changesSchema = z.object({
 
 async function main() {
   // Save changes in json file
+  // eslint-disable-next-line import/no-named-as-default-member
   const anyChanges = await fs.readJson(`${__dirname}/${options.file}`, {
     encoding: "utf8",
   });

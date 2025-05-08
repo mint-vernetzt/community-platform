@@ -1,5 +1,12 @@
 import classNames from "classnames";
-import React from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
   const { active } = props;
@@ -24,7 +31,7 @@ export type TabBarItemProps = {
 function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   const { active } = props;
 
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const firstNode = children[0];
 
   const listItemClasses = classNames(
@@ -54,13 +61,13 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   }
 
   // if first node is a valid react element, get first child and wrap it into span
-  if (React.isValidElement(firstNode)) {
-    const clone = React.cloneElement(firstNode as React.ReactElement);
+  if (isValidElement(firstNode)) {
+    const clone = cloneElement(firstNode as React.ReactElement);
     const cloneChildren =
       typeof clone.props === "object" &&
       clone.props !== null &&
       "children" in clone.props
-        ? React.Children.toArray(clone.props.children as React.ReactNode)
+        ? Children.toArray(clone.props.children as React.ReactNode)
         : [];
 
     if (cloneChildren.length > 0) {
@@ -70,7 +77,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
       );
       return (
         <li className={listItemClasses}>
-          {React.cloneElement(firstNode, {}, wrappedFirstChild)}
+          {cloneElement(firstNode, {}, wrappedFirstChild)}
           {active ? (
             <div className="mv-absolute mv-bottom-0 mv-w-full mv-h-1 mv-rounded-t-lg mv-bg-primary" />
           ) : null}
@@ -89,15 +96,15 @@ export type TabBarProps = {
 };
 
 function TabBar(props: TabBarProps) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const [showScrollLeft, setShowScrollLeft] = React.useState(false);
-  const [showScrollRight, setShowScrollRight] = React.useState(false);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
+  const [showScrollRight, setShowScrollRight] = useState(false);
 
   const validChildren = children.filter((child) => {
-    return React.isValidElement(child) && child.type === Item;
+    return isValidElement(child) && child.type === Item;
   });
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -131,7 +138,7 @@ function TabBar(props: TabBarProps) {
   };
 
   // check if scroll container is scrollable on mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (scrollContainerRef.current) {
       if (
         scrollContainerRef.current.scrollWidth >
@@ -147,7 +154,7 @@ function TabBar(props: TabBarProps) {
   }, []);
 
   // check if scroll container is scrollable on resize
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       if (scrollContainerRef.current) {
         if (

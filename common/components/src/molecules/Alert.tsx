@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { useEffect, useState } from "react";
 
 export type AlertLevel = "positive" | "attention" | "negative";
 
@@ -10,13 +10,13 @@ export type AlertProps = {
 
 export function Alert(props: AlertProps) {
   const { level = "positive" } = props;
-  const [show, setShow] = React.useState(true);
+  const [show, setShow] = useState(true);
 
   const handleClick = () => {
     setShow(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     setShow(true);
   }, [props]);
 

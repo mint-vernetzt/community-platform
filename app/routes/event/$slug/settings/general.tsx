@@ -10,7 +10,6 @@ import {
   redirect,
 } from "react-router";
 import { format } from "date-fns";
-import React from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
@@ -66,6 +65,7 @@ import {
 import { detectLanguage } from "~/i18n.server";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { languageModuleMap } from "~/locales/.server";
+import { createRef, useEffect } from "react";
 
 const SUBLINE_MAX_LENGTH = 100;
 const DESCRIPTION_MAX_LENGTH = 2000;
@@ -317,7 +317,7 @@ function General() {
     event = originalEvent;
   }
 
-  const formRef = React.createRef<HTMLFormElement>();
+  const formRef = createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
 
   const methods = useForm<FormType>();
@@ -568,7 +568,7 @@ function General() {
           .sort((a, b) => a.name.localeCompare(b.name))
       : [];
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSubmitting && formRef.current !== null) {
       const $inputsToClear =
         formRef.current.getElementsByClassName("clear-after-submit");
@@ -581,7 +581,7 @@ function General() {
     }
   }, [isSubmitting, formRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionData !== undefined) {
       if (actionData.data.submit === "submit" && actionData.errors !== null) {
         const errorElement = document.getElementsByName(

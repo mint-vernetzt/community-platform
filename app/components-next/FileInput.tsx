@@ -1,5 +1,5 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import React from "react";
+import { Children, isValidElement } from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { type ImageCropperLocales } from "~/components/ImageCropper/ImageCropper";
 import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
@@ -47,13 +47,13 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
   } = props;
   const isHydrated = useHydrated();
 
-  const children = React.Children.toArray(props.children) || [];
+  const children = Children.toArray(props.children) || [];
 
   const controls = children.filter((child) => {
-    return React.isValidElement(child) && child.type === FileInputControls;
+    return isValidElement(child) && child.type === FileInputControls;
   });
   const text = children.filter((child) => {
-    return React.isValidElement(child) && child.type === FileInputText;
+    return isValidElement(child) && child.type === FileInputText;
   });
 
   return (

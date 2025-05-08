@@ -1,7 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import { type Event } from "@prisma/client";
-import type { DateArray } from "ics";
-import * as ics from "ics";
+import { createEvent, type DateArray } from "ics";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { invariantResponse } from "~/lib/utils/response";
 
@@ -134,7 +133,7 @@ export function createIcsString(
     ] as DateArray,
   };
 
-  const result: unknown = ics.createEvent(icsEvent, (error, icsString) => {
+  const result: unknown = createEvent(icsEvent, (error, icsString) => {
     if (error) {
       invariantResponse(false, "Error creating ics file", { status: 500 });
     }

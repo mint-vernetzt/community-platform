@@ -5,7 +5,6 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router";
-import React from "react";
 import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
@@ -16,6 +15,7 @@ import { Icon } from "./icons/Icon";
 import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
 import classNames from "classnames";
 import { type getFeatureAbilities } from "~/routes/feature-access.server";
+import { Children, isValidElement, useState } from "react";
 
 export function MainMenu(
   props: React.PropsWithChildren & {
@@ -31,7 +31,7 @@ export function MainMenu(
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get(props.openNavBarMenuKey);
 
-  const [activeTopicId, setActiveTopicId] = React.useState<string | null>(null);
+  const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   return (
     <nav
@@ -400,7 +400,7 @@ export function MainMenu(
 }
 
 function TopMenu(props: React.PropsWithChildren) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-4 mv-px-6 mv-select-none">
@@ -410,7 +410,7 @@ function TopMenu(props: React.PropsWithChildren) {
 }
 
 function BottomMenu(props: React.PropsWithChildren) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-6 mv-px-6 mv-select-none">
@@ -420,7 +420,7 @@ function BottomMenu(props: React.PropsWithChildren) {
 }
 
 function FooterMenu(props: React.PropsWithChildren) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-[15px] mv-px-6 mv-select-none">
@@ -439,7 +439,7 @@ function Item(
     method?: "get" | "post";
   }
 ) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   return props.method === "post" ? (
     <>
@@ -482,15 +482,15 @@ function Topic(
     setActiveTopicId: (id: string | null) => void;
   }
 ) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const label = children.find(
-    (child) => React.isValidElement(child) && child.type === Label
+    (child) => isValidElement(child) && child.type === Label
   );
   if (label === undefined) {
     throw new Error("Label for NavBarMenu.Topic is missing");
   }
   const topicItems = children.filter(
-    (child) => React.isValidElement(child) && child.type === TopicItem
+    (child) => isValidElement(child) && child.type === TopicItem
   );
   if (topicItems.length === 0) {
     throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
@@ -526,7 +526,7 @@ function Topic(
 }
 
 function Label(props: React.PropsWithChildren) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   return (
     <div className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
@@ -547,7 +547,7 @@ function TopicItem(
   }
 ) {
   const external = props.to.startsWith("http");
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const classes = classNames(
     "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"

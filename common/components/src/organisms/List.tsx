@@ -1,8 +1,8 @@
-import React from "react";
 import { Avatar } from "../molecules/Avatar";
 import classNames from "classnames";
 import { type ImageProps } from "./../molecules/Image";
 import { Link, type LinkProps } from "react-router";
+import { Children, cloneElement, isValidElement } from "react";
 
 type Size = "sm" | "md";
 
@@ -82,28 +82,26 @@ function ListItemSubtitle(props: React.PropsWithChildren<{ size?: Size }>) {
 
 function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
   const { size = "md" } = props;
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return typeof child === "string" || React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return typeof child === "string" || isValidElement(child);
+  });
 
   if (validChildren.length === 1) {
     return <ListItemTitle>{validChildren[0]}</ListItemTitle>;
   }
 
   const title = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ListItemTitle;
+    return isValidElement(child) && child.type === ListItemTitle;
   });
   const subtitle = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ListItemSubtitle;
+    return isValidElement(child) && child.type === ListItemSubtitle;
   });
 
   let titleClone: React.ReactElement | undefined;
   let subtitleClone: React.ReactElement | undefined;
 
   if (typeof title !== "undefined") {
-    titleClone = React.cloneElement(title as React.ReactElement, {
+    titleClone = cloneElement(title as React.ReactElement, {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -111,7 +109,7 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
     });
   }
   if (typeof subtitle !== "undefined") {
-    subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+    subtitleClone = cloneElement(subtitle as React.ReactElement, {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -149,14 +147,12 @@ export function ListItem(
 ) {
   const { noBorder = false, interactive = false, size = "md", as } = props;
 
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const controls = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ListItemControls;
+    return isValidElement(child) && child.type === ListItemControls;
   });
 
   let avatar: React.ReactElement | undefined;
@@ -176,18 +172,18 @@ export function ListItem(
 
   if (interactive) {
     const childrenWithoutControls = validChildren.filter((child) => {
-      return React.isValidElement(child) && child.type !== ListItemControls;
+      return isValidElement(child) && child.type !== ListItemControls;
     });
     avatar = childrenWithoutControls.find((child) => {
-      return React.isValidElement(child) && child.type === Avatar;
+      return isValidElement(child) && child.type === Avatar;
     }) as React.ReactElement;
     info = childrenWithoutControls.find((child) => {
-      return React.isValidElement(child) && child.type === ListItemInfo;
+      return isValidElement(child) && child.type === ListItemInfo;
     }) as React.ReactElement;
 
     let infoClone: React.ReactElement | undefined;
     if (typeof info !== "undefined") {
-      infoClone = React.cloneElement(info as React.ReactElement, {
+      infoClone = cloneElement(info as React.ReactElement, {
         // TODO: fix type issue
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
@@ -217,10 +213,10 @@ export function ListItem(
   }
 
   avatar = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
+    return isValidElement(child) && child.type === Avatar;
   }) as React.ReactElement;
   info = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ListItemInfo;
+    return isValidElement(child) && child.type === ListItemInfo;
   }) as React.ReactElement;
 
   let infoClone: React.ReactElement | undefined;
@@ -228,7 +224,7 @@ export function ListItem(
   let subtitle: React.ReactElement | undefined;
 
   if (typeof info !== "undefined") {
-    infoClone = React.cloneElement(info as React.ReactElement, {
+    infoClone = cloneElement(info as React.ReactElement, {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -236,10 +232,10 @@ export function ListItem(
     });
   } else {
     title = validChildren.find((child) => {
-      return React.isValidElement(child) && child.type === ListItemTitle;
+      return isValidElement(child) && child.type === ListItemTitle;
     }) as React.ReactElement;
     subtitle = validChildren.find((child) => {
-      return React.isValidElement(child) && child.type === ListItemSubtitle;
+      return isValidElement(child) && child.type === ListItemSubtitle;
     }) as React.ReactElement;
   }
 
@@ -247,7 +243,7 @@ export function ListItem(
   let subtitleClone: React.ReactElement | undefined;
 
   if (typeof title !== "undefined") {
-    titleClone = React.cloneElement(title as React.ReactElement, {
+    titleClone = cloneElement(title as React.ReactElement, {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -255,7 +251,7 @@ export function ListItem(
     });
   }
   if (typeof subtitle !== "undefined") {
-    subtitleClone = React.cloneElement(subtitle as React.ReactElement, {
+    subtitleClone = cloneElement(subtitle as React.ReactElement, {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
@@ -264,7 +260,7 @@ export function ListItem(
   }
 
   const preview = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ListItemPreview;
+    return isValidElement(child) && child.type === ListItemPreview;
   });
 
   return as !== undefined && as.type === "link" ? (

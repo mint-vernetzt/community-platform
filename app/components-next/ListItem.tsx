@@ -1,6 +1,6 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Link } from "react-router";
-import React from "react";
+
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
 import { type ManageOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/manage.server";
@@ -12,6 +12,7 @@ import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail
 import { type ProjectAdminSettingsLocales } from "~/routes/project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "~/routes/project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "~/routes/project/$slug/settings/responsible-orgs.server";
+import { Children, isValidElement } from "react";
 
 type ListOrganization = {
   logo: string | null;
@@ -70,8 +71,8 @@ export function ListItem(
 ) {
   const { entity, children, listIndex, hideAfter, locales } = props;
 
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child);
   });
 
   if (listIndex === undefined && hideAfter !== undefined) {

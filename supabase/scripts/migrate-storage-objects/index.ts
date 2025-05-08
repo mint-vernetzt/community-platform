@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
-import * as dotenv from "dotenv";
+import { config } from "dotenv";
 
-dotenv.config({ path: "./supabase/scripts/migrate-storage-objects/.env" });
+config({ path: "./supabase/scripts/migrate-storage-objects/.env" });
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {

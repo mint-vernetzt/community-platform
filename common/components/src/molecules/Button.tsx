@@ -1,5 +1,5 @@
 import classnames from "classnames";
-import React from "react";
+import { createElement } from "react";
 
 // eigene Komponente für Icon-Button mit Varianten für Circle und Square
 
@@ -109,7 +109,7 @@ function Button(
     loading !== undefined && loading !== false && "mv-loading"
   );
 
-  const element = React.createElement(as, {
+  const element = createElement(as, {
     ...otherProps,
     className: `${
       otherProps.className !== undefined ? `${otherProps.className} ` : ""
