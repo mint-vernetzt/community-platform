@@ -56,17 +56,17 @@ module.exports = {
       plugins: ["@typescript-eslint", "import"],
       parser: "@typescript-eslint/parser",
       settings: {
-        "import/internal-regex": "^~/",
         "import/resolver": {
-          node: {
-            extensions: [".ts", ".tsx"],
-          },
           typescript: {
             alwaysTryTypes: true,
             project: "./tsconfig.json",
           },
+          node: {
+            extensions: [".ts", ".tsx"],
+          },
         },
       },
+
       extends: [
         "plugin:@typescript-eslint/recommended",
         "plugin:import/recommended",
@@ -74,6 +74,7 @@ module.exports = {
       ],
       rules: {
         "@typescript-eslint/consistent-type-imports": "warn",
+        "import/no-named-as-default-member": "off",
       },
     },
 

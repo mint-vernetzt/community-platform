@@ -1,9 +1,6 @@
 export const locale = {
   validation: {
-    email: {
-      email: "Please enter a valid email address.",
-      min: "Please enter a valid email address.",
-    },
+    email: "Please enter a valid email address.",
     password: {
       min: "Your password must be at least 8 characters long.",
     },

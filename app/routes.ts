@@ -354,5 +354,6 @@ export default [
   route("/auth/confirm", "./routes/auth/confirm.tsx"),
   route("/auth/keycloak", "./routes/auth/keycloak.tsx"),
   route("/auth/keycloak/callback", "./routes/auth/keycloak.callback.tsx"),
+  route("/auth/request-confirmation", "./routes/auth/request-confirmation.tsx"),
   route("/auth/verify", "./routes/auth/verify.tsx"),
 ] satisfies RouteConfig;

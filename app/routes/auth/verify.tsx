@@ -39,7 +39,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       error.message === "Email link is invalid or has expired")
   ) {
     return redirect(
-      `/login?error=confirmationLinkExpired&type=${type}${
+      `/auth/request-confirmation?type=${type}${
         loginRedirect !== null ? `&login_redirect=${loginRedirect}` : ""
       }`
     );

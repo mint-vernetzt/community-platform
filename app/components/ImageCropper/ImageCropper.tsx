@@ -1,4 +1,4 @@
-import Pica from "pica";
+import { default as Pica } from "pica";
 import React from "react";
 
 import type { Crop, PixelCrop } from "react-image-crop";
