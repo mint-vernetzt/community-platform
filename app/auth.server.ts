@@ -20,7 +20,17 @@ export const createAuthClient = (request: Request) => {
     {
       cookies: {
         getAll() {
-          return parseCookieHeader(request.headers.get("Cookie") ?? "");
+          const parsedCookieHeader = parseCookieHeader(
+            request.headers.get("Cookie") || ""
+          );
+          const filteredCookies = parsedCookieHeader.filter(
+            (cookie) =>
+              typeof cookie.value !== "undefined" && cookie.value !== undefined
+          ) as {
+            name: string;
+            value: string;
+          }[];
+          return filteredCookies;
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
