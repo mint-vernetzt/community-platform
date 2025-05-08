@@ -1,42 +1,39 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   Link,
+  redirect,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
-  redirect,
 } from "react-router";
-import { makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
-import Input from "~/components/FormElements/Input/Input";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import {
-  createAdminAuthClient,
-  createAuthClient,
-  getSessionUser,
-  sendResetPasswordLink,
-} from "../../auth.server";
-import { type ResetPasswordLocales } from "./index.server";
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
+import { createAuthClient, getSessionUser } from "../../auth.server";
+import {
+  requestPasswordChange,
+  type ResetPasswordLocales,
+} from "./index.server";
 
-const createSchema = (locales: ResetPasswordLocales) => {
+export const createRequestPasswordChangeSchema = (
+  locales: ResetPasswordLocales
+) => {
   return z.object({
-    email: z
-      .string()
-      .email(locales.validation.email.email)
-      .min(1, locales.validation.email.min),
+    email: z.string().email(locales.validation.email),
     loginRedirect: z.string().optional(),
   });
 };
-
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-  siteUrl: z.string(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -50,55 +47,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/index"];
 
-  return { locales };
-};
-
-const createMutation = (locales: ResetPasswordLocales) => {
-  return makeDomainFunction(
-    createSchema(locales),
-    environmentSchema
-  )(async (values, environment) => {
-    // get profile by email to be able to find user
-    const profile = await prismaClient.profile.findFirst({
-      where: {
-        email: {
-          contains: values.email,
-          mode: "insensitive",
-        },
-      },
-      select: { id: true },
-    });
-
-    if (profile !== null) {
-      const adminAuthClient = createAdminAuthClient();
-      const { data, error } = await adminAuthClient.auth.admin.getUserById(
-        profile.id
-      );
-      if (error !== null) {
-        throw "Unexpected server error";
-      } else if (data.user !== null) {
-        // if user uses email provider send password reset link
-        if (data.user.app_metadata.provider === "email") {
-          const loginRedirect = values.loginRedirect
-            ? `${environment.siteUrl}${values.loginRedirect}`
-            : undefined;
-          const { error } = await sendResetPasswordLink(
-            // TODO: fix type issue
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            environment.authClient,
-            values.email,
-            loginRedirect
-          );
-          if (error !== null && error.message !== "User not found") {
-            throw error.message;
-          }
-        }
-        return values;
-      }
-    }
-    return values;
-  });
+  return { locales, currentTimestamp: Date.now() };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -108,97 +57,179 @@ export const action = async (args: ActionFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/index"];
 
-  const siteUrl = `${process.env.COMMUNITY_BASE_URL}`;
-
-  const result = await performMutation({
-    request,
-    schema: createSchema(locales),
-    mutation: createMutation(locales),
-    environment: { authClient: authClient, siteUrl: siteUrl },
+  // Conform
+  const formData = await request.formData();
+  const { submission } = await requestPasswordChange({
+    formData,
+    authClient,
+    locales,
   });
 
-  return result;
+  return {
+    submission: submission.reply(),
+    email: submission.status === "success" ? submission.value.email : null,
+    systemMail: process.env.SYSTEM_MAIL_SENDER,
+    supportMail: process.env.SUPPORT_MAIL,
+    currentTimestamp: Date.now(),
+  };
 };
 
 export default function Index() {
-  const { locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales, currentTimestamp } = loaderData;
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 
-  const schema = createSchema(locales);
+  const [requestPasswordChangeForm, requestPasswordChangeFields] = useForm({
+    id: `request-password-change-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    constraint: getZodConstraint(createRequestPasswordChangeSchema(locales)),
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createRequestPasswordChangeSchema(locales),
+      });
+      return submission;
+    },
+  });
 
   return (
-    <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        <div className="flex flex-col mv-w-full mv-items-center">
-          <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-            <div className="mv-mb-6 mv-mt-12">
-              <Link
-                to={`/login${
-                  loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                }`}
-                className="text-primary font-bold"
-              >
-                {locales.login}
-              </Link>
-            </div>
-            <h1 className="mb-8">{locales.response.headline}</h1>
-            {actionData !== undefined &&
-            actionData.success &&
-            actionData.data !== undefined ? (
-              <>
-                <p className="mb-4">
-                  {locales.response.done.prefix}{" "}
-                  <span className="mv-font-bold">{actionData.data.email}</span>{" "}
-                  {locales.response.done.suffix}
-                </p>
-                <p className="mb-4">{locales.response.notice}</p>
-              </>
-            ) : (
-              <RemixFormsForm method="post" schema={schema}>
-                {({ Field, Errors, register }) => (
-                  <>
-                    <p className="mb-4">{locales.form.intro}</p>
-
-                    <input
-                      name="loginRedirect"
-                      defaultValue={loginRedirect || undefined}
-                      hidden
-                    />
-                    <div className="mb-8">
-                      <Field name="email" label="E-Mail">
-                        {({ Errors }) => (
-                          <>
-                            <Input
-                              id="email"
-                              label={locales.form.label.email}
-                              required
-                              {...register("email")}
-                            />
-                            <Errors />
-                          </>
-                        )}
-                      </Field>
-                    </div>
-
-                    <div className="mb-8">
-                      <button type="submit" className="btn btn-primary">
-                        {locales.form.label.submit}
-                      </button>
-                    </div>
-                    <Errors />
-                  </>
-                )}
-              </RemixFormsForm>
-            )}
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
+      <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
+        <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+          <div className="mv-mb-6 mv-mt-12">
+            <Link
+              to={`/login${
+                loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+              }`}
+              className="text-primary font-bold"
+            >
+              {locales.login}
+            </Link>
           </div>
+          <h1 className="mb-8">{locales.response.headline}</h1>
+          {typeof actionData !== "undefined" &&
+          typeof actionData.submission.status !== "undefined" &&
+          actionData.submission.status === "success" ? (
+            <>
+              <p className="mv-mb-4">
+                {insertComponentsIntoLocale(
+                  insertParametersIntoLocale(locales.response.success, {
+                    email: actionData.email,
+                    systemMail: actionData.systemMail,
+                    supportMail: actionData.supportMail,
+                  }),
+                  [
+                    <span key="email-highlight" className="mv-font-semibold" />,
+                    <a
+                      key="support-mail-link"
+                      href="mailto:{{supportMail}}"
+                      className="mv-text-primary mv-font-semibold hover:mv-underline"
+                    >
+                      {" "}
+                    </a>,
+                  ]
+                )}
+              </p>
+              <p>
+                {insertComponentsIntoLocale(locales.response.notice, [
+                  <span key="mint-id-highlight" className="mv-font-semibold" />,
+                  <a
+                    key="support-mail-link"
+                    href="https://mint-id.org/"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="mv-text-primary mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </a>,
+                ])}
+              </p>
+            </>
+          ) : (
+            <Form
+              {...getFormProps(requestPasswordChangeForm)}
+              method="post"
+              preventScrollReset
+              autoComplete="off"
+            >
+              <p className="mv-mb-4">{locales.form.intro}</p>
+              <div className="mv-mb-10">
+                <Input
+                  {...getInputProps(requestPasswordChangeFields.email, {
+                    type: "text",
+                  })}
+                  key="email"
+                >
+                  <Input.Label htmlFor={requestPasswordChangeFields.email.id}>
+                    {locales.form.label.email}
+                  </Input.Label>
+                  {typeof requestPasswordChangeFields.email.errors !==
+                    "undefined" &&
+                  requestPasswordChangeFields.email.errors.length > 0
+                    ? requestPasswordChangeFields.email.errors.map((error) => (
+                        <Input.Error
+                          id={requestPasswordChangeFields.email.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              {typeof requestPasswordChangeForm.errors !== "undefined" &&
+              requestPasswordChangeForm.errors.length > 0 ? (
+                <div className="mv-mb-10">
+                  {requestPasswordChangeForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={requestPasswordChangeForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              <input
+                {...getInputProps(requestPasswordChangeFields.loginRedirect, {
+                  type: "hidden",
+                })}
+                key="loginRedirect"
+              />
+              <div className="mv-flex mv-flex-row -mv-mx-4 mv-mb-8 mv-items-center">
+                <div className="mv-basis-6/12 mv-px-4">
+                  <Button
+                    type="submit"
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? requestPasswordChangeForm.dirty === false ||
+                          requestPasswordChangeForm.valid === false
+                        : false
+                    }
+                  >
+                    {locales.form.label.submit}
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          )}
         </div>
-        {/* <div className="flex flex-row -mx-4 mb-8 items-center">
-          <div className="basis-6/12 px-4"> </div>
-          <div className="basis-5/12 px-4"></div>
-        </div> */}
       </div>
-    </>
+    </div>
   );
 }
