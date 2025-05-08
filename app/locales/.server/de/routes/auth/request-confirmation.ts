@@ -9,6 +9,6 @@ export const locale = {
     emailLabel: "E-Mail",
     cta: "Bestätigungslink anfordern",
     success:
-      "Eine E-Mail mit dem neuen Bestätigungslink wurde an <0>{{email}}</0> gesendet. Um die Registrierung abzuschließen, bestätige bitte innerhalb von einer Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <0>{{systemMail}}</0> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Falls Du die E-Mail nicht erhalten hast, kannst Du dich gerne an unseren <1>Support</1> wenden.",
+      "Eine E-Mail mit dem neuen Bestätigungslink wurde an <0>{{email}}</0> gesendet. Um die Registrierung abzuschließen, bestätige bitte innerhalb von einer Stunde den Registrierungslink, den wir Dir über <0>{{systemMail}}</0> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Falls Du die E-Mail nicht erhalten hast, kannst Du dich gerne an unseren <1>Support</1> wenden.",
   },
 } as const;

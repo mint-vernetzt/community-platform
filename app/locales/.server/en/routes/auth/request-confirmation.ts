@@ -9,6 +9,6 @@ export const locale = {
     emailLabel: "Email",
     cta: "Request confirmation link",
     success:
-      "An email with the new confirmation link has been sent to <0>{{email}}</0>. To complete the registration, please confirm the registration link in your emails within one hour, which we will send you via <0>{{systemMail}}</0>. Please also check your spam folder. If you do not receive the email, feel free to contact our <1>support</1>.",
+      "An email with the new confirmation link has been sent to <0>{{email}}</0>. To complete the registration, please confirm the registration link within one hour, which we will send you via <0>{{systemMail}}</0>. Please also check your spam folder. If you do not receive the email, feel free to contact our <1>support</1>.",
   },
 } as const;
