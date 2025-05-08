@@ -9,6 +9,7 @@ export const locale = {
       events: "Events",
       projects: "Projects",
       fundings: "Funding",
+      label: "Select a category",
     },
   },
 } as const;

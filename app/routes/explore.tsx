@@ -163,17 +163,20 @@ function Explore() {
 
   return (
     <>
-      <section className="mv-mx-auto @sm:mv-pt-8 @sm:mv-pb-16 @sm:mv-px-4 @xl:mv-px-6 mv-max-w-screen-2xl">
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @sm:mv-rounded-lg mv-bg-white @sm:mv-border mv-border-neutral-200 mv-p-6">
-          <h1 className="mv-font-black mv-text-5xl">
-            {searchParams.has("search") && searchParams.get("search") !== ""
-              ? insertParametersIntoLocale(
-                  loaderData.locales.route.content.searchHeadline,
-                  { search: searchParams.get("search") }
-                )
-              : loaderData.locales.route.content.headline}
-          </h1>
+      <section className="mv-mx-auto @lg:mv-px-6 mv-max-w-screen-2xl">
+        <h1 className="mv-font-black mv-text-5xl mv-text-center mv-mt-4 mv-mb-8 mv-word-break-normal">
+          {searchParams.has("search") && searchParams.get("search") !== ""
+            ? insertParametersIntoLocale(
+                loaderData.locales.route.content.searchHeadline,
+                { search: searchParams.get("search") }
+              )
+            : loaderData.locales.route.content.headline}
+        </h1>
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 mv-px-4 mv-bg-white">
           <EntitiesSelect>
+            <EntitiesSelect.Menu.Label>
+              {loaderData.locales.route.content.menu.label}
+            </EntitiesSelect.Menu.Label>
             {typeof currentLink !== "undefined" && (
               <EntitiesSelect.Label>
                 <EntitiesSelect.Menu.Item
@@ -228,9 +231,11 @@ function Badge(props: React.PropsWithChildren) {
   const isActive = useIsActive();
 
   const classes = classNames(
-    "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-fit mv-py-0.5 mv-px-2.5 mv-rounded-lg",
+    "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-4 mv-px-2.5 mv-rounded-lg",
     "mv-text-white mv-bg-primary",
-    isActive && "@lg:mv-text-primary @lg:mv-bg-white"
+    isActive
+      ? "@lg:mv-text-primary @lg:mv-bg-white"
+      : "@lg:mv-bg-primary-50 @lg:mv-text-primary"
   );
   return <span className={classes}>{props.children}</span>;
 }
@@ -296,9 +301,9 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
     "mv-mx-4 my-2 @lg:mv-mx-0",
     "@lg:mv-px-4 @lg:mv-py-2",
     isActive
-      ? "@lg:mv-bg-primary @lg:mv-text-white"
+      ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent"
       : "@lg:mv-bg-white mv-text-neutral-700",
-    "@lg:mv-rounded-lg",
+    "@lg:mv-rounded-lg @lg:mv-border @lg:mv-border-neutral-200",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
     "mv-whitespace-normal"
   );
@@ -338,14 +343,22 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
   );
 }
 
+function EntitiesSelectDropdownLabel(props: React.PropsWithChildren) {
+  return (
+    <p className="mv-block @lg:mv-hidden mv-mb-2 mv-text-sm mv-font-semibold mv-text-neutral-500">
+      {props.children}
+    </p>
+  );
+}
+
 function EntitiesSelectDropdown(props: React.PropsWithChildren) {
   const classes = classNames(
     "mv-w-full @lg:mv-max-w-full",
-    "mv-mt-2 @lg:mv-py @lg:mv-px-2",
+    "mv-mt-2 @lg:mv-m-0 @lg:mv-py-2 @lg:mv-px-2",
     "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-scroll",
     "mv-flex-col @lg:mv-flex-row",
     "mv-gap-2 @lg:mv-gap-6",
-    "mv-bg-white @lg:mv-bg-neutral-100",
+    // "mv-bg-white @lg:mv-bg-neutral-100",
     "mv-border mv-rounded-lg mv-border-neutral-200 @lg:rounded-lg @lg:mv-border-0"
   );
 
@@ -360,6 +373,7 @@ function EntitiesSelect(props: React.PropsWithChildren) {
 
 EntitiesSelect.Menu = EntitiesSelectDropdown;
 EntitiesSelectDropdown.Item = EntitiesSelectDropdownItem;
+EntitiesSelectDropdown.Label = EntitiesSelectDropdownLabel;
 EntitiesSelectDropdownItem.Label = EntitiesSelectDropdownItemLabel;
 EntitiesSelect.Label = EntitiesSelectLabel;
 
