@@ -14,9 +14,11 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { detectLanguage } from "~/i18n.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { redirectWithToast } from "~/toast.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import {
   requestConfirmation,
@@ -61,19 +63,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     locales,
   });
 
-  if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
-  }
-
-  return redirectWithToast(request.url, {
-    key: "request-confirmation-success",
-    message: insertParametersIntoLocale(locales.action.success, {
-      email: submission.value.email,
-    }),
-  });
+  return {
+    submission: submission.reply(),
+    email: submission.status === "success" ? submission.value.email : null,
+    systemMail: process.env.SYSTEM_MAIL_SENDER,
+    supportMail: process.env.SUPPORT_MAIL,
+    currentTimestamp: Date.now(),
+  };
 };
 
 export default function RequestConfirmation() {
@@ -107,89 +103,113 @@ export default function RequestConfirmation() {
   });
 
   return (
-    <Form
-      {...getFormProps(requestConfirmationForm)}
-      method="post"
-      preventScrollReset
-      autoComplete="off"
-    >
-      <div className="mv-w-full mv-mx-auto mv-px-4 mv-min-h-screen @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-          <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-            <h1 className="mv-mb-8">{locales.content.headline}</h1>
-            <p className="mv-mb-4">{locales.content.description}</p>
-            <div className="mv-mb-10">
-              <Input
-                {...getInputProps(requestConfirmationFields.email, {
-                  type: "text",
-                })}
-                key="email"
-              >
-                <Input.Label htmlFor={requestConfirmationFields.email.id}>
-                  {locales.content.emailLabel}
-                </Input.Label>
-                {typeof requestConfirmationFields.email.errors !==
-                  "undefined" &&
-                requestConfirmationFields.email.errors.length > 0
-                  ? requestConfirmationFields.email.errors.map((error) => (
-                      <Input.Error
-                        id={requestConfirmationFields.email.errorId}
-                        key={error}
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
+      <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
+        <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+          <h1 className="mv-mb-8">{locales.content.headline}</h1>
+          {typeof actionData !== "undefined" &&
+          typeof actionData.submission.status !== "undefined" &&
+          actionData.submission.status === "success" ? (
+            <p>
+              {insertComponentsIntoLocale(
+                insertParametersIntoLocale(locales.content.success, {
+                  email: actionData.email,
+                  systemMail: actionData.systemMail,
+                  supportMail: actionData.supportMail,
+                }),
+                [
+                  <span key="email-highlight" className="mv-font-semibold" />,
+                  <a
+                    key="support-mail-link"
+                    href="mailto:{{supportMail}}"
+                    className="mv-text-primary mv-font-semibold hover:mv-underline"
+                  >
+                    {" "}
+                  </a>,
+                ]
+              )}
+            </p>
+          ) : (
+            <Form
+              {...getFormProps(requestConfirmationForm)}
+              method="post"
+              preventScrollReset
+              autoComplete="off"
+            >
+              <p className="mv-mb-4">{locales.content.description}</p>
+              <div className="mv-mb-10">
+                <Input
+                  {...getInputProps(requestConfirmationFields.email, {
+                    type: "text",
+                  })}
+                  key="email"
+                >
+                  <Input.Label htmlFor={requestConfirmationFields.email.id}>
+                    {locales.content.emailLabel}
+                  </Input.Label>
+                  {typeof requestConfirmationFields.email.errors !==
+                    "undefined" &&
+                  requestConfirmationFields.email.errors.length > 0
+                    ? requestConfirmationFields.email.errors.map((error) => (
+                        <Input.Error
+                          id={requestConfirmationFields.email.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              {typeof requestConfirmationForm.errors !== "undefined" &&
+              requestConfirmationForm.errors.length > 0 ? (
+                <div className="mv-mb-10">
+                  {requestConfirmationForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={requestConfirmationForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
                       >
                         {error}
-                      </Input.Error>
-                    ))
-                  : null}
-              </Input>
-            </div>
-            {typeof requestConfirmationForm.errors !== "undefined" &&
-            requestConfirmationForm.errors.length > 0 ? (
-              <div className="mv-mb-10">
-                {requestConfirmationForm.errors.map((error, index) => {
-                  return (
-                    <div
-                      id={requestConfirmationForm.errorId}
-                      key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                    >
-                      {error}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
 
-            <input
-              {...getInputProps(requestConfirmationFields.loginRedirect, {
-                type: "hidden",
-              })}
-              key="loginRedirect"
-            />
-            <input
-              {...getInputProps(requestConfirmationFields.type, {
-                type: "hidden",
-              })}
-              key="type"
-            />
-            <div className="mv-flex mv-flex-row -mv-mx-4 mv-mb-8 mv-items-center">
-              <div className="mv-basis-6/12 mv-px-4">
-                <Button
-                  type="submit"
-                  // Don't disable button when js is disabled
-                  disabled={
-                    isHydrated
-                      ? requestConfirmationForm.dirty === false ||
-                        requestConfirmationForm.valid === false
-                      : false
-                  }
-                >
-                  {locales.content.cta}
-                </Button>
+              <input
+                {...getInputProps(requestConfirmationFields.loginRedirect, {
+                  type: "hidden",
+                })}
+                key="loginRedirect"
+              />
+              <input
+                {...getInputProps(requestConfirmationFields.type, {
+                  type: "hidden",
+                })}
+                key="type"
+              />
+              <div className="mv-flex mv-flex-row -mv-mx-4 mv-mb-8 mv-items-center">
+                <div className="mv-basis-6/12 mv-px-4">
+                  <Button
+                    type="submit"
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? requestConfirmationForm.dirty === false ||
+                          requestConfirmationForm.valid === false
+                        : false
+                    }
+                  >
+                    {locales.content.cta}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
+            </Form>
+          )}
         </div>
       </div>
-    </Form>
+    </div>
   );
 }
