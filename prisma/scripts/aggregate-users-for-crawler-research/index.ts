@@ -41,7 +41,7 @@ async function main() {
       profile.lastName
     },${profile.academicTitle ?? ""}\n`;
   }
-
+  // eslint-disable-next-line import/no-named-as-default-member
   fs.writeFile("profiles.csv", csv, "utf8");
 }
 

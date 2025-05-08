@@ -16,7 +16,6 @@ import {
   updateNetworkRequestSchema,
   updateOrganizationMemberInviteSchema,
 } from "./organizations";
-import * as Sentry from "@sentry/node";
 import { z } from "zod";
 import { invariantResponse } from "~/lib/utils/response";
 import {
@@ -24,6 +23,7 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { captureException } from "@sentry/node";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -1145,7 +1145,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                     html
                   );
                 } catch (error) {
-                  Sentry.captureException(error);
+                  captureException(error);
                   ctx.addIssue({
                     code: "custom",
                     message:
@@ -1158,7 +1158,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
               })
             );
           } catch (error) {
-            Sentry.captureException(error);
+            captureException(error);
             ctx.addIssue({
               code: "custom",
               message:
@@ -1463,7 +1463,7 @@ export async function updateOrganizationMemberInvite(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message:
@@ -1476,7 +1476,7 @@ export async function updateOrganizationMemberInvite(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message:
@@ -1710,7 +1710,7 @@ export async function updateNetworkInvite(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message:
@@ -1723,7 +1723,7 @@ export async function updateNetworkInvite(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message:
@@ -1949,7 +1949,7 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
                 html
               );
             } catch (error) {
-              Sentry.captureException(error);
+              captureException(error);
               ctx.addIssue({
                 code: "custom",
                 message:
@@ -1960,7 +1960,7 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
               return z.NEVER;
             }
           } catch (error) {
-            Sentry.captureException(error);
+            captureException(error);
             ctx.addIssue({
               code: "custom",
               message:
@@ -2194,7 +2194,7 @@ export async function updateNetworkRequest(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message:
@@ -2207,7 +2207,7 @@ export async function updateNetworkRequest(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message:

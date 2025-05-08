@@ -1,4 +1,3 @@
-import React from "react";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
@@ -14,12 +13,22 @@ import {
   CardHeader,
   CardStatus,
 } from "./Card";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-const OrganizationCardContext =
-  React.createContext<OrganizationCardProps | null>(null);
+const OrganizationCardContext = createContext<OrganizationCardProps | null>(
+  null
+);
 
 function useOrganizationCard() {
-  const context = React.useContext(OrganizationCardContext);
+  const context = useContext(OrganizationCardContext);
   if (context === null) {
     throw new Error("Missing OrganizationCardContext.Provider");
   }
@@ -28,23 +37,23 @@ function useOrganizationCard() {
 
 function ContextMenu(props: React.PropsWithChildren) {
   const { children } = props;
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
   const listItems = childrenArray.filter(
     (child) =>
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       (child.type === ContextMenuListItem || child.type === ContextMenuDivider)
   );
   const { organization, locales } = useOrganizationCard();
-  const [checked, setChecked] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const listRef = React.useRef<HTMLUListElement>(null);
+  const [checked, setChecked] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setChecked(!checked);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (
@@ -162,9 +171,9 @@ function OrganizationCard(
   const { organization, publicAccess = false, locales, children } = props;
 
   const childrenArray =
-    props.children !== undefined ? React.Children.toArray(children) : [];
+    props.children !== undefined ? Children.toArray(children) : [];
   const menu = childrenArray.filter(
-    (child) => React.isValidElement(child) && child.type === ContextMenu
+    (child) => isValidElement(child) && child.type === ContextMenu
   );
 
   const emptyMessage = publicAccess

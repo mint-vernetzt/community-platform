@@ -2,7 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import {
   Form,
   redirect,
@@ -119,7 +119,7 @@ export const action = async (args: ActionFunctionArgs) => {
           invariant(params.slug !== undefined, locales.error.invalidRoute);
           await deleteOrganizationBySlug(params.slug);
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.error.deletionFailed,

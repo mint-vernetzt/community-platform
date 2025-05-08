@@ -18,7 +18,6 @@ import {
   useSubmit,
 } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
-import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -58,6 +57,7 @@ import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { useState } from "react";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 
@@ -410,7 +410,7 @@ export default function ExploreOrganizations() {
   const loadMoreSearchParams = new URLSearchParams(searchParams);
   loadMoreSearchParams.set("page", `${page + 1}`);
 
-  const [searchQuery, setSearchQuery] = React.useState(
+  const [searchQuery, setSearchQuery] = useState(
     loaderData.submission.value.search
   );
 

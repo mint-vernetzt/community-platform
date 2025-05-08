@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, cloneElement, isValidElement } from "react";
 
 export type ChipColor = "primary" | "secondary";
 
@@ -42,25 +42,25 @@ function Chip(props: ChipProps) {
     size === "small" && "mv-text-xs mv-py-1.5 mv-px-3",
     size === "medium" && "mv-text-base mv-py-2 mv-px-4"
   );
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const validChildren = children.filter((child) => {
     return (
       typeof child === "string" ||
-      (React.isValidElement(child) && child.type !== ChipDelete)
+      (isValidElement(child) && child.type !== ChipDelete)
     );
   });
 
   const enhancedChildren = validChildren.map((child) => {
     if (
       typeof child !== "string" &&
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       typeof child.props === "object" &&
       child.props !== null &&
       "children" in child.props &&
       "disabled" in child.props
     ) {
-      const clone = React.cloneElement(
+      const clone = cloneElement(
         child,
         // TODO: fix type issue
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -74,17 +74,17 @@ function Chip(props: ChipProps) {
   });
 
   const chipDelete = children.find((child) => {
-    return React.isValidElement(child) && child.type === ChipDelete;
+    return isValidElement(child) && child.type === ChipDelete;
   });
 
   if (
     typeof chipDelete !== "undefined" &&
-    React.isValidElement(chipDelete) &&
+    isValidElement(chipDelete) &&
     typeof chipDelete.props === "object" &&
     chipDelete.props !== null &&
     "children" in chipDelete.props
   ) {
-    const chipDeleteClone = React.cloneElement(
+    const chipDeleteClone = cloneElement(
       chipDelete,
       {
         // TODO: fix type issue
@@ -118,7 +118,7 @@ export function ChipDelete(
 ) {
   const { color = "primary" } = props;
 
-  const element = React.Children.only(props.children) as React.ReactElement;
+  const element = Children.only(props.children) as React.ReactElement;
 
   const interactive =
     typeof props.interactive !== "undefined" && props.interactive;
@@ -142,7 +142,7 @@ export function ChipDelete(
 
   let clone;
   if (typeof element.props === "object" && element.props !== null) {
-    clone = React.cloneElement(
+    clone = cloneElement(
       element,
       // TODO: i18n of title and aria-label
       // TODO: fix type issue
@@ -175,11 +175,9 @@ export type ChipContainerProps = {
 };
 
 export function ChipContainer(props: ChipContainerProps) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child) && child.type === Chip;
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child) && child.type === Chip;
+  });
   const classes = classNames(
     {
       "mv-h-[72px]": props.maxRows === 2,

@@ -5,7 +5,6 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import * as Sentry from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
@@ -87,6 +86,7 @@ import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/routes/feature-access.server";
+import { captureException } from "@sentry/node";
 
 export function links() {
   return [
@@ -405,7 +405,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
     console.error({ error });
-    Sentry.captureException(error);
+    captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",

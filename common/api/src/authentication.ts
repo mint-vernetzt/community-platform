@@ -1,12 +1,9 @@
-import type * as express from "express";
+import { type Request } from "express";
 import { ValidateError } from "tsoa";
 import { getApiTokenFromRequest } from "./lib/token";
 import { getUserByToken } from "./lib/apiUser";
 
-export function expressAuthentication(
-  request: express.Request,
-  securityName: string
-) {
+export function expressAuthentication(request: Request, securityName: string) {
   if (securityName === "api_key") {
     const token = getApiTokenFromRequest(request);
 

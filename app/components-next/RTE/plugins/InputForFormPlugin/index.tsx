@@ -1,15 +1,15 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import React from "react";
 import { type InputForFormProps } from "../../RTE";
+import { useEffect, useState } from "react";
 
 function InputForFormPlugin(props: Omit<InputForFormProps, "defaultValue">) {
   const { contentEditableRef, ...rest } = props;
   const [editor] = useLexicalComposerContext();
-  const [htmlValue, setHtmlValue] = React.useState("");
-  const [editorStateValue, setEditorStateValue] = React.useState("");
+  const [htmlValue, setHtmlValue] = useState("");
+  const [editorStateValue, setEditorStateValue] = useState("");
 
   // Synchronize the values of the inputs with the editor content
-  React.useEffect(() => {
+  useEffect(() => {
     return editor.registerUpdateListener(() => {
       if (contentEditableRef.current !== null) {
         editor.read(() => {

@@ -1,14 +1,14 @@
-import React from "react";
 import { useLocation } from "react-router";
 import { Icon } from "./icons/Icon";
+import { Children, isValidElement, useEffect, useRef, useState } from "react";
 
 function Accordion(props: React.PropsWithChildren) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const topics = children.filter((child) => {
-    return React.isValidElement(child) && child.type === AccordionTopic;
+    return isValidElement(child) && child.type === AccordionTopic;
   });
   const items = children.filter((child) => {
-    return React.isValidElement(child) && child.type === AccordionItem;
+    return isValidElement(child) && child.type === AccordionItem;
   });
 
   if (topics.length === 0 && items.length === 0) {
@@ -26,12 +26,12 @@ function Accordion(props: React.PropsWithChildren) {
 }
 
 function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const topicLabel = children.find((child) => {
     return typeof child === "string";
   });
   const items = children.filter((child) => {
-    return React.isValidElement(child) && child.type === AccordionItem;
+    return isValidElement(child) && child.type === AccordionItem;
   });
 
   if (items.length === 0) {
@@ -53,11 +53,11 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
 
 function AccordionItem(props: React.PropsWithChildren & { id: string }) {
   const location = useLocation();
-  const [isExpanded, setIsExpanded] = React.useState(
+  const [isExpanded, setIsExpanded] = useState(
     location.hash === `#${props.id}`
   );
-  const listItemRef = React.useRef<HTMLLIElement>(null);
-  React.useEffect(() => {
+  const listItemRef = useRef<HTMLLIElement>(null);
+  useEffect(() => {
     if (listItemRef.current !== null && location.hash === `#${props.id}`) {
       setIsExpanded(true);
       listItemRef.current.scrollIntoView({
@@ -67,12 +67,12 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
     }
   }, [location.hash, props.id]);
 
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const itemLabel = children.find((child) => {
     return typeof child === "string";
   });
   const content = children.filter((child) => {
-    return React.isValidElement(child);
+    return isValidElement(child);
   });
 
   if (content.length === 0) {

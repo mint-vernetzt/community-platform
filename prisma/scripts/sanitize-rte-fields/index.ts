@@ -126,6 +126,7 @@ async function main() {
   console.log("Writing changes JSON...                            [xxx-]");
   // Save changes in json file
   const currentTimestamp = new Date().toISOString();
+  // eslint-disable-next-line import/no-named-as-default-member
   fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
     spaces: 4,
     encoding: "utf8",

@@ -5,7 +5,6 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { Form, useActionData, useLoaderData, useLocation } from "react-router";
-import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -22,7 +21,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
@@ -35,6 +34,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { useState } from "react";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 80;
@@ -322,7 +322,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
           updateFilterVectorOfProject(project.id);
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.storage,
@@ -394,7 +394,7 @@ function General() {
     locales,
   });
 
-  const [furtherFormat, setFurtherFormat] = React.useState<string>("");
+  const [furtherFormat, setFurtherFormat] = useState<string>("");
   const handleFurtherFormatInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {

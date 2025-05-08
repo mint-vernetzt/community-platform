@@ -3,7 +3,6 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -24,6 +23,7 @@ import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login, type LoginLocales } from "./index.server";
 import { z } from "zod";
 import { type LandingPageLocales } from "../index.server";
+import { useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -90,7 +90,7 @@ export default function Index() {
   const isHydrated = useHydrated();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const [showPassword, setShowPassword] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loginForm, loginFields] = useForm({
     id: `login-${actionData?.currentTimestamp || currentTimestamp}`,

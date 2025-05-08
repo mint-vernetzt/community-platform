@@ -1,9 +1,9 @@
 import classNames from "classnames";
-import React, { type FormEventHandler } from "react";
 import { Counter } from "../components/Counter/Counter";
 import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
 import { RTE, type RTELocales } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { useState } from "react";
 
 export interface TextAreaProps {
   label: string;
@@ -37,11 +37,11 @@ const TextArea = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { value, className, readOnly, tabIndex, ...rteInputProps } = inputProps;
 
-  const [characterCount, updateCharacterCount] = React.useState(
+  const [characterCount, updateCharacterCount] = useState(
     props.defaultValue?.toString().length || 0
   );
 
-  const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (
+  const handleTextAreaChange: React.FormEventHandler<HTMLTextAreaElement> = (
     event
   ) => {
     event.preventDefault();

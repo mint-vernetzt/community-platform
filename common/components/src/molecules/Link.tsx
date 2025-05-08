@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { createElement } from "react";
 export interface LinkProps {
   to: string;
   children?: string | React.ReactNode;
@@ -40,7 +40,7 @@ function Link(props: LinkProps) {
     active && "mv-underline mv-cursor-default mv-pointer-events-none"
   );
 
-  const element = React.createElement(as, {
+  const element = createElement(as, {
     href,
     className: classes,
     to,

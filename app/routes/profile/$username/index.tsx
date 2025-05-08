@@ -6,7 +6,6 @@ import type { Profile } from "@prisma/client";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-import React from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import type {
   ActionFunctionArgs,
@@ -69,6 +68,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
+import { useCallback } from "react";
 
 export function links() {
   return [
@@ -464,7 +464,7 @@ export default function Index() {
   const blurredAvatar = loaderData.data.blurredAvatar;
   const firstName = loaderData.data.firstName;
   const lastName = loaderData.data.lastName;
-  const Avatar = React.useCallback(
+  const Avatar = useCallback(
     () => (
       <div className="h-36 w-36 mv-bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
         {avatar !== null ? (
@@ -486,7 +486,7 @@ export default function Index() {
 
   const background = loaderData.data.background;
   const blurredBackground = loaderData.data.blurredBackground;
-  const Background = React.useCallback(
+  const Background = useCallback(
     () => (
       <div className="w-full bg-yellow-500 rounded-md overflow-hidden">
         {background !== null ? (

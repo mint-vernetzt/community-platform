@@ -1,4 +1,4 @@
-import * as React from "react";
+import { createRef } from "react";
 import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 
@@ -10,7 +10,7 @@ export interface InputAddProps {
 }
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
-  const buttonRef = React.createRef<HTMLButtonElement>();
+  const buttonRef = createRef<HTMLButtonElement>();
   const {
     label,
     entries = [],

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, cloneElement, createElement, isValidElement } from "react";
 
 export type TextButtonVariants = "primary" | "neutral" | "dark";
 export type TextButtonSize = "small" | "medium" | "large";
@@ -94,17 +94,17 @@ function TextButton(
 
   // If component is used as a wrapper, we need to clone inner node, apply the styles and rearrange the children
   if (typeof props.as === "undefined" && typeof props.children !== "string") {
-    const element = React.Children.only(props.children);
-    if (React.isValidElement(element)) {
+    const element = Children.only(props.children);
+    if (isValidElement(element)) {
       const elementChildren =
         typeof element.props === "object" &&
         element.props !== null &&
         "children" in element.props
-          ? React.isValidElement(element.props.children)
-            ? React.Children.toArray(element.props.children)
+          ? isValidElement(element.props.children)
+            ? Children.toArray(element.props.children)
             : element.props.children
           : null;
-      const clone = React.cloneElement(
+      const clone = cloneElement(
         element as React.ReactElement,
         {
           // TODO: fix type issue
@@ -133,7 +133,7 @@ function TextButton(
 
   const as = props.as || "button";
 
-  const element = React.createElement(
+  const element = createElement(
     as,
     {
       ...otherProps,

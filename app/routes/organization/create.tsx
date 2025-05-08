@@ -46,7 +46,7 @@ import {
   getPendingRequestsToOrganizations,
   type CreateOrganizationLocales,
 } from "./create.server";
-import React from "react";
+import { useRef } from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -216,7 +216,7 @@ function CreateOrganization() {
       ? searchFetcher.data.searchedOrganizations
       : loaderSearchedOrganizations;
 
-  const searchFormRef = React.useRef<HTMLFormElement>(null);
+  const searchFormRef = useRef<HTMLFormElement>(null);
   const [searchForm, searchFields] = useForm({
     id: "search-organizations",
     defaultValue: {

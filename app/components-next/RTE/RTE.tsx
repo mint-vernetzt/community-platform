@@ -27,7 +27,6 @@ import {
   type EditorThemeClasses,
   type LexicalEditor,
 } from "lexical";
-import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
 import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
@@ -39,6 +38,7 @@ import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/
 import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
 import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
+import { useRef } from "react";
 
 export type InputForFormProps = Omit<
   React.HTMLProps<HTMLInputElement>,
@@ -61,8 +61,8 @@ function RTE(
 ) {
   const { defaultValue, placeholder, maxLength, locales, ...rest } = props;
 
-  const editorRef = React.useRef<LexicalEditor | null>(null);
-  const contentEditableRef = React.useRef<HTMLDivElement | null>(null);
+  const editorRef = useRef<LexicalEditor | null>(null);
+  const contentEditableRef = useRef<HTMLDivElement | null>(null);
   const isHydrated = useHydrated();
 
   const theme: EditorThemeClasses = {

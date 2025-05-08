@@ -1,5 +1,4 @@
 import { createReadableStreamFromReadable } from "@react-router/node";
-import * as Sentry from "@sentry/node";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
@@ -7,6 +6,7 @@ import type { EntryContext, HandleErrorFunction } from "react-router";
 import { ServerRouter } from "react-router";
 import { getEnv, init as initEnv } from "./env.server";
 import { NonceProvider } from "./nonce-provider";
+import { captureException } from "@sentry/node";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
@@ -19,7 +19,7 @@ export const handleError: HandleErrorFunction = (error, { request }) => {
   if (!request.signal.aborted) {
     console.log("Server error - tracking with server sentry");
     console.error(error);
-    Sentry.captureException(error);
+    captureException(error);
   }
 };
 
@@ -142,7 +142,7 @@ function handleBotRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
-            Sentry.captureException(error);
+            captureException(error);
           }
         },
         nonce: nonce,
@@ -197,7 +197,7 @@ function handleBrowserRequest(
           // reject and get logged in handleDocumentRequest.
           if (shellRendered) {
             console.error(error);
-            Sentry.captureException(error);
+            captureException(error);
           }
         },
         nonce: nonce,

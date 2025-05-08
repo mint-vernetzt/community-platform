@@ -11,7 +11,6 @@ import {
   useNavigation,
 } from "react-router";
 import { Link, useLoaderData, useSearchParams } from "react-router";
-import React from "react";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -30,6 +29,7 @@ import { z } from "zod";
 import { getFormProps, useForm } from "@conform-to/react-v1";
 import { Modal } from "~/components-next/Modal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { useEffect, useState } from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -142,13 +142,13 @@ function MyProjects() {
       return value > 0;
     }
   ) || ["admin", 0];
-  const [projects, setProjects] = React.useState(firstProject[0]);
+  const [projects, setProjects] = useState(firstProject[0]);
 
   const [searchParams, setSearchParams] = useSearchParams({
     projects: firstProject[0],
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (searchParams.has("projects")) {
       const newValue = searchParams.get("projects") as string;
       if (newValue !== projects) {
@@ -159,7 +159,7 @@ function MyProjects() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("projects", projects);
     setSearchParams(params, { preventScrollReset: true, replace: true });

@@ -1,4 +1,4 @@
-import https from "https";
+import { get } from "https";
 import type { Area, District, DistrictType, State } from "@prisma/client";
 import { prismaClient } from "../../../../app/prisma.server";
 import { generateValidSlug } from "~/utils.server";
@@ -13,33 +13,31 @@ export async function main(
 ) {
   if (apiUrl) {
     // Makes a http request to the corona API and passes on the response body to evaluateJsonObject()
-    await https
+    await // TODO: fix any type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    get(apiUrl, async (res: any) => {
       // TODO: fix any type
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .get(apiUrl, async (res: any) => {
-        // TODO: fix any type
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data: any = [];
+      const data: any = [];
 
-        // TODO: fix any type
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        res.on("data", (chunk: any) => {
-          data.push(chunk);
-        });
-
-        res.on("end", async () => {
-          const corona = JSON.parse(Buffer.concat(data).toString());
-
-          await writeToDatabase(
-            evaluateJsonObject(corona.data, stateKey, districtKey),
-            verbose
-          );
-          return await logStates(verbose);
-        });
-      })
-      .on("error", (err: Error) => {
-        console.log("Error: ", err.message);
+      // TODO: fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      res.on("data", (chunk: any) => {
+        data.push(chunk);
       });
+
+      res.on("end", async () => {
+        const corona = JSON.parse(Buffer.concat(data).toString());
+
+        await writeToDatabase(
+          evaluateJsonObject(corona.data, stateKey, districtKey),
+          verbose
+        );
+        return await logStates(verbose);
+      });
+    }).on("error", (err: Error) => {
+      console.log("Error: ", err.message);
+    });
   } else if (filePath) {
     // Imports the districts from the specified file and passes them on to evaluateJsonObject()
     const localities = await import(filePath).then((module) => module.default);

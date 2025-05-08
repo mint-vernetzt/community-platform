@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
-import React from "react";
 import { Image } from "./Image";
+import { Children, isValidElement } from "react";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -105,15 +105,15 @@ export function MoreIndicator(props: MoreIndicatorProps) {
 }
 
 function wrapAvatars(children: React.ReactNode) {
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child);
   });
 
   if (validChildren.length === 0) {
     return <div className="mv-h-9"></div>;
   }
 
-  return React.Children.map(validChildren, (child) => {
+  return Children.map(validChildren, (child) => {
     return <div>{child}</div>;
   });
 }
@@ -125,8 +125,8 @@ export type AvatarListProps = {
 };
 
 export function AvatarList(props: AvatarListProps) {
-  const avatars = React.Children.toArray(props.children).filter((child) => {
-    return React.isValidElement(child) && child.type === Avatar;
+  const avatars = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child) && child.type === Avatar;
   });
 
   return (

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { useEffect, useState } from "react";
 
 export type ToastLevel = "neutral" | "positive" | "attention" | "negative";
 
@@ -12,9 +12,9 @@ export type ToastProps = {
 
 function Toast(props: React.PropsWithChildren<ToastProps>) {
   const { level = "positive", delay = 2000, onHide } = props;
-  const [hide, setHide] = React.useState(true);
+  const [hide, setHide] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timeout: NodeJS.Timeout = setTimeout(() => {
       if (typeof onHide !== "undefined") {
         onHide();

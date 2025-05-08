@@ -1,12 +1,10 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import React from "react";
+import { Children, isValidElement } from "react";
 
 export function Placeholder(props: { children: React.ReactNode }) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const title = validChildren.find((child) => {
     return (child as React.ReactElement).type === PlaceholderTitle;

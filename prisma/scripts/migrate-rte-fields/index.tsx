@@ -6,9 +6,6 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import React from "react";
-import ReactDOMClient from "react-dom/client";
-import ReactDOMServer from "react-dom/server";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -> This package is not typed
 import { JSDOM } from "jsdom";
@@ -34,6 +31,9 @@ import fs from "fs-extra";
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { useEffect, useRef } from "react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
 
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
@@ -77,7 +77,7 @@ async function getNewValueFromRTE(options: {
       const RTEComponent = () => {
         const DefaultValuePlugin = () => {
           const [editor] = useLexicalComposerContext();
-          React.useEffect(() => {
+          useEffect(() => {
             return editor.update(() => {
               if (oldRTEStateValue !== null && oldRTEStateValue !== "") {
                 console.log("DefaultValuePlugin - Old RTE State Value", {
@@ -113,7 +113,7 @@ async function getNewValueFromRTE(options: {
         }) => {
           const { contentRef } = props;
           const [editor] = useLexicalComposerContext();
-          React.useEffect(() => {
+          useEffect(() => {
             return editor.registerUpdateListener(() => {
               if (contentRef.current !== null) {
                 editor.read(() => {
@@ -142,7 +142,7 @@ async function getNewValueFromRTE(options: {
 
           return null;
         };
-        const contentEditableRef = React.useRef<HTMLDivElement | null>(null);
+        const contentEditableRef = useRef<HTMLDivElement | null>(null);
 
         // Regex to detect URLs and email addresses
         const URL_REGEX =
@@ -196,9 +196,7 @@ async function getNewValueFromRTE(options: {
         );
       };
 
-      const serverRenderedHTML = ReactDOMServer.renderToString(
-        <RTEComponent />
-      );
+      const serverRenderedHTML = renderToString(<RTEComponent />);
 
       const dom = new JSDOM(
         `<!DOCTYPE html><div id="root">${serverRenderedHTML}</div>`
@@ -226,7 +224,7 @@ async function getNewValueFromRTE(options: {
       });
       const container = document.getElementById("root");
       if (container !== null) {
-        ReactDOMClient.hydrateRoot(container, <RTEComponent />);
+        hydrateRoot(container, <RTEComponent />);
       } else {
         reject(new Error("Could not find the root element."));
       }
@@ -439,6 +437,7 @@ async function main() {
   console.log("Writing changes JSON...                            [xxx-]");
   // Save changes in json file
   const currentTimestamp = new Date().toISOString();
+  // eslint-disable-next-line import/no-named-as-default-member
   fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
     spaces: 4,
     encoding: "utf8",

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, isValidElement } from "react";
 
 export type CardContainerType = "single row" | "multi row";
 export type CardContainerProps = {
@@ -8,11 +8,9 @@ export type CardContainerProps = {
 
 function CardContainer(props: CardContainerProps) {
   const { type = "single row" } = props;
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   return type === "single row" ? (
     <div className="mv-flex mv-overflow-x-scroll @xl:mv-overflow-x-visible mv-items-stretch">

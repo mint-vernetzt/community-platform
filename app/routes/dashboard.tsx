@@ -2,7 +2,6 @@ import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import type { Organization, Profile } from "@prisma/client";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
-import React from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -74,6 +73,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { useEffect, useState } from "react";
 
 export function links() {
   return [
@@ -704,11 +704,11 @@ function Dashboard() {
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
-  const [hideUpdates, setHideUpdates] = React.useState(false);
-  const [hideNews, setHideNews] = React.useState(false);
-  const [hideNotifications, setHideNotifications] = React.useState(false);
+  const [hideUpdates, setHideUpdates] = useState(false);
+  const [hideNews, setHideNews] = useState(false);
+  const [hideNotifications, setHideNotifications] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const hideUpdatesCookie = Cookies.get("mv-hide-updates");
     if (hideUpdatesCookie === "true") {
       setHideUpdates(true);

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { createElement } from "react";
 
 export type CircleButtonVariant = "normal" | "outline" | "ghost";
 export type CircleButtonType = "button" | "a";
@@ -70,7 +70,7 @@ function CircleButton(
     floating && "mv-shadow-lg"
   );
 
-  const element = React.createElement(as, {
+  const element = createElement(as, {
     ...otherProps,
     className: classes,
   });

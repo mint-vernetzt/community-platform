@@ -1,25 +1,23 @@
-import React from "react";
+import { Children, isValidElement } from "react";
 
 export function Section(props: {
   children: React.ReactNode;
   additionalClassNames?: string;
 }) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const headline = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Section.Headline;
+    return isValidElement(child) && child.type === Section.Headline;
   });
   const subline = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Section.Subline;
+    return isValidElement(child) && child.type === Section.Subline;
   });
 
   const otherChildren = validChildren.filter((child) => {
     return (
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       child.type !== Section.Headline &&
       child.type !== Section.Subline
     );

@@ -1,12 +1,12 @@
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 
 export interface SearchProps {
   query?: string | null;
 }
 
 function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
-  const [value, setValue] = React.useState(props.query || "");
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const [value, setValue] = useState(props.query || "");
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { ...inputProps } = props;
 
@@ -20,7 +20,7 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
     setValue("");
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // TODO: fix any type
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (evt: any) => {
