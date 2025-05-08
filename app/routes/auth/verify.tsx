@@ -1,6 +1,6 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
 import * as Sentry from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
@@ -13,34 +13,43 @@ export async function loader({ request }: LoaderFunctionArgs) {
   invariantResponse(token_hash !== null && type !== null, "Bad request", {
     status: 400,
   });
+  invariantResponse(
+    type === "signup" || type === "email_change" || type === "recovery",
+    "Bad request",
+    { status: 400 }
+  );
   const { authClient, headers } = createAuthClient(request);
   const { error, data } = await authClient.auth.verifyOtp({
     type,
     token_hash,
   });
+  let loginRedirect = requestUrl.searchParams.get("login_redirect");
+  // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
+  if (
+    loginRedirect === process.env.COMMUNITY_BASE_URL ||
+    (loginRedirect !== null &&
+      loginRedirect.startsWith(process.env.COMMUNITY_BASE_URL) === false &&
+      loginRedirect.startsWith("/") === false)
+  ) {
+    loginRedirect = null;
+  }
   if (
     error !== null &&
     (error.code === "otp_expired" ||
       error.message === "Email link is invalid or has expired")
   ) {
-    return redirect(`/login?error=confirmationLinkExpired`);
+    return redirect(
+      `/auth/request-confirmation?type=${type}${
+        loginRedirect !== null ? `&login_redirect=${loginRedirect}` : ""
+      }`
+    );
   }
   invariantResponse(
     error === null && data.user !== null && data.session !== null,
     "Server Error during verification",
     { status: 500 }
   );
-  invariantResponse(
-    type === "signup" || type === "email_change" || type === "recovery",
-    "Bad request",
-    { status: 400 }
-  );
   const user = data.user;
-  let loginRedirect = requestUrl.searchParams.get("login_redirect");
-  // Supabase defaults the login redirect to "/" if not specified so this will overwrite this behaviour
-  if (loginRedirect === process.env.COMMUNITY_BASE_URL) {
-    loginRedirect = null;
-  }
   if (type === "signup") {
     const profile = await createProfile(user);
     invariantResponse(

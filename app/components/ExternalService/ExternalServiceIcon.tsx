@@ -67,7 +67,7 @@ function ExternalServiceIcon(props: ExternalServiceProps) {
         to={url}
         className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
         target="_blank"
-        rel="noreferrer"
+        rel="noreferrer noopener"
       >
         <ServiceIcon
           service={service}

@@ -216,7 +216,7 @@ export default function Security() {
                 key="change-mint-id-password"
                 href="https://mint-id.org"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="text-primary hover:underline"
               >
                 {" "}

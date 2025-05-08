@@ -1132,7 +1132,7 @@ function Index() {
                     <a
                       href={loaderData.event.conferenceLink}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noreferrer noopener"
                     >
                       {loaderData.event.conferenceLink}
                     </a>

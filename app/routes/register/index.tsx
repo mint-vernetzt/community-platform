@@ -172,7 +172,7 @@ export default function Register() {
             <h1 className="mb-4">{locales.content.create}</h1>
             {actionData !== undefined && actionData.success ? (
               <>
-                <p className="mb-4">
+                <div className="mb-4">
                   <RichText
                     html={insertParametersIntoLocale(locales.content.success, {
                       email: actionData.data.email,
@@ -187,7 +187,7 @@ export default function Register() {
                     {locales.content.reset}
                   </Link>
                   .
-                </p>
+                </div>
               </>
             ) : (
               <RemixFormsForm
@@ -346,7 +346,7 @@ export default function Register() {
                             <a
                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noreferrer noopener"
                               className="text-primary font-bold hover:underline"
                             >
                               {locales.form.acknowledgements.termsOfUse}
@@ -355,7 +355,7 @@ export default function Register() {
                             <a
                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noreferrer noopener"
                               className="text-primary font-bold hover:underline"
                             >
                               {locales.form.acknowledgements.dataProtection}
