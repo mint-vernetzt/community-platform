@@ -3,6 +3,7 @@ export const locale = {
     email: "Please enter a valid email address.",
     password: {
       min: "Your password must be at least 8 characters long.",
+      required: "Please enter your password.",
     },
   },
   error: {

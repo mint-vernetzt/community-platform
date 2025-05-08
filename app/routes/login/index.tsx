@@ -45,7 +45,11 @@ export const createLoginSchema = (
 ) => {
   return z.object({
     email: z.string().email(locales.validation.email),
-    password: z.string().min(8, locales.validation.password.min),
+    password: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.password.min),
     loginRedirect: z.string().optional(),
   });
 };
