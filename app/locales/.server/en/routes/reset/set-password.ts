@@ -1,9 +1,11 @@
 export const locale = {
   validation: {
     password: {
+      required: "Please enter a password.",
       min: "Your password must be at least 8 characters long.",
     },
     confirmPassword: {
+      required: "Please enter a password.",
       min: "Your password must be at least 8 characters long.",
     },
     passwordMismatch: "Your passwords do not match. Please try again.",

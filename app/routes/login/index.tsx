@@ -44,7 +44,11 @@ export const createLoginSchema = (
   locales: LoginLocales | LandingPageLocales["route"]
 ) => {
   return z.object({
-    email: z.string().email(locales.validation.email),
+    email: z
+      .string({
+        message: locales.validation.email,
+      })
+      .email(locales.validation.email),
     password: z
       .string({
         message: locales.validation.password.required,
