@@ -103,7 +103,7 @@ export default function Index() {
   });
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
+    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
       <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
         <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
           <div className="mv-mb-6 mv-mt-12">
@@ -111,12 +111,12 @@ export default function Index() {
               to={`/login${
                 loginRedirect ? `?login_redirect=${loginRedirect}` : ""
               }`}
-              className="text-primary font-bold"
+              className="mv-text-primary mv-font-bold"
             >
               {locales.login}
             </Link>
           </div>
-          <h1 className="mb-8">{locales.response.headline}</h1>
+          <h1 className="mv-mb-8">{locales.response.headline}</h1>
           {typeof actionData !== "undefined" &&
           typeof actionData.submission.status !== "undefined" &&
           actionData.submission.status === "success" ? (
@@ -210,21 +210,19 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row -mv-mx-4 mv-mb-8 mv-items-center">
-                <div className="mv-basis-6/12 mv-px-4">
-                  <Button
-                    type="submit"
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? requestPasswordChangeForm.dirty === false ||
-                          requestPasswordChangeForm.valid === false
-                        : false
-                    }
-                  >
-                    {locales.form.label.submit}
-                  </Button>
-                </div>
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? requestPasswordChangeForm.dirty === false ||
+                        requestPasswordChangeForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.form.label.submit}
+                </Button>
               </div>
             </Form>
           )}

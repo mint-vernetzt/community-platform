@@ -160,9 +160,12 @@ function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export function FormControl(
-  props: React.InputHTMLAttributes<HTMLInputElement> & React.PropsWithChildren
+  props: React.InputHTMLAttributes<HTMLInputElement> &
+    React.PropsWithChildren & {
+      labelPosition?: "left" | "right";
+    }
 ) {
-  const { children, ...otherProps } = props;
+  const { children, labelPosition = "left", ...otherProps } = props;
 
   const childrenArray = Children.toArray(children);
 
@@ -186,6 +189,12 @@ export function FormControl(
   return (
     <>
       <label className={classes}>
+        {props.type === "checkbox" && labelPosition === "right" && (
+          <Checkbox {...otherProps} />
+        )}
+        {props.type === "radio" && labelPosition === "right" && (
+          <Radio {...otherProps} />
+        )}
         <span className="mv-whitespace-normal">{label}</span>
         {typeof info !== "undefined" && (
           <label
@@ -238,8 +247,12 @@ export function FormControl(
           </label>
         )}
         {counter}
-        {props.type === "checkbox" && <Checkbox {...otherProps} />}
-        {props.type === "radio" && <Radio {...otherProps} />}
+        {props.type === "checkbox" && labelPosition === "left" && (
+          <Checkbox {...otherProps} />
+        )}
+        {props.type === "radio" && labelPosition === "left" && (
+          <Radio {...otherProps} />
+        )}
       </label>
       <span className={props.disabled ? "mv-text-gray-400" : ""}>{info}</span>
     </>

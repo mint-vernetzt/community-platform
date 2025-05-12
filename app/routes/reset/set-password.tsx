@@ -126,7 +126,7 @@ export default function SetPassword() {
       autoComplete="off"
     >
       <>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
           <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
             <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
               <h1 className="mv-mb-8">{locales.content.headline}</h1>
@@ -248,21 +248,19 @@ export default function SetPassword() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row -mv-mx-4 mb-8 mv-items-center">
-                <div className="mv-basis-6/12 mv-px-4">
-                  <Button
-                    type="submit"
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? setPasswordForm.dirty === false ||
-                          setPasswordForm.valid === false
-                        : false
-                    }
-                  >
-                    {locales.form.label.submit}
-                  </Button>
-                </div>
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? setPasswordForm.dirty === false ||
+                        setPasswordForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.form.label.submit}
+                </Button>
               </div>
             </div>
           </div>
