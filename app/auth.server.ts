@@ -1,13 +1,17 @@
 import type { Profile } from "@prisma/client";
+import { captureException } from "@sentry/node";
 import {
   createServerClient,
   parseCookieHeader,
   serializeCookieHeader,
 } from "@supabase/ssr";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type User,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
-import { captureException } from "@sentry/node";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
@@ -204,13 +208,14 @@ export async function sendResetPasswordLink(
   return { error };
 }
 
-export async function updatePassword(
-  authClient: SupabaseClient,
-  password: string
-) {
-  const { data, error } = await authClient.auth.updateUser({
-    password,
-  });
+export async function updatePassword(sessionUser: User, password: string) {
+  const adminAuthClient = createAdminAuthClient();
+  const { data, error } = await adminAuthClient.auth.admin.updateUserById(
+    sessionUser.id,
+    {
+      password,
+    }
+  );
   return { data, error };
 }
 

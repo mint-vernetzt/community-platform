@@ -54,7 +54,7 @@ const createPasswordSchema = (locales: ProfileSecurityLocales) => {
 };
 
 const passwordEnvironmentSchema = z.object({
-  authClient: z.unknown(),
+  sessionUser: z.unknown(),
   // authClient: z.instanceof(SupabaseClient),
 });
 
@@ -105,7 +105,7 @@ const createPasswordMutation = (locales: ProfileSecurityLocales) => {
       // TODO: fix type issue
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      environment.authClient,
+      environment.sessionUser,
       values.password
     );
     if (error !== null) {
@@ -174,7 +174,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       request,
       schema: createPasswordSchema(locales),
       mutation: createPasswordMutation(locales),
-      environment: { authClient: authClient },
+      environment: { sessionUser: sessionUser },
     });
   }
   return result;
