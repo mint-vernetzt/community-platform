@@ -1,11 +1,12 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { createSetPasswordSchema } from "./set-password";
 import { invariantResponse } from "~/lib/utils/response";
 import { z } from "zod";
+import { createAdminAuthClient } from "~/auth.server";
 
 export type SetPasswordLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -13,10 +14,10 @@ export type SetPasswordLocales = (typeof languageModuleMap)[ArrayElement<
 
 export async function setNewPassword(options: {
   formData: FormData;
-  authClient: SupabaseClient;
+  sessionUser: User;
   locales: SetPasswordLocales;
 }) {
-  const { formData, locales, authClient } = options;
+  const { formData, locales, sessionUser } = options;
   const submission = await parseWithZod(formData, {
     schema: createSetPasswordSchema(locales).transform(async (data, ctx) => {
       if (
@@ -37,9 +38,14 @@ export async function setNewPassword(options: {
         return z.NEVER;
       }
 
-      const { error } = await authClient.auth.updateUser({
-        password: data.password,
-      });
+      const adminAuthClient = createAdminAuthClient();
+
+      const { error } = await adminAuthClient.auth.admin.updateUserById(
+        sessionUser.id,
+        {
+          password: data.password,
+        }
+      );
       invariantResponse(error === null, "Error while updating password", {
         status: 500,
       });

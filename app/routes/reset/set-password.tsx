@@ -52,7 +52,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-  await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
@@ -60,7 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const { submission } = await setNewPassword({
     formData,
-    authClient,
+    sessionUser,
     locales,
   });
 
@@ -70,12 +70,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       currentTimestamp: Date.now(),
     };
   }
-
-  if (typeof submission.value.loginRedirect !== "undefined") {
-    return redirect(submission.value.loginRedirect);
-  } else {
-    return redirect("/dashboard");
-  }
+  return redirect(
+    `/login${
+      typeof submission.value.loginRedirect !== "undefined"
+        ? `?login_redirect=${submission.value.loginRedirect}`
+        : ""
+    }`
+  );
 };
 
 export default function SetPassword() {
