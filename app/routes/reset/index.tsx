@@ -30,7 +30,11 @@ export const createRequestPasswordChangeSchema = (
   locales: ResetPasswordLocales
 ) => {
   return z.object({
-    email: z.string().email(locales.validation.email),
+    email: z
+      .string({
+        message: locales.validation.email,
+      })
+      .email(locales.validation.email),
     loginRedirect: z.string().optional(),
   });
 };
