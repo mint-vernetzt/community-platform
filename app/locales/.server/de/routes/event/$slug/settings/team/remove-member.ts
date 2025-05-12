@@ -5,9 +5,9 @@ export const locale = {
     minimum:
       "Es muss immer ein Teammitglied geben. Bitte füge zuerst jemand anderen als Teammitglied hinzu.",
     inputError: {
-      doesNotExist: "Es existiert noch kein Profil unter diesem Namen.",
+      doesNotExist: "Unter diesem Namen wurde keine Person gefunden.",
       alreadyIn:
-        "Das Profil unter diesem Namen ist bereits Teammitglied Eurer Veranstaltung.",
+        "Eine Person mit diesem Namen ist bereits Teammitglied Eurer Veranstaltung.",
     },
   },
   feedback:

@@ -13,7 +13,7 @@ export const locale = {
     add: {
       headline: "Administrator:in hinzufügen",
       intro:
-        "Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
+        "Füge hier Deiner Veranstaltung eine Person als Administrator:in hinzu.",
     },
     current: {
       headline_one: "Aktuelle Administrator:in",

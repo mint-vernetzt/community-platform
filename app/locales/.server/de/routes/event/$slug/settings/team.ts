@@ -12,7 +12,7 @@ export const locale = {
     add: {
       headline: "Teammitglied hinzufügen",
       intro:
-        "Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
+        "Füge hier Deiner Veranstaltung eine Person als Teammitglied hinzu.",
       label: "Name oder Email",
     },
     current: {

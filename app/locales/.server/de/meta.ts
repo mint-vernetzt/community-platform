@@ -1,7 +1,7 @@
 export const locale = {
   root: {
     community: "Community",
-    profiles: "Profile",
+    profiles: "Personen",
     organizations: "Organisationen",
     events: "Veranstaltungen",
     projects: "Projekte",
