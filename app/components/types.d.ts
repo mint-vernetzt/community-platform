@@ -1,10 +1,5 @@
 import { type Organization, type Profile } from "@prisma/client";
 
-export interface Image {
-  src: string;
-  alt: string;
-}
-
 export type ExternalService =
   | keyof Pick<
       Profile,
