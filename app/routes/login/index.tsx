@@ -222,30 +222,26 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row -mv-mx-4 mb-8 mv-items-center">
-                <div className="mv-basis-6/12 mv-px-4">
-                  <Button
-                    type="submit"
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? loginForm.dirty === false || loginForm.valid === false
-                        : false
-                    }
-                  >
-                    {locales.label.submit}
-                  </Button>
-                </div>
-                <div className="mv-basis-6/12 mv-px-4 mv-text-right">
-                  <Link
-                    to={`/reset${
-                      loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-                    }`}
-                    className="mv-text-primary mv-font-bold"
-                  >
-                    {locales.label.reset}
-                  </Link>
-                </div>
+              <div className="mv-flex mv-flex-row mb-8 mv-items-center mv-justify-between">
+                <Link
+                  to={`/reset${
+                    loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                  }`}
+                  className="mv-text-primary mv-font-bold"
+                >
+                  {locales.label.reset}
+                </Link>
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? loginForm.dirty === false || loginForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.label.submit}
+                </Button>
               </div>
             </div>
           </div>

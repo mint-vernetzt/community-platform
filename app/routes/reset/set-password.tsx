@@ -248,21 +248,19 @@ export default function SetPassword() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row -mv-mx-4 mb-8 mv-items-center">
-                <div className="mv-basis-6/12 mv-px-4">
-                  <Button
-                    type="submit"
-                    // Don't disable button when js is disabled
-                    disabled={
-                      isHydrated
-                        ? setPasswordForm.dirty === false ||
-                          setPasswordForm.valid === false
-                        : false
-                    }
-                  >
-                    {locales.form.label.submit}
-                  </Button>
-                </div>
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? setPasswordForm.dirty === false ||
+                        setPasswordForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.form.label.submit}
+                </Button>
               </div>
             </div>
           </div>
