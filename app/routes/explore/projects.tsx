@@ -60,7 +60,11 @@ import {
 import { DefaultImages } from "~/images.shared";
 import { getFilterSchemes, type FilterSchemes } from "./index";
 
-const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+export const PROJECT_SORT_VALUES = [
+  "name-asc",
+  "name-desc",
+  "createdAt-desc",
+] as const;
 
 export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
 
@@ -91,7 +95,7 @@ export const getProjectsSchema = z.object({
       return filter;
     }),
   prjSortBy: z
-    .enum(sortValues)
+    .enum(PROJECT_SORT_VALUES)
     .optional()
     .transform((sortValue) => {
       if (sortValue !== undefined) {
@@ -102,8 +106,8 @@ export const getProjectsSchema = z.object({
         };
       }
       return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
+        value: PROJECT_SORT_VALUES[0].split("-")[0],
+        direction: PROJECT_SORT_VALUES[0].split("-")[1],
       };
     }),
   prjPage: z
@@ -1333,7 +1337,7 @@ export default function ExploreProjects() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
+                  {PROJECT_SORT_VALUES.map((sortValue) => {
                     const submissionSortValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                     return (
                       <FormControl

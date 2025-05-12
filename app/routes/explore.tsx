@@ -172,7 +172,7 @@ function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 mv-px-4 mv-bg-white">
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 mv-px-4 @lg:mv-bg-white">
           <EntitiesSelect>
             <EntitiesSelect.Menu.Label>
               {loaderData.locales.route.content.menu.label}
