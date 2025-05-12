@@ -28,8 +28,16 @@ import { setNewPassword, type SetPasswordLocales } from "./set-password.server";
 
 export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
   return z.object({
-    password: z.string().min(8, locales.validation.password.min),
-    confirmPassword: z.string().min(8, locales.validation.confirmPassword.min),
+    password: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.password.min),
+    confirmPassword: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.confirmPassword.min),
     loginRedirect: z.string().optional(),
   });
 };

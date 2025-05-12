@@ -1,9 +1,11 @@
 export const locale = {
   validation: {
     password: {
+      required: "Bitte gib ein Passwort ein.",
       min: "Dein Passwort muss mindestens 8 Zeichen lang sein.",
     },
     confirmPassword: {
+      required: "Bitte gib ein Passwort ein.",
       min: "Dein Passwort muss mindestens 8 Zeichen lang sein.",
     },
     passwordMismatch: "Die Passwörter stimmen nicht überein.",
