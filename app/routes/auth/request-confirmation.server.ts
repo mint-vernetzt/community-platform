@@ -29,12 +29,18 @@ export async function requestConfirmation(options: {
           status: 400,
         });
       }
+      const loginRedirect =
+        typeof data.loginRedirect !== "undefined"
+          ? data.loginRedirect.startsWith("/")
+            ? `${process.env.COMMUNITY_BASE_URL}${data.loginRedirect}`
+            : data.loginRedirect
+          : undefined;
 
       if (data.type === "signup" || data.type === "email_change") {
         const { error } = await authClient.auth.resend({
           type: "signup",
           email: data.email,
-          options: { emailRedirectTo: data.loginRedirect },
+          options: { emailRedirectTo: loginRedirect },
         });
         invariantResponse(
           error === null,
