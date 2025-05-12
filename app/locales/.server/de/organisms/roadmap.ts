@@ -76,7 +76,7 @@ export const locale = {
     filter: {
       title: "Filter-Funktion",
       description:
-        "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Profile, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen.",
+        "Mit dem Filter kannst Du innerhalb der Übersichtseiten der Personen, Organisationen, Events oder Projekte nach bestimmten Kriterien durchsuchen.",
     },
     projects: {
       title: "Gute Praxis-Projekte",
@@ -101,7 +101,7 @@ export const locale = {
     search: {
       title: "Suche",
       description:
-        "Über die Suchfunktion kannst Du nach Profilen, Organisationen, Events, Projekten und nach Stichwörtern suchen.",
+        "Über die Suchfunktion kannst Du nach Personen, Organisationen, Events, Projekten und nach Stichwörtern suchen.",
     },
     mintId: {
       title: "MINT-ID",

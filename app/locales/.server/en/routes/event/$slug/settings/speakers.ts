@@ -9,7 +9,7 @@ export const locale = {
       "Who is a speaker at your event? Add more speakers here or remove them.",
     add: {
       headline: "Add speakers",
-      intro: "Add an already existing profile to your event here.",
+      intro: "Add a person as a speaker to your event here.",
       label: "Name or email of the speaker",
     },
     current: {

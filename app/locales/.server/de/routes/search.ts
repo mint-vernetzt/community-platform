@@ -5,7 +5,7 @@ export const locale = {
   },
   placeholder: "Suche (mind. 3 Buchstaben)",
   results: 'Hier siehst Du die Ergebnisse zu Deiner Suche "{{query}}".',
-  profiles: "Profile",
+  profiles: "Personen",
   organizations: "Organisationen",
   events: "Veranstaltungen",
   projects: "Projekte",

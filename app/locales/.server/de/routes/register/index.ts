@@ -2,9 +2,9 @@ export const locale = {
   content: {
     question: "Bereits Mitglied?",
     login: "Anmelden",
-    create: "Neues Profil anlegen",
+    create: "Mich als Person anlegen",
     success:
-      "Das Profil für <0>{{email}}</0> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhalb von einer Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <0>{{systemMail}}</0> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Falls Du die E-Mail nicht erhalten hast, kannst Du dich gerne an unseren <1>Support</1> wenden. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
+      "Dein Profil für <0>{{email}}</0> wurde erstellt. Um die Registrierung abzuschließen, bestätige bitte innerhalb von einer Stunden den Registrierungslink in Deinen E-Mails, den wir Dir über <0>{{systemMail}}</0> zusenden. Bitte sieh auch in Deinem Spam-Ordner nach. Falls Du die E-Mail nicht erhalten hast, kannst Du dich gerne an unseren <1>Support</1> wenden. Hast Du Dich bereits vorher mit dieser E-Mail-Adresse registriert und Dein Passwort vergessen, dann setze hier Dein Passwort zurück:",
     reset: "Passwort zurücksetzen",
   },
   form: {

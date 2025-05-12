@@ -4,12 +4,12 @@ export const locale = {
     notPrivileged: "Not privileged",
     notFound: "The profile could not be found",
     lastAdmin: {
-      intro: "This profile is the last administrator in ",
+      intro: "You are the last administrator in ",
       organizations: "the organizations: {{organizations}}",
       events: "the events: {{events}}",
       projects: "the projects: {{projects}}",
       outro:
-        "which is why it cannot be deleted. Please transfer the rights to another person or first delete these organizations, events, or projects.",
+        "which is why we cannot delete your profile. Please transfer the rights to another person or first delete these organizations, events, or projects.",
     },
     serverError: "The profile could not be deleted.",
   },

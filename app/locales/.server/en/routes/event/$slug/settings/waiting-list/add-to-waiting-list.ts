@@ -3,11 +3,11 @@ export const locale = {
     notFound: "Event not found",
     notPrivileged: "Not privileged",
     inputError: {
-      doesNotExist: "There is no profile under this name yet.",
+      doesNotExist: "No person was found under this name.",
       alreadyOn:
-        "The profile under this name is already on the waitlist of your event.",
+        "A person with this name is already on the waiting list of your event.",
       alreadyParticipant:
-        "The profile under this name is already participating in your event. Please remove the person from the participant list first.",
+        "A person with this name is already participating in your event. Please remove them from the participant list first.",
     },
   },
   feedback:

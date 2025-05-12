@@ -75,7 +75,7 @@ export const locale = {
     filter: {
       title: "Filter function",
       description:
-        "With the filter, you can search profiles, organizations, events, or projects based on specific criteria.",
+        "With the filter, you can search persons, organizations, events, or projects based on specific criteria.",
     },
     projects: {
       title: "Projects",
@@ -100,7 +100,7 @@ export const locale = {
     search: {
       title: "Search",
       description:
-        "You can use the search function to search for profiles, organizations, events, projects and keywords.",
+        "You can use the search function to search for persons, organizations, events, projects and keywords.",
     },
     mintId: {
       title: "MINT-ID",

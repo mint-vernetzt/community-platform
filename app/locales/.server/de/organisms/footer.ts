@@ -3,7 +3,7 @@ export const locale = {
     "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
   discover: {
     title: "Entdecken",
-    profiles: "Profile",
+    profiles: "Personen",
     organizations: "Organisationen",
     events: "Veranstaltungen",
     projects: "Projekte",

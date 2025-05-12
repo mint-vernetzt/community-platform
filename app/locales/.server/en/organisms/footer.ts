@@ -2,7 +2,7 @@ export const locale = {
   description: "The networking platform for STEM actors in Germany.",
   discover: {
     title: "Discover",
-    profiles: "Profiles",
+    profiles: "Persons",
     organizations: "Organizations",
     events: "Events",
     projects: "Projects",

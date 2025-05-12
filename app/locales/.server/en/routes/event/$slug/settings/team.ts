@@ -11,7 +11,7 @@ export const locale = {
       "Team members are displayed on the event detail page. They can view events in draft, but cannot edit them.",
     add: {
       headline: "Add team member",
-      intro: "Add an already existing profile to your event here.",
+      intro: "Add a person as a team member to your event here.",
       label: "Name or email",
     },
     current: {

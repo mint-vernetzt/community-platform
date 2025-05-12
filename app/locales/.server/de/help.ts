@@ -47,7 +47,7 @@ export const locale = {
           question:
             "Warum soll ich mich anmelden? Ich sehe doch auch so schon Inhalte.",
           answer:
-            "<p>Wir wollen viele Funktionen frei zugänglich machen, so dass man unkompliziert Inhalte sehen kann. Nicht alle Inhalte sind im nicht-eingeloggten Zustand sichtbar, daher empfehlen wir eine Anmeldung. Hinzukommt, dass eigene Profile, Organisationen und Projekte nur nach Registrierung angelegt werden können. Auch zu Events kannst Du Dich erst mit erstelltem Profil anmelden.</p>",
+            "<p>Wir wollen viele Funktionen frei zugänglich machen, so dass man unkompliziert Inhalte sehen kann. Nicht alle Inhalte sind im nicht-eingeloggten Zustand sichtbar, daher empfehlen wir eine Anmeldung. Hinzukommt, dass du als Person, sowie eigene Organisationen und Projekte nur nach Registrierung angelegt werden können. Auch zu Events kannst Du Dich erst mit erstelltem Profil anmelden.</p>",
         },
         mintId: {
           question: "Was ist die MINT-ID?",

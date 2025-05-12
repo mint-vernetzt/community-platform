@@ -12,7 +12,7 @@ export const locale = {
     },
     add: {
       headline: "Add an administrator",
-      intro: "Add an already existing profile to your event here.",
+      intro: "Add a person as an administrator to your event here.",
     },
     current: {
       headline_one: "Current administrator",

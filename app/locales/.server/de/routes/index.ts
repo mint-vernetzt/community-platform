@@ -49,7 +49,7 @@ export const locale = {
     },
     growth: {
       headline: "Wie unsere Community wächst",
-      profiles: "Profile",
+      profiles: "Personen",
       organizations: "Organisationen",
       events: "Veranstaltungen",
       projects: "Projekte",
