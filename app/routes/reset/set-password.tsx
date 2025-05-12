@@ -25,6 +25,7 @@ import {
   getSessionUserOrThrow,
 } from "../../auth.server";
 import { setNewPassword, type SetPasswordLocales } from "./set-password.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
   return z.object({
@@ -93,6 +94,7 @@ export default function SetPassword() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
@@ -263,7 +265,8 @@ export default function SetPassword() {
                   disabled={
                     isHydrated
                       ? setPasswordForm.dirty === false ||
-                        setPasswordForm.valid === false
+                        setPasswordForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

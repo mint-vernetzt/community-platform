@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Link } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type InputType = "text" | "password" | "email" | "number" | "hidden";
 
@@ -188,6 +189,9 @@ export type InputProps = React.HTMLProps<HTMLInputElement> & {
 
 function Input(props: InputProps) {
   const { children, standalone, withoutName, ...inputProps } = props;
+
+  const isSubmitting = useIsSubmitting();
+
   const name =
     withoutName === true ? undefined : inputProps.name || inputProps.id;
 
@@ -358,7 +362,11 @@ function Input(props: InputProps) {
           </ul>
         ) : null}
         {typeof standalone !== "undefined" && standalone !== false && (
-          <input type="submit" className="mv-hidden" />
+          <input
+            type="submit"
+            className="mv-hidden"
+            disabled={inputProps.disabled || isSubmitting}
+          />
         )}
       </div>
     </CharacterCountContext.Provider>

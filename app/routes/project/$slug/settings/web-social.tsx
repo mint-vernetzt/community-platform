@@ -41,6 +41,7 @@ import {
   updateProjectWebSocial,
   type ProjectWebAndSocialLocales,
 } from "./web-social.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 const createWebSocialSchema = (locales: ProjectWebAndSocialLocales) =>
   z.object({
@@ -130,6 +131,7 @@ function WebSocial() {
   const { project, currentTimestamp, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm({
@@ -169,7 +171,7 @@ function WebSocial() {
         preventScrollReset
         autoComplete="off"
       >
-        <button type="submit" hidden />
+        <button type="submit" hidden disabled={isSubmitting} />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -319,7 +321,9 @@ function WebSocial() {
                   // Don't disable button when js is disabled
                   disabled={
                     isHydrated
-                      ? form.dirty === false || form.valid === false
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

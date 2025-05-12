@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return <div className="mv-w-full mv-text-sm mv-gap-2">{props.children}</div>;
@@ -62,6 +63,7 @@ function ModalSubmitButton(
   props: React.InputHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, ...inputProps } = props;
+  const isSubmitting = useIsSubmitting();
 
   return (
     <button
@@ -72,6 +74,7 @@ function ModalSubmitButton(
           ? "mv-bg-neutral-200 mv-text-neutral-400"
           : "mv-bg-primary mv-text-neutral-50"
       }`}
+      disabled={inputProps.disabled || isSubmitting}
     >
       {children}
     </button>

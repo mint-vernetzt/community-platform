@@ -25,6 +25,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
 import { FormControl } from "~/components-next/FormControl";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const acceptTermsSchema = z.object({
   termsAccepted: checkboxSchema,
@@ -86,6 +87,7 @@ export default function AcceptTerms() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const redirectTo = urlSearchParams.get("redirect_to");
 
@@ -193,7 +195,8 @@ export default function AcceptTerms() {
                   disabled={
                     isHydrated
                       ? acceptTermsForm.dirty === false ||
-                        acceptTermsForm.valid === false
+                        acceptTermsForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

@@ -47,6 +47,7 @@ import {
   type CreateOrganizationLocales,
 } from "./create.server";
 import { useRef } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -207,6 +208,7 @@ function CreateOrganization() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get(SearchOrganizations) || undefined;
@@ -314,7 +316,12 @@ function CreateOrganization() {
         autoComplete="off"
         className="mv-absolute"
       />
-      <button form={createOrganizationForm.id} type="submit" hidden />
+      <button
+        form={createOrganizationForm.id}
+        type="submit"
+        hidden
+        disabled={isSubmitting}
+      />
       <TextButton
         as="a"
         href="/my/organizations"
@@ -490,6 +497,7 @@ function CreateOrganization() {
                           value={`create-organization-member-request-${searchedOrganization.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {
                             locales.route.form.organizationName
@@ -812,7 +820,8 @@ function CreateOrganization() {
             disabled={
               isHydrated
                 ? createOrganizationForm.dirty === false ||
-                  createOrganizationForm.valid === false
+                  createOrganizationForm.valid === false ||
+                  isSubmitting
                 : false
             }
           >

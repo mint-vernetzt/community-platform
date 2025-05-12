@@ -25,6 +25,7 @@ import {
   requestPasswordChange,
   type ResetPasswordLocales,
 } from "./index.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createRequestPasswordChangeSchema = (
   locales: ResetPasswordLocales
@@ -84,6 +85,7 @@ export default function Index() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
 
@@ -220,7 +222,8 @@ export default function Index() {
                   disabled={
                     isHydrated
                       ? requestPasswordChangeForm.dirty === false ||
-                        requestPasswordChangeForm.valid === false
+                        requestPasswordChangeForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

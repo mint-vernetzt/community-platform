@@ -30,6 +30,7 @@ import { getFormProps, useForm } from "@conform-to/react-v1";
 import { Modal } from "~/components-next/Modal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { useEffect, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -136,6 +137,7 @@ function MyProjects() {
   const { locales, currentTimestamp } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
 
   const firstProject = Object.entries(loaderData.projects.count).find(
     ([, value]) => {
@@ -369,6 +371,7 @@ function MyProjects() {
                               type="submit"
                               name="intent"
                               value={`quit-${projects}-${project.id}`}
+                              disabled={isSubmitting}
                             >
                               {
                                 locales.route.quit.modal[

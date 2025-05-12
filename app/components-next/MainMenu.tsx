@@ -16,6 +16,7 @@ import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/Lo
 import classNames from "classnames";
 import { type getFeatureAbilities } from "~/routes/feature-access.server";
 import { Children, isValidElement, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function MainMenu(
   props: React.PropsWithChildren & {
@@ -440,6 +441,7 @@ function Item(
   }
 ) {
   const children = Children.toArray(props.children);
+  const isSubmitting = useIsSubmitting(props.to);
 
   return props.method === "post" ? (
     <>
@@ -451,6 +453,7 @@ function Item(
         form={props.to}
         type="submit"
         className="mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
+        disabled={isSubmitting}
       >
         {children}
       </button>

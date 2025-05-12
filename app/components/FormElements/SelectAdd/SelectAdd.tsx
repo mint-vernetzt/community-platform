@@ -1,6 +1,7 @@
 import { createRef } from "react";
 import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import SelectField, { type SelectFieldProps } from "../SelectField/SelectField";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type SelectAddEntry = {
   label: string;
@@ -18,6 +19,7 @@ function SelectAdd(props: SelectAddProps) {
   const { name, entries = [], isPublic, ...selectProps } = props;
   const singularName = name.slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
+  const isSubmitting = useIsSubmitting();
 
   return (
     <div className="mb-4">
@@ -44,6 +46,7 @@ function SelectAdd(props: SelectAddProps) {
             type="submit"
             className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden ml-2"
             value={`add${uppercaseSingularName}`}
+            disabled={isSubmitting}
           >
             +
           </button>
@@ -64,6 +67,7 @@ function SelectAdd(props: SelectAddProps) {
               value={entry.value}
               className="ml-auto btn-none"
               title="entfernen"
+              disabled={isSubmitting}
             >
               <svg
                 fill="none"

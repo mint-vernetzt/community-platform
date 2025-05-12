@@ -74,6 +74,7 @@ import {
   getProjectCount,
 } from "./utils.server";
 import { useEffect, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function links() {
   return [
@@ -700,6 +701,7 @@ function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const location = useLocation();
+  const isSubmitting = useIsSubmitting();
 
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
@@ -786,6 +788,7 @@ function Dashboard() {
                     type="submit"
                     form="modal-avatar-form"
                     className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                    disabled={isSubmitting}
                   >
                     <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
                       <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">
