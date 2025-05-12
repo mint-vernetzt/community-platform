@@ -109,7 +109,7 @@ export default function Index() {
           <div className="mv-mb-6 mv-mt-12">
             <Link
               to={`/login${
-                loginRedirect ? `?login_redirect=${loginRedirect}` : ""
+                loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
               }`}
               className="mv-text-primary mv-font-bold"
             >
@@ -126,13 +126,12 @@ export default function Index() {
                   insertParametersIntoLocale(locales.response.success, {
                     email: actionData.email,
                     systemMail: actionData.systemMail,
-                    supportMail: actionData.supportMail,
                   }),
                   [
                     <span key="email-highlight" className="mv-font-semibold" />,
                     <a
                       key="support-mail-link"
-                      href="mailto:{{supportMail}}"
+                      href={`mailto:${actionData.supportMail}`}
                       className="mv-text-primary mv-font-semibold hover:mv-underline"
                     >
                       {" "}
