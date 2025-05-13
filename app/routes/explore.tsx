@@ -21,7 +21,7 @@ import { getEventIds } from "./explore/events.server";
 import { getProjectIds } from "./explore/projects.server";
 import { getFundingIds } from "./explore/fundings.server";
 import { getFilterSchemes } from "./explore/index";
-import React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -107,12 +107,12 @@ function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
-  const [links, setLinks] = React.useState<
+  const [links, setLinks] = useState<
     { to: string; label: string; value: number; end?: boolean }[]
   >([]);
-  const [currentLink, setCurrentLink] = React.useState(links[0]);
+  const [currentLink, setCurrentLink] = useState(links[0]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const newLinks = [
       {
         to: "/explore",
@@ -149,7 +149,7 @@ function Explore() {
     setLinks(newLinks);
   }, [loaderData]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const currentPath = window.location.pathname;
       const currentLink = links.find((link) => {
@@ -213,10 +213,10 @@ function Explore() {
 }
 
 const EntitiesSelectMenuItemContext =
-  React.createContext<DropDownMenuItemProps | null>(null);
+  createContext<DropDownMenuItemProps | null>(null);
 
 function useIsActive() {
-  const context = React.useContext(EntitiesSelectMenuItemContext);
+  const context = useContext(EntitiesSelectMenuItemContext);
   if (context === null) {
     throw new Error(
       "useIsActive must be used within a EntitiesSelectMenuItemContext"
