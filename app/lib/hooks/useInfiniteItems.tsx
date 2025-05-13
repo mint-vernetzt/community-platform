@@ -1,5 +1,5 @@
+import { useCallback, useEffect, useState } from "react";
 import { useFetcher } from "react-router";
-import React from "react";
 
 export function useInfiniteItems(
   // TODO: fix type issue
@@ -9,16 +9,16 @@ export function useInfiniteItems(
   key: string,
   searchParams?: URLSearchParams
 ) {
-  const [items, setItems] = React.useState(initialItems);
-  const [page, setPage] = React.useState(2);
+  const [items, setItems] = useState(initialItems);
+  const [page, setPage] = useState(2);
   const fetcher = useFetcher();
 
-  const [scrollPosition, setScrollPosition] = React.useState(0);
-  const [clientHeight, setClientHeight] = React.useState(0);
-  const [height, setHeight] = React.useState<number | null>(null);
-  const [shouldFetch, setShouldFetch] = React.useState(true);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [clientHeight, setClientHeight] = useState(0);
+  const [height, setHeight] = useState<number | null>(null);
+  const [shouldFetch, setShouldFetch] = useState(true);
 
-  const refCallback = React.useCallback(
+  const refCallback = useCallback(
     (node: HTMLDivElement) => {
       if (node !== null) {
         setHeight(node.getBoundingClientRect().height);
@@ -28,13 +28,13 @@ export function useInfiniteItems(
     [items.length]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     setShouldFetch(true);
     setItems(initialItems);
     setPage(2);
   }, [initialItems]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const scrollListener = () => {
       setClientHeight(window.innerHeight);
       setScrollPosition(window.scrollY);
@@ -53,7 +53,7 @@ export function useInfiniteItems(
     };
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (shouldFetch === false || height === null) {
       return;
     }
@@ -72,7 +72,7 @@ export function useInfiniteItems(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientHeight, scrollPosition]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       fetcher.data !== undefined &&
       fetcher.data !== null &&

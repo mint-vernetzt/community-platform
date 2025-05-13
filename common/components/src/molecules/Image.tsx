@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type ImageProps = {
   src?: string;
@@ -9,11 +9,11 @@ export type ImageProps = {
 
 function Image(props: ImageProps) {
   const { resizeType = "fill" } = props;
-  const imageRef = React.useRef<HTMLImageElement | null>(null);
-  const blurredImageRef = React.useRef<HTMLImageElement | null>(null);
-  const [imageLoaded, setImageLoaded] = React.useState(false);
-  const [blurredImageLoaded, setBlurredImageLoaded] = React.useState(false);
-  React.useEffect(() => {
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const blurredImageRef = useRef<HTMLImageElement | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [blurredImageLoaded, setBlurredImageLoaded] = useState(false);
+  useEffect(() => {
     if (imageRef.current !== null && imageRef.current.complete) {
       setImageLoaded(true);
     }

@@ -2,7 +2,7 @@ import {
   Input,
   type InputLabelProps,
 } from "@mint-vernetzt/components/src/molecules/Input";
-import React from "react";
+import { Children, cloneElement, isValidElement } from "react";
 
 function ConformSelectControls(props: React.PropsWithChildren) {
   return (
@@ -55,7 +55,7 @@ function ConformSelectInput(props: {
       </label>
       <ul className="mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
         {listItems.map((button) => {
-          if (React.isValidElement(button)) {
+          if (isValidElement(button)) {
             if (button.type === "button") {
               return (
                 <li
@@ -89,19 +89,19 @@ type ConformSelectProps = React.PropsWithChildren<
 
 function ConformSelect(props: ConformSelectProps) {
   const { children, disabled = false } = props;
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child) || typeof child === "string";
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child) || typeof child === "string";
   });
 
   const error = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Error;
+    return isValidElement(child) && child.type === Input.Error;
   });
 
   const labelString = validChildren.find((child) => {
     return typeof child === "string";
   });
   const labelComponent = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.Label;
+    return isValidElement(child) && child.type === Input.Label;
   }) as React.ReactElement;
 
   type LabelComponentType = React.DetailedReactHTMLElement<
@@ -121,7 +121,7 @@ function ConformSelect(props: ConformSelectProps) {
       </Input.Label>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+    label = cloneElement<React.PropsWithChildren<InputLabelProps>>(
       labelComponent as LabelComponentType,
       {
         hasError: typeof error !== "undefined",
@@ -135,17 +135,16 @@ function ConformSelect(props: ConformSelectProps) {
 
   const listItems = validChildren.filter((child) => {
     return (
-      React.isValidElement(child) &&
-      (child.type === "button" || child.type === "div")
+      isValidElement(child) && (child.type === "button" || child.type === "div")
     );
   });
 
   const helperText = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === Input.HelperText;
+    return isValidElement(child) && child.type === Input.HelperText;
   });
 
   const controls = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === ConformSelectControls;
+    return isValidElement(child) && child.type === ConformSelectControls;
   });
 
   return (

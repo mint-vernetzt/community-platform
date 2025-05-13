@@ -17,7 +17,6 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
 } from "lexical";
-import React from "react";
 import { Add } from "~/components-next/icons/Add";
 import { ArrowClockwise } from "~/components-next/icons/ArrowClockwise";
 import { ArrowCounterClockwise } from "~/components-next/icons/ArrowCounterClockwise";
@@ -28,21 +27,22 @@ import { OrderedList } from "~/components-next/icons/OrderedList";
 import { Underline } from "~/components-next/icons/Underline";
 import { UnorderedList } from "~/components-next/icons/UnorderedList";
 import { type RTELocales } from "../../RTE";
+import { useEffect, useRef, useState } from "react";
 
 function ToolbarPlugin(props: { locales: RTELocales }) {
   const { locales } = props;
   const [editor] = useLexicalComposerContext();
 
-  const linkInputRef = React.useRef<HTMLInputElement>(null);
-  const [linkInputValue, setLinkInputValue] = React.useState("https://");
-  const showInsertLinkMenuButtonRef = React.useRef<HTMLButtonElement>(null);
-  const [showInsertLinkMenu, setShowInsertLinkMenu] = React.useState(false);
-  const [canInsertLink, setCanInsertLink] = React.useState(false);
-  const [canUndo, setCanUndo] = React.useState(false);
-  const [canRedo, setCanRedo] = React.useState(false);
-  const [isBoldActive, setIsBoldActive] = React.useState(false);
-  const [isItalicActive, setIsItalicActive] = React.useState(false);
-  const [isUnderlineActive, setIsUnderlineActive] = React.useState(false);
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const [linkInputValue, setLinkInputValue] = useState("https://");
+  const showInsertLinkMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const [showInsertLinkMenu, setShowInsertLinkMenu] = useState(false);
+  const [canInsertLink, setCanInsertLink] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const [isBoldActive, setIsBoldActive] = useState(false);
+  const [isItalicActive, setIsItalicActive] = useState(false);
+  const [isUnderlineActive, setIsUnderlineActive] = useState(false);
 
   const baseButtonClassName =
     "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
@@ -50,7 +50,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
   const enabledClassName =
     "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-200 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("click", (event) => {
       if (
         event.target instanceof Node &&
@@ -66,7 +66,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
     });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     editor.registerCommand(
       CAN_UNDO_COMMAND,
       (payload) => {

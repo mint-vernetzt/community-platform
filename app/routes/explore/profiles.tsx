@@ -21,7 +21,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -54,6 +53,7 @@ import {
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
 import { type FilterSchemes, getFilterSchemes } from "./index";
+import { useState } from "react";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -416,7 +416,7 @@ export default function ExploreProfiles() {
     `${loaderData.submission.value.prfPage + 1}`
   );
 
-  const [searchQuery, setSearchQuery] = React.useState(
+  const [searchQuery, setSearchQuery] = useState(
     loaderData.submission.value.prfAreaSearch
   );
 

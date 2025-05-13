@@ -21,7 +21,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -55,6 +54,7 @@ import {
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
 import { getFilterSchemes, type FilterSchemes } from "./index";
+import { useState } from "react";
 
 const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
 
@@ -426,7 +426,7 @@ export default function ExploreOrganizations() {
     `${loaderData.submission.value.orgPage + 1}`
   );
 
-  const [searchQuery, setSearchQuery] = React.useState(
+  const [searchQuery, setSearchQuery] = useState(
     loaderData.submission.value.orgAreaSearch
   );
 

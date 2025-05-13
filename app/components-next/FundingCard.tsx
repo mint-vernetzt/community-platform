@@ -1,4 +1,4 @@
-import React from "react";
+import { Children, isValidElement } from "react";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
 import { type SearchFundingsLocales } from "~/routes/search/fundings.server";
 
@@ -8,11 +8,9 @@ export function FundingCard(props: {
   locales: ExploreFundingsLocales | SearchFundingsLocales;
 }) {
   const { locales } = props;
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const subtitle = validChildren.find((child) => {
     return (child as React.ReactElement).type === FundingCardSubtitle;
@@ -118,11 +116,9 @@ function FundingCardCategory(props: {
 }) {
   const { locales } = props;
 
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
   const title = validChildren.find((child) => {
     return (child as React.ReactElement).type === FundingCardCategoryTitle;
   });

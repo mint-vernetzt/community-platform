@@ -1,4 +1,4 @@
-import React from "react";
+import { createElement, forwardRef } from "react";
 
 export type HeadingTypes = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export type HeadingStyles = "h0" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
@@ -8,7 +8,7 @@ export interface HeadingProps extends React.HTMLProps<HTMLHeadingElement> {
   like?: HeadingStyles;
 }
 
-export const Heading = React.forwardRef(
+export const Heading = forwardRef(
   (props: HeadingProps, ref: React.ForwardedRef<HTMLHeadingElement>) => {
     const { as, ...otherProps } = props;
     let { like, className = "" } = props;
@@ -19,7 +19,7 @@ export const Heading = React.forwardRef(
       className = `${className} ${like}`.trimStart();
     }
 
-    const element = React.createElement(as, {
+    const element = createElement(as, {
       className,
       ...otherProps,
       ref,
@@ -29,7 +29,7 @@ export const Heading = React.forwardRef(
 );
 Heading.displayName = "Heading";
 
-export const H1 = React.forwardRef(
+export const H1 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>
@@ -39,7 +39,7 @@ export const H1 = React.forwardRef(
 );
 H1.displayName = "H1";
 
-export const H2 = React.forwardRef(
+export const H2 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>
@@ -49,7 +49,7 @@ export const H2 = React.forwardRef(
 );
 H2.displayName = "H2";
 
-export const H3 = React.forwardRef(
+export const H3 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>
@@ -59,7 +59,7 @@ export const H3 = React.forwardRef(
 );
 H3.displayName = "H3";
 
-export const H4 = React.forwardRef(
+export const H4 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>
@@ -69,7 +69,7 @@ export const H4 = React.forwardRef(
 );
 H4.displayName = "H4";
 
-export const H5 = React.forwardRef(
+export const H5 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>
@@ -79,7 +79,7 @@ export const H5 = React.forwardRef(
 );
 H5.displayName = "H5";
 
-export const H6 = React.forwardRef(
+export const H6 = forwardRef(
   (
     props: { like?: HeadingStyles } & React.HTMLProps<HTMLHeadingElement>,
     ref: React.ForwardedRef<HTMLHeadingElement>

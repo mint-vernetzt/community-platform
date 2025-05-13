@@ -74,7 +74,6 @@ module.exports = {
       ],
       rules: {
         "@typescript-eslint/consistent-type-imports": "warn",
-        "import/no-named-as-default-member": "off",
       },
     },
 

@@ -25,7 +25,7 @@ export const locale = {
     add: {
       headline: "Teilnehmende hinzufügen",
       intro:
-        "Füge hier Eurer Veranstaltung ein bereits bestehendes Profil als Teilnehmende hinzu.",
+        "Füge hier Eurer Veranstaltung eine Person als Teilnehmende hinzu.",
       label: "Name oder Email der Teilnehmer:in",
     },
     current: {

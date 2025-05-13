@@ -29,7 +29,7 @@ async function main() {
   for (const user of usersWithoutProfile) {
     csv += `${user.id},${user.email},${user.created_at},${user.confirmed_at}\n`;
   }
-
+  // eslint-disable-next-line import/no-named-as-default-member
   fs.writeFile("users-without-profiles.csv", csv, "utf8");
 }
 

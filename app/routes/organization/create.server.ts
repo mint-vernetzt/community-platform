@@ -18,8 +18,8 @@ import {
 } from "~/mailer.server";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import * as Sentry from "@sentry/node";
 import { generateOrganizationSlug } from "~/utils.server";
+import { captureException } from "@sentry/node";
 
 export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
@@ -420,7 +420,7 @@ export async function createOrganizationMemberRequest(options: {
                   html
                 );
               } catch (error) {
-                Sentry.captureException(error);
+                captureException(error);
                 ctx.addIssue({
                   code: "custom",
                   message: locales.route.error.requestFailed,
@@ -430,7 +430,7 @@ export async function createOrganizationMemberRequest(options: {
             })
           );
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.requestFailed,
@@ -508,7 +508,7 @@ export async function createOrganization(options: {
         try {
           await createOrganizationOnProfile(sessionUser.id, data, slug);
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.requestFailed,

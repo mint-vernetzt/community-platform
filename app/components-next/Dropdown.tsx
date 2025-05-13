@@ -1,5 +1,13 @@
 import classNames from "classnames";
-import React from "react";
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type DropdownLabelType = React.DetailedReactHTMLElement<
   DropdownLabelProps,
@@ -12,15 +20,15 @@ type DropdownLabelProps = React.PropsWithChildren & {
 function DropdownLabel(
   props: React.PropsWithChildren & { listRef?: React.RefObject<HTMLDivElement> }
 ) {
-  const [checked, setChecked] = React.useState(false);
-  const ref = React.useRef<HTMLLabelElement>(null);
+  const [checked, setChecked] = useState(false);
+  const ref = useRef<HTMLLabelElement>(null);
 
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setChecked(!checked);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (
@@ -95,7 +103,7 @@ type DropdownListType = React.DetailedReactHTMLElement<
 type DropdownListProps = React.HTMLProps<HTMLDivElement> &
   React.PropsWithChildren & { orientation?: "left" | "right" };
 
-const DropdownList = React.forwardRef<
+const DropdownList = forwardRef<
   HTMLDivElement,
   React.PropsWithChildren & { orientation?: "left" | "right" }
 >((props, ref) => {
@@ -110,9 +118,9 @@ const DropdownList = React.forwardRef<
   return (
     <div ref={ref} className={classes}>
       <ul>
-        {React.Children.map(props.children, (child) => {
+        {Children.map(props.children, (child) => {
           const classes = classNames(
-            React.isValidElement(child) &&
+            isValidElement(child) &&
               child.type !== DropdownListDivider &&
               child.type !== DropDownListLegend &&
               child.type !== DropdownListCategory &&
@@ -135,26 +143,26 @@ export function Dropdown(
   }
 ) {
   const orientation = props.orientation || "left";
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const list = children.find((child) => {
-    return React.isValidElement(child) && child.type === DropdownList;
+    return isValidElement(child) && child.type === DropdownList;
   });
-  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const listClone =
     typeof list !== "undefined" && typeof list !== "string"
-      ? React.cloneElement<DropdownListProps>(list as DropdownListType, {
+      ? cloneElement<DropdownListProps>(list as DropdownListType, {
           ref: listRef,
           orientation,
         })
       : null;
 
   const label = children.find((child) => {
-    return React.isValidElement(child) && child.type === DropdownLabel;
+    return isValidElement(child) && child.type === DropdownLabel;
   });
   const labelClone =
     typeof label !== "undefined"
-      ? React.cloneElement<DropdownLabelProps>(label as DropdownLabelType, {
+      ? cloneElement<DropdownLabelProps>(label as DropdownLabelType, {
           listRef,
         })
       : null;

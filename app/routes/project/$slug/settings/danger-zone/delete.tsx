@@ -30,8 +30,9 @@ import {
   deleteProjectBySlug,
   type DeleteProjectLocales,
 } from "./delete.server";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function createSchema(locales: DeleteProjectLocales, name: string) {
   return z.object({
@@ -116,7 +117,7 @@ export const action = async (args: ActionFunctionArgs) => {
         invariant(params.slug !== undefined, locales.error.invalidRoute);
         await deleteProjectBySlug(params.slug);
       } catch (error) {
-        Sentry.captureException(error);
+        captureException(error);
         ctx.addIssue({
           code: "custom",
           message: locales.error.deletionFailed,
@@ -148,6 +149,7 @@ function Delete() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
     id: `delete-project-form-${
@@ -223,7 +225,9 @@ function Delete() {
                 level="negative"
                 disabled={
                   isHydrated
-                    ? form.dirty === false || form.valid === false
+                    ? form.dirty === false ||
+                      form.valid === false ||
+                      isSubmitting
                     : false
                 }
                 fullSize

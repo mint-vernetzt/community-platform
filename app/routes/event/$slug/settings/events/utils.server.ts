@@ -3,7 +3,6 @@ import { prismaClient } from "~/prisma.server";
 // maybe move helper functions like getUserByRequest to other module
 // then we can just mock external modules
 import { invariantResponse } from "~/lib/utils/response";
-import * as self from "./utils.server";
 
 export async function updateParentEventRelationOrThrow(
   slug: string,
@@ -109,7 +108,7 @@ export async function getAllSlugsOfChildEvents(slug: string) {
 
   let childEventChildrenSlugs: string[] = [];
   for (const slug of slugs) {
-    const childrenSlugs = await self.getAllSlugsOfChildEvents(slug);
+    const childrenSlugs = await getAllSlugsOfChildEvents(slug);
     childEventChildrenSlugs = childEventChildrenSlugs.concat(childrenSlugs);
   }
 

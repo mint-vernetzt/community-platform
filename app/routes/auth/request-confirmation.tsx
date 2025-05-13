@@ -24,6 +24,7 @@ import {
   requestConfirmation,
   type RequestConfirmationLocales,
 } from "./request-confirmation.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -45,7 +46,11 @@ export const createRequestConfirmationSchema = (
 ) => {
   return z.object({
     type: z.enum(["signup", "email_change", "recovery"]),
-    email: z.string().email(locales.validation.email),
+    email: z
+      .string({
+        message: locales.validation.email,
+      })
+      .email(locales.validation.email),
     loginRedirect: z.string().optional(),
   });
 };
@@ -78,6 +83,7 @@ export default function RequestConfirmation() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const type = urlSearchParams.get("type");
@@ -198,7 +204,8 @@ export default function RequestConfirmation() {
                     disabled={
                       isHydrated
                         ? requestConfirmationForm.dirty === false ||
-                          requestConfirmationForm.valid === false
+                          requestConfirmationForm.valid === false ||
+                          isSubmitting
                         : false
                     }
                   >

@@ -12,7 +12,7 @@ import {
   useLocation,
   useNavigation,
 } from "react-router";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -45,6 +45,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { languageModuleMap } from "~/locales/.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 const createWebSocialSchema = (locales: OrganizationWebAndSocialLocales) =>
   z.object({
@@ -113,7 +114,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
         if (error !== null) {
           console.error("Error updating organization", error);
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.updateFailed,
@@ -146,6 +147,7 @@ function WebSocial() {
     useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const isHydrated = useHydrated();
 
   const { organizationVisibility, ...rest } = organization;
@@ -188,7 +190,7 @@ function WebSocial() {
         preventScrollReset
         autoComplete="off"
       >
-        <button type="submit" hidden />
+        <button type="submit" hidden disabled={isSubmitting} />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -371,7 +373,9 @@ function WebSocial() {
                   // Don't disable button when js is disabled
                   disabled={
                     isHydrated
-                      ? form.dirty === false || form.valid === false
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

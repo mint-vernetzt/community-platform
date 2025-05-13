@@ -4,7 +4,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { generateValidSlug } from "~/utils.server";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -52,7 +52,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       { status: 400 }
     );
     sendWelcomeMail(profile).catch((error) => {
-      Sentry.captureException(error);
+      captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,

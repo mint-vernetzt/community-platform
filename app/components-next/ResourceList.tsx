@@ -1,15 +1,15 @@
-import React from "react";
+import { Children, isValidElement } from "react";
 
 type ResourceListProps = React.PropsWithChildren;
 
 function ResourceList(props: ResourceListProps) {
   const { children } = props;
 
-  const header = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Header
+  const header = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === Header
   );
-  const other = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type !== Header
+  const other = Children.toArray(children).filter(
+    (child) => isValidElement(child) && child.type !== Header
   );
 
   return (
@@ -37,14 +37,14 @@ type ListItemProps = React.PropsWithChildren;
 function ListItem(props: ListItemProps) {
   const { children } = props;
 
-  const imageSection = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === ImageSection
+  const imageSection = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === ImageSection
   );
-  const contentSection = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === ContentSection
+  const contentSection = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === ContentSection
   );
-  const actionSection = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === ActionSection
+  const actionSection = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === ActionSection
   );
 
   return (
@@ -86,11 +86,11 @@ type ContentSectionProps = React.PropsWithChildren;
 function ContentSection(props: ContentSectionProps) {
   const { children } = props;
 
-  const contentHeader = React.Children.toArray(children).find(
-    (child) => React.isValidElement(child) && child.type === Header
+  const contentHeader = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === Header
   );
-  const other = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type !== Header
+  const other = Children.toArray(children).filter(
+    (child) => isValidElement(child) && child.type !== Header
   );
 
   return (

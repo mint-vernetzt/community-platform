@@ -3,9 +3,9 @@ export const locale = {
     notFound: "Event not found",
     notPrivileged: "Not privileged",
     inputError: {
-      doesNotExist: "Es existiert noch kein Profil unter diesem Namen.",
+      doesNotExist: "Unter diesem Namen wurde keine Person gefunden.",
       alreadyIn:
-        "Das Profil unter diesem Namen nimmt bereits an Eurer Veranstaltung teil.",
+        "Eine Person mit diesem Namen nimmt bereits an Eurer Veranstaltung teil.",
     },
   },
   feedback:

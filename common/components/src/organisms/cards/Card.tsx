@@ -1,8 +1,8 @@
 import classNames from "classnames";
-import React from "react";
 import { Avatar } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 import { Image } from "../../molecules/Image";
+import { Children, isValidElement } from "react";
 
 export type CardProps = {
   children?: React.ReactNode;
@@ -10,18 +10,18 @@ export type CardProps = {
 };
 
 function Card(props: CardProps) {
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const header = children.find((child) => {
-    return React.isValidElement(child) && child.type === CardHeader;
+    return isValidElement(child) && child.type === CardHeader;
   });
 
   const body = children.find((child) => {
-    return React.isValidElement(child) && child.type === CardBody;
+    return isValidElement(child) && child.type === CardBody;
   });
 
   const footer = children.find((child) => {
-    return React.isValidElement(child) && child.type === CardFooter;
+    return isValidElement(child) && child.type === CardFooter;
   });
 
   return (
@@ -54,11 +54,9 @@ export type CardHeaderProps = {
 };
 
 export function CardHeader(props: CardHeaderProps) {
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
   const status = validChildren.find((child) => {
     return (child as React.ReactElement).type === CardStatus;
   });
@@ -70,11 +68,11 @@ export function CardHeader(props: CardHeaderProps) {
   });
 
   const info = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === CardInfo;
+    return isValidElement(child) && child.type === CardInfo;
   });
 
   const infoOverlay = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === CardInfoOverlay;
+    return isValidElement(child) && child.type === CardInfoOverlay;
   });
 
   const dimension = props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40";
@@ -240,14 +238,12 @@ export type CardBodySectionProps = {
 export function CardBodySection(props: CardBodySectionProps) {
   const { emptyMessage = "-nicht angegeben-" } = props;
 
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return (
-        (React.isValidElement(child) && child.type === ChipContainer) ||
-        typeof child === "string"
-      );
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return (
+      (isValidElement(child) && child.type === ChipContainer) ||
+      typeof child === "string"
+    );
+  });
   const firstChild = validChildren[0];
 
   return (
@@ -299,11 +295,11 @@ export type CardRowContainerProps = {
 };
 
 function wrapCardRowContainerChildren(children: React.ReactNode) {
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child);
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child);
   });
 
-  return React.Children.map(validChildren, (child) => {
+  return Children.map(validChildren, (child) => {
     return (
       <div className="mv-w-3/4 @md:mv-w-1/3 mv-px-2 @md:mv-px-4 mv-shrink-0">
         {child}
@@ -315,11 +311,9 @@ function wrapCardRowContainerChildren(children: React.ReactNode) {
 export function CardRowContainer(props: CardRowContainerProps) {
   const itemsPerRow = 3;
 
-  const validChildren = React.Children.toArray(props.children).filter(
-    (child) => {
-      return React.isValidElement(child);
-    }
-  );
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
 
   const classes = classNames("mv-flex -mv-mx-2 @md:-mv-mx-4 mv-mb-8", {
     "mv-flex-wrap": itemsPerRow < validChildren.length,

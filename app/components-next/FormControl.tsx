@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React from "react";
+import { Children, isValidElement } from "react";
 
 function FormControlLabel(props: React.PropsWithChildren) {
   return (
@@ -160,22 +160,25 @@ function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export function FormControl(
-  props: React.InputHTMLAttributes<HTMLInputElement> & React.PropsWithChildren
+  props: React.InputHTMLAttributes<HTMLInputElement> &
+    React.PropsWithChildren & {
+      labelPosition?: "left" | "right";
+    }
 ) {
-  const { children, ...otherProps } = props;
+  const { children, labelPosition = "left", ...otherProps } = props;
 
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
 
   const label = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FormControlLabel;
+    return isValidElement(child) && child.type === FormControlLabel;
   });
 
   const counter = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FormControlCounter;
+    return isValidElement(child) && child.type === FormControlCounter;
   });
 
   const info = childrenArray.find((child) => {
-    return React.isValidElement(child) && child.type === FromControlInfo;
+    return isValidElement(child) && child.type === FromControlInfo;
   });
 
   const classes = classNames(
@@ -186,6 +189,12 @@ export function FormControl(
   return (
     <>
       <label className={classes}>
+        {props.type === "checkbox" && labelPosition === "right" && (
+          <Checkbox {...otherProps} />
+        )}
+        {props.type === "radio" && labelPosition === "right" && (
+          <Radio {...otherProps} />
+        )}
         <span className="mv-whitespace-normal">{label}</span>
         {typeof info !== "undefined" && (
           <label
@@ -238,8 +247,12 @@ export function FormControl(
           </label>
         )}
         {counter}
-        {props.type === "checkbox" && <Checkbox {...otherProps} />}
-        {props.type === "radio" && <Radio {...otherProps} />}
+        {props.type === "checkbox" && labelPosition === "left" && (
+          <Checkbox {...otherProps} />
+        )}
+        {props.type === "radio" && labelPosition === "left" && (
+          <Radio {...otherProps} />
+        )}
       </label>
       <span className={props.disabled ? "mv-text-gray-400" : ""}>{info}</span>
     </>

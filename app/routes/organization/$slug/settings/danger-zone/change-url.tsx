@@ -30,6 +30,7 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { type ChangeOrganizationUrlLocales } from "./change-url.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function createSchema(locales: ChangeOrganizationUrlLocales) {
   return z.object({
@@ -142,6 +143,7 @@ function ChangeURL() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
     id: `change-url-form-${
@@ -236,7 +238,9 @@ function ChangeURL() {
                 fullSize
                 disabled={
                   isHydrated
-                    ? form.dirty === false || form.valid === false
+                    ? form.dirty === false ||
+                      form.valid === false ||
+                      isSubmitting
                     : false
                 }
               >

@@ -1,4 +1,4 @@
-import React from "react";
+import { cloneElement } from "react";
 
 export function insertComponentsIntoLocale(
   locale: string,
@@ -33,7 +33,7 @@ export function insertComponentsIntoLocale(
       const component = components[index];
       const children = match[0].replace(/<\d+>|<\/\d+>/g, "");
       result.push(
-        React.cloneElement(
+        cloneElement(
           component,
           { ...component.props, key: lastIndex },
           children
@@ -59,7 +59,7 @@ export function insertComponentsIntoLocale(
         ""
       );
       result.push(
-        React.cloneElement(
+        cloneElement(
           component,
           { ...component.props, key: lastIndex },
           children

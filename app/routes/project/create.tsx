@@ -28,6 +28,7 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 80;
@@ -162,6 +163,7 @@ export const action = async (args: ActionFunctionArgs) => {
 function Create() {
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const { locales } = loaderData;
@@ -259,7 +261,9 @@ function Create() {
                 // Don't disable button when js is disabled
                 disabled={
                   isHydrated
-                    ? form.dirty === false || form.valid === false
+                    ? form.dirty === false ||
+                      form.valid === false ||
+                      isSubmitting
                     : false
                 }
               >

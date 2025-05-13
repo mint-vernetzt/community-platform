@@ -1,6 +1,7 @@
-import * as React from "react";
+import { createRef } from "react";
 import { capitalizeFirstLetter } from "../../../lib/string/transform";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export interface InputAddProps {
   label: string;
@@ -10,7 +11,7 @@ export interface InputAddProps {
 }
 
 function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
-  const buttonRef = React.createRef<HTMLButtonElement>();
+  const buttonRef = createRef<HTMLButtonElement>();
   const {
     label,
     entries = [],
@@ -20,6 +21,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   } = props;
   const singularName = (inputProps.name || "").slice(0, -1);
   const uppercaseSingularName = capitalizeFirstLetter(singularName);
+  const isSubmitting = useIsSubmitting();
 
   return (
     <>
@@ -69,6 +71,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
               type="submit"
               className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600"
               value={`add${uppercaseSingularName}`}
+              disabled={isSubmitting}
             >
               +
             </button>
@@ -93,6 +96,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
               value={entry}
               className="ml-auto btn-none"
               title="entfernen"
+              disabled={isSubmitting}
             >
               <svg
                 viewBox="0 0 10 10"

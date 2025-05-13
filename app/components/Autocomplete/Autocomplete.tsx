@@ -3,7 +3,6 @@ import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Event, Organization, Profile } from "@prisma/client";
 import { useSearchParams, useSubmit } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
-import React from "react";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
@@ -17,6 +16,7 @@ import { type ConnectedEventsSettingsLocales } from "~/routes/event/$slug/settin
 import { type EventOrganizationsSettingsLocales } from "~/routes/event/$slug/settings/organizations.server";
 import { type EventParticipantsLocales } from "~/routes/event/$slug/settings/participants.server";
 import { type EventSpeakersSettingsLocales } from "~/routes/event/$slug/settings/speakers.server";
+import { useEffect, useRef, useState } from "react";
 
 export interface AutocompleteProps {
   suggestions:
@@ -78,22 +78,22 @@ function Autocomplete(
     ...rest
   } = props;
 
-  const [searchedValue, setSearchedValue] = React.useState("");
-  const [submitValue, setSubmitValue] = React.useState("");
-  const [activeSuggestion, setActiveSuggestion] = React.useState(0);
+  const [searchedValue, setSearchedValue] = useState("");
+  const [submitValue, setSubmitValue] = useState("");
+  const [activeSuggestion, setActiveSuggestion] = useState(0);
   const submit = useSubmit();
-  const suggestionsContainerRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const suggestionsContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get(searchParameter);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inputRef.current !== null) {
       setSearchedValue(defaultValue);
     }
   }, [defaultValue]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       suggestionsContainerRef.current !== null &&
       suggestionsContainerRef.current.getBoundingClientRect().bottom >

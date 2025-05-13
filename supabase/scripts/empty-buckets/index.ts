@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { program } from "commander";
-import * as dotenv from "dotenv";
+import { config } from "dotenv";
 
-dotenv.config({ path: "./.env" });
+config({ path: "./.env" });
 
 program
   .name("empty-buckets")

@@ -5,7 +5,6 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { Form, useActionData, useLoaderData, useLocation } from "react-router";
-import React from "react";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -22,7 +21,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
@@ -35,6 +34,8 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 80;
@@ -322,7 +323,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
           updateFilterVectorOfProject(project.id);
         } catch (error) {
-          Sentry.captureException(error);
+          captureException(error);
           ctx.addIssue({
             code: "custom",
             message: locales.route.error.storage,
@@ -353,6 +354,7 @@ function General() {
   const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const { project, allFormats, areaOptions, locales } = loaderData;
@@ -394,7 +396,7 @@ function General() {
     locales,
   });
 
-  const [furtherFormat, setFurtherFormat] = React.useState<string>("");
+  const [furtherFormat, setFurtherFormat] = useState<string>("");
   const handleFurtherFormatInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -415,7 +417,7 @@ function General() {
         autoComplete="off"
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-        <button type="submit" hidden />
+        <button type="submit" hidden disabled={isSubmitting} />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
@@ -995,7 +997,9 @@ function General() {
                   // Don't disable button when js is disabled
                   disabled={
                     isHydrated
-                      ? form.dirty === false || form.valid === false
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

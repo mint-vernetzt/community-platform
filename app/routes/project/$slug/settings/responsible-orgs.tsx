@@ -36,6 +36,7 @@ import {
   removeResponsibleOrganizationFromProject,
 } from "./responsible-orgs.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -190,6 +191,7 @@ function Team() {
 
   const location = useLocation();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
   const searchFetcher = useFetcher<typeof loader>();
@@ -294,6 +296,7 @@ function Team() {
                         value={`remove-responsible-organization-${relation.organization.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.current.remove}
                       </Button>
@@ -378,6 +381,7 @@ function Team() {
                           value={`add-responsible-organization-${ownOrganization.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.addOwn.submit}
                         </Button>
@@ -535,6 +539,7 @@ function Team() {
                           value={`add-responsible-organization-${searchedOrganization.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.addOther.add}
                         </Button>
@@ -657,6 +662,7 @@ function Team() {
                         value={`invite-team-member-${profile.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.invite.submit}
                       </Button>
@@ -714,6 +720,7 @@ function Team() {
                           value={`cancel-team-member-invite-${profile.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.invites.cancel}
                         </Button>

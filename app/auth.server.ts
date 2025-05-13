@@ -1,13 +1,17 @@
 import type { Profile } from "@prisma/client";
+import { captureException } from "@sentry/node";
 import {
   createServerClient,
   parseCookieHeader,
   serializeCookieHeader,
 } from "@supabase/ssr";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type User,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
-import * as Sentry from "@sentry/node";
 
 // TODO: use session names based on environment (e.g. sb2-dev, sb2-prod)
 const SESSION_NAME = "sb2";
@@ -20,7 +24,17 @@ export const createAuthClient = (request: Request) => {
     {
       cookies: {
         getAll() {
-          return parseCookieHeader(request.headers.get("Cookie") ?? "");
+          const parsedCookieHeader = parseCookieHeader(
+            request.headers.get("Cookie") || ""
+          );
+          const filteredCookies = parsedCookieHeader.filter(
+            (cookie) =>
+              typeof cookie.value !== "undefined" && cookie.value !== undefined
+          ) as {
+            name: string;
+            value: string;
+          }[];
+          return filteredCookies;
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
@@ -139,7 +153,7 @@ export const getSessionUser = async (authClient: SupabaseClient) => {
     user = data.user;
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error);
+    captureException(error);
   }
   if (user !== undefined && user !== null) {
     return user;
@@ -167,7 +181,7 @@ export const getSessionUserOrRedirectPathToLogin = async (
     result = await getSessionUser(authClient);
   } catch (error) {
     console.error(error);
-    Sentry.captureException(error);
+    captureException(error);
   }
   const url = new URL(request.url);
   url.searchParams.set("login_redirect", url.pathname);
@@ -194,13 +208,14 @@ export async function sendResetPasswordLink(
   return { error };
 }
 
-export async function updatePassword(
-  authClient: SupabaseClient,
-  password: string
-) {
-  const { data, error } = await authClient.auth.updateUser({
-    password,
-  });
+export async function updatePassword(sessionUser: User, password: string) {
+  const adminAuthClient = createAdminAuthClient();
+  const { data, error } = await adminAuthClient.auth.admin.updateUserById(
+    sessionUser.id,
+    {
+      password,
+    }
+  );
   return { data, error };
 }
 

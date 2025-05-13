@@ -1,24 +1,34 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { useLoaderData, useSearchParams, useSubmit } from "react-router";
-import { type SupabaseClient } from "@supabase/supabase-js";
-import React from "react";
-import { makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
-import { createAuthClient, getSessionUser } from "~/auth.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { prismaClient } from "~/prisma.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import { type AcceptTermsLocales } from "./accept-terms.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { checkboxSchema } from "~/lib/utils/schemas";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { acceptTerms } from "./accept-terms.server";
+import { FormControl } from "~/components-next/FormControl";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
-const schema = z.object({
-  termsAccepted: z.boolean(),
+export const acceptTermsSchema = z.object({
+  termsAccepted: checkboxSchema,
   redirectTo: z.string().optional(),
 });
 
@@ -39,166 +49,164 @@ export const loader = async (args: LoaderFunctionArgs) => {
       }
       const language = await detectLanguage(request);
       const locales = languageModuleMap[language]["accept-terms"];
-      return { profile, locales };
+      return { profile, locales, currentTimestamp: Date.now() };
     }
   }
   return redirect("/");
 };
 
-const createMutation = (locales: AcceptTermsLocales) => {
-  return makeDomainFunction(
-    schema,
-    z.object({ authClient: z.unknown() })
-  )(async (values, environment) => {
-    const { termsAccepted } = values;
-    const { authClient } = environment;
-
-    if (!termsAccepted) {
-      throw locales.error.notAccepted;
-    }
-    // TODO: can this type assertion be removed and proofen by code?
-    const sessionUser = await getSessionUser(authClient as SupabaseClient);
-
-    if (sessionUser === null) {
-      throw locales.error.unauthorized;
-    }
-    await prismaClient.profile.update({
-      where: { id: sessionUser.id },
-      data: { termsAccepted, termsAcceptedAt: new Date() },
-    });
-
-    return values;
-  });
-};
-
-export const action = async (args: ActionFunctionArgs) => {
-  const { request } = args;
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["accept-terms"];
-  const { authClient } = createAuthClient(request);
 
-  const result = await performMutation({
-    request,
-    schema,
-    mutation: createMutation(locales),
-    environment: { authClient: authClient },
+  const formData = await request.formData();
+  const { submission } = await acceptTerms({
+    formData,
+    sessionUser,
+    locales,
   });
 
-  if (result.success === true) {
-    return redirect(result.data.redirectTo || "/dashboard");
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
-  return result;
+  if (typeof submission.value.redirectTo !== "undefined") {
+    return redirect(submission.value.redirectTo);
+  }
+  return redirect("/dashboard");
 };
 
-function AcceptTerms() {
-  const { locales } = useLoaderData<typeof loader>();
+export default function AcceptTerms() {
+  const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales, currentTimestamp } = loaderData;
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const redirectTo = urlSearchParams.get("redirect_to");
 
-  const submit = useSubmit();
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      if (event.target.getAttribute("name") !== "termsAccepted") {
-        submit(event.currentTarget);
-      }
-    }
-  };
+  const [acceptTermsForm, acceptTermsFields] = useForm({
+    id: `accept-terms-${actionData?.currentTimestamp || currentTimestamp}`,
+    constraint: getZodConstraint(acceptTermsSchema),
+    defaultValue: {
+      redirectTo: redirectTo,
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: acceptTermsSchema.transform((data, ctx) => {
+          if (data.termsAccepted === false) {
+            ctx.addIssue({
+              code: "custom",
+              message: locales.error.notAccepted,
+            });
+            return z.NEVER;
+          }
+          return { ...data };
+        }),
+      });
+      return submission;
+    },
+  });
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative pt-20 pb-44">
-      <div className="flex -mx-4 justify-center">
-        <div className="@md:mv-shrink-0 @md:mv-grow-0 @md:mv-basis-1/2 px-4 pt-10 @lg:mv-pt-0">
-          <h1 className="mb-4">{locales.content.headline}</h1>
-          <RemixFormsForm
-            method="post"
-            schema={schema}
-            onKeyDown={handleKeyPress}
-          >
-            {({ Field, Errors, register }) => (
-              <>
-                <div className="mb-8">
-                  <div className="form-control checkbox-privacy">
-                    <label className="label cursor-pointer items-start">
-                      <input
-                        name="redirectTo"
-                        defaultValue={redirectTo || undefined}
-                        hidden
-                      />
-                      <Field name="termsAccepted">
-                        {({ Errors }) => {
-                          const ForwardRefComponent = React.forwardRef<
-                            HTMLInputElement,
-                            React.DetailedHTMLProps<
-                              React.InputHTMLAttributes<HTMLInputElement>,
-                              HTMLInputElement
-                            >
-                          >((props, ref) => {
-                            return (
-                              <>
-                                <input ref={ref} {...props} />
-                              </>
-                            );
-                          });
-                          ForwardRefComponent.displayName =
-                            "ForwardRefComponent";
-                          return (
-                            <>
-                              <ForwardRefComponent
-                                type="checkbox"
-                                className="checkbox checkbox-primary mr-4"
-                                {...register("termsAccepted")}
-                              />
-                              <Errors />
-                            </>
-                          );
-                        }}
-                      </Field>
-                      <span className="label-text">
-                        {insertComponentsIntoLocale(
-                          locales.content.confirmation,
-                          [
-                            <a
-                              key="terms-of-use-confirmation"
-                              href="https://mint-vernetzt.de/terms-of-use-community-platform"
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="text-primary font-bold hover:underline"
-                            >
-                              {" "}
-                            </a>,
-                            <a
-                              key="privacy-policy-confirmation"
-                              href="https://mint-vernetzt.de/privacy-policy-community-platform"
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              className="text-primary font-bold hover:underline"
-                            >
-                              {" "}
-                            </a>,
-                          ]
-                        )}
-                      </span>
-                    </label>
-                  </div>
+    <Form
+      {...getFormProps(acceptTermsForm)}
+      method="post"
+      preventScrollReset
+      autoComplete="off"
+    >
+      <>
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
+          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
+            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+              <h1 className="mv-mb-8">{locales.content.headline}</h1>
+              <div className="mv-mb-4 -mv-ml-5">
+                <FormControl
+                  {...getInputProps(acceptTermsFields.termsAccepted, {
+                    type: "checkbox",
+                  })}
+                  key="termsAccepted"
+                  labelPosition="right"
+                >
+                  <FormControl.Label>
+                    <div className="mv-pl-2">
+                      {insertComponentsIntoLocale(
+                        locales.content.confirmation,
+                        [
+                          <a
+                            key="terms-of-use-confirmation"
+                            href="https://mint-vernetzt.de/terms-of-use-community-platform"
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="mv-text-primary mv-font-semibold hover:mv-underline"
+                          >
+                            {" "}
+                          </a>,
+                          <a
+                            key="privacy-policy-confirmation"
+                            href="https://mint-vernetzt.de/privacy-policy-community-platform"
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="mv-text-primary mv-font-semibold hover:mv-underline"
+                          >
+                            {" "}
+                          </a>,
+                        ]
+                      )}
+                    </div>
+                  </FormControl.Label>
+                </FormControl>
+              </div>
+              {typeof acceptTermsForm.errors !== "undefined" &&
+              acceptTermsForm.errors.length > 0 ? (
+                <div className="mv-mb-10">
+                  {acceptTermsForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={acceptTermsForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="mb-8">
-                  <button type="submit" className="btn btn-primary">
-                    {locales.content.submit}
-                  </button>
-                </div>
-                <Errors />
-              </>
-            )}
-          </RemixFormsForm>
+              ) : null}
+              <input
+                {...getInputProps(acceptTermsFields.redirectTo, {
+                  type: "hidden",
+                })}
+                key="redirectTo"
+              />
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? acceptTermsForm.dirty === false ||
+                        acceptTermsForm.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.content.submit}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </>
+    </Form>
   );
 }
-
-export default AcceptTerms;

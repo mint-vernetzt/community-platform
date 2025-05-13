@@ -3,23 +3,23 @@ import classNames from "classnames";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
 import { utcToZonedTime } from "date-fns-tz";
-import React from "react";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type MyEventsLocales } from "~/routes/my/events.server";
 import { type OrganizationEventsLocales } from "~/routes/organization/$slug/detail/events.server";
+import { useEffect, useRef, useState } from "react";
 
 function ListItemImage(props: {
   src: string;
   blurredSrc: string;
   alt: string;
 }) {
-  const imgRef = React.useRef<HTMLImageElement | null>(null);
-  const blurredImgRef = React.useRef<HTMLImageElement | null>(null);
-  const [imgLoaded, setImgLoaded] = React.useState(false);
-  const [blurredImgLoaded, setBlurredImgLoaded] = React.useState(false);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const blurredImgRef = useRef<HTMLImageElement | null>(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [blurredImgLoaded, setBlurredImgLoaded] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (imgRef.current !== null && imgRef.current.complete) {
       setImgLoaded(true);
     }

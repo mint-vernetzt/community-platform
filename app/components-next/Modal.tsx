@@ -1,6 +1,13 @@
 import { Link, useSearchParams } from "react-router";
-import React, { type ReactElement } from "react";
 import { createPortal } from "react-dom";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useState,
+} from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return <div className="mv-w-full mv-text-sm mv-gap-2">{props.children}</div>;
@@ -56,6 +63,7 @@ function ModalSubmitButton(
   props: React.InputHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, ...inputProps } = props;
+  const isSubmitting = useIsSubmitting();
 
   return (
     <button
@@ -66,6 +74,7 @@ function ModalSubmitButton(
           ? "mv-bg-neutral-200 mv-text-neutral-400"
           : "mv-bg-primary mv-text-neutral-50"
       }`}
+      disabled={inputProps.disabled || isSubmitting}
     >
       {children}
     </button>
@@ -82,9 +91,9 @@ function ModalTitle(props: { children: React.ReactNode }) {
 
 function useRedirect(props: { searchParam: string }) {
   const [searchParams] = useSearchParams();
-  const [redirect, setRedirect] = React.useState<string | null>(null);
+  const [redirect, setRedirect] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const searchParamsCopy = new URLSearchParams(searchParams.toString());
     searchParamsCopy.delete(props.searchParam);
     const params = searchParamsCopy.toString();
@@ -101,16 +110,16 @@ function useRedirect(props: { searchParam: string }) {
 
 function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
   const [searchParams] = useSearchParams();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const redirect = useRedirect({ searchParam: props.searchParam });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (typeof document !== "undefined") {
       setOpen(searchParams.get(props.searchParam) === "true");
     }
   }, [props.searchParam, searchParams]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       // const modalCloseTop = document.getElementById("modal-close-top");
       // modalCloseTop?.focus();
@@ -124,18 +133,18 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
     return null;
   }
 
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
   const title = children.find((child) => {
-    return React.isValidElement(child) && child.type === ModalTitle;
+    return isValidElement(child) && child.type === ModalTitle;
   });
   const sections = children.filter((child) => {
-    return React.isValidElement(child) && child.type === ModalSection;
+    return isValidElement(child) && child.type === ModalSection;
   });
   const submitButton = children.find((child) => {
-    return React.isValidElement(child) && child.type === ModalSubmitButton;
+    return isValidElement(child) && child.type === ModalSubmitButton;
   });
   const closeButton = children.find((child) => {
-    return React.isValidElement(child) && child.type === ModalCloseButton;
+    return isValidElement(child) && child.type === ModalCloseButton;
   });
 
   if (closeButton === null) {
@@ -144,8 +153,8 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
 
   const closeButtonClone =
     typeof closeButton !== "undefined"
-      ? React.cloneElement<ModalCloseButtonProps>(
-          closeButton as ReactElement<ModalCloseButtonProps>,
+      ? cloneElement<ModalCloseButtonProps>(
+          closeButton as React.ReactElement<ModalCloseButtonProps>,
           {
             route: redirect || undefined,
           }

@@ -45,7 +45,7 @@ export const locale = {
         benefitsOfRegistration: {
           question: "Why should I register? I can already see content.",
           answer:
-            "<p>We want to make many features freely accessible so that you can easily view content. Not all content is visible when you're not logged in, so we recommend registering. Additionally, you can only create your own profiles, organizations, and projects after registering. You can also register for events only after you've created a profile.</p>",
+            "<p>We want to make many features freely accessible so that you can easily view content. Not all content is visible when you're not logged in, so we recommend registering. Additionally, you, as well as your own organizations and projects, can only be added after registration. You can also register for events only after you have created a profile.</p>",
         },
         mintId: {
           question: "What is the MINT-ID?",

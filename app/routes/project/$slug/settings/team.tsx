@@ -35,6 +35,7 @@ import {
   removeTeamMemberFromProject,
 } from "./team.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -180,6 +181,7 @@ function Team() {
 
   const location = useLocation();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
   const searchFetcher = useFetcher<typeof loader>();
@@ -275,6 +277,7 @@ function Team() {
                         value={`remove-team-member-${relation.profile.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.current.remove}
                       </Button>
@@ -428,6 +431,7 @@ function Team() {
                           value={`add-team-member-${searchedProfile.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.add.submit}
                         </Button>
@@ -550,6 +554,7 @@ function Team() {
                         value={`invite-team-member-${profile.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.invite.submit}
                       </Button>
@@ -607,6 +612,7 @@ function Team() {
                           value={`cancel-team-member-invite-${profile.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.invites.cancel}
                         </Button>

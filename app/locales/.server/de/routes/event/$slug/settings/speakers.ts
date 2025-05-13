@@ -10,7 +10,7 @@ export const locale = {
     add: {
       headline: "Vortragende hinzufügen",
       intro:
-        "Füge hier Deiner Veranstaltung ein bereits bestehendes Profil hinzu.",
+        "Füge hier Deiner Veranstaltung eine Person als Vortragende hinzu.",
       label: "Name oder Email der Speaker:in",
     },
     current: {

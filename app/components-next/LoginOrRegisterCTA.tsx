@@ -1,9 +1,10 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Form, Link, useLocation } from "react-router";
 import Cookies from "js-cookie";
-import React from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { type RootLocales } from "~/root.server";
+import { useEffect, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function LoginOrRegisterCTA(props: {
   isAnon?: boolean;
@@ -12,10 +13,11 @@ export function LoginOrRegisterCTA(props: {
   const { isAnon = false, locales } = props;
   const location = useLocation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
 
   const [hideLoginOrRegisterCookie, setHideLoginOrRegisterCookie] =
-    React.useState(false);
-  React.useEffect(() => {
+    useState(false);
+  useEffect(() => {
     const cookie = Cookies.get("mv-hide-login-or-register-cta");
     if (cookie === "true") {
       setHideLoginOrRegisterCookie(true);
@@ -48,7 +50,7 @@ export function LoginOrRegisterCTA(props: {
           }}
           className={`${isHydrated ? "mv-opacity-100" : "mv-opacity-0"}`}
         >
-          <button type="submit">
+          <button type="submit" disabled={isSubmitting}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

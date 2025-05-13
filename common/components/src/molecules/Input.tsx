@@ -1,7 +1,15 @@
 import classNames from "classnames";
-import React from "react";
+import {
+  Children,
+  cloneElement,
+  createContext,
+  isValidElement,
+  useContext,
+  useState,
+} from "react";
 import { Link } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type InputType = "text" | "password" | "email" | "number" | "hidden";
 
@@ -162,12 +170,12 @@ function InputControls(props: React.PropsWithChildren) {
   );
 }
 
-const CharacterCountContext = React.createContext<
+const CharacterCountContext = createContext<
   [number, React.Dispatch<React.SetStateAction<number>>]
 >([0, () => {}]);
 
 function useCharacterCount() {
-  const context = React.useContext(CharacterCountContext);
+  const context = useContext(CharacterCountContext);
   if (context === null) {
     throw new Error("Missing CharacterCounterContext.Provider");
   }
@@ -181,6 +189,9 @@ export type InputProps = React.HTMLProps<HTMLInputElement> & {
 
 function Input(props: InputProps) {
   const { children, standalone, withoutName, ...inputProps } = props;
+
+  const isSubmitting = useIsSubmitting();
+
   const name =
     withoutName === true ? undefined : inputProps.name || inputProps.id;
 
@@ -188,8 +199,7 @@ function Input(props: InputProps) {
     ? inputProps.defaultValue.toString().length
     : 0;
 
-  const [characterCount, updateCharacterCount] =
-    React.useState(defaultValueLength);
+  const [characterCount, updateCharacterCount] = useState(defaultValueLength);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     if (inputProps.onChange !== undefined) {
@@ -211,19 +221,19 @@ function Input(props: InputProps) {
     return <input {...inputProps} className="mv-hidden" name={name} />;
   }
 
-  const validChildren = React.Children.toArray(children).filter((child) => {
-    return React.isValidElement(child) || typeof child === "string";
+  const validChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child) || typeof child === "string";
   });
 
   const errors = validChildren.filter((child) => {
-    return React.isValidElement(child) && child.type === InputError;
+    return isValidElement(child) && child.type === InputError;
   });
 
   const labelString = validChildren.find((child) => {
     return typeof child === "string";
   });
   const labelComponent = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputLabel;
+    return isValidElement(child) && child.type === InputLabel;
   });
   type LabelComponentType = React.DetailedReactHTMLElement<
     React.PropsWithChildren<InputLabelProps>,
@@ -238,7 +248,7 @@ function Input(props: InputProps) {
       </InputLabel>
     );
   } else if (typeof labelComponent !== "undefined") {
-    label = React.cloneElement<React.PropsWithChildren<InputLabelProps>>(
+    label = cloneElement<React.PropsWithChildren<InputLabelProps>>(
       labelComponent as LabelComponentType,
       {
         hasError: errors.length > 0,
@@ -251,23 +261,23 @@ function Input(props: InputProps) {
   }
 
   const searchIcon = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputSearchIcon;
+    return isValidElement(child) && child.type === InputSearchIcon;
   });
   const clearIcon = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputClearIcon;
+    return isValidElement(child) && child.type === InputClearIcon;
   });
   const helperText = validChildren.find((child) => {
-    return React.isValidElement(child) && child.type === InputHelperText;
+    return isValidElement(child) && child.type === InputHelperText;
   });
   const controls = validChildren.find((child) => {
     return (
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       child.type === InputControls &&
       typeof child.props === "object" &&
       child.props !== null &&
       "children" in child.props &&
-      React.isValidElement(child.props.children) &&
-      React.Children.toArray(child.props.children).length > 0
+      isValidElement(child.props.children) &&
+      Children.toArray(child.props.children).length > 0
     );
   });
 
@@ -352,7 +362,11 @@ function Input(props: InputProps) {
           </ul>
         ) : null}
         {typeof standalone !== "undefined" && standalone !== false && (
-          <input type="submit" className="mv-hidden" />
+          <input
+            type="submit"
+            className="mv-hidden"
+            disabled={inputProps.disabled || isSubmitting}
+          />
         )}
       </div>
     </CharacterCountContext.Provider>

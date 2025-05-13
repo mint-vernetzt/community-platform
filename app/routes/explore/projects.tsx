@@ -21,7 +21,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import React from "react";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -59,6 +58,7 @@ import {
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
 import { getFilterSchemes, type FilterSchemes } from "./index";
+import { useState } from "react";
 
 export const PROJECT_SORT_VALUES = [
   "name-asc",
@@ -518,7 +518,7 @@ export default function ExploreProjects() {
     `${loaderData.submission.value.prjPage + 1}`
   );
 
-  const [searchQuery, setSearchQuery] = React.useState(
+  const [searchQuery, setSearchQuery] = useState(
     loaderData.submission.value.prjAreaSearch
   );
 

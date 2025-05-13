@@ -1,6 +1,4 @@
 import { default as Pica } from "pica";
-import React from "react";
-
 import type { Crop, PixelCrop } from "react-image-crop";
 import { centerCrop, makeAspectCrop, ReactCrop } from "react-image-crop";
 
@@ -35,6 +33,8 @@ import {
 } from "~/storage.shared";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
+import { useEffect, useRef, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type ImageCropperLocales =
   | OrganizationDetailLocales
@@ -105,16 +105,17 @@ const DEFAULT_ASPECT = 16 / 9;
 
 function ImageCropper(props: ImageCropperProps) {
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const isHydrated = useHydrated();
   const submit = useSubmit();
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const [imgSrc, setImgSrc] = React.useState("");
-  const previewCanvasRef = React.useRef<HTMLCanvasElement>(null);
-  const imgRef = React.useRef<HTMLImageElement>(null);
-  const [crop, setCrop] = React.useState<Crop>();
-  const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
-  const [scale, setScale] = React.useState(DEFAULT_SCALE);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [imgSrc, setImgSrc] = useState("");
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const [scale, setScale] = useState(DEFAULT_SCALE);
   const aspect = props.aspect === undefined ? DEFAULT_ASPECT : props.aspect;
 
   const {
@@ -130,7 +131,7 @@ function ImageCropper(props: ImageCropperProps) {
     currentTimestamp,
   } = props;
 
-  const [selectedImageFileNames, setSelectedImageFileNames] = React.useState<
+  const [selectedImageFileNames, setSelectedImageFileNames] = useState<
     SelectedFile[]
   >([]);
   const [imageUploadForm, imageUploadFields] = useForm({
@@ -153,7 +154,7 @@ function ImageCropper(props: ImageCropperProps) {
       return submission;
     },
   });
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedImageFileNames([]);
   }, [lastSubmission]);
 
@@ -359,6 +360,7 @@ function ImageCropper(props: ImageCropperProps) {
                       submit(e.currentTarget);
                     }
                   }}
+                  disabled={isSubmitting}
                 >
                   <svg
                     width="32"
@@ -549,6 +551,7 @@ function ImageCropper(props: ImageCropperProps) {
               reset();
             }}
             fullSize
+            disabled={isSubmitting}
           >
             {locales.imageCropper.imageCropper.reset}
           </Button>
@@ -561,7 +564,8 @@ function ImageCropper(props: ImageCropperProps) {
             isHydrated
               ? selectedImageFileNames.length === 0 ||
                 imageUploadForm.dirty === false ||
-                imageUploadForm.valid === false
+                imageUploadForm.valid === false ||
+                isSubmitting
               : false
           }
           onClick={async (event: React.SyntheticEvent<HTMLButtonElement>) => {

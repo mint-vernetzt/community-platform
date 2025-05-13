@@ -6,7 +6,7 @@ import {
   useSearchParams,
 } from "react-router";
 import classNames from "classnames";
-import React from "react";
+import { Children, isValidElement, useState } from "react";
 
 export function ShowFiltersButton(props: React.PropsWithChildren) {
   const { children } = props;
@@ -63,7 +63,7 @@ function FiltersTitle(props: React.PropsWithChildren) {
 }
 
 function ShowMoreButton(props: { showMore: string; showLess: string }) {
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = useState(false);
 
   return (
     <label className="mv-hidden @lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
@@ -101,7 +101,7 @@ function FiltersFieldset(
     ...otherProps
   } = props;
 
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
   if (childrenArray.length < hideAfter + 1) {
     return (
       <fieldset {...otherProps} className={className}>
@@ -178,22 +178,22 @@ export function Filters(props: FiltersProps) {
     showFilters === true ? "mv-flex" : "mv-hidden @lg:mv-flex"
   );
 
-  const children = React.Children.toArray(props.children);
+  const children = Children.toArray(props.children);
 
   const title = children.find((child) => {
-    return React.isValidElement(child) && child.type === FiltersTitle;
+    return isValidElement(child) && child.type === FiltersTitle;
   });
 
   const resetButton = children.find((child) => {
-    return React.isValidElement(child) && child.type === FiltersResetButton;
+    return isValidElement(child) && child.type === FiltersResetButton;
   });
 
   const applyButton = children.find((child) => {
-    return React.isValidElement(child) && child.type === FiltersApplyButton;
+    return isValidElement(child) && child.type === FiltersApplyButton;
   });
 
   const fieldSets = children.filter((child) => {
-    return React.isValidElement(child) && child.type === FiltersFieldset;
+    return isValidElement(child) && child.type === FiltersFieldset;
   });
 
   return (

@@ -1,6 +1,5 @@
 import classNames from "classnames";
-import React from "react";
-import { type ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 
 export type StatusProps = {
   variant?: "primary" | "neutral" | "positive" | "negative";
@@ -11,8 +10,8 @@ export type StatusProps = {
 function Status(props: StatusProps) {
   const { variant = "primary", inverted = false } = props;
 
-  const children = React.Children.toArray(props.children).filter((child) => {
-    const isValid = React.isValidElement(child) || typeof child === "string";
+  const children = Children.toArray(props.children).filter((child) => {
+    const isValid = isValidElement(child) || typeof child === "string";
     if (!isValid) {
       console.warn(
         `The child you passed to <Status> is not a valid element and will be ignored: ${child}`

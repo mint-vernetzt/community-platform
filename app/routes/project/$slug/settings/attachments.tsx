@@ -3,7 +3,6 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import React from "react";
 import {
   Form,
   Link,
@@ -51,11 +50,13 @@ import {
 } from "./attachments.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { redirectWithToast } from "~/toast.server";
-import * as Sentry from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useEffect, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createDocumentUploadSchema = (
   locales: ProjectAttachmentSettingsLocales
@@ -264,7 +265,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
     console.error({ error });
-    Sentry.captureException(error);
+    captureException(error);
     // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
@@ -335,11 +336,13 @@ function Attachments() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
   // Document upload form
-  const [selectedDocumentFileNames, setSelectedDocumentFileNames] =
-    React.useState<SelectedFile[]>([]);
+  const [selectedDocumentFileNames, setSelectedDocumentFileNames] = useState<
+    SelectedFile[]
+  >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
     id: `upload-document-form-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
@@ -361,12 +364,12 @@ function Attachments() {
       return submission;
     },
   });
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedDocumentFileNames([]);
   }, [loaderData]);
 
   // Image upload form
-  const [selectedImageFileNames, setSelectedImageFileNames] = React.useState<
+  const [selectedImageFileNames, setSelectedImageFileNames] = useState<
     SelectedFile[]
   >([]);
   const [imageUploadForm, imageUploadFields] = useForm({
@@ -390,7 +393,7 @@ function Attachments() {
       return submission;
     },
   });
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedImageFileNames([]);
   }, [loaderData]);
 
@@ -557,7 +560,8 @@ function Attachments() {
                     isHydrated
                       ? selectedDocumentFileNames.length === 0 ||
                         documentUploadForm.dirty === false ||
-                        documentUploadForm.valid === false
+                        documentUploadForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >
@@ -698,6 +702,7 @@ function Attachments() {
                             name={INTENT_FIELD_NAME}
                             value="edit-document"
                             form={editDocumentForm.id}
+                            disabled={isSubmitting}
                           >
                             {locales.route.content.editModal.submit}
                           </Modal.SubmitButton>
@@ -751,6 +756,7 @@ function Attachments() {
                               name={INTENT_FIELD_NAME}
                               value="disconnect-document"
                               form={`disconnect-document-form-${relation.document.id}`}
+                              disabled={isSubmitting}
                             />
                             <Link
                               to={`?${editSearchParams.toString()}`}
@@ -895,7 +901,8 @@ function Attachments() {
                     isHydrated
                       ? selectedImageFileNames.length === 0 ||
                         imageUploadForm.dirty === false ||
-                        imageUploadForm.valid === false
+                        imageUploadForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >
@@ -1058,6 +1065,7 @@ function Attachments() {
                           name={INTENT_FIELD_NAME}
                           value="edit-image"
                           form={editImageForm.id}
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.editModal.submit}
                         </Modal.SubmitButton>
@@ -1118,6 +1126,7 @@ function Attachments() {
                             name={INTENT_FIELD_NAME}
                             value="disconnect-image"
                             form={`disconnect-image-form-${relation.image.id}`}
+                            disabled={isSubmitting}
                           />
                           <Link
                             to={`?${editSearchParams.toString()}`}

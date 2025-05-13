@@ -1,4 +1,4 @@
-import * as React from "react";
+import { forwardRef, useRef } from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { useFormContext } from "react-hook-form";
 
@@ -11,9 +11,9 @@ export interface InputTextProps {
   centered?: boolean;
 }
 
-const InputText = React.forwardRef(
+const InputText = forwardRef(
   (props: React.HTMLProps<HTMLInputElement> & InputTextProps, forwardRef) => {
-    const inputRef = React.useRef<HTMLInputElement | null>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
     const {
       label,
       isPublic,

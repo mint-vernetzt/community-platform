@@ -1,33 +1,47 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useSearchParams, redirect } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
+import {
+  Form,
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { invariantResponse } from "~/lib/utils/response";
+import { HidePassword } from "~/components-next/icons/HidePassword";
+import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import {
   createAuthClient,
-  getSessionUser,
   getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
 } from "../../auth.server";
-import InputPassword from "../../components/FormElements/InputPassword/InputPassword";
-import { type SetPasswordLocales } from "./set-password.server";
-import { languageModuleMap } from "~/locales/.server";
+import { setNewPassword, type SetPasswordLocales } from "./set-password.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
-const createSchema = (locales: SetPasswordLocales) => {
+export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
   return z.object({
-    password: z.string().min(8, locales.validation.password.min),
-    confirmPassword: z.string().min(8, locales.validation.confirmPassword.min),
+    password: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.password.min),
+    confirmPassword: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.confirmPassword.min),
     loginRedirect: z.string().optional(),
   });
 };
-
-const environmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-  userId: z.string(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -42,118 +56,227 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
 
-  return { locales };
-};
-
-const createMutation = (locales: SetPasswordLocales) => {
-  return makeDomainFunction(
-    createSchema(locales),
-    environmentSchema
-  )(async (values, environment) => {
-    if (values.password !== values.confirmPassword) {
-      throw new InputError(locales.error.confirmation, "confirmPassword"); // -- Field error
-    }
-
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const { error } = await environment.authClient.auth.updateUser({
-      password: values.password,
-    });
-    if (error !== null) {
-      throw error.message;
-    }
-
-    return values;
-  });
+  return { locales, currentTimestamp: Date.now() };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
 
-  const schema = createSchema(locales);
-  const mutation = createMutation(locales);
-
-  invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
-  const result = await performMutation({
-    request,
-    schema,
-    mutation,
-    environment: { authClient: authClient, userId: sessionUser.id },
+  const formData = await request.formData();
+  const { submission } = await setNewPassword({
+    formData,
+    sessionUser,
+    locales,
   });
 
-  if (result.success) {
-    return redirect(result.data.loginRedirect || "/dashboard");
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
   }
-
-  return result;
+  return redirect(
+    `/login${
+      typeof submission.value.loginRedirect !== "undefined"
+        ? `?login_redirect=${submission.value.loginRedirect}`
+        : ""
+    }`
+  );
 };
 
 export default function SetPassword() {
+  const actionData = useActionData<typeof action>();
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales, currentTimestamp } = loaderData;
+  const navigation = useNavigation();
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
-  const { locales } = useLoaderData<typeof loader>();
-  const schema = createSchema(locales);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [setPasswordForm, setPasswordFields] = useForm({
+    id: `set-password-${actionData?.currentTimestamp || currentTimestamp}`,
+    constraint: getZodConstraint(createSetPasswordSchema(locales)),
+    defaultValue: {
+      loginRedirect: loginRedirect,
+    },
+    shouldValidate: "onInput",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    onValidate({ formData }) {
+      const submission = parseWithZod(formData, {
+        schema: createSetPasswordSchema(locales).transform((data, ctx) => {
+          if (data.password !== data.confirmPassword) {
+            ctx.addIssue({
+              code: "custom",
+              message: locales.validation.passwordMismatch,
+              path: ["confirmPassword"],
+            });
+            return z.NEVER;
+          }
+
+          return { ...data };
+        }),
+      });
+      return submission;
+    },
+  });
 
   return (
-    <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        <RemixFormsForm method="post" schema={schema}>
-          {({ Field, Errors, register }) => (
-            <div className="flex flex-col mv-w-full mv-items-center">
-              <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-                <div className="mv-mb-6 mv-mt-12"> </div>
-                <h1 className="mb-8">Neues Passwort vergeben</h1>
-                <input
-                  name="loginRedirect"
-                  defaultValue={loginRedirect || undefined}
-                  hidden
-                />
-                <div className="mb-4">
-                  <Field name="password" label="Neues Passwort">
-                    {({ Errors }) => (
-                      <>
-                        <InputPassword
-                          id="password"
-                          label={locales.form.label.password}
-                          {...register("password")}
-                        />
-                        <Errors />
-                      </>
-                    )}
-                  </Field>
-                </div>
+    <Form
+      {...getFormProps(setPasswordForm)}
+      method="post"
+      preventScrollReset
+      autoComplete="off"
+    >
+      <>
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
+          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
+            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
+              <h1 className="mv-mb-8">{locales.content.headline}</h1>
+              <p className="mv-mb-4">{locales.content.description}</p>
 
-                <div className="mb-8">
-                  <Field name="confirmPassword" label="Wiederholen">
-                    {({ Errors }) => (
-                      <>
-                        <InputPassword
-                          id="confirmPassword"
-                          label={locales.form.label.confirmPassword}
-                          {...register("confirmPassword")}
-                        />
-                        <Errors />
-                      </>
-                    )}
-                  </Field>
+              <div className="mv-mb-4">
+                <Input
+                  {...getInputProps(setPasswordFields.password, {
+                    type: showPassword ? "text" : "password",
+                  })}
+                  key="password"
+                >
+                  <Input.Label htmlFor={setPasswordFields.password.id}>
+                    {locales.form.label.password}
+                  </Input.Label>
+                  {typeof setPasswordFields.password.errors !== "undefined" &&
+                  setPasswordFields.password.errors.length > 0
+                    ? setPasswordFields.password.errors.map((error) => (
+                        <Input.Error
+                          id={setPasswordFields.password.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                  {isHydrated === true ? (
+                    <Input.Controls>
+                      <div className="mv-h-10 mv-w-10">
+                        <CircleButton
+                          type="button"
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                          variant="outline"
+                          fullSize
+                          aria-label={
+                            showPassword
+                              ? locales.form.hidePassword
+                              : locales.form.showPassword
+                          }
+                        >
+                          {showPassword ? <HidePassword /> : <ShowPassword />}
+                        </CircleButton>
+                      </div>
+                    </Input.Controls>
+                  ) : null}
+                </Input>
+              </div>
+              <div className="mv-mb-10">
+                <Input
+                  {...getInputProps(setPasswordFields.confirmPassword, {
+                    type: showConfirmPassword ? "text" : "password",
+                  })}
+                  key="confirmPassword"
+                >
+                  <Input.Label htmlFor={setPasswordFields.confirmPassword.id}>
+                    {locales.form.label.confirmPassword}
+                  </Input.Label>
+                  {typeof setPasswordFields.confirmPassword.errors !==
+                    "undefined" &&
+                  setPasswordFields.confirmPassword.errors.length > 0
+                    ? setPasswordFields.confirmPassword.errors.map((error) => (
+                        <Input.Error
+                          id={setPasswordFields.confirmPassword.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                  {isHydrated === true ? (
+                    <Input.Controls>
+                      <div className="mv-h-10 mv-w-10">
+                        <CircleButton
+                          type="button"
+                          onClick={() => {
+                            setShowConfirmPassword(!showConfirmPassword);
+                          }}
+                          variant="outline"
+                          fullSize
+                          aria-label={
+                            showConfirmPassword
+                              ? locales.form.hidePassword
+                              : locales.form.showPassword
+                          }
+                        >
+                          {showConfirmPassword ? (
+                            <HidePassword />
+                          ) : (
+                            <ShowPassword />
+                          )}
+                        </CircleButton>
+                      </div>
+                    </Input.Controls>
+                  ) : null}
+                </Input>
+              </div>
+              {typeof setPasswordForm.errors !== "undefined" &&
+              setPasswordForm.errors.length > 0 ? (
+                <div className="mv-mb-10">
+                  {setPasswordForm.errors.map((error, index) => {
+                    return (
+                      <div
+                        id={setPasswordForm.errorId}
+                        key={index}
+                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      >
+                        {error}
+                      </div>
+                    );
+                  })}
                 </div>
+              ) : null}
 
-                <div className="mb-8">
-                  <button type="submit" className="btn btn-primary">
-                    {locales.form.label.submit}
-                  </button>
-                </div>
-                <Errors />
+              <input
+                {...getInputProps(setPasswordFields.loginRedirect, {
+                  type: "hidden",
+                })}
+                key="loginRedirect"
+              />
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+                <Button
+                  type="submit"
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? setPasswordForm.dirty === false ||
+                        setPasswordForm.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.form.label.submit}
+                </Button>
               </div>
             </div>
-          )}
-        </RemixFormsForm>
-      </div>
-    </>
+          </div>
+        </div>
+      </>
+    </Form>
   );
 }

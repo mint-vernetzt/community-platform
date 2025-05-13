@@ -61,6 +61,7 @@ import {
   updateOrganization,
 } from "./manage.server";
 import { QuestionMark } from "~/components-next/icons/QuestionMark";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const manageSchema = z.object({
   organizationTypes: z.array(z.string().uuid()),
@@ -383,6 +384,7 @@ function Manage() {
   const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
   const doubleCheckModalSearchParams = new URLSearchParams(searchParams);
   doubleCheckModalSearchParams.set("modal-network-remove", "true");
@@ -925,7 +927,8 @@ function Manage() {
                       disabled={
                         isHydrated
                           ? manageForm.dirty === false ||
-                            manageForm.valid === false
+                            manageForm.valid === false ||
+                            isSubmitting
                           : false
                       }
                     >
@@ -986,7 +989,7 @@ function Manage() {
                           value={`remove-network-member-${relation.networkMember.id}`}
                           type="submit"
                           fullSize
-                          disabled={isNetwork === false}
+                          disabled={isNetwork === false || isSubmitting}
                         >
                           {
                             locales.route.content.networkMembers.current.remove
@@ -1195,6 +1198,7 @@ function Manage() {
                             value={`invite-network-member-${searchedOrganization.id}`}
                             type="submit"
                             fullSize
+                            disabled={isSubmitting}
                           >
                             {locales.route.content.networkMembers.invite.cta}
                           </Button>
@@ -1252,6 +1256,7 @@ function Manage() {
                             value={`cancel-network-member-invitation-${relation.organization.id}`}
                             type="submit"
                             fullSize
+                            disabled={isSubmitting}
                           >
                             {
                               locales.route.content.networkMembers
@@ -1319,6 +1324,7 @@ function Manage() {
                           value={`leave-network-${relation.network.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.networks.current.leave.cta}
                         </Button>
@@ -1498,6 +1504,7 @@ function Manage() {
                             value={`request-to-join-network-${searchedOrganization.id}`}
                             type="submit"
                             fullSize
+                            disabled={isSubmitting}
                           >
                             {locales.route.content.networks.requestToJoin.cta}
                           </Button>
@@ -1555,6 +1562,7 @@ function Manage() {
                             value={`cancel-network-join-request-${relation.network.id}`}
                             type="submit"
                             fullSize
+                            disabled={isSubmitting}
                           >
                             {
                               locales.route.content.networks.pendingRequests

@@ -2,7 +2,6 @@ import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type LoaderFunctionArgs, redirect } from "react-router";
 import { Link, useLoaderData, useSearchParams } from "react-router";
-import React from "react";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -22,6 +21,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { getFeatureAbilities } from "../feature-access.server";
+import { useEffect, useState } from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -79,15 +79,15 @@ function MyEvents() {
     }
   ) || ["adminEvents", 0];
 
-  const [upcoming, setUpcoming] = React.useState(firstUpcoming[0]);
-  const [past, setPast] = React.useState(firstPast[0]);
+  const [upcoming, setUpcoming] = useState(firstUpcoming[0]);
+  const [past, setPast] = useState(firstPast[0]);
 
   const [searchParams, setSearchParams] = useSearchParams({
     upcoming: firstUpcoming[0],
     past: firstPast[0],
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (searchParams.has("upcoming")) {
       const newValue = searchParams.get("upcoming") as string;
       if (newValue !== upcoming) {
@@ -104,7 +104,7 @@ function MyEvents() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
     setSearchParams(params, { preventScrollReset: true });
@@ -112,7 +112,7 @@ function MyEvents() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [upcoming]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
     setSearchParams(params, { preventScrollReset: true });

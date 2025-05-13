@@ -22,7 +22,6 @@ import {
 } from "react-router";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
-import * as React from "react";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
@@ -50,6 +49,7 @@ import { invariantResponse } from "./lib/utils/response";
 import { getFeatureAbilities } from "./routes/feature-access.server";
 import { useNonce } from "./nonce-provider";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { useEffect } from "react";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -197,7 +197,7 @@ export const ErrorBoundary = () => {
     console.error(error);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     // TODO: see sentry.server.ts for details
     // For now the response errors are also tracked via client sentry because sentry does not yet support rr7
     // if (isResponse) {
@@ -357,7 +357,7 @@ export default function App() {
   const nonce = useNonce();
   const isHydrated = useHydrated();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
       try {
         window._paq.push(["setCustomUrl", window.location.href]);

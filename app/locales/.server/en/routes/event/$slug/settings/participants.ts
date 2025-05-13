@@ -24,8 +24,7 @@ export const locale = {
     },
     add: {
       headline: "Add participants",
-      intro:
-        "Add an already existing profile as a participant to your event here.",
+      intro: "Add a person as a participant to your event here.",
       label: "Name or email of the participant",
     },
     current: {

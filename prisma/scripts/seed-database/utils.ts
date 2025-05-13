@@ -311,6 +311,7 @@ export async function uploadImageBucketData(
       );
     }
     try {
+      // eslint-disable-next-line import/no-named-as-default-member
       const data = await fs.readFile(
         "./public/images/default-event-background.jpg"
       );

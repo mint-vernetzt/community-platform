@@ -47,6 +47,7 @@ import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function links() {
   return [
@@ -296,6 +297,7 @@ function OrganizationDetail() {
   const { organization, mode, locales } = loaderData;
   const location = useLocation();
   const pathname = location.pathname;
+  const isSubmitting = useIsSubmitting();
 
   return (
     <Container
@@ -336,6 +338,7 @@ function OrganizationDetail() {
                     as="button"
                     type="submit"
                     form="modal-logo-form"
+                    disabled={isSubmitting}
                   >
                     <div>
                       <div className="mv-cursor-pointer mv-flex mv-flex-nowrap mv-gap-1 mv-items-center">
@@ -454,6 +457,7 @@ function OrganizationDetail() {
                   type="submit"
                   form="modal-background-form"
                   fullSize
+                  disabled={isSubmitting}
                 >
                   <div className="mv-flex mv-flex-nowrap">
                     <svg
@@ -480,7 +484,11 @@ function OrganizationDetail() {
               <p className="mv-text-white mv-text-lg mv-font-bold">
                 {locales.route.header.controls.backgroundLong}
               </p>
-              <Button type="submit" form="modal-background-form">
+              <Button
+                type="submit"
+                form="modal-background-form"
+                disabled={isSubmitting}
+              >
                 <div className="mv-flex mv-flex-nowrap">
                   <svg
                     width="17"
@@ -513,6 +521,7 @@ function OrganizationDetail() {
                 type="submit"
                 form="modal-logo-form"
                 className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                disabled={isSubmitting}
               >
                 <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
                   <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">

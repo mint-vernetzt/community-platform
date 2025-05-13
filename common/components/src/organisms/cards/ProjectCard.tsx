@@ -1,4 +1,3 @@
-import React from "react";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreProjectsLocales } from "~/routes/explore/projects.server";
 import { type MyProjectsLocales } from "~/routes/my/projects.server";
@@ -6,11 +5,20 @@ import { type SearchProjectsLocales } from "~/routes/search/projects.server";
 import { Avatar } from "./../../molecules/Avatar";
 import { Image } from "./../../molecules/Image";
 import { Card } from "./Card";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-const ProjectCardContext = React.createContext<ProjectCardProps | null>(null);
+const ProjectCardContext = createContext<ProjectCardProps | null>(null);
 
 function useProjectCard() {
-  const context = React.useContext(ProjectCardContext);
+  const context = useContext(ProjectCardContext);
   if (context === null) {
     throw new Error("Missing ProjectCardContext.Provider");
   }
@@ -19,23 +27,23 @@ function useProjectCard() {
 
 function ContextMenu(props: React.PropsWithChildren) {
   const { children } = props;
-  const childrenArray = React.Children.toArray(children);
+  const childrenArray = Children.toArray(children);
   const listItems = childrenArray.filter(
     (child) =>
-      React.isValidElement(child) &&
+      isValidElement(child) &&
       (child.type === ContextMenuListItem || child.type === ContextMenuDivider)
   );
   const { project, locales } = useProjectCard();
-  const [checked, setChecked] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const listRef = React.useRef<HTMLUListElement>(null);
+  const [checked, setChecked] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setChecked(!checked);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (
@@ -150,9 +158,9 @@ function ProjectCard(
   const { project, locales, children } = props;
 
   const childrenArray =
-    props.children !== undefined ? React.Children.toArray(children) : [];
+    props.children !== undefined ? Children.toArray(children) : [];
   const menu = childrenArray.filter(
-    (child) => React.isValidElement(child) && child.type === ContextMenu
+    (child) => isValidElement(child) && child.type === ContextMenu
   );
 
   return (

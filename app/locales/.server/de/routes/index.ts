@@ -3,6 +3,7 @@ export const locale = {
     email: "Bitte gib eine gültige E-Mail-Adresse ein.",
     password: {
       min: "Dein Passwort muss mindestens 8 Zeichen lang sein.",
+      required: "Bitte gib Dein Passwort ein.",
     },
   },
   error: {
@@ -48,7 +49,7 @@ export const locale = {
     },
     growth: {
       headline: "Wie unsere Community wächst",
-      profiles: "Profile",
+      profiles: "Personen",
       organizations: "Organisationen",
       events: "Veranstaltungen",
       projects: "Projekte",
