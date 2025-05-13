@@ -14,7 +14,7 @@ function InputForFormPlugin(props: Omit<InputForFormProps, "defaultValue">) {
       if (contentEditableRef.current !== null) {
         editor.read(() => {
           if (contentEditableRef.current !== null) {
-            const htmlString = contentEditableRef.current.getHTML();
+            const htmlString = contentEditableRef.current.innerHTML;
             if (htmlString === "<p><br></p>") {
               setHtmlValue("");
             } else {
