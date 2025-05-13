@@ -29,13 +29,20 @@ export const locale = {
       headline: "Updates",
       hide: "Hide updates",
       show: "Show updates",
-      faq: {
-        headline: "Support",
-        description:
-          "New help page with answers to questions about the platform",
-        linkDescription: "View now",
-      },
+
       entries: {
+        networks: {
+          headline: "New network feature",
+          description:
+            "Make your network visible - add members and choose whether you are a cluster, MINT region or state initiative",
+          linkDescription: "Select network form now",
+        },
+        faq: {
+          headline: "Support",
+          description:
+            "New help page with answers to questions about the platform",
+          linkDescription: "View now",
+        },
         createProject: {
           headline: "Share knowledge",
           description: "Create your own project or publish an existing draft",

@@ -574,15 +574,15 @@ function getDataForUpdateTeasers() {
     };
   };
   const teaserData: AtLeastOne<UpdateTeaser> = {
+    networks: {
+      link: "/my/organizations",
+      icon: "globe",
+      external: false,
+    },
     crawler: {
       link: "/explore/fundings",
       icon: "piggy-bank",
       external: false,
-    },
-    mediaDatabase: {
-      link: "https://mediendatenbank.mint-vernetzt.de",
-      icon: "Plus big",
-      external: true,
     },
   };
   return teaserData;
