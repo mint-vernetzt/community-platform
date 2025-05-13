@@ -1,5 +1,4 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
-import { createHash } from "crypto";
 import { prismaClient } from "~/prisma.server";
 import { deriveProjectMode } from "~/routes/project/utils.server";
 
@@ -25,12 +24,6 @@ export async function getRedirectPathOnProtectedProjectRoute(args: {
   }
 
   return null;
-}
-
-export function getHash(object: object) {
-  const json = JSON.stringify(object);
-  const hash = createHash("sha256").update(json).digest("hex");
-  return hash;
 }
 
 export async function updateFilterVectorOfProject(projectId: string) {

@@ -134,7 +134,7 @@ function ContextMenuDivider() {
   );
 }
 
-export type OrganizationCardProps = {
+type OrganizationCardProps = {
   match?: number;
   publicAccess?: boolean;
   locales:

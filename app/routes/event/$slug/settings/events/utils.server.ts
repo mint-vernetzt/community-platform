@@ -88,7 +88,7 @@ export async function cancelEvent(slug: string, cancel = true) {
   });
 }
 
-export async function getAllSlugsOfChildEvents(slug: string) {
+async function getAllSlugsOfChildEvents(slug: string) {
   const result = await prismaClient.event.findFirst({
     where: { slug },
     select: {

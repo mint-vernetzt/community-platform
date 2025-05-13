@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import { Children, isValidElement } from "react";
 
-export type CardContainerType = "single row" | "multi row";
-export type CardContainerProps = {
+type CardContainerType = "single row" | "multi row";
+type CardContainerProps = {
   type?: CardContainerType;
 } & React.HTMLAttributes<HTMLDivElement>;
 

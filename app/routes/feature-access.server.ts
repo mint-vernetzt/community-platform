@@ -24,7 +24,7 @@ export async function checkFeatureAbilitiesOrThrow(
  * @description
  * Please use getFeatureAbilities() or checkFeatureAbilitiesOrThrow()
  */
-export async function validateFeatureAccess(
+async function validateFeatureAccess(
   authClient: SupabaseClient,
   featureNameOrNames: string | string[],
   options: {

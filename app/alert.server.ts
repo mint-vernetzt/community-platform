@@ -3,7 +3,7 @@ import { combineHeaders, sanitizeUserHtml } from "./utils.server";
 import { z, ZodError } from "zod";
 import { type AlertLevel } from "@mint-vernetzt/components/src/molecules/Alert";
 
-export type Alert = {
+type Alert = {
   level?: AlertLevel;
   message: string;
   isRichtext?: boolean;
@@ -22,9 +22,9 @@ const alertSchema = z.object({
   isRichtext: z.boolean().optional(),
 });
 
-export const AlertKey = "alert";
+const AlertKey = "alert";
 
-export const alertSessionStorage = createCookieSessionStorage({
+const alertSessionStorage = createCookieSessionStorage({
   cookie: {
     name: "alert",
     sameSite: "lax",
@@ -52,7 +52,7 @@ export async function redirectWithAlert(
   });
 }
 
-export async function createAlertHeaders(
+async function createAlertHeaders(
   message: string,
   level?: AlertLevel,
   isRichtext?: boolean

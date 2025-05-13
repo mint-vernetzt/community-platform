@@ -3,7 +3,7 @@ import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.se
 import { useNonce } from "~/nonce-provider";
 import { Children, isValidElement, useState } from "react";
 
-export type VideoProps = {
+type VideoProps = {
   src: string;
   locales: AboutProjectLocales;
 };

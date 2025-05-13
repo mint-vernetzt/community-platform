@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { createElement } from "react";
-export interface LinkProps {
+interface LinkProps {
   to: string;
   children?: string | React.ReactNode;
   variant?: "primary";
