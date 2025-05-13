@@ -34,6 +34,7 @@ import {
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
 import { useEffect, useRef, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export type ImageCropperLocales =
   | OrganizationDetailLocales
@@ -104,6 +105,7 @@ const DEFAULT_ASPECT = 16 / 9;
 
 function ImageCropper(props: ImageCropperProps) {
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const isHydrated = useHydrated();
   const submit = useSubmit();
 
@@ -358,6 +360,7 @@ function ImageCropper(props: ImageCropperProps) {
                       submit(e.currentTarget);
                     }
                   }}
+                  disabled={isSubmitting}
                 >
                   <svg
                     width="32"
@@ -548,6 +551,7 @@ function ImageCropper(props: ImageCropperProps) {
               reset();
             }}
             fullSize
+            disabled={isSubmitting}
           >
             {locales.imageCropper.imageCropper.reset}
           </Button>
@@ -560,7 +564,8 @@ function ImageCropper(props: ImageCropperProps) {
             isHydrated
               ? selectedImageFileNames.length === 0 ||
                 imageUploadForm.dirty === false ||
-                imageUploadForm.valid === false
+                imageUploadForm.valid === false ||
+                isSubmitting
               : false
           }
           onClick={async (event: React.SyntheticEvent<HTMLButtonElement>) => {

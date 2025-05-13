@@ -29,6 +29,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { HidePassword } from "~/components-next/icons/HidePassword";
 import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createRegisterSchema = (locales: RegisterLocales) => {
   return z.object({
@@ -114,6 +115,7 @@ export default function Register() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
@@ -440,7 +442,8 @@ export default function Register() {
                   disabled={
                     isHydrated
                       ? registerForm.dirty === false ||
-                        registerForm.valid === false
+                        registerForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >
@@ -454,251 +457,3 @@ export default function Register() {
     </div>
   );
 }
-
-// function Old() {
-//   const { locales } = useLoaderData<typeof loader>();
-//   const actionData = useActionData<typeof action>();
-//   const [urlSearchParams] = useSearchParams();
-//   const loginRedirect = urlSearchParams.get("login_redirect");
-//   const submit = useSubmit();
-//   const handleKeyPress = (event: KeyboardEvent<HTMLFormElement>) => {
-//     if (event.key === "Enter") {
-//       event.preventDefault();
-//       // TODO: fix type issue
-//       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//       // @ts-ignore
-//       if (event.target.getAttribute("name") !== "termsAccepted") {
-//         submit(event.currentTarget);
-//       }
-//     }
-//   };
-//   const schema = createSchema(locales);
-
-//   return (
-//     <>
-//       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-//         <div className="flex flex-col mv-w-full mv-items-center">
-//           <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-//             <div className="mv-mb-6 mv-mt-12">
-//               {locales.content.question}{" "}
-//               <Link
-//                 to={`/login${
-//                   loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-//                 }`}
-//                 className="text-primary font-bold"
-//               >
-//                 {locales.content.login}
-//               </Link>
-//             </div>
-//             <h1 className="mb-4">{locales.content.create}</h1>
-//             {actionData !== undefined && actionData.success ? (
-//               <>
-//                 <div className="mb-4">
-//                   <RichText
-//                     html={insertParametersIntoLocale(locales.content.success, {
-//                       email: actionData.data.email,
-//                     })}
-//                   />{" "}
-//                   <Link
-//                     to={`/reset${
-//                       loginRedirect ? `?login_redirect=${loginRedirect}` : ""
-//                     }`}
-//                     className="text-primary font-bold hover:underline"
-//                   >
-//                     {locales.content.reset}
-//                   </Link>
-//                   .
-//                 </div>
-//               </>
-//             ) : (
-//               <RemixFormsForm
-//                 method="post"
-//                 schema={schema}
-//                 onKeyDown={handleKeyPress}
-//               >
-//                 {({ Field, Errors, register }) => (
-//                   <>
-//                     <p className="mb-4">{locales.form.intro}</p>
-//                     <div className="flex flex-row -mx-4 mb-4">
-//                       <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
-//                         <input
-//                           name="loginRedirect"
-//                           defaultValue={loginRedirect || undefined}
-//                           hidden
-//                         />
-//                         <Field name="academicTitle" label="Titel">
-//                           {({ Errors }) => (
-//                             <>
-//                               <SelectField
-//                                 label={locales.form.title.label}
-//                                 options={[
-//                                   {
-//                                     label: locales.form.title.options.dr,
-//                                     value: "Dr.",
-//                                   },
-//                                   {
-//                                     label: locales.form.title.options.prof,
-//                                     value: "Prof.",
-//                                   },
-//                                   {
-//                                     label: locales.form.title.options.profdr,
-//                                     value: "Prof. Dr.",
-//                                   },
-//                                 ]}
-//                                 {...register("academicTitle")}
-//                               />
-//                               <Errors />
-//                             </>
-//                           )}
-//                         </Field>
-//                       </div>
-//                     </div>
-
-//                     <div className="flex flex-col @lg:mv-flex-row -mx-4 mb-4">
-//                       <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
-//                         <Field name="firstName" label="Vorname">
-//                           {({ Errors }) => (
-//                             <>
-//                               <Input
-//                                 id="firstName"
-//                                 label={locales.form.firstName}
-//                                 required
-//                                 {...register("firstName")}
-//                               />
-
-//                               <Errors />
-//                             </>
-//                           )}
-//                         </Field>
-//                       </div>
-//                       <div className="basis-full @lg:mv-basis-6/12 px-4 mb-4">
-//                         <Field name="lastName" label="Nachname">
-//                           {({ Errors }) => (
-//                             <>
-//                               <Input
-//                                 id="lastName"
-//                                 label={locales.form.lastName}
-//                                 required
-//                                 {...register("lastName")}
-//                               />
-//                               <Errors />
-//                             </>
-//                           )}
-//                         </Field>
-//                       </div>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <Field name="email" label="E-Mail">
-//                         {({ Errors }) => (
-//                           <>
-//                             <Input
-//                               id="email"
-//                               label={locales.form.email}
-//                               required
-//                               {...register("email")}
-//                             />
-//                             <Errors />
-//                           </>
-//                         )}
-//                       </Field>
-//                     </div>
-
-//                     <div className="mb-4">
-//                       <Field name="password" label="Passwort">
-//                         {({ Errors }) => (
-//                           <>
-//                             <InputPassword
-//                               id="password"
-//                               label={locales.form.password}
-//                               required
-//                               {...register("password")}
-//                             />
-//                             <Errors />
-//                           </>
-//                         )}
-//                       </Field>
-//                     </div>
-
-//                     {/* <div className="mb-4">
-//               <InputPassword id="" label="Passwort wiederholen" isRequired />
-//             </div> */}
-
-//                     <div className="mb-8">
-//                       <div className="form-control checkbox-privacy items-start">
-//                         <label className="label cursor-pointer items-start">
-//                           <Field name="termsAccepted">
-//                             {({ Errors }) => {
-//                               const ForwardRefComponent = forwardRef<
-//                                 HTMLInputElement,
-//                                 React.DetailedHTMLProps<
-//                                   React.InputHTMLAttributes<HTMLInputElement>,
-//                                   HTMLInputElement
-//                                 >
-//                               >((props, ref) => {
-//                                 return (
-//                                   <>
-//                                     <input
-//                                       ref={
-//                                         // TODO: can this type assertion be removed and proofen by code?
-//                                         ref as React.RefObject<HTMLInputElement>
-//                                       }
-//                                       {...props}
-//                                     />
-//                                   </>
-//                                 );
-//                               });
-//                               ForwardRefComponent.displayName =
-//                                 "ForwardRefComponent";
-//                               return (
-//                                 <>
-//                                   <ForwardRefComponent
-//                                     type="checkbox"
-//                                     className="checkbox checkbox-primary mr-4"
-//                                     {...register("termsAccepted")}
-//                                   />
-//                                   <Errors />
-//                                 </>
-//                               );
-//                             }}
-//                           </Field>
-//                           <span className="label-text">
-//                             {locales.form.acknowledgements.intro}{" "}
-//                             <a
-//                               href="https://mint-vernetzt.de/terms-of-use-community-platform"
-//                               target="_blank"
-//                               rel="noreferrer noopener"
-//                               className="text-primary font-bold hover:underline"
-//                             >
-//                               {locales.form.acknowledgements.termsOfUse}
-//                             </a>
-//                             {locales.form.acknowledgements.bridge}{" "}
-//                             <a
-//                               href="https://mint-vernetzt.de/privacy-policy-community-platform"
-//                               target="_blank"
-//                               rel="noreferrer noopener"
-//                               className="text-primary font-bold hover:underline"
-//                             >
-//                               {locales.form.acknowledgements.dataProtection}
-//                             </a>{" "}
-//                             {locales.form.acknowledgements.outro}
-//                           </span>
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="mb-8">
-//                       <button type="submit" className="btn btn-primary">
-//                         {locales.form.submit}
-//                       </button>
-//                     </div>
-//                     <Errors />
-//                   </>
-//                 )}
-//               </RemixFormsForm>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }

@@ -30,6 +30,7 @@ import {
   deleteOrganizationBySlug,
   type DeleteOrganizationLocales,
 } from "./delete.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function createSchema(locales: DeleteOrganizationLocales, name: string) {
   return z.object({
@@ -152,6 +153,7 @@ function Delete() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
     id: `delete-organization-form-${
@@ -227,7 +229,9 @@ function Delete() {
                 level="negative"
                 disabled={
                   isHydrated
-                    ? form.dirty === false || form.valid === false
+                    ? form.dirty === false ||
+                      form.valid === false ||
+                      isSubmitting
                     : false
                 }
                 fullSize

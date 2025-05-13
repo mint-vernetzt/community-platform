@@ -41,6 +41,7 @@ import {
 } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 const NAME_MIN_LENGTH = 3;
 const NAME_MAX_LENGTH = 50;
@@ -388,6 +389,7 @@ function General() {
   const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const { organization, allFocuses, areaOptions, locales } = loaderData;
@@ -451,7 +453,7 @@ function General() {
         autoComplete="off"
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
-        <button type="submit" hidden />
+        <button type="submit" hidden disabled={isSubmitting} />
         <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
           <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
             <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
@@ -1060,7 +1062,9 @@ function General() {
                   // Don't disable button when js is disabled
                   disabled={
                     isHydrated
-                      ? form.dirty === false || form.valid === false
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

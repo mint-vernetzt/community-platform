@@ -56,6 +56,7 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useEffect, useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createDocumentUploadSchema = (
   locales: ProjectAttachmentSettingsLocales
@@ -335,6 +336,7 @@ function Attachments() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
   // Document upload form
@@ -558,7 +560,8 @@ function Attachments() {
                     isHydrated
                       ? selectedDocumentFileNames.length === 0 ||
                         documentUploadForm.dirty === false ||
-                        documentUploadForm.valid === false
+                        documentUploadForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >
@@ -699,6 +702,7 @@ function Attachments() {
                             name={INTENT_FIELD_NAME}
                             value="edit-document"
                             form={editDocumentForm.id}
+                            disabled={isSubmitting}
                           >
                             {locales.route.content.editModal.submit}
                           </Modal.SubmitButton>
@@ -752,6 +756,7 @@ function Attachments() {
                               name={INTENT_FIELD_NAME}
                               value="disconnect-document"
                               form={`disconnect-document-form-${relation.document.id}`}
+                              disabled={isSubmitting}
                             />
                             <Link
                               to={`?${editSearchParams.toString()}`}
@@ -896,7 +901,8 @@ function Attachments() {
                     isHydrated
                       ? selectedImageFileNames.length === 0 ||
                         imageUploadForm.dirty === false ||
-                        imageUploadForm.valid === false
+                        imageUploadForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >
@@ -1059,6 +1065,7 @@ function Attachments() {
                           name={INTENT_FIELD_NAME}
                           value="edit-image"
                           form={editImageForm.id}
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.editModal.submit}
                         </Modal.SubmitButton>
@@ -1119,6 +1126,7 @@ function Attachments() {
                             name={INTENT_FIELD_NAME}
                             value="disconnect-image"
                             form={`disconnect-image-form-${relation.image.id}`}
+                            disabled={isSubmitting}
                           />
                           <Link
                             to={`?${editSearchParams.toString()}`}

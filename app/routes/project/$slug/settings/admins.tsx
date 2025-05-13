@@ -35,6 +35,7 @@ import {
   removeAdminFromProject,
 } from "./admins.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -172,6 +173,7 @@ function Admins() {
 
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
 
   const [searchParams] = useSearchParams();
 
@@ -262,6 +264,7 @@ function Admins() {
                         value={`remove-admin-${relation.profile.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.current.remove}
                       </Button>
@@ -416,6 +419,7 @@ function Admins() {
                           value={`add-admin-${searchedProfile.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.add.submit}
                         </Button>
@@ -538,6 +542,7 @@ function Admins() {
                         value={`invite-admin-${profile.id}`}
                         type="submit"
                         fullSize
+                        disabled={isSubmitting}
                       >
                         {locales.route.content.invite.submit}
                       </Button>
@@ -595,6 +600,7 @@ function Admins() {
                           value={`cancel-admin-invite-${profile.id}`}
                           type="submit"
                           fullSize
+                          disabled={isSubmitting}
                         >
                           {locales.route.content.invites.cancel}
                         </Button>

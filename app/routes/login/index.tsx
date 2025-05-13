@@ -24,6 +24,7 @@ import { login, type LoginLocales } from "./index.server";
 import { z } from "zod";
 import { type LandingPageLocales } from "../index.server";
 import { useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -96,6 +97,7 @@ export default function Index() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
@@ -240,7 +242,9 @@ export default function Index() {
                   // Don't disable button when js is disabled
                   disabled={
                     isHydrated
-                      ? loginForm.dirty === false || loginForm.valid === false
+                      ? loginForm.dirty === false ||
+                        loginForm.valid === false ||
+                        isSubmitting
                       : false
                   }
                 >

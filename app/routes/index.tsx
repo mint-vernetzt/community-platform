@@ -34,6 +34,7 @@ import {
   getProjectCount,
 } from "./utils.server";
 import { useState } from "react";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -103,6 +104,7 @@ export default function Index() {
   const { locales, currentTimestamp } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
@@ -303,7 +305,8 @@ export default function Index() {
                         disabled={
                           isHydrated
                             ? loginForm.dirty === false ||
-                              loginForm.valid === false
+                              loginForm.valid === false ||
+                              isSubmitting
                             : false
                         }
                       >

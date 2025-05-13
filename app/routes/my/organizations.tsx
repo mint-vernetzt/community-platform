@@ -64,6 +64,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { CreateOrganization } from "~/components-next/CreateOrganization";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { Modal } from "~/components-next/Modal";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -424,6 +425,7 @@ export default function MyOrganizations() {
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
 
   // JS for request to add yourself to an organization section
   const searchFetcher = useFetcher<typeof loader>();
@@ -899,6 +901,7 @@ export default function MyOrganizations() {
                             variant="outline"
                             value={`create-organization-member-request-${searchedOrganization.id}`}
                             type="submit"
+                            disabled={isSubmitting}
                             fullSize
                           >
                             {
@@ -977,6 +980,7 @@ export default function MyOrganizations() {
                               variant="outline"
                               value={`cancel-organization-member-request-${organization.id}`}
                               type="submit"
+                              disabled={isSubmitting}
                               fullSize
                             >
                               {
@@ -1104,6 +1108,7 @@ export default function MyOrganizations() {
                                 name="intent"
                                 value={`reject-organization-invite-${key}-${invite.organizationId}`}
                                 className="mv-text-wrap @sm:mv-text-nowrap"
+                                disabled={isSubmitting}
                               >
                                 {
                                   locales.route.organizationMemberInvites
@@ -1116,6 +1121,7 @@ export default function MyOrganizations() {
                                 name="intent"
                                 value={`accept-organization-invite-${key}-${invite.organizationId}`}
                                 className="mv-text-wrap @sm:mv-text-nowrap"
+                                disabled={isSubmitting}
                               >
                                 {locales.route.organizationMemberInvites.accept}
                               </Button>
@@ -1229,6 +1235,7 @@ export default function MyOrganizations() {
                                   name="intent"
                                   value={`reject-network-invite-${invite.network.id}-${value.organization.id}`}
                                   className="mv-text-wrap @sm:mv-text-nowrap"
+                                  disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.decline}
                                 </Button>
@@ -1238,6 +1245,7 @@ export default function MyOrganizations() {
                                   name="intent"
                                   value={`accept-network-invite-${invite.network.id}-${value.organization.id}`}
                                   className="mv-text-wrap @sm:mv-text-nowrap"
+                                  disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.accept}
                                 </Button>
@@ -1352,6 +1360,7 @@ export default function MyOrganizations() {
                                     name="intent"
                                     value={`reject-organization-member-request-${request.profile.id}-${value.organization.id}`}
                                     className="mv-text-wrap @sm:mv-text-nowrap"
+                                    disabled={isSubmitting}
                                   >
                                     {locales.route.networkInvites.decline}
                                   </Button>
@@ -1361,6 +1370,7 @@ export default function MyOrganizations() {
                                     name="intent"
                                     value={`accept-organization-member-request-${request.profile.id}-${value.organization.id}`}
                                     className="mv-text-wrap @sm:mv-text-nowrap"
+                                    disabled={isSubmitting}
                                   >
                                     {locales.route.networkInvites.accept}
                                   </Button>
@@ -1473,6 +1483,7 @@ export default function MyOrganizations() {
                                   name="intent"
                                   value={`reject-network-request-${request.organization.id}-${value.network.id}`}
                                   className="mv-text-wrap @sm:mv-text-nowrap"
+                                  disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.decline}
                                 </Button>
@@ -1482,6 +1493,7 @@ export default function MyOrganizations() {
                                   name="intent"
                                   value={`accept-network-request-${request.organization.id}-${value.network.id}`}
                                   className="mv-text-wrap @sm:mv-text-nowrap"
+                                  disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.accept}
                                 </Button>
@@ -1713,7 +1725,7 @@ export default function MyOrganizations() {
                                         disabled={
                                           isHydrated === true
                                             ? quitOrganizationForm.valid ===
-                                              false
+                                                false || isSubmitting
                                             : false
                                         }
                                       >

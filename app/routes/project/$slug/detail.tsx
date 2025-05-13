@@ -57,6 +57,7 @@ import {
   uploadImage,
 } from "./detail.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function links() {
   return [
@@ -391,6 +392,7 @@ function ProjectDetail() {
   const actionData = useActionData<typeof action>();
   const location = useLocation();
   const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
   const { project, mode, locales } = loaderData;
   const matches = useMatches();
   let pathname = "";
@@ -454,7 +456,11 @@ function ProjectDetail() {
               <Form method="get" action={location.pathname} preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
                 {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl */}
-                <CircleButton type="submit" variant="outline">
+                <CircleButton
+                  type="submit"
+                  variant="outline"
+                  disabled={isSubmitting}
+                >
                   <div className="mv-absolute mv-top-4 mv-left-4 mv-w-full mv-h-full mv-modal-button mv-cursor-pointer">
                     <svg
                       width="16"
@@ -485,6 +491,7 @@ function ProjectDetail() {
                   <button
                     type="submit"
                     className="appearance-none flex content-center items-center nowrap cursor-pointer text-primary"
+                    disabled={isSubmitting}
                   >
                     <svg
                       width="17"
@@ -520,6 +527,7 @@ function ProjectDetail() {
                   type="submit"
                   form={publishForm.id}
                   fullSize
+                  disabled={isSubmitting}
                 >
                   {(() => {
                     const localeKey = project.published
