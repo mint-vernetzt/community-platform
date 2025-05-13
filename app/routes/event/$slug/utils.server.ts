@@ -1,4 +1,4 @@
-import type { Event, Organization, Profile } from "@prisma/client";
+import type { Event, Profile } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
@@ -143,48 +143,6 @@ export async function getFullDepthProfiles(
   } catch (error) {
     console.error({ error });
     invariantResponse(false, "Server Error", { status: 500 });
-  }
-}
-
-// TODO: When this function gets used please optimize the query like the query in the above fullDepth functions (Selecting from get_full_depth and then joining towards organizations)
-export async function getFullDepthOrganizers(
-  id: string,
-  selectDistinct = true
-) {
-  try {
-    // Get event and all child events of arbitrary depth with raw query
-    // Join the result with relevant relation tables
-    const select = selectDistinct
-      ? Prisma.sql`SELECT DISTINCT "organizations".name, slug`
-      : Prisma.sql`SELECT "organizations".name, "events".name as "responsibleForEvents"`;
-
-    const result = await prismaClient.$queryRaw`
-      WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id
-          FROM "events"
-          WHERE id = ${id}
-        UNION
-          SELECT "events".id, "events".parent_event_id
-          FROM "events"
-            JOIN get_full_depth
-            ON "events".parent_event_id = get_full_depth.id
-      )
-        ${select}
-        FROM "organizations"
-          JOIN "responsible_organizations_of_events"
-          ON "organizations".id = "responsible_organizations_of_events".organization_id
-          JOIN "events"
-          ON "events".id = "responsible_organizations_of_events".event_id
-          JOIN get_full_depth
-          ON "responsible_organizations_of_events".event_id = get_full_depth.id
-      ;`;
-
-    return result as Array<
-      Pick<Organization, "slug" | "name"> & { responsibleForEvents?: string }
-    >;
-  } catch (e) {
-    console.error(e);
-    return null;
   }
 }
 

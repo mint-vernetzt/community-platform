@@ -1,6 +1,6 @@
 import { createHmac } from "crypto";
 
-export type ResizeType = "fit" | "fill" | "crop";
+type ResizeType = "fit" | "fill" | "crop";
 
 export const GravityType = {
   center: "ce",

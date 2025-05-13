@@ -31,18 +31,6 @@ const eventRelations = Prisma.validator<Prisma.EventDefaultArgs>()({
 export type EventWithRelations = Prisma.EventGetPayload<typeof eventRelations> &
   Event;
 
-export function combineEventsSortChronologically<
-  EventsType extends { event: Pick<Event, "startTime"> }[],
-  EventsToAddType extends { event: Pick<Event, "startTime"> }[]
->(events: EventsType, eventsToAdd: EventsToAddType) {
-  return [...events, ...eventsToAdd].sort(function sortEventsChronologically(
-    a,
-    b
-  ) {
-    return a.event.startTime >= b.event.startTime ? 1 : -1;
-  });
-}
-
 function reachedParticipateDeadline(event: {
   participationUntil: Date;
   participationFrom: Date;

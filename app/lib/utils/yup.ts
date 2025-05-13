@@ -7,7 +7,7 @@ import type {
   StringSchema,
   TestContext,
 } from "yup";
-import { ValidationError, mixed, number, string } from "yup";
+import { ValidationError, string } from "yup";
 import { invariantResponse } from "./response";
 import { removeHtmlTags, replaceHtmlEntities } from "./transformHtml";
 
@@ -240,46 +240,6 @@ export function greaterThanDate(
         }
       }
     );
-}
-
-export function participantLimit() {
-  return mixed() // inspired by https://github.com/jquense/yup/issues/298#issue-353217237
-    .test((value) => {
-      return (
-        value === null ||
-        value === "" ||
-        value === 0 ||
-        number().isValidSync(value)
-      );
-    })
-    .when("participantCount", (participantCount, schema) =>
-      participantCount
-        ? schema.test(
-            "lessThanParticipantCount",
-            "Achtung! Es nehmen bereits mehr Personen teil als die aktuell eingestellte Teilnahmebegrenzung. Bitte zuerst die entsprechende Anzahl der Teilnehmenden zur Warteliste hinzufügen.",
-            (participantLimit) => {
-              if (
-                !(
-                  participantLimit === null ||
-                  participantLimit === undefined ||
-                  participantLimit === "" ||
-                  participantLimit === "0"
-                )
-              ) {
-                return participantLimit > participantCount;
-              } else {
-                return true;
-              }
-            }
-          )
-        : schema
-    )
-    .transform((value) => {
-      return value === null || value === "" || value === "0"
-        ? null
-        : Number(value);
-    })
-    .nullable();
 }
 
 export async function getFormValues<T extends ObjectSchema<AnyObject>>(

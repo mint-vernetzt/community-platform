@@ -11,8 +11,6 @@ import { Link } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
-export type InputType = "text" | "password" | "email" | "number" | "hidden";
-
 export type InputLabelProps = {
   htmlFor?: string;
   hidden?: boolean;

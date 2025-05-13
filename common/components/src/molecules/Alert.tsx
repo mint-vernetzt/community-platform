@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export type AlertLevel = "positive" | "attention" | "negative";
 
-export type AlertProps = {
+type AlertProps = {
   children: React.ReactNode;
   level?: AlertLevel;
 };

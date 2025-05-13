@@ -25,7 +25,7 @@ export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["organization/create"];
 
-export async function createOrganizationOnProfile(
+async function createOrganizationOnProfile(
   profileId: string,
   submissionValues: {
     organizationName: string;
@@ -267,20 +267,6 @@ export async function getAllNetworkTypes() {
     },
   });
   return allNetworkTypes;
-}
-
-export async function getOrganizationTypesWithSlugs() {
-  const organizationTypeNetwork = await prismaClient.organizationType.findFirst(
-    {
-      select: {
-        id: true,
-      },
-      where: {
-        slug: "network",
-      },
-    }
-  );
-  return organizationTypeNetwork;
 }
 
 export async function createOrganizationMemberRequest(options: {

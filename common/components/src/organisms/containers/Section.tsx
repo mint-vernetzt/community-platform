@@ -1,15 +1,15 @@
 import classNames from "classnames";
 import { Children, cloneElement, createElement, isValidElement } from "react";
 
-export type SectionVariant = "primary";
-export type SectionType = "section" | "div";
-export type SectionProps = {
+type SectionVariant = "primary";
+type SectionType = "section" | "div";
+type SectionProps = {
   as?: SectionType;
   variant?: SectionVariant;
   withBorder?: boolean;
 };
 
-export function SectionHeader(
+function SectionHeader(
   props: React.PropsWithChildren<Pick<SectionProps, "variant" | "withBorder">>
 ) {
   const { children, variant, withBorder } = props;
@@ -24,7 +24,7 @@ export function SectionHeader(
   return <div className={classes}>{children}</div>;
 }
 
-export function SectionBody(
+function SectionBody(
   props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
 ) {
   const classes = classNames(
@@ -34,7 +34,7 @@ export function SectionBody(
   return <div className={classes}>{props.children}</div>;
 }
 
-export function SectionFooter(
+function SectionFooter(
   props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
 ) {
   const classes = classNames(

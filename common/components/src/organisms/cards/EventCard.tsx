@@ -19,7 +19,7 @@ import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { type ExploreEventsLocales } from "~/routes/explore/events.server";
 import { type SearchEventsLocales } from "~/routes/search/events.server";
 
-export type EventCardProps = {
+type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
   locales: DashboardLocales | ExploreEventsLocales | SearchEventsLocales;

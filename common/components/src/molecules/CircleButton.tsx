@@ -1,11 +1,11 @@
 import classNames from "classnames";
 import { createElement } from "react";
 
-export type CircleButtonVariant = "normal" | "outline" | "ghost";
-export type CircleButtonType = "button" | "a";
-export type CircleButtonSize = "small" | "medium" | "large";
+type CircleButtonVariant = "normal" | "outline" | "ghost";
+type CircleButtonType = "button" | "a";
+type CircleButtonSize = "small" | "medium" | "large";
 
-export type CircleButtonProps = {
+type CircleButtonProps = {
   variant?: CircleButtonVariant;
   size?: CircleButtonSize;
   as?: CircleButtonType;

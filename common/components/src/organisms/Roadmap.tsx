@@ -2,7 +2,7 @@ import { Children } from "react";
 import { Button } from "./../molecules/Button";
 import { type LandingPageLocales } from "~/routes/index.server";
 
-export type RoadmapColumnProps = {
+type RoadmapColumnProps = {
   locales: LandingPageLocales;
   title: string;
   id: string;
@@ -64,7 +64,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
   );
 }
 
-export type RoadmapCardProps = {
+type RoadmapCardProps = {
   title: string;
   text: string;
 };

@@ -124,7 +124,7 @@ function ContextMenuDivider() {
   );
 }
 
-export type ProjectCardProps = {
+type ProjectCardProps = {
   project: {
     name: string;
     slug: string;

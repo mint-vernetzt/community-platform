@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Children, isValidElement, type ReactNode } from "react";
 
-export type StatusProps = {
+type StatusProps = {
   variant?: "primary" | "neutral" | "positive" | "negative";
   inverted?: boolean;
   children: ReactNode;
