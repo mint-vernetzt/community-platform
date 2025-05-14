@@ -22,9 +22,9 @@ function SelectAdd(props: SelectAddProps) {
   const isSubmitting = useIsSubmitting();
 
   return (
-    <div className="mb-4">
-      <div className="flex flex-row items-center w-full">
-        <div className="flex-auto">
+    <div className="mv-mb-4">
+      <div className="mv-flex mv-flex-row mv-items-center mv-w-full">
+        <div className="mv-flex-auto">
           <SelectField
             name={`add${uppercaseSingularName}`}
             visibilityName={name}
@@ -39,24 +39,12 @@ function SelectAdd(props: SelectAddProps) {
             publicPosition="top"
           />
         </div>
-        <div>
-          <button
-            ref={buttonRef}
-            name="submit"
-            type="submit"
-            className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden ml-2"
-            value={`add${uppercaseSingularName}`}
-            disabled={isSubmitting}
-          >
-            +
-          </button>
-        </div>
       </div>
 
-      <ul className="pt-2">
+      <ul className="mv-pt-2">
         {entries.map((entry) => (
-          <li key={`${name}-${entry.value}`} className="flex">
-            <div className="font-bold py-2">
+          <li key={`${name}-${entry.value}`} className="mv-flex">
+            <div className="mv-font-bold mv-py-2">
               {entry.label}
               <input name={name} type="hidden" value={entry.value} />
             </div>
@@ -65,7 +53,7 @@ function SelectAdd(props: SelectAddProps) {
               type="submit"
               name={`remove${uppercaseSingularName}`}
               value={entry.value}
-              className="ml-auto btn-none"
+              className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
               title="entfernen"
               disabled={isSubmitting}
             >

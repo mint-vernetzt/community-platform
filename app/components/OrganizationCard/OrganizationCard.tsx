@@ -23,15 +23,15 @@ function OrganizationCard(props: OrganizationCardProps) {
     <div
       key={props.id}
       data-testid="gridcell"
-      className="flex-100 @md:mv-flex-1/2 px-3 mb-4"
+      className="mv-flex-1 @md:mv-flex-1/2 mv-px-3 mv-mb-4"
     >
       <Link
         to={props.link}
-        className="flex flex-wrap content-start items-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
+        className="mv-flex mv-flex-wrap mv-content-start mv-items-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
       >
-        <div className="w-full flex items-center flex-row">
+        <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
           {props.image !== "" && props.image !== null ? (
-            <div className="h-16 w-16 flex items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+            <div className="mv-h-16 mv-w-16 mv-flex mv-items-center mv-justify-center mv-relative mv-shrink-0 mv-rounded-full mv-overflow-hidden mv-border">
               <Avatar
                 logo={props.image}
                 blurredLogo={props.blurredImage}
@@ -40,16 +40,16 @@ function OrganizationCard(props: OrganizationCardProps) {
               />
             </div>
           ) : (
-            <div className="h-16 w-16 mv-bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+            <div className="mv-h-16 mv-w-16 mv-bg-neutral-600 mv-text-white mv-text-3xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
               {getInitialsOfName(props.name)}
             </div>
           )}
-          <div className="pl-4">
-            <H3 like="h4" className="text-xl mb-1">
+          <div className="mv-pl-4">
+            <H3 like="h4" className="mv-text-xl mv-mb-1">
               {props.name}
             </H3>
             {props.types && props.types.length > 0 && (
-              <p className="font-bold text-sm">
+              <p className="mv-font-bold mv-text-sm">
                 {props.types
                   .map((relation) => {
                     let title;

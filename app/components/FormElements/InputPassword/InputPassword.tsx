@@ -17,28 +17,28 @@ const InputPassword = (
   };
 
   return (
-    <div className="form-control w-full">
-      <label htmlFor={inputProps.id || label} className="label">
+    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
+      <label htmlFor={inputProps.id || label} className="mv-font-semibold">
         {label}
         {inputProps.required !== undefined ? " *" : ""}
       </label>
 
-      <div className="relative">
+      <div className="mv-relative">
         <input
           {...inputProps}
           type={passwordShown ? "text" : "password"}
           id={inputProps.id || label}
           name={inputProps.id || label}
-          className="input input-bordered w-full input-lg"
+          className="mv-w-full mv-outline-none mv-bg-white mv-h-auto mv-border-2 mv-border-neutral-300 mv-px-4 mv-text-base mv-font-semibold mv-leading-8 mv-appearance-none mv-rounded-lg focus:mv-border-neutral-200"
           // TODO: can this type assertion be removed and proofen by code?
           ref={inputProps.ref}
         />
         <button
-          className="absolute top-1 right-2 bg-transparent w-6 h-6 m-0.5 flex items-center justify-center rounded-full border border-neutral-400"
+          className="mv-absolute mv-top-1 mv-right-2 mv-bg-transparent mv-w-6 mv-h-6 mv-m-0.5 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-border mv-border-neutral-400 hover:mv-bg-neutral-100"
           onClick={togglePassword}
         >
           <svg
-            className={passwordShown ? "hidden" : "block w-4 h-8"}
+            className={passwordShown ? "mv-hidden" : "mv-block mv-w-4 mv-h-8"}
             viewBox="0 0 20 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -54,7 +54,7 @@ const InputPassword = (
           </svg>
 
           <svg
-            className={passwordShown ? "block w-4 h-8" : "hidden"}
+            className={passwordShown ? "mv-block mv-w-4 mv-h-8" : "mv-hidden"}
             viewBox="0 0 20 20"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

@@ -316,9 +316,9 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex items-center">
-        <div className="relative max-h-72">
+    <div className="mv-flex mv-flex-col mv-items-center">
+      <div className="mv-flex mv-items-center">
+        <div className="mv-relative mv-max-h-72">
           {!imgSrc && props.children}
           {typeof image !== "undefined" &&
             image !== DefaultImages.Event.Background &&
@@ -345,11 +345,11 @@ function ImageCropper(props: ImageCropperProps) {
                   key={INTENT_FIELD_NAME}
                 />
                 <button
-                  className={`bg-transparent w-8 h-8 p-0 border-transparent absolute ${
+                  className={`mv-bg-transparent mv-w-8 mv-h-8 mv-p-0 mv-border-transparent mv-absolute ${
                     uploadKey === "logo" || uploadKey === "avatar"
-                      ? "top-1 right-1"
-                      : "-top-3 -right-3"
-                  } rounded-full border-2 border-neutral-200`}
+                      ? "mv-top-1 mv-right-1"
+                      : "-mv-top-3 -mv-right-3"
+                  } mv-rounded-full mv-border-2 mv-border-neutral-200`}
                   type="submit"
                   onClick={(e) => {
                     if (
@@ -368,7 +368,7 @@ function ImageCropper(props: ImageCropperProps) {
                     viewBox="0 0 32 32"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="w-full h-auto"
+                    className="mv-w-full mv-h-auto"
                   >
                     <circle cx="16" cy="16" r="16" fill="#EE7775" />
                     <path
@@ -412,7 +412,7 @@ function ImageCropper(props: ImageCropperProps) {
           />
         )}
       </div>
-      <div className="Crop-Controls flex flex-col w-full mv-my-2">
+      <div className="Crop-Controls mv-flex mv-flex-col mv-w-full mv-my-2">
         <Form
           {...getFormProps(imageUploadForm)}
           ref={formRef}
@@ -490,11 +490,11 @@ function ImageCropper(props: ImageCropperProps) {
           </FileInput>
         </Form>
         {imgSrc && (
-          <div className="flex items-center w-full mt-2">
-            <div className="flex-auto w-1/2  md:mv-w-[calc(25%+1rem)] flex justify-end px-4 md:mv-px2">
+          <div className="mv-flex mv-items-center mv-w-full mv-mt-2">
+            <div className="mv-flex-auto mv-w-1/2  md:mv-w-[calc(25%+1rem)] mv-flex mv-justify-end mv-px-4 md:mv-px-2">
               <button
                 id="scaleDown"
-                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
+                className="mv-bg-white mv-border mv-border-primary mv-h-8 mv-w-8 mv-flex mv-items-center mv-justify-center mv-rounded-md hover:mv-bg-primary mv-text-primary hover:mv-text-white"
                 onClick={handleZoomClick}
               >
                 <svg
@@ -510,7 +510,7 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-[250px] py-2 mv-hidden md:mv-block md:mv-w-[calc(50%-2rem)] md:mv-px2">
+            <div className="mv-w-[250px] mv-py-2 mv-hidden md:mv-block md:mv-w-[calc(50%-2rem)] md:mv-px-2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
@@ -520,10 +520,10 @@ function ImageCropper(props: ImageCropperProps) {
                 onChange={(v) => setScale(v as number)}
               />
             </div>
-            <div className="flex-auto w-1/2 md:mv-w-[calc(25%+1rem)] flex justify-start px-4 md:mv-px2">
+            <div className="mv-flex-auto mv-w-1/2 md:mv-w-[calc(25%+1rem)] mv-flex mv-justify-start mv-px-4 md:mv-px-2">
               <button
                 id="scaleUp"
-                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
+                className="mv-bg-white mv-border mv-border-primary mv-h-8 mv-w-8 mv-flex mv-items-center mv-justify-center mv-rounded-md hover:mv-bg-primary mv-text-primary hover:mv-text-white"
                 onClick={handleZoomClick}
               >
                 <svg
@@ -542,7 +542,7 @@ function ImageCropper(props: ImageCropperProps) {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
+      <div className="mv-grid mv-grid-cols-2 mv-gap-x-8 mv-w-full mv-mt-2">
         <Form method="get" preventScrollReset>
           <Button
             type="submit"

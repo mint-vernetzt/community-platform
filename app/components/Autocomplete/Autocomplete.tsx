@@ -161,7 +161,8 @@ function Autocomplete(
     <>
       <input
         ref={inputRef}
-        className="input input-bordered w-full input-lg"
+        // input input-lg input-bordered
+        className="mv-w-full mv-outline-none mv-bg-white mv-h-auto mv-border-2 mv-border-neutral-300 mv-px-4 mv-text-base mv-font-semibold mv-leading-8 mv-appearance-none mv-rounded-lg focus:mv-border-neutral-200"
         value={searchedValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -170,7 +171,7 @@ function Autocomplete(
       <input {...rest} hidden value={submitValue} />
       {suggestions.length > 0 ? (
         <div
-          className="mt-2 pb-4 @md:mv-pb-14"
+          className="mv-mt-2 mv-pb-4 @md:mv-pb-14"
           id="suggestions-container"
           ref={suggestionsContainerRef}
         >
@@ -181,13 +182,13 @@ function Autocomplete(
                 <button
                   key={suggestion.id}
                   className={`${
-                    index === activeSuggestion - 1 ? "bg-blue-100 " : ""
-                  }w-full flex items-center flex-row border-b border-neutral-400 p-4 cursor-pointer rounded-lg`}
+                    index === activeSuggestion - 1 ? "mv-bg-blue-100 " : ""
+                  }mv-w-full mv-flex mv-items-center mv-flex-row mv-border-b mv-border-neutral-400 mv-p-4 mv-cursor-pointer mv-rounded-lg`}
                   onClick={() => handleClick()}
                   onMouseOver={() => handleMouseOver(index)}
                   onFocus={() => handleMouseOver(index)}
                 >
-                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  <div className="mv-h-16 mv-w-16 mv-bg-primary mv-text-white mv-text-3xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-border mv-overflow-hidden mv-shrink-0">
                     {suggestion.logo !== null && suggestion.logo !== "" ? (
                       <Avatar
                         size="full"
@@ -199,12 +200,12 @@ function Autocomplete(
                       <>{initials}</>
                     )}
                   </div>
-                  <div className="pl-4">
-                    <H3 like="h4" className="text-xl mb-1 text-left">
+                  <div className="mv-pl-4">
+                    <H3 like="h4" className="mv-text-xl mv-mb-1 mv-text-left">
                       {suggestion.name}
                     </H3>
                     {suggestion.types.length !== 0 ? (
-                      <p className="font-bold text-sm text-left">
+                      <p className="mv-font-bold mv-text-sm mv-text-left">
                         {suggestion.types
                           .map((item) => {
                             let title;
@@ -241,13 +242,13 @@ function Autocomplete(
                 <button
                   key={suggestion.id}
                   className={`${
-                    index === activeSuggestion - 1 ? "bg-blue-100 " : ""
-                  }w-full flex items-center flex-row border-b border-neutral-400 p-4`}
+                    index === activeSuggestion - 1 ? "mv-bg-blue-100 " : ""
+                  }mv-w-full mv-flex mv-items-center mv-flex-row mv-border-b mv-border-neutral-400 mv-p-4`}
                   onClick={() => handleClick()}
                   onMouseOver={() => handleMouseOver(index)}
                   onFocus={() => handleMouseOver(index)}
                 >
-                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  <div className="mv-h-16 mv-w-16 mv-bg-primary mv-text-white mv-text-3xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-border mv-overflow-hidden mv-shrink-0">
                     {suggestion.avatar !== null && suggestion.avatar !== "" ? (
                       <Avatar
                         size="full"
@@ -260,12 +261,12 @@ function Autocomplete(
                       <>{initials}</>
                     )}
                   </div>
-                  <div className="pl-4">
-                    <H3 like="h4" className="text-xl mb-1 text-left">
+                  <div className="mv-pl-4">
+                    <H3 like="h4" className="mv-text-xl mv-mb-1 mv-text-left">
                       {suggestion.firstName} {suggestion.lastName}
                     </H3>
                     {suggestion.position ? (
-                      <p className="font-bold text-sm cursor-default text-left">
+                      <p className="mv-font-bold mv-text-sm mv-cursor-default text-left">
                         {suggestion.position}
                       </p>
                     ) : null}
@@ -288,18 +289,18 @@ function Autocomplete(
                   onMouseOver={() => handleMouseOver(index)}
                   onFocus={() => handleMouseOver(index)}
                   className={`${
-                    index === activeSuggestion - 1 ? "bg-blue-100 " : ""
-                  }w-full text-left border-b border-neutral-400 p-1 flex items-stretch overflow-hidden`}
+                    index === activeSuggestion - 1 ? "mv-bg-blue-100 " : ""
+                  }mv-w-full mv-text-left mv-border-b mv-border-neutral-400 mv-p-1 mv-flex mv-items-stretch mv-overflow-hidden`}
                 >
-                  <div className="hidden @xl:mv-block w-40 shrink-0">
+                  <div className="mv-hidden @xl:mv-block mv-w-40 mv-shrink-0">
                     <Image
                       alt={suggestion.name}
                       src={suggestion.background}
                       blurredSrc={suggestion.blurredBackground}
                     />
                   </div>
-                  <div className="px-4 py-6">
-                    <p className="text-xs mb-1">
+                  <div className="mv-px-4 mv-py-6">
+                    <p className="mv-text-xs mv-mb-1">
                       {/* TODO: Display icons (see figma) */}
                       {suggestion.stage !== null
                         ? (() => {
@@ -353,15 +354,15 @@ function Autocomplete(
                         ""
                       )}
                     </p>
-                    <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
+                    <h4 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
                       {suggestion.name}
                     </h4>
                     {suggestion.subline !== null ? (
-                      <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                      <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                         {suggestion.subline}
                       </p>
                     ) : (
-                      <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                      <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                         {suggestion.description}
                       </p>
                     )}

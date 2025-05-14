@@ -455,7 +455,7 @@ export default function Index() {
                   withPublicPrivateToggle={true}
                   isPublic={profileVisibilities.email}
                   errorMessage={errors?.email?.message}
-                  className="mv-text-neutral-300"
+                  className="mv-text-neutral-300 mv-pointer-events-none"
                 />
                 <div className="mv-text-sm mv-mt-2">
                   {insertComponentsIntoLocale(

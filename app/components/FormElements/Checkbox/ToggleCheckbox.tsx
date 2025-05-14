@@ -12,20 +12,21 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
 
   const checkboxId = `visibility_${inputProps.value}`;
   return (
-    <div hidden={inputProps.hidden} className="ml-2 toggle-checkbox">
+    <div hidden={inputProps.hidden} className="mv-ml-2 mv-group">
       <input
         type="checkbox"
         {...registerProp}
         {...inputProps}
         id={checkboxId}
+        className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0"
       />
       <label
         htmlFor={checkboxId}
-        className={`bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 ${props.className}`}
+        className={`mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border-2 mv-border-neutral-300 mv-text-neutral-600 hover:mv-bg-neutral-100 mv-cursor-pointer ${props.className}`}
         aria-label={`Set visibility of ${name} to ${inputProps.value}`}
       >
         <svg
-          className={"block w-6 h-6"}
+          className="group-has-[:checked]:mv-hidden mv-block mv-w-6 mv-h-6"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +41,7 @@ export function ToggleCheckbox(props: ToggleCheckboxProps) {
           />
         </svg>
         <svg
-          className={"hidden"}
+          className="mv-hidden group-has-[:checked]:mv-block group-has-[:checked]:mv-w-6 group-has-[:checked]:mv-h-6"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

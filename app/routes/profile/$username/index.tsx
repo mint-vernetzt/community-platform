@@ -23,7 +23,6 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Mastodon } from "~/components-next/icons/Mastodon";
 import { TikTok } from "~/components-next/icons/TikTok";
 import { Modal } from "~/components-next/Modal";
-import { Chip } from "~/components/Chip/Chip";
 import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
 import { H3 } from "~/components/Heading/Heading";
 import ImageCropper, {
@@ -69,6 +68,7 @@ import {
 } from "./utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { useCallback } from "react";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 
 export function links() {
   return [
@@ -851,7 +851,7 @@ export default function Index() {
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
                   {locales.route.profile.offer}
                 </div>
-                <div className="flex-auto">
+                <Chip.Container>
                   {loaderData.data.offers.map((relation) => {
                     let title;
                     if (relation.offer.slug in locales.offers) {
@@ -867,13 +867,13 @@ export default function Index() {
                     return (
                       <Chip
                         key={`offer_${relation.offer.slug}`}
-                        title={title}
-                        slug=""
-                        isEnabled
-                      />
+                        color="secondary"
+                      >
+                        {title}
+                      </Chip>
                     );
                   })}
-                </div>
+                </Chip.Container>
               </div>
             ) : null}
             {loaderData.data.seekings.length > 0 ? (
@@ -881,7 +881,7 @@ export default function Index() {
                 <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 text-xs @lg:mv-text-sm leading-4 @lg:mv-leading-6 my-2 @lg:mv-mb-0">
                   {locales.route.profile.lookingFor}
                 </div>
-                <div className="flex-auto">
+                <Chip.Container>
                   {loaderData.data.seekings.map((relation) => {
                     let title;
                     if (relation.offer.slug in locales.offers) {
@@ -897,13 +897,13 @@ export default function Index() {
                     return (
                       <Chip
                         key={`seeking_${relation.offer.slug}`}
-                        title={title}
-                        slug=""
-                        isEnabled
-                      />
+                        color="secondary"
+                      >
+                        {title}
+                      </Chip>
                     );
                   })}
-                </div>
+                </Chip.Container>
               </div>
             ) : null}
 
