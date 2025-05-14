@@ -244,17 +244,17 @@ function Participants() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <p className="mb-8">{locales.route.content.intro}</p>
-      <h4 className="mb-4 font-semibold">
+      <h1 className="mv-mb-8">{locales.route.content.headline}</h1>
+      <p className="mv-mb-8">{locales.route.content.intro}</p>
+      <h4 className="mv-mb-4 mv-font-semibold">
         {locales.route.content.limit.headline}
       </h4>
-      <p className="mb-8">{locales.route.content.limit.intro}</p>
+      <p className="mv-mb-8">{locales.route.content.limit.intro}</p>
       <RemixFormsForm schema={participantLimitSchema}>
         {({ Field, Button, register }) => {
           return (
             <>
-              <Field name="participantLimit" className="mb-4">
+              <Field name="participantLimit" className="mv-mb-4">
                 {({ Errors }) => (
                   <>
                     <InputText
@@ -268,13 +268,16 @@ function Participants() {
                   </>
                 )}
               </Field>
-              <div className="flex flex-row">
-                <Button type="submit" className="btn btn-primary mb-8">
+              <div className="mv-flex mv-flex-row">
+                <Button
+                  type="submit"
+                  className="mv-mb-8 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.route.content.limit.submit}
                 </Button>
                 <div
-                  className={`text-green-500 text-bold ml-4 mt-2 ${
-                    actionData?.success ? "block animate-fade-out" : "hidden"
+                  className={`mv-text-green-500 mv-text-bold mv-ml-4 mv-mt-2 ${
+                    actionData?.success ? "mv-block" : "mv-hidden"
                   }`}
                 >
                   {locales.route.content.limit.feedback}
@@ -284,11 +287,11 @@ function Participants() {
           );
         }}
       </RemixFormsForm>
-      <h4 className="mb-4 font-semibold">
+      <h4 className="mv-mb-4 mv-font-semibold">
         {locales.route.content.add.headline}
       </h4>
-      <p className="mb-8">{locales.route.content.add.intro}</p>
-      <div className="mb-8">
+      <p className="mv-mb-8">{locales.route.content.add.intro}</p>
+      <div className="mv-mb-8">
         <RemixFormsForm
           schema={addParticipantSchema}
           fetcher={addParticipantFetcher}
@@ -303,21 +306,21 @@ function Participants() {
           {({ Field, Button, register }) => {
             return (
               <>
-                <div className="form-control w-full">
-                  <div className="flex flex-row items-center mb-2">
-                    <div className="flex-auto">
+                <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
+                  <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+                    <div className="mv-flex-auto">
                       <label
                         id="label-for-name"
                         htmlFor="Name"
-                        className="label"
+                        className="mv-font-semibold"
                       >
                         {locales.route.content.add.label}
                       </label>
                     </div>
                   </div>
 
-                  <div className="flex flex-row">
-                    <Field name="profileId" className="flex-auto">
+                  <div className="mv-flex mv-flex-row">
+                    <Field name="profileId" className="mv-flex-auto">
                       {({ Errors }) => (
                         <>
                           <Errors />
@@ -335,8 +338,8 @@ function Participants() {
                         </>
                       )}
                     </Field>
-                    <div className="ml-2">
-                      <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                    <div className="mv-ml-2">
+                      <Button className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border-2 mv-border-neutral-300 mv-text-neutral-600 mv-mt-0.5 hover:mv-bg-neutral-100">
                         +
                       </Button>
                     </div>
@@ -348,19 +351,19 @@ function Participants() {
         </RemixFormsForm>
         {addParticipantFetcher.data !== undefined &&
         "message" in addParticipantFetcher.data ? (
-          <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+          <div className={`mv-p-4 mv-bg-green-200 mv-rounded-md mv-mt-4`}>
             {addParticipantFetcher.data.message}
           </div>
         ) : null}
       </div>
-      <h4 className="mb-4 mt-16 font-semibold">
+      <h4 className="mv-mb-4 mv-mt-16 mv-font-semibold">
         {locales.route.content.current.headline}
       </h4>
-      <p className="mb-4">{locales.route.content.current.intro}</p>
+      <p className="mv-mb-4">{locales.route.content.current.intro}</p>
       {loaderData.participants.length > 0 ? (
-        <p className="mb-4">
+        <p className="mv-mb-4">
           <Link
-            className="btn btn-outline btn-primary mt-4 mb-4"
+            className="mv-mt-4 mv-mb-4 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
             to="../csv-download?type=participants&amp;depth=single"
             reloadDocument
           >
@@ -371,7 +374,7 @@ function Participants() {
       {loaderData.hasFullDepthParticipants ? (
         <p className="mb-4">
           <Link
-            className="btn btn-outline btn-primary mt-4 mb-4"
+            className="mv-mt-4 mv-mb-4 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
             to="../csv-download?type=participants&amp;depth=full"
             reloadDocument
           >
@@ -379,15 +382,15 @@ function Participants() {
           </Link>
         </p>
       ) : null}
-      <div className="mb-4 mt-8 @md:mv-max-h-[630px] overflow-auto">
+      <div className="mv-mb-4 mv-mt-8 @md:mv-max-h-[630px] mv-overflow-auto">
         {loaderData.participants.map((participant) => {
           const initials = getInitials(participant);
           return (
             <div
               key={participant.id}
-              className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
+              className="mv-w-full mv-flex mv-items-center mv-flex-row mv-border-b mv-border-neutral-400 mv-p-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+              <div className="mv-h-16 mv-w-16 mv-bg-primary mv-text-white mv-text-3xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-border mv-overflow-hidden mv-shrink-0">
                 {participant.avatar !== null && participant.avatar !== "" ? (
                   <Avatar
                     size="full"
@@ -400,17 +403,17 @@ function Participants() {
                   <>{initials}</>
                 )}
               </div>
-              <div className="pl-4">
+              <div className="mv-pl-4">
                 <Link to={`/profile/${participant.username}`}>
                   <H3
                     like="h4"
-                    className="text-xl mb-1 no-underline hover:underline"
+                    className="mv-text-xl mv-mb-1 mv-no-underline hover:mv-underline"
                   >
                     {participant.firstName} {participant.lastName}
                   </H3>
                 </Link>
                 {participant.position ? (
-                  <p className="font-bold text-sm cursor-default">
+                  <p className="mv-font-bold mv-text-sm mv-cursor-default">
                     {participant.position}
                   </p>
                 ) : null}
@@ -419,7 +422,7 @@ function Participants() {
                 schema={removeParticipantSchema}
                 fetcher={removeParticipantFetcher}
                 action={`/event/${slug}/settings/participants/remove-participant`}
-                className="ml-auto"
+                className="mv-ml-auto"
               >
                 {(remixFormsProps) => {
                   const { Button, Errors } = remixFormsProps;
@@ -432,7 +435,7 @@ function Participants() {
                         hidden
                       />
                       <Button
-                        className="ml-auto btn-none"
+                        className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
                         title={locales.route.content.current.remove}
                       >
                         <svg
@@ -456,9 +459,9 @@ function Participants() {
           );
         })}
       </div>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -471,7 +474,7 @@ function Participants() {
                     <div className="mv-hidden">
                       <Field name="publish" value={!loaderData.published} />
                     </div>
-                    <Button className="btn btn-outline-primary">
+                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
                       {loaderData.published
                         ? locales.route.content.hide
                         : locales.route.content.publish}

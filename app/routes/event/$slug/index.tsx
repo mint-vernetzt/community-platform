@@ -521,7 +521,10 @@ function getCallToActionForm(loaderData: {
       <>
         <Form method="get" preventScrollReset>
           <input hidden name="modal-remove-participant" defaultValue="true" />
-          <button type="submit" className="btn btn-primary">
+          <button
+            type="submit"
+            className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+          >
             {loaderData.locales.route.content.event.removeParticipant.action}
           </button>
         </Form>
@@ -663,7 +666,7 @@ function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <div className="font-semi text-neutral-500 flex flex-wrap items-center mv-mb-4">
+        <div className="mv-font-semibold mv-text-neutral-500 mv-flex mv-flex-wrap mv-items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
             <>
               {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
@@ -676,7 +679,7 @@ function Index() {
               >
                 {loaderData.event.parentEvent.name}
               </TextButton>
-              <span className="w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
+              <span className="mv-w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
                 {loaderData.event.name}
               </span>
             </>
@@ -826,10 +829,10 @@ function Index() {
             </Modal.CloseButton>
           </Modal>
         )}
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mt-6">
-        <div className="@md:mv-rounded-3xl overflow-hidden w-full relative">
-          <div className="hidden @md:mv-block">
-            <div className="relative overflow-hidden w-full aspect-[31/10]">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mt-6">
+        <div className="@md:mv-rounded-3xl mv-overflow-hidden mv-w-full mv-relative">
+          <div className="mv-hidden @md:mv-block">
+            <div className="mv-relative mv-overflow-hidden mv-w-full mv-aspect-[31/10]">
               <Image
                 alt={name}
                 src={background}
@@ -838,7 +841,7 @@ function Index() {
               />
               {loaderData.mode === "admin" &&
               loaderData.abilities.events.hasAccess ? (
-                <div className="absolute bottom-6 right-6">
+                <div className="mv-absolute mv-bottom-6 mv-right-6">
                   <Form method="get" preventScrollReset>
                     <input hidden name="modal-background" defaultValue="true" />
                     <Button type="submit">
@@ -864,7 +867,7 @@ function Index() {
                           loaderData.currentTimestamp
                         }
                       >
-                        <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
+                        <div className="mv-w-full mv-rounded-md mv-overflow-hidden mv-aspect-[3/2]">
                           <Image
                             alt={name}
                             src={background}
@@ -881,17 +884,17 @@ function Index() {
           {loaderData.mode === "admin" || loaderData.isTeamMember ? (
             <>
               {loaderData.event.canceled ? (
-                <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+                <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-red-400 mv-p-2 mv-text-white">
                   {locales.route.content.event.cancelled}
                 </div>
               ) : (
                 <>
                   {loaderData.event.published ? (
-                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-green-600 p-2 text-white">
+                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-green-600 mv-p-2 mv-text-white">
                       {locales.route.content.event.published}
                     </div>
                   ) : (
-                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-blue-300 p-2 text-white">
+                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-blue-300 mv-p-2 mv-text-white">
                       {locales.route.content.event.draft}
                     </div>
                   )}
@@ -901,7 +904,7 @@ function Index() {
           ) : null}
 
           {loaderData.mode !== "admin" && loaderData.event.canceled ? (
-            <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 font-semibold text-center bg-salmon-500 p-2 text-white">
+            <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-red-400 mv-p-2 mv-text-white">
               {locales.route.content.event.cancelled}
             </div>
           ) : null}
@@ -910,8 +913,8 @@ function Index() {
               {beforeParticipationPeriod ||
               (afterParticipationPeriod &&
                 loaderData.isParticipant === false) ? (
-                <div className="bg-accent-300 p-8">
-                  <p className="font-bold text-center">
+                <div className="mv-bg-accent-300 mv-p-8">
+                  <p className="mv-font-bold mv-text-center">
                     {laysInThePast
                       ? locales.route.content.event.alreadyTakenPlace
                       : beforeParticipationPeriod
@@ -924,10 +927,10 @@ function Index() {
                   {loaderData.event.parentEvent !== null &&
                   laysInThePast === false ? (
                     <div className="@md:mv-bg-white @md:mv-border @md:mv-border-neutral-500 @md:mv-rounded-b-3xl @md:mv-py-6">
-                      <div className="@md:mv-flex -mx-[17px] items-center">
-                        <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
-                        <div className="w-full @md:mv-flex-auto px-4">
-                          <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
+                      <div className="@md:mv-flex mv--mx-[17px] mv-items-center">
+                        <div className="mv-w-full mv-hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 mv-px-4"></div>
+                        <div className="mv-w-full @md:mv-flex-auto mv-px-4">
+                          <p className="mv-font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 mv-pb-4 @md:mv-pb-0">
                             {insertComponentsIntoLocale(
                               insertParametersIntoLocale(
                                 locales.route.content.event.context,
@@ -938,7 +941,7 @@ function Index() {
                               [
                                 <Link
                                   key={loaderData.event.parentEvent.slug}
-                                  className="underline hover:no-underline"
+                                  className="mv-underline hover:mv-no-underline"
                                   to={`/event/${loaderData.event.parentEvent.slug}`}
                                   reloadDocument
                                 >
@@ -948,13 +951,13 @@ function Index() {
                             )}
                           </p>
                         </div>
-                        <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
-                          <div className="pr-4 @lg:mv-pr-8">
+                        <div className="mv-w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 mv-px-4 mv-text-right">
+                          <div className="mv-pr-4 @lg:mv-pr-8">
                             <>
                               {loaderData.mode === "anon" &&
                               loaderData.event.canceled === false ? (
                                 <Link
-                                  className="btn btn-primary"
+                                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
                                   {locales.route.content.event.loginToRegister}
@@ -972,17 +975,17 @@ function Index() {
                   ) : loaderData.event.childEvents.length > 0 &&
                     laysInThePast === false ? (
                     <div className="@md:mv-bg-accent-300 @md:mv-rounded-b-3xl @md:mv-py-6">
-                      <div className="@md:mv-flex -mx-[17px] items-center">
-                        <div className="w-full hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4"></div>
-                        <div className="w-full @md:mv-flex-auto px-4">
-                          <p className="font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 pb-4 @md:mv-pb-0">
+                      <div className="@md:mv-flex mv--mx-[17px] mv-items-center">
+                        <div className="mv-w-full mv-hidden @lg:mv-flex @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 mv-px-4"></div>
+                        <div className="mv-w-full @md:mv-flex-auto mv-px-4">
+                          <p className="mv-font-bold @xl:mv-text-center @md:mv-pl-4 @lg:mv-pl-0 mv-pb-4 @md:mv-pb-0">
                             {insertComponentsIntoLocale(
                               locales.route.content.event.select,
                               [
                                 <a
                                   key="to-child-events"
                                   href="#child-events"
-                                  className="underline hover:no-underline"
+                                  className="mv-underline hover:mv-no-underline"
                                 >
                                   {" "}
                                 </a>,
@@ -990,13 +993,13 @@ function Index() {
                             )}
                           </p>
                         </div>
-                        <div className="w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 px-4 text-right">
-                          <div className="pr-4 @lg:mv-pr-8">
+                        <div className="mv-w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/4 mv-px-4 mv-text-right">
+                          <div className="mv-pr-4 @lg:mv-pr-8">
                             <>
                               {loaderData.mode === "anon" &&
                               loaderData.event.canceled === false ? (
                                 <Link
-                                  className="btn btn-primary"
+                                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                                 >
                                   {locales.route.content.event.loginToRegister}
@@ -1012,12 +1015,12 @@ function Index() {
                       </div>
                     </div>
                   ) : laysInThePast === false ? (
-                    <div className="@md:mv-bg-white @md:mv-border @md:mv-border-neutral-500 @md:mv-rounded-b-3xl @md:mv-py-6 @md:mv-text-right pr-4 @lg:mv-pr-8">
+                    <div className="@md:mv-bg-white @md:mv-border @md:mv-border-neutral-500 @md:mv-rounded-b-3xl @md:mv-py-6 @md:mv-text-right mv-pr-4 @lg:mv-pr-8">
                       <>
                         {loaderData.mode === "anon" &&
                         loaderData.event.canceled === false ? (
                           <Link
-                            className="btn btn-primary"
+                            className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
                           >
                             {locales.route.content.event.loginToRegister}
@@ -1038,16 +1041,16 @@ function Index() {
         {loaderData.mode === "admin" &&
         loaderData.abilities.events.hasAccess ? (
           <>
-            <div className="bg-accent-white p-8 pb-0">
-              <p className="font-bold text-right">
+            <div className="mv-bg-accent-white mv-p-8 mv-pb-0">
+              <p className="mv-font-bold mv-text-right">
                 <Link
-                  className="btn btn-outline btn-primary ml-4 mb-2 @md:mv-mb-0"
+                  className="mv-ml-4 mv-mb-2 @md:mv-mb-0 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                   to={`/event/${loaderData.event.slug}/settings`}
                 >
                   {locales.route.content.event.edit}
                 </Link>
                 <Link
-                  className="btn btn-primary ml-4"
+                  className="mv-ml-4 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                   to={`/event/create/?parent=${loaderData.event.id}`}
                 >
                   {locales.route.content.event.createRelated}
@@ -1057,14 +1060,14 @@ function Index() {
           </>
         ) : null}
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative pt-8 @lg:mv-pt-16 mv-mb-24">
-        <div className="flex -mx-4 justify-center">
-          <div className="mv-w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4">
-            <p className="font-bold text-xl mb-8">{duration}</p>
-            <header className="mb-8">
-              <h1 className="m-0">{loaderData.event.name}</h1>
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-pt-8 @lg:mv-pt-16 mv-mb-24">
+        <div className="mv-flex mv--mx-4 mv-justify-center">
+          <div className="mv-w-full @lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 mv-px-4">
+            <p className="mv-font-bold mv-text-xl mv-mb-8">{duration}</p>
+            <header className="mv-mb-8">
+              <h1 className="mv-m-0">{loaderData.event.name}</h1>
               {loaderData.event.subline !== null ? (
-                <p className="font-bold text-xl mt-2">
+                <p className="mv-font-bold mv-text-xl mv-mt-2">
                   {loaderData.event.subline}
                 </p>
               ) : null}
@@ -1072,17 +1075,17 @@ function Index() {
             {loaderData.event.description !== null ? (
               <RichText
                 html={loaderData.event.description}
-                additionalClassNames="mb-6"
+                additionalClassNames="mv-mb-6"
               />
             ) : null}
 
-            <div className="grid grid-cols-1 @md:mv-grid-cols-[minmax(100px,_1fr)_4fr] gap-x-4 gap-y-1 @md:mv-gap-y-6">
+            <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-[minmax(100px,_1fr)_4fr] mv-gap-x-4 mv-gap-y-1 @md:mv-gap-y-6">
               {loaderData.event.types.length > 0 ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.type}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.types
                       .map((relation) => {
                         let title;
@@ -1107,10 +1110,10 @@ function Index() {
 
               {loaderData.event.venueName !== null ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.location}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     <p>
                       {loaderData.event.venueName},{" "}
                       {loaderData.event.venueStreet}{" "}
@@ -1125,10 +1128,10 @@ function Index() {
               {loaderData.event.conferenceLink !== null &&
               loaderData.event.conferenceLink !== "" ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.conferenceLink}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     <a
                       href={loaderData.event.conferenceLink}
                       target="_blank"
@@ -1142,45 +1145,45 @@ function Index() {
               {loaderData.event.conferenceCode !== null &&
               loaderData.event.conferenceCode !== "" ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.conferenceCode}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.conferenceCode}
                   </div>
                 </>
               ) : null}
 
-              <div className="text-xs leading-6">
+              <div className="mv-text-xs mv-leading-6">
                 {locales.route.content.event.start}
               </div>
-              <div className="pb-3 @md:mv-pb-0">
+              <div className="mv-pb-3 @md:mv-pb-0">
                 {formatDateTime(startTime, language, locales)}
               </div>
 
-              <div className="text-xs leading-6">
+              <div className="mv-text-xs mv-leading-6">
                 {locales.route.content.event.end}
               </div>
-              <div className="pb-3 @md:mv-pb-0">
+              <div className="mv-pb-3 @md:mv-pb-0">
                 {formatDateTime(endTime, language, locales)}
               </div>
 
               {participationFrom > now ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.registrationStart}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {formatDateTime(participationFrom, language, locales)}
                   </div>
                 </>
               ) : null}
               {participationUntil > now ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.registrationEnd}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {formatDateTime(participationUntil, language, locales)}
                   </div>
                 </>
@@ -1191,10 +1194,10 @@ function Index() {
                 loaderData.event._count.participants >
                 0 ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.numberOfPlaces}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.participantLimit !== null &&
                     loaderData.event.participantLimit -
                       loaderData.event._count.participants >
@@ -1216,10 +1219,10 @@ function Index() {
                 loaderData.event._count.participants <=
                 0 ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.numberOfWaitingSeats}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event._count.waitingList}{" "}
                     {locales.route.content.event.onWaitingList}
                   </div>
@@ -1230,12 +1233,12 @@ function Index() {
               loaderData.isSpeaker === true ||
               loaderData.isTeamMember === true ? (
                 <>
-                  <div className="text-xs leading-6 mt-1">
+                  <div className="mv-text-xs mv-leading-6 mv-mt-1">
                     {locales.route.content.event.calenderItem}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     <Link
-                      className="btn btn-outline btn-primary btn-small"
+                      className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                       to="ics-download"
                       reloadDocument
                     >
@@ -1248,22 +1251,22 @@ function Index() {
               {loaderData.mode !== "anon" &&
               loaderData.event.documents.length > 0 ? (
                 <>
-                  <div className="text-xs leading-6">
+                  <div className="mv-text-xs mv-leading-6">
                     {locales.route.content.event.downloads}
                   </div>
-                  <div className="pb-3 @md:mv-pb-0">
+                  <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.documents.map((item) => {
                       return (
                         <div key={`document-${item.document.id}`} className="">
                           <Link
-                            className="underline hover:no-underline"
+                            className="mv-underline hover:mv-no-underline"
                             to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}
                             reloadDocument
                           >
                             {item.document.title || item.document.filename}
                           </Link>
                           {item.document.description ? (
-                            <p className="text-sm italic">
+                            <p className="mv-text-sm mv-italic">
                               {item.document.description}
                             </p>
                           ) : null}
@@ -1272,7 +1275,7 @@ function Index() {
                     })}
                     {loaderData.event.documents.length > 1 ? (
                       <Link
-                        className="btn btn-outline btn-primary btn-small mt-4"
+                        className="mv-mt-4 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                         to={`/event/${loaderData.event.slug}/documents-download`}
                         reloadDocument
                       >
@@ -1285,10 +1288,10 @@ function Index() {
 
               {loaderData.event.focuses.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">
+                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
                     {locales.route.content.event.focusAreas}
                   </div>
-                  <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
+                  <div className="mv-flex mv-flex-wrap mv--m-1 mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.focuses.map((relation, index) => {
                       let title;
                       if (relation.focus.slug in locales.focuses) {
@@ -1303,7 +1306,10 @@ function Index() {
                         title = relation.focus.slug;
                       }
                       return (
-                        <div key={`focus-${index}`} className="badge">
+                        <div
+                          key={`focus-${index}`}
+                          className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit"
+                        >
                           {title}
                         </div>
                       );
@@ -1314,10 +1320,10 @@ function Index() {
 
               {loaderData.event.eventTargetGroups.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">
+                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
                     {locales.route.content.event.targetGroups}
                   </div>
-                  <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
+                  <div className="mv-flex mv-flex-wrap mv--m-1 mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.eventTargetGroups.map(
                       (relation, index) => {
                         let title;
@@ -1340,7 +1346,7 @@ function Index() {
                         return (
                           <div
                             key={`eventTargetGroups-${index}`}
-                            className="badge"
+                            className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit"
                           >
                             {title}
                           </div>
@@ -1353,11 +1359,11 @@ function Index() {
 
               {loaderData.event.experienceLevel ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">
+                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
                     {locales.route.content.event.experienceLevel}
                   </div>
-                  <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
-                    <div className="badge">
+                  <div className="mv--m-1 mv-pb-3 @md:mv-pb-0">
+                    <div className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit">
                       {(() => {
                         let title;
                         if (
@@ -1385,10 +1391,10 @@ function Index() {
 
               {loaderData.event.tags.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">
+                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
                     {locales.route.content.event.tags}
                   </div>
-                  <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
+                  <div className="mv-flex mv-flex-wrap mv--m-1 mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.tags.map((relation, index) => {
                       let title;
                       if (relation.tag.slug in locales.tags) {
@@ -1402,7 +1408,10 @@ function Index() {
                         title = relation.tag.slug;
                       }
                       return (
-                        <div key={`tags-${index}`} className="badge">
+                        <div
+                          key={`tags-${index}`}
+                          className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit"
+                        >
                           {title}
                         </div>
                       );
@@ -1413,13 +1422,16 @@ function Index() {
 
               {loaderData.event.areas.length > 0 ? (
                 <>
-                  <div className="text-xs leading-5 pt-[7px]">
+                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
                     {locales.route.content.event.areas}
                   </div>
-                  <div className="event-tags -m-1 pb-3 @md:mv-pb-0">
+                  <div className="mv-flex mv-flex-wrap mv--m-1 mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.areas.map((item, index) => {
                       return (
-                        <div key={`areas-${index}`} className="badge">
+                        <div
+                          key={`areas-${index}`}
+                          className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit"
+                        >
                           {item.area.name}
                         </div>
                       );
@@ -1432,19 +1444,19 @@ function Index() {
             {loaderData.event.speakers !== null &&
             loaderData.event.speakers.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">
+                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.speakers}
                 </h3>
-                <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4 mb-16">
+                <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4 mv-mb-16">
                   {loaderData.event.speakers.map((speaker) => {
                     const { profile } = speaker;
                     return (
                       <div key={profile.username}>
                         <Link
-                          className="flex flex-row"
+                          className="mv-flex mv-flex-row"
                           to={`/profile/${profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
                               <Avatar
@@ -1459,13 +1471,13 @@ function Index() {
                             )}
                           </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
+                          <div className="mv-pl-4">
+                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 mv-line-clamp-2">
+                            <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
                           </div>
@@ -1478,10 +1490,10 @@ function Index() {
             ) : null}
             {loaderData.event.childEvents.length > 0 ? (
               <>
-                <h3 id="child-events" className="mt-16 font-bold">
+                <h3 id="child-events" className="mv-mt-16 mv-font-bold">
                   {locales.route.content.event.relatedEvents}
                 </h3>
-                <p className="mb-8">
+                <p className="mv-mb-8">
                   {insertParametersIntoLocale(
                     locales.route.content.event.eventContext,
                     {
@@ -1489,7 +1501,7 @@ function Index() {
                     }
                   )}
                 </p>
-                <div className="mb-16">
+                <div className="mv-mb-16">
                   {loaderData.event.childEvents.map((event) => {
                     const eventStartTime = utcToZonedTime(
                       event.startTime,
@@ -1502,15 +1514,15 @@ function Index() {
                     return (
                       <div
                         key={`child-event-${event.id}`}
-                        className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
+                        className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
                       >
                         <Link
-                          className="flex"
+                          className="mv-flex"
                           to={`/event/${event.slug}`}
                           reloadDocument
                         >
-                          <div className="hidden @xl:mv-block w-36 shrink-0 aspect-[3/2]">
-                            <div className="w-36 h-full relative">
+                          <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
+                            <div className="mv-w-36 mv-h-full mv-relative">
                               <Image
                                 alt={event.name}
                                 src={event.background}
@@ -1518,8 +1530,8 @@ function Index() {
                               />
                             </div>
                           </div>
-                          <div className="px-4 py-4">
-                            <p className="text-xs mb-1">
+                          <div className="mv-px-4 mv-py-4">
+                            <p className="mv-text-xs mv-mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {event.stage !== null
                                 ? (() => {
@@ -1579,15 +1591,15 @@ function Index() {
                                 </>
                               ) : null}
                             </p>
-                            <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
+                            <h4 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
                               {event.name}
                             </h4>
                             {event.subline !== null ? (
-                              <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-1">
+                              <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-1">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-1">
+                              <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-1">
                                 {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}
@@ -1599,31 +1611,31 @@ function Index() {
                         !event.canceled ? (
                           <>
                             {event.published ? (
-                              <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
+                              <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-600 mv-pr-4 mv-py-6 mv-text-green-600">
                                 {locales.route.content.event.published}
                               </div>
                             ) : (
-                              <div className="flex font-semibold items-center ml-auto border-r-8 border-blue-300 pr-4 py-6 text-blue-300">
+                              <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-primary mv-pr-4 mv-py-6 mv-text-primary">
                                 {locales.route.content.event.draft}
                               </div>
                             )}
                           </>
                         ) : null}
                         {event.canceled ? (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-salmon-500 pr-4 py-6 text-salmon-500">
+                          <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
                             {locales.route.content.event.cancelled}
                           </div>
                         ) : null}
                         {event.isParticipant &&
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
+                          <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
                             <p>{locales.route.content.event.registered}</p>
                           </div>
                         ) : null}
                         {canUserParticipate(event) &&
                         loaderData.userId !== undefined ? (
-                          <div className="flex items-center ml-auto pr-4 py-6">
+                          <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
                             <AddParticipantButton
                               action={`/event/${event.slug}/settings/participants/add-participant`}
                               profileId={loaderData.userId}
@@ -1634,13 +1646,13 @@ function Index() {
                         {event.isOnWaitingList &&
                         !event.canceled &&
                         loaderData.mode !== "admin" ? (
-                          <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
+                          <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-neutral-500 mv-pr-4 mv-py-6">
                             <p>{locales.route.content.event.waiting}</p>
                           </div>
                         ) : null}
                         {canUserBeAddedToWaitingList(event) &&
                         loaderData.userId !== undefined ? (
-                          <div className="flex items-center ml-auto pr-4 py-6">
+                          <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
                             <AddToWaitingListButton
                               action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                               profileId={loaderData.userId}
@@ -1657,10 +1669,10 @@ function Index() {
                         !canUserBeAddedToWaitingList(event) &&
                         !event.canceled &&
                         loaderData.mode === "authenticated" ? (
-                          <div className="flex items-center ml-auto pr-4 py-6">
+                          <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
                             <Link
                               to={`/event/${event.slug}`}
-                              className="btn btn-primary"
+                              className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                             >
                               {locales.route.content.event.more}
                             </Link>
@@ -1668,9 +1680,9 @@ function Index() {
                         ) : null}
                         {loaderData.mode === "anon" &&
                         event.canceled === false ? (
-                          <div className="flex items-center ml-auto pr-4 py-6">
+                          <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
                             <Link
-                              className="btn btn-primary"
+                              className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                               to={`/login?login_redirect=/event/${event.slug}`}
                             >
                               {locales.route.content.event.register}
@@ -1686,18 +1698,18 @@ function Index() {
 
             {loaderData.event.teamMembers.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">
+                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.team}
                 </h3>
-                <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
+                <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.teamMembers.map((member) => {
                     return (
                       <div key={`team-member-${member.profile.id}`}>
                         <Link
-                          className="flex flex-row"
+                          className="mv-flex mv-flex-row"
                           to={`/profile/${member.profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {member.profile.avatar !== null &&
                             member.profile.avatar !== "" ? (
                               <Avatar
@@ -1712,13 +1724,13 @@ function Index() {
                             )}
                           </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
+                          <div className="mv-pl-4">
+                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${member.profile.academicTitle || ""} ${
                                 member.profile.firstName
                               } ${member.profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 mv-line-clamp-2">
+                            <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {member.profile.position}
                             </p>
                           </div>
@@ -1733,21 +1745,21 @@ function Index() {
               <>
                 <h3
                   id="responsible-organizations"
-                  className="mt-16 mb-8 font-bold"
+                  className="mv-mt-16 mv-mb-8 mv-font-bold"
                 >
                   {locales.route.content.event.organizedBy}
                 </h3>
-                <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
+                <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
                     return (
                       <div key={`organizer-${item.organization.id}`}>
                         <Link
-                          className="flex flex-row"
+                          className="mv-flex mv-flex-row"
                           to={`/organization/${item.organization.slug}`}
                         >
                           {item.organization.logo !== null &&
                           item.organization.logo !== "" ? (
-                            <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                            <div className="mv-h-11 mv-w-11 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                               <Avatar
                                 size="full"
                                 name={item.organization.name}
@@ -1756,16 +1768,16 @@ function Index() {
                               />
                             </div>
                           ) : (
-                            <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
+                            <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0">
                               {getInitialsOfName(item.organization.name)}
                             </div>
                           )}
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
+                          <div className="mv-pl-4">
+                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
                               {item.organization.name}
                             </h5>
 
-                            <p className="text-sm m-0 mv-line-clamp-2">
+                            <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {item.organization.types
                                 .map((relation) => {
                                   let title;
@@ -1802,19 +1814,19 @@ function Index() {
             {loaderData.event.participants !== null &&
             loaderData.event.participants.length > 0 ? (
               <>
-                <h3 className="mt-16 mb-8 font-bold">
+                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.participants}
                 </h3>
-                <div className="grid grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 gap-4">
+                <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.participants.map((participant) => {
                     const { profile } = participant;
                     return (
                       <div key={profile.username}>
                         <Link
-                          className="flex flex-row"
+                          className="mv-flex mv-flex-row"
                           to={`/profile/${profile.username}`}
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
                               <Avatar
@@ -1829,13 +1841,13 @@ function Index() {
                             )}
                           </div>
 
-                          <div className="pl-4">
-                            <h5 className="text-sm m-0 font-bold">
+                          <div className="mv-pl-4">
+                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
                             </h5>
-                            <p className="text-sm m-0 mv-line-clamp-2">
+                            <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
                           </div>

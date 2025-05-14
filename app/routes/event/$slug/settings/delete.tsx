@@ -131,9 +131,9 @@ function Delete() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mv-mb-8">{locales.content.headline}</h1>
 
-      <p className="mb-8">
+      <p className="mv-mb-8">
         {insertParametersIntoLocale(locales.content.intro, {
           name: loaderData.eventName,
         })}
@@ -141,14 +141,14 @@ function Delete() {
 
       {loaderData.childEvents.length > 0 ? (
         <>
-          <p className="mb-2">{locales.content.list}</p>{" "}
-          <ul className="mb-8">
+          <p className="mv-mb-2">{locales.content.list}</p>{" "}
+          <ul className="mv-mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
                 <li key={`child-event-${childEvent.id}`}>
                   -{" "}
                   <Link
-                    className="underline hover:no-underline"
+                    className="mv-underline hover:mv-no-underline"
                     to={`/event/${childEvent.slug}`}
                   >
                     {childEvent.name}
@@ -177,7 +177,7 @@ function Delete() {
             </Field>
             <button
               type="submit"
-              className="btn btn-outline-primary ml-auto btn-small"
+              className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
             >
               {locales.form.submit.label}
             </button>
@@ -185,9 +185,9 @@ function Delete() {
           </>
         )}
       </RemixFormsForm>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -200,7 +200,7 @@ function Delete() {
                     <div className="mv-hidden">
                       <Field name="publish" value={!loaderData.published} />
                     </div>
-                    <Button className="btn btn-outline-primary">
+                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
                       {loaderData.published
                         ? locales.form.hide.label
                         : locales.form.publish.label}
