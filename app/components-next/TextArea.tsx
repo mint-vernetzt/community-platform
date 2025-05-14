@@ -79,9 +79,12 @@ const TextArea = (
   return (
     <>
       <div className="mv-flex mv-flex-col mv-w-full">
-        <div className="form-control w-full">
-          <div className="flex flex-row items-center mb-2">
-            <label htmlFor={inputProps.id || label} className="label flex-auto">
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
+          <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+            <label
+              htmlFor={inputProps.id || label}
+              className="mv-font-semibold mv-flex-auto"
+            >
               {props.label}
               {props.required === true ? " *" : ""}
             </label>
@@ -97,8 +100,8 @@ const TextArea = (
                 />
               )}
           </div>
-          <div className="flex flex-row">
-            <div className="flex-auto">
+          <div className="mv-flex mv-flex-row">
+            <div className="mv-flex-auto">
               {rte !== undefined ? (
                 <div className="mv-relative">
                   <RTE

@@ -45,7 +45,7 @@ function ListItemImage(props: {
 
   return (
     <div className="mv-hidden @lg:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2] mv-bg-neutral-200">
-      <div className="w-36 h-full relative">
+      <div className="mv-w-36 mv-h-full mv-relative">
         <img
           ref={blurredImgRef}
           src={props.blurredSrc}
@@ -124,7 +124,7 @@ function EventListItemContent(props: {
   return (
     <>
       <div className="mv-py-4 mv-px-4">
-        <p className="text-xs mb-1">
+        <p className="mv-text-xs mv-mb-1">
           {event.stage !== null
             ? (() => {
                 let title;
@@ -162,15 +162,15 @@ function EventListItemContent(props: {
             </>
           ) : null}
         </p>
-        <h4 className="font-bold text-base m-0 @lg:mv-line-clamp-1">
+        <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
           {event.name}
         </h4>
         {event.subline !== null ? (
-          <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
+          <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
             {event.subline}
           </p>
         ) : (
-          <p className="mv-hidden text-xs mt-1 @lg:mv-line-clamp-1">
+          <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
             {removeHtmlTags(event.description ?? "")}
           </p>
         )}

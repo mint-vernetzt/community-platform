@@ -3,7 +3,7 @@ import { type RootLocales } from "~/root.server";
 
 export function HeaderLogo(props: { locales?: RootLocales }) {
   return (
-    <div className="flex flex-row items-center">
+    <div className="mv-flex mv-flex-row mv-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="56"
@@ -11,7 +11,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
         viewBox="0 0 56 56"
         aria-describedby="mint-title-header"
         role="img"
-        className="w-10 h-10 lg:w-auto lg:h-auto"
+        className="mv-w-10 mv-h-10 lg:mv-w-auto lg:mv-h-auto"
       >
         <g fill="none">
           <path
@@ -28,7 +28,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
           />
         </g>
       </svg>
-      <span className="hidden lg:block font-bold text-primary ml-2">
+      <span className="mv-hidden lg:mv-block mv-font-bold mv-text-primary mv-ml-2">
         {props.locales !== undefined
           ? props.locales.route.root.community
           : defaultLanguage === "de"
