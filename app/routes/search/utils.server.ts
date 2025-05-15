@@ -6,9 +6,9 @@ import type {
   Project,
 } from "@prisma/client";
 import type { User } from "@supabase/supabase-js";
+import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
-import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 
 export function getTakeParam(
@@ -27,29 +27,6 @@ export function getTakeParam(
   const take = itemsPerPage * page;
 
   return { take, page, itemsPerPage };
-}
-
-function getSlugFromLocaleThatContainsWord(options: {
-  language: ArrayElement<typeof supportedCookieLanguages>;
-  locales: keyof (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
-  >];
-  word: string;
-}) {
-  const { language, locales, word } = options;
-  return Object.entries(languageModuleMap[language][locales]).find(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ([_key, value]) => {
-      if (
-        typeof value !== "object" &&
-        "title" in value === false &&
-        typeof value.title !== "string"
-      ) {
-        return false;
-      }
-      return (value.title as string).toLowerCase().includes(word.toLowerCase());
-    }
-  )?.[0];
 }
 
 // **************

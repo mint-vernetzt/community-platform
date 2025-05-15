@@ -5,12 +5,15 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetEventsSchema } from "./events";
+import { type GetSearchSchema } from "./all";
+import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
+import { type Prisma } from "@prisma/client";
 
 export type ExploreEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
 >]["explore/events"];
 
-export function getTakeParam(page: GetEventsSchema["page"]) {
+export function getTakeParam(page: GetEventsSchema["evtPage"]) {
   const itemsPerPage = 12;
   const take = itemsPerPage * page;
   return take;
@@ -27,7 +30,7 @@ function dateToPostgresTimestamp(date: Date) {
 }
 
 function getWhereStatementFromPeriodOfTime(
-  periodOfTime: GetEventsSchema["filter"]["periodOfTime"],
+  periodOfTime: GetEventsSchema["evtFilter"]["periodOfTime"],
   sqlType: "prisma" | "raw" = "prisma"
 ) {
   const now = new Date();
@@ -137,24 +140,148 @@ type FilterKeyWhereStatement = {
   }[] &
     ReturnType<typeof getWhereStatementFromPeriodOfTime>[];
 };
+type SearchWhereStatement = {
+  OR: {
+    AND: (
+      | {
+          [K in Event as string]: {
+            contains: string;
+            mode: Prisma.QueryMode;
+          };
+        }
+      | {
+          [K in
+            | "areas"
+            | "types"
+            | "focuses"
+            | "tags"
+            | "eventTargetGroups"]?: {
+            some: {
+              [K in
+                | "area"
+                | "eventType"
+                | "focus"
+                | "tag"
+                | "eventTargetGroup"]?: {
+                [K in "name" | "slug"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in "experienceLevel" | "stage"]?: {
+            [K in "slug"]?: {
+              contains: string;
+              mode: Prisma.QueryMode;
+            };
+          };
+        }
+      | {
+          [K in "eventVisibility"]?: {
+            [K in Event as string]: boolean;
+          };
+        }
+    )[];
+  }[];
+};
 type WhereClause = {
-  AND: EventVisibility[] & FilterKeyWhereStatement[];
+  AND: EventVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
 
-export async function getVisibilityFilteredEventsCount(options: {
-  filter: GetEventsSchema["filter"];
-}) {
-  const whereClauses: {
-    AND: WhereClause["AND"] & { OR: EventVisibility[] }[];
-  } = { AND: [] };
-  const visibilityWhereClauses: { OR: EventVisibility[] } = { OR: [] };
+// export async function getVisibilityFilteredEventsCount(options: {
+//   filter: GetEventsSchema["evtFilter"];
+// }) {
+//   const whereClauses: {
+//     AND: WhereClause["AND"] & { OR: EventVisibility[] }[];
+//   } = { AND: [] };
+//   const visibilityWhereClauses: { OR: EventVisibility[] } = { OR: [] };
 
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
+//   for (const filterKey in options.filter) {
+//     const typedFilterKey = filterKey as keyof typeof options.filter;
+//     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
+
+//     if (typedFilterKey === "periodOfTime") {
+//       const filterValue = options.filter[typedFilterKey];
+//       const filterWhereStatement =
+//         getWhereStatementFromPeriodOfTime(filterValue);
+//       // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
+//       invariantResponse(
+//         typeof filterWhereStatement !== "string",
+//         "Please provide prisma sql syntax",
+//         { status: 500 }
+//       );
+//       filterKeyWhereStatement.OR.push(filterWhereStatement);
+//     } else if (typedFilterKey === "stage") {
+//       const filterValue = options.filter[typedFilterKey];
+//       if (typeof filterValue === "string" && filterValue !== "all") {
+//         const filterWhereStatement = {
+//           stage: {
+//             slug: filterValue,
+//           },
+//         };
+//         filterKeyWhereStatement.OR.push(filterWhereStatement);
+//       }
+//     } else {
+//       const filterValues = options.filter[typedFilterKey];
+//       if (filterValues.length === 0) {
+//         continue;
+//       }
+//       for (const slug of filterValues) {
+//         const filterWhereStatement = {
+//           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+//             some: {
+//               [typedFilterKey]: {
+//                 slug,
+//               },
+//             },
+//           },
+//         };
+//         filterKeyWhereStatement.OR.push(filterWhereStatement);
+//       }
+//     }
+
+//     whereClauses.AND.push(filterKeyWhereStatement);
+
+//     const visibilityWhereStatement = {
+//       eventVisibility: {
+//         [`${
+//           typedFilterKey === "periodOfTime"
+//             ? "startTime"
+//             : typedFilterKey === "stage"
+//             ? "stage"
+//             : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+//         }`]: false,
+//       },
+//     };
+//     visibilityWhereClauses.OR.push(visibilityWhereStatement);
+//   }
+//   if (visibilityWhereClauses.OR.length === 0) {
+//     return 0;
+//   }
+//   whereClauses.AND.push(visibilityWhereClauses);
+
+//   const count = await prismaClient.event.count({
+//     where: {
+//       AND: [...whereClauses.AND, { published: true }],
+//     },
+//   });
+
+//   return count;
+// }
+
+function getEventsFilterWhereClause(filter: GetEventsSchema["evtFilter"]) {
+  const whereClauses: WhereClause = { AND: [] };
+
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+
     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
     if (typedFilterKey === "periodOfTime") {
-      const filterValue = options.filter[typedFilterKey];
+      const filterValue = filter[typedFilterKey];
       const filterWhereStatement =
         getWhereStatementFromPeriodOfTime(filterValue);
       // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
@@ -165,7 +292,7 @@ export async function getVisibilityFilteredEventsCount(options: {
       );
       filterKeyWhereStatement.OR.push(filterWhereStatement);
     } else if (typedFilterKey === "stage") {
-      const filterValue = options.filter[typedFilterKey];
+      const filterValue = filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
         const filterWhereStatement = {
           stage: {
@@ -175,10 +302,7 @@ export async function getVisibilityFilteredEventsCount(options: {
         filterKeyWhereStatement.OR.push(filterWhereStatement);
       }
     } else {
-      const filterValues = options.filter[typedFilterKey];
-      if (filterValues.length === 0) {
-        continue;
-      }
+      const filterValues = filter[typedFilterKey];
       for (const slug of filterValues) {
         const filterWhereStatement = {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
@@ -194,144 +318,425 @@ export async function getVisibilityFilteredEventsCount(options: {
     }
 
     whereClauses.AND.push(filterKeyWhereStatement);
+  }
 
-    const visibilityWhereStatement = {
-      eventVisibility: {
-        [`${
-          typedFilterKey === "periodOfTime"
-            ? "startTime"
-            : typedFilterKey === "stage"
-            ? "stage"
-            : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-        }`]: false,
-      },
+  return whereClauses;
+}
+
+function getEventsSearchWhereClause(
+  words: string[],
+  isLoggedIn: boolean,
+  language: ArrayElement<typeof supportedCookieLanguages>
+) {
+  const whereClauses = [];
+  for (const word of words) {
+    const eventTypeSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "eventTypes",
+      word,
+    });
+    const focusSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "focuses",
+      word,
+    });
+    const tagSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "tags",
+      word,
+    });
+    const eventTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "eventTargetGroups",
+      word,
+    });
+    const experienceLevelSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "experienceLevels",
+      word,
+    });
+    const stageSlug = getSlugFromLocaleThatContainsWord({
+      language,
+      locales: "stages",
+      word,
+    });
+
+    const contains: {
+      OR: {
+        AND: (
+          | {
+              [K in Event as string]: {
+                contains: string;
+                mode: Prisma.QueryMode;
+              };
+            }
+          | {
+              [K in
+                | "areas"
+                | "types"
+                | "focuses"
+                | "tags"
+                | "eventTargetGroups"]?: {
+                some: {
+                  [K in
+                    | "area"
+                    | "eventType"
+                    | "focus"
+                    | "tag"
+                    | "eventTargetGroup"]?: {
+                    [K in "name" | "slug"]?: {
+                      contains: string;
+                      mode: Prisma.QueryMode;
+                    };
+                  };
+                };
+              };
+            }
+          | {
+              [K in "experienceLevel" | "stage"]?: {
+                [K in "slug"]?: {
+                  contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            }
+          | {
+              [K in "eventVisibility"]?: {
+                [K in Event as string]: boolean;
+              };
+            }
+        )[];
+      }[];
+    } = {
+      OR: [
+        {
+          AND: [
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    name: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              slug: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    slug: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              description: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    description: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              venueName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    venueName: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              venueStreet: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    venueStreet: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              venueStreetNumber: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    venueStreetNumber: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              venueCity: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    venueCity: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              subline: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    subline: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND: [
+            {
+              areas: {
+                some: {
+                  area: {
+                    name: {
+                      contains: word,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              },
+            },
+            isLoggedIn === false
+              ? {
+                  eventVisibility: {
+                    areas: true,
+                  },
+                }
+              : {},
+          ],
+        },
+        {
+          AND:
+            eventTypeSlug !== undefined
+              ? [
+                  {
+                    types: {
+                      some: {
+                        eventType: {
+                          slug: {
+                            contains: eventTypeSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          types: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            experienceLevelSlug !== undefined
+              ? [
+                  {
+                    experienceLevel: {
+                      slug: {
+                        contains: experienceLevelSlug,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          experienceLevel: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            stageSlug !== undefined
+              ? [
+                  {
+                    stage: {
+                      slug: {
+                        contains: stageSlug,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          stage: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            focusSlug !== undefined
+              ? [
+                  {
+                    focuses: {
+                      some: {
+                        focus: {
+                          slug: {
+                            contains: focusSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          focuses: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            tagSlug !== undefined
+              ? [
+                  {
+                    tags: {
+                      some: {
+                        tag: {
+                          slug: {
+                            contains: tagSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          tags: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+        {
+          AND:
+            eventTargetGroupSlug !== undefined
+              ? [
+                  {
+                    eventTargetGroups: {
+                      some: {
+                        eventTargetGroup: {
+                          slug: {
+                            contains: eventTargetGroupSlug,
+                            mode: "insensitive",
+                          },
+                        },
+                      },
+                    },
+                  },
+                  isLoggedIn === false
+                    ? {
+                        eventVisibility: {
+                          targetGroups: true,
+                        },
+                      }
+                    : {},
+                ]
+              : [],
+        },
+      ],
     };
-    visibilityWhereClauses.OR.push(visibilityWhereStatement);
+    whereClauses.push(contains);
   }
-  if (visibilityWhereClauses.OR.length === 0) {
-    return 0;
-  }
-  whereClauses.AND.push(visibilityWhereClauses);
-
-  const count = await prismaClient.event.count({
-    where: {
-      AND: [...whereClauses.AND, { published: true }],
-    },
-  });
-
-  return count;
+  return whereClauses;
 }
 
-export async function getEventsCount(options: {
-  filter: GetEventsSchema["filter"];
-}) {
-  const whereClauses: WhereClause = { AND: [] };
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    if (typedFilterKey === "periodOfTime") {
-      const filterValue = options.filter[typedFilterKey];
-      const filterWhereStatement =
-        getWhereStatementFromPeriodOfTime(filterValue);
-      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
-      invariantResponse(
-        typeof filterWhereStatement !== "string",
-        "Please provide prisma sql syntax",
-        { status: 500 }
-      );
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    } else if (typedFilterKey === "stage") {
-      const filterValue = options.filter[typedFilterKey];
-      if (typeof filterValue === "string" && filterValue !== "all") {
-        const filterWhereStatement = {
-          stage: {
-            slug: filterValue,
-          },
-        };
-        filterKeyWhereStatement.OR.push(filterWhereStatement);
-      }
-    } else {
-      const filterValues = options.filter[typedFilterKey];
-      for (const slug of filterValues) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
-              },
-            },
-          },
-        };
-        filterKeyWhereStatement.OR.push(filterWhereStatement);
-      }
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
-  }
-
-  const count = await prismaClient.event.count({
-    where: {
-      AND: [...whereClauses.AND, { published: true }],
-    },
-  });
-
-  return count;
-}
-
-export async function getAllEvents(options: {
-  filter: GetEventsSchema["filter"];
-  sortBy: GetEventsSchema["sortBy"];
-  take: ReturnType<typeof getTakeParam>;
+export async function getEventIds(options: {
+  filter: GetEventsSchema["evtFilter"];
+  search: GetSearchSchema["search"];
   isLoggedIn: boolean;
+  language: ArrayElement<typeof supportedCookieLanguages>;
 }) {
-  const whereClauses: WhereClause = { AND: [] };
+  const whereClauses = getEventsFilterWhereClause(options.filter);
+
   for (const filterKey in options.filter) {
     const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-    if (typedFilterKey === "periodOfTime") {
-      const filterValue = options.filter[typedFilterKey];
-      const filterWhereStatement =
-        getWhereStatementFromPeriodOfTime(filterValue);
-      // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
-      invariantResponse(
-        typeof filterWhereStatement !== "string",
-        "Please provide prisma sql syntax",
-        { status: 500 }
-      );
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    } else if (typedFilterKey === "stage") {
-      const filterValue = options.filter[typedFilterKey];
-      if (typeof filterValue === "string" && filterValue !== "all") {
-        const filterWhereStatement = {
-          stage: {
-            slug: filterValue,
-          },
-        };
-        filterKeyWhereStatement.OR.push(filterWhereStatement);
-      }
-    } else {
-      const filterValues = options.filter[typedFilterKey];
-      if (filterValues.length === 0) {
-        continue;
-      }
-      for (const slug of filterValues) {
-        const filterWhereStatement = {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-            some: {
-              [typedFilterKey]: {
-                slug,
-              },
-            },
-          },
-        };
-        filterKeyWhereStatement.OR.push(filterWhereStatement);
-      }
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
     }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
-
     if (options.isLoggedIn === false) {
       const visibilityWhereStatement = {
         eventVisibility: {
@@ -347,6 +752,66 @@ export async function getAllEvents(options: {
       whereClauses.AND.push(visibilityWhereStatement);
     }
   }
+
+  const searchWhereClauses = getEventsSearchWhereClause(
+    options.search,
+    options.isLoggedIn,
+    options.language
+  );
+
+  whereClauses.AND.push(...searchWhereClauses);
+
+  const events = await prismaClient.event.findMany({
+    where: whereClauses,
+    select: {
+      id: true,
+    },
+  });
+
+  const ids = events.map((event) => {
+    return event.id;
+  });
+
+  return ids;
+}
+
+export async function getAllEvents(options: {
+  filter: GetEventsSchema["evtFilter"];
+  sortBy: GetEventsSchema["evtSortBy"];
+  take: ReturnType<typeof getTakeParam>;
+  search: GetSearchSchema["search"];
+  sessionUser: User | null;
+  language: ArrayElement<typeof supportedCookieLanguages>;
+}) {
+  const whereClauses = getEventsFilterWhereClause(options.filter);
+  for (const filterKey in options.filter) {
+    const typedFilterKey = filterKey as keyof typeof options.filter;
+    const filterValues = options.filter[typedFilterKey];
+    if (filterValues.length === 0) {
+      continue;
+    }
+    if (options.sessionUser === null) {
+      const visibilityWhereStatement = {
+        eventVisibility: {
+          [`${
+            typedFilterKey === "periodOfTime"
+              ? "startTime"
+              : typedFilterKey === "stage"
+              ? "stage"
+              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+          }`]: true,
+        },
+      };
+      whereClauses.AND.push(visibilityWhereStatement);
+    }
+  }
+
+  const searchWhereClauses = getEventsSearchWhereClause(
+    options.search,
+    options.sessionUser !== null,
+    options.language
+  );
+  whereClauses.AND.push(...searchWhereClauses);
 
   const events = await prismaClient.event.findMany({
     select: {
@@ -525,10 +990,13 @@ export async function enhanceEventsWithParticipationStatus(
 }
 
 // TODO: Where statement in raw sql for periodOfTime
-export async function getEventFilterVectorForAttribute(
-  attribute: keyof GetEventsSchema["filter"],
-  filter: GetEventsSchema["filter"]
-) {
+export async function getEventFilterVectorForAttribute(options: {
+  attribute: keyof GetEventsSchema["evtFilter"];
+  filter: GetEventsSchema["evtFilter"];
+  search: GetSearchSchema["search"];
+  ids: string[];
+}) {
+  const { attribute, filter, ids } = options;
   const whereStatements = ["published = true"];
   for (const filterKey in filter) {
     const typedFilterKey = filterKey as keyof typeof filter;
@@ -626,6 +1094,16 @@ export async function getEventFilterVectorForAttribute(
       whereStatements.push(`(${fieldWhereStatements.join(" OR ")})`);
     }
   }
+
+  if (ids.length > 0 && options.search.length > 0) {
+    whereStatements.push(`id IN (${ids.map((id) => `'${id}'`).join(", ")})`);
+  }
+
+  // Special case: if no profiles are found, but search isn't
+  if (ids.length === 0 && options.search.length > 0) {
+    whereStatements.push("id IN ('some-random-event-id')");
+  }
+
   const whereClause = `WHERE ${whereStatements.join(" AND ")}`;
 
   const filterVector: {

@@ -3,7 +3,7 @@ export const locale = {
   intro: "Hier findest Du die Profile von Akteur:innen der MINT-Community.",
   filter: {
     title: "Filter",
-    showFiltersLabel: "Profile filtern",
+    showFiltersLabel: "Personen filtern",
 
     activityAreas: "Aktivitätsgebiet",
     lookingFor: "Ich suche",
@@ -31,13 +31,13 @@ export const locale = {
     },
   },
   more: "Weitere laden",
-  empty: "Es konnten leider keine Profile gefunden werden.",
+  empty: "Es konnten leider keine Person gefunden werden.",
   notShown_singular:
-    "{{count}} Profil kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
+    "{{count}} Person kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
   notShown_plural:
-    "{{count}} Profile können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
-  itemsCountSuffix_singular: "Profil",
-  itemsCountSuffix_plural: "Profile",
-  showNumberOfItems_singular: "{{count}} Profil anzeigen",
-  showNumberOfItems_plural: "{{count}} Profile anzeigen",
+    "{{count}} Personen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
+  itemsCountSuffix_singular: "Person",
+  itemsCountSuffix_plural: "Personen",
+  showNumberOfItems_singular: "{{count}} Person anzeigen",
+  showNumberOfItems_plural: "{{count}} Personen anzeigen",
 } as const;

@@ -24,7 +24,6 @@ import {
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -46,9 +45,8 @@ import {
   getAllSpecialTargetGroups,
   getFilterCountForSlug,
   getProjectFilterVectorForAttribute,
-  getProjectsCount,
+  getProjectIds,
   getTakeParam,
-  getVisibilityFilteredProjectsCount,
 } from "./projects.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
@@ -58,14 +56,19 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
+import { getFilterSchemes, type FilterSchemes } from "./all";
 import { useState } from "react";
 
-const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
+export const PROJECT_SORT_VALUES = [
+  "name-asc",
+  "name-desc",
+  "createdAt-desc",
+] as const;
 
 export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
 
-const getProjectsSchema = z.object({
-  filter: z
+export const getProjectsSchema = z.object({
+  prjFilter: z
     .object({
       discipline: z.array(z.string()),
       additionalDiscipline: z.array(z.string()),
@@ -90,8 +93,8 @@ const getProjectsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
-    .enum(sortValues)
+  prjSortBy: z
+    .enum(PROJECT_SORT_VALUES)
     .optional()
     .transform((sortValue) => {
       if (sortValue !== undefined) {
@@ -102,11 +105,11 @@ const getProjectsSchema = z.object({
         };
       }
       return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
+        value: PROJECT_SORT_VALUES[0].split("-")[0],
+        direction: PROJECT_SORT_VALUES[0].split("-")[1],
       };
     }),
-  page: z
+  prjPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -115,7 +118,7 @@ const getProjectsSchema = z.object({
       }
       return page;
     }),
-  search: z
+  prjAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -142,7 +145,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getProjectsSchema,
+    schema: getFilterSchemes,
   });
   invariantResponse(
     submission.status === "success",
@@ -153,7 +156,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/projects"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.prjPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -161,18 +164,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredProjectsCount({
-      filter: submission.value.filter,
+    const projectIdsFilteredByVisibility = await getProjectIds({
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
     });
+    filteredByVisibilityCount = await projectIdsFilteredByVisibility.length;
   }
-  const projectsCount = await getProjectsCount({
-    filter: submission.value.filter,
+
+  const projectIds = await getProjectIds({
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    isLoggedIn: true,
+    language,
   });
+
+  const projectCount = projectIds.length;
+
   const projects = await getAllProjects({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.prjFilter,
+    sortBy: submission.value.prjSortBy,
+    search: submission.value.search,
+    sessionUser,
     take,
-    isLoggedIn,
+    language,
   });
 
   const enhancedProjects = [];
@@ -291,7 +307,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProjects.push(imageEnhancedProject);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.prjAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -304,17 +320,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
-  const areaFilterVector = await getProjectFilterVectorForAttribute(
-    "area",
-    submission.value.filter
-  );
+  const areaProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
+  const areaFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: areaProjectIds,
+  });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.prjFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -323,7 +350,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.prjFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -338,28 +365,50 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const disciplines = await getAllDisciplines();
-  const disciplineFilterVector = await getProjectFilterVectorForAttribute(
-    "discipline",
-    submission.value.filter
-  );
+  const disciplineProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, discipline: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
+  const disciplineFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "discipline",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: disciplineProjectIds,
+  });
   const enhancedDisciplines = disciplines.map((discipline) => {
     const vectorCount = getFilterCountForSlug(
       discipline.slug,
       disciplineFilterVector,
       "discipline"
     );
-    const isChecked = submission.value.filter.discipline.includes(
+    const isChecked = submission.value.prjFilter.discipline.includes(
       discipline.slug
     );
     return { ...discipline, vectorCount, isChecked };
   });
 
   const additionalDisciplines = await getAllAdditionalDisciplines();
+  const additionalDisciplineProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, additionalDiscipline: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
   const additionalDisciplineFilterVector =
-    await getProjectFilterVectorForAttribute(
-      "additionalDiscipline",
-      submission.value.filter
-    );
+    await getProjectFilterVectorForAttribute({
+      attribute: "additionalDiscipline",
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      ids: additionalDisciplineProjectIds,
+    });
   const enhancedAdditionalDisciplines = additionalDisciplines.map(
     (additionalDiscipline) => {
       const vectorCount = getFilterCountForSlug(
@@ -367,51 +416,85 @@ export const loader = async (args: LoaderFunctionArgs) => {
         additionalDisciplineFilterVector,
         "additionalDiscipline"
       );
-      const isChecked = submission.value.filter.additionalDiscipline.includes(
-        additionalDiscipline.slug
-      );
+      const isChecked =
+        submission.value.prjFilter.additionalDiscipline.includes(
+          additionalDiscipline.slug
+        );
       return { ...additionalDiscipline, vectorCount, isChecked };
     }
   );
 
   const targetGroups = await getAllProjectTargetGroups();
-  const targetGroupFilterVector = await getProjectFilterVectorForAttribute(
-    "projectTargetGroup",
-    submission.value.filter
-  );
+  const targetGroupProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, projectTargetGroup: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
+  const targetGroupFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "projectTargetGroup",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: targetGroupProjectIds,
+  });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,
       targetGroupFilterVector,
       "projectTargetGroup"
     );
-    const isChecked = submission.value.filter.projectTargetGroup.includes(
+    const isChecked = submission.value.prjFilter.projectTargetGroup.includes(
       targetGroup.slug
     );
     return { ...targetGroup, vectorCount, isChecked };
   });
 
   const formats = await getAllFormats();
-  const formatFilterVector = await getProjectFilterVectorForAttribute(
-    "format",
-    submission.value.filter
-  );
+  const formatProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, format: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
+  const formatFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "format",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: formatProjectIds,
+  });
   const enhancedFormats = formats.map((format) => {
     const vectorCount = getFilterCountForSlug(
       format.slug,
       formatFilterVector,
       "format"
     );
-    const isChecked = submission.value.filter.format.includes(format.slug);
+    const isChecked = submission.value.prjFilter.format.includes(format.slug);
     return { ...format, vectorCount, isChecked };
   });
 
   const specialTargetGroups = await getAllSpecialTargetGroups();
+  const specialTargetGroupProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, specialTargetGroup: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
   const specialTargetGroupFilterVector =
-    await getProjectFilterVectorForAttribute(
-      "specialTargetGroup",
-      submission.value.filter
-    );
+    await getProjectFilterVectorForAttribute({
+      attribute: "specialTargetGroup",
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      ids: specialTargetGroupProjectIds,
+    });
   const enhancedSpecialTargetGroups = specialTargetGroups.map(
     (specialTargetGroup) => {
       const vectorCount = getFilterCountForSlug(
@@ -419,7 +502,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         specialTargetGroupFilterVector,
         "specialTargetGroup"
       );
-      const isChecked = submission.value.filter.specialTargetGroup.includes(
+      const isChecked = submission.value.prjFilter.specialTargetGroup.includes(
         specialTargetGroup.slug
       );
       return { ...specialTargetGroup, vectorCount, isChecked };
@@ -427,17 +510,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const financings = await getAllFinancings();
-  const financingFilterVector = await getProjectFilterVectorForAttribute(
-    "financing",
-    submission.value.filter
-  );
+  const financingProjectIds =
+    submission.value.search.length > 0
+      ? await getProjectIds({
+          filter: { ...submission.value.prjFilter, financing: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : projectIds;
+  const financingFilterVector = await getProjectFilterVectorForAttribute({
+    attribute: "financing",
+    filter: submission.value.prjFilter,
+    search: submission.value.search,
+    ids: financingProjectIds,
+  });
   const enhancedFinancings = financings.map((financing) => {
     const vectorCount = getFilterCountForSlug(
       financing.slug,
       financingFilterVector,
       "financing"
     );
-    const isChecked = submission.value.filter.financing.includes(
+    const isChecked = submission.value.prjFilter.financing.includes(
       financing.slug
     );
     return { ...financing, vectorCount, isChecked };
@@ -446,22 +540,23 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     projects: enhancedProjects,
     disciplines: enhancedDisciplines,
-    selectedDisciplines: submission.value.filter.discipline,
+    selectedDisciplines: submission.value.prjFilter.discipline,
     additionalDisciplines: enhancedAdditionalDisciplines,
-    selectedAdditionalDisciplines: submission.value.filter.additionalDiscipline,
+    selectedAdditionalDisciplines:
+      submission.value.prjFilter.additionalDiscipline,
     targetGroups: enhancedTargetGroups,
-    selectedTargetGroups: submission.value.filter.projectTargetGroup,
+    selectedTargetGroups: submission.value.prjFilter.projectTargetGroup,
     areas: enhancedAreas,
     selectedAreas,
     formats: enhancedFormats,
-    selectedFormats: submission.value.filter.format,
+    selectedFormats: submission.value.prjFilter.format,
     specialTargetGroups: enhancedSpecialTargetGroups,
-    selectedSpecialTargetGroups: submission.value.filter.specialTargetGroup,
+    selectedSpecialTargetGroups: submission.value.prjFilter.specialTargetGroup,
     financings: enhancedFinancings,
-    selectedFinancings: submission.value.filter.financing,
+    selectedFinancings: submission.value.prjFilter.financing,
     submission,
     filteredByVisibilityCount,
-    projectsCount,
+    projectsCount: projectCount,
     locales,
   };
 };
@@ -475,26 +570,41 @@ export default function ExploreProjects() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<GetProjectsSchema>({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.prjFilter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "prjPage",
+    `${loaderData.submission.value.prjPage + 1}`
+  );
 
   const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.prjAreaSearch
   );
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getProjectsSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
+  });
+
+  let showMore = false;
+  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
+    showMore =
+      loaderData.filteredByVisibilityCount > loaderData.projects.length;
+  } else {
+    showMore = loaderData.projectsCount > loaderData.projects.length;
+  }
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {locales.route.title}
-        </H1>
-        <p>{locales.route.intro}</p>
-      </section>
-
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
@@ -509,8 +619,18 @@ export default function ExploreProjects() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="prjPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -520,7 +640,7 @@ export default function ExploreProjects() {
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.prjFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
@@ -889,8 +1009,8 @@ export default function ExploreProjects() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.prjAreaSearch.id}
+                      name={fields.prjAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -904,7 +1024,7 @@ export default function ExploreProjects() {
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.prjAreaSearch.id} hidden>
                         {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
@@ -1243,7 +1363,7 @@ export default function ExploreProjects() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.prjSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -1252,7 +1372,7 @@ export default function ExploreProjects() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
-                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      const currentValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                       let value;
                       if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
@@ -1272,11 +1392,11 @@ export default function ExploreProjects() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                  {PROJECT_SORT_VALUES.map((sortValue) => {
+                    const submissionSortValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.prjSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -1298,8 +1418,8 @@ export default function ExploreProjects() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prjSortBy !== undefined
+                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
                   : ""
               }`}
             >
@@ -1573,8 +1693,8 @@ export default function ExploreProjects() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prjSortBy !== undefined
+                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
                   : ""
               }`}
               preventScrollReset
@@ -1592,16 +1712,20 @@ export default function ExploreProjects() {
       </section>
 
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {loaderData.filteredByVisibilityCount !== undefined &&
-        loaderData.filteredByVisibilityCount > 0 ? (
+        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+        loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 locales.route.notShown_one,
                 locales.route.notShown_other,
-                loaderData.filteredByVisibilityCount
+                loaderData.projectsCount - loaderData.filteredByVisibilityCount
               ),
-              { count: loaderData.filteredByVisibilityCount }
+              {
+                count:
+                  loaderData.projectsCount -
+                  loaderData.filteredByVisibilityCount,
+              }
             )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
@@ -1634,7 +1758,7 @@ export default function ExploreProjects() {
                 );
               })}
             </CardContainer>
-            {loaderData.projectsCount > loaderData.projects.length && (
+            {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

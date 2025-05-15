@@ -8,6 +8,7 @@ import {
 } from "./i18n.shared";
 import { type ArrayElement } from "./lib/utils/types";
 import { invariantResponse } from "./lib/utils/response";
+import { languageModuleMap } from "./locales/.server";
 
 const supportedHeaderLanguages = [
   "de",
@@ -102,4 +103,31 @@ export async function detectLanguage(request: Request) {
     }
     return lng;
   }
+}
+
+export function getSlugFromLocaleThatContainsWord(options: {
+  language: ArrayElement<typeof supportedCookieLanguages>;
+  locales: keyof (typeof languageModuleMap)[ArrayElement<
+    typeof supportedCookieLanguages
+  >];
+  word: string;
+}) {
+  const { language, locales, word } = options;
+  const slugs = Object.entries(languageModuleMap[language][locales]).find(
+    ([, value]) => {
+      if (
+        typeof value !== "object" &&
+        "title" in value === false &&
+        typeof value.title !== "string"
+      ) {
+        return false;
+      }
+      return (value.title as string).toLowerCase().includes(word.toLowerCase());
+    }
+  );
+
+  if (typeof slugs === "undefined") {
+    return;
+  }
+  return slugs[0];
 }
