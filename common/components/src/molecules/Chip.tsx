@@ -1,11 +1,11 @@
 import classNames from "classnames";
 import { Children, cloneElement, isValidElement } from "react";
 
-export type ChipColor = "primary" | "secondary";
+type ChipColor = "primary" | "secondary";
 
-export type ChipSize = "small" | "medium";
+type ChipSize = "small" | "medium";
 
-export type ChipProps = {
+type ChipProps = {
   children?: React.ReactNode;
   color?: ChipColor;
   size?: ChipSize;
@@ -108,7 +108,7 @@ function Chip(props: ChipProps) {
   return <div className={classes}>{enhancedChildren}</div>;
 }
 
-export function ChipDelete(
+function ChipDelete(
   props: React.PropsWithChildren<{
     responsive?: boolean;
     interactive?: boolean;
@@ -169,7 +169,7 @@ export function ChipDelete(
 
 Chip.Delete = ChipDelete;
 
-export type ChipContainerProps = {
+type ChipContainerProps = {
   children?: React.ReactNode;
   maxRows?: number;
 };

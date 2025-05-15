@@ -79,12 +79,12 @@ function Avatar(props: AvatarProps) {
   );
 }
 
-export type MoreIndicatorProps = {
+type MoreIndicatorProps = {
   amount: number;
   to?: string;
 };
 
-export function MoreIndicator(props: MoreIndicatorProps) {
+function MoreIndicator(props: MoreIndicatorProps) {
   const amount = props.amount < 1000 ? `+${props.amount}` : ">999";
 
   const classes = classNames(
@@ -118,7 +118,7 @@ function wrapAvatars(children: React.ReactNode) {
   });
 }
 
-export type AvatarListProps = {
+type AvatarListProps = {
   visibleAvatars?: number;
   children?: React.ReactNode;
   moreIndicatorProps?: Partial<MoreIndicatorProps>;
@@ -148,11 +148,11 @@ export function AvatarList(props: AvatarListProps) {
   );
 }
 
-export type AvatarSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "full";
+type AvatarSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "full";
 
-export type TextSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
+type TextSize = "xxs" | "xs" | "sm" | "md" | "lg" | "xl";
 
-export type AvatarProps = {
+type AvatarProps = {
   size?: AvatarSize;
   textSize?: TextSize;
   to?: string;

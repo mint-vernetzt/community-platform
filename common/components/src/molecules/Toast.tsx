@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export type ToastLevel = "neutral" | "positive" | "attention" | "negative";
 
-export type ToastProps = {
+type ToastProps = {
   level?: ToastLevel;
   delay?: number;
   onHide?: () => void;

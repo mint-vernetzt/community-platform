@@ -23,7 +23,7 @@ function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
   );
 }
 
-export type TabBarItemProps = {
+type TabBarItemProps = {
   children: React.ReactNode;
   active?: boolean;
 };
@@ -89,9 +89,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   return null;
 }
 
-export const TabBarItem = Item;
-
-export type TabBarProps = {
+type TabBarProps = {
   children: React.ReactNode;
 };
 

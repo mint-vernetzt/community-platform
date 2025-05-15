@@ -2,11 +2,11 @@ import classNames from "classnames";
 import { Children, cloneElement, createElement, isValidElement } from "react";
 
 export type TextButtonVariants = "primary" | "neutral" | "dark";
-export type TextButtonSize = "small" | "medium" | "large";
-export type TextButtonWeight = "normal" | "thin";
-export type TextButtonType = "button" | "a";
+type TextButtonSize = "small" | "medium" | "large";
+type TextButtonWeight = "normal" | "thin";
+type TextButtonType = "button" | "a";
 
-export type TextButtonProps = {
+type TextButtonProps = {
   size?: TextButtonSize;
   variant?: TextButtonVariants;
   weight?: TextButtonWeight;

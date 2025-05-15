@@ -1,7 +1,7 @@
 import type { Event, Organization, Profile, Project } from "@prisma/client";
 import type { EntitySubset } from "./lib/utils/types";
 
-export type ProfileWithRelations = Profile & {
+type ProfileWithRelations = Profile & {
   // TODO: fix type issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   areas: any;

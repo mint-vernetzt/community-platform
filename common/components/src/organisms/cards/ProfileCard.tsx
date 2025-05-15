@@ -15,7 +15,7 @@ import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
 import { type SearchProfilesLocales } from "~/routes/search/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 
-export type ProfileCardProps = {
+type ProfileCardProps = {
   match?: number;
   publicAccess?: boolean;
   locales: ExploreProfilesLocales | SearchProfilesLocales | DashboardLocales;

@@ -30,6 +30,12 @@ export const locale = {
       hide: "Updates ausblenden",
       show: "Updates einblenden",
       entries: {
+        networks: {
+          headline: "Neue Netzwerk-Funktion",
+          description:
+            "Mach Dein Netzwerk sichtbar – füge Mitglieder hinzu und wähle aus ob Ihr Cluster, MINT-Region oder Landesinitiative seid",
+          linkDescription: "Jetzt Netzwerkform auswählen",
+        },
         faq: {
           headline: "Support",
           description:

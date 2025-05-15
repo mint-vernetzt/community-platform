@@ -4,7 +4,7 @@ import { ChipContainer } from "../../molecules/Chip";
 import { Image } from "../../molecules/Image";
 import { Children, isValidElement } from "react";
 
-export type CardProps = {
+type CardProps = {
   children?: React.ReactNode;
   to?: string;
 };
@@ -118,7 +118,7 @@ export function CardHeader(props: CardHeaderProps) {
 
 Card.Header = CardHeader;
 
-export type CardInfoOverlayProps = {
+type CardInfoOverlayProps = {
   children?: React.ReactNode;
 };
 
@@ -132,7 +132,7 @@ export function CardInfoOverlay(props: CardInfoOverlayProps) {
 
 Card.InfoOverlay = CardInfoOverlay;
 
-export type CardInfoProps = {
+type CardInfoProps = {
   children?: React.ReactNode;
 };
 
@@ -146,7 +146,7 @@ export function CardInfo(props: CardInfoProps) {
 
 Card.Info = CardInfo;
 
-export type CardStatusProps = {
+type CardStatusProps = {
   children?: React.ReactNode;
   variant?: "primary" | "neutral" | "positive" | "negative";
   inverted?: boolean;
@@ -168,7 +168,7 @@ export function CardStatus(props: CardStatusProps) {
 
 Card.Status = CardStatus;
 
-export function CardImage(props: {
+function CardImage(props: {
   src: string;
   blurSrc?: string;
   isHydrated?: boolean;
@@ -221,7 +221,7 @@ export function CardImage(props: {
 
 Card.Image = CardImage;
 
-export type CardBodyProps = {
+type CardBodyProps = {
   children?: React.ReactNode;
 };
 
@@ -229,7 +229,7 @@ export function CardBody(props: CardBodyProps) {
   return <div className="mv-p-4">{props.children}</div>;
 }
 
-export type CardBodySectionProps = {
+type CardBodySectionProps = {
   title: string;
   emptyMessage?: string;
   children?: React.ReactNode;
@@ -273,7 +273,7 @@ export function CardBodySection(props: CardBodySectionProps) {
 
 Card.Body = CardBody;
 
-export type CardFooterProps = {
+type CardFooterProps = {
   children?: React.ReactNode;
 };
 
@@ -290,7 +290,7 @@ export function CardFooter(props: CardFooterProps) {
 
 Card.Footer = CardFooter;
 
-export type CardRowContainerProps = {
+type CardRowContainerProps = {
   children?: React.ReactNode;
 };
 
@@ -308,7 +308,7 @@ function wrapCardRowContainerChildren(children: React.ReactNode) {
   });
 }
 
-export function CardRowContainer(props: CardRowContainerProps) {
+function CardRowContainer(props: CardRowContainerProps) {
   const itemsPerRow = 3;
 
   const validChildren = Children.toArray(props.children).filter((child) => {

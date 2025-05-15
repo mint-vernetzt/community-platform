@@ -187,16 +187,3 @@ export async function getDownloadDocumentsResponse(
     },
   });
 }
-
-export async function remove(
-  authClient: SupabaseClient,
-  paths: string[],
-  bucket = "images"
-) {
-  const { data, error } = await authClient.storage.from(bucket).remove(paths);
-
-  if (data === null || error !== null) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
-  }
-}

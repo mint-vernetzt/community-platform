@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Children, isValidElement } from "react";
 
-export type ControlsProps = {
+type ControlsProps = {
   direction?: "horizontal" | "vertical";
   children: React.ReactNode;
 };

@@ -3,17 +3,17 @@ import { createElement } from "react";
 
 // eigene Komponente für Icon-Button mit Varianten für Circle und Square
 
-export type ButtonSize = "x-small" | "small" | "medium" | "large";
-export type ButtonVariant = "normal" | "outline" | "ghost";
-export type ButtonType = "button" | "a" | "div" | "label";
-export type ButtonLevel =
+type ButtonSize = "x-small" | "small" | "medium" | "large";
+type ButtonVariant = "normal" | "outline" | "ghost";
+type ButtonType = "button" | "a" | "div" | "label";
+type ButtonLevel =
   | "primary"
   // | "secondary"
   // | "positive"
   // | "attention"
   | "negative";
 
-export type ButtonProps = {
+type ButtonProps = {
   size?: ButtonSize;
   loading?: boolean;
   variant?: ButtonVariant;

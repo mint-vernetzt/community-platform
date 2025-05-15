@@ -123,20 +123,6 @@ export const signOut = async (request: Request) => {
   return { error, headers };
 };
 
-export const setSession = async (
-  authClient: SupabaseClient,
-  accessToken: string,
-  refreshToken: string
-) => {
-  const {
-    data: { session, user },
-  } = await authClient.auth.setSession({
-    refresh_token: refreshToken,
-    access_token: accessToken,
-  });
-  return { session, user };
-};
-
 // Note from the docs:
 /*
   Gets the current user details if there is an existing session. This method performs a network request to the Supabase Auth server,

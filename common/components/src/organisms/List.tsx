@@ -134,7 +134,7 @@ function ListItemControls(props: React.PropsWithChildren) {
   );
 }
 
-export function ListItem(
+function ListItem(
   props: React.PropsWithChildren<{
     noBorder?: boolean;
     interactive?: boolean;

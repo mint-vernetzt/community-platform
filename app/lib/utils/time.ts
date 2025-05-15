@@ -113,17 +113,6 @@ export function getDateDuration(
   return transformParts(formatter.formatRangeToParts(startTime, endTime));
 }
 
-export function getFormattedDate(
-  date: Date,
-  language: ArrayElement<typeof supportedCookieLanguages>
-) {
-  return date.toLocaleDateString(language, {
-    year: "numeric",
-    month: "long",
-    day: "2-digit",
-  });
-}
-
 export function getTimeDuration(
   startTime: Date,
   endTime: Date,
