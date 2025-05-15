@@ -16,7 +16,7 @@ export default function GoodBye() {
   return (
     <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mt-8 @md:mv-mt-10 @lg:mv-mt-20 mv-text-center">
       <h1>{locales.content.headline}</h1>
-      <p className="mt-4">{locales.content.info}</p>
+      <p className="mv-mt-4">{locales.content.info}</p>
     </section>
   );
 }

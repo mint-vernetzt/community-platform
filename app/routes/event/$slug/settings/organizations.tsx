@@ -378,7 +378,7 @@ function Organizations() {
                     <>{initials}</>
                   )}
                 </div>
-                <div className="pl-4">
+                <div className="mv-pl-4">
                   <Link to={`/organization/${organization.slug}`}>
                     <H3
                       like="h4"

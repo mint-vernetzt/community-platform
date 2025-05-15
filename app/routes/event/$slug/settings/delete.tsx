@@ -163,7 +163,7 @@ function Delete() {
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="eventName" className="mb-4">
+            <Field name="eventName" className="mv-mb-4">
               {({ Errors }) => (
                 <>
                   <Input

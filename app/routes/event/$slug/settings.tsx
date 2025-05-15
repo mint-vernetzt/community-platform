@@ -52,7 +52,7 @@ function Settings() {
         </TextButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-        <div className="mv-flex mv-flex-col mv-items-stretch @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0 mb-8">
+        <div className="mv-flex mv-flex-col mv-items-stretch @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0 mv-mb-8">
           <div className="mv-basis-4/12 mv-px-4">
             <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 mv-rounded-lg mv-bg-neutral-50 mv-shadow-lg mv-relative mv-mb-8">
               <h3 className="mv-font-bold mv-mb-7">

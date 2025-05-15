@@ -1257,7 +1257,7 @@ function Index() {
                   <div className="mv-pb-3 @md:mv-pb-0">
                     {loaderData.event.documents.map((item) => {
                       return (
-                        <div key={`document-${item.document.id}`} className="">
+                        <div key={`document-${item.document.id}`}>
                           <Link
                             className="mv-underline hover:mv-no-underline"
                             to={`/event/${loaderData.event.slug}/documents-download?document_id=${item.document.id}`}

@@ -352,7 +352,11 @@ export function Icon(props: { type: IconType }) {
   }
   if (props.type === "box-arrow-up-right") {
     icon = (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="w-4 h-4">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        className="mv-w-4 mv-h-4"
+      >
         <path
           fill="currentColor"
           fillRule="evenodd"

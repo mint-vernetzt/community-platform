@@ -1019,7 +1019,7 @@ function Manage() {
               </Form>
             ) : (
               <div
-                className={`mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-base leading-5 mv-font-normal ${
+                className={`mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-base mv-leading-5 mv-font-normal ${
                   isNetwork === false
                     ? "mv-text-neutral-300"
                     : "mv-text-neutral-700"
@@ -1350,7 +1350,7 @@ function Manage() {
                 ) : null}
               </Form>
             ) : (
-              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base leading-5 mv-font-normal">
+              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base mv-leading-5 mv-font-normal">
                 {locales.route.content.networks.current.blankState}
               </div>
             )}

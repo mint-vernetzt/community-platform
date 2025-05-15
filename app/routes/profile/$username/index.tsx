@@ -466,7 +466,7 @@ export default function Index() {
   const lastName = loaderData.data.lastName;
   const Avatar = useCallback(
     () => (
-      <div className="mv-h-36 w-36 mv-bg-neutral-600 mv-text-white mv-text-6xl mv-flex mv-items-center mv-justify-center mv-overflow-hidden mv-rounded-full mv-border">
+      <div className="mv-h-36 mv-w-36 mv-bg-neutral-600 mv-text-white mv-text-6xl mv-flex mv-items-center mv-justify-center mv-overflow-hidden mv-rounded-full mv-border">
         {avatar !== null ? (
           <MVAvatar
             avatar={avatar}
@@ -1270,7 +1270,7 @@ export default function Index() {
                               className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
                             >
                               <Link
-                                className="flex"
+                                className="mv-flex"
                                 to={`/event/${event.slug}`}
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
@@ -1447,7 +1447,7 @@ export default function Index() {
                                 to={`/event/${event.slug}`}
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="w-36 h-full relative">
+                                  <div className="mv-w-36 mv-h-full mv-relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}

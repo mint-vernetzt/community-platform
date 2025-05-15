@@ -51,7 +51,7 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
       {...anchorProps}
       id="modal-close-bottom"
       to={route}
-      className="mv-btn mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+      className="mv-inline-flex mv-min-h-12 mv-cursor-pointer mv-select-none mv-rounded-lg mv-border-transparent mv-text-center mv-leading-4 mv-flex-wrap mv-items-center mv-justify-center mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
       preventScrollReset
     >
       {props.children}

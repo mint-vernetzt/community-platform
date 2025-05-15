@@ -372,7 +372,7 @@ function Participants() {
         </p>
       ) : null}
       {loaderData.hasFullDepthParticipants ? (
-        <p className="mb-4">
+        <p className="mv-mb-4">
           <Link
             className="mv-mt-4 mv-mb-4 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
             to="../csv-download?type=participants&amp;depth=full"

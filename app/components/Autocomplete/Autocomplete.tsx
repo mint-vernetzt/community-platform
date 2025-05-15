@@ -266,7 +266,7 @@ function Autocomplete(
                       {suggestion.firstName} {suggestion.lastName}
                     </H3>
                     {suggestion.position ? (
-                      <p className="mv-font-bold mv-text-sm mv-cursor-default text-left">
+                      <p className="mv-font-bold mv-text-sm mv-cursor-default mv-text-left">
                         {suggestion.position}
                       </p>
                     ) : null}
