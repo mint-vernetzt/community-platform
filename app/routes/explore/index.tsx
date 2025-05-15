@@ -547,7 +547,7 @@ function ExploreIndex() {
       {/* Profile Card Section */}
       {loaderData.profiles.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.profiles}
             </div>
@@ -581,7 +581,7 @@ function ExploreIndex() {
       {/* Organization Card Section */}
       {loaderData.organizations.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.organizations}
             </h3>
@@ -615,7 +615,7 @@ function ExploreIndex() {
       {/* Event Card Section */}
       {loaderData.events.length > 0 ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.events}
             </h3>
@@ -668,7 +668,7 @@ function ExploreIndex() {
       {/* Project Card Section */}
       {loaderData.projects.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.projects}
             </h3>
@@ -702,7 +702,7 @@ function ExploreIndex() {
       {/* Funding Card Section */}
       {loaderData.fundings.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
             <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.fundings}
             </h3>
