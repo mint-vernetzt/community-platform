@@ -272,7 +272,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
 
   const linkClasses = classNames(
     "mv-w-full @lg:mv-max-w-content",
-    "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100"
+    "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100 @lg:hover:mv-bg-transparent focus-within:mv-bg-transparent"
   );
 
   return (
@@ -302,8 +302,8 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
     "@lg:mv-px-4 @lg:mv-py-2",
     isActive
       ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent"
-      : "@lg:mv-bg-white mv-text-neutral-700",
-    "@lg:mv-rounded-lg @lg:mv-border @lg:mv-border-neutral-200",
+      : "@lg:mv-bg-white mv-text-neutral-700 @lg:hover:mv-bg-neutral-200",
+    "@lg:mv-rounded-lg @lg:mv-border @lg:mv-border-neutral-100",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
     "mv-whitespace-normal"
   );
