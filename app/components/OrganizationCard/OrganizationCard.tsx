@@ -23,11 +23,11 @@ function OrganizationCard(props: OrganizationCardProps) {
     <div
       key={props.id}
       data-testid="gridcell"
-      className="mv-flex-1 @md:mv-flex-1/2 mv-px-3 mv-mb-4"
+      className="mv-w-full mv-px-3 mv-mb-4"
     >
       <Link
         to={props.link}
-        className="mv-flex mv-flex-wrap mv-content-start mv-items-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
+        className="mv-w-full mv-flex mv-flex-wrap mv-content-start mv-items-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
       >
         <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
           {props.image !== "" && props.image !== null ? (

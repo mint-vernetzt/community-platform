@@ -150,14 +150,17 @@ export default function Create() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
-        <div className="font-semi text-neutral-600 flex items-center">
+        <div className="mv-font-semibold mv-text-neutral-600 mv-flex mv-items-center">
           {/* TODO: get back route from loader */}
-          <button onClick={() => navigate(-1)} className="flex items-center">
+          <button
+            onClick={() => navigate(-1)}
+            className="mv-flex mv-items-center"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
-              className="h-auto w-6"
+              className="mv-h-auto mv-w-6"
               fill="currentColor"
               viewBox="0 0 16 16"
             >
@@ -166,19 +169,19 @@ export default function Create() {
                 d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"
               />
             </svg>
-            <span className="ml-2">{locales.content.back}</span>
+            <span className="mv-ml-2">{locales.content.back}</span>
           </button>
         </div>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-        <div className="flex -mx-4 justify-center mv-w-full">
-          <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 px-4 pt-10 mv-w-full">
-            <h4 className="font-semibold">{locales.content.headline}</h4>
+        <div className="mv-flex mv--mx-4 mv-justify-center mv-w-full">
+          <div className="@lg:mv-shrink-0 @lg:mv-grow-0 @lg:mv-basis-1/2 mv-px-4 mv-pt-10 mv-w-full">
+            <h4 className="mv-font-semibold">{locales.content.headline}</h4>
             <div>
               <Form method="post">
                 <input name="child" defaultValue={loaderData.child} hidden />
                 <input name="parent" defaultValue={loaderData.parent} hidden />
-                <div className="mb-2">
+                <div className="mv-mb-2">
                   <Input
                     id="name"
                     label={locales.form.name.label}
@@ -190,7 +193,7 @@ export default function Create() {
                     <div>{actionData.errors.name.message}</div>
                   ) : null}
                 </div>
-                <div className="mb-2 form-control w-full">
+                <div className="mv-mb-2 mv-flex mv-flex-col mv-gap-2 mv-w-full">
                   {/* TODO: Date Input Component */}
                   <Input
                     id="startDate"
@@ -204,7 +207,7 @@ export default function Create() {
                     <div>{actionData.errors.startDate.message}</div>
                   ) : null}
                 </div>
-                <div className="mb-2 form-control w-full">
+                <div className="mv-mb-2 mv-flex mv-flex-col mv-gap-2 mv-w-full">
                   {/* TODO: Time Input Component */}
                   <Input
                     id="startTime"
@@ -218,7 +221,7 @@ export default function Create() {
                     <div>{actionData.errors.startTime.message}</div>
                   ) : null}
                 </div>
-                <div className="mb-2 form-control w-full">
+                <div className="mv-mb-2 mv-flex mv-flex-col mv-gap-2 mv-w-full">
                   {/* TODO: Date Input Component */}
                   <Input
                     id="endDate"
@@ -232,7 +235,7 @@ export default function Create() {
                     <div>{actionData.errors.endDate.message}</div>
                   ) : null}
                 </div>
-                <div className="mb-4 form-control w-full">
+                <div className="mv-mb-4 mv-flex mv-flex-col mv-gap-2 mv-w-full">
                   {/* TODO: Time Input Component */}
                   <Input
                     id="endTime"
@@ -248,7 +251,7 @@ export default function Create() {
                 </div>
                 <button
                   type="submit"
-                  className="btn btn-outline-primary ml-auto btn-small"
+                  className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                 >
                   {locales.form.submit.label}
                 </button>

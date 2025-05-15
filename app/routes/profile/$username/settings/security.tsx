@@ -204,20 +204,20 @@ export default function Security() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mv-mb-8">{locales.content.headline}</h1>
       {loaderData.provider === "keycloak" ? (
         <>
-          <h4 className="mb-4 font-semibold">
+          <h4 className="mv-mb-4 mv-font-semibold">
             {locales.section.changePassword1.headline}
           </h4>
-          <p className="mb-8">
+          <p className="mv-mb-8">
             {insertComponentsIntoLocale(locales.section.changePassword1.intro, [
               <a
                 key="change-mint-id-password"
                 href="https://mint-id.org"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-primary hover:underline"
+                className="mv-text-primary hover:mv-underline"
               >
                 {" "}
               </a>,
@@ -226,16 +226,20 @@ export default function Security() {
         </>
       ) : (
         <fieldset disabled={navigation.state === "submitting"}>
-          <h4 className="mb-4 font-semibold">
+          <h4 className="mv-mb-4 mv-font-semibold">
             {locales.section.changePassword2.headline}
           </h4>
 
-          <p className="mb-8">{locales.section.changePassword2.intro}</p>
+          <p className="mv-mb-8">{locales.section.changePassword2.intro}</p>
 
           <RemixFormsForm method="post" schema={passwordSchema}>
             {({ Field, Errors, register }) => (
               <>
-                <Field name="password" label="Neues Passwort" className="mb-4">
+                <Field
+                  name="password"
+                  label="Neues Passwort"
+                  className="mv-mb-4"
+                >
                   {({ Errors }) => (
                     <>
                       <InputPassword
@@ -278,14 +282,15 @@ export default function Security() {
                   )}
                 </Field>
 
-                <button type="submit" className="btn btn-primary mt-8">
+                <button
+                  type="submit"
+                  className="mv-mt-8 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.section.changePassword2.form.submit.label}
                 </button>
                 {showPasswordFeedback ? (
                   <span
-                    className={
-                      "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                    }
+                    className={"mv-mt-2 mv-ml-2 mv-text-green-500 mv-text-bold"}
                   >
                     {locales.section.changePassword2.feedback}
                   </span>
@@ -294,17 +299,17 @@ export default function Security() {
               </>
             )}
           </RemixFormsForm>
-          <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+          <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
-          <h4 className="mb-4 font-semibold">
+          <h4 className="mv-mb-4 mv-font-semibold">
             {locales.section.changeEmail.headline}
           </h4>
 
-          <p className="mb-8">{locales.section.changeEmail.intro}</p>
+          <p className="mv-mb-8">{locales.section.changeEmail.intro}</p>
           <RemixFormsForm method="post" schema={emailSchema}>
             {({ Field, Errors, register }) => (
               <>
-                <Field name="email" label="Neue E-Mail" className="mb-4">
+                <Field name="email" label="Neue E-Mail" className="mv-mb-4">
                   {({ Errors }) => (
                     <>
                       <Input
@@ -344,14 +349,15 @@ export default function Security() {
                     </>
                   )}
                 </Field>
-                <button type="submit" className="btn btn-primary mt-8">
+                <button
+                  type="submit"
+                  className="mv-mt-8 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.section.changeEmail.form.submit.label}
                 </button>
                 {showEmailFeedback ? (
                   <span
-                    className={
-                      "mt-2 ml-2 text-green-500 text-bold animate-fade-out"
-                    }
+                    className={"mv-mt-2 mv-ml-2 mv-text-green-500 mv-text-bold"}
                   >
                     {locales.section.changeEmail.feedback}
                   </span>

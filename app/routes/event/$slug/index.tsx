@@ -894,7 +894,7 @@ function Index() {
                       {locales.route.content.event.published}
                     </div>
                   ) : (
-                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-blue-300 mv-p-2 mv-text-white">
+                    <div className="@md:mv-absolute @md:mv-top-0 @md:mv-inset-x-0 mv-font-semibold mv-text-center mv-bg-primary mv-p-2 mv-text-white">
                       {locales.route.content.event.draft}
                     </div>
                   )}

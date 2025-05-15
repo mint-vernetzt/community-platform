@@ -37,7 +37,7 @@ function SelectField(
 
   return (
     <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
-      <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+      <div className="mv-flex mv-flex-row mv-items-center">
         <label
           htmlFor={selectProps.id}
           className="mv-font-semibold mv-flex-auto"

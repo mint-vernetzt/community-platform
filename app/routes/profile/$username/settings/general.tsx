@@ -375,16 +375,16 @@ export default function Index() {
           }}
         >
           <fieldset>
-            <h1 className="mb-8">Persönliche Daten</h1>
+            <h1 className="mv-mb-8">Persönliche Daten</h1>
 
-            <h4 className="mb-4 font-semibold">
+            <h4 className="mv-mb-4 mv-font-semibold">
               {locales.route.general.headline}
             </h4>
 
-            <p className="mb-8">{locales.route.general.intro}</p>
+            <p className="mv-mb-8">{locales.route.general.intro}</p>
 
-            <div className="flex flex-col @md:mv-flex-row -mx-4">
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <SelectField
                   {...register("academicTitle")}
                   label={locales.route.general.form.title.label}
@@ -407,7 +407,7 @@ export default function Index() {
                   defaultValue={profile.academicTitle || ""}
                 />
               </div>
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("position")}
                   id="position"
@@ -419,8 +419,8 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex flex-col @md:mv-flex-row -mx-4">
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("firstName")}
                   id="firstName"
@@ -431,7 +431,7 @@ export default function Index() {
                   errorMessage={errors?.firstName?.message}
                 />
               </div>
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("lastName")}
                   id="lastName"
@@ -444,8 +444,8 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex flex-col @md:mv-flex-row -mx-4 mv-flex-wrap">
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+            <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-flex-wrap">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("email")}
                   type="text"
@@ -470,7 +470,7 @@ export default function Index() {
                   )}
                 </div>
               </div>
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("email2")}
                   type="text"
@@ -481,7 +481,7 @@ export default function Index() {
                   errorMessage={errors?.email2?.message}
                 />
               </div>
-              <div className="basis-full @md:mv-basis-6/12 px-4 mb-4">
+              <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-4">
                 <InputText
                   {...register("phone")}
                   id="phone"
@@ -493,17 +493,17 @@ export default function Index() {
               </div>
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
-            <div className="flex flex-row items-center mb-4">
-              <h4 className="font-semibold">
+            <div className="mv-flex mv-flex-row mv-items-center mv-mb-4">
+              <h4 className="mv-font-semibold">
                 {locales.route.aboutMe.headline}
               </h4>
             </div>
 
-            <p className="mb-8">{locales.route.aboutMe.intro}</p>
+            <p className="mv-mb-8">{locales.route.aboutMe.intro}</p>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <TextArea
                 {...register("bio")}
                 id="bio"
@@ -521,7 +521,7 @@ export default function Index() {
               />
             </div>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <SelectAdd
                 name="areas"
                 label={locales.route.aboutMe.form.activityAreas.label}
@@ -538,7 +538,7 @@ export default function Index() {
               />
             </div>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <InputAdd
                 name="skills"
                 label={locales.route.aboutMe.form.skills.label}
@@ -549,7 +549,7 @@ export default function Index() {
               />
             </div>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <InputAdd
                 name="interests"
                 label={locales.route.aboutMe.form.interests.label}
@@ -560,14 +560,14 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
-            <h4 className="mb-4 font-semibold">
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
+            <h4 className="mv-mb-4 mv-font-semibold">
               {locales.route.offer.headline}
             </h4>
 
-            <p className="mb-8">{locales.route.offer.intro}</p>
+            <p className="mv-mb-8">{locales.route.offer.intro}</p>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <SelectAdd
                 name="offers"
                 label={locales.route.offer.form.quote.label}
@@ -594,15 +594,15 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
-            <h4 className="mb-4 font-semibold">
+            <h4 className="mv-mb-4 mv-font-semibold">
               {locales.route.lookingFor.headline}
             </h4>
 
-            <p className="mb-8">{locales.route.lookingFor.intro}</p>
+            <p className="mv-mb-8">{locales.route.lookingFor.intro}</p>
 
-            <div className="mb-4">
+            <div className="mv-mb-4">
               <SelectAdd
                 name="seekings"
                 label={locales.route.lookingFor.form.seeking.label}
@@ -629,21 +629,21 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
-            <h2 className="mb-8">
+            <h2 className="mv-mb-8">
               {locales.route.websiteSocialMedia.headline}
             </h2>
 
-            <h4 className="mb-4 font-semibold">
+            <h4 className="mv-mb-4 mv-font-semibold">
               {locales.route.websiteSocialMedia.website.headline}
             </h4>
 
-            <p className="mb-8">
+            <p className="mv-mb-8">
               {locales.route.websiteSocialMedia.website.intro}
             </p>
 
-            <div className="basis-full mb-4">
+            <div className="mv-basis-full mv-mb-4">
               <InputText
                 {...register("website")}
                 id="website"
@@ -661,18 +661,18 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
-            <h4 className="mb-4 font-semibold">
+            <h4 className="mv-mb-4 mv-font-semibold">
               {locales.route.websiteSocialMedia.socialMedia.headline}
             </h4>
 
-            <p className="mb-8">
+            <p className="mv-mb-8">
               {locales.route.websiteSocialMedia.socialMedia.intro}
             </p>
 
             {createSocialMediaServices(locales).map((service) => (
-              <div className="w-full mb-4" key={service.id}>
+              <div className="mv-w-full mv-mb-4" key={service.id}>
                 <InputText
                   {...register(service.id)}
                   id={service.id}
@@ -686,15 +686,15 @@ export default function Index() {
               </div>
             ))}
 
-            <hr className="border-neutral-400 my-10 @lg:mv-my-16" />
+            <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
             <div className="mv-flex mv-flex-col mv-justify-start @sm:mv-items-center mv-mb-4 @sm:mv-flex-row mv-gap-2 @sm:mv-gap-4">
-              <h4 className="font-semibold">
+              <h4 className="mv-font-semibold">
                 {locales.route.network.headline}
               </h4>
               <Link
                 to="/organization/create"
-                className="btn btn-outline-primary btn-small"
+                className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
               >
                 {locales.route.network.action}
               </Link>
@@ -705,14 +705,14 @@ export default function Index() {
               additionalClassNames="mv-mb-4"
             />
 
-            <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+            <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
               <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-                <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+                <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
                   <div
-                    className={`text-green-500 text-bold ${
+                    className={`mv-text-green-500 mv-text-bold ${
                       actionData?.updated && !isSubmitting
-                        ? "block animate-fade-out"
-                        : "hidden"
+                        ? "mv-block"
+                        : "mv-hidden"
                     }`}
                   >
                     {locales.route.footer.profileUpdated}
@@ -722,7 +722,7 @@ export default function Index() {
                     <Link
                       to={`/profile/${username}/settings`}
                       reloadDocument
-                      className={`btn btn-link`}
+                      className="mv-text-primary mv-underline mv-text-sm mv-font-semibold"
                     >
                       {locales.route.footer.ignoreChanges}
                     </Link>
@@ -731,7 +731,7 @@ export default function Index() {
                     type="submit"
                     name="submit"
                     value="submit"
-                    className="btn btn-primary ml-4"
+                    className="mv-ml-4 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                   >
                     {locales.route.footer.save}
                   </button>

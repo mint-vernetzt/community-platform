@@ -34,9 +34,9 @@ function Settings() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const getClassName = (active: boolean) =>
-    `block text-3xl ${
-      active ? "text-primary" : "text-neutral-500"
-    }  hover:text-primary py-3`;
+    `mv-block mv-text-3xl ${
+      active ? "mv-text-primary" : "mv-text-neutral-500"
+    }  hover:mv-text-primary mv-py-3`;
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
@@ -51,11 +51,13 @@ function Settings() {
           {locales.back}
         </TextButton>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative">
-        <div className="flex flex-col items-stretch @lg:mv-flex-row -mx-4 pt-10 @lg:mv-pt-0 mb-8">
-          <div className="basis-4/12 px-4">
-            <div className="px-4 py-8 @lg:mv-p-8 pb-15 rounded-lg bg-neutral-200 shadow-lg relative mb-8">
-              <h3 className="font-bold mb-7">{locales.content.headline}</h3>
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
+        <div className="mv-flex mv-flex-col mv-items-stretch @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0 mb-8">
+          <div className="mv-basis-4/12 mv-px-4">
+            <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 mv-rounded-lg mv-bg-neutral-50 mv-shadow-lg mv-relative mv-mb-8">
+              <h3 className="mv-font-bold mv-mb-7">
+                {locales.content.headline}
+              </h3>
               <menu>
                 <NavLink
                   to="general#settings"
@@ -120,7 +122,7 @@ function Settings() {
                 >
                   {locales.content.documents}
                 </NavLink>
-                <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
+                <hr className="mv-border-neutral-400 mv-my-4 @lg:mv-my-8" />
                 <NavLink
                   to="delete#settings"
                   className={({ isActive }) => getClassName(isActive)}
@@ -131,7 +133,7 @@ function Settings() {
               </menu>
             </div>
           </div>
-          <div id="settings" className="basis-6/12 px-4 pb-24 mv-mb-8">
+          <div id="settings" className="mv-basis-6/12 mv-px-4 mv-pb-24 mv-mb-8">
             <main>
               <Outlet />
             </main>

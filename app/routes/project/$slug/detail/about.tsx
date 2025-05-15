@@ -283,7 +283,7 @@ function About() {
 
   return (
     <>
-      <h1 className="mv-text-primary @md:mv-font-bold @lg:mv-font-black mv-text-5xl @lg:mv-text-7xl mb-0">
+      <h1 className="mv-text-primary @md:mv-font-bold @lg:mv-font-black mv-text-5xl @lg:mv-text-7xl mv-mb-0">
         {loaderData.project.name}
       </h1>
       {loaderData.project.excerpt !== null && (

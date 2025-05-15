@@ -262,7 +262,7 @@ export const ErrorBoundary = () => {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="flex flex-col min-h-screen">
+        <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
           <NavBar
             sessionUserInfo={
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
@@ -270,7 +270,7 @@ export const ErrorBoundary = () => {
             openNavBarMenuKey={openNavBarMenuKey}
             locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
-          <div className="mv-flex mv-h-full min-h-screen">
+          <div className="mv-flex mv-h-full mv-min-h-screen">
             <MainMenu
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               openNavBarMenuKey={openNavBarMenuKey}
@@ -290,10 +290,10 @@ export const ErrorBoundary = () => {
               }
               locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
             />
-            <div className="mv-flex-grow mv-@container min-h-screen">
+            <div className="mv-flex-grow mv-@container mv-min-h-screen">
               <div className="mv-min-h-screen">
                 {/* Content */}
-                <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
+                <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
                   <H1 like="h0">{errorTitle}</H1>
                   <H2 like="h1">Sorry, something went wrong!</H2>
                   <p>
@@ -309,13 +309,13 @@ export const ErrorBoundary = () => {
                   </p>
                 </section>
                 {errorText !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
+                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
                     <p>Error Text:</p>
                     {errorText}
                   </section>
                 ) : null}
                 {errorData !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
+                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
                     <p>Error Data:</p>
                     {errorData}
                   </section>

@@ -180,16 +180,16 @@ export default function Index() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.content.headline}</h1>
+      <h1 className="mv-mb-8">{locales.content.headline}</h1>
 
-      <h4 className="mb-4 font-semibold">{locales.content.subline}</h4>
+      <h4 className="mv-mb-4 mv-font-semibold">{locales.content.subline}</h4>
 
-      <p className="mb-8">{locales.content.headline}</p>
+      <p className="mv-mb-8">{locales.content.headline}</p>
 
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="confirmedToken" className="mb-4">
+            <Field name="confirmedToken" className="mv-mb-4">
               {({ Errors }) => (
                 <>
                   <Input
@@ -204,7 +204,7 @@ export default function Index() {
             </Field>
             <button
               type="submit"
-              className="btn btn-outline-primary ml-auto btn-small"
+              className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
             >
               {locales.form.submit.label}
             </button>

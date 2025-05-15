@@ -368,7 +368,7 @@ export default function Index() {
                 xmlns="http://www.w3.org/2000/svg"
                 width="55"
                 height="37"
-                className="drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
+                className="mv-drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
               >
                 <g>
                   <path

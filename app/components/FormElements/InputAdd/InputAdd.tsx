@@ -26,7 +26,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
   return (
     <>
       <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
-        <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+        <div className="mv-flex mv-flex-row mv-items-center">
           <div className="mv-flex-auto">
             {label && (
               <label
