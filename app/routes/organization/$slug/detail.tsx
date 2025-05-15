@@ -305,18 +305,17 @@ function OrganizationDetail() {
       innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 xl:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-14 @sm:mv-mb-20 @lg:mv-mb-16 mv-max-w-screen-2xl"
     >
       {/* Back Button Section */}
-      <Container.Section>
-        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
-        <TextButton
-          as="a"
-          href="/explore/organizations"
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.route.back}
-        </TextButton>
-      </Container.Section>
+
+      {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
+      <TextButton
+        as="a"
+        href="/explore/organizations"
+        weight="thin"
+        variant="neutral"
+        arrowLeft
+      >
+        {locales.route.back}
+      </TextButton>
       {/* Header Section */}
       <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
         <div className="mv-w-full mv-h-[196px] @lg:mv-h-[168px]">
