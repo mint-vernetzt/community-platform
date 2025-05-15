@@ -12,7 +12,7 @@ node_modules
 /build/
 
 # tailwind
-/app/styles/*styles.css
+/app/styles/styles.css
 
 # misc
 .idea

@@ -1,5 +1,3 @@
-@import "../../common/design/styles/styles.css";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,7 +32,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply text-neutral-600;
+    @apply mv-text-neutral-600;
   }
 
   h1,
@@ -43,168 +41,96 @@
   h4,
   h5,
   h6 {
-    @apply text-primary mb-2 leading-tight;
+    @apply mv-text-primary mv-mb-2 mv-leading-tight;
   }
 
   h1,
   .h1 {
-    @apply text-5xl lg:text-7xl mb-4 font-bold;
+    @apply mv-text-5xl lg:mv-text-7xl mv-mb-4 mv-font-bold;
   }
 
   h2,
   .h2 {
-    @apply text-4xl lg:text-6xl lg:mb-4;
+    @apply mv-text-4xl lg:mv-text-6xl lg:mv-mb-4;
   }
   h3,
   .h3 {
-    @apply text-2xl lg:text-5xl;
+    @apply mv-text-2xl lg:mv-text-5xl;
   }
   h4,
   .h4 {
-    @apply text-lg lg:text-3xl;
+    @apply mv-text-lg lg:mv-text-3xl;
   }
   h5,
   .h5 {
-    @apply text-base lg:text-xl;
+    @apply mv-text-base lg:mv-text-xl;
   }
   h6,
   .h6 {
-    @apply text-base lg:text-lg mb-1;
+    @apply mv-text-base lg:mv-text-lg mv-mb-1;
   }
   .h0 {
-    @apply text-6xl lg:text-8xl font-bold;
+    @apply mv-text-6xl lg:mv-text-8xl mv-font-bold;
   }
   .h0 + h5 {
-    @apply font-bold;
+    @apply mv-font-bold;
+  }
+}
+
+#roadmap {
+  input ~ div div {
+    @apply mv-transition-all mv-min-h-0 mv-p-0 mv-invisible mv-mt-0;
   }
 
-  .form-control .label {
-    @apply font-semibold p-0;
-  }
-  .form-control > .label {
-    @apply pb-2;
-  }
-  .form-control.checkbox-privacy .label {
-    @apply font-normal p-0;
+  input ~ div div p {
+    min-height: 150px;
   }
 
-  .form-control .input,
-  .form-control .textarea,
-  .form-control .select {
-    @apply border-2 border-neutral-500 bg-neutral-300 text-neutral-900 px-4 py-0 font-semibold h-auto text-base;
-    &:focus {
-      @apply bg-white;
-      outline: none;
+  input ~ div div:nth-child(-n + 2) {
+    @apply mv-min-h-fit mv-p-6 mv-visible mv-mt-4 xl:mv-mt-6;
+  }
+
+  @media (min-width: 768px) {
+    input ~ div div:nth-child(-n + 3) {
+      @apply mv-min-h-fit mv-p-6 mv-visible mv-mt-4 xl:mv-mt-6;
     }
   }
-  .form-control .textarea,
-  .form-control .input {
-    &:not(:placeholder-shown):not(:required),
-    &:required:valid {
-      @apply bg-white;
-      outline: none;
-    }
-  }
-  .form-control .select {
-    @apply min-h-0;
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-  }
-  .form-control .select[selected] {
-    @apply bg-white;
-  }
-  .form-control option[value=""][disabled][selected] {
-    @apply bg-neutral-300;
+
+  input:checked ~ div div {
+    @apply mv-min-h-fit mv-p-6 mv-visible mv-mt-4 xl:mv-mt-6;
   }
 
-  .form-control .textarea {
-    @apply h-24 py-2 leading-5;
-  }
-  .form-control .search {
-    @apply border-2 border-gray-100 bg-gray-100 text-neutral-900 pl-10 pr-4 py-2 font-semibold h-auto text-sm rounded-lg min-w-[230px];
-    &:focus {
-      @apply bg-gray-100 border-primary;
-      outline: none;
-    }
-    &:not(:placeholder-shown):not(:required),
-    &:required:valid {
-      @apply bg-gray-100;
-      outline: none;
-    }
-  }
-  .mv-awards-bg {
-    @supports not (aspect-ratio: auto) {
-      background-size: 100% 100% !important;
-    }
+  input ~ div div:first-child {
+    @apply mv-mt-0;
   }
 }
 
-.btn {
-  @apply px-6 h-auto min-h-0 leading-6 py-2 normal-case whitespace-nowrap;
-}
-
-.btn[disabled]:hover,
-.btn[disabled]:active {
-  pointer-events: none;
-  --tw-border-opacity: 0;
-  background-color: hsl(var(--n) / var(--tw-bg-opacity));
-  --tw-bg-opacity: 0.2;
-  color: hsl(var(--bc) / var(--tw-text-opacity));
-  --tw-text-opacity: 0.2;
-}
-
-.badge {
-  @apply mr-2 mb-2 px-3 py-1 mt-2 h-auto rounded-lg border-2 text-sm font-semibold whitespace-nowrap;
-}
-
-.event-tags .badge {
-  @apply m-1 px-3 py-1.5  h-auto rounded-lg border border-secondary text-sm font-semibold whitespace-nowrap text-secondary bg-white;
-}
-
-.btn-link {
-  @apply bg-white text-primary px-0;
-}
-
-.btn-outline-primary {
-  @apply bg-white text-primary border border-primary;
-}
-
-.btn-outline-primary:hover {
-  @apply bg-primary text-white;
-}
-
-.btn-small {
-  @apply text-sm leading-normal py-1.5 leading-[1.125rem];
-}
-
-.btn-icon {
-  @apply p-0 flex items-center;
-}
-
-.btn-none {
-  @apply bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600;
-}
-
-.toggle-checkbox input[type="checkbox"] {
-  @apply hidden;
-}
-.toggle-checkbox input[type="checkbox"]:checked + label svg:first-child {
-  @apply hidden;
-}
-
-.toggle-checkbox input[type="checkbox"]:checked + label svg:last-child {
-  @apply block h-6 w-6;
-}
-
-.modal {
-  align-items: center;
-  padding: 8px;
-}
-
-.modal-box {
-  @apply rounded-md p-8;
-  max-width: 25rem !important;
+#faq-content {
+  @apply mv-leading-[22px];
+  ul {
+    @apply mv-list-disc mv-flex mv-flex-col mv-gap-1;
+  }
+  li {
+    @apply mv-ml-4;
+  }
+  a {
+    @apply mv-font-semibold mv-cursor-pointer mv-underline hover:mv-no-underline;
+  }
+  p {
+    @apply mv-mb-2;
+  }
+  p:last-child {
+    @apply mv-mb-0;
+  }
+  ul + p {
+    @apply mv-mt-2;
+  }
+  a + p {
+    @apply mv-mt-2;
+  }
+  span {
+    @apply mv-font-semibold;
+  }
 }
 
 .rc-slider-track {
@@ -219,40 +145,4 @@
 
 .rc-slider-handle-dragging.rc-slider-handle-dragging.rc-slider-handle-dragging {
   box-shadow: 0 0 0 5px #2d6be1 !important;
-}
-
-.hyphens-auto {
-  -webkit-hyphens: auto;
-  -moz-hyphens: auto;
-  -ms-hyphens: auto;
-  hyphens: auto;
-}
-
-.hyphens-manual {
-  -webkit-hyphens: manual;
-  -moz-hyphens: manual;
-  -ms-hyphens: manual;
-  hyphens: manual;
-}
-
-.rte-content a {
-  @apply text-primary hover:text-secondary underline underline-offset-4 decoration-2;
-}
-
-.rte-content ul {
-  @apply list-disc list-outside ml-4;
-}
-
-.rte-content ol {
-  @apply list-decimal list-outside ml-4;
-}
-
-.rte-content h2,
-.rte-content h3,
-.rte-content h4 {
-  @apply my-2;
-}
-
-footer input[type="checkbox"]:checked ~ .mv-footer-toggle .mv-toggle-arrow {
-  @apply rotate-180;
 }

@@ -36,7 +36,8 @@ import { Footer } from "~/components-next/Footer";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { getPublicURL } from "./storage.server";
-import legacyStyles from "./styles/legacy-styles.css?url";
+// eslint-disable-next-line import/no-unresolved
+import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { defaultLanguage } from "./i18n.shared";
@@ -95,9 +96,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
   ];
 };
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: legacyStyles },
-];
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
