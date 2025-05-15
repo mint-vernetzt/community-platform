@@ -164,7 +164,7 @@ function Explore() {
   return (
     <>
       <section className="mv-mx-auto @lg:mv-px-6 mv-max-w-screen-2xl mv-mb-8 @lg:mv-mb-16">
-        <h1 className="mv-font-black mv-text-5xl mv-text-center mv-mt-4 mv-mb-8 mv-word-break-normal">
+        <h1 className="mv-font-black mv-text-5xl mv-text-center mv-mt-4 mv-mb-8 mv-word-break-normal mv-px-4">
           {searchParams.has("search") && searchParams.get("search") !== ""
             ? insertParametersIntoLocale(
                 loaderData.locales.route.content.searchHeadline,
