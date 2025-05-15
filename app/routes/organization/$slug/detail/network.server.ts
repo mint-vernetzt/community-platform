@@ -16,6 +16,7 @@ export async function getOrganization(slug: string) {
   const organization = await prismaClient.organization.findUnique({
     select: {
       id: true,
+      name: true,
       networkMembers: {
         select: {
           networkMember: {
@@ -59,6 +60,15 @@ export async function getOrganization(slug: string) {
               slug: true,
               name: true,
               logo: true,
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
               types: {
                 select: {
                   organizationType: {
