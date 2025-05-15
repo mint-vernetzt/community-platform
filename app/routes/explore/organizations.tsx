@@ -321,11 +321,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
+  const areaOrganizationIds =
+    submission.value.search.length > 0
+      ? await getOrganizationIds({
+          filter: { ...submission.value.orgFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : organizationIds;
   const areaFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.orgFilter,
     search: submission.value.search,
-    ids: organizationIds,
+    ids: areaOrganizationIds,
   });
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -357,11 +366,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const types = await getAllOrganizationTypes();
+  const typeOrganizationIds =
+    submission.value.search.length > 0
+      ? await getOrganizationIds({
+          filter: { ...submission.value.orgFilter, type: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : organizationIds;
   const typeFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "type",
     filter: submission.value.orgFilter,
     search: submission.value.search,
-    ids: organizationIds,
+    ids: typeOrganizationIds,
   });
   const enhancedTypes = types.map((type) => {
     const vectorCount = getFilterCountForSlug(
@@ -374,11 +392,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const focuses = await getAllFocuses();
+  const focusOrganizationIds =
+    submission.value.search.length > 0
+      ? await getOrganizationIds({
+          filter: { ...submission.value.orgFilter, focus: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : organizationIds;
   const focusFilterVector = await getOrganizationFilterVectorForAttribute({
     attribute: "focus",
     filter: submission.value.orgFilter,
     search: submission.value.search,
-    ids: organizationIds,
+    ids: focusOrganizationIds,
   });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(

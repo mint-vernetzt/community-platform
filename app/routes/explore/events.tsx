@@ -307,11 +307,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     district: [] as EnhancedAreas,
   };
 
+  const areaEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
   const areaFilterVector = await getEventFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.evtFilter,
     search: submission.value.search,
-    ids: eventIds,
+    ids: areaEventIds,
   });
 
   for (const area of areas) {
@@ -344,11 +353,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const focuses = await getAllFocuses();
+  const focusEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, focus: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
   const focusFilterVector = await getEventFilterVectorForAttribute({
     attribute: "focus",
     filter: submission.value.evtFilter,
     search: submission.value.search,
-    ids: eventIds,
+    ids: focusEventIds,
   });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
@@ -361,11 +379,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const targetGroups = await getAllEventTargetGroups();
+  const targetGroupEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, eventTargetGroup: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
   const targetGroupFilterVector = await getEventFilterVectorForAttribute({
     attribute: "eventTargetGroup",
     filter: submission.value.evtFilter,
     search: submission.value.search,
-    ids: eventIds,
+    ids: targetGroupEventIds,
   });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(

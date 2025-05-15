@@ -156,11 +156,20 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const typeFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, types: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
   const typeFilterVector = await getFundingFilterVectorForAttribute({
     attribute: "types",
     filter: submission.value.fndFilter,
     search: submission.value.search,
-    ids: fundingIds,
+    ids: typeFundingIds,
   });
   const enhancedFundingTypes = fundingTypes
     .sort((a, b) => {
@@ -206,11 +215,20 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const areaFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, areas: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
   const areaFilterVector = await getFundingFilterVectorForAttribute({
     attribute: "areas",
     filter: submission.value.fndFilter,
     search: submission.value.search,
-    ids: fundingIds,
+    ids: areaFundingIds,
   });
   const enhancedFundingAreas = fundingAreas
     .sort((a, b) => {
@@ -256,12 +274,21 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const eligibleFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, eligibleEntities: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
   const eligibleEntitiesFilterVector = await getFundingFilterVectorForAttribute(
     {
       attribute: "eligibleEntities",
       filter: submission.value.fndFilter,
       search: submission.value.search,
-      ids: fundingIds,
+      ids: eligibleFundingIds,
     }
   );
   const enhancedEligibleEntities = eligibleEntities
@@ -313,11 +340,20 @@ export async function loader(args: LoaderFunctionArgs) {
       name: "asc",
     },
   });
+  const fundingRegionIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, regions: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
   const regionFilterVector = await getFundingFilterVectorForAttribute({
     attribute: "regions",
     filter: submission.value.fndFilter,
     search: submission.value.search,
-    ids: fundingIds,
+    ids: fundingRegionIds,
   });
   const enhancedRegions = regions
     .sort((a) => {

@@ -324,11 +324,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     district: [] as EnhancedAreas,
   };
 
+  const areaProfileIds =
+    submission.value.search.length > 0
+      ? await getProfileIds({
+          filter: { ...submission.value.prfFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : profileIds;
+
   const areaFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "area",
     filter: submission.value.prfFilter,
     search: submission.value.search,
-    ids: profileIds,
+    ids: areaProfileIds,
   });
 
   for (const area of areas) {
@@ -361,11 +371,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const offers = await getAllOffers();
+  const offersProfileIds =
+    submission.value.search.length > 0
+      ? await getProfileIds({
+          filter: { ...submission.value.prfFilter, offer: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : profileIds;
   const offerFilterVector = await getProfileFilterVectorForAttribute({
     attribute: "offer",
     filter: submission.value.prfFilter,
     search: submission.value.search,
-    ids: profileIds,
+    ids: offersProfileIds,
   });
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
