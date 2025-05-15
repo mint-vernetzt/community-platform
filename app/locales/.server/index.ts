@@ -543,6 +543,7 @@ const de = {
     route: deOrganizationNetwork,
     organizationTypes: deOrganizationTypes,
     components: deComponents,
+    networkTypes: deNetworkTypes,
   },
   "organization/$slug/detail/projects": {
     route: deOrganizationProjects,
@@ -958,6 +959,7 @@ const en = {
     route: enOrganizationNetwork,
     organizationTypes: enOrganizationTypes,
     components: enComponents,
+    networkTypes: enNetworkTypes,
   },
   "organization/$slug/detail/projects": {
     route: enOrganizationProjects,
