@@ -4,7 +4,7 @@ export const locale = {
     searchHeadline: 'Your search for "{{search}}"',
     menu: {
       allContent: "All content",
-      profiles: "People",
+      profiles: "Persons",
       organizations: "Organizations",
       events: "Events",
       projects: "Projects",

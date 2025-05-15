@@ -66,7 +66,7 @@ import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
-import { locale as deExploreAll } from "./de/routes/explore/index";
+import { locale as deExploreIndex } from "./de/routes/explore/index";
 import { locale as deExploreEvents } from "./de/routes/explore/events";
 import { locale as deExploreFundings } from "./de/routes/explore/fundings";
 import { locale as deExploreOrganizations } from "./de/routes/explore/organizations";
@@ -242,7 +242,7 @@ import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
-import { locale as enExploreAll } from "./en/routes/explore/index";
+import { locale as enExploreIndex } from "./en/routes/explore/index";
 import { locale as enExploreEvents } from "./en/routes/explore/events";
 import { locale as enExploreFundings } from "./en/routes/explore/fundings";
 import { locale as enExploreOrganizations } from "./en/routes/explore/organizations";
@@ -473,7 +473,7 @@ const de = {
   // explore routes
   explore: {
     route: deExplore,
-    all: deExploreAll,
+    index: deExploreIndex,
   },
   "explore/events": {
     route: deExploreEvents,
@@ -892,7 +892,7 @@ const en = {
   // explore routes
   explore: {
     route: enExplore,
-    all: enExploreAll,
+    index: enExploreIndex,
   },
   "explore/events": {
     route: enExploreEvents,

@@ -6,6 +6,12 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { utcToZonedTime } from "date-fns-tz";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -17,23 +23,27 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { utcToZonedTime } from "date-fns-tz";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { Dropdown } from "~/components-next/Dropdown";
-import { Filters, ShowFiltersButton } from "~/components-next/Filters";
-import { FormControl } from "~/components-next/FormControl";
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
@@ -45,19 +55,8 @@ import {
   getFilterCountForSlug,
   getTakeParam,
 } from "./events.server";
-import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
 import { type FilterSchemes, getFilterSchemes } from "./index";
-import { useState } from "react";
+import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 
@@ -453,13 +452,6 @@ export default function ExploreOrganizations() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {locales.route.title}
-        </H1>
-        <p>{locales.route.intro}</p>
-      </section>
-
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}

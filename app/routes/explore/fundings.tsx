@@ -7,23 +7,31 @@ import {
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { z } from "zod";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
 import { FormControl } from "~/components-next/FormControl";
 import { FundingCard } from "~/components-next/FundingCard";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
 import {
   getAllFundings,
   getFilterCountForSlug,
@@ -31,16 +39,7 @@ import {
   getFundingIds,
   getTakeParam,
 } from "./fundings.server";
-import { H1 } from "~/components/Heading/Heading";
-import { detectLanguage } from "~/root.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { languageModuleMap } from "~/locales/.server";
-import { type FilterSchemes, getFilterSchemes } from "./index";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getFilterSchemes, type FilterSchemes } from "./index";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
@@ -403,86 +402,6 @@ function Fundings() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <div className="mv-flex mv-flex-col mv-justify-center mv-gap-8">
-          <div>
-            <span className="mv-text-white mv-text-xs mv-py-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-font-semibold">
-              BETA
-            </span>
-            <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-              {loaderData.locales.title}
-            </H1>
-            <p>{loaderData.locales.intro}</p>
-            <p>
-              {insertComponentsIntoLocale(
-                insertParametersIntoLocale(loaderData.locales.databaseList, {
-                  0: "https://www.foerderdatenbank.de",
-                  1: "https://foerder-finder.de",
-                  2: "https://sigu-plattform.de/foerderfinder/",
-                  3: "https://foerderdatenbank.d-s-e-e.de/",
-                }),
-                [
-                  <Link
-                    key="foerderdatenbank"
-                    to="https://www.foerderdatenbank.de"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="foerder-finder"
-                    to="https://foerder-finder.de"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="sigu-plattform"
-                    to="https://sigu-plattform.de/foerderfinder/"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="foerderdatenbank-d-s-e-e"
-                    to="https://foerderdatenbank.d-s-e-e.de/"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                ]
-              )}
-            </p>
-            <p>{loaderData.locales.intro2}</p>
-          </div>
-          <div className="mv-p-4 @lg:mv-pr-12 mv-bg-primary-50 mv-rounded-lg mv-text-left mv-flex mv-flex-col mv-gap-2.5">
-            <p className="mv-font-bold">{loaderData.locales.survey.title}</p>
-            <p>
-              {insertComponentsIntoLocale(
-                loaderData.locales.survey.description,
-                {
-                  link1: (
-                    <Link
-                      to="mailto:community@mint-vernetzt.de"
-                      className="mv-font-semibold hover:mv-underline"
-                    >
-                      {" "}
-                    </Link>
-                  ),
-                }
-              )}
-            </p>
-          </div>
-        </div>
-      </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
