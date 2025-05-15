@@ -4,7 +4,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetProjectsSchema } from "./projects";
-import { type GetSearchSchema } from "./index";
+import { type GetSearchSchema } from "./all";
 import { type User } from "@supabase/supabase-js";
 import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 import type { Organization, Prisma, Profile, Project } from "@prisma/client";

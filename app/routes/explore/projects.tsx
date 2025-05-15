@@ -56,7 +56,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
-import { getFilterSchemes, type FilterSchemes } from "./index";
+import { getFilterSchemes, type FilterSchemes } from "./all";
 import { useState } from "react";
 
 export const PROJECT_SORT_VALUES = [

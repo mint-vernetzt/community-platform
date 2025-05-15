@@ -39,7 +39,7 @@ import {
   getFundingIds,
   getTakeParam,
 } from "./fundings.server";
-import { getFilterSchemes, type FilterSchemes } from "./index";
+import { getFilterSchemes, type FilterSchemes } from "./all";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 

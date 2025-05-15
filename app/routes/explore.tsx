@@ -20,7 +20,7 @@ import { getOrganizationIds } from "./explore/organizations.server";
 import { getEventIds } from "./explore/events.server";
 import { getProjectIds } from "./explore/projects.server";
 import { getFundingIds } from "./explore/fundings.server";
-import { getFilterSchemes } from "./explore/index";
+import { getFilterSchemes } from "./explore/all";
 import { createContext, useContext, useEffect, useState } from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 
@@ -115,7 +115,7 @@ function Explore() {
   useEffect(() => {
     const newLinks = [
       {
-        to: "/explore",
+        to: "/explore/all",
         label: loaderData.locales.route.content.menu.allContent,
         value: loaderData.counts.allContent,
         end: true,
@@ -359,7 +359,7 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
     "mv-flex-col @lg:mv-flex-row",
     "mv-gap-2 @lg:mv-gap-6",
     // "mv-bg-white @lg:mv-bg-neutral-100",
-    "mv-border mv-rounded-lg mv-border-neutral-200 @lg:rounded-lg @lg:mv-border-0"
+    "mv-border mv-rounded-lg mv-border-neutral-200 @lg:mv-rounded-lg @lg:mv-border-0"
   );
 
   return <menu className={classes}>{props.children}</menu>;

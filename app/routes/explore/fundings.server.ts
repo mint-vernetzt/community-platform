@@ -6,7 +6,7 @@ import { prismaClient } from "~/prisma.server";
 import { type GetFundingsSchema } from "./fundings";
 import { type Prisma } from "@prisma/client";
 import { type User } from "@supabase/supabase-js";
-import { type GetSearchSchema } from "./index";
+import { type GetSearchSchema } from "./all";
 
 export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages

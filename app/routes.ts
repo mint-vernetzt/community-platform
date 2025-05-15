@@ -205,6 +205,7 @@ export default [
   route("/login", "./routes/login/index.tsx"),
   route("/explore", "./routes/explore.tsx", [
     index("./routes/explore/index.tsx"),
+    route("/explore/all", "./routes/explore/all.tsx"),
     route("/explore/profiles", "./routes/explore/profiles.tsx"),
     route("/explore/organizations", "./routes/explore/organizations.tsx"),
     route("/explore/events", "./routes/explore/events.tsx"),

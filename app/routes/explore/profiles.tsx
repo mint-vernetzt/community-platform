@@ -43,7 +43,7 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { type FilterSchemes, getFilterSchemes } from "./index";
+import { type FilterSchemes, getFilterSchemes } from "./all";
 import {
   getAllOffers,
   getAllProfiles,

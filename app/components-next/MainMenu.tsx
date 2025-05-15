@@ -203,7 +203,7 @@ export function MainMenu(
               </Label>
 
               <TopicItem
-                to="/explore"
+                to="/explore/all"
                 openNavBarMenuKey={props.openNavBarMenuKey}
               >
                 {props.locales !== undefined

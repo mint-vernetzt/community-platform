@@ -55,7 +55,7 @@ import {
   getFilterCountForSlug,
   getTakeParam,
 } from "./events.server";
-import { type FilterSchemes, getFilterSchemes } from "./index";
+import { type FilterSchemes, getFilterSchemes } from "./all";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
