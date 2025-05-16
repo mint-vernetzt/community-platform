@@ -39,6 +39,7 @@ import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$
 import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
 import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 import { useRef } from "react";
+import { type UseFormRegisterReturn } from "react-hook-form";
 
 export type InputForFormProps = Omit<
   React.HTMLProps<HTMLInputElement>,
@@ -57,9 +58,17 @@ export type RTELocales =
 function RTE(
   props: Omit<InputForFormProps, "contentEditableRef"> & {
     locales: RTELocales;
+    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
   }
 ) {
-  const { defaultValue, placeholder, maxLength, locales, ...rest } = props;
+  const {
+    defaultValue,
+    placeholder,
+    maxLength,
+    locales,
+    legacyFormRegister,
+    ...rest
+  } = props;
 
   const editorRef = useRef<LexicalEditor | null>(null);
   const contentEditableRef = useRef<HTMLDivElement | null>(null);
@@ -154,6 +163,7 @@ function RTE(
             <InputForFormPlugin
               {...rest}
               contentEditableRef={contentEditableRef}
+              legacyFormRegister={legacyFormRegister}
             />
             <HistoryPlugin />
             <LinkPlugin

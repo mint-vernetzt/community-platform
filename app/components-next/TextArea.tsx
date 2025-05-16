@@ -4,6 +4,7 @@ import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckb
 import { RTE, type RTELocales } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { useState } from "react";
+import { type UseFormRegisterReturn } from "react-hook-form";
 
 export interface TextAreaProps {
   label: string;
@@ -15,6 +16,7 @@ export interface TextAreaProps {
   rte?: {
     locales: RTELocales;
     defaultValue?: string;
+    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
   };
   helperText?: string;
 }
@@ -111,6 +113,7 @@ const TextArea = (
                     defaultValue={rte.defaultValue}
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
+                    legacyFormRegister={rte.legacyFormRegister}
                   />
                   <noscript className="mv-absolute mv-top-10 mv-w-full">
                     <textarea

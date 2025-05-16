@@ -516,6 +516,7 @@ export default function Index() {
                 rte={{
                   locales: locales,
                   defaultValue: profile.bioRTEState || undefined,
+                  legacyFormRegister: register("bioRTEState"),
                 }}
               />
             </div>

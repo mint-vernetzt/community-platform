@@ -1,9 +1,14 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
+import { type UseFormRegisterReturn } from "react-hook-form";
 
-function InputForFormPlugin(props: Omit<InputForFormProps, "defaultValue">) {
-  const { contentEditableRef, ...rest } = props;
+function InputForFormPlugin(
+  props: Omit<InputForFormProps, "defaultValue"> & {
+    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
+  }
+) {
+  const { contentEditableRef, legacyFormRegister, ...rest } = props;
   const [editor] = useLexicalComposerContext();
   const [htmlValue, setHtmlValue] = useState("");
   const [editorStateValue, setEditorStateValue] = useState("");
@@ -45,22 +50,39 @@ function InputForFormPlugin(props: Omit<InputForFormProps, "defaultValue">) {
           editor.focus();
         }}
       />
-      <input
-        {...rest}
-        id={`${rest.id}-rte-state`}
-        name={`${rest.name}RTEState`}
-        tabIndex={-1}
-        value={editorStateValue}
-        onChange={(event) => {
-          event.preventDefault();
-        }}
-        className="mv-hidden"
-        onFocus={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          editor.focus();
-        }}
-      />
+      {typeof legacyFormRegister === "undefined" ? (
+        <input
+          {...rest}
+          id={`${rest.id}-rte-state`}
+          name={`${rest.name}RTEState`}
+          tabIndex={-1}
+          value={editorStateValue}
+          onChange={(event) => {
+            event.preventDefault();
+          }}
+          className="mv-hidden"
+          onFocus={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            editor.focus();
+          }}
+        />
+      ) : (
+        <input
+          {...legacyFormRegister}
+          tabIndex={-1}
+          value={editorStateValue}
+          onChange={(event) => {
+            event.preventDefault();
+          }}
+          className="mv-hidden"
+          onFocus={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            editor.focus();
+          }}
+        />
+      )}
     </>
   );
 }
