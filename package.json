@@ -7,7 +7,6 @@
   "license": "",
   "sideEffects": false,
   "workspaces": [
-    "common/components",
     "common/api"
   ],
   "scripts": {
@@ -28,7 +27,8 @@
     "typecheck": "react-router typegen && tsc",
     "typecheck:api": "npx tsc -p ./common/api",
     "typegen": "react-router typegen",
-    "start:api": "ts-node ./common/api/src/server.ts",
+    "build:api": "npm run build -w api",
+    "start:api": "npm start -w api",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
@@ -80,7 +80,8 @@
     "@faker-js/faker": "^8.3.1",
     "@fontsource/source-sans-pro": "^5.0.8",
     "@react-router/dev": "^7.6.0",
-    "@sentry/vite-plugin": "^3.1.2",
+    "@sentry/vite-plugin": "^3.4.0",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",
@@ -95,11 +96,11 @@
     "@types/ws": "^8.5.10",
     "@types/yup": "^0.29.14",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
-    "@vitejs/plugin-react": "^4.3.2",
+    "@vitejs/plugin-react": "^4.4.1",
     "@vitest/coverage-v8": "^2.1.2",
     "autoprefixer": "^10.4.21",
-    "cross-env": "^7.0.3",
     "commander": "^11.1.0",
+    "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "dotenv": "^16.3.1",
     "eslint": "^8.56.0",
@@ -121,12 +122,11 @@
     "supabase": "^2.22.12",
     "tailwindcss": "^3.4.17",
     "tailwindcss-opentype": "^1.1.0",
-    "@tailwindcss/container-queries": "^0.1.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vite": "^5.4.14",
+    "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.2",
     "vitest-mock-extended": "^2.0.2"
