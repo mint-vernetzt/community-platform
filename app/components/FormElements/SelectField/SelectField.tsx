@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
+import { useSubmit } from "react-router";
 
 export interface OptionsProps {
   label: string;
@@ -35,6 +36,8 @@ function SelectField(
     ...selectProps
   } = props;
 
+  const submit = useSubmit();
+
   return (
     <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
       <div className="mv-flex mv-flex-row mv-items-center">
@@ -69,6 +72,11 @@ function SelectField(
               <Fragment key={index}>
                 {"value" in option && (
                   <option
+                    onClick={(event) => {
+                      submit(event.currentTarget.form, {
+                        method: "post",
+                      });
+                    }}
                     key={`${selectProps.id}-option-${index}`}
                     value={option.value}
                   >
@@ -83,6 +91,11 @@ function SelectField(
                   >
                     {option.options.map((groupOption, groupOptionIndex) => (
                       <option
+                        onClick={(event) => {
+                          submit(event.currentTarget.form, {
+                            method: "post",
+                          });
+                        }}
                         key={`${selectProps.id}-option-${index}-${groupOptionIndex}`}
                         value={groupOption.value}
                       >

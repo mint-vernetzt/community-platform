@@ -49,10 +49,9 @@ export function objectListOperationResolver<
   // TODO: can this type assertion be removed and proofen by code?
   key = key as string;
 
-  const submit = formData.get("submit");
   const addOperation = getListOperationName("add", key);
 
-  if (submit === addOperation && formData.get(addOperation) !== "") {
+  if (formData.get(addOperation) !== "") {
     return addListEntry<T>(
       key,
       // TODO: can this type assertion be removed and proofen by code?
