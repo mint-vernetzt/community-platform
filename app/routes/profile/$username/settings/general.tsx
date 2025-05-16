@@ -240,8 +240,7 @@ export default function Index() {
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
-  const profile = actionData?.profile ?? dbProfile;
-
+  const profile = dbProfile;
   const formRef = createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
   const errors = actionData?.errors;
