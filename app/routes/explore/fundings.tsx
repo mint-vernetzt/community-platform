@@ -401,7 +401,7 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
-function Fundings() {
+export default function ExploreFundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
@@ -888,5 +888,3 @@ function Fundings() {
     </>
   );
 }
-
-export default Fundings;

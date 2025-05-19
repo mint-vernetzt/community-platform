@@ -7,7 +7,6 @@ import { CardContainer } from "@mint-vernetzt/components/src/organisms/container
 import { type Organization, type Profile } from "@prisma/client";
 import { utcToZonedTime } from "date-fns-tz";
 import {
-  Link,
   type LoaderFunctionArgs,
   useLoaderData,
   useSearchParams,
@@ -32,6 +31,7 @@ import { getProfilesSchema } from "./profiles";
 import { getAllProfiles } from "./profiles.server";
 import { getProjectsSchema } from "./projects";
 import { getAllProjects } from "./projects.server";
+import { LinkButton } from "~/components-next/LinkButton";
 
 const getSearchSchema = z.object({
   search: z
@@ -538,7 +538,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-function ExploreIndex() {
+function ExploreAll() {
   const loaderData = useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
@@ -775,15 +775,4 @@ function ExploreIndex() {
   );
 }
 
-function LinkButton(props: { to: string; children: React.ReactNode }) {
-  return (
-    <Link
-      to={props.to}
-      className="mv-appearance-none mv-font-semibold mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-border mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-    >
-      {props.children}
-    </Link>
-  );
-}
-
-export default ExploreIndex;
+export default ExploreAll;
