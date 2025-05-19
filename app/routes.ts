@@ -12,14 +12,6 @@ export default [
   route("/dashboard", "./routes/dashboard.tsx"),
   route("/csp-reports", "./routes/csp-reports.ts"),
   route("/accept-terms", "./routes/accept-terms.tsx"),
-  route("/search", "./routes/search.tsx", [
-    index("./routes/search/index.tsx"),
-    route("/search/profiles", "./routes/search/profiles.tsx"),
-    route("/search/organizations", "./routes/search/organizations.tsx"),
-    route("/search/events", "./routes/search/events.tsx"),
-    route("/search/projects", "./routes/search/projects.tsx"),
-    route("/search/fundings", "./routes/search/fundings.tsx"),
-  ]),
   route("/reset", "./routes/reset/index.tsx"),
   route("/reset/set-password", "./routes/reset/set-password.tsx"),
   route("/register", "./routes/register/index.tsx"),
@@ -205,6 +197,7 @@ export default [
   route("/login", "./routes/login/index.tsx"),
   route("/explore", "./routes/explore.tsx", [
     index("./routes/explore/index.tsx"),
+    route("/explore/all", "./routes/explore/all.tsx"),
     route("/explore/profiles", "./routes/explore/profiles.tsx"),
     route("/explore/organizations", "./routes/explore/organizations.tsx"),
     route("/explore/events", "./routes/explore/events.tsx"),

@@ -6,6 +6,12 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { utcToZonedTime } from "date-fns-tz";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -17,23 +23,27 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { utcToZonedTime } from "date-fns-tz";
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { Dropdown } from "~/components-next/Dropdown";
-import { Filters, ShowFiltersButton } from "~/components-next/Filters";
-import { FormControl } from "~/components-next/FormControl";
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
@@ -41,23 +51,12 @@ import {
   getAllFocuses,
   getAllStages,
   getEventFilterVectorForAttribute,
-  getEventsCount,
+  getEventIds,
   getFilterCountForSlug,
   getTakeParam,
-  getVisibilityFilteredEventsCount,
 } from "./events.server";
+import { type FilterSchemes, getFilterSchemes } from "./all";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { useState } from "react";
 
 const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
 
@@ -72,8 +71,8 @@ export const periodOfTimeValues = [
 
 export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 
-const getEventsSchema = z.object({
-  filter: z
+export const getEventsSchema = z.object({
+  evtFilter: z
     .object({
       stage: z.string(),
       focus: z.array(z.string()),
@@ -102,7 +101,7 @@ const getEventsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  evtSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -118,7 +117,7 @@ const getEventsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  evtPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -127,7 +126,7 @@ const getEventsSchema = z.object({
       }
       return page;
     }),
-  search: z
+  evtAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -154,7 +153,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getEventsSchema,
+    schema: getFilterSchemes,
   });
   invariantResponse(
     submission.status === "success",
@@ -165,7 +164,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/events"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.evtPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -173,18 +172,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredEventsCount({
-      filter: submission.value.filter,
+    const eventIdsFilteredByVisibility = await getEventIds({
+      filter: submission.value.evtFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
     });
+    filteredByVisibilityCount = eventIdsFilteredByVisibility.length;
   }
-  const eventsCount = await getEventsCount({
-    filter: submission.value.filter,
+
+  const eventIds = await getEventIds({
+    filter: submission.value.evtFilter,
+    search: submission.value.search,
+    isLoggedIn: true,
+    language,
   });
+
+  const eventsCount = eventIds.length;
+
   const events = await getAllEvents({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.evtFilter,
+    sortBy: submission.value.evtSortBy,
+    search: submission.value.search,
+    sessionUser,
     take,
-    isLoggedIn,
+    language,
   });
 
   const enhancedEvents = [];
@@ -281,7 +293,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.evtAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -295,10 +307,21 @@ export const loader = async (args: LoaderFunctionArgs) => {
     district: [] as EnhancedAreas,
   };
 
-  const areaFilterVector = await getEventFilterVectorForAttribute(
-    "area",
-    submission.value.filter
-  );
+  const areaEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
+  const areaFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.evtFilter,
+    search: submission.value.search,
+    ids: areaEventIds,
+  });
 
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
@@ -306,7 +329,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.evtFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -315,7 +338,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.evtFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -330,32 +353,54 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const focuses = await getAllFocuses();
-  const focusFilterVector = await getEventFilterVectorForAttribute(
-    "focus",
-    submission.value.filter
-  );
+  const focusEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, focus: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
+  const focusFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "focus",
+    filter: submission.value.evtFilter,
+    search: submission.value.search,
+    ids: focusEventIds,
+  });
   const enhancedFocuses = focuses.map((focus) => {
     const vectorCount = getFilterCountForSlug(
       focus.slug,
       focusFilterVector,
       "focus"
     );
-    const isChecked = submission.value.filter.focus.includes(focus.slug);
+    const isChecked = submission.value.evtFilter.focus.includes(focus.slug);
     return { ...focus, vectorCount, isChecked };
   });
 
   const targetGroups = await getAllEventTargetGroups();
-  const targetGroupFilterVector = await getEventFilterVectorForAttribute(
-    "eventTargetGroup",
-    submission.value.filter
-  );
+  const targetGroupEventIds =
+    submission.value.search.length > 0
+      ? await getEventIds({
+          filter: { ...submission.value.evtFilter, eventTargetGroup: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : eventIds;
+  const targetGroupFilterVector = await getEventFilterVectorForAttribute({
+    attribute: "eventTargetGroup",
+    filter: submission.value.evtFilter,
+    search: submission.value.search,
+    ids: targetGroupEventIds,
+  });
   const enhancedTargetGroups = targetGroups.map((targetGroup) => {
     const vectorCount = getFilterCountForSlug(
       targetGroup.slug,
       targetGroupFilterVector,
       "eventTargetGroup"
     );
-    const isChecked = submission.value.filter.eventTargetGroup.includes(
+    const isChecked = submission.value.evtFilter.eventTargetGroup.includes(
       targetGroup.slug
     );
     return { ...targetGroup, vectorCount, isChecked };
@@ -371,7 +416,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ] as typeof stagesFromDB
   ).concat(stagesFromDB);
   const enhancedStages = stages.map((stage) => {
-    const isChecked = submission.value.filter.stage === stage.slug;
+    const isChecked = submission.value.evtFilter.stage === stage.slug;
     return { ...stage, isChecked };
   });
 
@@ -381,10 +426,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
-    selectedFocuses: submission.value.filter.focus,
+    selectedFocuses: submission.value.evtFilter.focus,
     targetGroups: enhancedTargetGroups,
     stages: enhancedStages,
-    selectedTargetGroups: submission.value.filter.eventTargetGroup,
+    selectedTargetGroups: submission.value.evtFilter.eventTargetGroup,
     submission,
     filteredByVisibilityCount,
     eventsCount,
@@ -393,7 +438,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-export default function ExploreOrganizations() {
+export default function ExploreEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const [searchParams] = useSearchParams();
@@ -402,27 +447,38 @@ export default function ExploreOrganizations() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<GetEventsSchema>({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.evtFilter.getFieldset();
 
-  const page = loaderData.submission.value.page;
+  const page = loaderData.submission.value.evtPage;
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${page + 1}`);
+  loadMoreSearchParams.set("evtPage", `${page + 1}`);
 
   const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.evtAreaSearch
   );
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getEventsSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
+  });
+
+  let showMore = false;
+  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
+    showMore = loaderData.filteredByVisibilityCount > loaderData.events.length;
+  } else {
+    showMore = loaderData.eventsCount > loaderData.events.length;
+  }
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {locales.route.title}
-        </H1>
-        <p>{locales.route.intro}</p>
-      </section>
-
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
@@ -437,8 +493,18 @@ export default function ExploreOrganizations() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="evtPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -448,7 +514,7 @@ export default function ExploreOrganizations() {
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.evtFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
@@ -462,20 +528,20 @@ export default function ExploreOrganizations() {
                     {(() => {
                       let title;
                       if (
-                        loaderData.submission.value.filter.stage in
+                        loaderData.submission.value.evtFilter.stage in
                         locales.stages
                       ) {
                         type LocaleKey = keyof typeof locales.stages;
                         title =
                           locales.stages[
-                            loaderData.submission.value.filter
+                            loaderData.submission.value.evtFilter
                               .stage as LocaleKey
                           ].title;
                       } else {
                         console.error(
-                          `Event stage ${loaderData.submission.value.filter.stage} not found in locales`
+                          `Event stage ${loaderData.submission.value.evtFilter.stage} not found in locales`
                         );
-                        title = loaderData.submission.value.filter.stage;
+                        title = loaderData.submission.value.evtFilter.stage;
                       }
                       return title;
                     })()}
@@ -610,14 +676,15 @@ export default function ExploreOrganizations() {
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
                       locales.route.filter.periodOfTime.values[
-                        loaderData.submission.value.filter.periodOfTime
+                        loaderData.submission.value.evtFilter.periodOfTime
                       ]
                     }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {periodOfTimeValues.map((periodOfTimeValue) => {
-                    const submissionFilter = loaderData.submission.value.filter;
+                    const submissionFilter =
+                      loaderData.submission.value.evtFilter;
                     return (
                       <FormControl
                         {...getInputProps(filter.periodOfTime, {
@@ -819,8 +886,8 @@ export default function ExploreOrganizations() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.evtAreaSearch.id}
+                      name={fields.evtAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -834,7 +901,7 @@ export default function ExploreOrganizations() {
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.evtAreaSearch.id} hidden>
                         {locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
@@ -912,7 +979,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.evtSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -921,7 +988,7 @@ export default function ExploreOrganizations() {
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {(() => {
-                      const currentValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                      const currentValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                       let value;
                       if (currentValue in locales.route.filter.sortBy.values) {
                         type LocaleKey =
@@ -942,10 +1009,10 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.evtSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -967,8 +1034,8 @@ export default function ExploreOrganizations() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.evtSortBy !== undefined
+                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
                   : ""
               }`}
             >
@@ -1090,8 +1157,8 @@ export default function ExploreOrganizations() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.evtSortBy !== undefined
+                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
                   : ""
               }`}
               preventScrollReset
@@ -1109,13 +1176,19 @@ export default function ExploreOrganizations() {
       </section>
 
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {loaderData.filteredByVisibilityCount !== undefined &&
-        loaderData.filteredByVisibilityCount > 0 ? (
+        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+        loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
-            {decideBetweenSingularOrPlural(
-              locales.route.notShown_one,
-              locales.route.notShown_other,
-              loaderData.filteredByVisibilityCount
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.notShown_one,
+                locales.route.notShown_other,
+                loaderData.eventsCount - loaderData.filteredByVisibilityCount
+              ),
+              {
+                count:
+                  loaderData.eventsCount - loaderData.filteredByVisibilityCount,
+              }
             )}
           </p>
         ) : loaderData.eventsCount > 0 ? (
@@ -1166,7 +1239,7 @@ export default function ExploreOrganizations() {
                 );
               })}
             </CardContainer>
-            {loaderData.eventsCount > loaderData.events.length && (
+            {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

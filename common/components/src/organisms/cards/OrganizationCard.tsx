@@ -1,7 +1,6 @@
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
-import { type SearchOrganizationsLocales } from "~/routes/search/organizations.server";
 import { Avatar, AvatarList } from "./../../molecules/Avatar";
 import { Chip, ChipContainer } from "./../../molecules/Chip";
 import { Image } from "./../../molecules/Image";
@@ -140,7 +139,6 @@ type OrganizationCardProps = {
   locales:
     | DashboardLocales
     | ExploreOrganizationsLocales
-    | SearchOrganizationsLocales
     | MyOrganizationsLocales;
   organization: {
     slug: string;

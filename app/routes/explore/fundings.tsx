@@ -7,41 +7,44 @@ import {
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { z } from "zod";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
 import { FormControl } from "~/components-next/FormControl";
 import { FundingCard } from "~/components-next/FundingCard";
 import {
-  getFilterCountForSlug,
-  getFundingFilterVectorForAttribute,
-  getKeys,
-} from "./fundings.server";
-import { H1 } from "~/components/Heading/Heading";
-import { detectLanguage } from "~/root.server";
-import {
   decideBetweenSingularOrPlural,
-  insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { detectLanguage } from "~/root.server";
+import {
+  getAllFundings,
+  getFilterCountForSlug,
+  getFundingFilterVectorForAttribute,
+  getFundingIds,
+  getTakeParam,
+} from "./fundings.server";
+import { getFilterSchemes, type FilterSchemes } from "./all";
 
 const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
 
-const getFundingsSchema = z.object({
-  filter: z
+export const getFundingsSchema = z.object({
+  fndFilter: z
     .object({
       types: z.array(z.string()),
       areas: z.array(z.string()),
@@ -60,7 +63,7 @@ const getFundingsSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  fndSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -76,7 +79,7 @@ const getFundingsSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  fndPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -89,14 +92,6 @@ const getFundingsSchema = z.object({
 });
 
 export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
-export type FilterKey = keyof GetFundingsSchema["filter"];
-
-type FilterKeyWhereStatement = {
-  OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
-};
-type WhereClause = {
-  AND: FilterKeyWhereStatement[];
-};
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -114,7 +109,7 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const submission = parseWithZod(searchParams, {
-    schema: getFundingsSchema,
+    schema: getFilterSchemes,
   });
 
   invariantResponse(submission.status === "success", "Bad request", {
@@ -124,118 +119,28 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/fundings"];
 
-  const take = submission.value.page * 12;
+  const take = getTakeParam(submission.value.fndPage);
+  const { authClient } = createAuthClient(request);
 
-  const whereClauses: WhereClause = { AND: [] };
-  for (const key in submission.value.filter) {
-    const typedKey = key as FilterKey;
+  const sessionUser = await getSessionUser(authClient);
 
-    const { singularKey, pluralKey } = getKeys(typedKey);
-
-    const values = submission.value.filter[typedKey];
-    if (values.length === 0) {
-      continue;
-    }
-
-    const filterKeyWhereStatement: {
-      OR: { [x: string]: { some: { [x: string]: { slug: string } } } }[];
-    } = { OR: [] };
-
-    for (const value of values) {
-      const whereStatement = {
-        [pluralKey]: {
-          some: {
-            [typedKey === "regions" ? "area" : singularKey]: {
-              // funding data for areas is stored in regions
-              slug: value,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(whereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
-  }
-
-  const sortBy = submission.value.sortBy;
-
-  const fundings = await prismaClient.funding.findMany({
-    select: {
-      title: true,
-      url: true,
-      funders: {
-        select: {
-          funder: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      types: {
-        select: {
-          type: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      areas: {
-        select: {
-          area: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      eligibleEntities: {
-        select: {
-          entity: {
-            select: {
-              slug: true,
-              title: true,
-            },
-          },
-        },
-      },
-      regions: {
-        select: {
-          area: {
-            select: {
-              slug: true,
-              name: true,
-            },
-          },
-        },
-      },
-      sourceEntities: true,
-      sourceAreas: true,
-    },
-    where: {
-      AND: whereClauses,
-    },
-    take: take,
-    orderBy: [
-      {
-        [sortBy.value]: sortBy.direction,
-      },
-      {
-        id: "asc",
-      },
-    ],
+  const fundings = await getAllFundings({
+    filter: submission.value.fndFilter,
+    sortBy: submission.value.fndSortBy,
+    search: submission.value.search,
+    sessionUser,
+    take,
+    language,
   });
 
-  const count = await prismaClient.funding.count({
-    where: {
-      AND: whereClauses,
-    },
+  const fundingIds = await getFundingIds({
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    sessionUser,
+    language,
   });
+
+  const count = fundingIds.length;
 
   const fundingTypes = await prismaClient.fundingType.findMany({
     where: {
@@ -251,10 +156,21 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
-  const typeFilterVector = await getFundingFilterVectorForAttribute(
-    "types",
-    submission.value.filter
-  );
+  const typeFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, types: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
+  const typeFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "types",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: typeFundingIds,
+  });
   const enhancedFundingTypes = fundingTypes
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -271,14 +187,14 @@ export async function loader(args: LoaderFunctionArgs) {
         typeFilterVector,
         "types"
       );
-      const isChecked = submission.value.filter.types.includes(type.slug);
+      const isChecked = submission.value.fndFilter.types.includes(type.slug);
       return {
         ...type,
         vectorCount,
         isChecked,
       };
     });
-  const selectedFundingTypes = submission.value.filter.types.map((slug) => {
+  const selectedFundingTypes = submission.value.fndFilter.types.map((slug) => {
     const fundingTypeMatch = fundingTypes.find((type) => type.slug === slug);
     return {
       slug,
@@ -299,10 +215,21 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
-  const areaFilterVector = await getFundingFilterVectorForAttribute(
-    "areas",
-    submission.value.filter
-  );
+  const areaFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, areas: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
+  const areaFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "areas",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: areaFundingIds,
+  });
   const enhancedFundingAreas = fundingAreas
     .sort((a, b) => {
       if (a.title === "Sonstiges") {
@@ -319,14 +246,14 @@ export async function loader(args: LoaderFunctionArgs) {
         areaFilterVector,
         "areas"
       );
-      const isChecked = submission.value.filter.areas.includes(area.slug);
+      const isChecked = submission.value.fndFilter.areas.includes(area.slug);
       return {
         ...area,
         vectorCount,
         isChecked,
       };
     });
-  const selectedFundingAreas = submission.value.filter.areas.map((slug) => {
+  const selectedFundingAreas = submission.value.fndFilter.areas.map((slug) => {
     const fundingAreaMatch = fundingAreas.find((area) => area.slug === slug);
     return {
       slug,
@@ -347,9 +274,22 @@ export async function loader(args: LoaderFunctionArgs) {
       title: "asc",
     },
   });
+  const eligibleFundingIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, eligibleEntities: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
   const eligibleEntitiesFilterVector = await getFundingFilterVectorForAttribute(
-    "eligibleEntities",
-    submission.value.filter
+    {
+      attribute: "eligibleEntities",
+      filter: submission.value.fndFilter,
+      search: submission.value.search,
+      ids: eligibleFundingIds,
+    }
   );
   const enhancedEligibleEntities = eligibleEntities
     .sort((a, b) => {
@@ -367,7 +307,7 @@ export async function loader(args: LoaderFunctionArgs) {
         eligibleEntitiesFilterVector,
         "eligibleEntities"
       );
-      const isChecked = submission.value.filter.eligibleEntities.includes(
+      const isChecked = submission.value.fndFilter.eligibleEntities.includes(
         entity.slug
       );
       return {
@@ -376,8 +316,8 @@ export async function loader(args: LoaderFunctionArgs) {
         isChecked,
       };
     });
-  const selectedEligibleEntities = submission.value.filter.eligibleEntities.map(
-    (slug) => {
+  const selectedEligibleEntities =
+    submission.value.fndFilter.eligibleEntities.map((slug) => {
       const entityMatch = eligibleEntities.find(
         (entity) => entity.slug === slug
       );
@@ -385,8 +325,7 @@ export async function loader(args: LoaderFunctionArgs) {
         slug,
         title: entityMatch?.title || null,
       };
-    }
-  );
+    });
   const regions = await prismaClient.area.findMany({
     where: {
       type: {
@@ -401,10 +340,21 @@ export async function loader(args: LoaderFunctionArgs) {
       name: "asc",
     },
   });
-  const regionFilterVector = await getFundingFilterVectorForAttribute(
-    "regions",
-    submission.value.filter
-  );
+  const fundingRegionIds =
+    submission.value.search.length > 0
+      ? await getFundingIds({
+          filter: { ...submission.value.fndFilter, regions: [] },
+          search: submission.value.search,
+          sessionUser,
+          language,
+        })
+      : fundingIds;
+  const regionFilterVector = await getFundingFilterVectorForAttribute({
+    attribute: "regions",
+    filter: submission.value.fndFilter,
+    search: submission.value.search,
+    ids: fundingRegionIds,
+  });
   const enhancedRegions = regions
     .sort((a) => {
       if (a.name === "Bundesweit" || a.name === "International") {
@@ -418,14 +368,16 @@ export async function loader(args: LoaderFunctionArgs) {
         regionFilterVector,
         "regions"
       );
-      const isChecked = submission.value.filter.regions.includes(region.slug);
+      const isChecked = submission.value.fndFilter.regions.includes(
+        region.slug
+      );
       return {
         ...region,
         vectorCount,
         isChecked,
       };
     });
-  const selectedRegions = submission.value.filter.regions.map((slug) => {
+  const selectedRegions = submission.value.fndFilter.regions.map((slug) => {
     const regionMatch = regions.find((region) => region.slug === slug);
     return {
       slug,
@@ -449,109 +401,43 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
-function Fundings() {
+export default function ExploreFundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
-  const [form, fields] = useForm<GetFundingsSchema>({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
   const navigation = useNavigation();
   const location = useLocation();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "fndPage",
+    `${loaderData.submission.value.fndPage + 1}`
+  );
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.fndFilter.getFieldset();
 
   const currentSortValue = sortValues.find((value) => {
     return (
       value ===
-      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+      `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
     );
+  });
+
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getFundingsSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
   });
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <div className="mv-flex mv-flex-col mv-justify-center mv-gap-8">
-          <div>
-            <span className="mv-text-white mv-text-xs mv-py-[2px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[18px] mv-font-semibold">
-              BETA
-            </span>
-            <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-              {loaderData.locales.title}
-            </H1>
-            <p>{loaderData.locales.intro}</p>
-            <p>
-              {insertComponentsIntoLocale(
-                insertParametersIntoLocale(loaderData.locales.databaseList, {
-                  0: "https://www.foerderdatenbank.de",
-                  1: "https://foerder-finder.de",
-                  2: "https://sigu-plattform.de/foerderfinder/",
-                  3: "https://foerderdatenbank.d-s-e-e.de/",
-                }),
-                [
-                  <Link
-                    key="foerderdatenbank"
-                    to="https://www.foerderdatenbank.de"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="foerder-finder"
-                    to="https://foerder-finder.de"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="sigu-plattform"
-                    to="https://sigu-plattform.de/foerderfinder/"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                  <Link
-                    key="foerderdatenbank-d-s-e-e"
-                    to="https://foerderdatenbank.d-s-e-e.de/"
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    className="mv-font-semibold hover:mv-underline"
-                  >
-                    {" "}
-                  </Link>,
-                ]
-              )}
-            </p>
-            <p>{loaderData.locales.intro2}</p>
-          </div>
-          <div className="mv-p-4 @lg:mv-pr-12 mv-bg-primary-50 mv-rounded-lg mv-text-left mv-flex mv-flex-col mv-gap-2.5">
-            <p className="mv-font-bold">{loaderData.locales.survey.title}</p>
-            <p>
-              {insertComponentsIntoLocale(
-                loaderData.locales.survey.description,
-                {
-                  link1: (
-                    <Link
-                      to="mailto:community@mint-vernetzt.de"
-                      className="mv-font-semibold hover:mv-underline"
-                    >
-                      {" "}
-                    </Link>
-                  ),
-                }
-              )}
-            </p>
-          </div>
-        </div>
-      </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
@@ -566,9 +452,18 @@ function Fundings() {
             submit(event.currentTarget, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="fndPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
-
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {loaderData.locales.showFiltersLabel}
           </ShowFiltersButton>
@@ -578,7 +473,7 @@ function Fundings() {
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.fndFilter)}
               showMore={loaderData.locales.filter.showMore}
               showLess={loaderData.locales.filter.showLess}
               hideAfter={4}
@@ -644,7 +539,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.areas.includes(
+                        checked={loaderData.submission.value.fndFilter.areas.includes(
                           area.slug
                         )}
                         readOnly
@@ -683,7 +578,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.regions.includes(
+                        checked={loaderData.submission.value.fndFilter.regions.includes(
                           area.slug
                         )}
                         readOnly
@@ -722,7 +617,7 @@ function Fundings() {
                         // The Checkbox UI does not rerender when using the delete chips or the reset filter button
                         // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
                         defaultChecked={undefined}
-                        checked={loaderData.submission.value.filter.eligibleEntities.includes(
+                        checked={loaderData.submission.value.fndFilter.eligibleEntities.includes(
                           entity.slug
                         )}
                         readOnly
@@ -738,7 +633,7 @@ function Fundings() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.fndSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -757,7 +652,7 @@ function Fundings() {
                   {sortValues.map((sortValue) => {
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.fndSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -993,5 +888,3 @@ function Fundings() {
     </>
   );
 }
-
-export default Fundings;

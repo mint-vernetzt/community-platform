@@ -6,14 +6,16 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useLoaderData,
   useLocation,
   useNavigation,
@@ -23,36 +25,34 @@ import {
 import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { H1 } from "~/components/Heading/Heading";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { Dropdown } from "~/components-next/Dropdown";
-import { Filters, ShowFiltersButton } from "~/components-next/Filters";
-import { FormControl } from "~/components-next/FormControl";
+import { type FilterSchemes, getFilterSchemes } from "./all";
 import {
   getAllOffers,
   getAllProfiles,
   getFilterCountForSlug,
   getProfileFilterVectorForAttribute,
-  getProfilesCount,
+  getProfileIds,
   getTakeParam,
-  getVisibilityFilteredProfilesCount,
 } from "./profiles.server";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { DefaultImages } from "~/images.shared";
-import { useState } from "react";
 // import styles from "../../../common/design/styles/styles.css?url";
 
 const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
@@ -72,8 +72,8 @@ const sortValues = [
 
 export type GetProfilesSchema = z.infer<typeof getProfilesSchema>;
 
-const getProfilesSchema = z.object({
-  filter: z
+export const getProfilesSchema = z.object({
+  prfFilter: z
     .object({
       offer: z.array(z.string()),
       area: z.array(z.string()),
@@ -88,7 +88,7 @@ const getProfilesSchema = z.object({
       }
       return filter;
     }),
-  sortBy: z
+  prfSortBy: z
     .enum(sortValues)
     .optional()
     .transform((sortValue) => {
@@ -104,7 +104,7 @@ const getProfilesSchema = z.object({
         direction: sortValues[0].split("-")[1],
       };
     }),
-  page: z
+  prfPage: z
     .number()
     .optional()
     .transform((page) => {
@@ -113,7 +113,7 @@ const getProfilesSchema = z.object({
       }
       return page;
     }),
-  search: z
+  prfAreaSearch: z
     .string()
     .optional()
     .transform((searchQuery) => {
@@ -130,7 +130,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const submission = parseWithZod(searchParams, { schema: getProfilesSchema });
+  const showFiltersValue = searchParams.getAll("showFilters");
+
+  if (showFiltersValue.length > 1) {
+    const cleanURL = new URL(request.url);
+    cleanURL.searchParams.delete("showFilters");
+    cleanURL.searchParams.append("showFilters", "on");
+    return redirect(cleanURL.toString(), { status: 301 });
+  }
+
+  const submission = parseWithZod(searchParams, {
+    schema: getFilterSchemes,
+  });
+
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -140,7 +152,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const routeLocales = languageModuleMap[language]["explore/profiles"];
 
-  const take = getTakeParam(submission.value.page);
+  const take = getTakeParam(submission.value.prfPage);
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -148,18 +160,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let filteredByVisibilityCount;
   if (!isLoggedIn) {
-    filteredByVisibilityCount = await getVisibilityFilteredProfilesCount({
-      filter: submission.value.filter,
+    const profileIdsFilteredByVisibility = await getProfileIds({
+      filter: submission.value.prfFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
     });
+    filteredByVisibilityCount = profileIdsFilteredByVisibility.length;
   }
-  const profilesCount = await getProfilesCount({
-    filter: submission.value.filter,
+
+  const profileIds = await getProfileIds({
+    filter: submission.value.prfFilter,
+    search: submission.value.search,
+    isLoggedIn: true,
+    language,
   });
+
+  const profileCount = profileIds.length;
+
   const profiles = await getAllProfiles({
-    filter: submission.value.filter,
-    sortBy: submission.value.sortBy,
+    filter: submission.value.prfFilter,
+    sortBy: submission.value.prfSortBy,
+    search: submission.value.search,
     take,
-    isLoggedIn,
+    sessionUser,
+    language,
   });
 
   const enhancedProfiles = [];
@@ -285,7 +310,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.search);
+  const areas = await getAreasBySearchQuery(submission.value.prfAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
@@ -298,17 +323,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
     state: [] as EnhancedAreas,
     district: [] as EnhancedAreas,
   };
-  const areaFilterVector = await getProfileFilterVectorForAttribute(
-    "area",
-    submission.value.filter
-  );
+
+  const areaProfileIds =
+    submission.value.search.length > 0
+      ? await getProfileIds({
+          filter: { ...submission.value.prfFilter, area: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : profileIds;
+
+  const areaFilterVector = await getProfileFilterVectorForAttribute({
+    attribute: "area",
+    filter: submission.value.prfFilter,
+    search: submission.value.search,
+    ids: areaProfileIds,
+  });
+
   for (const area of areas) {
     const vectorCount = getFilterCountForSlug(
       area.slug,
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.filter.area.includes(area.slug);
+    const isChecked = submission.value.prfFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
@@ -317,7 +356,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedAreas[area.type].push(enhancedArea);
   }
   const selectedAreas = await Promise.all(
-    submission.value.filter.area.map(async (slug) => {
+    submission.value.prfFilter.area.map(async (slug) => {
       const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
       const isInSearchResultsList = areas.some((area) => {
         return area.slug === slug;
@@ -332,17 +371,28 @@ export const loader = async (args: LoaderFunctionArgs) => {
   );
 
   const offers = await getAllOffers();
-  const offerFilterVector = await getProfileFilterVectorForAttribute(
-    "offer",
-    submission.value.filter
-  );
+  const offersProfileIds =
+    submission.value.search.length > 0
+      ? await getProfileIds({
+          filter: { ...submission.value.prfFilter, offer: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : profileIds;
+  const offerFilterVector = await getProfileFilterVectorForAttribute({
+    attribute: "offer",
+    filter: submission.value.prfFilter,
+    search: submission.value.search,
+    ids: offersProfileIds,
+  });
   const enhancedOffers = offers.map((offer) => {
     const vectorCount = getFilterCountForSlug(
       offer.slug,
       offerFilterVector,
       "offer"
     );
-    const isChecked = submission.value.filter.offer.includes(offer.slug);
+    const isChecked = submission.value.prfFilter.offer.includes(offer.slug);
     return { ...offer, vectorCount, isChecked };
   });
 
@@ -352,10 +402,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     areas: enhancedAreas,
     selectedAreas,
     offers: enhancedOffers,
-    selectedOffers: submission.value.filter.offer,
+    selectedOffers: submission.value.prfFilter.offer,
     submission,
     filteredByVisibilityCount,
-    profilesCount,
+    profilesCount: profileCount,
     locales: routeLocales,
   };
 };
@@ -368,33 +418,48 @@ export default function ExploreProfiles() {
   const submit = useSubmit();
   const debounceSubmit = useDebounceSubmit();
 
-  const [form, fields] = useForm<GetProfilesSchema>({});
+  const [form, fields] = useForm<FilterSchemes>({});
 
-  const filter = fields.filter.getFieldset();
+  const filter = fields.prfFilter.getFieldset();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set("page", `${loaderData.submission.value.page + 1}`);
+  loadMoreSearchParams.set(
+    "prfPage",
+    `${loaderData.submission.value.prfPage + 1}`
+  );
 
   const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.search
+    loaderData.submission.value.prfAreaSearch
   );
 
   const currentSortValue = sortValues.find((value) => {
     return (
       value ===
-      `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+      `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
     );
   });
 
+  const additionalSearchParams: { key: string; value: string }[] = [];
+  const schemaKeys = getProfilesSchema.keyof().options as string[];
+  searchParams.forEach((value, key) => {
+    const isIncluded = schemaKeys.some((schemaKey) => {
+      return schemaKey === key || key.startsWith(`${schemaKey}.`);
+    });
+    if (isIncluded === false) {
+      additionalSearchParams.push({ key, value });
+    }
+  });
+
+  let showMore = false;
+  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
+    showMore =
+      loaderData.filteredByVisibilityCount > loaderData.profiles.length;
+  } else {
+    showMore = loaderData.profilesCount > loaderData.profiles.length;
+  }
+
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-12 mv-mt-5 @md:mv-mt-7 @lg:mv-mt-8 mv-text-center">
-        <H1 className="mv-mb-4 @md:mv-mb-2 @lg:mv-mb-3" like="h0">
-          {loaderData.locales.route.headline}
-        </H1>
-        <p>{loaderData.locales.route.intro}</p>
-      </section>
-
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
@@ -414,8 +479,18 @@ export default function ExploreProfiles() {
             submit(formData, { preventScrollReset });
           }}
         >
-          <input name="page" defaultValue="1" hidden />
+          <input name="prfPage" defaultValue="1" hidden />
           <input name="showFilters" defaultValue="on" hidden />
+          {additionalSearchParams.map((param, index) => {
+            return (
+              <input
+                key={`${param.key}-${index}`}
+                name={param.key}
+                defaultValue={param.value}
+                hidden
+              />
+            );
+          })}
           <ShowFiltersButton>
             {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -428,7 +503,7 @@ export default function ExploreProfiles() {
 
             <Filters.Fieldset
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
-              {...getFieldsetProps(fields.filter)}
+              {...getFieldsetProps(fields.prfFilter)}
             >
               <Dropdown>
                 <Dropdown.Label>
@@ -583,8 +658,8 @@ export default function ExploreProfiles() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.search.id}
-                      name={fields.search.name}
+                      id={fields.prfAreaSearch.id}
+                      name={fields.prfAreaSearch.name}
                       type="text"
                       value={searchQuery}
                       onChange={(event) => {
@@ -600,7 +675,7 @@ export default function ExploreProfiles() {
                         loaderData.locales.route.filter.searchAreaPlaceholder
                       }
                     >
-                      <Input.Label htmlFor={fields.search.id} hidden>
+                      <Input.Label htmlFor={fields.prfAreaSearch.id} hidden>
                         {loaderData.locales.route.filter.searchAreaPlaceholder}
                       </Input.Label>
                       <Input.HelperText>
@@ -678,7 +753,7 @@ export default function ExploreProfiles() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.Fieldset {...getFieldsetProps(fields.sortBy)}>
+            <Filters.Fieldset {...getFieldsetProps(fields.prfSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
                   <span className="@lg:mv-hidden">
@@ -695,10 +770,10 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {sortValues.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`;
+                    const submissionSortValue = `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`;
                     return (
                       <FormControl
-                        {...getInputProps(fields.sortBy, {
+                        {...getInputProps(fields.prfSortBy, {
                           type: "radio",
                           value: sortValue,
                         })}
@@ -720,8 +795,8 @@ export default function ExploreProfiles() {
             </Filters.Fieldset>
             <Filters.ResetButton
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prfSortBy !== undefined
+                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
                   : ""
               }`}
             >
@@ -809,8 +884,8 @@ export default function ExploreProfiles() {
             <Link
               className="mv-w-fit"
               to={`${location.pathname}${
-                loaderData.submission.value.sortBy !== undefined
-                  ? `?sortBy=${loaderData.submission.value.sortBy.value}-${loaderData.submission.value.sortBy.direction}`
+                loaderData.submission.value.prfSortBy !== undefined
+                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
                   : ""
               }`}
               preventScrollReset
@@ -828,16 +903,20 @@ export default function ExploreProfiles() {
       </section>
 
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {loaderData.filteredByVisibilityCount !== undefined &&
-        loaderData.filteredByVisibilityCount > 0 ? (
+        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+        loaderData.filteredByVisibilityCount !== loaderData.profilesCount ? (
           <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 loaderData.locales.route.notShown_singular,
                 loaderData.locales.route.notShown_plural,
-                loaderData.filteredByVisibilityCount
+                loaderData.profilesCount - loaderData.filteredByVisibilityCount
               ),
-              { count: loaderData.filteredByVisibilityCount }
+              {
+                count:
+                  loaderData.profilesCount -
+                  loaderData.filteredByVisibilityCount,
+              }
             )}
           </p>
         ) : loaderData.profilesCount > 0 ? (
@@ -868,7 +947,7 @@ export default function ExploreProfiles() {
                 );
               })}
             </CardContainer>
-            {loaderData.profilesCount > loaderData.profiles.length && (
+            {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
                 <Link
                   to={`${location.pathname}?${loadMoreSearchParams.toString()}`}

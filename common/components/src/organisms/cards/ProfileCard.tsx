@@ -12,13 +12,12 @@ import {
 import { getFullName } from "./../../utils";
 import { Image } from "./../../molecules/Image";
 import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
-import { type SearchProfilesLocales } from "~/routes/search/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 
 type ProfileCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales: ExploreProfilesLocales | SearchProfilesLocales | DashboardLocales;
+  locales: ExploreProfilesLocales | DashboardLocales;
   profile: {
     academicTitle?: string | null;
     username: string;

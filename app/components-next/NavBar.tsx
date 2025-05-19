@@ -25,7 +25,7 @@ type SessionUserInfo = {
 export function NavBar(props: NavBarProps) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("query");
+  const query = searchParams.get("search");
   const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
 
   const classes = classNames(
@@ -70,7 +70,7 @@ export function NavBar(props: NavBarProps) {
         )}
 
         <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-flex-grow mv-items-center">
-          <Form className="mv-flex-grow" method="get" action="/search">
+          <Form className="mv-flex-grow" method="get" action="/explore/all">
             <Search
               placeholder={
                 props.locales !== undefined
@@ -79,7 +79,7 @@ export function NavBar(props: NavBarProps) {
                   ? "Suche (min. 3 Zeichen)"
                   : "Search (min. 3 characters)"
               }
-              name="query"
+              name="search"
               query={query}
             />
           </Form>
