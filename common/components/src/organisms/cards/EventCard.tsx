@@ -17,12 +17,11 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type supportedCookieLanguages } from "~/i18n.shared";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { type ExploreEventsLocales } from "~/routes/explore/events.server";
-import { type SearchEventsLocales } from "~/routes/search/events.server";
 
 type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
-  locales: DashboardLocales | ExploreEventsLocales | SearchEventsLocales;
+  locales: DashboardLocales | ExploreEventsLocales;
   currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
   event: {
     name: string;

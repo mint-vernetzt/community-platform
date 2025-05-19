@@ -65,6 +65,8 @@ import { locale as deEventDetail } from "./de/routes/event/$slug/index";
 import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
 // explore routes
+import { locale as deExplore } from "./de/routes/explore";
+import { locale as deExploreIndex } from "./de/routes/explore/index";
 import { locale as deExploreEvents } from "./de/routes/explore/events";
 import { locale as deExploreFundings } from "./de/routes/explore/fundings";
 import { locale as deExploreOrganizations } from "./de/routes/explore/organizations";
@@ -131,12 +133,6 @@ import { locale as deConfirmPasswordChange } from "./de/routes/reset/confirm-pas
 import { locale as deResetPassword } from "./de/routes/reset/index";
 import { locale as deSetNewEmail } from "./de/routes/reset/set-email";
 import { locale as deSetNewPassword } from "./de/routes/reset/set-password";
-// search routes
-import { locale as deSearchEvents } from "./de/routes/search/events";
-import { locale as deSearchFundings } from "./de/routes/search/fundings";
-import { locale as deSearchOrganizations } from "./de/routes/search/organizations";
-import { locale as deSearchProfiles } from "./de/routes/search/profiles";
-import { locale as deSearchProjects } from "./de/routes/search/projects";
 // upload routes
 import { locale as deDeleteImage } from "./de/routes/upload/delete";
 import { locale as deUploadImage } from "./de/routes/upload/image";
@@ -239,6 +235,8 @@ import { locale as enEventDetail } from "./en/routes/event/$slug/index";
 import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
 // explore routes
+import { locale as enExplore } from "./en/routes/explore";
+import { locale as enExploreIndex } from "./en/routes/explore/index";
 import { locale as enExploreEvents } from "./en/routes/explore/events";
 import { locale as enExploreFundings } from "./en/routes/explore/fundings";
 import { locale as enExploreOrganizations } from "./en/routes/explore/organizations";
@@ -305,12 +303,6 @@ import { locale as enConfirmPasswordChange } from "./en/routes/reset/confirm-pas
 import { locale as enResetPassword } from "./en/routes/reset/index";
 import { locale as enSetNewEmail } from "./en/routes/reset/set-email";
 import { locale as enSetNewPassword } from "./en/routes/reset/set-password";
-// search routes
-import { locale as enSearchEvents } from "./en/routes/search/events";
-import { locale as enSearchFundings } from "./en/routes/search/fundings";
-import { locale as enSearchOrganizations } from "./en/routes/search/organizations";
-import { locale as enSearchProfiles } from "./en/routes/search/profiles";
-import { locale as enSearchProjects } from "./en/routes/search/projects";
 // upload routes
 import { locale as enDeleteImage } from "./en/routes/upload/delete";
 import { locale as enUploadImage } from "./en/routes/upload/image";
@@ -467,6 +459,10 @@ const de = {
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
   // explore routes
+  explore: {
+    route: deExplore,
+    index: deExploreIndex,
+  },
   "explore/events": {
     route: deExploreEvents,
     focuses: deFocuses,
@@ -707,26 +703,6 @@ const de = {
   "reset/index": deResetPassword,
   "reset/set-email": deSetNewEmail,
   "reset/set-password": deSetNewPassword,
-  // search routes
-  "search/events": {
-    route: deSearchEvents,
-    stages: deStages,
-    eventCard: deEventCard,
-  },
-  "search/fundings": deSearchFundings,
-  "search/organizations": {
-    route: deSearchOrganizations,
-    focuses: deFocuses,
-    organizationTypes: deOrganizationTypes,
-    networkTypes: deNetworkTypes,
-    organizationCard: deOrganizationCard,
-  },
-  "search/profiles": {
-    route: deSearchProfiles,
-    offers: deOffers,
-    profileCard: deProfileCard,
-  },
-  "search/projects": { route: deSearchProjects, projectCard: deProjectCard },
   // upload routes
   "upload/delete": deDeleteImage,
   "upload/image": deUploadImage,
@@ -882,6 +858,10 @@ const en = {
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
   // explore routes
+  explore: {
+    route: enExplore,
+    index: enExploreIndex,
+  },
   "explore/events": {
     route: enExploreEvents,
     focuses: enFocuses,
@@ -1122,26 +1102,6 @@ const en = {
   "reset/index": enResetPassword,
   "reset/set-email": enSetNewEmail,
   "reset/set-password": enSetNewPassword,
-  // search routes
-  "search/events": {
-    route: enSearchEvents,
-    stages: enStages,
-    eventCard: enEventCard,
-  },
-  "search/fundings": enSearchFundings,
-  "search/organizations": {
-    route: enSearchOrganizations,
-    focuses: enFocuses,
-    organizationTypes: enOrganizationTypes,
-    networkTypes: enNetworkTypes,
-    organizationCard: enOrganizationCard,
-  },
-  "search/profiles": {
-    route: enSearchProfiles,
-    offers: enOffers,
-    profileCard: enProfileCard,
-  },
-  "search/projects": { route: enSearchProjects, projectCard: enProjectCard },
   // upload routes
   "upload/delete": enDeleteImage,
   "upload/image": enUploadImage,

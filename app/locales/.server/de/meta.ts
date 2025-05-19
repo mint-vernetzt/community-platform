@@ -43,6 +43,7 @@ export const locale = {
       },
       explore: {
         label: "Entdecken",
+        index: "Alle Inhalte",
         profiles: "Profile",
         organizations: "Organisationen",
         projects: "Projekte",

@@ -1,7 +1,6 @@
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreProjectsLocales } from "~/routes/explore/projects.server";
 import { type MyProjectsLocales } from "~/routes/my/projects.server";
-import { type SearchProjectsLocales } from "~/routes/search/projects.server";
 import { Avatar } from "./../../molecules/Avatar";
 import { Image } from "./../../molecules/Image";
 import { Card } from "./Card";
@@ -143,11 +142,7 @@ type ProjectCardProps = {
       };
     }[];
   };
-  locales:
-    | DashboardLocales
-    | ExploreProjectsLocales
-    | MyProjectsLocales
-    | SearchProjectsLocales;
+  locales: DashboardLocales | ExploreProjectsLocales | MyProjectsLocales;
 };
 
 function ProjectCard(
