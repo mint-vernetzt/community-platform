@@ -76,7 +76,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
           <NavLink
             className={linkClasses}
             {...otherProps}
-            to={url.toString()}
+            to={`${url.pathname}${url.search}`}
             preventScrollReset
           >
             {children}
