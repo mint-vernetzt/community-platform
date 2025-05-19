@@ -148,12 +148,12 @@ function ConformSelect(props: ConformSelectProps) {
   });
 
   return (
-    <div className="w-full">
+    <div className="mv-w-full">
       {label}
       {typeof controls !== "undefined" ? (
         <div className="mv-flex mv-flex-col mv-w-full">
           <div className="mv-flex mv-w-full mv-gap-2">
-            <div className="mv-group/conform-select mv-flex w-full mv-flex-col">
+            <div className="mv-group/conform-select mv-flex mv-w-full mv-flex-col">
               <ConformSelectInput
                 id={`expand-${props.id}`}
                 disabled={disabled}

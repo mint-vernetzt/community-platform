@@ -228,7 +228,7 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row mb-8 mv-items-center mv-justify-between">
+              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-between">
                 <Link
                   to={`/reset${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""

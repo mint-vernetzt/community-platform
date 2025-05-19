@@ -729,7 +729,7 @@ function Dashboard() {
     <>
       {/* Welcome Section */}
       {
-        <section className="mv-w-full mv-bg-gradient-to-b from-neutral-50 to-white mv-h-[480px] @md:mv-h-[571px] mv-mb-10 mv-relative">
+        <section className="mv-w-full mv-bg-gradient-to-b mv-from-neutral-50 mv-to-white mv-h-[480px] @md:mv-h-[571px] mv-mb-10 mv-relative">
           {/* svg top */}
           <div className="mv-absolute mv-top-0 mv-w-[304px] @md:mv-w-[607px] mv-h-[169px] @md:mv-h-[339px]">
             <svg

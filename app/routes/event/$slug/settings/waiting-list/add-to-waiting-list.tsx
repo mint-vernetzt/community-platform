@@ -121,7 +121,10 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
         return (
           <>
             <input name="profileId" defaultValue={props.profileId} hidden />
-            <button type="submit" className="btn btn-primary">
+            <button
+              type="submit"
+              className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+            >
               {locales.addToWaitingList.action}
             </button>
             <Errors />

@@ -1451,7 +1451,7 @@ export default function ExploreProjects() {
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
       </div>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mb-6">
+      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
         {(loaderData.selectedDisciplines.length > 0 ||
           loaderData.selectedAdditionalDisciplines.length > 0 ||
           loaderData.selectedTargetGroups.length > 0 ||
@@ -1714,7 +1714,7 @@ export default function ExploreProjects() {
       <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
         loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
-          <p className="text-center text-gray-700 mb-4 mv-mx-4 @md:mv-mx-0">
+          <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 locales.route.notShown_one,
@@ -1729,7 +1729,7 @@ export default function ExploreProjects() {
             )}
           </p>
         ) : loaderData.projectsCount > 0 ? (
-          <p className="text-center text-gray-700 mb-4">
+          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             <strong>{loaderData.projectsCount}</strong>{" "}
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
@@ -1741,7 +1741,7 @@ export default function ExploreProjects() {
             )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">
+          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {locales.route.empty}
           </p>
         )}

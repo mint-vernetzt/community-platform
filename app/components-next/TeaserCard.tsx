@@ -39,7 +39,7 @@ export function TeaserCard(props: {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                className="w-4 h-4"
+                className="mv-w-4 mv-h-4"
               >
                 <path
                   fill="currentColor"

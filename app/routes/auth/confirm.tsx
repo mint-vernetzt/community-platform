@@ -70,36 +70,45 @@ export default function Confirm() {
 
   return (
     <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl relative z-10">
-        <div className="flex flex-col mv-w-full mv-items-center">
+      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
+        <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
           <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
             <div className="mv-mb-6 mv-mt-12"> </div>
             {type === "signup" && (
               <>
-                <h1 className="mb-4">{locales.signup.title}</h1>
+                <h1 className="mv-mb-4">{locales.signup.title}</h1>
 
-                <p className="mb-6">{locales.signup.description}</p>
-                <a href={confirmationLink} className="btn btn-primary">
+                <p className="mv-mb-6">{locales.signup.description}</p>
+                <a
+                  href={confirmationLink}
+                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.signup.action}
                 </a>
               </>
             )}
             {type === "email_change" && (
               <>
-                <h1 className="mb-4">{locales.changeEmail.title}</h1>
+                <h1 className="mv-mb-4">{locales.changeEmail.title}</h1>
 
-                <p className="mb-6">{locales.changeEmail.description}</p>
-                <a href={confirmationLink} className="btn btn-primary">
+                <p className="mv-mb-6">{locales.changeEmail.description}</p>
+                <a
+                  href={confirmationLink}
+                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.changeEmail.action}
                 </a>
               </>
             )}
             {type === "recovery" && (
               <>
-                <h1 className="mb-4">{locales.recovery.title}</h1>
+                <h1 className="mv-mb-4">{locales.recovery.title}</h1>
 
-                <p className="mb-6">{locales.recovery.description}</p>
-                <a href={confirmationLink} className="btn btn-primary">
+                <p className="mv-mb-6">{locales.recovery.description}</p>
+                <a
+                  href={confirmationLink}
+                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                >
                   {locales.recovery.action}
                 </a>
               </>

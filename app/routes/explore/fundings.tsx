@@ -804,7 +804,7 @@ export default function ExploreFundings() {
           )}
         </section>
         {loaderData.count > 0 ? (
-          <p className="text-center text-gray-700 mb-4">
+          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             <strong>{loaderData.count}</strong>{" "}
             {decideBetweenSingularOrPlural(
               loaderData.locales.itemsCountSuffix_one,
@@ -813,7 +813,7 @@ export default function ExploreFundings() {
             )}
           </p>
         ) : (
-          <p className="text-center text-gray-700 mb-4">
+          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {loaderData.locales.empty}
           </p>
         )}

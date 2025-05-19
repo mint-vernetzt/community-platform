@@ -240,7 +240,7 @@ function TabBar(props: TabBarProps) {
               height="16"
               fill="currentColor"
               viewBox="0 0 16 16"
-              className="-mr-2"
+              className="mv--mr-2"
             >
               <path
                 fillRule="evenodd"

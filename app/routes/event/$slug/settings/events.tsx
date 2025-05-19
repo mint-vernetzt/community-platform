@@ -207,12 +207,12 @@ function Events() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
-      <h4 className="mb-4 font-semibold">
+      <h1 className="mv-mb-8">{locales.route.content.headline}</h1>
+      <h4 className="mv-mb-4 mv-font-semibold">
         {locales.route.content.assign.headline}
       </h4>
 
-      <p className="mb-4">{locales.route.content.assign.intro}</p>
+      <p className="mv-mb-4">{locales.route.content.assign.intro}</p>
       <RemixFormsForm
         schema={setParentSchema}
         fetcher={setParentFetcher}
@@ -228,18 +228,22 @@ function Events() {
           const { Button, Field, Errors, register } = remixFormsProps;
 
           return (
-            <div className="form-control w-full">
+            <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
               <Errors />
-              <div className="flex flex-row items-center mb-2">
-                <div className="flex-auto">
-                  <label id="label-for-name" htmlFor="Name" className="label">
+              <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+                <div className="mv-flex-auto">
+                  <label
+                    id="label-for-name"
+                    htmlFor="Name"
+                    className="mv-font-semibold"
+                  >
                     {locales.route.content.assign.name}
                   </label>
                 </div>
               </div>
 
-              <div className="flex flex-row">
-                <Field name="parentEventId" className="flex-auto">
+              <div className="mv-flex mv-flex-row">
+                <Field name="parentEventId" className="mv-flex-auto">
                   {({ Errors }) => (
                     <>
                       <Errors />
@@ -255,8 +259,8 @@ function Events() {
                     </>
                   )}
                 </Field>
-                <div className="ml-2">
-                  <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                <div className="mv-ml-2">
+                  <Button className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border-2 mv-border-neutral-300 mv-text-neutral-600 mv-mt-0.5 hover:mv-bg-neutral-100">
                     +
                   </Button>
                 </div>
@@ -267,14 +271,14 @@ function Events() {
       </RemixFormsForm>
       {setParentFetcher.data !== undefined &&
       "message" in setParentFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+        <div className={`mv-p-4 mv-bg-green-200 mv-rounded-md mv-mt-4`}>
           {setParentFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-4 font-semibold">
+      <h4 className="mv-mb-4 mv-mt-4 mv-font-semibold">
         {locales.route.content.parent.headline}
       </h4>
-      <p className="mb-8">
+      <p className="mv-mb-8">
         {locales.route.content.parent.intro}
         <br></br>
         {loaderData.parentEvent === null
@@ -313,20 +317,20 @@ function Events() {
                   stageTitle = loaderData.parentEvent.stage.slug;
                 }
                 return (
-                  <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
+                  <div className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden">
                     <Link
-                      className="flex"
+                      className="mv-flex"
                       to={`/event/${loaderData.parentEvent.slug}`}
                     >
-                      <div className="hidden @xl:mv-block w-40 shrink-0">
+                      <div className="mv-hidden @xl:mv-block mv-w-40 mv-shrink-0">
                         <Image
                           alt={loaderData.parentEvent.name}
                           src={loaderData.parentEvent.background}
                           blurredSrc={loaderData.parentEvent.blurredBackground}
                         />
                       </div>
-                      <div className="px-4 py-6">
-                        <p className="text-xs mb-1">
+                      <div className="mv-px-4 mv-py-6">
+                        <p className="mv-text-xs mv-mb-1">
                           {/* TODO: Display icons (see figma) */}
                           {stageTitle !== null ? stageTitle + " | " : ""}
                           {getDuration(
@@ -374,15 +378,15 @@ function Events() {
                             ""
                           )}
                         </p>
-                        <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
+                        <h4 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
                           {loaderData.parentEvent.name}
                         </h4>
                         {loaderData.parentEvent.subline !== null ? (
-                          <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                          <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                             {loaderData.parentEvent.subline}
                           </p>
                         ) : (
-                          <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                          <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                             {removeHtmlTags(
                               loaderData.parentEvent.description ?? ""
                             )}
@@ -391,7 +395,10 @@ function Events() {
                       </div>
                     </Link>
                     <input name="parentEventId" hidden />
-                    <Button className="ml-auto btn-none" title="entfernen">
+                    <Button
+                      className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
+                      title="entfernen"
+                    >
                       <svg
                         viewBox="0 0 10 10"
                         width="10px"
@@ -414,12 +421,12 @@ function Events() {
           </RemixFormsForm>
         </div>
       ) : null}
-      <hr className="border-neutral-400 my-4 @lg:mv-my-8" />
-      <h4 className="mb-4 font-semibold">
+      <hr className="mv-border-neutral-400 mv-my-4 @lg:mv-my-8" />
+      <h4 className="mv-mb-4 mv-font-semibold">
         {locales.route.content.related.headline}
       </h4>
 
-      <p className="mb-4">{locales.route.content.related.intro}</p>
+      <p className="mv-mb-4">{locales.route.content.related.intro}</p>
       <RemixFormsForm
         schema={addChildSchema}
         fetcher={addChildFetcher}
@@ -435,18 +442,22 @@ function Events() {
           const { Button, Field, Errors, register } = remixFormsProps;
 
           return (
-            <div className="form-control w-full">
+            <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
               <Errors />
-              <div className="flex flex-row items-center mb-2">
-                <div className="flex-auto">
-                  <label id="label-for-name" htmlFor="Name" className="label">
+              <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+                <div className="mv-flex-auto">
+                  <label
+                    id="label-for-name"
+                    htmlFor="Name"
+                    className="mv-font-semibold"
+                  >
                     {locales.route.content.related.name}
                   </label>
                 </div>
               </div>
 
-              <div className="flex flex-row">
-                <Field name="childEventId" className="flex-auto">
+              <div className="mv-flex mv-flex-row">
+                <Field name="childEventId" className="mv-flex-auto">
                   {({ Errors }) => (
                     <>
                       <Autocomplete
@@ -462,8 +473,8 @@ function Events() {
                     </>
                   )}
                 </Field>
-                <div className="ml-2">
-                  <Button className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 mt-0.5">
+                <div className="mv-ml-2">
+                  <Button className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border-2 mv-border-neutral-300 mv-text-neutral-600 mv-mt-0.5 hover:mv-bg-neutral-100">
                     +
                   </Button>
                 </div>
@@ -474,14 +485,14 @@ function Events() {
       </RemixFormsForm>
       {addChildFetcher.data !== undefined &&
       "message" in addChildFetcher.data ? (
-        <div className={`p-4 bg-green-200 rounded-md mt-4`}>
+        <div className={`mv-p-4 mv-bg-green-200 mv-rounded-md mv-mt-4`}>
           {addChildFetcher.data.message}
         </div>
       ) : null}
-      <h4 className="mb-4 mt-4 font-semibold">
+      <h4 className="mv-mb-4 mv-mt-4 mv-font-semibold">
         {locales.route.content.current.headline}
       </h4>
-      <p className="mb-8">
+      <p className="mv-mb-8">
         {locales.route.content.current.intro}
         <br></br>
         {loaderData.childEvents.length === 0
@@ -489,7 +500,7 @@ function Events() {
           : ""}
       </p>
       {loaderData.childEvents.length > 0 ? (
-        <div className="mt-6">
+        <div className="mv-mt-6">
           <ul>
             {loaderData.childEvents.map((childEvent) => {
               const eventStartTime = utcToZonedTime(
@@ -523,17 +534,20 @@ function Events() {
                   {(remixFormsProps) => {
                     const { Button } = remixFormsProps;
                     return (
-                      <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden">
-                        <Link className="flex" to={`/event/${childEvent.slug}`}>
-                          <div className="hidden @xl:mv-block w-40 shrink-0">
+                      <div className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden">
+                        <Link
+                          className="mv-flex"
+                          to={`/event/${childEvent.slug}`}
+                        >
+                          <div className="mv-hidden @xl:mv-block mv-w-40 mv-shrink-0">
                             <Image
                               alt={childEvent.name}
                               src={childEvent.background}
                               blurredSrc={childEvent.blurredBackground}
                             />
                           </div>
-                          <div className="px-4 py-6">
-                            <p className="text-xs mb-1">
+                          <div className="mv-px-4 mv-py-6">
+                            <p className="mv-text-xs mv-mb-1">
                               {/* TODO: Display icons (see figma) */}
                               {stageTitle !== null ? stageTitle + " | " : ""}
                               {getDuration(
@@ -580,15 +594,15 @@ function Events() {
                                 ""
                               )}
                             </p>
-                            <h4 className="font-bold text-base m-0 @md:mv-line-clamp-1">
+                            <h4 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
                               {childEvent.name}
                             </h4>
                             {childEvent.subline !== null ? (
-                              <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                              <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                                 {childEvent.subline}
                               </p>
                             ) : (
-                              <p className="mv-hidden text-xs mt-1 @md:mv-line-clamp-2">
+                              <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-2">
                                 {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}
@@ -600,7 +614,7 @@ function Events() {
                           hidden
                         />
                         <Button
-                          className="ml-auto btn-none"
+                          className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
                           title={locales.route.form.remove.label}
                         >
                           <svg
@@ -625,9 +639,9 @@ function Events() {
           </ul>
         </div>
       ) : null}
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -640,7 +654,7 @@ function Events() {
                     <div className="mv-hidden">
                       <Field name="publish" value={!loaderData.published} />
                     </div>
-                    <Button className="btn btn-outline-primary">
+                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
                       {loaderData.published
                         ? locales.route.form.hide.label
                         : locales.route.form.publish.label}

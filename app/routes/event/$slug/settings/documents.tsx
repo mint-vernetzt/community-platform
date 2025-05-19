@@ -270,7 +270,7 @@ function Documents() {
 
   return (
     <>
-      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <h1 className="mv-mb-8">{locales.route.content.headline}</h1>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
@@ -556,9 +556,9 @@ function Documents() {
           </>
         </div>
       </div>
-      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
+          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -574,7 +574,7 @@ function Documents() {
                         value={!loaderData.event.published}
                       />
                     </div>
-                    <Button className="btn btn-outline-primary">
+                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
                       {loaderData.event.published
                         ? locales.route.content.form.hide.label
                         : locales.route.content.form.publish.label}

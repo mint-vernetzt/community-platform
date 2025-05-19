@@ -93,7 +93,7 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
   const classes = classNames(
     "mv-w-full",
     "mv-flex mv-gap-2 mv-items-center",
-    "mv-mx-4 my-2 @lg:mv-mx-0",
+    "mv-mx-4 mv-my-2 @lg:mv-mx-0",
     "@lg:mv-px-4 @lg:mv-py-2",
     isActive
       ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent"
@@ -150,7 +150,7 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
   const classes = classNames(
     "mv-w-full @lg:mv-max-w-full",
     "mv-mt-2 @lg:mv-m-0 @lg:mv-py-2 @lg:mv-px-2",
-    "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-scroll",
+    "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-auto",
     "mv-flex-col @lg:mv-flex-row",
     "mv-gap-2 @lg:mv-gap-6",
     // "mv-bg-white @lg:mv-bg-neutral-100",

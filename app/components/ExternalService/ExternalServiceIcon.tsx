@@ -51,7 +51,7 @@ function ServiceIcon({
       }`}
       width={width}
       height={height}
-      className="fill-current"
+      className="mv-fill-current"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path data-testid="path" d={path} />
@@ -65,7 +65,7 @@ function ExternalServiceIcon(props: ExternalServiceProps) {
     <>
       <Link
         to={url}
-        className="flex items-center justify-center px-4 py-3 bg-neutral-300 rounded-lg text-neutral-600"
+        className="mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
         target="_blank"
         rel="noreferrer noopener"
       >

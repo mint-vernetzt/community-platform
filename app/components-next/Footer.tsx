@@ -98,12 +98,7 @@ export function Footer(props: { locales?: RootLocales }) {
         {/* SoMe icons */}
         <ul className="mv-flex mv-items-center mv-gap-6">
           <li>
-            <MVLink
-              as="a"
-              to="https://www.github.com/mint-vernetzt"
-              isExternal
-              className=""
-            >
+            <MVLink as="a" to="https://www.github.com/mint-vernetzt" isExternal>
               <svg
                 width="16"
                 height="16"
@@ -123,7 +118,6 @@ export function Footer(props: { locales?: RootLocales }) {
               as="a"
               to="https://www.instagram.com/mintvernetzt"
               isExternal
-              className=""
             >
               <svg
                 width="16"
@@ -144,7 +138,6 @@ export function Footer(props: { locales?: RootLocales }) {
               as="a"
               to="https://bs.linkedin.com/company/mintvernetzt"
               isExternal
-              className=""
             >
               <svg
                 width="16"

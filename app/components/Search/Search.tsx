@@ -41,9 +41,9 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
   }, []);
 
   return (
-    <div className="form-control w-full">
-      <div className="relative">
-        <div className="absolute left-4 top-4">
+    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
+      <div className="mv-relative">
+        <div className="mv-absolute mv-left-4 mv-top-4">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
             <path
               fill="#3C4658"
@@ -53,7 +53,7 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
           </svg>
         </div>
         <input
-          className="w-full input search"
+          className="mv-w-full mv-outline-none mv-bg-neutral-100 mv-h-auto mv-min-w-[230px] mv-rounded-lg mv-border-2 mv-border-neutral-100 mv-py-2 mv-pl-10 mv-pr-4 mv-text-sm mv-font-semibold mv-appearance-none mv-leading-6 focus:mv-border-primary"
           placeholder={inputProps.placeholder || "Suche (mind. 3 Buchstaben)"}
           minLength={inputProps.minLength || 3}
           value={value}
@@ -62,8 +62,8 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
           {...inputProps}
         />
         {value.length > 0 && (
-          <div className="absolute right-0 top-0.5">
-            <button className="p-4" type="reset" onClick={handleClear}>
+          <div className="mv-absolute mv-right-0 mv-top-0.5">
+            <button className="mv-p-4" type="reset" onClick={handleClear}>
               <svg
                 viewBox="0 0 10 10"
                 width="10px"

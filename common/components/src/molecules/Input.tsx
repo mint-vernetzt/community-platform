@@ -299,7 +299,7 @@ function Input(props: InputProps) {
     <CharacterCountContext.Provider
       value={[characterCount, updateCharacterCount]}
     >
-      <div className="w-full">
+      <div className="mv-w-full">
         <div className="mv-flex mv-gap-2">
           <div className="mv-relative mv-flex mv-flex-col mv-gap-2 mv-flex-nowrap mv-grow">
             {label}

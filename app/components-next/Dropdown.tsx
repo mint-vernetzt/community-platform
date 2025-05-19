@@ -78,19 +78,19 @@ function DropdownLabel(
 
 function DropDownListLegend(props: React.PropsWithChildren) {
   return (
-    <legend className="mt-2 mx-4 mv-text-neutral-700 mv-text-sm mv-font-semibold">
+    <legend className="mv-mt-2 mv-mx-4 mv-text-neutral-700 mv-text-sm mv-font-semibold">
       {props.children}
     </legend>
   );
 }
 
 function DropdownListDivider() {
-  return <hr className="mv-mx-4 my-2 mv-border-t mv-border-gray-200" />;
+  return <hr className="mv-mx-4 mv-my-2 mv-border-t mv-border-gray-200" />;
 }
 
 function DropdownListCategory(props: React.PropsWithChildren) {
   return (
-    <p className="mv-mx-4 my-2 mv-uppercase mv-whitespace-normal">
+    <p className="mv-mx-4 mv-my-2 mv-uppercase mv-whitespace-normal">
       {props.children}
     </p>
   );

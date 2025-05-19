@@ -17,11 +17,13 @@ const Input = (props: React.HTMLProps<HTMLInputElement> & InputProps) => {
   } = props;
 
   return (
-    <div className="form-control mv-w-full">
+    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
       {label && (
         <label
           htmlFor={inputProps.id || label}
-          className={`label ${errorMessage ? " mv-text-red-500" : ""}`}
+          className={`mv-font-semibold${
+            errorMessage ? " mv-text-red-500" : ""
+          }`}
           title={errorMessage}
         >
           {label}
