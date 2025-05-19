@@ -1,11 +1,10 @@
 import { Children, isValidElement } from "react";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
-import { type SearchFundingsLocales } from "~/routes/search/fundings.server";
 
 export function FundingCard(props: {
   url: string;
   children: React.ReactNode;
-  locales: ExploreFundingsLocales | SearchFundingsLocales;
+  locales: ExploreFundingsLocales;
 }) {
   const { locales } = props;
   const validChildren = Children.toArray(props.children).filter((child) => {
@@ -112,7 +111,7 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
 function FundingCardCategory(props: {
   children: React.ReactNode;
   items: string[];
-  locales: ExploreFundingsLocales | SearchFundingsLocales;
+  locales: ExploreFundingsLocales;
 }) {
   const { locales } = props;
 
