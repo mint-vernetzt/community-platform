@@ -438,7 +438,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-export default function ExploreOrganizations() {
+export default function ExploreEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const [searchParams] = useSearchParams();
