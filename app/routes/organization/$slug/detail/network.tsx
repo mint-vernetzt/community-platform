@@ -48,8 +48,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
-  // console.log(enhancedOrganization.memberOf)
-
   type NetworkType = keyof typeof locales.networkTypes;
   const networksByType: {
     [Key in NetworkType]: typeof enhancedOrganization.memberOf;
