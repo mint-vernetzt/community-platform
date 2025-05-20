@@ -399,7 +399,7 @@ export default function ExploreFundings() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset });
+            submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
           <input name="fndPage" defaultValue="1" hidden />

@@ -405,7 +405,7 @@ export default function ExploreProfiles() {
             const formData = new FormData(event.currentTarget);
             formData.delete(fields.showFilters.name);
             formData.append(fields.showFilters.name, "on");
-            submit(formData, { preventScrollReset });
+            submit(formData, { preventScrollReset, method: "get" });
           }}
         >
           <input name="prfPage" defaultValue="1" hidden />
@@ -597,6 +597,7 @@ export default function ExploreProfiles() {
                         submit(event.currentTarget.form, {
                           replace: true,
                           preventScrollReset: true,
+                          method: "get",
                         });
                       }}
                       placeholder={
