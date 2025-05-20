@@ -52,6 +52,7 @@ import {
 } from "./profiles.server";
 import { getProfilesSchema, PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -344,10 +345,8 @@ export default function ExploreProfiles() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
+  const isHydrated = useHydrated();
 
-  // const fetcher = useFetcher<typeof loader>();
-  // const areas =
-  //   typeof fetcher.data !== "undefined" ? fetcher.data.areas : loaderData.areas;
   const [form, fields] = useForm<FilterSchemes>({});
 
   const filter = fields.prfFilter.getFieldset();
@@ -729,27 +728,31 @@ export default function ExploreProfiles() {
                   : ""
               }`}
             >
-              {loaderData.locales.route.filter.reset}
+              {isHydrated
+                ? loaderData.locales.route.filter.reset
+                : loaderData.locales.route.filter.close}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {decideBetweenSingularOrPlural(
-                insertParametersIntoLocale(
-                  loaderData.locales.route.showNumberOfItems_singular,
-                  {
-                    count: loaderData.profilesCount,
-                  }
-                ),
-                insertParametersIntoLocale(
-                  loaderData.locales.route.showNumberOfItems_plural,
-                  {
-                    count: loaderData.profilesCount,
-                  }
-                ),
-                loaderData.profilesCount
-              )}
+              {isHydrated
+                ? decideBetweenSingularOrPlural(
+                    insertParametersIntoLocale(
+                      loaderData.locales.route.showNumberOfItems_singular,
+                      {
+                        count: loaderData.profilesCount,
+                      }
+                    ),
+                    insertParametersIntoLocale(
+                      loaderData.locales.route.showNumberOfItems_plural,
+                      {
+                        count: loaderData.profilesCount,
+                      }
+                    ),
+                    loaderData.profilesCount
+                  )
+                : loaderData.locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript>
+          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
             <Button>{loaderData.locales.route.filter.apply}</Button>
           </noscript>
         </Form>

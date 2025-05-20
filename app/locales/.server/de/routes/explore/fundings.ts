@@ -27,6 +27,7 @@ export const locale = {
       "title-desc": "Titel (Z-A)",
       "createdAt-desc": "Neueste zuerst",
     },
+    close: "Filter schließen",
   },
   card: {
     region: "Fördergebiet",

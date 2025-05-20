@@ -35,6 +35,7 @@ export const locale = {
         "createdAt-desc": "Neueste zuerst",
       },
     },
+    close: "Filter schließen",
   },
   more: "Weitere laden",
   empty: "Es konnten leider keine Projekte gefunden werden.",

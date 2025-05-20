@@ -7,6 +7,7 @@ import {
 } from "react-router";
 import classNames from "classnames";
 import { Children, isValidElement, useState } from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export function ShowFiltersButton(props: React.PropsWithChildren) {
   const { children } = props;
@@ -127,11 +128,33 @@ function FiltersFieldset(
 }
 
 function FiltersResetButton(props: { to: string } & React.PropsWithChildren) {
+  const location = useLocation();
   const navigation = useNavigation();
+  const isHydrated = useHydrated();
 
-  return (
+  return isHydrated ? (
     <Link className="mv-grow" to={props.to} preventScrollReset>
       <Button
+        variant="outline"
+        size="large"
+        loading={navigation.state === "loading"}
+        disabled={navigation.state === "loading"}
+        fullSize
+      >
+        {props.children}
+      </Button>
+    </Link>
+  ) : (
+    <Link
+      className="mv-grow"
+      to={`./${location.search
+        .replace("showFilters=on", "")
+        .replace("&&", "&")
+        .replace("?&", "?")}`}
+      preventScrollReset
+    >
+      <Button
+        type="button"
         variant="outline"
         size="large"
         loading={navigation.state === "loading"}
@@ -149,7 +172,7 @@ function FiltersApplyButton(props: React.PropsWithChildren) {
 
   return (
     <Link
-      className="mv-grow"
+      className="mv-grow mv-relative"
       to={`./${location.search
         .replace("showFilters=on", "")
         .replace("&&", "&")

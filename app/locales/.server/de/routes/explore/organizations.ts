@@ -27,6 +27,7 @@ export const locale = {
         "createdAt-desc": "Neueste zuerst",
       },
     },
+    close: "Filter schließen",
   },
   empty: "Es konnten leider keine Organisationen gefunden werden.",
   notShown_one:

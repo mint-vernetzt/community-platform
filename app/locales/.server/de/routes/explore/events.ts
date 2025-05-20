@@ -37,6 +37,7 @@ export const locale = {
       },
     },
     stage: "Veranstaltungsart",
+    close: "Filter schliepen",
   },
 
   empty: "Es konnten leider keine Veranstaltungen gefunden werden.",

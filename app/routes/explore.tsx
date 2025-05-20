@@ -1,3 +1,4 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import {
   type LoaderFunctionArgs,
   Outlet,
@@ -8,19 +9,17 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { getProfileIds } from "./explore/profiles.server";
-import { parseWithZod } from "@conform-to/zod-v1";
 
 import { invariantResponse } from "~/lib/utils/response";
 
 import { getOrganizationIds } from "./explore/organizations.server";
 
-import { getEventIds } from "./explore/events.server";
-import { getProjectIds } from "./explore/projects.server";
-import { getFundingIds } from "./explore/fundings.server";
-import { getFilterSchemes } from "./explore/all.shared";
-import { useEffect, useState } from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { EntitiesSelect } from "~/components-next/EntitiesSelect";
+import { getFilterSchemes } from "./explore/all.shared";
+import { getEventIds } from "./explore/events.server";
+import { getFundingIds } from "./explore/fundings.server";
+import { getProjectIds } from "./explore/projects.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -89,7 +88,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     locales,
-    origin: url.origin,
+    url: {
+      pathname: url.pathname,
+      search: url.search,
+    },
     counts: {
       allContent: allContentCount,
       profiles: profileCount,
@@ -104,60 +106,76 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-
-  const [links, setLinks] = useState<
-    { to: string; label: string; value: number; end?: boolean }[]
-  >([]);
-  const [currentLink, setCurrentLink] = useState(links[0]);
-
-  useEffect(() => {
-    const newLinks = [
-      {
-        to: "/explore/all",
-        label: loaderData.locales.route.content.menu.allContent,
-        value: loaderData.counts.allContent,
-        end: true,
-      },
-      {
-        to: "/explore/profiles",
-        value: loaderData.counts.profiles,
-        label: loaderData.locales.route.content.menu.profiles,
-      },
-      {
-        to: "/explore/organizations",
-        value: loaderData.counts.organizations,
-        label: loaderData.locales.route.content.menu.organizations,
-      },
-      {
-        to: "/explore/events",
-        value: loaderData.counts.events,
-        label: loaderData.locales.route.content.menu.events,
-      },
-      {
-        to: "/explore/projects",
-        value: loaderData.counts.projects,
-        label: loaderData.locales.route.content.menu.projects,
-      },
-      {
-        to: "/explore/fundings",
-        value: loaderData.counts.fundings,
-        label: loaderData.locales.route.content.menu.fundings,
-      },
-    ];
-    setLinks(newLinks);
-  }, [loaderData]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const currentPath = window.location.pathname;
-      const currentLink = links.find((link) => {
-        return link.to === currentPath;
-      });
-      if (typeof currentLink !== "undefined") {
-        setCurrentLink(currentLink);
-      }
-    }
-  }, [links]);
+  const links = [
+    {
+      pathname: "/explore/all",
+      search: loaderData.url.search,
+      label: loaderData.locales.route.content.menu.allContent,
+      value: loaderData.counts.allContent,
+    },
+    {
+      pathname: "/explore/profiles",
+      search: loaderData.url.search,
+      value: loaderData.counts.profiles,
+      label: loaderData.locales.route.content.menu.profiles,
+    },
+    {
+      pathname: "/explore/organizations",
+      search: loaderData.url.search,
+      value: loaderData.counts.organizations,
+      label: loaderData.locales.route.content.menu.organizations,
+    },
+    {
+      pathname: "/explore/events",
+      search: loaderData.url.search,
+      value: loaderData.counts.events,
+      label: loaderData.locales.route.content.menu.events,
+    },
+    {
+      pathname: "/explore/projects",
+      search: loaderData.url.search,
+      value: loaderData.counts.projects,
+      label: loaderData.locales.route.content.menu.projects,
+    },
+    {
+      pathname: "/explore/fundings",
+      search: loaderData.url.search,
+      value: loaderData.counts.fundings,
+      label: loaderData.locales.route.content.menu.fundings,
+    },
+  ];
+  const currentLink = {
+    pathname: loaderData.url.pathname,
+    search: loaderData.url.search,
+    label:
+      loaderData.url.pathname === "/explore/all"
+        ? loaderData.locales.route.content.menu.allContent
+        : loaderData.url.pathname === "/explore/profiles"
+        ? loaderData.locales.route.content.menu.profiles
+        : loaderData.url.pathname === "/explore/organizations"
+        ? loaderData.locales.route.content.menu.organizations
+        : loaderData.url.pathname === "/explore/events"
+        ? loaderData.locales.route.content.menu.events
+        : loaderData.url.pathname === "/explore/projects"
+        ? loaderData.locales.route.content.menu.projects
+        : loaderData.url.pathname === "/explore/fundings"
+        ? loaderData.locales.route.content.menu.fundings
+        : loaderData.locales.route.content.menu.label,
+    value:
+      loaderData.url.pathname === "/explore/all"
+        ? loaderData.counts.allContent
+        : loaderData.url.pathname === "/explore/profiles"
+        ? loaderData.counts.profiles
+        : loaderData.url.pathname === "/explore/organizations"
+        ? loaderData.counts.organizations
+        : loaderData.url.pathname === "/explore/events"
+        ? loaderData.counts.events
+        : loaderData.url.pathname === "/explore/projects"
+        ? loaderData.counts.projects
+        : loaderData.url.pathname === "/explore/fundings"
+        ? loaderData.counts.fundings
+        : undefined,
+  };
 
   return (
     <>
@@ -177,15 +195,14 @@ export default function Explore() {
             </EntitiesSelect.Menu.Label>
             {typeof currentLink !== "undefined" && (
               <EntitiesSelect.Label>
-                <EntitiesSelect.Menu.Item
-                  origin={loaderData.origin}
-                  {...currentLink}
-                >
+                <EntitiesSelect.Menu.Item {...currentLink}>
                   <EntitiesSelect.Menu.Item.Label>
                     {currentLink.label}{" "}
-                    <EntitiesSelect.Badge>
-                      {currentLink.value}
-                    </EntitiesSelect.Badge>{" "}
+                    {typeof currentLink.value !== "undefined" ? (
+                      <EntitiesSelect.Badge>
+                        {currentLink.value}
+                      </EntitiesSelect.Badge>
+                    ) : null}{" "}
                   </EntitiesSelect.Menu.Item.Label>
                 </EntitiesSelect.Menu.Item>
               </EntitiesSelect.Label>
@@ -194,9 +211,8 @@ export default function Explore() {
               {links.map((item) => {
                 return (
                   <EntitiesSelect.Menu.Item
-                    key={item.to}
+                    key={`${item.pathname}${item.search}`}
                     {...item}
-                    origin={loaderData.origin}
                   >
                     <EntitiesSelect.Menu.Item.Label>
                       {item.label}{" "}
