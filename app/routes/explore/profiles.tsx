@@ -22,8 +22,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -43,7 +41,7 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { type FilterSchemes, getFilterSchemes } from "./all";
+import { type FilterSchemes, getFilterSchemes } from "./all.shared";
 import {
   getAllOffers,
   getAllProfiles,
@@ -52,78 +50,8 @@ import {
   getProfileIds,
   getTakeParam,
 } from "./profiles.server";
+import { getProfilesSchema, PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-// import styles from "../../../common/design/styles/styles.css?url";
-
-const i18nNS = ["routes-explore-profiles", "datasets-offers"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
-// export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
-
-const sortValues = [
-  "firstName-asc",
-  "firstName-desc",
-  "lastName-asc",
-  "lastName-desc",
-  "createdAt-desc",
-] as const;
-
-export type GetProfilesSchema = z.infer<typeof getProfilesSchema>;
-
-export const getProfilesSchema = z.object({
-  prfFilter: z
-    .object({
-      offer: z.array(z.string()),
-      area: z.array(z.string()),
-    })
-    .optional()
-    .transform((filter) => {
-      if (filter === undefined) {
-        return {
-          offer: [],
-          area: [],
-        };
-      }
-      return filter;
-    }),
-  prfSortBy: z
-    .enum(sortValues)
-    .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
-      }
-      return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
-      };
-    }),
-  prfPage: z
-    .number()
-    .optional()
-    .transform((page) => {
-      if (page === undefined) {
-        return 1;
-      }
-      return page;
-    }),
-  prfAreaSearch: z
-    .string()
-    .optional()
-    .transform((searchQuery) => {
-      if (searchQuery === undefined) {
-        return "";
-      }
-      return searchQuery;
-    }),
-  showFilters: z.boolean().optional(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -416,8 +344,10 @@ export default function ExploreProfiles() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
-  const debounceSubmit = useDebounceSubmit();
 
+  // const fetcher = useFetcher<typeof loader>();
+  // const areas =
+  //   typeof fetcher.data !== "undefined" ? fetcher.data.areas : loaderData.areas;
   const [form, fields] = useForm<FilterSchemes>({});
 
   const filter = fields.prfFilter.getFieldset();
@@ -432,7 +362,7 @@ export default function ExploreProfiles() {
     loaderData.submission.value.prfAreaSearch
   );
 
-  const currentSortValue = sortValues.find((value) => {
+  const currentSortValue = PROFILE_SORT_VALUES.find((value) => {
     return (
       value ===
       `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
@@ -665,10 +595,9 @@ export default function ExploreProfiles() {
                       onChange={(event) => {
                         setSearchQuery(event.currentTarget.value);
                         event.stopPropagation();
-                        debounceSubmit(event.currentTarget.form, {
-                          debounceTimeout: 250,
-                          preventScrollReset: true,
+                        submit(event.currentTarget.form, {
                           replace: true,
+                          preventScrollReset: true,
                         });
                       }}
                       placeholder={
@@ -763,13 +692,13 @@ export default function ExploreProfiles() {
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
                       loaderData.locales.route.filter.sortBy[
-                        currentSortValue || sortValues[0]
+                        currentSortValue || PROFILE_SORT_VALUES[0]
                       ]
                     }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
+                  {PROFILE_SORT_VALUES.map((sortValue) => {
                     const submissionSortValue = `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`;
                     return (
                       <FormControl

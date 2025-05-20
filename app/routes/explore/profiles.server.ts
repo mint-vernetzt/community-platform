@@ -3,8 +3,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { type GetProfilesSchema } from "./profiles";
-import { type GetSearchSchema } from "./all";
+import { type GetProfilesSchema } from "./profiles.shared";
+import { type GetSearchSchema } from "./all.shared";
 import { type User } from "@supabase/supabase-js";
 import {
   type Organization,

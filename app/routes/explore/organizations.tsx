@@ -22,8 +22,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -43,7 +41,7 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { getFilterSchemes, type FilterSchemes } from "./all";
+import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
   getAllOrganizations,
@@ -53,66 +51,11 @@ import {
   getOrganizationIds,
   getTakeParam,
 } from "./organizations.server";
+import {
+  getOrganizationsSchema,
+  ORGANIZATION_SORT_VALUES,
+} from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-
-const sortValues = ["name-asc", "name-desc", "createdAt-desc"] as const;
-
-export type GetOrganizationsSchema = z.infer<typeof getOrganizationsSchema>;
-
-export const getOrganizationsSchema = z.object({
-  orgFilter: z
-    .object({
-      type: z.array(z.string()),
-      focus: z.array(z.string()),
-      area: z.array(z.string()),
-    })
-    .optional()
-    .transform((filter) => {
-      if (filter === undefined) {
-        return {
-          type: [],
-          focus: [],
-          area: [],
-        };
-      }
-      return filter;
-    }),
-  orgSortBy: z
-    .enum(sortValues)
-    .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
-      }
-      return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
-      };
-    }),
-  orgPage: z
-    .number()
-    .optional()
-    .transform((page) => {
-      if (page === undefined) {
-        return 1;
-      }
-      return page;
-    }),
-  orgAreaSearch: z
-    .string()
-    .optional()
-    .transform((searchQuery) => {
-      if (searchQuery === undefined) {
-        return "";
-      }
-      return searchQuery;
-    }),
-  showFilters: z.boolean().optional(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -440,7 +383,6 @@ export default function ExploreOrganizations() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
-  const debounceSubmit = useDebounceSubmit();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -758,10 +700,9 @@ export default function ExploreOrganizations() {
                       onChange={(event) => {
                         setSearchQuery(event.currentTarget.value);
                         event.stopPropagation();
-                        debounceSubmit(event.currentTarget.form, {
-                          debounceTimeout: 250,
-                          preventScrollReset: true,
+                        submit(event.currentTarget.form, {
                           replace: true,
+                          preventScrollReset: true,
                         });
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
@@ -873,7 +814,7 @@ export default function ExploreOrganizations() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
+                  {ORGANIZATION_SORT_VALUES.map((sortValue) => {
                     const submissionSortValue = `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`;
                     return (
                       <FormControl
