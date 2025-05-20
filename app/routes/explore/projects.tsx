@@ -545,7 +545,7 @@ export default function ExploreProjects() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset });
+            submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
           <input name="prjPage" defaultValue="1" hidden />
@@ -948,6 +948,7 @@ export default function ExploreProjects() {
                         submit(event.currentTarget.form, {
                           replace: true,
                           preventScrollReset: true,
+                          method: "get",
                         });
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}

@@ -433,7 +433,7 @@ export default function ExploreOrganizations() {
               preventScrollReset = false;
             }
 
-            submit(event.currentTarget, { preventScrollReset });
+            submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
           <input name="orgPage" defaultValue="1" hidden />
@@ -705,6 +705,7 @@ export default function ExploreOrganizations() {
                         submit(event.currentTarget.form, {
                           replace: true,
                           preventScrollReset: true,
+                          method: "get",
                         });
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
