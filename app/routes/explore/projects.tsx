@@ -6,10 +6,11 @@ import {
 } from "@conform-to/react-v1";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -21,114 +22,41 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Dropdown } from "~/components-next/Dropdown";
+import { Filters, ShowFiltersButton } from "~/components-next/Filters";
+import { FormControl } from "~/components-next/FormControl";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
+import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import { Dropdown } from "~/components-next/Dropdown";
-import { Filters, ShowFiltersButton } from "~/components-next/Filters";
-import { FormControl } from "~/components-next/FormControl";
+import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllAdditionalDisciplines,
   getAllDisciplines,
   getAllFinancings,
   getAllFormats,
-  getAllProjectTargetGroups,
   getAllProjects,
+  getAllProjectTargetGroups,
   getAllSpecialTargetGroups,
   getFilterCountForSlug,
   getProjectFilterVectorForAttribute,
   getProjectIds,
   getTakeParam,
 } from "./projects.server";
+import { getProjectsSchema, PROJECT_SORT_VALUES } from "./projects.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { DefaultImages } from "~/images.shared";
-import { getFilterSchemes, type FilterSchemes } from "./all";
-import { useState } from "react";
-
-export const PROJECT_SORT_VALUES = [
-  "name-asc",
-  "name-desc",
-  "createdAt-desc",
-] as const;
-
-export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
-
-export const getProjectsSchema = z.object({
-  prjFilter: z
-    .object({
-      discipline: z.array(z.string()),
-      additionalDiscipline: z.array(z.string()),
-      projectTargetGroup: z.array(z.string()),
-      area: z.array(z.string()),
-      format: z.array(z.string()),
-      specialTargetGroup: z.array(z.string()),
-      financing: z.array(z.string()),
-    })
-    .optional()
-    .transform((filter) => {
-      if (filter === undefined) {
-        return {
-          discipline: [],
-          additionalDiscipline: [],
-          projectTargetGroup: [],
-          area: [],
-          format: [],
-          specialTargetGroup: [],
-          financing: [],
-        };
-      }
-      return filter;
-    }),
-  prjSortBy: z
-    .enum(PROJECT_SORT_VALUES)
-    .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
-      }
-      return {
-        value: PROJECT_SORT_VALUES[0].split("-")[0],
-        direction: PROJECT_SORT_VALUES[0].split("-")[1],
-      };
-    }),
-  prjPage: z
-    .number()
-    .optional()
-    .transform((page) => {
-      if (page === undefined) {
-        return 1;
-      }
-      return page;
-    }),
-  prjAreaSearch: z
-    .string()
-    .optional()
-    .transform((searchQuery) => {
-      if (searchQuery === undefined) {
-        return "";
-      }
-      return searchQuery;
-    }),
-  showFilters: z.boolean().optional(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -568,7 +496,6 @@ export default function ExploreProjects() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
-  const debounceSubmit = useDebounceSubmit();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -1016,10 +943,9 @@ export default function ExploreProjects() {
                       onChange={(event) => {
                         setSearchQuery(event.currentTarget.value);
                         event.stopPropagation();
-                        debounceSubmit(event.currentTarget.form, {
-                          debounceTimeout: 250,
-                          preventScrollReset: true,
+                        submit(event.currentTarget.form, {
                           replace: true,
+                          preventScrollReset: true,
                         });
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}

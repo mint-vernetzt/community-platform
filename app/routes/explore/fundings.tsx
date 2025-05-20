@@ -18,7 +18,6 @@ import {
   useSubmit,
   type LoaderFunctionArgs,
 } from "react-router";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -39,59 +38,8 @@ import {
   getFundingIds,
   getTakeParam,
 } from "./fundings.server";
-import { getFilterSchemes, type FilterSchemes } from "./all";
-
-const sortValues = ["createdAt-desc", "title-asc", "title-desc"] as const;
-
-export const getFundingsSchema = z.object({
-  fndFilter: z
-    .object({
-      types: z.array(z.string()),
-      areas: z.array(z.string()),
-      regions: z.array(z.string()),
-      eligibleEntities: z.array(z.string()),
-    })
-    .optional()
-    .transform((filter) => {
-      if (typeof filter === "undefined") {
-        return {
-          types: [],
-          areas: [],
-          regions: [],
-          eligibleEntities: [],
-        };
-      }
-      return filter;
-    }),
-  fndSortBy: z
-    .enum(sortValues)
-    .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
-      }
-      return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
-      };
-    }),
-  fndPage: z
-    .number()
-    .optional()
-    .transform((page) => {
-      if (page === undefined) {
-        return 1;
-      }
-      return page;
-    }),
-  showFilters: z.boolean().optional(),
-});
-
-export type GetFundingsSchema = z.infer<typeof getFundingsSchema>;
+import { getFilterSchemes, type FilterSchemes } from "./all.shared";
+import { getFundingsSchema, FUNDING_SORT_VALUES } from "./fundings.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -418,7 +366,7 @@ export default function ExploreFundings() {
 
   const filter = fields.fndFilter.getFieldset();
 
-  const currentSortValue = sortValues.find((value) => {
+  const currentSortValue = FUNDING_SORT_VALUES.find((value) => {
     return (
       value ===
       `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
@@ -643,13 +591,13 @@ export default function ExploreFundings() {
                   <span className="mv-font-normal @lg:mv-font-semibold">
                     {
                       loaderData.locales.filter.sortBy[
-                        currentSortValue || sortValues[0]
+                        currentSortValue || FUNDING_SORT_VALUES[0]
                       ]
                     }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
+                  {FUNDING_SORT_VALUES.map((sortValue) => {
                     return (
                       <FormControl
                         {...getInputProps(fields.fndSortBy, {

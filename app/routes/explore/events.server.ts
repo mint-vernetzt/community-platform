@@ -4,8 +4,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { type GetEventsSchema } from "./events";
-import { type GetSearchSchema } from "./all";
+import { type GetEventsSchema } from "./events.shared";
+import { type GetSearchSchema } from "./all.shared";
 import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 import { type Prisma } from "@prisma/client";
 

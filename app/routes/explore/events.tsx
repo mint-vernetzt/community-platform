@@ -23,8 +23,6 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
-import { useDebounceSubmit } from "remix-utils/use-debounce-submit";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -44,6 +42,7 @@ import {
   filterOrganizationByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import { type FilterSchemes, getFilterSchemes } from "./all.shared";
 import {
   enhanceEventsWithParticipationStatus,
   getAllEventTargetGroups,
@@ -55,88 +54,12 @@ import {
   getFilterCountForSlug,
   getTakeParam,
 } from "./events.server";
-import { type FilterSchemes, getFilterSchemes } from "./all";
+import {
+  EVENT_SORT_VALUES,
+  getEventsSchema,
+  periodOfTimeValues,
+} from "./events.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-
-const sortValues = ["startTime-asc", "name-asc", "name-desc"] as const;
-
-export const periodOfTimeValues = [
-  "now",
-  "thisWeek",
-  "nextWeek",
-  "thisMonth",
-  "nextMonth",
-  "past",
-] as const;
-
-export type GetEventsSchema = z.infer<typeof getEventsSchema>;
-
-export const getEventsSchema = z.object({
-  evtFilter: z
-    .object({
-      stage: z.string(),
-      focus: z.array(z.string()),
-      eventTargetGroup: z.array(z.string()),
-      periodOfTime: z
-        .enum(periodOfTimeValues)
-        .optional()
-        .transform((periodOfTime) => {
-          if (periodOfTime === undefined) {
-            return periodOfTimeValues[0];
-          }
-          return periodOfTime;
-        }),
-      area: z.array(z.string()),
-    })
-    .optional()
-    .transform((filter) => {
-      if (filter === undefined) {
-        return {
-          stage: "all",
-          focus: [],
-          eventTargetGroup: [],
-          periodOfTime: periodOfTimeValues[0],
-          area: [],
-        };
-      }
-      return filter;
-    }),
-  evtSortBy: z
-    .enum(sortValues)
-    .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
-      }
-      return {
-        value: sortValues[0].split("-")[0],
-        direction: sortValues[0].split("-")[1],
-      };
-    }),
-  evtPage: z
-    .number()
-    .optional()
-    .transform((page) => {
-      if (page === undefined) {
-        return 1;
-      }
-      return page;
-    }),
-  evtAreaSearch: z
-    .string()
-    .optional()
-    .transform((searchQuery) => {
-      if (searchQuery === undefined) {
-        return "";
-      }
-      return searchQuery;
-    }),
-  showFilters: z.boolean().optional(),
-});
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -445,7 +368,6 @@ export default function ExploreEvents() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
-  const debounceSubmit = useDebounceSubmit();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -893,10 +815,9 @@ export default function ExploreEvents() {
                       onChange={(event) => {
                         setSearchQuery(event.currentTarget.value);
                         event.stopPropagation();
-                        debounceSubmit(event.currentTarget.form, {
-                          debounceTimeout: 250,
-                          preventScrollReset: true,
+                        submit(event.currentTarget.form, {
                           replace: true,
+                          preventScrollReset: true,
                         });
                       }}
                       placeholder={locales.route.filter.searchAreaPlaceholder}
@@ -1008,7 +929,7 @@ export default function ExploreEvents() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {sortValues.map((sortValue) => {
+                  {EVENT_SORT_VALUES.map((sortValue) => {
                     const submissionSortValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                     return (
                       <FormControl

@@ -17,7 +17,7 @@ import { getOrganizationIds } from "./explore/organizations.server";
 import { getEventIds } from "./explore/events.server";
 import { getProjectIds } from "./explore/projects.server";
 import { getFundingIds } from "./explore/fundings.server";
-import { getFilterSchemes } from "./explore/all";
+import { getFilterSchemes } from "./explore/all.shared";
 import { useEffect, useState } from "react";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { EntitiesSelect } from "~/components-next/EntitiesSelect";
@@ -101,7 +101,7 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
-function Explore() {
+export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
 
@@ -213,5 +213,3 @@ function Explore() {
     </>
   );
 }
-
-export default Explore;

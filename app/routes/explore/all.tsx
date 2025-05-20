@@ -11,9 +11,9 @@ import {
   useLoaderData,
   useSearchParams,
 } from "react-router";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { FundingCard } from "~/components-next/FundingCard";
+import { LinkButton } from "~/components-next/LinkButton";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -21,43 +21,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
 import { enhanceEventsWithParticipationStatus } from "../dashboard.server";
-import { getEventsSchema } from "./events";
+import { getFilterSchemes } from "./all.shared";
 import { getAllEvents } from "./events.server";
-import { getFundingsSchema } from "./fundings";
 import { getAllFundings } from "./fundings.server";
-import { getOrganizationsSchema } from "./organizations";
 import { getAllOrganizations } from "./organizations.server";
-import { getProfilesSchema } from "./profiles";
 import { getAllProfiles } from "./profiles.server";
-import { getProjectsSchema } from "./projects";
 import { getAllProjects } from "./projects.server";
-import { LinkButton } from "~/components-next/LinkButton";
-
-const getSearchSchema = z.object({
-  search: z
-    .string()
-    .optional()
-    .transform((value) => {
-      if (typeof value === "undefined") {
-        return [];
-      }
-      const words = value.split(" ").filter((word) => {
-        return word.length > 0;
-      });
-      return words;
-    }),
-});
-
-export type GetSearchSchema = z.infer<typeof getSearchSchema>;
-
-export const getFilterSchemes = getProfilesSchema
-  .merge(getOrganizationsSchema)
-  .merge(getEventsSchema)
-  .merge(getProjectsSchema)
-  .merge(getFundingsSchema)
-  .merge(getSearchSchema);
-
-export type FilterSchemes = z.infer<typeof getFilterSchemes>;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -538,7 +507,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-function ExploreAll() {
+export default function ExploreAll() {
   const loaderData = useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
@@ -774,5 +743,3 @@ function ExploreAll() {
     </>
   );
 }
-
-export default ExploreAll;

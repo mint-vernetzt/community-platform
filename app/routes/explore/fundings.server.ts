@@ -3,10 +3,10 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { type GetFundingsSchema } from "./fundings";
+import { type GetFundingsSchema } from "./fundings.shared";
 import { type Prisma } from "@prisma/client";
 import { type User } from "@supabase/supabase-js";
-import { type GetSearchSchema } from "./all";
+import { type GetSearchSchema } from "./all.shared";
 
 export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof supportedCookieLanguages
