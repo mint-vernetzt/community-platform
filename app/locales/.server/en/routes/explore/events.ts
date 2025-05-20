@@ -39,6 +39,7 @@ export const locale = {
       },
     },
     stage: "Event Type",
+    close: "Close filter",
   },
 
   more: "Load more",

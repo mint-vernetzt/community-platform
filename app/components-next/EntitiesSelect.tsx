@@ -1,9 +1,11 @@
 import classNames from "classnames";
 import { createContext, useContext } from "react";
-import { NavLink, useMatch, useSearchParams } from "react-router";
+import { NavLink, useMatch } from "react-router";
 
-const EntitiesSelectMenuItemContext =
-  createContext<DropDownMenuItemProps | null>(null);
+const EntitiesSelectMenuItemContext = createContext<Pick<
+  DropDownMenuItemProps,
+  "pathname"
+> | null>(null);
 
 function useIsActive() {
   const context = useContext(EntitiesSelectMenuItemContext);
@@ -12,8 +14,8 @@ function useIsActive() {
       "useIsActive must be used within a EntitiesSelectMenuItemContext"
     );
   }
-  const { to } = context;
-  const match = useMatch(to);
+  const { pathname } = context;
+  const match = useMatch(pathname);
   return match !== null;
 }
 
@@ -31,24 +33,14 @@ function Badge(props: React.PropsWithChildren) {
 }
 
 type DropDownMenuItemProps = React.PropsWithChildren & {
-  to: string;
-  origin: string;
-  end?: boolean;
+  pathname: string;
+  search: string;
 };
 
 function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
-  const { to, origin, children, ...otherProps } = props;
+  const { pathname, search, children, ...otherProps } = props;
 
-  const [searchParams] = useSearchParams();
-  const match = useMatch(to);
-
-  const url = new URL(to, origin);
-
-  url.search = searchParams.toString();
-  url.searchParams.delete("prfAreaSearch");
-  url.searchParams.delete("orgAreaSearch");
-  url.searchParams.delete("evtAreaSearch");
-  url.searchParams.delete("prjAreaSearch");
+  const match = useMatch(pathname);
 
   const isActive = match !== null;
 
@@ -66,9 +58,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
   );
 
   return (
-    <EntitiesSelectMenuItemContext.Provider
-      value={{ to, origin, end: otherProps.end }}
-    >
+    <EntitiesSelectMenuItemContext.Provider value={{ pathname }}>
       {isActive ? (
         <li className={classes}>{children}</li>
       ) : (
@@ -76,7 +66,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
           <NavLink
             className={linkClasses}
             {...otherProps}
-            to={`${url.pathname}${url.search}`}
+            to={`${pathname}${search}`}
             preventScrollReset
           >
             {children}

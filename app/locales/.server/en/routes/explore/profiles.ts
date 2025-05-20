@@ -30,6 +30,7 @@ export const locale = {
       "lastName-desc": "Last name (Z-A)",
       "createdAt-desc": "Newest first",
     },
+    close: "Close filter",
   },
   more: "Load more",
   empty: "Unfortunately, no profiles could be found.",

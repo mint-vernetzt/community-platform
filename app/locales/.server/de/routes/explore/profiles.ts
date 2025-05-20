@@ -29,6 +29,7 @@ export const locale = {
       "lastName-desc": "Nachname (Z-A)",
       "createdAt-desc": "Neueste zuerst",
     },
+    close: "Filter schließen",
   },
   more: "Weitere laden",
   empty: "Es konnten leider keine Person gefunden werden.",

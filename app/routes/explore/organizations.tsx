@@ -56,6 +56,7 @@ import {
   ORGANIZATION_SORT_VALUES,
 } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -383,6 +384,7 @@ export default function ExploreOrganizations() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
+  const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -845,23 +847,27 @@ export default function ExploreOrganizations() {
                   : ""
               }`}
             >
-              {locales.route.filter.reset}
+              {isHydrated
+                ? locales.route.filter.reset
+                : locales.route.filter.close}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {decideBetweenSingularOrPlural(
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_one,
-                  { count: loaderData.organizationsCount }
-                ),
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_other,
-                  { count: loaderData.organizationsCount }
-                ),
-                loaderData.organizationsCount
-              )}
+              {isHydrated
+                ? decideBetweenSingularOrPlural(
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_one,
+                      { count: loaderData.organizationsCount }
+                    ),
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_other,
+                      { count: loaderData.organizationsCount }
+                    ),
+                    loaderData.organizationsCount
+                  )
+                : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript>
+          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
             <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>

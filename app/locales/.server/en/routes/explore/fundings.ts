@@ -27,6 +27,7 @@ export const locale = {
       "title-desc": "Title (Z-A)",
       "createdAt-desc": "Newest first",
     },
+    close: "Close filter",
   },
   card: {
     region: "Funding region",

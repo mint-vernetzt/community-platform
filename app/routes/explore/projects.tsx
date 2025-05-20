@@ -57,6 +57,7 @@ import {
 } from "./projects.server";
 import { getProjectsSchema, PROJECT_SORT_VALUES } from "./projects.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -496,6 +497,7 @@ export default function ExploreProjects() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
+  const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -1349,27 +1351,31 @@ export default function ExploreProjects() {
                   : ""
               }`}
             >
-              {locales.route.filter.reset}
+              {isHydrated
+                ? locales.route.filter.reset
+                : locales.route.filter.close}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {decideBetweenSingularOrPlural(
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_one,
-                  {
-                    count: loaderData.projectsCount,
-                  }
-                ),
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_other,
-                  {
-                    count: loaderData.projectsCount,
-                  }
-                ),
-                loaderData.projectsCount
-              )}
+              {isHydrated
+                ? decideBetweenSingularOrPlural(
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_one,
+                      {
+                        count: loaderData.projectsCount,
+                      }
+                    ),
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_other,
+                      {
+                        count: loaderData.projectsCount,
+                      }
+                    ),
+                    loaderData.projectsCount
+                  )
+                : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript>
+          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
             <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>

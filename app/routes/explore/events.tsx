@@ -60,6 +60,7 @@ import {
   periodOfTimeValues,
 } from "./events.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -368,6 +369,7 @@ export default function ExploreEvents() {
   const navigation = useNavigation();
   const location = useLocation();
   const submit = useSubmit();
+  const isHydrated = useHydrated();
 
   const [form, fields] = useForm<FilterSchemes>({});
 
@@ -960,27 +962,31 @@ export default function ExploreEvents() {
                   : ""
               }`}
             >
-              {locales.route.filter.reset}
+              {isHydrated
+                ? locales.route.filter.reset
+                : locales.route.filter.close}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {decideBetweenSingularOrPlural(
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_one,
-                  {
-                    count: loaderData.eventsCount,
-                  }
-                ),
-                insertParametersIntoLocale(
-                  locales.route.showNumberOfItems_other,
-                  {
-                    count: loaderData.eventsCount,
-                  }
-                ),
-                loaderData.eventsCount
-              )}
+              {isHydrated
+                ? decideBetweenSingularOrPlural(
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_one,
+                      {
+                        count: loaderData.eventsCount,
+                      }
+                    ),
+                    insertParametersIntoLocale(
+                      locales.route.showNumberOfItems_other,
+                      {
+                        count: loaderData.eventsCount,
+                      }
+                    ),
+                    loaderData.eventsCount
+                  )
+                : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript>
+          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
             <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>

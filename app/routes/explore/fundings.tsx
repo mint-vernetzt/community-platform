@@ -40,6 +40,7 @@ import {
 } from "./fundings.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import { getFundingsSchema, FUNDING_SORT_VALUES } from "./fundings.shared";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -353,6 +354,7 @@ export default function ExploreFundings() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
+  const isHydrated = useHydrated();
   const [form, fields] = useForm<FilterSchemes>({});
 
   const navigation = useNavigation();
@@ -621,27 +623,31 @@ export default function ExploreFundings() {
               </Dropdown>
             </Filters.Fieldset>
             <Filters.ResetButton to={`${location.pathname}`}>
-              {loaderData.locales.filter.reset}
+              {isHydrated
+                ? loaderData.locales.filter.reset
+                : loaderData.locales.filter.close}
             </Filters.ResetButton>
             <Filters.ApplyButton>
-              {decideBetweenSingularOrPlural(
-                insertParametersIntoLocale(
-                  loaderData.locales.showNumberOfItems_singular,
-                  {
-                    count: loaderData.count,
-                  }
-                ),
-                insertParametersIntoLocale(
-                  loaderData.locales.showNumberOfItems_plural,
-                  {
-                    count: loaderData.count,
-                  }
-                ),
-                loaderData.count
-              )}
+              {isHydrated
+                ? decideBetweenSingularOrPlural(
+                    insertParametersIntoLocale(
+                      loaderData.locales.showNumberOfItems_singular,
+                      {
+                        count: loaderData.count,
+                      }
+                    ),
+                    insertParametersIntoLocale(
+                      loaderData.locales.showNumberOfItems_plural,
+                      {
+                        count: loaderData.count,
+                      }
+                    ),
+                    loaderData.count
+                  )
+                : loaderData.locales.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript>
+          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
             <Button>{loaderData.locales.filter.apply}</Button>
           </noscript>
         </Form>
