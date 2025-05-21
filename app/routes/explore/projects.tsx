@@ -516,10 +516,7 @@ export default function ExploreProjects() {
         financing: [],
       },
       prjPage: 1,
-      prjSortBy: {
-        value: PROJECT_SORT_VALUES[0].split("-")[0],
-        direction: PROJECT_SORT_VALUES[0].split("-")[1],
-      },
+      prjSortBy: PROJECT_SORT_VALUES[0],
       prjAreaSearch: "",
       showFilters: "on",
     },
@@ -528,10 +525,7 @@ export default function ExploreProjects() {
   });
 
   const currentSortValue = PROJECT_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
-    );
+    return value === `${loaderData.submission.value.prjSortBy}`;
   });
 
   let showMore = false;
@@ -1362,7 +1356,7 @@ export default function ExploreProjects() {
             <Filters.ResetButton
               to={`${location.pathname}${
                 loaderData.submission.value.prjSortBy !== undefined
-                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
+                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy}`
                   : ""
               }`}
             >

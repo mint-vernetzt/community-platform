@@ -375,10 +375,7 @@ export default function ExploreProfiles() {
         offer: [],
       },
       prfPage: 1,
-      prfSortBy: {
-        value: PROFILE_SORT_VALUES[0].split("-")[0],
-        direction: PROFILE_SORT_VALUES[0].split("-")[1],
-      },
+      prfSortBy: PROFILE_SORT_VALUES[0],
       prfAreaSearch: "",
       showFilters: "on",
     },
@@ -387,10 +384,7 @@ export default function ExploreProfiles() {
   });
 
   const currentSortValue = PROFILE_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
-    );
+    return value === `${loaderData.submission.value.prfSortBy}`;
   });
 
   let showMore = false;
@@ -739,7 +733,7 @@ export default function ExploreProfiles() {
             <Filters.ResetButton
               to={`${location.pathname}${
                 loaderData.submission.value.prfSortBy !== undefined
-                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
+                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy}`
                   : ""
               }`}
             >

@@ -381,10 +381,7 @@ export default function ExploreFundings() {
         eligibleEntities: [],
       },
       fndPage: 1,
-      fndSortBy: {
-        value: FUNDING_SORT_VALUES[0].split("-")[0],
-        direction: FUNDING_SORT_VALUES[0].split("-")[1],
-      },
+      fndSortBy: FUNDING_SORT_VALUES[0],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -392,10 +389,7 @@ export default function ExploreFundings() {
   });
 
   const currentSortValue = FUNDING_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
-    );
+    return value === `${loaderData.submission.value.fndSortBy}`;
   });
 
   return (

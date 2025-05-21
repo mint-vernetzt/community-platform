@@ -411,10 +411,7 @@ export default function ExploreOrganizations() {
         type: [],
       },
       orgPage: 1,
-      orgSortBy: {
-        value: ORGANIZATION_SORT_VALUES[0].split("-")[0],
-        direction: ORGANIZATION_SORT_VALUES[0].split("-")[1],
-      },
+      orgSortBy: ORGANIZATION_SORT_VALUES[0],
       orgAreaSearch: "",
       showFilters: "on",
     },
@@ -423,10 +420,7 @@ export default function ExploreOrganizations() {
   });
 
   const currentSortValue = ORGANIZATION_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
-    );
+    return value === `${loaderData.submission.value.orgSortBy}`;
   });
 
   let showMore = false;
@@ -856,7 +850,7 @@ export default function ExploreOrganizations() {
             <Filters.ResetButton
               to={`${location.pathname}${
                 loaderData.submission.value.orgSortBy !== undefined
-                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
+                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy}`
                   : ""
               }`}
             >

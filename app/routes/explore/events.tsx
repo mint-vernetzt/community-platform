@@ -394,10 +394,7 @@ export default function ExploreEvents() {
         stage: "all",
       },
       evtPage: 1,
-      evtSortBy: {
-        value: EVENT_SORT_VALUES[0].split("-")[0],
-        direction: EVENT_SORT_VALUES[0].split("-")[1],
-      },
+      evtSortBy: EVENT_SORT_VALUES[0],
       evtAreaSearch: "",
       showFilters: "on",
     },
@@ -406,10 +403,7 @@ export default function ExploreEvents() {
   });
 
   const currentSortValue = EVENT_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
-    );
+    return value === `${loaderData.submission.value.evtSortBy}`;
   });
 
   let showMore = false;
@@ -959,7 +953,7 @@ export default function ExploreEvents() {
             <Filters.ResetButton
               to={`${location.pathname}${
                 loaderData.submission.value.evtSortBy !== undefined
-                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
+                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy}`
                   : ""
               }`}
             >

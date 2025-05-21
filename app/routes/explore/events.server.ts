@@ -888,12 +888,12 @@ export async function getAllEvents(options: {
     },
     orderBy: [
       options.filter.periodOfTime === "past" &&
-      options.sortBy.value === "startTime"
+      options.sortBy.split("-")[0] === "startTime"
         ? {
-            [options.sortBy.value]: "desc",
+            [options.sortBy.split("-")[0]]: "desc",
           }
         : {
-            [options.sortBy.value]: options.sortBy.direction,
+            [options.sortBy.split("-")[0]]: options.sortBy.split("-")[1],
           },
       {
         id: "asc",
