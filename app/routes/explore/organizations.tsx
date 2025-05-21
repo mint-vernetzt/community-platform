@@ -4,13 +4,12 @@ import {
   getInputProps,
   useForm,
 } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -22,6 +21,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -51,12 +51,8 @@ import {
   getOrganizationIds,
   getTakeParam,
 } from "./organizations.server";
-import {
-  getOrganizationsSchema,
-  ORGANIZATION_SORT_VALUES,
-} from "./organizations.shared";
+import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -256,7 +252,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
-      isChecked: boolean;
     }
   >;
   const enhancedAreas = {
@@ -286,11 +281,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.orgFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
-      isChecked,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -331,8 +324,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       typeFilterVector,
       "type"
     );
-    const isChecked = submission.value.orgFilter.type.includes(type.slug);
-    return { ...type, vectorCount, isChecked };
+    return { ...type, vectorCount };
   });
 
   const focuses = await getAllFocuses();
@@ -357,8 +349,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       focusFilterVector,
       "focus"
     );
-    const isChecked = submission.value.orgFilter.focus.includes(focus.slug);
-    return { ...focus, vectorCount, isChecked };
+    return { ...focus, vectorCount };
   });
 
   return {
@@ -386,9 +377,44 @@ export default function ExploreOrganizations() {
   const submit = useSubmit();
   const isHydrated = useHydrated();
 
-  const [form, fields] = useForm<FilterSchemes>({});
+  const [form, fields] = useForm<FilterSchemes>({
+    id: "filter-organizations",
+    defaultValue: {
+      ...loaderData.submission.value,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+  });
 
-  const filter = fields.orgFilter.getFieldset();
+  const orgFilterFieldset = fields.orgFilter.getFieldset();
+
+  const prfFilterFieldset = fields.prfFilter.getFieldset();
+  const prfFilterOfferFieldList = prfFilterFieldset.offer.getFieldList();
+  const prfFilterAreaFieldList = prfFilterFieldset.area.getFieldList();
+  const evtFilterFieldset = fields.evtFilter.getFieldset();
+  const evtFilterAreaFieldList = evtFilterFieldset.area.getFieldList();
+  const evtFilterTargetGroupFieldList =
+    evtFilterFieldset.eventTargetGroup.getFieldList();
+  const evtFilterFocusFieldList = evtFilterFieldset.focus.getFieldList();
+  const prjFilterFieldset = fields.prjFilter.getFieldset();
+  const prjFilterAdditionalDisciplineFieldList =
+    prjFilterFieldset.additionalDiscipline.getFieldList();
+  const prjFilterAreaFieldList = prjFilterFieldset.area.getFieldList();
+  const prjFilterDisciplineFieldList =
+    prjFilterFieldset.discipline.getFieldList();
+  const prjFilterFinancingFieldList =
+    prjFilterFieldset.financing.getFieldList();
+  const prjFilterFormatFieldList = prjFilterFieldset.format.getFieldList();
+  const prjFilterTargetGroupFieldList =
+    prjFilterFieldset.projectTargetGroup.getFieldList();
+  const prjFilterSpecialTargetGroupFieldList =
+    prjFilterFieldset.specialTargetGroup.getFieldList();
+  const fndFilterFieldset = fields.fndFilter.getFieldset();
+  const fndFilterAreasFieldList = fndFilterFieldset.areas.getFieldList();
+  const fndFilterEligibleEntitiesFieldList =
+    fndFilterFieldset.eligibleEntities.getFieldList();
+  const fndFilterRegionsFieldList = fndFilterFieldset.regions.getFieldList();
+  const fndFilterTypesFieldList = fndFilterFieldset.types.getFieldList();
 
   const loadMoreSearchParams = new URLSearchParams(searchParams);
   loadMoreSearchParams.set(
@@ -396,19 +422,11 @@ export default function ExploreOrganizations() {
     `${loaderData.submission.value.orgPage + 1}`
   );
 
-  const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.orgAreaSearch
-  );
-
-  const additionalSearchParams: { key: string; value: string }[] = [];
-  const schemaKeys = getOrganizationsSchema.keyof().options as string[];
-  searchParams.forEach((value, key) => {
-    const isIncluded = schemaKeys.some((schemaKey) => {
-      return schemaKey === key || key.startsWith(`${schemaKey}.`);
-    });
-    if (isIncluded === false) {
-      additionalSearchParams.push({ key, value });
-    }
+  const currentSortValue = ORGANIZATION_SORT_VALUES.find((value) => {
+    return (
+      value ===
+      `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
+    );
   });
 
   let showMore = false;
@@ -427,27 +445,214 @@ export default function ExploreOrganizations() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
+            let replace = false;
             if (
-              (event.target as HTMLFormElement).name === fields.showFilters.name
+              (event.target as HTMLInputElement).name ===
+              fields.showFilters.name
             ) {
               preventScrollReset = false;
             }
-
-            submit(event.currentTarget, { preventScrollReset, method: "get" });
+            if (
+              (event.target as HTMLInputElement).name ===
+              fields.orgAreaSearch.name
+            ) {
+              replace = true;
+            }
+            submit(event.currentTarget, {
+              preventScrollReset,
+              replace,
+              method: "get",
+            });
           }}
         >
-          <input name="orgPage" defaultValue="1" hidden />
-          <input name="showFilters" defaultValue="on" hidden />
-          {additionalSearchParams.map((param, index) => {
-            return (
-              <input
-                key={`${param.key}-${index}`}
-                name={param.key}
-                defaultValue={param.value}
-                hidden
-              />
-            );
-          })}
+          {/* Profile filters */}
+          <fieldset>
+            <ul>
+              {prfFilterOfferFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prfFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prfAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfSortBy, { type: "hidden" })} />
+
+          {/* Event filters */}
+          <fieldset>
+            <input
+              {...getInputProps(evtFilterFieldset.periodOfTime, {
+                type: "hidden",
+              })}
+            />
+            <input
+              {...getInputProps(evtFilterFieldset.stage, { type: "hidden" })}
+            />
+            <ul>
+              {evtFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {evtFilterFocusFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {evtFilterTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.evtAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.evtPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.evtSortBy, { type: "hidden" })} />
+
+          {/* Project filters */}
+          <fieldset>
+            <ul>
+              {prjFilterDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAdditionalDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFinancingFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFormatFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterSpecialTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prjAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjSortBy, { type: "hidden" })} />
+
+          {/* Funding filters */}
+          <fieldset>
+            <ul>
+              {fndFilterAreasFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterEligibleEntitiesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterRegionsFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterTypesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.fndPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.fndSortBy, { type: "hidden" })} />
+
+          {/* Search and show Filters */}
+          <input
+            {...getInputProps(fields.search, { type: "hidden" })}
+            defaultValue={loaderData.submission.value.search.join(" ")}
+          />
+          <input {...getInputProps(fields.showFilters, { type: "hidden" })} />
+
+          {/* Organization Filters */}
+          <input {...getInputProps(fields.orgPage, { type: "hidden" })} />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -485,19 +690,22 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.types.map((type) => {
+                    const isChecked =
+                      orgFilterFieldset.type.initialValue &&
+                      Array.isArray(orgFilterFieldset.type.initialValue)
+                        ? orgFilterFieldset.type.initialValue.includes(
+                            type.slug
+                          )
+                        : orgFilterFieldset.type.initialValue === type.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.type, {
+                        {...getInputProps(orgFilterFieldset.type, {
                           type: "checkbox",
                           value: type.slug,
                         })}
                         key={type.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={type.isChecked}
-                        readOnly
-                        disabled={type.vectorCount === 0 && !type.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={type.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -561,19 +769,22 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.focuses.map((focus) => {
+                    const isChecked =
+                      orgFilterFieldset.focus.initialValue &&
+                      Array.isArray(orgFilterFieldset.focus.initialValue)
+                        ? orgFilterFieldset.focus.initialValue.includes(
+                            focus.slug
+                          )
+                        : orgFilterFieldset.focus.initialValue === focus.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.focus, {
+                        {...getInputProps(orgFilterFieldset.focus, {
                           type: "checkbox",
                           value: focus.slug,
                         })}
                         key={focus.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={focus.isChecked}
-                        readOnly
-                        disabled={focus.vectorCount === 0 && !focus.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={focus.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -625,19 +836,22 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.areas.global.map((area) => {
+                    const isChecked =
+                      orgFilterFieldset.area.initialValue &&
+                      Array.isArray(orgFilterFieldset.area.initialValue)
+                        ? orgFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : orgFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(orgFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -647,19 +861,22 @@ export default function ExploreOrganizations() {
                     );
                   })}
                   {loaderData.areas.country.map((area) => {
+                    const isChecked =
+                      orgFilterFieldset.area.initialValue &&
+                      Array.isArray(orgFilterFieldset.area.initialValue)
+                        ? orgFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : orgFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(orgFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -673,16 +890,12 @@ export default function ExploreOrganizations() {
                       return selectedArea.name !== null &&
                         selectedArea.isInSearchResultsList === false ? (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(orgFilterFieldset.area, {
                             type: "checkbox",
                             value: selectedArea.slug,
                           })}
                           key={selectedArea.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked
-                          readOnly
+                          defaultChecked={true}
                         >
                           <FormControl.Label>
                             {selectedArea.name}
@@ -695,19 +908,10 @@ export default function ExploreOrganizations() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.orgAreaSearch.id}
-                      name={fields.orgAreaSearch.name}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(event) => {
-                        setSearchQuery(event.currentTarget.value);
-                        event.stopPropagation();
-                        submit(event.currentTarget.form, {
-                          replace: true,
-                          preventScrollReset: true,
-                          method: "get",
-                        });
-                      }}
+                      {...getInputProps(fields.orgAreaSearch, {
+                        type: "search",
+                      })}
+                      key="organization-area-search"
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
@@ -732,19 +936,22 @@ export default function ExploreOrganizations() {
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
+                      const isChecked =
+                        orgFilterFieldset.area.initialValue &&
+                        Array.isArray(orgFilterFieldset.area.initialValue)
+                          ? orgFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : orgFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(orgFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -764,19 +971,22 @@ export default function ExploreOrganizations() {
                   )}
                   {loaderData.areas.district.length > 0 &&
                     loaderData.areas.district.map((area) => {
+                      const isChecked =
+                        orgFilterFieldset.area.initialValue &&
+                        Array.isArray(orgFilterFieldset.area.initialValue)
+                          ? orgFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : orgFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(orgFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -818,7 +1028,6 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {ORGANIZATION_SORT_VALUES.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.orgSortBy, {
@@ -826,11 +1035,7 @@ export default function ExploreOrganizations() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={submissionSortValue === sortValue}
-                        readOnly
+                        defaultChecked={currentSortValue === sortValue}
                       >
                         <FormControl.Label>
                           {locales.route.filter.sortBy.values[sortValue]}
@@ -884,7 +1089,10 @@ export default function ExploreOrganizations() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedTypes.map((selectedType) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.type.name, selectedType);
+                deleteSearchParams.delete(
+                  orgFilterFieldset.type.name,
+                  selectedType
+                );
                 let title;
                 if (selectedType in locales.organizationTypes) {
                   type LocaleKey = keyof typeof locales.organizationTypes;
@@ -914,7 +1122,10 @@ export default function ExploreOrganizations() {
               })}
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.focus.name, selectedFocus);
+                deleteSearchParams.delete(
+                  orgFilterFieldset.focus.name,
+                  selectedFocus
+                );
                 let title;
                 if (selectedFocus in locales.focuses) {
                   type LocaleKey = keyof typeof locales.focuses;
@@ -941,7 +1152,10 @@ export default function ExploreOrganizations() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
+                deleteSearchParams.delete(
+                  orgFilterFieldset.area.name,
+                  selectedArea.slug
+                );
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}

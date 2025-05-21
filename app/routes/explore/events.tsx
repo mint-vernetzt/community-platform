@@ -4,14 +4,13 @@ import {
   getInputProps,
   useForm,
 } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { utcToZonedTime } from "date-fns-tz";
-import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -23,6 +22,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -54,13 +54,8 @@ import {
   getFilterCountForSlug,
   getTakeParam,
 } from "./events.server";
-import {
-  EVENT_SORT_VALUES,
-  getEventsSchema,
-  periodOfTimeValues,
-} from "./events.shared";
+import { EVENT_SORT_VALUES, periodOfTimeValues } from "./events.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -221,7 +216,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
-      isChecked: boolean;
     }
   >;
   const enhancedAreas = {
@@ -253,11 +247,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.evtFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
-      isChecked,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -298,8 +290,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       focusFilterVector,
       "focus"
     );
-    const isChecked = submission.value.evtFilter.focus.includes(focus.slug);
-    return { ...focus, vectorCount, isChecked };
+    return { ...focus, vectorCount };
   });
 
   const targetGroups = await getAllEventTargetGroups();
@@ -324,10 +315,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       targetGroupFilterVector,
       "eventTargetGroup"
     );
-    const isChecked = submission.value.evtFilter.eventTargetGroup.includes(
-      targetGroup.slug
-    );
-    return { ...targetGroup, vectorCount, isChecked };
+    return { ...targetGroup, vectorCount };
   });
 
   const stagesFromDB = await getAllStages();
@@ -340,8 +328,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ] as typeof stagesFromDB
   ).concat(stagesFromDB);
   const enhancedStages = stages.map((stage) => {
-    const isChecked = submission.value.evtFilter.stage === stage.slug;
-    return { ...stage, isChecked };
+    return { ...stage };
   });
 
   return {
@@ -371,27 +358,53 @@ export default function ExploreEvents() {
   const submit = useSubmit();
   const isHydrated = useHydrated();
 
-  const [form, fields] = useForm<FilterSchemes>({});
+  const [form, fields] = useForm<FilterSchemes>({
+    id: "filter-events",
+    defaultValue: {
+      ...loaderData.submission.value,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+  });
 
-  const filter = fields.evtFilter.getFieldset();
+  const evtFilterFieldset = fields.evtFilter.getFieldset();
+
+  const prfFilterFieldset = fields.prfFilter.getFieldset();
+  const prfFilterOfferFieldList = prfFilterFieldset.offer.getFieldList();
+  const prfFilterAreaFieldList = prfFilterFieldset.area.getFieldList();
+  const orgFilterFieldset = fields.orgFilter.getFieldset();
+  const orgFilterAreaFieldList = orgFilterFieldset.area.getFieldList();
+  const orgFilterFocusFieldList = orgFilterFieldset.focus.getFieldList();
+  const orgFilterTypeFieldList = orgFilterFieldset.type.getFieldList();
+  const prjFilterFieldset = fields.prjFilter.getFieldset();
+  const prjFilterAdditionalDisciplineFieldList =
+    prjFilterFieldset.additionalDiscipline.getFieldList();
+  const prjFilterAreaFieldList = prjFilterFieldset.area.getFieldList();
+  const prjFilterDisciplineFieldList =
+    prjFilterFieldset.discipline.getFieldList();
+  const prjFilterFinancingFieldList =
+    prjFilterFieldset.financing.getFieldList();
+  const prjFilterFormatFieldList = prjFilterFieldset.format.getFieldList();
+  const prjFilterTargetGroupFieldList =
+    prjFilterFieldset.projectTargetGroup.getFieldList();
+  const prjFilterSpecialTargetGroupFieldList =
+    prjFilterFieldset.specialTargetGroup.getFieldList();
+  const fndFilterFieldset = fields.fndFilter.getFieldset();
+  const fndFilterAreasFieldList = fndFilterFieldset.areas.getFieldList();
+  const fndFilterEligibleEntitiesFieldList =
+    fndFilterFieldset.eligibleEntities.getFieldList();
+  const fndFilterRegionsFieldList = fndFilterFieldset.regions.getFieldList();
+  const fndFilterTypesFieldList = fndFilterFieldset.types.getFieldList();
 
   const page = loaderData.submission.value.evtPage;
   const loadMoreSearchParams = new URLSearchParams(searchParams);
   loadMoreSearchParams.set("evtPage", `${page + 1}`);
 
-  const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.evtAreaSearch
-  );
-
-  const additionalSearchParams: { key: string; value: string }[] = [];
-  const schemaKeys = getEventsSchema.keyof().options as string[];
-  searchParams.forEach((value, key) => {
-    const isIncluded = schemaKeys.some((schemaKey) => {
-      return schemaKey === key || key.startsWith(`${schemaKey}.`);
-    });
-    if (isIncluded === false) {
-      additionalSearchParams.push({ key, value });
-    }
+  const currentSortValue = EVENT_SORT_VALUES.find((value) => {
+    return (
+      value ===
+      `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
+    );
   });
 
   let showMore = false;
@@ -417,18 +430,186 @@ export default function ExploreEvents() {
             submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
-          <input name="evtPage" defaultValue="1" hidden />
-          <input name="showFilters" defaultValue="on" hidden />
-          {additionalSearchParams.map((param, index) => {
-            return (
-              <input
-                key={`${param.key}-${index}`}
-                name={param.key}
-                defaultValue={param.value}
-                hidden
-              />
-            );
-          })}
+          {/* Profile filters */}
+          <fieldset>
+            <ul>
+              {prfFilterOfferFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prfFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prfAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfSortBy, { type: "hidden" })} />
+
+          {/* Organization filters */}
+          <fieldset>
+            <ul>
+              {orgFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {orgFilterFocusFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {orgFilterTypeFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.orgAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.orgPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.orgSortBy, { type: "hidden" })} />
+
+          {/* Project filters */}
+          <fieldset>
+            <ul>
+              {prjFilterDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAdditionalDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFinancingFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFormatFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterSpecialTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prjAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjSortBy, { type: "hidden" })} />
+
+          {/* Funding filters */}
+          <fieldset>
+            <ul>
+              {fndFilterAreasFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterEligibleEntitiesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterRegionsFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterTypesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.fndPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.fndSortBy, { type: "hidden" })} />
+
+          {/* Search and show Filters */}
+          <input
+            {...getInputProps(fields.search, { type: "hidden" })}
+            defaultValue={loaderData.submission.value.search.join(" ")}
+          />
+          <input {...getInputProps(fields.showFilters, { type: "hidden" })} />
+
+          {/* Event Filters */}
+          <input {...getInputProps(fields.evtPage, { type: "hidden" })} />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -473,18 +654,21 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.stages.map((stage) => {
+                    const isChecked =
+                      evtFilterFieldset.stage.initialValue &&
+                      Array.isArray(evtFilterFieldset.stage.initialValue)
+                        ? evtFilterFieldset.stage.initialValue.includes(
+                            stage.slug
+                          )
+                        : evtFilterFieldset.stage.initialValue === stage.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.stage, {
+                        {...getInputProps(evtFilterFieldset.stage, {
                           type: "radio",
                           value: stage.slug,
                         })}
                         key={stage.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={stage.isChecked}
-                        readOnly
+                        defaultChecked={isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -541,19 +725,23 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.focuses.map((focus) => {
+                    const isChecked =
+                      evtFilterFieldset.focus.initialValue &&
+                      Array.isArray(evtFilterFieldset.focus.initialValue)
+                        ? evtFilterFieldset.focus.initialValue.includes(
+                            focus.slug
+                          )
+                        : evtFilterFieldset.focus.initialValue === focus.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.focus, {
+                        {...getInputProps(evtFilterFieldset.focus, {
                           type: "checkbox",
                           value: focus.slug,
                         })}
                         key={focus.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={focus.isChecked}
+                        defaultChecked={isChecked}
                         readOnly
-                        disabled={focus.vectorCount === 0 && !focus.isChecked}
+                        disabled={focus.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -607,27 +795,22 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {periodOfTimeValues.map((periodOfTimeValue) => {
-                    const submissionFilter =
-                      loaderData.submission.value.evtFilter;
+                    const isChecked =
+                      evtFilterFieldset.periodOfTime.initialValue &&
+                      Array.isArray(evtFilterFieldset.periodOfTime.initialValue)
+                        ? evtFilterFieldset.periodOfTime.initialValue.includes(
+                            periodOfTimeValue
+                          )
+                        : evtFilterFieldset.periodOfTime.initialValue ===
+                          periodOfTimeValue;
                     return (
                       <FormControl
-                        {...getInputProps(filter.periodOfTime, {
+                        {...getInputProps(evtFilterFieldset.periodOfTime, {
                           type: "radio",
                           value: periodOfTimeValue,
                         })}
                         key={periodOfTimeValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={
-                          submissionFilter !== undefined
-                            ? submissionFilter.periodOfTime !== undefined
-                              ? submissionFilter.periodOfTime ===
-                                periodOfTimeValue
-                              : periodOfTimeValues[0] === periodOfTimeValue
-                            : periodOfTimeValues[0] === periodOfTimeValue
-                        }
-                        readOnly
+                        defaultChecked={isChecked}
                       >
                         <FormControl.Label>
                           {
@@ -668,22 +851,25 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.targetGroups.map((targetGroup) => {
+                    const isChecked =
+                      evtFilterFieldset.eventTargetGroup.initialValue &&
+                      Array.isArray(
+                        evtFilterFieldset.eventTargetGroup.initialValue
+                      )
+                        ? evtFilterFieldset.eventTargetGroup.initialValue.includes(
+                            targetGroup.slug
+                          )
+                        : evtFilterFieldset.eventTargetGroup.initialValue ===
+                          targetGroup.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.eventTargetGroup, {
+                        {...getInputProps(evtFilterFieldset.eventTargetGroup, {
                           type: "checkbox",
                           value: targetGroup.slug,
                         })}
                         key={targetGroup.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={targetGroup.isChecked}
-                        readOnly
-                        disabled={
-                          targetGroup.vectorCount === 0 &&
-                          !targetGroup.isChecked
-                        }
+                        defaultChecked={isChecked}
+                        disabled={targetGroup.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -740,19 +926,22 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.areas.global.map((area) => {
+                    const isChecked =
+                      evtFilterFieldset.area.initialValue &&
+                      Array.isArray(evtFilterFieldset.area.initialValue)
+                        ? evtFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : evtFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(evtFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -762,19 +951,22 @@ export default function ExploreEvents() {
                     );
                   })}
                   {loaderData.areas.country.map((area) => {
+                    const isChecked =
+                      evtFilterFieldset.area.initialValue &&
+                      Array.isArray(evtFilterFieldset.area.initialValue)
+                        ? evtFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : evtFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(evtFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -788,16 +980,12 @@ export default function ExploreEvents() {
                       return selectedArea.name !== null &&
                         selectedArea.isInSearchResultsList === false ? (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(evtFilterFieldset.area, {
                             type: "checkbox",
                             value: selectedArea.slug,
                           })}
                           key={selectedArea.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked
-                          readOnly
+                          defaultChecked={true}
                         >
                           <FormControl.Label>
                             {selectedArea.name}
@@ -810,19 +998,10 @@ export default function ExploreEvents() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.evtAreaSearch.id}
-                      name={fields.evtAreaSearch.name}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(event) => {
-                        setSearchQuery(event.currentTarget.value);
-                        event.stopPropagation();
-                        submit(event.currentTarget.form, {
-                          replace: true,
-                          preventScrollReset: true,
-                          method: "get",
-                        });
-                      }}
+                      {...getInputProps(fields.evtAreaSearch, {
+                        type: "search",
+                      })}
+                      key="event-area-search"
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.evtAreaSearch.id} hidden>
@@ -847,19 +1026,22 @@ export default function ExploreEvents() {
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
+                      const isChecked =
+                        evtFilterFieldset.area.initialValue &&
+                        Array.isArray(evtFilterFieldset.area.initialValue)
+                          ? evtFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : evtFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(evtFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -879,19 +1061,22 @@ export default function ExploreEvents() {
                   )}
                   {loaderData.areas.district.length > 0 &&
                     loaderData.areas.district.map((area) => {
+                      const isChecked =
+                        evtFilterFieldset.area.initialValue &&
+                        Array.isArray(evtFilterFieldset.area.initialValue)
+                          ? evtFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : evtFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(evtFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -933,7 +1118,6 @@ export default function ExploreEvents() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {EVENT_SORT_VALUES.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.evtSortBy, {
@@ -941,11 +1125,7 @@ export default function ExploreEvents() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={submissionSortValue === sortValue}
-                        readOnly
+                        defaultChecked={currentSortValue === sortValue}
                       >
                         <FormControl.Label>
                           {locales.route.filter.sortBy.values[sortValue]}
@@ -1003,7 +1183,10 @@ export default function ExploreEvents() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedFocuses.map((selectedFocus) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.focus.name, selectedFocus);
+                deleteSearchParams.delete(
+                  evtFilterFieldset.focus.name,
+                  selectedFocus
+                );
                 let title;
                 if (selectedFocus in locales.focuses) {
                   type LocaleKey = keyof typeof locales.focuses;
@@ -1031,7 +1214,7 @@ export default function ExploreEvents() {
               {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
-                  filter.eventTargetGroup.name,
+                  evtFilterFieldset.eventTargetGroup.name,
                   selectedTargetGroup
                 );
                 let title;
@@ -1064,7 +1247,10 @@ export default function ExploreEvents() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
+                deleteSearchParams.delete(
+                  evtFilterFieldset.area.name,
+                  selectedArea.slug
+                );
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} responsive>
                     {selectedArea.name}
