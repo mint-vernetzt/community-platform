@@ -385,15 +385,21 @@ export default function ExploreOrganizations() {
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
   const orgFilterFieldset = fields.orgFilter.getFieldset();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "orgPage",
-    `${loaderData.submission.value.orgPage + 1}`
-  );
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-organizations",
+    defaultValue: {
+      ...loaderData.submission.value,
+      orgPage: loaderData.submission.value.orgPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
   const currentSortValue = ORGANIZATION_SORT_VALUES.find((value) => {
     return (
@@ -799,24 +805,11 @@ export default function ExploreOrganizations() {
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {(() => {
-                      const currentValue = `${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`;
-                      let value;
-                      if (currentValue in locales.route.filter.sortBy.values) {
-                        type LocaleKey =
-                          keyof typeof locales.route.filter.sortBy.values;
-                        value =
-                          locales.route.filter.sortBy.values[
-                            currentValue as LocaleKey
-                          ];
-                      } else {
-                        console.error(
-                          `Sort by value ${currentValue} not found in locales`
-                        );
-                        value = currentValue;
-                      }
-                      return value;
-                    })()}
+                    {
+                      loaderData.locales.route.filter.sortBy.values[
+                        currentSortValue || ORGANIZATION_SORT_VALUES[0]
+                      ]
+                    }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -1039,12 +1032,18 @@ export default function ExploreOrganizations() {
             </CardContainer>
             {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Link
-                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
                   preventScrollReset
                   replace
                 >
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
                   <Button
+                    type="submit"
                     size="large"
                     variant="outline"
                     loading={navigation.state === "loading"}
@@ -1052,7 +1051,7 @@ export default function ExploreOrganizations() {
                   >
                     {locales.route.more}
                   </Button>
-                </Link>
+                </Form>
               </div>
             )}
           </>

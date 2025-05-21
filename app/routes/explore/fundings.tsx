@@ -358,11 +358,16 @@ export default function ExploreFundings() {
 
   const fndFilterFieldset = fields.fndFilter.getFieldset();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "fndPage",
-    `${loaderData.submission.value.fndPage + 1}`
-  );
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-fundings",
+    defaultValue: {
+      ...loaderData.submission.value,
+      fndPage: loaderData.submission.value.fndPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
   const currentSortValue = FUNDING_SORT_VALUES.find((value) => {
     return (
@@ -819,12 +824,18 @@ export default function ExploreFundings() {
 
         {loaderData.count > loaderData.fundings.length && (
           <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
-            <Link
-              to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+            <Form
+              {...getFormProps(loadMoreForm)}
+              method="get"
               preventScrollReset
               replace
             >
+              <HiddenFilterInputs
+                fields={loadMoreFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 size="large"
                 variant="outline"
                 loading={navigation.state === "loading"}
@@ -832,7 +843,7 @@ export default function ExploreFundings() {
               >
                 {loaderData.locales.more}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

@@ -354,11 +354,16 @@ export default function ExploreProfiles() {
 
   const prfFilterFieldset = fields.prfFilter.getFieldset();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "prfPage",
-    `${loaderData.submission.value.prfPage + 1}`
-  );
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-profiles",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prfPage: loaderData.submission.value.prfPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
   const currentSortValue = PROFILE_SORT_VALUES.find((value) => {
     return (
@@ -876,12 +881,18 @@ export default function ExploreProfiles() {
             </CardContainer>
             {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Link
-                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
                   preventScrollReset
                   replace
                 >
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
                   <Button
+                    type="submit"
                     size="large"
                     variant="outline"
                     loading={navigation.state === "loading"}
@@ -889,7 +900,7 @@ export default function ExploreProfiles() {
                   >
                     {loaderData.locales.route.more}
                   </Button>
-                </Link>
+                </Form>
               </div>
             )}
           </>

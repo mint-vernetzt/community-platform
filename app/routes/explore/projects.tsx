@@ -490,11 +490,16 @@ export default function ExploreProjects() {
 
   const prjFilterFieldset = fields.prjFilter.getFieldset();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "prjPage",
-    `${loaderData.submission.value.prjPage + 1}`
-  );
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-projects",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prjPage: loaderData.submission.value.prjPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
   const currentSortValue = PROJECT_SORT_VALUES.find((value) => {
     return (
@@ -1301,24 +1306,11 @@ export default function ExploreProjects() {
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {(() => {
-                      const currentValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
-                      let value;
-                      if (currentValue in locales.route.filter.sortBy.values) {
-                        type LocaleKey =
-                          keyof typeof locales.route.filter.sortBy.values;
-                        value =
-                          locales.route.filter.sortBy.values[
-                            currentValue as LocaleKey
-                          ];
-                      } else {
-                        console.error(
-                          `Sort by value ${currentValue} not found in locales`
-                        );
-                        value = currentValue;
-                      }
-                      return value;
-                    })()}
+                    {
+                      loaderData.locales.route.filter.sortBy.values[
+                        currentSortValue || PROJECT_SORT_VALUES[0]
+                      ]
+                    }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
@@ -1695,12 +1687,18 @@ export default function ExploreProjects() {
             </CardContainer>
             {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Link
-                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
                   preventScrollReset
                   replace
                 >
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
                   <Button
+                    type="submit"
                     size="large"
                     variant="outline"
                     loading={navigation.state === "loading"}
@@ -1708,7 +1706,7 @@ export default function ExploreProjects() {
                   >
                     {locales.route.more}
                   </Button>
-                </Link>
+                </Form>
               </div>
             )}
           </>
