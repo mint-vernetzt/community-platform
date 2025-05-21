@@ -486,6 +486,7 @@ export default function ExploreProjects() {
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
   const prjFilterFieldset = fields.prjFilter.getFieldset();
@@ -495,6 +496,31 @@ export default function ExploreProjects() {
     defaultValue: {
       ...loaderData.submission.value,
       prjPage: loaderData.submission.value.prjPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-projects-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prjFilter: {
+        additionalDiscipline: [],
+        discipline: [],
+        area: [],
+        projectTargetGroup: [],
+        specialTargetGroup: [],
+        format: [],
+        financing: [],
+      },
+      prjPage: 1,
+      prjSortBy: {
+        value: PROJECT_SORT_VALUES[0].split("-")[0],
+        direction: PROJECT_SORT_VALUES[0].split("-")[1],
+      },
+      prjAreaSearch: "",
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -1617,23 +1643,25 @@ export default function ExploreProjects() {
                 );
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.prjSortBy !== undefined
-                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

@@ -14,7 +14,7 @@ export const locale = {
   showFiltersLabel: "Förderungen filtern",
   filter: {
     apply: "Filter anwenden",
-    reset: "Alles zurücksetzen",
+    reset: "Filter zurücksetzen",
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
     type: "Förderart",

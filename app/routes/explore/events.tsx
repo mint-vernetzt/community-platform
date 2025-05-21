@@ -54,7 +54,7 @@ import {
   getFilterCountForSlug,
   getTakeParam,
 } from "./events.server";
-import { EVENT_SORT_VALUES, periodOfTimeValues } from "./events.shared";
+import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import HiddenFilterInputs from "~/components-next/HiddenFilterInputs";
 
@@ -366,6 +366,7 @@ export default function ExploreEvents() {
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
   const evtFilterFieldset = fields.evtFilter.getFieldset();
@@ -375,6 +376,29 @@ export default function ExploreEvents() {
     defaultValue: {
       ...loaderData.submission.value,
       evtPage: loaderData.submission.value.evtPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-event-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      evtFilter: {
+        area: [],
+        eventTargetGroup: [],
+        focus: [],
+        periodOfTime: PERIOD_OF_TIME_VALUES[0],
+        stage: "all",
+      },
+      evtPage: 1,
+      evtSortBy: {
+        value: EVENT_SORT_VALUES[0].split("-")[0],
+        direction: EVENT_SORT_VALUES[0].split("-")[1],
+      },
+      evtAreaSearch: "",
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -603,7 +627,7 @@ export default function ExploreEvents() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {periodOfTimeValues.map((periodOfTimeValue) => {
+                  {PERIOD_OF_TIME_VALUES.map((periodOfTimeValue) => {
                     const isChecked =
                       evtFilterFieldset.periodOfTime.initialValue &&
                       Array.isArray(evtFilterFieldset.periodOfTime.initialValue)
@@ -1064,23 +1088,25 @@ export default function ExploreEvents() {
                 ) : null;
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.evtSortBy !== undefined
-                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy.value}-${loaderData.submission.value.evtSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

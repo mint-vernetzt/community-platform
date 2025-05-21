@@ -6,7 +6,7 @@ export const EVENT_SORT_VALUES = [
   "name-desc",
 ] as const;
 
-export const periodOfTimeValues = [
+export const PERIOD_OF_TIME_VALUES = [
   "now",
   "thisWeek",
   "nextWeek",
@@ -24,11 +24,11 @@ export const getEventsSchema = z.object({
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
       periodOfTime: z
-        .enum(periodOfTimeValues)
+        .enum(PERIOD_OF_TIME_VALUES)
         .optional()
         .transform((periodOfTime) => {
           if (periodOfTime === undefined) {
-            return periodOfTimeValues[0];
+            return PERIOD_OF_TIME_VALUES[0];
           }
           return periodOfTime;
         }),
@@ -41,7 +41,7 @@ export const getEventsSchema = z.object({
           stage: "all",
           focus: [],
           eventTargetGroup: [],
-          periodOfTime: periodOfTimeValues[0],
+          periodOfTime: PERIOD_OF_TIME_VALUES[0],
           area: [],
         };
       }

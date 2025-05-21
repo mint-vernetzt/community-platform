@@ -401,6 +401,27 @@ export default function ExploreOrganizations() {
     lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-organization-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      orgFilter: {
+        area: [],
+        focus: [],
+        type: [],
+      },
+      orgPage: 1,
+      orgSortBy: {
+        value: ORGANIZATION_SORT_VALUES[0].split("-")[0],
+        direction: ORGANIZATION_SORT_VALUES[0].split("-")[1],
+      },
+      orgAreaSearch: "",
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
   const currentSortValue = ORGANIZATION_SORT_VALUES.find((value) => {
     return (
       value ===
@@ -959,23 +980,25 @@ export default function ExploreOrganizations() {
                 ) : null;
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.orgSortBy !== undefined
-                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy.value}-${loaderData.submission.value.orgSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

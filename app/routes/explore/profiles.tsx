@@ -350,6 +350,7 @@ export default function ExploreProfiles() {
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
   const prfFilterFieldset = fields.prfFilter.getFieldset();
@@ -359,6 +360,26 @@ export default function ExploreProfiles() {
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-profile-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prfFilter: {
+        area: [],
+        offer: [],
+      },
+      prfPage: 1,
+      prfSortBy: {
+        value: PROFILE_SORT_VALUES[0].split("-")[0],
+        direction: PROFILE_SORT_VALUES[0].split("-")[1],
+      },
+      prfAreaSearch: "",
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -813,23 +834,25 @@ export default function ExploreProfiles() {
                 ) : null;
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.prfSortBy !== undefined
-                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {loaderData.locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

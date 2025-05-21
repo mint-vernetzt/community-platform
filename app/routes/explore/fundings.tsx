@@ -354,6 +354,7 @@ export default function ExploreFundings() {
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
   const fndFilterFieldset = fields.fndFilter.getFieldset();
@@ -363,6 +364,27 @@ export default function ExploreFundings() {
     defaultValue: {
       ...loaderData.submission.value,
       fndPage: loaderData.submission.value.fndPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-funding-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      fndFilter: {
+        areas: [],
+        types: [],
+        regions: [],
+        eligibleEntities: [],
+      },
+      fndPage: 1,
+      fndSortBy: {
+        value: FUNDING_SORT_VALUES[0].split("-")[0],
+        direction: FUNDING_SORT_VALUES[0].split("-")[1],
+      },
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -743,19 +765,25 @@ export default function ExploreFundings() {
                   ) : null;
                 })}
               </div>
-              <Link
-                className="mv-w-fit"
-                to={`${location.pathname}`}
+              <Form
+                {...getFormProps(resetForm)}
+                method="get"
                 preventScrollReset
+                className="mv-w-fit"
               >
+                <HiddenFilterInputs
+                  fields={resetFields}
+                  defaultValue={loaderData.submission.value}
+                />
                 <Button
+                  type="submit"
                   variant="outline"
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  Filter zurücksetzen
+                  {loaderData.locales.filter.reset}
                 </Button>
-              </Link>
+              </Form>
             </div>
           )}
         </section>
