@@ -1,0 +1,286 @@
+import { getInputProps, type useForm } from "@conform-to/react-v1";
+import { type FilterSchemes } from "~/routes/explore/all.shared";
+
+export default function HiddenFilterInputs(props: {
+  fields: ReturnType<typeof useForm<FilterSchemes>>[1];
+  defaultValue: FilterSchemes;
+  entityLeftOut?: "profile" | "organization" | "event" | "project" | "funding";
+}) {
+  const { fields, defaultValue, entityLeftOut } = props;
+
+  const prfFilterFieldset = fields.prfFilter.getFieldset();
+  const prfFilterOfferFieldList = prfFilterFieldset.offer.getFieldList();
+  const prfFilterAreaFieldList = prfFilterFieldset.area.getFieldList();
+  const orgFilterFieldset = fields.orgFilter.getFieldset();
+  const orgFilterAreaFieldList = orgFilterFieldset.area.getFieldList();
+  const orgFilterFocusFieldList = orgFilterFieldset.focus.getFieldList();
+  const orgFilterTypeFieldList = orgFilterFieldset.type.getFieldList();
+  const evtFilterFieldset = fields.evtFilter.getFieldset();
+  const evtFilterAreaFieldList = evtFilterFieldset.area.getFieldList();
+  const evtFilterTargetGroupFieldList =
+    evtFilterFieldset.eventTargetGroup.getFieldList();
+  const evtFilterFocusFieldList = evtFilterFieldset.focus.getFieldList();
+  const prjFilterFieldset = fields.prjFilter.getFieldset();
+  const prjFilterAdditionalDisciplineFieldList =
+    prjFilterFieldset.additionalDiscipline.getFieldList();
+  const prjFilterAreaFieldList = prjFilterFieldset.area.getFieldList();
+  const prjFilterDisciplineFieldList =
+    prjFilterFieldset.discipline.getFieldList();
+  const prjFilterFinancingFieldList =
+    prjFilterFieldset.financing.getFieldList();
+  const prjFilterFormatFieldList = prjFilterFieldset.format.getFieldList();
+  const prjFilterTargetGroupFieldList =
+    prjFilterFieldset.projectTargetGroup.getFieldList();
+  const prjFilterSpecialTargetGroupFieldList =
+    prjFilterFieldset.specialTargetGroup.getFieldList();
+  const fndFilterFieldset = fields.fndFilter.getFieldset();
+  const fndFilterAreasFieldList = fndFilterFieldset.areas.getFieldList();
+  const fndFilterEligibleEntitiesFieldList =
+    fndFilterFieldset.eligibleEntities.getFieldList();
+  const fndFilterRegionsFieldList = fndFilterFieldset.regions.getFieldList();
+  const fndFilterTypesFieldList = fndFilterFieldset.types.getFieldList();
+
+  return (
+    <>
+      {entityLeftOut !== "profile" ? (
+        <>
+          {/* Hidden profile filters */}
+          <fieldset>
+            <ul>
+              {prfFilterOfferFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prfFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prfAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prfSortBy, { type: "hidden" })} />
+        </>
+      ) : null}
+
+      {entityLeftOut !== "organization" ? (
+        <>
+          {/* Hidden organization filters */}
+          <fieldset>
+            <ul>
+              {orgFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {orgFilterFocusFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {orgFilterTypeFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.orgAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.orgPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.orgSortBy, { type: "hidden" })} />
+        </>
+      ) : null}
+
+      {entityLeftOut !== "event" ? (
+        <>
+          {/* Hidden event filters */}
+          <fieldset>
+            <input
+              {...getInputProps(evtFilterFieldset.periodOfTime, {
+                type: "hidden",
+              })}
+            />
+            <input
+              {...getInputProps(evtFilterFieldset.stage, { type: "hidden" })}
+            />
+            <ul>
+              {evtFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {evtFilterFocusFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {evtFilterTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.evtAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.evtPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.evtSortBy, { type: "hidden" })} />
+        </>
+      ) : null}
+
+      {entityLeftOut !== "project" ? (
+        <>
+          {/* Hidden project filters */}
+          <fieldset>
+            <ul>
+              {prjFilterDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAdditionalDisciplineFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterAreaFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFinancingFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterFormatFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {prjFilterSpecialTargetGroupFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.prjAreaSearch, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.prjSortBy, { type: "hidden" })} />
+        </>
+      ) : null}
+
+      {entityLeftOut !== "funding" ? (
+        <>
+          {/* Hidden funding filters */}
+          <fieldset>
+            <ul>
+              {fndFilterAreasFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterEligibleEntitiesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterRegionsFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {fndFilterTypesFieldList.map((field) => {
+                return (
+                  <li key={field.key}>
+                    <input {...getInputProps(field, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+          <input {...getInputProps(fields.fndPage, { type: "hidden" })} />
+          <input {...getInputProps(fields.fndSortBy, { type: "hidden" })} />
+        </>
+      ) : null}
+
+      {/* Hidden search and show Filters */}
+      <input
+        {...getInputProps(fields.search, { type: "hidden" })}
+        defaultValue={defaultValue.search.join(" ")}
+      />
+      <input {...getInputProps(fields.showFilters, { type: "hidden" })} />
+    </>
+  );
+}
