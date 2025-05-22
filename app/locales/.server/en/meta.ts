@@ -44,7 +44,7 @@ export const locale = {
       explore: {
         index: "All content",
         label: "Explore",
-        profiles: "Profiles",
+        profiles: "Persons",
         organizations: "Organizations",
         projects: "Projects",
         events: "Events",
