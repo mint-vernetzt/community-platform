@@ -4,7 +4,7 @@ import {
   getInputProps,
   useForm,
 } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import {
@@ -18,6 +18,7 @@ import {
   useSubmit,
   type LoaderFunctionArgs,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -31,6 +32,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFundings,
   getFilterCountForSlug,
@@ -38,9 +40,8 @@ import {
   getFundingIds,
   getTakeParam,
 } from "./fundings.server";
-import { getFilterSchemes, type FilterSchemes } from "./all.shared";
-import { getFundingsSchema, FUNDING_SORT_VALUES } from "./fundings.shared";
-import { useHydrated } from "remix-utils/use-hydrated";
+import { FUNDING_SORT_VALUES } from "./fundings.shared";
+import HiddenFilterInputs from "~/components-next/HiddenFilterInputs";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -136,11 +137,9 @@ export async function loader(args: LoaderFunctionArgs) {
         typeFilterVector,
         "types"
       );
-      const isChecked = submission.value.fndFilter.types.includes(type.slug);
       return {
         ...type,
         vectorCount,
-        isChecked,
       };
     });
   const selectedFundingTypes = submission.value.fndFilter.types.map((slug) => {
@@ -195,11 +194,9 @@ export async function loader(args: LoaderFunctionArgs) {
         areaFilterVector,
         "areas"
       );
-      const isChecked = submission.value.fndFilter.areas.includes(area.slug);
       return {
         ...area,
         vectorCount,
-        isChecked,
       };
     });
   const selectedFundingAreas = submission.value.fndFilter.areas.map((slug) => {
@@ -256,13 +253,9 @@ export async function loader(args: LoaderFunctionArgs) {
         eligibleEntitiesFilterVector,
         "eligibleEntities"
       );
-      const isChecked = submission.value.fndFilter.eligibleEntities.includes(
-        entity.slug
-      );
       return {
         ...entity,
         vectorCount,
-        isChecked,
       };
     });
   const selectedEligibleEntities =
@@ -317,13 +310,9 @@ export async function loader(args: LoaderFunctionArgs) {
         regionFilterVector,
         "regions"
       );
-      const isChecked = submission.value.fndFilter.regions.includes(
-        region.slug
-      );
       return {
         ...region,
         vectorCount,
-        isChecked,
       };
     });
   const selectedRegions = submission.value.fndFilter.regions.map((slug) => {
@@ -355,35 +344,52 @@ export default function ExploreFundings() {
   const [searchParams] = useSearchParams();
   const submit = useSubmit();
   const isHydrated = useHydrated();
-  const [form, fields] = useForm<FilterSchemes>({});
-
   const navigation = useNavigation();
   const location = useLocation();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "fndPage",
-    `${loaderData.submission.value.fndPage + 1}`
-  );
-
-  const filter = fields.fndFilter.getFieldset();
-
-  const currentSortValue = FUNDING_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.fndSortBy.value}-${loaderData.submission.value.fndSortBy.direction}`
-    );
+  const [form, fields] = useForm<FilterSchemes>({
+    id: "filter-fundings",
+    defaultValue: {
+      ...loaderData.submission.value,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
-  const additionalSearchParams: { key: string; value: string }[] = [];
-  const schemaKeys = getFundingsSchema.keyof().options as string[];
-  searchParams.forEach((value, key) => {
-    const isIncluded = schemaKeys.some((schemaKey) => {
-      return schemaKey === key || key.startsWith(`${schemaKey}.`);
-    });
-    if (isIncluded === false) {
-      additionalSearchParams.push({ key, value });
-    }
+  const fndFilterFieldset = fields.fndFilter.getFieldset();
+
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-fundings",
+    defaultValue: {
+      ...loaderData.submission.value,
+      fndPage: loaderData.submission.value.fndPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-funding-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      fndFilter: {
+        areas: [],
+        types: [],
+        regions: [],
+        eligibleEntities: [],
+      },
+      fndPage: 1,
+      fndSortBy: FUNDING_SORT_VALUES[0],
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const currentSortValue = FUNDING_SORT_VALUES.find((value) => {
+    return value === `${loaderData.submission.value.fndSortBy}`;
   });
 
   return (
@@ -402,18 +408,14 @@ export default function ExploreFundings() {
             submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
-          <input name="fndPage" defaultValue="1" hidden />
-          <input name="showFilters" defaultValue="on" hidden />
-          {additionalSearchParams.map((param, index) => {
-            return (
-              <input
-                key={`${param.key}-${index}`}
-                name={param.key}
-                defaultValue={param.value}
-                hidden
-              />
-            );
-          })}
+          <HiddenFilterInputs
+            fields={fields}
+            defaultValue={loaderData.submission.value}
+            entityLeftOut="funding"
+          />
+
+          {/* Funding Filters */}
+          <input {...getInputProps(fields.fndPage, { type: "hidden" })} />
           <ShowFiltersButton>
             {loaderData.locales.showFiltersLabel}
           </ShowFiltersButton>
@@ -442,19 +444,22 @@ export default function ExploreFundings() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.fundingTypes.map((type) => {
+                    const isChecked =
+                      fndFilterFieldset.types.initialValue &&
+                      Array.isArray(fndFilterFieldset.types.initialValue)
+                        ? fndFilterFieldset.types.initialValue.includes(
+                            type.slug
+                          )
+                        : fndFilterFieldset.types.initialValue === type.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.types, {
+                        {...getInputProps(fndFilterFieldset.types, {
                           type: "checkbox",
                           value: type.slug,
                         })}
                         key={type.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={type.isChecked}
-                        readOnly
-                        disabled={type.vectorCount === 0 && !type.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={type.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{type.title}</FormControl.Label>
                         <FormControl.Counter>
@@ -479,21 +484,22 @@ export default function ExploreFundings() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.fundingAreas.map((area) => {
+                    const isChecked =
+                      fndFilterFieldset.areas.initialValue &&
+                      Array.isArray(fndFilterFieldset.areas.initialValue)
+                        ? fndFilterFieldset.areas.initialValue.includes(
+                            area.slug
+                          )
+                        : fndFilterFieldset.areas.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.areas, {
+                        {...getInputProps(fndFilterFieldset.areas, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={loaderData.submission.value.fndFilter.areas.includes(
-                          area.slug
-                        )}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.title}</FormControl.Label>
                         <FormControl.Counter>
@@ -518,21 +524,23 @@ export default function ExploreFundings() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.regions.map((area) => {
+                    const isChecked =
+                      fndFilterFieldset.regions.initialValue &&
+                      Array.isArray(fndFilterFieldset.regions.initialValue)
+                        ? fndFilterFieldset.regions.initialValue.includes(
+                            area.slug
+                          )
+                        : fndFilterFieldset.regions.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.regions, {
+                        {...getInputProps(fndFilterFieldset.regions, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={loaderData.submission.value.fndFilter.regions.includes(
-                          area.slug
-                        )}
+                        defaultChecked={isChecked}
                         readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -557,21 +565,26 @@ export default function ExploreFundings() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.eligibleEntities.map((entity) => {
+                    const isChecked =
+                      fndFilterFieldset.eligibleEntities.initialValue &&
+                      Array.isArray(
+                        fndFilterFieldset.eligibleEntities.initialValue
+                      )
+                        ? fndFilterFieldset.eligibleEntities.initialValue.includes(
+                            entity.slug
+                          )
+                        : fndFilterFieldset.eligibleEntities.initialValue ===
+                          entity.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.eligibleEntities, {
+                        {...getInputProps(fndFilterFieldset.eligibleEntities, {
                           type: "checkbox",
                           value: entity.slug,
                         })}
                         key={entity.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={loaderData.submission.value.fndFilter.eligibleEntities.includes(
-                          entity.slug
-                        )}
+                        defaultChecked={isChecked}
                         readOnly
-                        disabled={entity.vectorCount === 0 && !entity.isChecked}
+                        disabled={entity.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{entity.title}</FormControl.Label>
                         <FormControl.Counter>
@@ -607,11 +620,7 @@ export default function ExploreFundings() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={currentSortValue === sortValue}
-                        readOnly
+                        defaultChecked={currentSortValue === sortValue}
                       >
                         <FormControl.Label>
                           {loaderData.locales.filter.sortBy[sortValue]}
@@ -622,7 +631,7 @@ export default function ExploreFundings() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton to={`${location.pathname}`}>
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? loaderData.locales.filter.reset
                 : loaderData.locales.filter.close}
@@ -663,7 +672,10 @@ export default function ExploreFundings() {
               <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
                 {loaderData.selectedFundingTypes.map((type) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(filter.types.name, type.slug);
+                  deleteSearchParams.delete(
+                    fndFilterFieldset.types.name,
+                    type.slug
+                  );
                   return type.title !== null ? (
                     <Chip key={type.slug} size="medium">
                       {type.title}
@@ -682,7 +694,10 @@ export default function ExploreFundings() {
                 })}
                 {loaderData.selectedFundingAreas.map((area) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(filter.areas.name, area.slug);
+                  deleteSearchParams.delete(
+                    fndFilterFieldset.areas.name,
+                    area.slug
+                  );
                   return area.title !== null ? (
                     <Chip key={area.slug} size="medium">
                       {area.title}
@@ -701,7 +716,10 @@ export default function ExploreFundings() {
                 })}
                 {loaderData.selectedRegions.map((region) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(filter.regions.name, region.slug);
+                  deleteSearchParams.delete(
+                    fndFilterFieldset.regions.name,
+                    region.slug
+                  );
                   return region.name !== null ? (
                     <Chip key={region.slug} size="medium">
                       {region.name}
@@ -721,7 +739,7 @@ export default function ExploreFundings() {
                 {loaderData.selectedEligibleEntities.map((entity) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
-                    filter.eligibleEntities.name,
+                    fndFilterFieldset.eligibleEntities.name,
                     entity.slug
                   );
                   return entity.title !== null ? (
@@ -741,19 +759,25 @@ export default function ExploreFundings() {
                   ) : null;
                 })}
               </div>
-              <Link
-                className="mv-w-fit"
-                to={`${location.pathname}`}
+              <Form
+                {...getFormProps(resetForm)}
+                method="get"
                 preventScrollReset
+                className="mv-w-fit"
               >
+                <HiddenFilterInputs
+                  fields={resetFields}
+                  defaultValue={loaderData.submission.value}
+                />
                 <Button
+                  type="submit"
                   variant="outline"
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  Filter zurücksetzen
+                  {loaderData.locales.filter.reset}
                 </Button>
-              </Link>
+              </Form>
             </div>
           )}
         </section>
@@ -822,12 +846,18 @@ export default function ExploreFundings() {
 
         {loaderData.count > loaderData.fundings.length && (
           <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
-            <Link
-              to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+            <Form
+              {...getFormProps(loadMoreForm)}
+              method="get"
               preventScrollReset
               replace
             >
+              <HiddenFilterInputs
+                fields={loadMoreFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 size="large"
                 variant="outline"
                 loading={navigation.state === "loading"}
@@ -835,7 +865,7 @@ export default function ExploreFundings() {
               >
                 {loaderData.locales.more}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>

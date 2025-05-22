@@ -722,7 +722,7 @@ export async function getAllOrganizations(options: {
     },
     orderBy: [
       {
-        [options.sortBy.value]: options.sortBy.direction,
+        [options.sortBy.split("-")[0]]: options.sortBy.split("-")[1],
       },
       {
         id: "asc",

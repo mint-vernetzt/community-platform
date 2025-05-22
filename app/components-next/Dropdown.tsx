@@ -54,6 +54,7 @@ function DropdownLabel(
     >
       <span>{props.children}</span>
       <input
+        form="none"
         type="checkbox"
         className="mv-h-0 mv-w-0 mv-opacity-0"
         checked={checked}

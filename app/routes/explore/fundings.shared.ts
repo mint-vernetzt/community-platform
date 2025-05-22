@@ -29,18 +29,11 @@ export const getFundingsSchema = z.object({
   fndSortBy: z
     .enum(FUNDING_SORT_VALUES)
     .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
+    .transform((sortBy) => {
+      if (typeof sortBy === "undefined") {
+        return FUNDING_SORT_VALUES[0];
       }
-      return {
-        value: FUNDING_SORT_VALUES[0].split("-")[0],
-        direction: FUNDING_SORT_VALUES[0].split("-")[1],
-      };
+      return sortBy;
     }),
   fndPage: z
     .number()

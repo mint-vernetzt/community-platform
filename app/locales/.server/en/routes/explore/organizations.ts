@@ -18,7 +18,7 @@ export const locale = {
     stateLabel: "Suggestions by area",
     districtLabel: "Suggestions by location",
     apply: "Apply filter",
-    reset: "Reset all",
+    reset: "Reset filter",
     sortBy: {
       label: "Sorting",
       values: {

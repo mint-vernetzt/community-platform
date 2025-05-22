@@ -4,13 +4,12 @@ import {
   getInputProps,
   useForm,
 } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -22,6 +21,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -55,9 +55,9 @@ import {
   getProjectIds,
   getTakeParam,
 } from "./projects.server";
-import { getProjectsSchema, PROJECT_SORT_VALUES } from "./projects.shared";
+import { PROJECT_SORT_VALUES } from "./projects.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
+import HiddenFilterInputs from "~/components-next/HiddenFilterInputs";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -240,7 +240,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
-      isChecked: boolean;
     }
   >;
   const enhancedAreas = {
@@ -270,11 +269,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.prjFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
-      isChecked,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -315,10 +312,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       disciplineFilterVector,
       "discipline"
     );
-    const isChecked = submission.value.prjFilter.discipline.includes(
-      discipline.slug
-    );
-    return { ...discipline, vectorCount, isChecked };
+    return { ...discipline, vectorCount };
   });
 
   const additionalDisciplines = await getAllAdditionalDisciplines();
@@ -345,11 +339,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         additionalDisciplineFilterVector,
         "additionalDiscipline"
       );
-      const isChecked =
-        submission.value.prjFilter.additionalDiscipline.includes(
-          additionalDiscipline.slug
-        );
-      return { ...additionalDiscipline, vectorCount, isChecked };
+      return { ...additionalDiscipline, vectorCount };
     }
   );
 
@@ -375,10 +365,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       targetGroupFilterVector,
       "projectTargetGroup"
     );
-    const isChecked = submission.value.prjFilter.projectTargetGroup.includes(
-      targetGroup.slug
-    );
-    return { ...targetGroup, vectorCount, isChecked };
+    return { ...targetGroup, vectorCount };
   });
 
   const formats = await getAllFormats();
@@ -403,8 +390,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       formatFilterVector,
       "format"
     );
-    const isChecked = submission.value.prjFilter.format.includes(format.slug);
-    return { ...format, vectorCount, isChecked };
+    return { ...format, vectorCount };
   });
 
   const specialTargetGroups = await getAllSpecialTargetGroups();
@@ -431,10 +417,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         specialTargetGroupFilterVector,
         "specialTargetGroup"
       );
-      const isChecked = submission.value.prjFilter.specialTargetGroup.includes(
-        specialTargetGroup.slug
-      );
-      return { ...specialTargetGroup, vectorCount, isChecked };
+      return { ...specialTargetGroup, vectorCount };
     }
   );
 
@@ -460,10 +443,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       financingFilterVector,
       "financing"
     );
-    const isChecked = submission.value.prjFilter.financing.includes(
-      financing.slug
-    );
-    return { ...financing, vectorCount, isChecked };
+    return { ...financing, vectorCount };
   });
 
   return {
@@ -499,29 +479,53 @@ export default function ExploreProjects() {
   const submit = useSubmit();
   const isHydrated = useHydrated();
 
-  const [form, fields] = useForm<FilterSchemes>({});
+  const [form, fields] = useForm<FilterSchemes>({
+    id: "filter-projects",
+    defaultValue: {
+      ...loaderData.submission.value,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
-  const filter = fields.prjFilter.getFieldset();
+  const prjFilterFieldset = fields.prjFilter.getFieldset();
 
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "prjPage",
-    `${loaderData.submission.value.prjPage + 1}`
-  );
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-projects",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prjPage: loaderData.submission.value.prjPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
-  const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.prjAreaSearch
-  );
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-projects-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prjFilter: {
+        additionalDiscipline: [],
+        discipline: [],
+        area: [],
+        projectTargetGroup: [],
+        specialTargetGroup: [],
+        format: [],
+        financing: [],
+      },
+      prjPage: 1,
+      prjSortBy: PROJECT_SORT_VALUES[0],
+      prjAreaSearch: "",
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
 
-  const additionalSearchParams: { key: string; value: string }[] = [];
-  const schemaKeys = getProjectsSchema.keyof().options as string[];
-  searchParams.forEach((value, key) => {
-    const isIncluded = schemaKeys.some((schemaKey) => {
-      return schemaKey === key || key.startsWith(`${schemaKey}.`);
-    });
-    if (isIncluded === false) {
-      additionalSearchParams.push({ key, value });
-    }
+  const currentSortValue = PROJECT_SORT_VALUES.find((value) => {
+    return value === `${loaderData.submission.value.prjSortBy}`;
   });
 
   let showMore = false;
@@ -548,18 +552,14 @@ export default function ExploreProjects() {
             submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
         >
-          <input name="prjPage" defaultValue="1" hidden />
-          <input name="showFilters" defaultValue="on" hidden />
-          {additionalSearchParams.map((param, index) => {
-            return (
-              <input
-                key={`${param.key}-${index}`}
-                name={param.key}
-                defaultValue={param.value}
-                hidden
-              />
-            );
-          })}
+          <HiddenFilterInputs
+            fields={fields}
+            defaultValue={loaderData.submission.value}
+            entityLeftOut="project"
+          />
+
+          {/* Project Filters */}
+          <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
           <ShowFiltersButton>
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -622,21 +622,23 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.disciplines.map((discipline) => {
+                    const isChecked =
+                      prjFilterFieldset.discipline.initialValue &&
+                      Array.isArray(prjFilterFieldset.discipline.initialValue)
+                        ? prjFilterFieldset.discipline.initialValue.includes(
+                            discipline.slug
+                          )
+                        : prjFilterFieldset.discipline.initialValue ===
+                          discipline.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.discipline, {
+                        {...getInputProps(prjFilterFieldset.discipline, {
                           type: "checkbox",
                           value: discipline.slug,
                         })}
                         key={discipline.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={discipline.isChecked}
-                        readOnly
-                        disabled={
-                          discipline.vectorCount === 0 && !discipline.isChecked
-                        }
+                        defaultChecked={isChecked}
+                        disabled={discipline.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -687,21 +689,29 @@ export default function ExploreProjects() {
                   </Dropdown.Category>
                   {loaderData.additionalDisciplines.map(
                     (additionalDiscipline) => {
+                      const isChecked =
+                        prjFilterFieldset.additionalDiscipline.initialValue &&
+                        Array.isArray(
+                          prjFilterFieldset.additionalDiscipline.initialValue
+                        )
+                          ? prjFilterFieldset.additionalDiscipline.initialValue.includes(
+                              additionalDiscipline.slug
+                            )
+                          : prjFilterFieldset.additionalDiscipline
+                              .initialValue === additionalDiscipline.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.additionalDiscipline, {
-                            type: "checkbox",
-                            value: additionalDiscipline.slug,
-                          })}
+                          {...getInputProps(
+                            prjFilterFieldset.additionalDiscipline,
+                            {
+                              type: "checkbox",
+                              value: additionalDiscipline.slug,
+                            }
+                          )}
                           key={additionalDiscipline.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={additionalDiscipline.isChecked}
-                          readOnly
+                          defaultChecked={isChecked}
                           disabled={
-                            additionalDiscipline.vectorCount === 0 &&
-                            !additionalDiscipline.isChecked
+                            additionalDiscipline.vectorCount === 0 && !isChecked
                           }
                         >
                           <FormControl.Label>
@@ -787,22 +797,28 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.targetGroups.map((targetGroup) => {
+                    const isChecked =
+                      prjFilterFieldset.projectTargetGroup.initialValue &&
+                      Array.isArray(
+                        prjFilterFieldset.projectTargetGroup.initialValue
+                      )
+                        ? prjFilterFieldset.projectTargetGroup.initialValue.includes(
+                            targetGroup.slug
+                          )
+                        : prjFilterFieldset.projectTargetGroup.initialValue ===
+                          targetGroup.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.projectTargetGroup, {
-                          type: "checkbox",
-                          value: targetGroup.slug,
-                        })}
+                        {...getInputProps(
+                          prjFilterFieldset.projectTargetGroup,
+                          {
+                            type: "checkbox",
+                            value: targetGroup.slug,
+                          }
+                        )}
                         key={targetGroup.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={targetGroup.isChecked}
-                        readOnly
-                        disabled={
-                          targetGroup.vectorCount === 0 &&
-                          !targetGroup.isChecked
-                        }
+                        defaultChecked={isChecked}
+                        disabled={targetGroup.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -868,19 +884,22 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.areas.global.map((area) => {
+                    const isChecked =
+                      prjFilterFieldset.area.initialValue &&
+                      Array.isArray(prjFilterFieldset.area.initialValue)
+                        ? prjFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : prjFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(prjFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -890,19 +909,22 @@ export default function ExploreProjects() {
                     );
                   })}
                   {loaderData.areas.country.map((area) => {
+                    const isChecked =
+                      prjFilterFieldset.area.initialValue &&
+                      Array.isArray(prjFilterFieldset.area.initialValue)
+                        ? prjFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : prjFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(prjFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -916,16 +938,12 @@ export default function ExploreProjects() {
                       return selectedArea.name !== null &&
                         selectedArea.isInSearchResultsList === false ? (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prjFilterFieldset.area, {
                             type: "checkbox",
                             value: selectedArea.slug,
                           })}
                           key={selectedArea.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked
-                          readOnly
+                          defaultChecked={true}
                         >
                           <FormControl.Label>
                             {selectedArea.name}
@@ -938,19 +956,10 @@ export default function ExploreProjects() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.prjAreaSearch.id}
-                      name={fields.prjAreaSearch.name}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(event) => {
-                        setSearchQuery(event.currentTarget.value);
-                        event.stopPropagation();
-                        submit(event.currentTarget.form, {
-                          replace: true,
-                          preventScrollReset: true,
-                          method: "get",
-                        });
-                      }}
+                      {...getInputProps(fields.prjAreaSearch, {
+                        type: "search",
+                      })}
+                      key="project-area-search"
                       placeholder={locales.route.filter.searchAreaPlaceholder}
                     >
                       <Input.Label htmlFor={fields.prjAreaSearch.id} hidden>
@@ -975,19 +984,22 @@ export default function ExploreProjects() {
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
+                      const isChecked =
+                        prjFilterFieldset.area.initialValue &&
+                        Array.isArray(prjFilterFieldset.area.initialValue)
+                          ? prjFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : prjFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prjFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -1007,19 +1019,22 @@ export default function ExploreProjects() {
                   )}
                   {loaderData.areas.district.length > 0 &&
                     loaderData.areas.district.map((area) => {
+                      const isChecked =
+                        prjFilterFieldset.area.initialValue &&
+                        Array.isArray(prjFilterFieldset.area.initialValue)
+                          ? prjFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : prjFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prjFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -1054,19 +1069,22 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.formats.map((format) => {
+                    const isChecked =
+                      prjFilterFieldset.format.initialValue &&
+                      Array.isArray(prjFilterFieldset.format.initialValue)
+                        ? prjFilterFieldset.format.initialValue.includes(
+                            format.slug
+                          )
+                        : prjFilterFieldset.format.initialValue === format.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.format, {
+                        {...getInputProps(prjFilterFieldset.format, {
                           type: "checkbox",
                           value: format.slug,
                         })}
                         key={format.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={format.isChecked}
-                        readOnly
-                        disabled={format.vectorCount === 0 && !format.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={format.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -1139,22 +1157,28 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.specialTargetGroups.map((targetGroup) => {
+                    const isChecked =
+                      prjFilterFieldset.specialTargetGroup.initialValue &&
+                      Array.isArray(
+                        prjFilterFieldset.specialTargetGroup.initialValue
+                      )
+                        ? prjFilterFieldset.specialTargetGroup.initialValue.includes(
+                            targetGroup.slug
+                          )
+                        : prjFilterFieldset.specialTargetGroup.initialValue ===
+                          targetGroup.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.specialTargetGroup, {
-                          type: "checkbox",
-                          value: targetGroup.slug,
-                        })}
+                        {...getInputProps(
+                          prjFilterFieldset.specialTargetGroup,
+                          {
+                            type: "checkbox",
+                            value: targetGroup.slug,
+                          }
+                        )}
                         key={targetGroup.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={targetGroup.isChecked}
-                        readOnly
-                        disabled={
-                          targetGroup.vectorCount === 0 &&
-                          !targetGroup.isChecked
-                        }
+                        defaultChecked={isChecked}
+                        disabled={targetGroup.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -1231,21 +1255,23 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.financings.map((financing) => {
+                    const isChecked =
+                      prjFilterFieldset.financing.initialValue &&
+                      Array.isArray(prjFilterFieldset.financing.initialValue)
+                        ? prjFilterFieldset.financing.initialValue.includes(
+                            financing.slug
+                          )
+                        : prjFilterFieldset.financing.initialValue ===
+                          financing.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.financing, {
+                        {...getInputProps(prjFilterFieldset.financing, {
                           type: "checkbox",
                           value: financing.slug,
                         })}
                         key={financing.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={financing.isChecked}
-                        readOnly
-                        disabled={
-                          financing.vectorCount === 0 && !financing.isChecked
-                        }
+                        defaultChecked={isChecked}
+                        disabled={financing.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {(() => {
@@ -1300,29 +1326,15 @@ export default function ExploreProjects() {
                     <br />
                   </span>
                   <span className="mv-font-normal @lg:mv-font-semibold">
-                    {(() => {
-                      const currentValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
-                      let value;
-                      if (currentValue in locales.route.filter.sortBy.values) {
-                        type LocaleKey =
-                          keyof typeof locales.route.filter.sortBy.values;
-                        value =
-                          locales.route.filter.sortBy.values[
-                            currentValue as LocaleKey
-                          ];
-                      } else {
-                        console.error(
-                          `Sort by value ${currentValue} not found in locales`
-                        );
-                        value = currentValue;
-                      }
-                      return value;
-                    })()}
+                    {
+                      loaderData.locales.route.filter.sortBy.values[
+                        currentSortValue || PROJECT_SORT_VALUES[0]
+                      ]
+                    }
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
                   {PROJECT_SORT_VALUES.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.prjSortBy, {
@@ -1330,11 +1342,7 @@ export default function ExploreProjects() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={submissionSortValue === sortValue}
-                        readOnly
+                        defaultChecked={currentSortValue === sortValue}
                       >
                         <FormControl.Label>
                           {locales.route.filter.sortBy.values[sortValue]}
@@ -1345,13 +1353,7 @@ export default function ExploreProjects() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.prjSortBy !== undefined
-                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? locales.route.filter.reset
                 : locales.route.filter.close}
@@ -1397,7 +1399,7 @@ export default function ExploreProjects() {
               {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
-                  filter.discipline.name,
+                  prjFilterFieldset.discipline.name,
                   selectedDiscipline
                 );
                 let title;
@@ -1431,7 +1433,7 @@ export default function ExploreProjects() {
                 (selectedAdditionalDiscipline) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
-                    filter.additionalDiscipline.name,
+                    prjFilterFieldset.additionalDiscipline.name,
                     selectedAdditionalDiscipline
                   );
                   let title;
@@ -1470,7 +1472,7 @@ export default function ExploreProjects() {
               {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
-                  filter.projectTargetGroup.name,
+                  prjFilterFieldset.projectTargetGroup.name,
                   selectedTargetGroup
                 );
                 let title;
@@ -1504,7 +1506,10 @@ export default function ExploreProjects() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
+                deleteSearchParams.delete(
+                  prjFilterFieldset.area.name,
+                  selectedArea.slug
+                );
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
@@ -1523,7 +1528,10 @@ export default function ExploreProjects() {
               })}
               {loaderData.selectedFormats.map((selectedFormat) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.format.name, selectedFormat);
+                deleteSearchParams.delete(
+                  prjFilterFieldset.format.name,
+                  selectedFormat
+                );
                 let title;
                 if (selectedFormat in locales.formats) {
                   type LocaleKey = keyof typeof locales.formats;
@@ -1554,7 +1562,7 @@ export default function ExploreProjects() {
                 (selectedSpecialTargetGroup) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
-                    filter.specialTargetGroup.name,
+                    prjFilterFieldset.specialTargetGroup.name,
                     selectedSpecialTargetGroup
                   );
                   let title;
@@ -1592,7 +1600,7 @@ export default function ExploreProjects() {
               {loaderData.selectedFinancings.map((selectedFinancing) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
                 deleteSearchParams.delete(
-                  filter.financing.name,
+                  prjFilterFieldset.financing.name,
                   selectedFinancing
                 );
                 let title;
@@ -1623,23 +1631,25 @@ export default function ExploreProjects() {
                 );
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.prjSortBy !== undefined
-                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy.value}-${loaderData.submission.value.prjSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>
@@ -1693,12 +1703,18 @@ export default function ExploreProjects() {
             </CardContainer>
             {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Link
-                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
                   preventScrollReset
                   replace
                 >
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
                   <Button
+                    type="submit"
                     size="large"
                     variant="outline"
                     loading={navigation.state === "loading"}
@@ -1706,7 +1722,7 @@ export default function ExploreProjects() {
                   >
                     {locales.route.more}
                   </Button>
-                </Link>
+                </Form>
               </div>
             )}
           </>

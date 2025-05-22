@@ -1,12 +1,12 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import classNames from "classnames";
+import { Children, isValidElement, useState } from "react";
 import {
   Link,
   useLocation,
   useNavigation,
   useSearchParams,
 } from "react-router";
-import classNames from "classnames";
-import { Children, isValidElement, useState } from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
 
 export function ShowFiltersButton(props: React.PropsWithChildren) {
@@ -127,14 +127,16 @@ function FiltersFieldset(
   );
 }
 
-function FiltersResetButton(props: { to: string } & React.PropsWithChildren) {
+function FiltersResetButton(props: { form: string } & React.PropsWithChildren) {
   const location = useLocation();
   const navigation = useNavigation();
   const isHydrated = useHydrated();
 
   return isHydrated ? (
-    <Link className="mv-grow" to={props.to} preventScrollReset>
+    <div className="mv-grow">
       <Button
+        form={props.form}
+        type="submit"
         variant="outline"
         size="large"
         loading={navigation.state === "loading"}
@@ -143,7 +145,7 @@ function FiltersResetButton(props: { to: string } & React.PropsWithChildren) {
       >
         {props.children}
       </Button>
-    </Link>
+    </div>
   ) : (
     <Link
       className="mv-grow"

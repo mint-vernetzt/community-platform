@@ -14,7 +14,7 @@ export const locale = {
   showFiltersLabel: "Filter fundings",
   filter: {
     apply: "Apply filter",
-    reset: "Reset all",
+    reset: "Reset filter",
     showMore: "Show more",
     showLess: "Show less",
     type: "Funding type",

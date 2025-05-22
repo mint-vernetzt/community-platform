@@ -29,18 +29,11 @@ export const getOrganizationsSchema = z.object({
   orgSortBy: z
     .enum(ORGANIZATION_SORT_VALUES)
     .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
+    .transform((sortBy) => {
+      if (typeof sortBy === "undefined") {
+        return ORGANIZATION_SORT_VALUES[0];
       }
-      return {
-        value: ORGANIZATION_SORT_VALUES[0].split("-")[0],
-        direction: ORGANIZATION_SORT_VALUES[0].split("-")[1],
-      };
+      return sortBy;
     }),
   orgPage: z
     .number()

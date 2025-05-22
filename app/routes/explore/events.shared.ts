@@ -6,7 +6,7 @@ export const EVENT_SORT_VALUES = [
   "name-desc",
 ] as const;
 
-export const periodOfTimeValues = [
+export const PERIOD_OF_TIME_VALUES = [
   "now",
   "thisWeek",
   "nextWeek",
@@ -24,11 +24,11 @@ export const getEventsSchema = z.object({
       focus: z.array(z.string()),
       eventTargetGroup: z.array(z.string()),
       periodOfTime: z
-        .enum(periodOfTimeValues)
+        .enum(PERIOD_OF_TIME_VALUES)
         .optional()
         .transform((periodOfTime) => {
           if (periodOfTime === undefined) {
-            return periodOfTimeValues[0];
+            return PERIOD_OF_TIME_VALUES[0];
           }
           return periodOfTime;
         }),
@@ -41,7 +41,7 @@ export const getEventsSchema = z.object({
           stage: "all",
           focus: [],
           eventTargetGroup: [],
-          periodOfTime: periodOfTimeValues[0],
+          periodOfTime: PERIOD_OF_TIME_VALUES[0],
           area: [],
         };
       }
@@ -50,18 +50,11 @@ export const getEventsSchema = z.object({
   evtSortBy: z
     .enum(EVENT_SORT_VALUES)
     .optional()
-    .transform((sortValue) => {
-      if (sortValue !== undefined) {
-        const splittedValue = sortValue.split("-");
-        return {
-          value: splittedValue[0],
-          direction: splittedValue[1],
-        };
+    .transform((sortBy) => {
+      if (typeof sortBy === "undefined") {
+        return EVENT_SORT_VALUES[0];
       }
-      return {
-        value: EVENT_SORT_VALUES[0].split("-")[0],
-        direction: EVENT_SORT_VALUES[0].split("-")[1],
-      };
+      return sortBy;
     }),
   evtPage: z
     .number()

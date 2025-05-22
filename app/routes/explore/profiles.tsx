@@ -4,13 +4,12 @@ import {
   getInputProps,
   useForm,
 } from "@conform-to/react-v1";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -22,6 +21,7 @@ import {
   useSearchParams,
   useSubmit,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
@@ -50,9 +50,9 @@ import {
   getProfileIds,
   getTakeParam,
 } from "./profiles.server";
-import { getProfilesSchema, PROFILE_SORT_VALUES } from "./profiles.shared";
+import { PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { useHydrated } from "remix-utils/use-hydrated";
+import HiddenFilterInputs from "~/components-next/HiddenFilterInputs";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -243,7 +243,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
-      isChecked: boolean;
     }
   >;
   const enhancedAreas = {
@@ -276,11 +275,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       areaFilterVector,
       "area"
     );
-    const isChecked = submission.value.prfFilter.area.includes(area.slug);
     const enhancedArea = {
       ...area,
       vectorCount,
-      isChecked,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -321,8 +318,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       offerFilterVector,
       "offer"
     );
-    const isChecked = submission.value.prfFilter.offer.includes(offer.slug);
-    return { ...offer, vectorCount, isChecked };
+    return { ...offer, vectorCount };
   });
 
   return {
@@ -347,36 +343,48 @@ export default function ExploreProfiles() {
   const submit = useSubmit();
   const isHydrated = useHydrated();
 
-  const [form, fields] = useForm<FilterSchemes>({});
-
-  const filter = fields.prfFilter.getFieldset();
-
-  const loadMoreSearchParams = new URLSearchParams(searchParams);
-  loadMoreSearchParams.set(
-    "prfPage",
-    `${loaderData.submission.value.prfPage + 1}`
-  );
-
-  const [searchQuery, setSearchQuery] = useState(
-    loaderData.submission.value.prfAreaSearch
-  );
-
-  const currentSortValue = PROFILE_SORT_VALUES.find((value) => {
-    return (
-      value ===
-      `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
-    );
+  const [form, fields] = useForm<FilterSchemes>({
+    id: "filter-profiles",
+    defaultValue: {
+      ...loaderData.submission.value,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
   });
 
-  const additionalSearchParams: { key: string; value: string }[] = [];
-  const schemaKeys = getProfilesSchema.keyof().options as string[];
-  searchParams.forEach((value, key) => {
-    const isIncluded = schemaKeys.some((schemaKey) => {
-      return schemaKey === key || key.startsWith(`${schemaKey}.`);
-    });
-    if (isIncluded === false) {
-      additionalSearchParams.push({ key, value });
-    }
+  const prfFilterFieldset = fields.prfFilter.getFieldset();
+
+  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
+    id: "load-more-profiles",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prfPage: loaderData.submission.value.prfPage + 1,
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const [resetForm, resetFields] = useForm<FilterSchemes>({
+    id: "reset-profile-filters",
+    defaultValue: {
+      ...loaderData.submission.value,
+      prfFilter: {
+        area: [],
+        offer: [],
+      },
+      prfPage: 1,
+      prfSortBy: PROFILE_SORT_VALUES[0],
+      prfAreaSearch: "",
+      showFilters: "on",
+    },
+    constraint: getZodConstraint(getFilterSchemes),
+    lastResult: navigation.state === "idle" ? loaderData.submission : null,
+  });
+
+  const currentSortValue = PROFILE_SORT_VALUES.find((value) => {
+    return value === `${loaderData.submission.value.prfSortBy}`;
   });
 
   let showMore = false;
@@ -395,31 +403,34 @@ export default function ExploreProfiles() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
+            let replace = false;
             if (
-              (event.target as HTMLFormElement).name === fields.showFilters.name
+              (event.target as HTMLInputElement).name ===
+              fields.showFilters.name
             ) {
               preventScrollReset = false;
             }
-
-            // Need this to prevent duplicate "showFilters" parameter
-            const formData = new FormData(event.currentTarget);
-            formData.delete(fields.showFilters.name);
-            formData.append(fields.showFilters.name, "on");
-            submit(formData, { preventScrollReset, method: "get" });
+            if (
+              (event.target as HTMLInputElement).name ===
+              fields.prfAreaSearch.name
+            ) {
+              replace = true;
+            }
+            submit(event.currentTarget, {
+              preventScrollReset,
+              replace,
+              method: "get",
+            });
           }}
         >
-          <input name="prfPage" defaultValue="1" hidden />
-          <input name="showFilters" defaultValue="on" hidden />
-          {additionalSearchParams.map((param, index) => {
-            return (
-              <input
-                key={`${param.key}-${index}`}
-                name={param.key}
-                defaultValue={param.value}
-                hidden
-              />
-            );
-          })}
+          <HiddenFilterInputs
+            fields={fields}
+            defaultValue={loaderData.submission.value}
+            entityLeftOut="profile"
+          />
+
+          {/* Profile Filters */}
+          <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
           <ShowFiltersButton>
             {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
@@ -475,19 +486,22 @@ export default function ExploreProfiles() {
                         loaderData.locales.offers[offer.slug as LocaleKey]
                           .description;
                     }
+                    const isChecked =
+                      prfFilterFieldset.offer.initialValue &&
+                      Array.isArray(prfFilterFieldset.offer.initialValue)
+                        ? prfFilterFieldset.offer.initialValue.includes(
+                            offer.slug
+                          )
+                        : prfFilterFieldset.offer.initialValue === offer.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.offer, {
+                        {...getInputProps(prfFilterFieldset.offer, {
                           type: "checkbox",
                           value: offer.slug,
                         })}
                         key={offer.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={offer.isChecked}
-                        readOnly
-                        disabled={offer.vectorCount === 0 && !offer.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={offer.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>
                           {title}
@@ -517,19 +531,22 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {loaderData.areas.global.map((area) => {
+                    const isChecked =
+                      prfFilterFieldset.area.initialValue &&
+                      Array.isArray(prfFilterFieldset.area.initialValue)
+                        ? prfFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : prfFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(prfFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -539,19 +556,22 @@ export default function ExploreProfiles() {
                     );
                   })}
                   {loaderData.areas.country.map((area) => {
+                    const isChecked =
+                      prfFilterFieldset.area.initialValue &&
+                      Array.isArray(prfFilterFieldset.area.initialValue)
+                        ? prfFilterFieldset.area.initialValue.includes(
+                            area.slug
+                          )
+                        : prfFilterFieldset.area.initialValue === area.slug;
                     return (
                       <FormControl
-                        {...getInputProps(filter.area, {
+                        {...getInputProps(prfFilterFieldset.area, {
                           type: "checkbox",
                           value: area.slug,
                         })}
                         key={area.slug}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={area.isChecked}
-                        readOnly
-                        disabled={area.vectorCount === 0 && !area.isChecked}
+                        defaultChecked={isChecked}
+                        disabled={area.vectorCount === 0 && !isChecked}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -565,16 +585,12 @@ export default function ExploreProfiles() {
                       return selectedArea.name !== null &&
                         selectedArea.isInSearchResultsList === false ? (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prfFilterFieldset.area, {
                             type: "checkbox",
                             value: selectedArea.slug,
                           })}
                           key={selectedArea.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked
-                          readOnly
+                          defaultChecked={true}
                         >
                           <FormControl.Label>
                             {selectedArea.name}
@@ -587,19 +603,10 @@ export default function ExploreProfiles() {
                     })}
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      id={fields.prfAreaSearch.id}
-                      name={fields.prfAreaSearch.name}
-                      type="text"
-                      value={searchQuery}
-                      onChange={(event) => {
-                        setSearchQuery(event.currentTarget.value);
-                        event.stopPropagation();
-                        submit(event.currentTarget.form, {
-                          replace: true,
-                          preventScrollReset: true,
-                          method: "get",
-                        });
-                      }}
+                      {...getInputProps(fields.prfAreaSearch, {
+                        type: "search",
+                      })}
+                      key="profile-area-search"
                       placeholder={
                         loaderData.locales.route.filter.searchAreaPlaceholder
                       }
@@ -626,19 +633,22 @@ export default function ExploreProfiles() {
                   )}
                   {loaderData.areas.state.length > 0 &&
                     loaderData.areas.state.map((area) => {
+                      const isChecked =
+                        prfFilterFieldset.area.initialValue &&
+                        Array.isArray(prfFilterFieldset.area.initialValue)
+                          ? prfFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : prfFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prfFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -658,19 +668,22 @@ export default function ExploreProfiles() {
                   )}
                   {loaderData.areas.district.length > 0 &&
                     loaderData.areas.district.map((area) => {
+                      const isChecked =
+                        prfFilterFieldset.area.initialValue &&
+                        Array.isArray(prfFilterFieldset.area.initialValue)
+                          ? prfFilterFieldset.area.initialValue.includes(
+                              area.slug
+                            )
+                          : prfFilterFieldset.area.initialValue === area.slug;
                       return (
                         <FormControl
-                          {...getInputProps(filter.area, {
+                          {...getInputProps(prfFilterFieldset.area, {
                             type: "checkbox",
                             value: area.slug,
                           })}
                           key={area.slug}
-                          // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                          // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                          defaultChecked={undefined}
-                          checked={area.isChecked}
-                          readOnly
-                          disabled={area.vectorCount === 0 && !area.isChecked}
+                          defaultChecked={isChecked}
+                          disabled={area.vectorCount === 0 && !isChecked}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -699,7 +712,6 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {PROFILE_SORT_VALUES.map((sortValue) => {
-                    const submissionSortValue = `${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`;
                     return (
                       <FormControl
                         {...getInputProps(fields.prfSortBy, {
@@ -707,11 +719,7 @@ export default function ExploreProfiles() {
                           value: sortValue,
                         })}
                         key={sortValue}
-                        // The Checkbox UI does not rerender when using the delete chips or the reset filter button
-                        // This is the workarround for now -> Switching to controlled component and managing the checked status via the server response
-                        defaultChecked={undefined}
-                        checked={submissionSortValue === sortValue}
-                        readOnly
+                        defaultChecked={currentSortValue === sortValue}
                       >
                         <FormControl.Label>
                           {loaderData.locales.route.filter.sortBy[sortValue]}
@@ -722,13 +730,7 @@ export default function ExploreProfiles() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.prfSortBy !== undefined
-                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? loaderData.locales.route.filter.reset
                 : loaderData.locales.route.filter.close}
@@ -768,7 +770,10 @@ export default function ExploreProfiles() {
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedOffers.map((selectedOffer) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.offer.name, selectedOffer);
+                deleteSearchParams.delete(
+                  prfFilterFieldset.offer.name,
+                  selectedOffer
+                );
                 let title;
                 if (selectedOffer in loaderData.locales.offers === false) {
                   console.error(`No locale found for offer ${selectedOffer}`);
@@ -796,7 +801,10 @@ export default function ExploreProfiles() {
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
                 const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(filter.area.name, selectedArea.slug);
+                deleteSearchParams.delete(
+                  prfFilterFieldset.area.name,
+                  selectedArea.slug
+                );
                 return selectedArea.name !== null ? (
                   <Chip key={selectedArea.slug} size="medium">
                     {selectedArea.name}
@@ -814,23 +822,25 @@ export default function ExploreProfiles() {
                 ) : null;
               })}
             </div>
-            <Link
-              className="mv-w-fit"
-              to={`${location.pathname}${
-                loaderData.submission.value.prfSortBy !== undefined
-                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy.value}-${loaderData.submission.value.prfSortBy.direction}`
-                  : ""
-              }`}
+            <Form
+              {...getFormProps(resetForm)}
+              method="get"
               preventScrollReset
+              className="mv-w-fit"
             >
+              <HiddenFilterInputs
+                fields={resetFields}
+                defaultValue={loaderData.submission.value}
+              />
               <Button
+                type="submit"
                 variant="outline"
                 loading={navigation.state === "loading"}
                 disabled={navigation.state === "loading"}
               >
                 {loaderData.locales.route.filter.reset}
               </Button>
-            </Link>
+            </Form>
           </div>
         )}
       </section>
@@ -882,12 +892,18 @@ export default function ExploreProfiles() {
             </CardContainer>
             {showMore && (
               <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Link
-                  to={`${location.pathname}?${loadMoreSearchParams.toString()}`}
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
                   preventScrollReset
                   replace
                 >
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
                   <Button
+                    type="submit"
                     size="large"
                     variant="outline"
                     loading={navigation.state === "loading"}
@@ -895,7 +911,7 @@ export default function ExploreProfiles() {
                   >
                     {loaderData.locales.route.more}
                   </Button>
-                </Link>
+                </Form>
               </div>
             )}
           </>

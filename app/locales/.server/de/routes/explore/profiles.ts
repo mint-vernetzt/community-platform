@@ -20,7 +20,7 @@ export const locale = {
     stateLabel: "Vorschläge nach Gebiet",
     districtLabel: "Vorschläge nach Ort",
     apply: "Filter anwenden",
-    reset: "Alles zurücksetzen",
+    reset: "Filter zurücksetzen",
     sortBy: {
       label: "Sortierung",
       "firstName-asc": "Vorname (A-Z)",

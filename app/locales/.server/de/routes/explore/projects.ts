@@ -26,7 +26,7 @@ export const locale = {
     specialTargetGroups: "Spezifische Zielgruppe",
     financings: "Finanzierung",
     apply: "Filter anwenden",
-    reset: "Alles zurücksetzen",
+    reset: "Filter zurücksetzen",
     sortBy: {
       label: "Sortierung",
       values: {
