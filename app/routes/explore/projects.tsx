@@ -1353,13 +1353,7 @@ export default function ExploreProjects() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.prjSortBy !== undefined
-                  ? `?prjSortBy=${loaderData.submission.value.prjSortBy}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? locales.route.filter.reset
                 : locales.route.filter.close}

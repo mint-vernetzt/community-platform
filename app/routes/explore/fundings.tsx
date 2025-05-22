@@ -631,7 +631,7 @@ export default function ExploreFundings() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton to={`${location.pathname}`}>
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? loaderData.locales.filter.reset
                 : loaderData.locales.filter.close}

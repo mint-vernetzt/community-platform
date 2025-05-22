@@ -72,6 +72,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     schema: getFilterSchemes,
   });
 
+  console.log(submission);
+
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
@@ -730,13 +732,7 @@ export default function ExploreProfiles() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.prfSortBy !== undefined
-                  ? `?prfSortBy=${loaderData.submission.value.prfSortBy}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? loaderData.locales.route.filter.reset
                 : loaderData.locales.route.filter.close}

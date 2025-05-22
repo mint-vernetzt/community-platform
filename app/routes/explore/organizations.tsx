@@ -847,13 +847,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.orgSortBy !== undefined
-                  ? `?orgSortBy=${loaderData.submission.value.orgSortBy}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? locales.route.filter.reset
                 : locales.route.filter.close}
@@ -875,7 +869,7 @@ export default function ExploreOrganizations() {
             </Filters.ApplyButton>
           </Filters>
           <noscript className="mv-hidden @lg:mv-block mv-mt-2">
-            <Button>{locales.route.filter.apply}</Button>
+            <Button type="submit">{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
       </section>

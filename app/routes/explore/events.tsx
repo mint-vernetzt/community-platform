@@ -950,13 +950,7 @@ export default function ExploreEvents() {
                 </Dropdown.List>
               </Dropdown>
             </Filters.Fieldset>
-            <Filters.ResetButton
-              to={`${location.pathname}${
-                loaderData.submission.value.evtSortBy !== undefined
-                  ? `?evtSortBy=${loaderData.submission.value.evtSortBy}`
-                  : ""
-              }`}
-            >
+            <Filters.ResetButton form={resetForm.id}>
               {isHydrated
                 ? locales.route.filter.reset
                 : locales.route.filter.close}
