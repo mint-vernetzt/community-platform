@@ -24,10 +24,10 @@ function Badge(props: React.PropsWithChildren) {
 
   const classes = classNames(
     "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-4 mv-px-2.5 mv-rounded-lg",
-    "mv-text-white mv-bg-primary",
+    "group-hover/item:mv-bg-primary @lg:group-hover/item:mv-bg-primary-50 @lg:group-hover/itemlabel:mv-bg-white group-hover/item:mv-text-white @lg:group-hover/item:mv-text-primary",
     isActive
-      ? "@lg:mv-text-primary @lg:mv-bg-white"
-      : "@lg:mv-bg-primary-50 @lg:mv-text-primary"
+      ? "mv-text-white @lg:mv-text-primary mv-bg-primary @lg:mv-bg-white"
+      : "mv-bg-primary-50 mv-text-primary"
   );
   return <span className={classes}>{props.children}</span>;
 }
@@ -35,26 +35,37 @@ function Badge(props: React.PropsWithChildren) {
 type DropDownMenuItemProps = React.PropsWithChildren & {
   pathname: string;
   search: string;
+  isDropdownLabel?: boolean;
 };
 
 function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
-  const { pathname, search, children, ...otherProps } = props;
+  const { pathname, search, isDropdownLabel, children, ...otherProps } = props;
 
   const match = useMatch(pathname);
 
   const isActive = match !== null;
 
   const classes = classNames(
-    "mv-w-full",
+    "mv-group/item mv-w-full mv-rounded",
     "mv-text-base mv-font-semibold",
     "mv-whitespace-normal",
     "mv-flex mv-gap-2 mv-items-center",
-    "mv-grow mv-min-w-fit"
+    "mv-grow mv-min-w-fit",
+    isActive === false
+      ? `${
+          typeof isDropdownLabel === "undefined" || isDropdownLabel === false
+            ? "hover:mv-bg-primary-50 @lg:hover:mv-bg-transparent @lg:focus-within:mv-bg-primary-100 @lg:focus-within:mv-bg-transparent"
+            : ""
+        }`
+      : `mv-p-2 @lg:mv-p-0 ${
+          typeof isDropdownLabel === "undefined" || isDropdownLabel === false
+            ? "mv-bg-primary-50 @lg:mv-bg-transparent focus-within:mv-bg-primary-100 @lg:focus-within:mv-bg-transparent"
+            : "mv-cursor-pointer"
+        }`
   );
 
   const linkClasses = classNames(
-    "mv-w-full @lg:mv-max-w-content",
-    "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100 @lg:hover:mv-bg-transparent focus-within:mv-bg-transparent"
+    "mv-w-full @lg:mv-max-w-content mv-cursor-pointer mv-p-2 @lg:mv-p-0"
   );
 
   return (
@@ -81,13 +92,12 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
   const isActive = useIsActive();
 
   const classes = classNames(
-    "mv-w-full",
-    "mv-flex mv-gap-2 mv-items-center",
-    "mv-mx-4 mv-my-2 @lg:mv-mx-0",
+    "mv-group/itemlabel mv-w-full",
+    "mv-flex mv-gap-3 @lg:mv-gap-2 mv-items-center mv-justify-between",
     "@lg:mv-px-4 @lg:mv-py-2",
     isActive
-      ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent"
-      : "@lg:mv-bg-white mv-text-neutral-700 @lg:hover:mv-bg-neutral-200",
+      ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent mv-cursor-default"
+      : "@lg:mv-bg-white mv-text-neutral-700 @lg:hover:mv-bg-primary-50",
     "@lg:mv-rounded-lg @lg:mv-border @lg:mv-border-neutral-100",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
     "mv-whitespace-normal"
@@ -98,10 +108,10 @@ function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
 
 function EntitiesSelectLabel(props: React.PropsWithChildren) {
   const classes = classNames(
-    "mv-w-full mv-py-1 mv-pr-4",
+    "mv-w-full mv-py-1 mv-pr-4 mv-cursor-pointer",
     "mv-inline-flex @lg:mv-hidden mv-items-center mv-justify-between mv-cursor-pointer",
     "mv-bg-neutral-50 mv-rounded-lg mv-border mv-border-neutral-200",
-    "group-has-[:focus-within]/dropdown-label:mv-bg-gray-100",
+    "group-has-[:focus-within]/dropdown-label:mv-bg-neutral-100",
     "group-has-[:focus-within]/dropdown-label:mv-border-blue-500 group-has-[:focus-within]/dropdown-label:mv-ring-1 group-has-[:focus-within]/dropdown-label:mv-ring-blue-500"
   );
 
@@ -138,8 +148,8 @@ function EntitiesSelectDropdownLabel(props: React.PropsWithChildren) {
 
 function EntitiesSelectDropdown(props: React.PropsWithChildren) {
   const classes = classNames(
-    "mv-w-full @lg:mv-max-w-full",
-    "mv-mt-2 @lg:mv-m-0 @lg:mv-py-2 @lg:mv-px-2",
+    "mv-absolute @lg:mv-relative mv-top-20 @lg:mv-top-0 mv-z-10 mv-bg-white mv-w-full @lg:mv-max-w-full",
+    "mv-mt-2 @lg:mv-m-0 mv-p-2 @lg:mv-p-6",
     "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-auto",
     "mv-flex-col @lg:mv-flex-row",
     "mv-gap-2 @lg:mv-gap-6",
@@ -151,7 +161,10 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
 }
 
 function EntitiesSelect(props: React.PropsWithChildren) {
-  const classes = classNames("mv-group mv-peer", "mv-w-full @lg:mv-max-w-fit");
+  const classes = classNames(
+    "mv-relative mv-group mv-peer",
+    "mv-w-full @lg:mv-max-w-fit"
+  );
 
   return <div className={classes}>{props.children}</div>;
 }
