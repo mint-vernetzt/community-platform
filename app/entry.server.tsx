@@ -17,7 +17,6 @@ global.ENV = getEnv();
 export const handleError: HandleErrorFunction = (error, { request }) => {
   // React Router may abort some interrupted requests, don't log those
   if (!request.signal.aborted) {
-    console.log("Server error - tracking with server sentry");
     console.error(error);
     captureException(error);
   }

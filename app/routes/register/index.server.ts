@@ -56,8 +56,6 @@ export async function register(options: {
         data.loginRedirect
       );
 
-      console.log({ error });
-
       if (
         error !== null &&
         error.code !== "user_already_exists" &&

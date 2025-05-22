@@ -49,7 +49,7 @@ app.use(function errorHandler(
   res: ExResponse,
   next: NextFunction
 ): ExResponse | void {
-  console.log(err);
+  console.error(err);
   if (err instanceof ValidateError) {
     console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
     if (err.fields.access_token !== undefined) {
