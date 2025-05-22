@@ -197,6 +197,7 @@ export default function Explore() {
               <EntitiesSelect.Label>
                 <EntitiesSelect.Menu.Item
                   {...currentLink}
+                  disabled={currentLink.value === 0}
                   isDropdownLabel={true}
                 >
                   <EntitiesSelect.Menu.Item.Label>
@@ -216,6 +217,7 @@ export default function Explore() {
                   <EntitiesSelect.Menu.Item
                     key={`${item.pathname}${item.search}`}
                     {...item}
+                    disabled={item.value === 0}
                   >
                     <EntitiesSelect.Menu.Item.Label>
                       {item.label}{" "}
