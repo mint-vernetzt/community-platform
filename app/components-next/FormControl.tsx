@@ -16,6 +16,7 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
     <>
       <input
         {...otherProps}
+        form="none"
         type="checkbox"
         className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 mv-hidden"
         onChange={(event) => {
