@@ -148,7 +148,7 @@ function EntitiesSelectDropdownLabel(props: React.PropsWithChildren) {
 
 function EntitiesSelectDropdown(props: React.PropsWithChildren) {
   const classes = classNames(
-    "mv-w-full @lg:mv-max-w-full",
+    "mv-absolute @lg:mv-relative mv-top-20 @lg:mv-top-0 mv-z-10 mv-bg-white mv-w-full @lg:mv-max-w-full",
     "mv-mt-2 @lg:mv-m-0 mv-p-2 @lg:mv-p-6",
     "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-auto",
     "mv-flex-col @lg:mv-flex-row",
@@ -161,7 +161,10 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
 }
 
 function EntitiesSelect(props: React.PropsWithChildren) {
-  const classes = classNames("mv-group mv-peer", "mv-w-full @lg:mv-max-w-fit");
+  const classes = classNames(
+    "mv-relative mv-group mv-peer",
+    "mv-w-full @lg:mv-max-w-fit"
+  );
 
   return <div className={classes}>{props.children}</div>;
 }
