@@ -13,7 +13,7 @@ function CardContainer(props: CardContainerProps) {
   });
 
   return type === "single row" ? (
-    <div className="mv-flex mv-overflow-x-scroll @xl:mv-overflow-x-visible mv-items-stretch">
+    <div className="mv-flex mv-overflow-x-auto mv-items-stretch">
       {validChildren.map((child, index) => {
         return (
           <div
