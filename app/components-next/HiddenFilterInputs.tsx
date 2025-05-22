@@ -1,9 +1,10 @@
 import { getInputProps, type useForm } from "@conform-to/react-v1";
 import { type FilterSchemes } from "~/routes/explore/all.shared";
+import { useConformForm } from "./ConformForm";
 
-export default function HiddenFilterInputs(props: {
-  fields: ReturnType<typeof useForm<FilterSchemes>>[1];
+function HiddenFilterInputs(props: {
   defaultValue: FilterSchemes;
+  fields: ReturnType<typeof useForm<FilterSchemes>>[1];
   entityLeftOut?: "profile" | "organization" | "event" | "project" | "funding";
 }) {
   const { fields, defaultValue, entityLeftOut } = props;
@@ -47,19 +48,19 @@ export default function HiddenFilterInputs(props: {
           {/* Hidden profile filters */}
           <fieldset>
             <ul>
-              {prfFilterOfferFieldList.map((field) => {
+              {prfFilterOfferFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prfFilterAreaFieldList.map((field) => {
+              {prfFilterAreaFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
@@ -76,28 +77,28 @@ export default function HiddenFilterInputs(props: {
           {/* Hidden organization filters */}
           <fieldset>
             <ul>
-              {orgFilterAreaFieldList.map((field) => {
+              {orgFilterAreaFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {orgFilterFocusFieldList.map((field) => {
+              {orgFilterFocusFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {orgFilterTypeFieldList.map((field) => {
+              {orgFilterTypeFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
@@ -122,28 +123,28 @@ export default function HiddenFilterInputs(props: {
               {...getInputProps(evtFilterFieldset.stage, { type: "hidden" })}
             />
             <ul>
-              {evtFilterAreaFieldList.map((field) => {
+              {evtFilterAreaFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {evtFilterFocusFieldList.map((field) => {
+              {evtFilterFocusFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {evtFilterTargetGroupFieldList.map((field) => {
+              {evtFilterTargetGroupFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
@@ -160,64 +161,64 @@ export default function HiddenFilterInputs(props: {
           {/* Hidden project filters */}
           <fieldset>
             <ul>
-              {prjFilterDisciplineFieldList.map((field) => {
+              {prjFilterDisciplineFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterAdditionalDisciplineFieldList.map((field) => {
+              {prjFilterAdditionalDisciplineFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterAreaFieldList.map((field) => {
+              {prjFilterAreaFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterFinancingFieldList.map((field) => {
+              {prjFilterFinancingFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterFormatFieldList.map((field) => {
+              {prjFilterFormatFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterTargetGroupFieldList.map((field) => {
+              {prjFilterTargetGroupFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {prjFilterSpecialTargetGroupFieldList.map((field) => {
+              {prjFilterSpecialTargetGroupFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
@@ -234,37 +235,37 @@ export default function HiddenFilterInputs(props: {
           {/* Hidden funding filters */}
           <fieldset>
             <ul>
-              {fndFilterAreasFieldList.map((field) => {
+              {fndFilterAreasFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {fndFilterEligibleEntitiesFieldList.map((field) => {
+              {fndFilterEligibleEntitiesFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {fndFilterRegionsFieldList.map((field) => {
+              {fndFilterRegionsFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
             </ul>
             <ul>
-              {fndFilterTypesFieldList.map((field) => {
+              {fndFilterTypesFieldList.map((usedFields) => {
                 return (
-                  <li key={field.key}>
-                    <input {...getInputProps(field, { type: "hidden" })} />
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
                   </li>
                 );
               })}
@@ -284,3 +285,21 @@ export default function HiddenFilterInputs(props: {
     </>
   );
 }
+
+function HiddenFilterInputsInContext(props: {
+  entityLeftOut?: "profile" | "organization" | "event" | "project" | "funding";
+}) {
+  const { entityLeftOut } = props;
+
+  const { fields, useFormOptions } = useConformForm();
+
+  return (
+    <HiddenFilterInputs
+      fields={fields as ReturnType<typeof useForm<FilterSchemes>>[1]}
+      defaultValue={useFormOptions.defaultValue as NonNullable<FilterSchemes>}
+      entityLeftOut={entityLeftOut}
+    />
+  );
+}
+
+export { HiddenFilterInputs, HiddenFilterInputsInContext };
