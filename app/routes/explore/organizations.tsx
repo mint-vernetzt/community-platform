@@ -13,19 +13,22 @@ import { CardContainer } from "@mint-vernetzt/components/src/organisms/container
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
-  Link,
   redirect,
   useLoaderData,
-  useLocation,
   useNavigation,
   useSearchParams,
   useSubmit,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { ConformForm } from "~/components-next/ConformForm";
 import { Dropdown } from "~/components-next/Dropdown";
 import { Filters, ShowFiltersButton } from "~/components-next/Filters";
 import { FormControl } from "~/components-next/FormControl";
+import {
+  HiddenFilterInputs,
+  HiddenFilterInputsInContext,
+} from "~/components-next/HiddenFilterInputs";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -53,7 +56,6 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import HiddenFilterInputs from "~/components-next/HiddenFilterInputs";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -374,7 +376,6 @@ export default function ExploreOrganizations() {
   const { locales } = loaderData;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-  const location = useLocation();
   const submit = useSubmit();
   const isHydrated = useHydrated();
 
@@ -413,7 +414,7 @@ export default function ExploreOrganizations() {
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
       orgAreaSearch: "",
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,
@@ -900,19 +901,44 @@ export default function ExploreOrganizations() {
                   title = selectedType;
                 }
                 return (
-                  <Chip key={selectedType} size="medium">
-                    {title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
+                  <ConformForm
+                    key={selectedType}
+                    useFormOptions={{
+                      id: `delete-filter-${selectedType}`,
+                      defaultValue: {
+                        ...loaderData.submission.value,
+                        orgFilter: {
+                          ...loaderData.submission.value.orgFilter,
+                          type: loaderData.submission.value.orgFilter.type.filter(
+                            (type) => type !== selectedType
+                          ),
+                        },
+                        showFilters: "",
+                      },
+                      constraint: getZodConstraint(getFilterSchemes),
+                      lastResult:
+                        navigation.state === "idle"
+                          ? loaderData.submission
+                          : null,
+                    }}
+                    formProps={{
+                      method: "get",
+                      preventScrollReset: true,
+                    }}
+                  >
+                    <HiddenFilterInputsInContext />
+                    <Chip size="medium">
+                      {title}
+                      <Chip.Delete>
+                        <button
+                          type="submit"
+                          disabled={navigation.state === "loading"}
+                        >
+                          X
+                        </button>
+                      </Chip.Delete>
+                    </Chip>
+                  </ConformForm>
                 );
               })}
               {loaderData.selectedFocuses.map((selectedFocus) => {
@@ -930,19 +956,45 @@ export default function ExploreOrganizations() {
                   title = selectedFocus;
                 }
                 return (
-                  <Chip key={selectedFocus} size="medium">
-                    {title}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
+                  <ConformForm
+                    key={selectedFocus}
+                    useFormOptions={{
+                      id: `delete-filter-${selectedFocus}`,
+                      defaultValue: {
+                        ...loaderData.submission.value,
+                        orgFilter: {
+                          ...loaderData.submission.value.orgFilter,
+                          focus:
+                            loaderData.submission.value.orgFilter.focus.filter(
+                              (focus) => focus !== selectedFocus
+                            ),
+                        },
+                        showFilters: "",
+                      },
+                      constraint: getZodConstraint(getFilterSchemes),
+                      lastResult:
+                        navigation.state === "idle"
+                          ? loaderData.submission
+                          : null,
+                    }}
+                    formProps={{
+                      method: "get",
+                      preventScrollReset: true,
+                    }}
+                  >
+                    <HiddenFilterInputsInContext />
+                    <Chip size="medium">
+                      {title}
+                      <Chip.Delete>
+                        <button
+                          type="submit"
+                          disabled={navigation.state === "loading"}
+                        >
+                          X
+                        </button>
+                      </Chip.Delete>
+                    </Chip>
+                  </ConformForm>
                 );
               })}
               {loaderData.selectedAreas.map((selectedArea) => {
@@ -952,19 +1004,44 @@ export default function ExploreOrganizations() {
                   selectedArea.slug
                 );
                 return selectedArea.name !== null ? (
-                  <Chip key={selectedArea.slug} size="medium">
-                    {selectedArea.name}
-                    <Chip.Delete>
-                      <Link
-                        to={`${
-                          location.pathname
-                        }?${deleteSearchParams.toString()}`}
-                        preventScrollReset
-                      >
-                        X
-                      </Link>
-                    </Chip.Delete>
-                  </Chip>
+                  <ConformForm
+                    key={selectedArea.slug}
+                    useFormOptions={{
+                      id: `delete-filter-${selectedArea.slug}`,
+                      defaultValue: {
+                        ...loaderData.submission.value,
+                        orgFilter: {
+                          ...loaderData.submission.value.orgFilter,
+                          area: loaderData.submission.value.orgFilter.area.filter(
+                            (area) => area !== selectedArea.slug
+                          ),
+                        },
+                        showFilters: "",
+                      },
+                      constraint: getZodConstraint(getFilterSchemes),
+                      lastResult:
+                        navigation.state === "idle"
+                          ? loaderData.submission
+                          : null,
+                    }}
+                    formProps={{
+                      method: "get",
+                      preventScrollReset: true,
+                    }}
+                  >
+                    <HiddenFilterInputsInContext />
+                    <Chip size="medium">
+                      {selectedArea.name}
+                      <Chip.Delete>
+                        <button
+                          type="submit"
+                          disabled={navigation.state === "loading"}
+                        >
+                          X
+                        </button>
+                      </Chip.Delete>
+                    </Chip>
+                  </ConformForm>
                 ) : null;
               })}
             </div>
