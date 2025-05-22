@@ -37,8 +37,6 @@ export const locale = {
     "{{count}} Person kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
   notShown_plural:
     "{{count}} Personen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
-  itemsCountSuffix_singular: "Person",
-  itemsCountSuffix_plural: "Personen",
   showNumberOfItems_singular: "{{count}} Person anzeigen",
   showNumberOfItems_plural: "{{count}} Personen anzeigen",
 } as const;

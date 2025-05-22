@@ -36,8 +36,6 @@ export const locale = {
     "{{count}} Organisationen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
   more: "Weitere laden",
 
-  itemsCountSuffix_one: "Organisation",
-  itemsCountSuffix_other: "Organisationen",
   showNumberOfItems_one: "{{count}} Organisation anzeigen",
   showNumberOfItems_other: "{{count}} Organisationen anzeigen",
 } as const;

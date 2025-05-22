@@ -48,8 +48,6 @@ export const locale = {
   notShown_other:
     "{{count}} Veranstaltungen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
 
-  itemsCountSuffix_one: "Veranstaltung",
-  itemsCountSuffix_other: "Veranstaltungen",
   showNumberOfItems_one: "{{count}} Veranstaltung anzeigen",
   showNumberOfItems_other: "{{count}} Veranstaltungen anzeigen",
 } as const;

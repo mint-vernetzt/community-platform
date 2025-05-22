@@ -1194,20 +1194,11 @@ export default function ExploreEvents() {
               }
             )}
           </p>
-        ) : loaderData.eventsCount > 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            <strong>{loaderData.eventsCount}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              locales.route.itemsCountSuffix_one,
-              locales.route.itemsCountSuffix_other,
-              loaderData.eventsCount
-            )}
-          </p>
-        ) : (
+        ) : loaderData.eventsCount === 0 ? (
           <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {locales.route.empty}
           </p>
-        )}
+        ) : null}
         {loaderData.events.length > 0 && (
           <>
             <CardContainer type="multi row">

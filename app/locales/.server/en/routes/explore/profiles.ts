@@ -38,8 +38,6 @@ export const locale = {
     "{{count}} profile cannot be viewed because it has marked the specified filter criteria as private information. Private information is only visible to logged in users.",
   notShown_plural:
     "{{count}} profiles cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
-  itemsCountSuffix_singular: "Profile",
-  itemsCountSuffix_plural: "profiles",
   showNumberOfItems_singular: "Show {{count}} profile",
   showNumberOfItems_plural: "Show {{count}} profiles",
 } as const;

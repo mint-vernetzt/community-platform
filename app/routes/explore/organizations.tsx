@@ -1087,23 +1087,11 @@ export default function ExploreOrganizations() {
               }
             )}
           </p>
-        ) : loaderData.organizationsCount > 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            <strong>{loaderData.organizationsCount}</strong>{" "}
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                locales.route.itemsCountSuffix_one,
-                locales.route.itemsCountSuffix_other,
-                loaderData.organizationsCount
-              ),
-              { count: loaderData.organizationsCount }
-            )}
-          </p>
-        ) : (
+        ) : loaderData.organizationsCount === 0 ? (
           <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {locales.route.empty}
           </p>
-        )}
+        ) : null}
         {loaderData.organizations.length > 0 && (
           <>
             <CardContainer type="multi row">
