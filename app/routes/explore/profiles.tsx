@@ -72,8 +72,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     schema: getFilterSchemes,
   });
 
-  console.log(submission);
-
   invariantResponse(
     submission.status === "success",
     "Validation failed for get request",
