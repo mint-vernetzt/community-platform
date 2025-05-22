@@ -36,7 +36,7 @@ import { Footer } from "~/components-next/Footer";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { getPublicURL } from "./storage.server";
-import styles from "./styles/tailwind.css?url";
+import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import { defaultLanguage } from "./i18n.shared";
