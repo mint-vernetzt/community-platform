@@ -195,7 +195,10 @@ export default function Explore() {
             </EntitiesSelect.Menu.Label>
             {typeof currentLink !== "undefined" && (
               <EntitiesSelect.Label>
-                <EntitiesSelect.Menu.Item {...currentLink}>
+                <EntitiesSelect.Menu.Item
+                  {...currentLink}
+                  isDropdownLabel={true}
+                >
                   <EntitiesSelect.Menu.Item.Label>
                     {currentLink.label}{" "}
                     {typeof currentLink.value !== "undefined" ? (
