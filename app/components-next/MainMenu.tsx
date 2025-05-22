@@ -220,8 +220,8 @@ export function MainMenu(
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.profiles
                   : defaultLanguage === "de"
-                  ? "Profile"
-                  : "Profiles"}
+                  ? "Personen"
+                  : "Persons"}
               </TopicItem>
 
               <TopicItem
