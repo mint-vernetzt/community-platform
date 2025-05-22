@@ -4,7 +4,7 @@ import { NavLink, useMatch } from "react-router";
 
 const EntitiesSelectMenuItemContext = createContext<Pick<
   DropDownMenuItemProps,
-  "pathname"
+  "pathname" | "disabled"
 > | null>(null);
 
 function useIsActive() {
@@ -19,15 +19,31 @@ function useIsActive() {
   return match !== null;
 }
 
+function useIsDisabled() {
+  const context = useContext(EntitiesSelectMenuItemContext);
+  if (context === null) {
+    throw new Error(
+      "useIsDisabled must be used within a EntitiesSelectMenuItemContext"
+    );
+  }
+  const { disabled } = context;
+  return disabled === true;
+}
+
 function Badge(props: React.PropsWithChildren) {
   const isActive = useIsActive();
+  const isDisabled = useIsDisabled();
 
   const classes = classNames(
     "mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-4 mv-px-2.5 mv-rounded-lg",
     "group-hover/item:mv-bg-primary @lg:group-hover/item:mv-bg-primary-50 @lg:group-hover/itemlabel:mv-bg-white group-hover/item:mv-text-white @lg:group-hover/item:mv-text-primary",
     isActive
       ? "mv-text-white @lg:mv-text-primary mv-bg-primary @lg:mv-bg-white"
-      : "mv-bg-primary-50 mv-text-primary"
+      : `${
+          isDisabled
+            ? "mv-bg-neutral-200 mv-text-neutral-700"
+            : "mv-bg-primary-50 mv-text-primary"
+        }`
   );
   return <span className={classes}>{props.children}</span>;
 }
@@ -35,11 +51,19 @@ function Badge(props: React.PropsWithChildren) {
 type DropDownMenuItemProps = React.PropsWithChildren & {
   pathname: string;
   search: string;
+  disabled?: boolean;
   isDropdownLabel?: boolean;
 };
 
 function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
-  const { pathname, search, isDropdownLabel, children, ...otherProps } = props;
+  const {
+    pathname,
+    search,
+    disabled = false,
+    isDropdownLabel,
+    children,
+    ...otherProps
+  } = props;
 
   const match = useMatch(pathname);
 
@@ -69,7 +93,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
   );
 
   return (
-    <EntitiesSelectMenuItemContext.Provider value={{ pathname }}>
+    <EntitiesSelectMenuItemContext.Provider value={{ pathname, disabled }}>
       {isActive ? (
         <li className={classes}>{children}</li>
       ) : (
@@ -90,14 +114,17 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
 
 function EntitiesSelectDropdownItemLabel(props: React.PropsWithChildren) {
   const isActive = useIsActive();
+  const isDisabled = useIsDisabled();
 
   const classes = classNames(
     "mv-group/itemlabel mv-w-full",
     "mv-flex mv-gap-3 @lg:mv-gap-2 mv-items-center mv-justify-between",
     "@lg:mv-px-4 @lg:mv-py-2",
     isActive
-      ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent mv-cursor-default"
-      : "@lg:mv-bg-white mv-text-neutral-700 @lg:hover:mv-bg-primary-50",
+      ? "@lg:mv-bg-primary @lg:mv-text-white @lg:mv-border-transparent @lg:mv-cursor-default"
+      : `@lg:mv-bg-white ${
+          isDisabled ? "mv-text-neutral-400" : "mv-text-neutral-600"
+        } hover:mv-text-neutral-700 @lg:hover:mv-bg-primary-50`,
     "@lg:mv-rounded-lg @lg:mv-border @lg:mv-border-neutral-100",
     "mv-text-base @lg:mv-text-sm mv-font-semibold",
     "mv-whitespace-normal"
@@ -153,7 +180,6 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
     "mv-hidden group-has-[:checked]:mv-flex @lg:mv-inline-flex @lg:mv-overflow-auto",
     "mv-flex-col @lg:mv-flex-row",
     "mv-gap-2 @lg:mv-gap-6",
-    // "mv-bg-white @lg:mv-bg-neutral-100",
     "mv-border mv-rounded-lg mv-border-neutral-200 @lg:mv-rounded-lg @lg:mv-border-0"
   );
 
