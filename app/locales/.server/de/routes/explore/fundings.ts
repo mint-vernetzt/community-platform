@@ -9,8 +9,8 @@ export const locale = {
   empty: "Es konnten leider keine Förderungen gefunden werden.",
   itemsCountSuffix_one: "Förderung",
   itemsCountSuffix_other: "Förderungen",
-  showNumberOfItems_singular: "{{count}} Profil anzeigen",
-  showNumberOfItems_plural: "{{count}} Profile anzeigen",
+  showNumberOfItems_singular: "{{count}} Förderung anzeigen",
+  showNumberOfItems_plural: "{{count}} Förderungen anzeigen",
   showFiltersLabel: "Förderungen filtern",
   filter: {
     apply: "Filter anwenden",
