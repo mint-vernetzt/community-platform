@@ -670,7 +670,7 @@ export default function ExploreFundings() {
             loaderData.selectedRegions.length > 0 ||
             loaderData.selectedEligibleEntities.length > 0) && (
             <div className="mv-flex mv-flex-col">
-              <div className="mv-overflow-scroll @lg:mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
                 {loaderData.selectedFundingTypes.map((type) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
