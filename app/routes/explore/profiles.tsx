@@ -914,20 +914,11 @@ export default function ExploreProfiles() {
               }
             )}
           </p>
-        ) : loaderData.profilesCount > 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            <strong>{loaderData.profilesCount}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              loaderData.locales.route.itemsCountSuffix_singular,
-              loaderData.locales.route.itemsCountSuffix_plural,
-              loaderData.profilesCount
-            )}
-          </p>
-        ) : (
+        ) : loaderData.profilesCount === 0 ? (
           <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {loaderData.locales.route.empty}
           </p>
-        )}
+        ) : null}
         {loaderData.profiles.length > 0 && (
           <>
             <CardContainer type="multi row">

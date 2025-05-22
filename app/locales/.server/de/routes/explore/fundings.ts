@@ -7,8 +7,6 @@ export const locale = {
     "Nutze die Filterfunktion, um passende Treffer zu erzielen. Jeden Montag werden die Datenbanken durchsucht und die Ergebnisse hier auf der Plattform aktualisiert.",
   more: "Weitere laden",
   empty: "Es konnten leider keine Förderungen gefunden werden.",
-  itemsCountSuffix_one: "Förderung",
-  itemsCountSuffix_other: "Förderungen",
   showNumberOfItems_singular: "{{count}} Förderung anzeigen",
   showNumberOfItems_plural: "{{count}} Förderungen anzeigen",
   showFiltersLabel: "Förderungen filtern",

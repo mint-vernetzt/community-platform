@@ -36,8 +36,6 @@ export const locale = {
     "{{count}} organizations cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
   more: "Load more",
 
-  itemsCountSuffix_one: "Organization",
-  itemsCountSuffix_other: "Organizations",
   showNumberOfItems_one: "Show {{count}} organization",
   showNumberOfItems_other: "Show {{count}} organizations",
 } as const;

@@ -886,20 +886,11 @@ export default function ExploreFundings() {
             </div>
           )}
         </section>
-        {loaderData.count > 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            <strong>{loaderData.count}</strong>{" "}
-            {decideBetweenSingularOrPlural(
-              loaderData.locales.itemsCountSuffix_one,
-              loaderData.locales.itemsCountSuffix_other,
-              loaderData.count
-            )}
-          </p>
-        ) : (
+        {loaderData.count === 0 ? (
           <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {loaderData.locales.empty}
           </p>
-        )}
+        ) : null}
 
         <FundingCard.Container>
           {loaderData.fundings.map((funding) => {

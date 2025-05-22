@@ -45,8 +45,6 @@ export const locale = {
   notShown_other:
     "{{count}} Projekte können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
 
-  itemsCountSuffix_one: "Projekt",
-  itemsCountSuffix_other: "Projekte",
   showNumberOfItems_one: "{{count}} Projekt anzeigen",
   showNumberOfItems_other: "{{count}} Projekte anzeigen",
 } as const;

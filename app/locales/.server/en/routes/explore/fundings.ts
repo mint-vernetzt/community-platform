@@ -7,8 +7,6 @@ export const locale = {
     "Use the filter function to achieve suitable results. Every Monday, the databases are searched and the results are updated here on the platform.",
   more: "Load more",
   empty: "Unfortunately, no fundings could be found.",
-  itemsCountSuffix_one: "funding",
-  itemsCountSuffix_other: "fundings",
   showNumberOfItems_singular: "Show {{count}} funding",
   showNumberOfItems_plural: "Show {{count}} fundings",
   showFiltersLabel: "Filter fundings",

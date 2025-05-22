@@ -1858,23 +1858,11 @@ export default function ExploreProjects() {
               }
             )}
           </p>
-        ) : loaderData.projectsCount > 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            <strong>{loaderData.projectsCount}</strong>{" "}
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                locales.route.itemsCountSuffix_one,
-                locales.route.itemsCountSuffix_other,
-                loaderData.projectsCount
-              ),
-              { count: loaderData.projectsCount }
-            )}
-          </p>
-        ) : (
+        ) : loaderData.projectsCount === 0 ? (
           <p className="mv-text-center mv-text-gray-700 mv-mb-4">
             {locales.route.empty}
           </p>
-        )}
+        ) : null}
         {loaderData.projects.length > 0 && (
           <>
             <CardContainer type="multi row">
