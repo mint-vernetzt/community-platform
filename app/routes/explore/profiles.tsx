@@ -361,7 +361,7 @@ export default function ExploreProfiles() {
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,

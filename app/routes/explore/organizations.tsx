@@ -396,7 +396,7 @@ export default function ExploreOrganizations() {
     defaultValue: {
       ...loaderData.submission.value,
       orgPage: loaderData.submission.value.orgPage + 1,
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,
