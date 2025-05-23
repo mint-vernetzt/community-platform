@@ -120,12 +120,7 @@ export default function Index() {
   });
 
   return (
-    <Form
-      {...getFormProps(loginForm)}
-      method="post"
-      preventScrollReset
-      autoComplete="off"
-    >
+    <Form {...getFormProps(loginForm)} method="post" autoComplete="off">
       <>
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-z-10">
           <div className="mv-flex mv-flex-col mv-w-full mv-items-center">

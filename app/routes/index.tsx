@@ -204,7 +204,6 @@ export default function Index() {
                   <Form
                     {...getFormProps(loginForm)}
                     method="post"
-                    preventScrollReset
                     autoComplete="off"
                   >
                     {typeof loginForm.errors !== "undefined" &&
