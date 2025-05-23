@@ -106,6 +106,14 @@ export default function Index() {
     id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales)),
     defaultValue: {
+      email:
+        typeof actionData?.submission?.initialValue?.email === "string"
+          ? actionData?.submission?.initialValue?.email
+          : "",
+      password:
+        typeof actionData?.submission?.initialValue?.password === "string"
+          ? actionData?.submission?.initialValue?.password
+          : "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onInput",
