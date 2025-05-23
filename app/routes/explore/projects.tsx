@@ -497,7 +497,7 @@ export default function ExploreProjects() {
     defaultValue: {
       ...loaderData.submission.value,
       prjPage: loaderData.submission.value.prjPage + 1,
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,

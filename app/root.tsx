@@ -413,7 +413,7 @@ export default function App() {
     "mv-min-h-screen mv-break-words mv-antialiased",
     modal && "mv-overflow-hidden",
     showFilters !== null &&
-      showFilters !== "false" &&
+      showFilters === "on" &&
       "mv-overflow-hidden container-lg:mv-overflow-visible",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&

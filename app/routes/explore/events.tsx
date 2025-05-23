@@ -377,7 +377,7 @@ export default function ExploreEvents() {
     defaultValue: {
       ...loaderData.submission.value,
       evtPage: loaderData.submission.value.evtPage + 1,
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,

@@ -365,7 +365,7 @@ export default function ExploreFundings() {
     defaultValue: {
       ...loaderData.submission.value,
       fndPage: loaderData.submission.value.fndPage + 1,
-      showFilters: "on",
+      showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
     lastResult: navigation.state === "idle" ? loaderData.submission : null,
