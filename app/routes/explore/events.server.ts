@@ -191,87 +191,6 @@ type WhereClause = {
   AND: EventVisibility[] & FilterKeyWhereStatement[] & SearchWhereStatement[];
 };
 
-// export async function getVisibilityFilteredEventsCount(options: {
-//   filter: GetEventsSchema["evtFilter"];
-// }) {
-//   const whereClauses: {
-//     AND: WhereClause["AND"] & { OR: EventVisibility[] }[];
-//   } = { AND: [] };
-//   const visibilityWhereClauses: { OR: EventVisibility[] } = { OR: [] };
-
-//   for (const filterKey in options.filter) {
-//     const typedFilterKey = filterKey as keyof typeof options.filter;
-//     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-//     if (typedFilterKey === "periodOfTime") {
-//       const filterValue = options.filter[typedFilterKey];
-//       const filterWhereStatement =
-//         getWhereStatementFromPeriodOfTime(filterValue);
-//       // I had to do this because typescript can't resolve the correct return type of getWhereStatementFromPeriodOfTime()
-//       invariantResponse(
-//         typeof filterWhereStatement !== "string",
-//         "Please provide prisma sql syntax",
-//         { status: 500 }
-//       );
-//       filterKeyWhereStatement.OR.push(filterWhereStatement);
-//     } else if (typedFilterKey === "stage") {
-//       const filterValue = options.filter[typedFilterKey];
-//       if (typeof filterValue === "string" && filterValue !== "all") {
-//         const filterWhereStatement = {
-//           stage: {
-//             slug: filterValue,
-//           },
-//         };
-//         filterKeyWhereStatement.OR.push(filterWhereStatement);
-//       }
-//     } else {
-//       const filterValues = options.filter[typedFilterKey];
-//       if (filterValues.length === 0) {
-//         continue;
-//       }
-//       for (const slug of filterValues) {
-//         const filterWhereStatement = {
-//           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
-//             some: {
-//               [typedFilterKey]: {
-//                 slug,
-//               },
-//             },
-//           },
-//         };
-//         filterKeyWhereStatement.OR.push(filterWhereStatement);
-//       }
-//     }
-
-//     whereClauses.AND.push(filterKeyWhereStatement);
-
-//     const visibilityWhereStatement = {
-//       eventVisibility: {
-//         [`${
-//           typedFilterKey === "periodOfTime"
-//             ? "startTime"
-//             : typedFilterKey === "stage"
-//             ? "stage"
-//             : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-//         }`]: false,
-//       },
-//     };
-//     visibilityWhereClauses.OR.push(visibilityWhereStatement);
-//   }
-//   if (visibilityWhereClauses.OR.length === 0) {
-//     return 0;
-//   }
-//   whereClauses.AND.push(visibilityWhereClauses);
-
-//   const count = await prismaClient.event.count({
-//     where: {
-//       AND: [...whereClauses.AND, { published: true }],
-//     },
-//   });
-
-//   return count;
-// }
-
 function getEventsFilterWhereClause(filter: GetEventsSchema["evtFilter"]) {
   const whereClauses: WhereClause = { AND: [] };
 
@@ -762,7 +681,9 @@ export async function getEventIds(options: {
   whereClauses.AND.push(...searchWhereClauses);
 
   const events = await prismaClient.event.findMany({
-    where: whereClauses,
+    where: {
+      AND: [...whereClauses.AND, { published: true }],
+    },
     select: {
       id: true,
     },
