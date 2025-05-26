@@ -545,7 +545,9 @@ export async function getProjectIds(options: {
   whereClauses.AND.push(...searchWhereClauses);
 
   const projects = await prismaClient.project.findMany({
-    where: whereClauses,
+    where: {
+      AND: [...whereClauses.AND, { published: true }],
+    },
     select: {
       id: true,
     },
