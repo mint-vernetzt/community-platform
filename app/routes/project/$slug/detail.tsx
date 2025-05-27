@@ -426,7 +426,7 @@ function ProjectDetail() {
         {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
         <TextButton
           as="a"
-          href="/explore/projects"
+          to="/explore/projects"
           weight="thin"
           variant="neutral"
           arrowLeft
@@ -519,7 +519,7 @@ function ProjectDetail() {
           {mode === "admin" && (
             <Header.Footer>
               <Controls>
-                <Button as="a" href="./../settings" fullSize>
+                <Button as="a" to="./../settings" fullSize>
                   {locales.route.content.edit}
                 </Button>
                 <Button

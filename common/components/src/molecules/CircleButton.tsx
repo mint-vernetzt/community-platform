@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { createElement } from "react";
+import { Link, type LinkProps } from "react-router";
 
 type CircleButtonVariant = "normal" | "outline" | "ghost";
 type CircleButtonType = "button" | "a";
@@ -17,7 +18,7 @@ function CircleButton(
   props: CircleButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
-      | React.AnchorHTMLAttributes<HTMLAnchorElement>
+      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
     )
 ) {
   const {
@@ -70,12 +71,40 @@ function CircleButton(
     floating && "mv-shadow-lg"
   );
 
-  const element = createElement(as, {
-    ...otherProps,
-    className: classes,
-  });
-
-  return element;
+  if (as === "a" && "to" in otherProps) {
+    return (
+      <Link
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+        {...otherProps}
+      >
+        {otherProps.children}
+      </Link>
+    );
+  } else if (as === "button" && "to" in otherProps === false) {
+    return (
+      <button
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+        {...otherProps}
+      >
+        {otherProps.children}
+      </button>
+    );
+  } else {
+    return createElement(
+      as,
+      {
+        className: `${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`,
+        ...otherProps,
+      },
+      otherProps.children
+    );
+  }
 }
 
 export { CircleButton };

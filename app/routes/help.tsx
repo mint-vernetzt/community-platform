@@ -119,7 +119,7 @@ export default function Help() {
         <div className="mv-w-fit">
           <Button
             as="a"
-            href={`mailto:${loaderData.supportMail}`}
+            to={`mailto:${loaderData.supportMail}`}
             variant="outline"
           >
             {locales.support.cta}

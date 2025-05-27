@@ -1,4 +1,5 @@
 import { Children, isValidElement } from "react";
+import { Link } from "react-router";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
 
 export function FundingCard(props: {
@@ -74,8 +75,8 @@ function FundingCardCategoryTitle(props: { children: React.ReactNode }) {
 
 function FundingCardLink(props: { to: string; children: React.ReactNode }) {
   return (
-    <a
-      href={props.to}
+    <Link
+      to={props.to}
       className="hover:mv-underline"
       target="_blank"
       rel="noreferrer nofollow noopenner"
@@ -104,7 +105,7 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
         </svg>
         {props.children}
       </span>
-    </a>
+    </Link>
   );
 }
 

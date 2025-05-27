@@ -1,5 +1,6 @@
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import classNames from "classnames";
+import { Link } from "react-router";
 
 function getFullName(
   data: { academicTitle?: string | null; firstName: string; lastName: string },
@@ -91,7 +92,7 @@ export function Avatar(props: AvatarProps) {
 
   return (
     <div className={classes}>
-      {props.to ? <a href={props.to}>{child}</a> : <>{child}</>}
+      {props.to ? <Link to={props.to}>{child}</Link> : <>{child}</>}
     </div>
   );
 }

@@ -111,28 +111,31 @@ export function NavBar(props: NavBarProps) {
           ) : (
             <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
               <div>
-                <Link to={`/login?login_redirect=${location.pathname}`}>
-                  <Button variant="ghost">
-                    <span className="mv-underline">
-                      {props.locales !== undefined
-                        ? props.locales.route.root.login
-                        : defaultLanguage === "de"
-                        ? "Anmelden"
-                        : "Login"}
-                    </span>
-                  </Button>
-                </Link>
+                <Button
+                  to={`/login?login_redirect=${location.pathname}`}
+                  as="a"
+                  variant="ghost"
+                >
+                  <span className="mv-underline">
+                    {props.locales !== undefined
+                      ? props.locales.route.root.login
+                      : defaultLanguage === "de"
+                      ? "Anmelden"
+                      : "Login"}
+                  </span>
+                </Button>
               </div>
               <div>
-                <Link to={`/register?login_redirect=${location.pathname}`}>
-                  <Button>
-                    {props.locales !== undefined
-                      ? props.locales.route.root.register
-                      : defaultLanguage === "de"
-                      ? "Registrieren"
-                      : "Register"}
-                  </Button>
-                </Link>
+                <Button
+                  to={`/register?login_redirect=${location.pathname}`}
+                  as="a"
+                >
+                  {props.locales !== undefined
+                    ? props.locales.route.root.register
+                    : defaultLanguage === "de"
+                    ? "Registrieren"
+                    : "Register"}
+                </Button>
               </div>
             </div>
           )}

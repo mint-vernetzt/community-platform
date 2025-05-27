@@ -837,7 +837,7 @@ function Dashboard() {
               <Button
                 variant="outline"
                 as="a"
-                href={`/profile/${loaderData.username}`}
+                to={`/profile/${loaderData.username}`}
               >
                 {loaderData.locales.route.content.header.cta}
               </Button>
@@ -858,7 +858,7 @@ function Dashboard() {
           <Button
             variant="outline"
             as="a"
-            href={`/profile/${loaderData.username}`}
+            to={`/profile/${loaderData.username}`}
           >
             {loaderData.locales.route.content.myProfile}
           </Button>
@@ -916,7 +916,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="a" to="/my/organizations">
               {loaderData.locales.route.content.invites.linkDescription}
             </Button>
           </div>
@@ -974,7 +974,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="a" to="/my/organizations">
               {loaderData.locales.route.content.requests.linkDescription}
             </Button>
           </div>
@@ -1034,7 +1034,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="a" to="/my/organizations">
               {loaderData.locales.route.content.networkInvites.linkDescription}
             </Button>
           </div>
@@ -1094,7 +1094,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="a" to="/my/organizations">
               {loaderData.locales.route.content.networkRequests.linkDescription}
             </Button>
           </div>
@@ -1176,7 +1176,7 @@ function Dashboard() {
                       <Button
                         className="mv-w-full @sm:mv-shrink"
                         as="a"
-                        href="/my/events"
+                        to="/my/events"
                         variant="outline"
                       >
                         {loaderData.locales.route.content.notifications.cta}

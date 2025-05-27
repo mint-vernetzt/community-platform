@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { createElement } from "react";
+import { Link as ReactRouterLink } from "react-router";
 interface LinkProps {
   to: string;
   children?: string | React.ReactNode;
@@ -39,6 +40,19 @@ function Link(props: LinkProps) {
     variant === "primary" && "mv-text-primary",
     active && "mv-underline mv-cursor-default mv-pointer-events-none"
   );
+
+  if (as === "a" && "to" in otherProps) {
+    return (
+      <ReactRouterLink
+        className={`${
+          className !== undefined ? `${className} ` : ""
+        }${classes}`}
+        to={to}
+      >
+        {otherProps.children}
+      </ReactRouterLink>
+    );
+  }
 
   const element = createElement(as, {
     href,

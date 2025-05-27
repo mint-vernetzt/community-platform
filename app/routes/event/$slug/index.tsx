@@ -672,7 +672,7 @@ function Index() {
               {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
               <TextButton
                 as="a"
-                href={`/event/${loaderData.event.parentEvent.slug}`}
+                to={`/event/${loaderData.event.parentEvent.slug}`}
                 weight="thin"
                 variant="neutral"
                 arrowRight
@@ -687,7 +687,7 @@ function Index() {
             // TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside.
             <TextButton
               as="a"
-              href="/explore/events"
+              to="/explore/events"
               weight="thin"
               variant="neutral"
               arrowLeft
@@ -982,13 +982,13 @@ function Index() {
                             {insertComponentsIntoLocale(
                               locales.route.content.event.select,
                               [
-                                <a
+                                <Link
                                   key="to-child-events"
-                                  href="#child-events"
+                                  to="#child-events"
                                   className="mv-underline hover:mv-no-underline"
                                 >
                                   {" "}
-                                </a>,
+                                </Link>,
                               ]
                             )}
                           </p>
@@ -1132,13 +1132,13 @@ function Index() {
                     {locales.route.content.event.conferenceLink}
                   </div>
                   <div className="mv-pb-3 @md:mv-pb-0">
-                    <a
-                      href={loaderData.event.conferenceLink}
+                    <Link
+                      to={loaderData.event.conferenceLink}
                       target="_blank"
                       rel="noreferrer noopener"
                     >
                       {loaderData.event.conferenceLink}
-                    </a>
+                    </Link>
                   </div>
                 </>
               ) : null}

@@ -270,7 +270,7 @@ function Create() {
                 {locales.form.submit.label}
               </Button>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
-              <Button as="a" href="/my/projects" variant="outline" fullSize>
+              <Button as="a" to="/my/projects" variant="outline" fullSize>
                 {locales.form.reset.label}
               </Button>
             </div>

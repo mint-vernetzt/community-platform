@@ -223,7 +223,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                   <Button
                     as="a"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -290,7 +290,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                   <Button
                     as="a"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -362,7 +362,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                   <Button
                     as="a"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -423,7 +423,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                   <Button
                     as="a"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"

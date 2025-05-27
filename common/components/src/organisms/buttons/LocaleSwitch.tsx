@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
 import { supportedCookieLanguages } from "~/i18n.shared";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -30,12 +30,13 @@ export function LocaleSwitch(props: {
             {index > 0 ? <span className="mv-px-2">|</span> : ""}
             <span>
               <TextButton
+                as="a"
+                to={`?${newSearchParams.toString()}`}
                 variant={variant}
                 weight={language === props.currentLanguage ? "normal" : "thin"}
+                preventScrollReset
               >
-                <Link to={`?${newSearchParams.toString()}`} preventScrollReset>
-                  {language.toUpperCase()}
-                </Link>
+                {language.toUpperCase()}
               </TextButton>
             </span>
           </li>

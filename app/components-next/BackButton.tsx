@@ -9,7 +9,7 @@ export function BackButton(props: PropsWithChildren<BackButtonProps>) {
   return (
     <div className="@md:mv-hidden">
       {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
-      <TextButton as="a" href={props.to} arrowLeft size="large">
+      <TextButton as="a" to={props.to} arrowLeft size="large">
         {props.children}
       </TextButton>
     </div>

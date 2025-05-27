@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 import { Image } from "./Image";
 import { Children, isValidElement } from "react";
+import { Link } from "react-router";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -66,12 +67,12 @@ function Avatar(props: AvatarProps) {
   return (
     <div className={classes}>
       {props.to ? (
-        <a
-          href={props.to}
+        <Link
+          to={props.to}
           className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
         >
           {child}
-        </a>
+        </Link>
       ) : (
         <>{child}</>
       )}
@@ -96,9 +97,9 @@ function MoreIndicator(props: MoreIndicatorProps) {
     props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
   return props.to ? (
-    <a href={props.to}>
+    <Link to={props.to}>
       <div className={classes}>{amount}</div>
-    </a>
+    </Link>
   ) : (
     <div className={classes}>{amount}</div>
   );

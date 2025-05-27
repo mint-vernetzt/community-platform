@@ -102,7 +102,7 @@ function ProjectSettings() {
           {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
           <TextButton
             as="a"
-            href={`/project/${loaderData.project.slug}`}
+            to={`/project/${loaderData.project.slug}`}
             weight="thin"
             variant="neutral"
             arrowLeft

@@ -1049,7 +1049,7 @@ function General() {
                     {locales.route.form.reset}
                   </Button>
                   <noscript className="mv-absolute mv-top-0">
-                    <Button as="a" href="./general" variant="outline" fullSize>
+                    <Button as="a" to="." variant="outline" fullSize>
                       {locales.route.form.reset}
                     </Button>
                   </noscript>

@@ -809,7 +809,7 @@ function Attachments() {
                 <div className="mv-w-full @md:mv-max-w-fit">
                   <Button
                     as="a"
-                    href={`./attachments/download?type=documents`}
+                    to={`./download?type=documents`}
                     variant="outline"
                     fullSize
                   >
@@ -1174,10 +1174,9 @@ function Attachments() {
                 })}
               </MaterialList>
               <div className="mv-w-full @md:mv-max-w-fit">
-                {/* TODO: Button as wrapper for Link (better relative path) */}
                 <Button
                   as="a"
-                  href={`./attachments/download?type=images`}
+                  to={`./download?type=images`}
                   variant="outline"
                   fullSize
                 >

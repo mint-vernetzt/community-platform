@@ -135,28 +135,28 @@ export default function Index() {
                   }),
                   [
                     <span key="email-highlight" className="mv-font-semibold" />,
-                    <a
+                    <Link
                       key="support-mail-link"
-                      href={`mailto:${actionData.supportMail}`}
+                      to={`mailto:${actionData.supportMail}`}
                       className="mv-text-primary mv-font-semibold hover:mv-underline"
                     >
                       {" "}
-                    </a>,
+                    </Link>,
                   ]
                 )}
               </p>
               <p>
                 {insertComponentsIntoLocale(locales.response.notice, [
                   <span key="mint-id-highlight" className="mv-font-semibold" />,
-                  <a
+                  <Link
                     key="support-mail-link"
-                    href="https://mint-id.org/"
+                    to="https://mint-id.org/"
                     rel="noopener noreferrer"
                     target="_blank"
                     className="mv-text-primary mv-font-semibold hover:mv-underline"
                   >
                     {" "}
-                  </a>,
+                  </Link>,
                 ])}
               </p>
             </>

@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { Children, cloneElement, createElement, isValidElement } from "react";
+import { Link, type LinkProps } from "react-router";
 
 export type TextButtonVariants = "primary" | "neutral" | "dark";
 type TextButtonSize = "small" | "medium" | "large";
@@ -68,7 +69,7 @@ function TextButton(
   props: TextButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
-      | React.AnchorHTMLAttributes<HTMLAnchorElement>
+      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
       | React.PropsWithChildren
     )
 ) {
@@ -133,16 +134,33 @@ function TextButton(
 
   const as = props.as || "button";
 
-  const element = createElement(
-    as,
-    {
-      ...otherProps,
-      className: classes,
-    },
-    children
-  );
-
-  return element;
+  if (as === "a" && "to" in otherProps) {
+    return (
+      <Link
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+        {...otherProps}
+      >
+        {children}
+      </Link>
+    );
+  } else if (as === "button" && "to" in otherProps === false) {
+    return (
+      <button className={classes} {...otherProps}>
+        {children}
+      </button>
+    );
+  } else {
+    return createElement(
+      as,
+      {
+        className: classes,
+        ...otherProps,
+      },
+      children
+    );
+  }
 }
 
 export { TextButton };

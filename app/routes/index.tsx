@@ -184,7 +184,7 @@ export default function Index() {
                     <Button
                       as="a"
                       size="large"
-                      href={`/auth/keycloak${
+                      to={`/auth/keycloak${
                         loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                       }`}
                       variant="outline"
@@ -193,14 +193,14 @@ export default function Index() {
                     >
                       {locales.route.login.withMintId}
                     </Button>
-                    <a
-                      href="https://mint-id.org/faq"
+                    <Link
+                      to="https://mint-id.org/faq"
                       target="_blank"
                       rel="noreferrer noopener"
                       className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
                     >
                       {locales.route.login.moreInformation}
-                    </a>
+                    </Link>
                     <div className="mv-mt-4 mv-mb-8">
                       <hr className="mv-mx-5" />
                       <span className="mv-block -mv-my-3 mv-mx-auto mv-w-fit mv-px-4 mv-text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 mv-font-bold">
@@ -369,7 +369,7 @@ export default function Index() {
           </div>
 
           <div className="mv-absolute mv-left-1/2 mv-bottom-8 mv-hidden @md:mv-block mv-animate-bounce">
-            <a href="#intro">
+            <Link to="#intro">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="55"
@@ -385,7 +385,7 @@ export default function Index() {
                   />
                 </g>
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -418,7 +418,7 @@ export default function Index() {
               <div className="mv-flex mv-justify-center">
                 <Button
                   as="a"
-                  href={`/register${
+                  to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
                 >
@@ -520,7 +520,7 @@ export default function Index() {
         <Button
           as="a"
           variant="outline"
-          href="https://mint-vernetzt.de/"
+          to="https://mint-vernetzt.de/"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -655,7 +655,7 @@ export default function Index() {
             </Accordion.Item>
           </Accordion>
         </div>
-        <Button as="a" href="/help" variant="outline">
+        <Button as="a" to="/help" variant="outline">
           {locales.route.content.faq.cta}
         </Button>
         <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">

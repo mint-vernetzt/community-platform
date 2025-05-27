@@ -195,7 +195,7 @@ function Roadmap(props: { locales: LandingPageLocales }) {
           <Button
             as="a"
             variant="outline"
-            href="mailto:community@mint-vernetzt.de"
+            to="mailto:community@mint-vernetzt.de"
           >
             {locales.roadmap.controls.submitIdeas}
           </Button>

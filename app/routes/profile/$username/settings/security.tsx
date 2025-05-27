@@ -4,6 +4,7 @@ import {
   useLoaderData,
   useNavigation,
   redirect,
+  Link,
 } from "react-router";
 import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
@@ -212,15 +213,15 @@ export default function Security() {
           </h4>
           <p className="mv-mb-8">
             {insertComponentsIntoLocale(locales.section.changePassword1.intro, [
-              <a
+              <Link
                 key="change-mint-id-password"
-                href="https://mint-id.org"
+                to="https://mint-id.org"
                 target="_blank"
                 rel="noreferrer noopener"
                 className="mv-text-primary hover:mv-underline"
               >
                 {" "}
-              </a>,
+              </Link>,
             ])}
           </p>
         </>

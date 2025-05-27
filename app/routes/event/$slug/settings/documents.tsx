@@ -542,7 +542,7 @@ function Documents() {
                 <div className="mv-w-full @md:mv-max-w-fit">
                   <Button
                     as="a"
-                    href={`/event/${loaderData.event.slug}/documents-download`}
+                    to={`/event/${loaderData.event.slug}/documents-download`}
                     variant="outline"
                     fullSize
                   >

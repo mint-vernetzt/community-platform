@@ -105,7 +105,7 @@ function Settings() {
           {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
           <TextButton
             as="a"
-            href={`/organization/${loaderData.organization.slug}`}
+            to={`/organization/${loaderData.organization.slug}`}
             weight="thin"
             variant="neutral"
             arrowLeft

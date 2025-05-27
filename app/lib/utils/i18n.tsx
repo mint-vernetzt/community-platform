@@ -1,5 +1,6 @@
 import { cloneElement } from "react";
 
+// TODO: Its not possible to provide nested components which is very unuseful if you want to insert lists f.e.
 export function insertComponentsIntoLocale(
   locale: string,
   components:

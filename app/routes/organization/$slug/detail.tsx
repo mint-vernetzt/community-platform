@@ -309,7 +309,7 @@ function OrganizationDetail() {
       {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
       <TextButton
         as="a"
-        href="/explore/organizations"
+        to="/explore/organizations"
         weight="thin"
         variant="neutral"
         arrowLeft
@@ -431,7 +431,7 @@ function OrganizationDetail() {
             <div className="mv-w-full @lg:mv-w-fit mv-grid @lg:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
               <Button
                 as="a"
-                href={`/organization/${organization.slug}/settings`}
+                to={`/organization/${organization.slug}/settings`}
                 fullSize
               >
                 <svg
