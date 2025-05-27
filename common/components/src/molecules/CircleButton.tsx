@@ -74,10 +74,10 @@ function CircleButton(
   if (as === "a" && "to" in otherProps) {
     return (
       <Link
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {otherProps.children}
       </Link>
@@ -85,10 +85,10 @@ function CircleButton(
   } else if (as === "button" && "to" in otherProps === false) {
     return (
       <button
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {otherProps.children}
       </button>
@@ -97,10 +97,10 @@ function CircleButton(
     return createElement(
       as,
       {
+        ...otherProps,
         className: `${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`,
-        ...otherProps,
       },
       otherProps.children
     );

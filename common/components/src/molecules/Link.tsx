@@ -55,12 +55,12 @@ function Link(props: LinkProps) {
   }
 
   const element = createElement(as, {
+    ...otherProps,
     href,
     className: classes,
     to,
     rel,
     target,
-    ...otherProps,
   });
   return element;
 }

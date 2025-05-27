@@ -113,10 +113,10 @@ function Button(
   if (as === "a" && "to" in otherProps) {
     return (
       <Link
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {otherProps.children}
       </Link>
@@ -128,10 +128,10 @@ function Button(
   ) {
     return (
       <button
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {otherProps.children}
       </button>
@@ -143,10 +143,10 @@ function Button(
   ) {
     return (
       <label
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {otherProps.children}
       </label>

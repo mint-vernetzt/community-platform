@@ -137,17 +137,17 @@ function TextButton(
   if (as === "a" && "to" in otherProps) {
     return (
       <Link
+        {...otherProps}
         className={`${
           otherProps.className !== undefined ? `${otherProps.className} ` : ""
         }${classes}`}
-        {...otherProps}
       >
         {children}
       </Link>
     );
   } else if (as === "button" && "to" in otherProps === false) {
     return (
-      <button className={classes} {...otherProps}>
+      <button {...otherProps} className={classes}>
         {children}
       </button>
     );
@@ -155,8 +155,8 @@ function TextButton(
     return createElement(
       as,
       {
-        className: classes,
         ...otherProps,
+        className: classes,
       },
       children
     );
