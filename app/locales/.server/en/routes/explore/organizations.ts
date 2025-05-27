@@ -8,7 +8,9 @@ export const locale = {
 
     title: "Filter",
     showFiltersLabel: "Filter organizations",
-
+    showMore: "Show more",
+    showLess: "Show less",
+    networkTypes: "Network type",
     types: "Organizational form",
     focuses: "Focus of work",
     areas: "Location / Area",

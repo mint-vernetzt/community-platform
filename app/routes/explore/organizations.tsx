@@ -47,6 +47,7 @@ import { getPublicURL } from "~/storage.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
+  getAllNetworkTypes,
   getAllOrganizations,
   getAllOrganizationTypes,
   getFilterCountForSlug,
@@ -355,6 +356,33 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...focus, vectorCount };
   });
 
+  const networkTypes = await getAllNetworkTypes();
+  const networkTypeOrganizationIds =
+    submission.value.search.length > 0
+      ? await getOrganizationIds({
+          filter: { ...submission.value.orgFilter, networkType: [] },
+          search: submission.value.search,
+          isLoggedIn: true,
+          language,
+        })
+      : organizationIds;
+  const networkTypeFilterVector = await getOrganizationFilterVectorForAttribute(
+    {
+      attribute: "networkType",
+      filter: submission.value.orgFilter,
+      search: submission.value.search,
+      ids: networkTypeOrganizationIds,
+    }
+  );
+  const enhancedNetworkTypes = networkTypes.map((networkType) => {
+    const vectorCount = getFilterCountForSlug(
+      networkType.slug,
+      networkTypeFilterVector,
+      "networkType"
+    );
+    return { ...networkType, vectorCount };
+  });
+
   return {
     isLoggedIn,
     organizations: enhancedOrganizations,
@@ -364,6 +392,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedFocuses: submission.value.orgFilter.focus,
     types: enhancedTypes,
     selectedTypes: submission.value.orgFilter.type,
+    networkTypes: enhancedNetworkTypes,
+    selectedNetworkTypes: submission.value.orgFilter.networkType,
     submission,
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
@@ -478,6 +508,8 @@ export default function ExploreOrganizations() {
             <Filters.Fieldset
               {...getFieldsetProps(fields.orgFilter)}
               className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              showMore={locales.route.filter.showMore}
+              showLess={locales.route.filter.showLess}
             >
               <Dropdown>
                 <Dropdown.Label>
@@ -556,6 +588,88 @@ export default function ExploreOrganizations() {
                         </FormControl.Label>
                         <FormControl.Counter>
                           {type.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+              <Dropdown>
+                <Dropdown.Label>
+                  {locales.route.filter.networkTypes}
+                  <span className="mv-font-normal @lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedNetworkTypes
+                      .map((type) => {
+                        let title;
+                        if (type in locales.networkTypes) {
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          title = locales.networkTypes[type as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Network type ${type} not found in locales`
+                          );
+                          title = type;
+                        }
+                        return title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {loaderData.networkTypes.map((networkType) => {
+                    const isChecked =
+                      orgFilterFieldset.networkType.initialValue &&
+                      Array.isArray(orgFilterFieldset.networkType.initialValue)
+                        ? orgFilterFieldset.networkType.initialValue.includes(
+                            networkType.slug
+                          )
+                        : orgFilterFieldset.networkType.initialValue ===
+                          networkType.slug;
+                    return (
+                      <FormControl
+                        {...getInputProps(orgFilterFieldset.networkType, {
+                          type: "checkbox",
+                          value: networkType.slug,
+                        })}
+                        key={networkType.slug}
+                        defaultChecked={isChecked}
+                        disabled={networkType.vectorCount === 0 && !isChecked}
+                      >
+                        <FormControl.Label>
+                          {(() => {
+                            let title;
+                            let description;
+                            if (networkType.slug in locales.networkTypes) {
+                              type LocaleKey =
+                                keyof typeof locales.networkTypes;
+                              title =
+                                locales.networkTypes[
+                                  networkType.slug as LocaleKey
+                                ].title;
+                              description =
+                                locales.networkTypes[
+                                  networkType.slug as LocaleKey
+                                ].description;
+                            } else {
+                              console.error(
+                                `Network type ${networkType.slug} not found in locales`
+                              );
+                              title = networkType.slug;
+                              description = null;
+                            }
+                            return (
+                              <>
+                                {title}
+                                {description !== null ? (
+                                  <p className="mv-text-sm">{description}</p>
+                                ) : null}
+                              </>
+                            );
+                          })()}
+                        </FormControl.Label>
+                        <FormControl.Counter>
+                          {networkType.vectorCount}
                         </FormControl.Counter>
                       </FormControl>
                     );
@@ -880,7 +994,8 @@ export default function ExploreOrganizations() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
         {(loaderData.selectedTypes.length > 0 ||
           loaderData.selectedFocuses.length > 0 ||
-          loaderData.selectedAreas.length > 0) && (
+          loaderData.selectedAreas.length > 0 ||
+          loaderData.selectedNetworkTypes.length > 0) && (
           <div className="mv-flex mv-flex-col mv-gap-2">
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedTypes.map((selectedType) => {
@@ -912,6 +1027,67 @@ export default function ExploreOrganizations() {
                           type: loaderData.submission.value.orgFilter.type.filter(
                             (type) => type !== selectedType
                           ),
+                        },
+                        showFilters: "",
+                      },
+                      constraint: getZodConstraint(getFilterSchemes),
+                      lastResult:
+                        navigation.state === "idle"
+                          ? loaderData.submission
+                          : null,
+                    }}
+                    formProps={{
+                      method: "get",
+                      preventScrollReset: true,
+                    }}
+                  >
+                    <HiddenFilterInputsInContext />
+                    <Chip size="medium">
+                      {title}
+                      <Chip.Delete>
+                        <button
+                          type="submit"
+                          disabled={navigation.state === "loading"}
+                        >
+                          X
+                        </button>
+                      </Chip.Delete>
+                    </Chip>
+                  </ConformForm>
+                );
+              })}
+              {loaderData.selectedNetworkTypes.map((selectedNetworkType) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  orgFilterFieldset.networkType.name,
+                  selectedNetworkType
+                );
+                let title;
+                if (selectedNetworkType in locales.networkTypes) {
+                  type LocaleKey = keyof typeof locales.networkTypes;
+                  title =
+                    locales.networkTypes[selectedNetworkType as LocaleKey]
+                      .title;
+                } else {
+                  console.error(
+                    `Network type ${selectedNetworkType} not found in locales`
+                  );
+                  title = selectedNetworkType;
+                }
+                return (
+                  <ConformForm
+                    key={selectedNetworkType}
+                    useFormOptions={{
+                      id: `delete-filter-${selectedNetworkType}`,
+                      defaultValue: {
+                        ...loaderData.submission.value,
+                        orgFilter: {
+                          ...loaderData.submission.value.orgFilter,
+                          networkType:
+                            loaderData.submission.value.orgFilter.networkType.filter(
+                              (networkType) =>
+                                networkType !== selectedNetworkType
+                            ),
                         },
                         showFilters: "",
                       },
