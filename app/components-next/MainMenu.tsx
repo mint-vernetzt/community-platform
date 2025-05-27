@@ -9,7 +9,6 @@ import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
 import { type Mode } from "~/utils.server";
-import { HeaderLogo } from "./HeaderLogo";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Icon } from "./icons/Icon";
 import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
@@ -41,15 +40,8 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:mv-top-20 mv-bg-white mv-z-10`}
     >
-      <Link
-        to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
-      >
-        <HeaderLogo />
-      </Link>
-
       <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
