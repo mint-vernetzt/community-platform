@@ -18,6 +18,10 @@ export const locale = {
   opportunities:
     "<strong>Erstelle Profilseiten</strong> für Dich, für Deine <strong>Organisation</strong> und lege <strong>Projekte</strong> oder <strong>Veranstaltungen</strong> an.",
   login: {
+    skip: {
+      start: "Anmeldebereich überspringen",
+      end: "Zurück zum Anfang des Anmeldebereichs",
+    },
     withMintId: "Anmelden mit MINT-ID",
     moreInformation: "Mehr Informationen",
     or: "oder",
@@ -41,6 +45,7 @@ export const locale = {
     },
   },
   content: {
+    intro: "Zur Beschreibung der MINTvernetzt Community-PLattform",
     education: {
       headline: "Miteinander Bildung gestalten",
       content:

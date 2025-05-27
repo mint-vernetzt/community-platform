@@ -220,8 +220,8 @@ export const ErrorBoundary = () => {
     typeof rootLoaderData !== "undefined" && rootLoaderData !== null;
 
   const [searchParams] = useSearchParams();
-  const openNavBarMenuKey = "navbarmenu";
-  const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
+  const openMainMenuKey = "mainMenu";
+  const navBarMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
     "mv-min-h-screen mv-break-words",
@@ -264,13 +264,13 @@ export const ErrorBoundary = () => {
             sessionUserInfo={
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
             }
-            openNavBarMenuKey={openNavBarMenuKey}
+            openMainMenuKey={openMainMenuKey}
             locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
           <div className="mv-flex mv-h-full mv-min-h-screen">
             <MainMenu
               mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
-              openNavBarMenuKey={openNavBarMenuKey}
+              openMainMenuKey={openMainMenuKey}
               username={
                 hasRootLoaderData &&
                 typeof rootLoaderData.sessionUserInfo !== "undefined"
@@ -405,8 +405,8 @@ export default function App() {
     }
   });
   const showFilters = searchParams.get("showFilters");
-  const openNavBarMenuKey = "navbarmenu";
-  const navBarMenuIsOpen = searchParams.get(openNavBarMenuKey);
+  const openMainMenuKey = "mainMenu";
+  const navBarMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
     "mv-min-h-screen mv-break-words mv-antialiased",
@@ -523,7 +523,7 @@ export default function App() {
             >
               <NavBar
                 sessionUserInfo={sessionUserInfo}
-                openNavBarMenuKey={openNavBarMenuKey}
+                openMainMenuKey={openMainMenuKey}
                 locales={locales}
               />
             </div>
@@ -531,7 +531,7 @@ export default function App() {
             <div className="mv-flex mv-h-full mv-min-h-screen">
               <MainMenu
                 mode={mode}
-                openNavBarMenuKey={openNavBarMenuKey}
+                openMainMenuKey={openMainMenuKey}
                 username={sessionUserInfo?.username}
                 abilities={abilities}
                 currentLanguage={currentLanguage}

@@ -181,6 +181,13 @@ export default function Index() {
               <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
                 <div className="mv-py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   <div className="mv-text-center">
+                    <a
+                      id="login-start"
+                      href="#login-end"
+                      className="mv-w-0 mv-h-0 mv-opacity-0"
+                    >
+                      {locales.route.login.skip.start}
+                    </a>
                     <Button
                       as="a"
                       size="large"
@@ -360,6 +367,13 @@ export default function Index() {
                     </div>
                   </>
                 </div>
+                <a
+                  id="login-end"
+                  href="#login-start"
+                  className="mv-w-0 mv-h-0 mv-opacity-0"
+                >
+                  {locales.route.login.skip.end}
+                </a>
 
                 <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
                   <RichText html={locales.route.opportunities} />
@@ -369,7 +383,7 @@ export default function Index() {
           </div>
 
           <div className="mv-absolute mv-left-1/2 mv-bottom-8 mv-hidden @md:mv-block mv-animate-bounce">
-            <Link to="#intro">
+            <Link to="#intro" aria-label={locales.route.content.intro}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="55"

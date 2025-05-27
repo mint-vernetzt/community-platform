@@ -1,6 +1,14 @@
 export const locale = {
   root: {
     community: "Community",
+    skipNavBar: {
+      start: "Skip navigation bar",
+      end: "Back to the start of the navigation bar",
+    },
+    skipMainMenu: {
+      start: "Skip main menu",
+      end: "Back to the start of the main menu",
+    },
     profiles: "Persons",
     organizations: "Organizations",
     events: "Events",

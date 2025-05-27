@@ -10,7 +10,7 @@ import { HeaderLogo } from "./HeaderLogo";
 
 type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
-  openNavBarMenuKey: string;
+  openMainMenuKey: string;
   locales?: RootLocales;
 };
 
@@ -26,7 +26,7 @@ export function NavBar(props: NavBarProps) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("search");
-  const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
+  const navBarMenuIsOpen = searchParams.get(props.openMainMenuKey);
 
   const classes = classNames(
     "mv-sticky mv-top-0 mv-h-[76px] xl:mv-h-20 mv-z-10 mv-bg-white",
@@ -39,6 +39,17 @@ export function NavBar(props: NavBarProps) {
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
         <div className="mv-hidden xl:mv-block mv-w-[300px] mv-h-14" />
+        <a
+          id="nav-bar-start"
+          href="#nav-bar-end"
+          className="mv-w-0 mv-h-0 mv-opacity-0"
+        >
+          {props.locales !== undefined
+            ? props.locales.route.root.skipNavBar.start
+            : defaultLanguage === "de"
+            ? "Navigationsleiste überspringen"
+            : "Skip navigation bar"}
+        </a>
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
           className={`mv-mx-2 mv-pl-2 ${
@@ -88,7 +99,7 @@ export function NavBar(props: NavBarProps) {
           </Form>
 
           <div className="mv-flex-shrink mv-block xl:mv-hidden">
-            <Opener openNavBarMenuKey="navbarmenu" />
+            <Opener openMainMenuKey="mainMenu" />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
@@ -144,14 +155,25 @@ export function NavBar(props: NavBarProps) {
           )}
         </div>
       </div>
+      <a
+        id="nav-bar-end"
+        href="#nav-bar-start"
+        className="mv-w-0 mv-h-0 mv-opacity-0"
+      >
+        {props.locales !== undefined
+          ? props.locales.route.root.skipNavBar.end
+          : defaultLanguage === "de"
+          ? "Zurück zum Anfang der Navigationsleiste"
+          : "Back to the start of the navigation bar"}
+      </a>
     </header>
   );
 }
 
-function Opener(props: { openNavBarMenuKey: string }) {
+function Opener(props: { openMainMenuKey: string }) {
   const [searchParams] = useSearchParams();
-  if (!searchParams.has(props.openNavBarMenuKey)) {
-    searchParams.append(props.openNavBarMenuKey, "true");
+  if (!searchParams.has(props.openMainMenuKey)) {
+    searchParams.append(props.openMainMenuKey, "true");
   }
 
   return (

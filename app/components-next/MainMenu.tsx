@@ -21,7 +21,7 @@ import { HeaderLogo } from "./HeaderLogo";
 export function MainMenu(
   props: React.PropsWithChildren & {
     mode: Mode;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
     username?: string;
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
     currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
@@ -30,19 +30,30 @@ export function MainMenu(
 ) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isOpen = searchParams.get(props.openNavBarMenuKey);
+  const isOpen = searchParams.get(props.openMainMenuKey);
 
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   return (
     <nav
-      id="navbarmenu"
+      id="mainMenu"
       className={`${
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
       } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
     >
+      <a
+        id="main-menu-start"
+        href="#main-menu-end"
+        className="mv-w-0 mv-h-0 mv-opacity-0"
+      >
+        {props.locales !== undefined
+          ? props.locales.route.root.skipMainMenu.start
+          : defaultLanguage === "de"
+          ? "Hauptmenü überspringen"
+          : "Skip main menu"}
+      </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
         className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
@@ -85,7 +96,7 @@ export function MainMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
+        <Closer openMainMenuKey={props.openMainMenuKey} />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
@@ -94,7 +105,7 @@ export function MainMenu(
               <>
                 <Item
                   to="/dashboard"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   {location.pathname === "/dashboard" ? (
@@ -139,7 +150,7 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/profile/${props.username}`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProfile
@@ -150,7 +161,7 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/organizations`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace
@@ -162,7 +173,7 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/events`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myEvents
@@ -173,7 +184,7 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/projects`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProjects
@@ -203,7 +214,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/all"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.index
@@ -214,7 +225,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/profiles"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.profiles
@@ -225,7 +236,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/organizations"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.organizations
@@ -236,7 +247,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/projects"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.projects
@@ -247,7 +258,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/events"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.events
@@ -258,7 +269,7 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/fundings"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.fundings
@@ -273,7 +284,7 @@ export function MainMenu(
 
             <Item
               to="/resources"
-              openNavBarMenuKey={props.openNavBarMenuKey}
+              openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/resources" ? (
@@ -302,7 +313,7 @@ export function MainMenu(
 
             <Item
               to="/help"
-              openNavBarMenuKey={props.openNavBarMenuKey}
+              openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/help" ? (
@@ -323,7 +334,7 @@ export function MainMenu(
               <>
                 <Item
                   to={`/profile/${props.username}/settings`}
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   {location.pathname.startsWith(
@@ -345,7 +356,7 @@ export function MainMenu(
                 <Item
                   to="/logout"
                   method="post"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <Icon type="door-closed-outline" />
@@ -402,6 +413,17 @@ export function MainMenu(
           </FooterMenu>
         </div>
       </div>
+      <a
+        id="main-menu-end"
+        href="#main-menu-start"
+        className="mv-w-0 mv-h-0 mv-opacity-0"
+      >
+        {props.locales !== undefined
+          ? props.locales.route.root.skipMainMenu.end
+          : defaultLanguage === "de"
+          ? "Zurück zum Anfang des Hauptmenüs"
+          : "Back to the start of the main menu"}
+      </a>
     </nav>
   );
 }
@@ -441,7 +463,7 @@ function FooterMenu(props: React.PropsWithChildren) {
 function Item(
   props: React.PropsWithChildren & {
     to: string;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
     setActiveTopicId: (id: string | null) => void;
     method?: "get" | "post";
   }
@@ -496,13 +518,13 @@ function Topic(
     (child) => isValidElement(child) && child.type === Label
   );
   if (label === undefined) {
-    throw new Error("Label for NavBarMenu.Topic is missing");
+    throw new Error("Label for MainMenu.Topic is missing");
   }
   const topicItems = children.filter(
     (child) => isValidElement(child) && child.type === TopicItem
   );
   if (topicItems.length === 0) {
-    throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
+    throw new Error("Provide at least one TopicItem for MainMenu.Topic");
   }
 
   return (
@@ -552,7 +574,7 @@ function Label(props: React.PropsWithChildren) {
 function TopicItem(
   props: React.PropsWithChildren & {
     to: string;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
   }
 ) {
   const external = props.to.startsWith("http");
@@ -589,9 +611,9 @@ function TopicItem(
   );
 }
 
-function Closer(props: { openNavBarMenuKey: string }) {
+function Closer(props: { openMainMenuKey: string }) {
   const [searchParams] = useSearchParams();
-  searchParams.delete(props.openNavBarMenuKey);
+  searchParams.delete(props.openMainMenuKey);
   const searchParamsString = searchParams.toString();
 
   const location = useLocation();
