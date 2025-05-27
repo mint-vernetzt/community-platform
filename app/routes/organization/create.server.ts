@@ -9,7 +9,7 @@ import { getPublicURL } from "~/storage.server";
 import {
   createOrganizationMemberRequestSchema,
   createOrganizationSchema,
-} from "./create";
+} from "./create.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import {
   getCompiledMailTemplate,

@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -29,7 +30,7 @@ import { Section } from "~/components-next/MyOrganizationsSection";
 import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
 import { searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import { SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
@@ -44,10 +45,8 @@ import {
   getAllOrganizationTypes,
   getOrganizationsFromProfile,
   getPendingRequestsToOrganizations,
-  type CreateOrganizationLocales,
 } from "./create.server";
-import { useRef } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { createOrganizationSchema } from "./create.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -95,44 +94,6 @@ export async function loader(args: LoaderFunctionArgs) {
     currentTimestamp: Date.now(),
   };
 }
-
-export const createOrganizationMemberRequestSchema = z.object({
-  organizationId: z.string(),
-});
-
-export const NAME_MIN_LENGTH = 3;
-export const NAME_MAX_LENGTH = 80;
-
-export const createOrganizationSchema = (
-  locales: CreateOrganizationLocales
-) => {
-  return z.object({
-    organizationName: z
-      .string({
-        required_error: locales.route.validation.organizationName.required,
-      })
-      .min(
-        NAME_MIN_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.organizationName.min,
-          {
-            min: NAME_MIN_LENGTH,
-          }
-        )
-      )
-      .max(
-        NAME_MAX_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.organizationName.max,
-          {
-            max: NAME_MAX_LENGTH,
-          }
-        )
-      ),
-    organizationTypes: z.array(z.string().uuid()),
-    networkTypes: z.array(z.string().uuid()),
-  });
-};
 
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;

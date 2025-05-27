@@ -42,7 +42,7 @@ import {
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 
 const BIO_MAX_LENGTH = 2000;
 
