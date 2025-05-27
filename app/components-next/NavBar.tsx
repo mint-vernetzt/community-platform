@@ -40,7 +40,7 @@ export function NavBar(props: NavBarProps) {
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`xl:mv-w-[300px] mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 ${
+          className={`xl:mv-w-[284px] mv-mx-2 mv-pl-2 xl:mv-pl-4 ${
             props.sessionUserInfo !== undefined ? "mv-hidden xl:mv-block" : ""
           }`}
         >
