@@ -16,6 +16,7 @@ import classNames from "classnames";
 import { type getFeatureAbilities } from "~/routes/feature-access.server";
 import { Children, isValidElement, useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { HeaderLogo } from "./HeaderLogo";
 
 export function MainMenu(
   props: React.PropsWithChildren & {
@@ -40,21 +41,25 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:mv-top-20 mv-bg-white mv-z-10`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
     >
+      <Link
+        to={props.mode !== "anon" ? "/dashboard" : "/"}
+        className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
+      >
+        <HeaderLogo />
+      </Link>
       <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
-              <Link to={`/login?login_redirect=${location.pathname}`}>
-                <Button>
-                  {props.locales !== undefined
-                    ? props.locales.route.root.login
-                    : defaultLanguage === "de"
-                    ? "Anmelden"
-                    : "Login"}
-                </Button>
-              </Link>
+              <Button as="a" to={`/login?login_redirect=${location.pathname}`}>
+                {props.locales !== undefined
+                  ? props.locales.route.root.login
+                  : defaultLanguage === "de"
+                  ? "Anmelden"
+                  : "Login"}
+              </Button>
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
               {props.locales !== undefined
@@ -64,15 +69,17 @@ export function MainMenu(
                 : "or"}
             </div>
             <div>
-              <Link to={`/register?login_redirect=${location.pathname}`}>
-                <Button variant="outline">
-                  {props.locales !== undefined
-                    ? props.locales.route.root.register
-                    : defaultLanguage === "de"
-                    ? "Registrieren"
-                    : "Register"}
-                </Button>
-              </Link>
+              <Button
+                as="a"
+                to={`/register?login_redirect=${location.pathname}`}
+                variant="outline"
+              >
+                {props.locales !== undefined
+                  ? props.locales.route.root.register
+                  : defaultLanguage === "de"
+                  ? "Registrieren"
+                  : "Register"}
+              </Button>
             </div>
           </div>
         ) : (

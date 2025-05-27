@@ -1,12 +1,12 @@
-import { Form, Link, useLocation, useSearchParams } from "react-router";
-import classNames from "classnames";
-import { type RootLocales } from "~/root.server";
-import { HeaderLogo } from "./HeaderLogo";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import classNames from "classnames";
+import { Form, Link, useLocation, useSearchParams } from "react-router";
 import Search from "~/components/Search/Search";
 import { defaultLanguage } from "~/i18n.shared";
+import { type RootLocales } from "~/root.server";
 import { Icon } from "./icons/Icon";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { HeaderLogo } from "./HeaderLogo";
 
 type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
@@ -38,10 +38,13 @@ export function NavBar(props: NavBarProps) {
   return (
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
+        <div className="mv-hidden xl:mv-block mv-w-[300px] mv-h-14" />
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`xl:mv-w-[284px] mv-mx-2 mv-pl-2 xl:mv-pl-4 ${
-            props.sessionUserInfo !== undefined ? "mv-hidden xl:mv-block" : ""
+          className={`mv-mx-2 mv-pl-2 ${
+            props.sessionUserInfo !== undefined
+              ? "mv-hidden"
+              : "mv-block xl:mv-hidden"
           }`}
         >
           <HeaderLogo locales={props.locales} />
