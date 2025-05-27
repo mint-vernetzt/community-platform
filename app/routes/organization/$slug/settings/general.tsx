@@ -42,9 +42,8 @@ import {
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 50;
 const BIO_MAX_LENGTH = 2000;
 
 const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
