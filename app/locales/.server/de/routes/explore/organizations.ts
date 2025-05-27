@@ -5,13 +5,14 @@ export const locale = {
     sort: {
       label: "Sortieren nach",
     },
-
     title: "Filter",
     showFiltersLabel: "Organisationen filtern",
-
+    showMore: "Mehr anzeigen",
+    showLess: "Weniger anzeigen",
     types: "Organisationsform",
     focuses: "Arbeitsschwerpunkte",
     areas: "Ort / Gebiet",
+    networkTypes: "Netzwerkform",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
     searchAreaHelper: "Mindestens 3 Buchstaben.",
     searchAreaButton: "Suchen",

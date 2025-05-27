@@ -903,3 +903,15 @@ export async function getAllFocuses() {
     },
   });
 }
+
+export async function getAllNetworkTypes() {
+  return await prismaClient.networkType.findMany({
+    orderBy: {
+      slug: "asc",
+    },
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+}

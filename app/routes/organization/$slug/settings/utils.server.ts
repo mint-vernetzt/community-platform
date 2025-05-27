@@ -33,13 +33,23 @@ export async function updateFilterVectorOfOrganization(organizationId: string) {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
     },
   });
   if (organization !== null) {
     if (
       organization.types.length === 0 &&
       organization.focuses.length === 0 &&
-      organization.areas.length === 0
+      organization.areas.length === 0 &&
+      organization.networkTypes.length === 0
     ) {
       await prismaClient.$queryRawUnsafe(
         `update profiles set filter_vector = NULL where id = '${organization.id}'`
@@ -54,7 +64,15 @@ export async function updateFilterVectorOfOrganization(organizationId: string) {
       const areaVectors = organization.areas.map(
         (relation) => `area:${relation.area.slug}`
       );
-      const vectors = [...typeVectors, ...focusVectors, ...areaVectors];
+      const networkTypeVectors = organization.networkTypes.map(
+        (relation) => `networkType:${relation.networkType.slug}`
+      );
+      const vectors = [
+        ...typeVectors,
+        ...focusVectors,
+        ...areaVectors,
+        ...networkTypeVectors,
+      ];
       const vectorString = `{"${vectors.join(`","`)}"}`;
       const query = `update organizations set filter_vector = array_to_tsvector('${vectorString}') where id = '${organization.id}'`;
       await prismaClient.$queryRawUnsafe(query);
