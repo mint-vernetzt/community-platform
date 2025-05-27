@@ -1,14 +1,21 @@
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
+import { captureException } from "@sentry/react";
+import classNames from "classnames";
+import { useEffect } from "react";
 import type {
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
 import {
+  data,
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -17,39 +24,31 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-  data,
-  redirect,
 } from "react-router";
-import { captureException } from "@sentry/react";
-import classNames from "classnames";
-import { ToastContainer } from "./components-next/ToastContainer";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { Footer } from "~/components-next/Footer";
+import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
+import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
+import { MainMenu } from "./components-next/MainMenu";
+import { ModalRoot } from "./components-next/ModalRoot";
+import { ToastContainer } from "./components-next/ToastContainer";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
+import { defaultLanguage } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
+import { invariantResponse } from "./lib/utils/response";
+import { languageModuleMap } from "./locales/.server";
+import { useNonce } from "./nonce-provider";
 import { getProfileByUserId } from "./root.server";
-import { NavBar } from "~/components-next/NavBar";
-import { Footer } from "~/components-next/Footer";
-import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
-import { MainMenu } from "./components-next/MainMenu";
+import { getFeatureAbilities } from "./routes/feature-access.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { defaultLanguage } from "./i18n.shared";
-import { languageModuleMap } from "./locales/.server";
-import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { ModalRoot } from "./components-next/ModalRoot";
-import { invariantResponse } from "./lib/utils/response";
-import { getFeatureAbilities } from "./routes/feature-access.server";
-import { useNonce } from "./nonce-provider";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { useEffect } from "react";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -447,31 +446,34 @@ export default function App() {
       <div className="mv-w-0 mv-h-4"></div>
       <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
         <div className="mv-absolute mv-bottom-4 -mv-left-20">
-          <Link to={`${location.pathname}${location.search}#`}>
-            <CircleButton size="large" floating>
-              <svg
-                width="30"
-                height="31"
-                viewBox="0 0 30 31"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M15 4V29"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M3 13L15 2L27 13"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </CircleButton>
-          </Link>
+          <CircleButton
+            as="a"
+            to={`${location.pathname}${location.search}#`}
+            size="large"
+            floating
+          >
+            <svg
+              width="30"
+              height="31"
+              viewBox="0 0 30 31"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 4V29"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <path
+                d="M3 13L15 2L27 13"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </CircleButton>
         </div>
       </div>
     </div>
