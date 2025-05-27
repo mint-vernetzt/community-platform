@@ -994,7 +994,8 @@ export default function ExploreOrganizations() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
         {(loaderData.selectedTypes.length > 0 ||
           loaderData.selectedFocuses.length > 0 ||
-          loaderData.selectedAreas.length > 0) && (
+          loaderData.selectedAreas.length > 0 ||
+          loaderData.selectedNetworkTypes.length > 0) && (
           <div className="mv-flex mv-flex-col mv-gap-2">
             <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
               {loaderData.selectedTypes.map((selectedType) => {
@@ -1026,6 +1027,67 @@ export default function ExploreOrganizations() {
                           type: loaderData.submission.value.orgFilter.type.filter(
                             (type) => type !== selectedType
                           ),
+                        },
+                        showFilters: "",
+                      },
+                      constraint: getZodConstraint(getFilterSchemes),
+                      lastResult:
+                        navigation.state === "idle"
+                          ? loaderData.submission
+                          : null,
+                    }}
+                    formProps={{
+                      method: "get",
+                      preventScrollReset: true,
+                    }}
+                  >
+                    <HiddenFilterInputsInContext />
+                    <Chip size="medium">
+                      {title}
+                      <Chip.Delete>
+                        <button
+                          type="submit"
+                          disabled={navigation.state === "loading"}
+                        >
+                          X
+                        </button>
+                      </Chip.Delete>
+                    </Chip>
+                  </ConformForm>
+                );
+              })}
+              {loaderData.selectedNetworkTypes.map((selectedNetworkType) => {
+                const deleteSearchParams = new URLSearchParams(searchParams);
+                deleteSearchParams.delete(
+                  orgFilterFieldset.networkType.name,
+                  selectedNetworkType
+                );
+                let title;
+                if (selectedNetworkType in locales.networkTypes) {
+                  type LocaleKey = keyof typeof locales.networkTypes;
+                  title =
+                    locales.networkTypes[selectedNetworkType as LocaleKey]
+                      .title;
+                } else {
+                  console.error(
+                    `Network type ${selectedNetworkType} not found in locales`
+                  );
+                  title = selectedNetworkType;
+                }
+                return (
+                  <ConformForm
+                    key={selectedNetworkType}
+                    useFormOptions={{
+                      id: `delete-filter-${selectedNetworkType}`,
+                      defaultValue: {
+                        ...loaderData.submission.value,
+                        orgFilter: {
+                          ...loaderData.submission.value.orgFilter,
+                          networkType:
+                            loaderData.submission.value.orgFilter.networkType.filter(
+                              (networkType) =>
+                                networkType !== selectedNetworkType
+                            ),
                         },
                         showFilters: "",
                       },
