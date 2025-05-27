@@ -1,10 +1,10 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Form, Link, useLocation } from "react-router";
 import Cookies from "js-cookie";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { type RootLocales } from "~/root.server";
 import { useEffect, useState } from "react";
+import { Form, useLocation } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { type RootLocales } from "~/root.server";
 
 export function LoginOrRegisterCTA(props: {
   isAnon?: boolean;
@@ -67,25 +67,28 @@ export function LoginOrRegisterCTA(props: {
         </Form>
       </div>
       <div className="mv-flex mv-w-full mv-gap-4 mv-items-baseline">
-        <Link
-          to={`/login?login_redirect=${location.pathname}`}
-          className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0"
-        >
-          <Button variant="outline" fullSize>
+        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+          <Button
+            as="a"
+            to={`/login?login_redirect=${location.pathname}`}
+            variant="outline"
+            fullSize
+          >
             {locales.route.root.loginOrRegisterCTA.login}
           </Button>
-        </Link>
+        </div>
         <p className="mv-text-xs mv-flex-grow-0">
           {locales.route.root.loginOrRegisterCTA.or}
         </p>
-        <Link
-          to={`/register?login_redirect=${location.pathname}`}
-          className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0"
-        >
-          <Button fullSize>
+        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+          <Button
+            as="a"
+            to={`/register?login_redirect=${location.pathname}`}
+            fullSize
+          >
             {locales.route.root.loginOrRegisterCTA.register}
           </Button>
-        </Link>
+        </div>
       </div>
     </div>
   );
