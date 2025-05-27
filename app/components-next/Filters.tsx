@@ -148,15 +148,14 @@ function FiltersResetButton(props: { form: string } & React.PropsWithChildren) {
       </Button>
     </div>
   ) : (
-    <Link
-      className="mv-grow"
-      to={`./${location.search
-        .replace("showFilters=on", "")
-        .replace("&&", "&")
-        .replace("?&", "?")}`}
-      preventScrollReset
-    >
+    <div className="mv-grow">
       <Button
+        as="a"
+        to={`./${location.search
+          .replace("showFilters=on", "")
+          .replace("&&", "&")
+          .replace("?&", "?")}`}
+        preventScrollReset
         type="button"
         variant="outline"
         size="large"
@@ -166,7 +165,7 @@ function FiltersResetButton(props: { form: string } & React.PropsWithChildren) {
       >
         {props.children}
       </Button>
-    </Link>
+    </div>
   );
 }
 
@@ -174,18 +173,20 @@ function FiltersApplyButton(props: React.PropsWithChildren) {
   const location = useLocation();
 
   return (
-    <Link
-      className="mv-grow mv-relative"
-      to={`./${location.search
-        .replace("showFilters=on", "")
-        .replace("&&", "&")
-        .replace("?&", "?")}`}
-      preventScrollReset
-    >
-      <Button fullSize size="large">
+    <div className="mv-grow mv-relative">
+      <Button
+        as="a"
+        to={`./${location.search
+          .replace("showFilters=on", "")
+          .replace("&&", "&")
+          .replace("?&", "?")}`}
+        preventScrollReset
+        fullSize
+        size="large"
+      >
         {props.children}
       </Button>
-    </Link>
+    </div>
   );
 }
 
