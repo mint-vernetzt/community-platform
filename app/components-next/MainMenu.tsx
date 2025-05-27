@@ -46,7 +46,7 @@ export function MainMenu(
       <a
         id="main-menu-start"
         href="#main-menu-end"
-        className="mv-w-0 mv-h-0 mv-opacity-0"
+        className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.start
@@ -416,7 +416,7 @@ export function MainMenu(
       <a
         id="main-menu-end"
         href="#main-menu-start"
-        className="mv-w-0 mv-h-0 mv-opacity-0"
+        className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.end

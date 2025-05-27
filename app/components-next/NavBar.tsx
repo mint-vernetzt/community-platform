@@ -42,7 +42,7 @@ export function NavBar(props: NavBarProps) {
         <a
           id="nav-bar-start"
           href="#nav-bar-end"
-          className="mv-w-0 mv-h-0 mv-opacity-0"
+          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-1 focus:mv-px-1"
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
@@ -154,18 +154,18 @@ export function NavBar(props: NavBarProps) {
             </div>
           )}
         </div>
+        <a
+          id="nav-bar-end"
+          href="#nav-bar-start"
+          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-ml-4 focus:mv-px-1"
+        >
+          {props.locales !== undefined
+            ? props.locales.route.root.skipNavBar.end
+            : defaultLanguage === "de"
+            ? "Zurück zum Anfang der Navigationsleiste"
+            : "Back to the start of the navigation bar"}
+        </a>
       </div>
-      <a
-        id="nav-bar-end"
-        href="#nav-bar-start"
-        className="mv-w-0 mv-h-0 mv-opacity-0"
-      >
-        {props.locales !== undefined
-          ? props.locales.route.root.skipNavBar.end
-          : defaultLanguage === "de"
-          ? "Zurück zum Anfang der Navigationsleiste"
-          : "Back to the start of the navigation bar"}
-      </a>
     </header>
   );
 }

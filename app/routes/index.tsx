@@ -184,7 +184,7 @@ export default function Index() {
                     <a
                       id="login-start"
                       href="#login-end"
-                      className="mv-w-0 mv-h-0 mv-opacity-0"
+                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
                     >
                       {locales.route.login.skip.start}
                     </a>
@@ -366,14 +366,16 @@ export default function Index() {
                       </Link>
                     </div>
                   </>
+                  <div className="mv-w-full mv-flex mv-justify-center">
+                    <a
+                      id="login-end"
+                      href="#login-start"
+                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
+                    >
+                      {locales.route.login.skip.end}
+                    </a>
+                  </div>
                 </div>
-                <a
-                  id="login-end"
-                  href="#login-start"
-                  className="mv-w-0 mv-h-0 mv-opacity-0"
-                >
-                  {locales.route.login.skip.end}
-                </a>
 
                 <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
                   <RichText html={locales.route.opportunities} />
