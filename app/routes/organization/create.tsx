@@ -100,8 +100,8 @@ export const createOrganizationMemberRequestSchema = z.object({
   organizationId: z.string(),
 });
 
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 80;
+export const NAME_MIN_LENGTH = 3;
+export const NAME_MAX_LENGTH = 80;
 
 export const createOrganizationSchema = (
   locales: CreateOrganizationLocales
