@@ -50,7 +50,11 @@ export function LoginOrRegisterCTA(props: {
           }}
           className={`${isHydrated ? "mv-opacity-100" : "mv-opacity-0"}`}
         >
-          <button type="submit" disabled={isSubmitting}>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            aria-label={locales.route.root.loginOrRegisterCTA.hide}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

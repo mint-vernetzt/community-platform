@@ -59,6 +59,7 @@ export const locale = {
     },
     loginOrRegisterCTA: {
       info: "Log in or register to fully utilize the platform.",
+      hide: "Hide information",
       login: "Login",
       or: "or",
       register: "Register",

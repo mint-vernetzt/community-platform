@@ -59,6 +59,7 @@ export const locale = {
     },
     loginOrRegisterCTA: {
       info: "Melde Dich an, um die Plattform in vollem Umfang nutzen zu können.",
+      hide: "Information ausblenden",
       login: "Anmelden",
       or: "oder",
       register: "Registrieren",
