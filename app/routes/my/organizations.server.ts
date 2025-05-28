@@ -15,7 +15,7 @@ import {
   updateNetworkInviteSchema,
   updateNetworkRequestSchema,
   updateOrganizationMemberInviteSchema,
-} from "./organizations";
+} from "./organizations.shared";
 import { z } from "zod";
 import { invariantResponse } from "~/lib/utils/response";
 import {

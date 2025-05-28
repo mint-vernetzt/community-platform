@@ -24,6 +24,10 @@ export const locale = {
       "Are you a coordinator or team member of a STEM cluster, a STEM region or another network?",
     sublineTwo:
       "Read the following steps to create your organization as a <0>network organization</0>.",
+    faq: {
+      info: "More information on this topic can also be found in our FAQ in our help:",
+      link: "Questions about organization / network?",
+    },
     steps: {
       headline: "Set up your network correctly in 3 steps:",
       checkExisting: {
