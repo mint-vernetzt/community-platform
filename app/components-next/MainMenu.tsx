@@ -1,3 +1,7 @@
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
+import classNames from "classnames";
+import { Children, isValidElement, useState } from "react";
 import {
   Form,
   Link,
@@ -9,18 +13,13 @@ import {
   DEFAULT_LANGUAGE,
   type SUPPORTED_COOKIE_LANGUAGES,
 } from "~/i18n.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
-import { type Mode } from "~/utils.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Icon } from "./icons/Icon";
-import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
-import classNames from "classnames";
 import { type getFeatureAbilities } from "~/routes/feature-access.server";
-import { Children, isValidElement, useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { type Mode } from "~/utils.server";
 import { HeaderLogo } from "./HeaderLogo";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { Icon } from "./icons/Icon";
 
 export function MainMenu(
   props: React.PropsWithChildren & {
@@ -534,7 +533,6 @@ function Topic(
     id: string;
     activeTopicId: string | null;
     setActiveTopicId: (id: string | null) => void;
-    locales?: RootLocales;
   }
 ) {
   const children = Children.toArray(props.children);
@@ -556,34 +554,20 @@ function Topic(
       htmlFor={props.id}
       className="mv-w-full mv-flex mv-flex-col mv-group"
     >
-      <fieldset>
-        <legend className="mv-w-0 mv-h-0 mv-opacity-0">
-          {props.locales !== undefined
-            ? insertParametersIntoLocale(
-                props.locales.route.root.menu.expandTopic,
-                {
-                  topic: label,
-                }
-              )
-            : DEFAULT_LANGUAGE === "de"
-            ? `Menüpunkt ${label} ausklappen und einklappen`
-            : `Expand and collapse menu item ${label}`}
-        </legend>
-        <input
-          id={props.id}
-          name="open-topic"
-          type="checkbox"
-          className="mv-w-0 mv-h-0 mv-opacity-0 mv-peer"
-          checked={props.activeTopicId === props.id}
-          onChange={() => {
-            if (props.activeTopicId === props.id) {
-              props.setActiveTopicId(null);
-            } else {
-              props.setActiveTopicId(props.id);
-            }
-          }}
-        />
-      </fieldset>
+      <input
+        id={props.id}
+        name="open-topic"
+        type="checkbox"
+        className="mv-w-0 mv-h-0 mv-opacity-0 mv-peer"
+        checked={props.activeTopicId === props.id}
+        onChange={() => {
+          if (props.activeTopicId === props.id) {
+            props.setActiveTopicId(null);
+          } else {
+            props.setActiveTopicId(props.id);
+          }
+        }}
+      />
       <span className="peer-[:focus]:mv-text-primary-500 peer-[:focus]:mv-border-blue-500 mv-border-2 mv-border-transparent mv-rounded-lg">
         {label}
       </span>

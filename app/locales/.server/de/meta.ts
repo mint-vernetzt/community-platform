@@ -35,7 +35,6 @@ export const locale = {
       placeholder: "Suche (mind. 3 Buchstaben)",
     },
     menu: {
-      expandTopic: "Menüpunkt {{topic}} ausklappen und einklappen",
       overview: "Überblick",
       personalSpace: {
         label: "Mein MINT-Bereich",
