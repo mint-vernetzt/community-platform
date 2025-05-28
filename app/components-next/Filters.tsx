@@ -67,7 +67,7 @@ function ShowMoreButton(props: { showMore: string; showLess: string }) {
   const [checked, setChecked] = useState(false);
 
   return (
-    <label className="mv-hidden @lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100">
+    <label className="mv-hidden @lg:mv-block mv-peer mv-cursor-pointer mv-rounded-lg mv-font-semibold mv-h-12 mv-text-sm mv-px-6 mv-py-2.5 mv-border mv-border-transparent mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus-within:mv-text-primary-700 focus-within:mv-bg-neutral-50 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 active:mv-bg-neutral-100">
       <input
         form="none"
         type="checkbox"
@@ -225,7 +225,14 @@ export function Filters(props: FiltersProps) {
 
   return (
     <>
+      <label
+        htmlFor="show-filters"
+        className="mv-absolute mv-h-0 mv-w-0 mv-opacity-0"
+      >
+        {showFilters ? "Hide filters" : "Show filters"}
+      </label>
       <input
+        id="show-filters"
         form="none"
         type="checkbox"
         name={showFiltersName}
