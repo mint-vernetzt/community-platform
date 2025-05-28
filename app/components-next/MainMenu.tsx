@@ -60,6 +60,21 @@ export function MainMenu(
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
         className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
+        aria-label={
+          props.locales !== undefined
+            ? props.mode === "anon"
+              ? props.locales.route.root.toLandingPage
+              : props.mode === "authenticated"
+              ? props.locales.route.root.toDashboard
+              : DEFAULT_LANGUAGE === "de" && props.mode === "anon"
+              ? "Zur Startseite"
+              : DEFAULT_LANGUAGE === "de" && props.mode !== "anon"
+              ? "Zum Dashboard"
+              : props.mode === "anon"
+              ? "To the start page"
+              : "To the dashboard"
+            : ""
+        }
       >
         <HeaderLogo />
       </Link>

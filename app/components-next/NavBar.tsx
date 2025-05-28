@@ -57,6 +57,23 @@ export function NavBar(props: NavBarProps) {
               ? "mv-hidden"
               : "mv-block xl:mv-hidden"
           }`}
+          aria-label={
+            props.locales !== undefined
+              ? props.sessionUserInfo === undefined
+                ? props.locales.route.root.toLandingPage
+                : props.sessionUserInfo !== undefined
+                ? props.locales.route.root.toDashboard
+                : DEFAULT_LANGUAGE === "de" &&
+                  props.sessionUserInfo === undefined
+                ? "Zur Startseite"
+                : DEFAULT_LANGUAGE === "de" &&
+                  props.sessionUserInfo !== undefined
+                ? "Zum Dashboard"
+                : props.sessionUserInfo === undefined
+                ? "To the start page"
+                : "To the dashboard"
+              : ""
+          }
         >
           <HeaderLogo locales={props.locales} />
         </Link>

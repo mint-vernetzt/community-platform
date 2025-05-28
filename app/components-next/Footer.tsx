@@ -2,8 +2,9 @@ import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { type Mode } from "~/utils.server";
 
-export function Footer(props: { locales?: RootLocales }) {
+export function Footer(props: { locales?: RootLocales; mode: Mode }) {
   const currentYear = new Date().getFullYear();
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
@@ -12,17 +13,30 @@ export function Footer(props: { locales?: RootLocales }) {
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
           <MVLink
             as="link"
-            to="/"
+            to={props.mode === "anon" ? "/" : "/dashboard"}
             variant="primary"
             className="mv-flex mv-flex-row mv-items-center hover:mv-no-underline"
+            aria-label={
+              props.locales !== undefined
+                ? props.mode === "anon"
+                  ? props.locales.route.root.toLandingPage
+                  : props.mode === "authenticated"
+                  ? props.locales.route.root.toDashboard
+                  : DEFAULT_LANGUAGE === "de" && props.mode === "anon"
+                  ? "Zur Startseite"
+                  : DEFAULT_LANGUAGE === "de" && props.mode !== "anon"
+                  ? "Zum Dashboard"
+                  : props.mode === "anon"
+                  ? "To the start page"
+                  : "To the dashboard"
+                : ""
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="42"
               height="42"
               viewBox="0 0 56 56"
-              aria-describedby="mint-title-header"
-              role="img"
               className="mv-w-[42px] mv-h-[42px] @md:mv-w-auto @md:mv-h-auto"
             >
               <g fill="none">

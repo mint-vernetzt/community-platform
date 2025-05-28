@@ -1,5 +1,7 @@
 export const locale = {
   root: {
+    toLandingPage: "Zur Startseite",
+    toDashboard: "Zum Dashboard",
     community: "Community",
     skipNavBar: {
       start: "Suchleiste überspringen",
@@ -76,5 +78,6 @@ export const locale = {
       or: "oder",
       register: "Registrieren",
     },
+    scrollToTop: "Nach oben scrollen",
   },
 } as const;

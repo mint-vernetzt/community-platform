@@ -320,6 +320,7 @@ export const ErrorBoundary = () => {
               </div>
               <Footer
                 locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+                mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
               />
             </div>
           </div>
@@ -451,6 +452,13 @@ export default function App() {
             href={`${location.pathname}${location.search}#top`}
             size="large"
             floating
+            aria-label={
+              locales !== undefined
+                ? locales.route.root.scrollToTop
+                : DEFAULT_LANGUAGE === "de"
+                ? "Nach oben scrollen"
+                : "Scroll to top"
+            }
           >
             <svg
               width="30"
@@ -549,7 +557,7 @@ export default function App() {
                   {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
                   {scrollButton}
                 </div>
-                {isIndexRoute ? <Footer locales={locales} /> : null}
+                {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
               </div>
             </div>
           </div>

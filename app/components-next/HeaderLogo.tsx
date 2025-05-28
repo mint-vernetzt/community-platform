@@ -9,8 +9,6 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
         width="56"
         height="56"
         viewBox="0 0 56 56"
-        aria-describedby="mint-title-header"
-        role="img"
         className="mv-w-10 mv-h-10 lg:mv-w-auto lg:mv-h-auto"
       >
         <g fill="none">

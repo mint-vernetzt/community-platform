@@ -1,5 +1,7 @@
 export const locale = {
   root: {
+    toLandingPage: "To the landing page",
+    toDashboard: "To the dashboard",
     community: "Community",
     skipNavBar: {
       start: "Skip search bar",
@@ -76,5 +78,6 @@ export const locale = {
       or: "or",
       register: "Register",
     },
+    scrollToTop: "Scroll to top",
   },
 } as const;
