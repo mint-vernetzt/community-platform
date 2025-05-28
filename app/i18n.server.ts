@@ -1,10 +1,10 @@
 import { createCookie } from "react-router";
 import { z } from "zod";
 import {
-  lngCookieName,
-  defaultLanguage,
-  supportedCookieLanguages,
-  lngCookieMaxAge,
+  LANGUAGE_COOKIE_NAME,
+  DEFAULT_LANGUAGE,
+  SUPPORTED_COOKIE_LANGUAGES,
+  LANGUAGE_COOKIE_MAX_AGE,
 } from "./i18n.shared";
 import { type ArrayElement } from "./lib/utils/types";
 import { invariantResponse } from "./lib/utils/response";
@@ -32,16 +32,16 @@ const supportedHeaderLanguages = [
   "en-zw",
 ] as const;
 
-export const localeCookie = createCookie(lngCookieName, {
+export const localeCookie = createCookie(LANGUAGE_COOKIE_NAME, {
   path: "/",
   sameSite: "lax",
   secure: process.env.NODE_ENV === "production",
   httpOnly: true,
   // 1 year
-  maxAge: lngCookieMaxAge,
+  maxAge: LANGUAGE_COOKIE_MAX_AGE,
 });
 
-const localeCookieSchema = z.enum(supportedCookieLanguages);
+const localeCookieSchema = z.enum(SUPPORTED_COOKIE_LANGUAGES);
 
 const localeHeaderSchema = z
   .enum(supportedHeaderLanguages)
@@ -52,7 +52,7 @@ const localeHeaderSchema = z
     if (value.startsWith("en")) {
       return "en" as const;
     }
-    return defaultLanguage;
+    return DEFAULT_LANGUAGE;
   });
 
 export async function detectLanguage(request: Request) {
@@ -61,15 +61,15 @@ export async function detectLanguage(request: Request) {
   const lngSearchParam = searchParams.get("lng");
   if (lngSearchParam !== null) {
     invariantResponse(
-      supportedCookieLanguages.includes(
-        lngSearchParam as ArrayElement<typeof supportedCookieLanguages>
+      SUPPORTED_COOKIE_LANGUAGES.includes(
+        lngSearchParam as ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
       ),
       "Invalid language",
       {
         status: 400,
       }
     );
-    return lngSearchParam as ArrayElement<typeof supportedCookieLanguages>;
+    return lngSearchParam as ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   } else {
     const cookieHeader = request.headers.get("Cookie");
     // TODO: fix type issue
@@ -83,7 +83,7 @@ export async function detectLanguage(request: Request) {
       try {
         lng = localeHeaderSchema.parse(preferredLanguage.toLowerCase());
       } catch {
-        return defaultLanguage;
+        return DEFAULT_LANGUAGE;
       }
       return lng;
     }
@@ -97,7 +97,7 @@ export async function detectLanguage(request: Request) {
       try {
         lng = localeHeaderSchema.parse(acceptLanguageHeaderLng.toLowerCase());
       } catch {
-        return defaultLanguage;
+        return DEFAULT_LANGUAGE;
       }
       return lng;
     }
@@ -106,9 +106,9 @@ export async function detectLanguage(request: Request) {
 }
 
 export function getSlugFromLocaleThatContainsWord(options: {
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   locales: keyof (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >];
   word: string;
 }) {

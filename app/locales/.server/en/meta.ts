@@ -58,6 +58,10 @@ export const locale = {
         events: "Events",
         fundings: "Fundings",
       },
+      languageSwitch: {
+        de: "Switch language to German",
+        en: "Switch language to English",
+      },
       help: "Help",
       settings: "Settings",
       logout: "Logout",

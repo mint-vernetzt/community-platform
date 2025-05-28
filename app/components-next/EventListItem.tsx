@@ -4,7 +4,7 @@ import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
 import { utcToZonedTime } from "date-fns-tz";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type MyEventsLocales } from "~/routes/my/events.server";
 import { type OrganizationEventsLocales } from "~/routes/organization/$slug/detail/events.server";
 import { useEffect, useRef, useState } from "react";
@@ -113,7 +113,7 @@ function EventListItemContent(props: {
     canceled?: boolean;
     published?: boolean;
   };
-  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+  currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   locales: MyEventsLocales | OrganizationEventsLocales;
 }) {
   const { event, currentLanguage, locales } = props;

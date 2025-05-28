@@ -38,7 +38,7 @@ import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
-import { defaultLanguage } from "./i18n.shared";
+import { DEFAULT_LANGUAGE } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
@@ -283,7 +283,7 @@ export const ErrorBoundary = () => {
               currentLanguage={
                 hasRootLoaderData
                   ? rootLoaderData.currentLanguage
-                  : defaultLanguage
+                  : DEFAULT_LANGUAGE
               }
               locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
             />

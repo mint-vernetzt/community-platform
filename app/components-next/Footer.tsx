@@ -1,5 +1,5 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { defaultLanguage } from "~/i18n.shared";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
@@ -47,7 +47,7 @@ export function Footer(props: { locales?: RootLocales }) {
           <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
             {props.locales !== undefined
               ? props.locales.footer.description
-              : defaultLanguage === "de"
+              : DEFAULT_LANGUAGE === "de"
               ? "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
               : "The networking platform for STEM actors in Germany."}
           </p>
@@ -92,7 +92,7 @@ export function Footer(props: { locales?: RootLocales }) {
             ? insertParametersIntoLocale(props.locales.footer.meta.copyright, {
                 year: currentYear,
               })
-            : defaultLanguage === "de"
+            : DEFAULT_LANGUAGE === "de"
             ? `© 2021-${currentYear} matrix gGmbH`
             : `© 2021-${currentYear} matrix gGmbH`}
         </div>

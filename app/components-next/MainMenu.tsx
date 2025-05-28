@@ -5,7 +5,10 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router";
-import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
+import {
+  DEFAULT_LANGUAGE,
+  type SUPPORTED_COOKIE_LANGUAGES,
+} from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
 import { type Mode } from "~/utils.server";
@@ -24,7 +27,7 @@ export function MainMenu(
     openMainMenuKey: string;
     username?: string;
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
-    currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+    currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
     locales?: RootLocales;
   }
 ) {
@@ -50,7 +53,7 @@ export function MainMenu(
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.start
-          : defaultLanguage === "de"
+          : DEFAULT_LANGUAGE === "de"
           ? "Hauptmenü überspringen"
           : "Skip main menu"}
       </a>
@@ -70,7 +73,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.login
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Anmelden"
                   : "Login"}
               </Button>
@@ -78,7 +81,7 @@ export function MainMenu(
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
               {props.locales !== undefined
                 ? props.locales.route.root.or
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "oder"
                 : "or"}
             </div>
@@ -90,7 +93,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.register
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Registrieren"
                   : "Register"}
               </Button>
@@ -119,7 +122,7 @@ export function MainMenu(
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.overview
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Überblick"
                       : "Overview"}
                   </div>
@@ -145,7 +148,7 @@ export function MainMenu(
                     <div className="mv-font-semibold">
                       {props.locales !== undefined
                         ? props.locales.route.root.menu.personalSpace.label
-                        : defaultLanguage === "de"
+                        : DEFAULT_LANGUAGE === "de"
                         ? "Mein MINT-Bereich"
                         : "My space"}
                     </div>
@@ -157,7 +160,7 @@ export function MainMenu(
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProfile
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Mein Profil"
                       : "My profile"}
                   </TopicItem>
@@ -169,7 +172,7 @@ export function MainMenu(
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace
                           .myOrganizations
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Organisationen"
                       : "My organizations"}
                   </TopicItem>
@@ -180,7 +183,7 @@ export function MainMenu(
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myEvents
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Veranstaltungen"
                       : "My events"}
                   </TopicItem>
@@ -191,7 +194,7 @@ export function MainMenu(
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProjects
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Projekte"
                       : "My projects"}
                   </TopicItem>
@@ -209,7 +212,7 @@ export function MainMenu(
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
                     ? props.locales.route.root.menu.explore.label
-                    : defaultLanguage === "de"
+                    : DEFAULT_LANGUAGE === "de"
                     ? "Entdecken"
                     : "Explore"}
                 </div>
@@ -221,7 +224,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.index
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Alle Inhalte"
                   : "All content"}
               </TopicItem>
@@ -232,7 +235,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.profiles
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Personen"
                   : "Persons"}
               </TopicItem>
@@ -243,7 +246,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.organizations
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Organisationen"
                   : "Organizations"}
               </TopicItem>
@@ -254,7 +257,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.projects
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Projekte"
                   : "Projects"}
               </TopicItem>
@@ -265,7 +268,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.events
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Veranstaltungen"
                   : "Events"}
               </TopicItem>
@@ -276,7 +279,7 @@ export function MainMenu(
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.fundings
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Förderungen"
                   : "Fundings"}
                 <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
@@ -298,7 +301,7 @@ export function MainMenu(
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.resources.label
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Ressourcen"
                   : "Resources"}
               </div>
@@ -311,6 +314,7 @@ export function MainMenu(
               <LocaleSwitch
                 variant="dark"
                 currentLanguage={props.currentLanguage}
+                locales={props.locales}
               />
             </div>
 
@@ -327,7 +331,7 @@ export function MainMenu(
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.help
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Hilfe"
                   : "Help"}
               </div>
@@ -350,7 +354,7 @@ export function MainMenu(
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.settings
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Einstellungen"
                       : "Settings"}
                   </div>
@@ -366,7 +370,7 @@ export function MainMenu(
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.logout
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Ausloggen"
                       : "Logout"}
                   </div>
@@ -385,7 +389,7 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.imprint
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Impressum"
                 : "Imprint"}
             </NavLink>
@@ -397,7 +401,7 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.privacy
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Datenschutz"
                 : "Privacy policy"}
             </Link>
@@ -409,7 +413,7 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.terms
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Nutzungsbedingungen"
                 : "Terms of use"}
             </Link>
@@ -423,7 +427,7 @@ export function MainMenu(
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.end
-          : defaultLanguage === "de"
+          : DEFAULT_LANGUAGE === "de"
           ? "Zurück zum Anfang des Hauptmenüs"
           : "Back to the start of the main menu"}
       </a>

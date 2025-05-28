@@ -31,7 +31,7 @@ import ImageCropper, {
 import { RichText } from "~/components/Richtext/RichText";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import {
   canUserAccessConferenceLink,
@@ -593,7 +593,7 @@ function getCallToActionForm(loaderData: {
 
 function formatDateTime(
   date: Date,
-  language: ArrayElement<typeof supportedCookieLanguages>,
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>,
   locales: EventDetailLocales
 ) {
   return insertParametersIntoLocale(locales.route.content.clock, {

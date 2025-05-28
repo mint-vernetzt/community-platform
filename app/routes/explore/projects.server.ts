@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -10,7 +10,7 @@ import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 import type { Organization, Prisma, Profile, Project } from "@prisma/client";
 
 export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["explore/projects"];
 
 export function getTakeParam(page: GetProjectsSchema["prjPage"]) {
@@ -131,7 +131,7 @@ function getProjectsFilterWhereClause(filter: GetProjectsSchema["prjFilter"]) {
 function getProjectsSearchWhereClauses(
   words: string[],
   isLoggedIn: boolean,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const whereClauses = [];
   for (const word of words) {
@@ -517,7 +517,7 @@ export async function getProjectIds(options: {
   filter: GetProjectsSchema["prjFilter"];
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getProjectsFilterWhereClause(options.filter);
 
@@ -565,7 +565,7 @@ export async function getAllProjects(options: {
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getProjectsFilterWhereClause(options.filter);
 

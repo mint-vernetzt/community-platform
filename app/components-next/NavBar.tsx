@@ -3,7 +3,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import classNames from "classnames";
 import { Form, Link, useLocation, useSearchParams } from "react-router";
 import Search from "~/components/Search/Search";
-import { defaultLanguage } from "~/i18n.shared";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { Icon } from "./icons/Icon";
 import { HeaderLogo } from "./HeaderLogo";
@@ -46,7 +46,7 @@ export function NavBar(props: NavBarProps) {
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
-            : defaultLanguage === "de"
+            : DEFAULT_LANGUAGE === "de"
             ? "Navigationsleiste überspringen"
             : "Skip navigation bar"}
         </a>
@@ -89,7 +89,7 @@ export function NavBar(props: NavBarProps) {
               placeholder={
                 props.locales !== undefined
                   ? props.locales.route.root.search.placeholder
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Suche (min. 3 Zeichen)"
                   : "Search (min. 3 characters)"
               }
@@ -133,7 +133,7 @@ export function NavBar(props: NavBarProps) {
                   <span className="mv-underline">
                     {props.locales !== undefined
                       ? props.locales.route.root.login
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Anmelden"
                       : "Login"}
                   </span>
@@ -146,7 +146,7 @@ export function NavBar(props: NavBarProps) {
                 >
                   {props.locales !== undefined
                     ? props.locales.route.root.register
-                    : defaultLanguage === "de"
+                    : DEFAULT_LANGUAGE === "de"
                     ? "Registrieren"
                     : "Register"}
                 </Button>
@@ -161,7 +161,7 @@ export function NavBar(props: NavBarProps) {
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end
-            : defaultLanguage === "de"
+            : DEFAULT_LANGUAGE === "de"
             ? "Zurück zum Anfang der Navigationsleiste"
             : "Back to the start of the navigation bar"}
         </a>

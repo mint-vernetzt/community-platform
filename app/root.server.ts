@@ -2,7 +2,7 @@ import { prismaClient } from "~/prisma.server";
 import { detectLanguage as nextDetectLanguage } from "./i18n.server";
 import { type languageModuleMap } from "./locales/.server";
 import { type ArrayElement } from "./lib/utils/types";
-import { type supportedCookieLanguages } from "./i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "./i18n.shared";
 
 export async function getProfileByUserId(id: string) {
   return await prismaClient.profile.findUnique({
@@ -20,7 +20,7 @@ export async function getProfileByUserId(id: string) {
 }
 
 export type RootLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["root"];
 
 export function detectLanguage(request: Request) {

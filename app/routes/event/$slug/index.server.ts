@@ -9,7 +9,7 @@ import {
   disconnectImageSchema,
   createImageUploadSchema,
 } from "~/components/ImageCropper/ImageCropper";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -20,7 +20,7 @@ import { createAbuseReportSchema } from ".";
 import { captureException } from "@sentry/node";
 
 export type EventDetailLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["event/$slug/index"];
 
 export async function uploadBackgroundImage(options: {

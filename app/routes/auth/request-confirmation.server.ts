@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { sendResetPasswordLink } from "~/auth.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -9,7 +9,7 @@ import { createRequestConfirmationSchema } from "./request-confirmation";
 
 export type RequestConfirmationLocales =
   (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >]["auth/request-confirmation"];
 
 export async function requestConfirmation(options: {

@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -15,7 +15,7 @@ import {
 import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 
 export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["explore/profiles"];
 
 export function getTakeParam(page: GetProfilesSchema["prfPage"]) {
@@ -117,7 +117,7 @@ function getProfilesFilterWhereClause(filter: GetProfilesSchema["prfFilter"]) {
 function getProfilesSearchWhereClauses(
   words: string[],
   isLoggedIn: boolean,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const whereClauses = [];
   for (const word of words) {
@@ -433,7 +433,7 @@ export async function getProfileIds(options: {
   filter: GetProfilesSchema["prfFilter"];
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getProfilesFilterWhereClause(options.filter);
 
@@ -481,7 +481,7 @@ export async function getAllProfiles(options: {
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getProfilesFilterWhereClause(options.filter);
 
