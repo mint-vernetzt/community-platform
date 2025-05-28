@@ -1110,15 +1110,11 @@ function Dashboard() {
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
                 htmlFor="hide-notifications"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
               >
-                {loaderData.locales.route.content.notifications.show}
-              </label>
-              <label
-                htmlFor="hide-notifications"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-              >
-                {loaderData.locales.route.content.notifications.hide}
+                {hideNotifications === false
+                  ? loaderData.locales.route.content.notifications.hide
+                  : loaderData.locales.route.content.notifications.show}
               </label>
               <input
                 id="hide-notifications"
@@ -1223,31 +1219,13 @@ function Dashboard() {
           </h2>
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
-              htmlFor="show-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
-            >
-              {loaderData.locales.route.content.updateTeasers.show}
-            </label>
-            <label
               htmlFor="hide-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
             >
-              {loaderData.locales.route.content.updateTeasers.hide}
+              {hideUpdates === false
+                ? loaderData.locales.route.content.updateTeasers.hide
+                : loaderData.locales.route.content.updateTeasers.show}
             </label>
-            <input
-              id="show-updates"
-              type="checkbox"
-              onChange={() => {
-                const hideUpdates =
-                  Cookies.get("mv-hide-updates") === "true" ? false : true;
-                Cookies.set("mv-hide-updates", hideUpdates.toString(), {
-                  sameSite: "strict",
-                });
-                setHideUpdates(hideUpdates);
-              }}
-              checked={hideUpdates === true}
-              className="mv-hidden group-has-[:checked]:mv-block mv-w-0 mv-h-0 mv-opacity-0"
-            />
             <input
               id="hide-updates"
               type="checkbox"
@@ -1260,7 +1238,7 @@ function Dashboard() {
                 setHideUpdates(hideUpdates);
               }}
               checked={hideUpdates === true}
-              className="mv-block group-has-[:checked]:mv-hidden mv-w-0 mv-h-0 mv-opacity-0"
+              className="mv-w-0 mv-h-0 mv-opacity-0"
             />
           </div>
         </div>
@@ -1314,31 +1292,13 @@ function Dashboard() {
             </h2>
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
-                htmlFor="show-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
-              >
-                {loaderData.locales.route.content.newsTeaser.show}
-              </label>
-              <label
                 htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
               >
-                {loaderData.locales.route.content.newsTeaser.hide}
+                {hideNews === false
+                  ? loaderData.locales.route.content.newsTeaser.hide
+                  : loaderData.locales.route.content.newsTeaser.show}
               </label>
-              <input
-                id="show-news"
-                type="checkbox"
-                onChange={() => {
-                  const hideNews =
-                    Cookies.get("mv-hide-news") === "true" ? false : true;
-                  Cookies.set("mv-hide-news", hideNews.toString(), {
-                    sameSite: "strict",
-                  });
-                  setHideNews(hideNews);
-                }}
-                className="mv-hidden group-has-[:checked]:mv-block mv-w-0 mv-h-0 mv-opacity-0"
-                checked={hideNews === true}
-              />
               <input
                 id="hide-news"
                 type="checkbox"
@@ -1350,7 +1310,7 @@ function Dashboard() {
                   });
                   setHideNews(hideNews);
                 }}
-                className="mv-block group-has-[:checked]:mv-hidden mv-w-0 mv-h-0 mv-opacity-0"
+                className="mv-w-0 mv-h-0 mv-opacity-0"
                 checked={hideNews === true}
               />
             </div>
@@ -1574,7 +1534,10 @@ function Dashboard() {
         preventScrollReset
         hidden
       >
-        <input hidden name="modal-avatar" defaultValue="true" />
+        <label htmlFor="show-modal" className="mv-hidden">
+          Show Modal
+        </label>
+        <input id="show-modal" hidden name="modal-avatar" defaultValue="true" />
       </Form>
       <Modal searchParam="modal-avatar">
         <Modal.Title>
