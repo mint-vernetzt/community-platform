@@ -30,14 +30,30 @@ function SelectAdd(props: SelectAddProps) {
             visibilityName={name}
             {...selectProps}
             onChange={(e: React.SyntheticEvent<HTMLSelectElement>) => {
-              if (e.currentTarget.value && buttonRef.current) {
-                buttonRef.current?.click();
+              if (e.currentTarget.value && buttonRef.current !== null) {
+                buttonRef.current.click();
               }
             }}
             className={`clear-after-submit`}
             isPublic={isPublic}
             publicPosition="top"
           />
+        </div>
+        {/* 
+          Had to readd the button else it doesn't submit on Chrome: See https://github.com/mint-vernetzt/community-platform/issues/2088.
+          Button ref was removed so onChange handler of SelectField doesn't work.
+        */}
+        <div>
+          <button
+            ref={buttonRef}
+            value={`add${uppercaseSingularName}`}
+            name="submit"
+            type="submit"
+            className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-neutral-500 mv-text-neutral-600 mv-hidden mv-ml-2"
+            disabled={isSubmitting}
+          >
+            +
+          </button>
         </div>
       </div>
 
