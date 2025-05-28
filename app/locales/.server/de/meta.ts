@@ -2,8 +2,8 @@ export const locale = {
   root: {
     community: "Community",
     skipNavBar: {
-      start: "Navigationsleiste überspringen",
-      end: "Zurück zum Anfang der Navigationsleiste",
+      start: "Suchleiste überspringen",
+      end: "Zurück zum Anfang der Suchleiste",
     },
     skipMainMenu: {
       start: "Hauptmenü überspringen",

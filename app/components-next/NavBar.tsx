@@ -47,8 +47,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
             : DEFAULT_LANGUAGE === "de"
-            ? "Navigationsleiste überspringen"
-            : "Skip navigation bar"}
+            ? "Suchleiste überspringen"
+            : "Skip search bar"}
         </a>
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
@@ -162,8 +162,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end
             : DEFAULT_LANGUAGE === "de"
-            ? "Zurück zum Anfang der Navigationsleiste"
-            : "Back to the start of the navigation bar"}
+            ? "Zurück zum Anfang der Suchleiste"
+            : "Back to the start of the search bar"}
         </a>
       </div>
     </header>

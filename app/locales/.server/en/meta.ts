@@ -2,8 +2,8 @@ export const locale = {
   root: {
     community: "Community",
     skipNavBar: {
-      start: "Skip navigation bar",
-      end: "Back to the start of the navigation bar",
+      start: "Skip search bar",
+      end: "Back to the start of the search bar",
     },
     skipMainMenu: {
       start: "Skip main menu",
