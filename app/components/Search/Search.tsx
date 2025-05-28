@@ -52,7 +52,14 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
             />
           </svg>
         </div>
+        <label
+          htmlFor="search-bar"
+          className="mv-absolute mv-h-0 mv-w-0 mv-opacity-0"
+        >
+          {inputProps.placeholder || "Suche (mind. 3 Buchstaben)"}
+        </label>
         <input
+          id="search-bar"
           className="mv-w-full mv-outline-none mv-bg-neutral-100 mv-h-auto mv-min-w-[230px] mv-rounded-lg mv-border-2 mv-border-neutral-100 mv-py-2 mv-pl-10 mv-pr-4 mv-text-sm mv-font-semibold mv-appearance-none mv-leading-6 focus:mv-border-primary"
           placeholder={inputProps.placeholder || "Suche (mind. 3 Buchstaben)"}
           minLength={inputProps.minLength || 3}

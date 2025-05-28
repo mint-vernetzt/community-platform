@@ -1,11 +1,12 @@
 import classnames from "classnames";
 import { createElement } from "react";
+import { Link, type LinkProps } from "react-router";
 
 // eigene Komponente für Icon-Button mit Varianten für Circle und Square
 
 type ButtonSize = "x-small" | "small" | "medium" | "large";
 type ButtonVariant = "normal" | "outline" | "ghost";
-type ButtonType = "button" | "a" | "div" | "label";
+type ButtonType = "button" | "link" | "div" | "label";
 type ButtonLevel =
   | "primary"
   // | "secondary"
@@ -28,7 +29,7 @@ function Button(
   props: ButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
-      | React.AnchorHTMLAttributes<HTMLAnchorElement>
+      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
       | React.LabelHTMLAttributes<HTMLLabelElement>
     )
 ) {
@@ -109,14 +110,55 @@ function Button(
     loading !== undefined && loading !== false && "mv-loading"
   );
 
-  const element = createElement(as, {
-    ...otherProps,
-    className: `${
-      otherProps.className !== undefined ? `${otherProps.className} ` : ""
-    }${classes}`,
-  });
-
-  return element;
+  if (as === "link" && "to" in otherProps) {
+    return (
+      <Link
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </Link>
+    );
+  } else if (
+    as === "button" &&
+    "to" in otherProps === false &&
+    "type" in otherProps
+  ) {
+    return (
+      <button
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </button>
+    );
+  } else if (
+    as === "label" &&
+    "to" in otherProps === false &&
+    "htmlFor" in otherProps
+  ) {
+    return (
+      <label
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </label>
+    );
+  } else {
+    return createElement(as, {
+      ...otherProps,
+      className: `${
+        otherProps.className !== undefined ? `${otherProps.className} ` : ""
+      }${classes}`,
+    });
+  }
 }
 
 export { Button };

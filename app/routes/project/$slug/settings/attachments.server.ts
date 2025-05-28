@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -24,7 +24,7 @@ import {
 
 export type ProjectAttachmentSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >]["project/$slug/settings/attachments"];
 
 export async function uploadFile(options: {

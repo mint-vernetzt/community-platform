@@ -221,9 +221,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -288,9 +288,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -360,9 +360,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"
@@ -421,9 +421,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
-                    href={typedResourceValue.link}
+                    to={typedResourceValue.link}
                     rel={
                       typedResourceValue.external === true
                         ? "noopener noreferrer"

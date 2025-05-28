@@ -1,9 +1,10 @@
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { defaultLanguage } from "~/i18n.shared";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { type Mode } from "~/utils.server";
 
-export function Footer(props: { locales?: RootLocales }) {
+export function Footer(props: { locales?: RootLocales; mode: Mode }) {
   const currentYear = new Date().getFullYear();
   return (
     <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
@@ -11,17 +12,31 @@ export function Footer(props: { locales?: RootLocales }) {
       <div className="mv-flex mv-gap-0 @sm:mv-gap-18 mv-items-center">
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
           <MVLink
-            to="/"
+            as="link"
+            to={props.mode === "anon" ? "/" : "/dashboard"}
             variant="primary"
             className="mv-flex mv-flex-row mv-items-center hover:mv-no-underline"
+            aria-label={
+              props.locales !== undefined
+                ? props.mode === "anon"
+                  ? props.locales.route.root.toLandingPage
+                  : props.mode === "authenticated"
+                  ? props.locales.route.root.toDashboard
+                  : DEFAULT_LANGUAGE === "de" && props.mode === "anon"
+                  ? "Zur Startseite"
+                  : DEFAULT_LANGUAGE === "de" && props.mode !== "anon"
+                  ? "Zum Dashboard"
+                  : props.mode === "anon"
+                  ? "To the start page"
+                  : "To the dashboard"
+                : ""
+            }
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="42"
               height="42"
               viewBox="0 0 56 56"
-              aria-describedby="mint-title-header"
-              role="img"
               className="mv-w-[42px] mv-h-[42px] @md:mv-w-auto @md:mv-h-auto"
             >
               <g fill="none">
@@ -46,14 +61,14 @@ export function Footer(props: { locales?: RootLocales }) {
           <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
             {props.locales !== undefined
               ? props.locales.footer.description
-              : defaultLanguage === "de"
+              : DEFAULT_LANGUAGE === "de"
               ? "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland."
               : "The networking platform for STEM actors in Germany."}
           </p>
         </div>
         {/* BMBF Logo */}
         <div className="mv-flex-grow mv-flex mv-justify-end mv-items-center">
-          <MVLink to="https://www.bmbf.de/" isExternal>
+          <MVLink as="link" to="https://www.bmbf.de/" isExternal>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 153 109"
@@ -91,14 +106,18 @@ export function Footer(props: { locales?: RootLocales }) {
             ? insertParametersIntoLocale(props.locales.footer.meta.copyright, {
                 year: currentYear,
               })
-            : defaultLanguage === "de"
+            : DEFAULT_LANGUAGE === "de"
             ? `© 2021-${currentYear} matrix gGmbH`
             : `© 2021-${currentYear} matrix gGmbH`}
         </div>
         {/* SoMe icons */}
         <ul className="mv-flex mv-items-center mv-gap-6">
           <li>
-            <MVLink as="a" to="https://www.github.com/mint-vernetzt" isExternal>
+            <MVLink
+              as="link"
+              to="https://www.github.com/mint-vernetzt"
+              isExternal
+            >
               <svg
                 width="16"
                 height="16"
@@ -115,7 +134,7 @@ export function Footer(props: { locales?: RootLocales }) {
           </li>
           <li>
             <MVLink
-              as="a"
+              as="link"
               to="https://www.instagram.com/mintvernetzt"
               isExternal
             >
@@ -135,7 +154,7 @@ export function Footer(props: { locales?: RootLocales }) {
           </li>
           <li>
             <MVLink
-              as="a"
+              as="link"
               to="https://bs.linkedin.com/company/mintvernetzt"
               isExternal
             >

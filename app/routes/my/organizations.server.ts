@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type User, type SupabaseClient } from "@supabase/supabase-js";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -26,7 +26,7 @@ import {
 import { captureException } from "@sentry/node";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["my/organizations"];
 
 export async function getOrganizationsFromProfile(id: string) {

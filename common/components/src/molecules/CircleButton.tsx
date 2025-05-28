@@ -1,8 +1,9 @@
 import classNames from "classnames";
 import { createElement } from "react";
+import { Link, type LinkProps } from "react-router";
 
 type CircleButtonVariant = "normal" | "outline" | "ghost";
-type CircleButtonType = "button" | "a";
+type CircleButtonType = "button" | "link" | "a";
 type CircleButtonSize = "small" | "medium" | "large";
 
 type CircleButtonProps = {
@@ -18,6 +19,7 @@ function CircleButton(
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
       | React.AnchorHTMLAttributes<HTMLAnchorElement>
+      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
     )
 ) {
   const {
@@ -70,12 +72,59 @@ function CircleButton(
     floating && "mv-shadow-lg"
   );
 
-  const element = createElement(as, {
-    ...otherProps,
-    className: classes,
-  });
-
-  return element;
+  if (as === "link" && "to" in otherProps) {
+    return (
+      <Link
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </Link>
+    );
+  } else if (
+    as === "button" &&
+    "to" in otherProps === false &&
+    "disabled" in otherProps
+  ) {
+    return (
+      <button
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </button>
+    );
+  } else if (
+    as === "a" &&
+    "to" in otherProps === false &&
+    "href" in otherProps
+  ) {
+    return (
+      <a
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </a>
+    );
+  } else {
+    return createElement(
+      as,
+      {
+        ...otherProps,
+        className: `${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`,
+      },
+      otherProps.children
+    );
+  }
 }
 
 export { CircleButton };

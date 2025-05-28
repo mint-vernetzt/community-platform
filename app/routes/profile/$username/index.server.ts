@@ -6,7 +6,7 @@ import {
   createImageUploadSchema,
   disconnectImageSchema,
 } from "~/components/ImageCropper/ImageCropper";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -16,7 +16,7 @@ import { FILE_FIELD_NAME } from "~/storage.shared";
 import { triggerEntityScore } from "~/utils.server";
 
 export type ProfileDetailLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["profile/$username/index"];
 
 export type ProfileQuery = NonNullable<

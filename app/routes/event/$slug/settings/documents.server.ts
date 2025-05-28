@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -17,7 +17,7 @@ import { captureException } from "@sentry/node";
 
 export type EventDocumentsSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >]["event/$slug/settings/documents"];
 
 export async function getEventBySlug(slug: string) {

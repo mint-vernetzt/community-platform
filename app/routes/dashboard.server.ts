@@ -1,5 +1,5 @@
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import {
   BlurFactor,
   getImageURL,
@@ -13,7 +13,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 
 export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["dashboard"];
 
 export async function getProfileById(id: string, authClient?: SupabaseClient) {

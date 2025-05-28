@@ -3,7 +3,7 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { parseWithZod } from "@conform-to/zod-v1";
@@ -19,7 +19,7 @@ import { DefaultImages } from "~/images.shared";
 import { triggerEntityScore } from "~/utils.server";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["organization/$slug/detail"];
 
 export async function getOrganization(slug: string) {

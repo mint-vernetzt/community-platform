@@ -175,13 +175,13 @@ export default function Register() {
                   }),
                   [
                     <span key="email-highlight" className="mv-font-semibold" />,
-                    <a
+                    <Link
                       key="support-mail-link"
-                      href={`mailto:${actionData.supportMail}`}
+                      to={`mailto:${actionData.supportMail}`}
                       className="mv-text-primary mv-font-semibold hover:mv-underline"
                     >
                       {" "}
-                    </a>,
+                    </Link>,
                   ]
                 )}{" "}
                 <Link
@@ -373,24 +373,24 @@ export default function Register() {
                   <FormControl.Label>
                     <div className="mv-pl-2">
                       {insertComponentsIntoLocale(locales.form.confirmation, [
-                        <a
+                        <Link
                           key="terms-of-use-confirmation"
-                          href="https://mint-vernetzt.de/terms-of-use-community-platform"
+                          to="https://mint-vernetzt.de/terms-of-use-community-platform"
                           target="_blank"
                           rel="noreferrer noopener"
                           className="mv-text-primary mv-font-semibold hover:mv-underline"
                         >
                           {" "}
-                        </a>,
-                        <a
+                        </Link>,
+                        <Link
                           key="privacy-policy-confirmation"
-                          href="https://mint-vernetzt.de/privacy-policy-community-platform"
+                          to="https://mint-vernetzt.de/privacy-policy-community-platform"
                           target="_blank"
                           rel="noreferrer noopener"
                           className="mv-text-primary mv-font-semibold hover:mv-underline"
                         >
                           {" "}
-                        </a>,
+                        </Link>,
                       ])}
                     </div>
                   </FormControl.Label>

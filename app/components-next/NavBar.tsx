@@ -1,16 +1,16 @@
-import { Form, Link, useLocation, useSearchParams } from "react-router";
-import classNames from "classnames";
-import { type RootLocales } from "~/root.server";
-import { HeaderLogo } from "./HeaderLogo";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import Search from "~/components/Search/Search";
-import { defaultLanguage } from "~/i18n.shared";
-import { Icon } from "./icons/Icon";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import classNames from "classnames";
+import { Form, Link, useLocation, useSearchParams } from "react-router";
+import Search from "~/components/Search/Search";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
+import { type RootLocales } from "~/root.server";
+import { Icon } from "./icons/Icon";
+import { HeaderLogo } from "./HeaderLogo";
 
 type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
-  openNavBarMenuKey: string;
+  openMainMenuKey: string;
   locales?: RootLocales;
 };
 
@@ -26,7 +26,7 @@ export function NavBar(props: NavBarProps) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("search");
-  const navBarMenuIsOpen = searchParams.get(props.openNavBarMenuKey);
+  const navBarMenuIsOpen = searchParams.get(props.openMainMenuKey);
 
   const classes = classNames(
     "mv-sticky mv-top-0 mv-h-[76px] xl:mv-h-20 mv-z-10 mv-bg-white",
@@ -38,11 +38,42 @@ export function NavBar(props: NavBarProps) {
   return (
     <header id="header" className={classes}>
       <div className="mv-flex mv-h-full mv-items-center mv-mr-4 xl:mv-mr-8">
+        <div className="mv-hidden xl:mv-block mv-w-[300px] mv-h-14" />
+        <a
+          id="nav-bar-start"
+          href="#nav-bar-end"
+          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-1 focus:mv-px-1"
+        >
+          {props.locales !== undefined
+            ? props.locales.route.root.skipNavBar.start
+            : DEFAULT_LANGUAGE === "de"
+            ? "Suchleiste überspringen"
+            : "Skip search bar"}
+        </a>
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`xl:mv-w-[300px] mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 ${
-            props.sessionUserInfo !== undefined ? "mv-hidden xl:mv-block" : ""
+          className={`mv-mx-2 mv-pl-2 ${
+            props.sessionUserInfo !== undefined
+              ? "mv-hidden"
+              : "mv-block xl:mv-hidden"
           }`}
+          aria-label={
+            props.locales !== undefined
+              ? props.sessionUserInfo === undefined
+                ? props.locales.route.root.toLandingPage
+                : props.sessionUserInfo !== undefined
+                ? props.locales.route.root.toDashboard
+                : DEFAULT_LANGUAGE === "de" &&
+                  props.sessionUserInfo === undefined
+                ? "Zur Startseite"
+                : DEFAULT_LANGUAGE === "de" &&
+                  props.sessionUserInfo !== undefined
+                ? "Zum Dashboard"
+                : props.sessionUserInfo === undefined
+                ? "To the start page"
+                : "To the dashboard"
+              : ""
+          }
         >
           <HeaderLogo locales={props.locales} />
         </Link>
@@ -75,7 +106,7 @@ export function NavBar(props: NavBarProps) {
               placeholder={
                 props.locales !== undefined
                   ? props.locales.route.root.search.placeholder
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Suche (min. 3 Zeichen)"
                   : "Search (min. 3 characters)"
               }
@@ -85,7 +116,7 @@ export function NavBar(props: NavBarProps) {
           </Form>
 
           <div className="mv-flex-shrink mv-block xl:mv-hidden">
-            <Opener openNavBarMenuKey="navbarmenu" />
+            <Opener openMainMenuKey="mainMenu" />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
@@ -111,41 +142,55 @@ export function NavBar(props: NavBarProps) {
           ) : (
             <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
               <div>
-                <Link to={`/login?login_redirect=${location.pathname}`}>
-                  <Button variant="ghost">
-                    <span className="mv-underline">
-                      {props.locales !== undefined
-                        ? props.locales.route.root.login
-                        : defaultLanguage === "de"
-                        ? "Anmelden"
-                        : "Login"}
-                    </span>
-                  </Button>
-                </Link>
+                <Button
+                  to={`/login?login_redirect=${location.pathname}`}
+                  as="link"
+                  variant="ghost"
+                >
+                  <span className="mv-underline">
+                    {props.locales !== undefined
+                      ? props.locales.route.root.login
+                      : DEFAULT_LANGUAGE === "de"
+                      ? "Anmelden"
+                      : "Login"}
+                  </span>
+                </Button>
               </div>
               <div>
-                <Link to={`/register?login_redirect=${location.pathname}`}>
-                  <Button>
-                    {props.locales !== undefined
-                      ? props.locales.route.root.register
-                      : defaultLanguage === "de"
-                      ? "Registrieren"
-                      : "Register"}
-                  </Button>
-                </Link>
+                <Button
+                  to={`/register?login_redirect=${location.pathname}`}
+                  as="link"
+                >
+                  {props.locales !== undefined
+                    ? props.locales.route.root.register
+                    : DEFAULT_LANGUAGE === "de"
+                    ? "Registrieren"
+                    : "Register"}
+                </Button>
               </div>
             </div>
           )}
         </div>
+        <a
+          id="nav-bar-end"
+          href="#nav-bar-start"
+          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-ml-4 focus:mv-px-1"
+        >
+          {props.locales !== undefined
+            ? props.locales.route.root.skipNavBar.end
+            : DEFAULT_LANGUAGE === "de"
+            ? "Zurück zum Anfang der Suchleiste"
+            : "Back to the start of the search bar"}
+        </a>
       </div>
     </header>
   );
 }
 
-function Opener(props: { openNavBarMenuKey: string }) {
+function Opener(props: { openMainMenuKey: string }) {
   const [searchParams] = useSearchParams();
-  if (!searchParams.has(props.openNavBarMenuKey)) {
-    searchParams.append(props.openNavBarMenuKey, "true");
+  if (!searchParams.has(props.openMainMenuKey)) {
+    searchParams.append(props.openMainMenuKey, "true");
   }
 
   return (

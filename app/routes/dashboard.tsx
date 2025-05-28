@@ -836,8 +836,8 @@ function Dashboard() {
               </div>
               <Button
                 variant="outline"
-                as="a"
-                href={`/profile/${loaderData.username}`}
+                as="link"
+                to={`/profile/${loaderData.username}`}
               >
                 {loaderData.locales.route.content.header.cta}
               </Button>
@@ -857,8 +857,8 @@ function Dashboard() {
           </p>
           <Button
             variant="outline"
-            as="a"
-            href={`/profile/${loaderData.username}`}
+            as="link"
+            to={`/profile/${loaderData.username}`}
           >
             {loaderData.locales.route.content.myProfile}
           </Button>
@@ -916,7 +916,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="link" to="/my/organizations">
               {loaderData.locales.route.content.invites.linkDescription}
             </Button>
           </div>
@@ -974,7 +974,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="link" to="/my/organizations">
               {loaderData.locales.route.content.requests.linkDescription}
             </Button>
           </div>
@@ -1034,7 +1034,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="link" to="/my/organizations">
               {loaderData.locales.route.content.networkInvites.linkDescription}
             </Button>
           </div>
@@ -1094,7 +1094,7 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="a" href="/my/organizations">
+            <Button as="link" to="/my/organizations">
               {loaderData.locales.route.content.networkRequests.linkDescription}
             </Button>
           </div>
@@ -1175,8 +1175,8 @@ function Dashboard() {
                     <div>
                       <Button
                         className="mv-w-full @sm:mv-shrink"
-                        as="a"
-                        href="/my/events"
+                        as="link"
+                        to="/my/events"
                         variant="outline"
                       >
                         {loaderData.locales.route.content.notifications.cta}
@@ -1415,7 +1415,7 @@ function Dashboard() {
             {loaderData.locales.route.content.projects}
           </div>
           <div className="mv-text-right">
-            <MVLink to="/explore/projects">
+            <MVLink as="link" to="/explore/projects">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allProjects}
               </span>
@@ -1443,7 +1443,7 @@ function Dashboard() {
             {loaderData.locales.route.content.profiles}
           </div>
           <div className="mv-text-right">
-            <MVLink to="/explore/profiles">
+            <MVLink as="link" to="/explore/profiles">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allProfiles}
               </span>
@@ -1471,7 +1471,7 @@ function Dashboard() {
             {loaderData.locales.route.content.organizations}
           </div>
           <div className="mv-text-right">
-            <MVLink to="/explore/organizations">
+            <MVLink as="link" to="/explore/organizations">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allOrganizations}
               </span>
@@ -1499,7 +1499,7 @@ function Dashboard() {
             {loaderData.locales.route.content.events}
           </div>
           <div className="mv-text-right">
-            <MVLink to="/explore/events">
+            <MVLink as="link" to="/explore/events">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allEvents}
               </span>

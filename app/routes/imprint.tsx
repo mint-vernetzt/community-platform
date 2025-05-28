@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs } from "react-router";
+import { Link, type LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
@@ -35,14 +35,14 @@ export default function Imprint() {
       <p>Fax: +49(0)211-987300</p>
       <p>
         {locales.represented.email}{" "}
-        <a
+        <Link
           className="mv-text-primary hover:mv-underline"
-          href="mailto:info@matrix-ggmbh.de"
+          to="mailto:info@matrix-ggmbh.de"
           target="_blank"
           rel="noreferrer noopener"
         >
           info@matrix-ggmbh.de
-        </a>
+        </Link>
       </p>
       <p>{locales.represented.vat} DE 329043660</p>
       <p>{locales.represented.register} HRB 33341</p>

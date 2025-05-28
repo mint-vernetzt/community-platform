@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -16,7 +16,7 @@ import {
 
 export type ExploreOrganizationsLocales =
   (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >]["explore/organizations"];
 
 export function getTakeParam(page: GetOrganizationsSchema["orgPage"]) {
@@ -139,7 +139,7 @@ function getOrganizationsFilterWhereClause(
 function getOrganizationsSearchWhereClause(
   words: string[],
   isLoggedIn: boolean,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const whereClauses = [];
 
@@ -561,7 +561,7 @@ export async function getOrganizationIds(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getOrganizationsFilterWhereClause(options.filter);
 
@@ -609,7 +609,7 @@ export async function getAllOrganizations(options: {
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getOrganizationsFilterWhereClause(options.filter);
 

@@ -1,5 +1,5 @@
 import { type User } from "@supabase/supabase-js";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -10,7 +10,7 @@ import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
 import { type Prisma } from "@prisma/client";
 
 export type ExploreEventsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["explore/events"];
 
 export function getTakeParam(page: GetEventsSchema["evtPage"]) {
@@ -245,7 +245,7 @@ function getEventsFilterWhereClause(filter: GetEventsSchema["evtFilter"]) {
 function getEventsSearchWhereClause(
   words: string[],
   isLoggedIn: boolean,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const whereClauses = [];
   for (const word of words) {
@@ -646,7 +646,7 @@ export async function getEventIds(options: {
   filter: GetEventsSchema["evtFilter"];
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getEventsFilterWhereClause(options.filter);
 
@@ -702,7 +702,7 @@ export async function getAllEvents(options: {
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getEventsFilterWhereClause(options.filter);
   for (const filterKey in options.filter) {

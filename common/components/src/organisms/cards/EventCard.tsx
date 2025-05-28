@@ -14,7 +14,7 @@ import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { Image } from "../../molecules/Image";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { type ExploreEventsLocales } from "~/routes/explore/events.server";
 
@@ -22,7 +22,7 @@ type EventCardProps = {
   match?: number;
   publicAccess?: boolean;
   locales: DashboardLocales | ExploreEventsLocales;
-  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+  currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   event: {
     name: string;
     slug: string;

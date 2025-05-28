@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { signIn } from "~/auth.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -11,7 +11,7 @@ import { createLoginSchema } from ".";
 import { type LandingPageLocales } from "../index.server";
 
 export type LoginLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["login/index"];
 
 export async function login(options: {

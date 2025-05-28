@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -17,7 +17,7 @@ import { FILE_FIELD_NAME } from "~/storage.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export type ProjectDetailLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["project/$slug/detail"];
 
 export async function uploadImage(options: {

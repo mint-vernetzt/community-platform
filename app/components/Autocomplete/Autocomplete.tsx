@@ -3,7 +3,7 @@ import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import type { Event, Organization, Profile } from "@prisma/client";
 import { useSearchParams, useSubmit } from "react-router";
 import { utcToZonedTime } from "date-fns-tz";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { getInitials } from "~/lib/profile/getInitials";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { getDuration } from "~/lib/utils/time";
@@ -62,7 +62,7 @@ export interface AutocompleteProps {
     | EventOrganizationsSettingsLocales
     | EventParticipantsLocales
     | EventSpeakersSettingsLocales;
-  currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+  currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }
 
 function Autocomplete(

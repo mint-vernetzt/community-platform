@@ -284,8 +284,8 @@ function CreateOrganization() {
         disabled={isSubmitting}
       />
       <TextButton
-        as="a"
-        href="/my/organizations"
+        as="link"
+        to="/my/organizations"
         weight="thin"
         variant="neutral"
         arrowLeft
@@ -768,7 +768,7 @@ function CreateOrganization() {
           {locales.route.form.helperText}
         </p>
         <div className="mv-flex mv-gap-2">
-          <Button as="a" href="/my/organizations" variant="outline">
+          <Button as="link" to="/my/organizations" variant="outline">
             {locales.route.form.cancel}
           </Button>
           <Button

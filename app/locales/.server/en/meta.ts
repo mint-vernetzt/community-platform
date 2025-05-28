@@ -1,6 +1,16 @@
 export const locale = {
   root: {
+    toLandingPage: "To the landing page",
+    toDashboard: "To the dashboard",
     community: "Community",
+    skipNavBar: {
+      start: "Skip search bar",
+      end: "Back to the start of the search bar",
+    },
+    skipMainMenu: {
+      start: "Skip main menu",
+      end: "Back to the start of the main menu",
+    },
     profiles: "Persons",
     organizations: "Organizations",
     events: "Events",
@@ -50,6 +60,10 @@ export const locale = {
         events: "Events",
         fundings: "Fundings",
       },
+      languageSwitch: {
+        de: "Switch language to German",
+        en: "Switch language to English",
+      },
       help: "Help",
       settings: "Settings",
       logout: "Logout",
@@ -59,9 +73,11 @@ export const locale = {
     },
     loginOrRegisterCTA: {
       info: "Log in or register to fully utilize the platform.",
+      hide: "Hide information",
       login: "Login",
       or: "or",
       register: "Register",
     },
+    scrollToTop: "Scroll to top",
   },
 } as const;

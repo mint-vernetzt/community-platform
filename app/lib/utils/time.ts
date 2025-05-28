@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "./types";
 
 // TODO: fix type issue
@@ -32,7 +32,7 @@ const transformParts = (parts: DateTimeRangeFormatPart[]): string => {
 export const getDuration = (
   start: Date,
   end: Date,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) => {
   const formatTimestamp: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -88,7 +88,7 @@ export const getDuration = (
 export function getDateDuration(
   startTime: Date,
   endTime: Date,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const formatLong: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -116,7 +116,7 @@ export function getDateDuration(
 export function getTimeDuration(
   startTime: Date,
   endTime: Date,
-  language: ArrayElement<typeof supportedCookieLanguages>
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
   const format: Intl.DateTimeFormatOptions = {
     hour: "2-digit",

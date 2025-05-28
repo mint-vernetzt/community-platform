@@ -1,4 +1,4 @@
-import { defaultLanguage } from "~/i18n.shared";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 
 export function HeaderLogo(props: { locales?: RootLocales }) {
@@ -9,8 +9,6 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
         width="56"
         height="56"
         viewBox="0 0 56 56"
-        aria-describedby="mint-title-header"
-        role="img"
         className="mv-w-10 mv-h-10 lg:mv-w-auto lg:mv-h-auto"
       >
         <g fill="none">
@@ -31,7 +29,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
       <span className="mv-hidden lg:mv-block mv-font-bold mv-text-primary mv-ml-2">
         {props.locales !== undefined
           ? props.locales.route.root.community
-          : defaultLanguage === "de"
+          : DEFAULT_LANGUAGE === "de"
           ? "Community"
           : "Community"}
       </span>

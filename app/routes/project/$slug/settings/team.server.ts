@@ -4,7 +4,7 @@ import {
   addTeamMeberToProjectSchema,
   removeTeamMemberFromProjectSchema,
 } from "~/form-helpers";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
@@ -15,7 +15,7 @@ import { getPublicURL } from "~/storage.server";
 
 export type ProjectTeamSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
-    typeof supportedCookieLanguages
+    typeof SUPPORTED_COOKIE_LANGUAGES
   >]["project/$slug/settings/team"];
 
 export async function getProjectWithTeamMembers(options: {

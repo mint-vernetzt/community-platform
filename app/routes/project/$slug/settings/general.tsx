@@ -984,7 +984,7 @@ function General() {
                     {locales.route.content.reset}
                   </Button>
                   <noscript className="mv-absolute mv-top-0">
-                    <Button as="a" href="./general" variant="outline" fullSize>
+                    <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.content.reset}
                     </Button>
                   </noscript>

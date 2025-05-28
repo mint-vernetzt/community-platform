@@ -3,6 +3,7 @@ import { Avatar } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 import { Image } from "../../molecules/Image";
 import { Children, isValidElement } from "react";
+import { Link } from "react-router";
 
 type CardProps = {
   children?: React.ReactNode;
@@ -29,10 +30,10 @@ function Card(props: CardProps) {
       {props.to !== undefined && props.to !== "" ? (
         <>
           <div className="mv-h-full hover:mv-bg-neutral-100 active:mv-bg-neutral-100 focus:mv-bg-neutral-100">
-            <a href={props.to}>
+            <Link to={props.to}>
               {header || null}
               {body || null}
-            </a>
+            </Link>
           </div>
           {footer || null}
         </>

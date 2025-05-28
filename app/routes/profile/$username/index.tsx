@@ -517,10 +517,9 @@ export default function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
         <TextButton
-          as="a"
-          href="/explore/profiles"
+          as="link"
+          to="/explore/profiles"
           weight="thin"
           variant="neutral"
           arrowLeft
@@ -651,8 +650,8 @@ export default function Index() {
                   {typeof loaderData.data.email === "string" &&
                   loaderData.data.email !== "" ? (
                     <p className="mv-text-mb mv-mb-2">
-                      <a
-                        href={`mailto:${loaderData.data.email}`}
+                      <Link
+                        to={`mailto:${loaderData.data.email}`}
                         className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
                       >
                         <span className="mv-w-6 mv-mr-4">
@@ -667,14 +666,14 @@ export default function Index() {
                           </svg>
                         </span>
                         <span>{loaderData.data.email}</span>
-                      </a>
+                      </Link>
                     </p>
                   ) : null}
                   {typeof loaderData.data.email2 === "string" &&
                   loaderData.data.email2 !== "" ? (
                     <p className="mv-text-mb mv-mb-2">
-                      <a
-                        href={`mailto:${loaderData.data.email2}`}
+                      <Link
+                        to={`mailto:${loaderData.data.email2}`}
                         className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
                       >
                         <span className="mv-w-6 mv-mr-4">
@@ -689,14 +688,14 @@ export default function Index() {
                           </svg>
                         </span>
                         <span>{loaderData.data.email2}</span>
-                      </a>
+                      </Link>
                     </p>
                   ) : null}
                   {typeof loaderData.data.phone === "string" &&
                   loaderData.data.phone !== "" ? (
                     <p className="mv-text-md mv-text-neutral-600 mv-mb-2">
-                      <a
-                        href={`tel:${loaderData.data.phone}`}
+                      <Link
+                        to={`tel:${loaderData.data.phone}`}
                         className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
                       >
                         <span className="mv-w-6 mv-mr-4">
@@ -711,7 +710,7 @@ export default function Index() {
                           </svg>
                         </span>
                         <span>{loaderData.data.phone}</span>
-                      </a>
+                      </Link>
                     </p>
                   ) : null}
                 </>
@@ -731,15 +730,15 @@ export default function Index() {
                             key={service}
                             className="mv-flex-auto mv-px-1 mv-mb-2"
                           >
-                            <a
-                              href={loaderData.data[service] as string}
+                            <Link
+                              to={loaderData.data[service] as string}
                               target="__blank"
                               rel="noopener noreferrer"
                               className="mv-flex-1 mv-flex mv-bg-neutral-100 mv-items-center mv-justify-center mv-px-4 mv-py-2.5 mv-rounded-lg mv-text-neutral-700"
                             >
                               {service === "mastodon" && <Mastodon />}
                               {service === "tiktok" && <TikTok />}
-                            </a>
+                            </Link>
                           </li>
                         );
                       }

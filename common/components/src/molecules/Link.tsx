@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { createElement } from "react";
+import { Link as ReactRouterLink } from "react-router";
 interface LinkProps {
   to: string;
   children?: string | React.ReactNode;
@@ -14,7 +15,7 @@ function Link(props: LinkProps) {
   const {
     to,
     isExternal = false,
-    as = "a",
+    as = "link",
     className,
     variant,
     active,
@@ -29,25 +30,42 @@ function Link(props: LinkProps) {
   }
 
   let href;
-  if (as === "a") {
+  if (as === "link") {
     href = to;
   }
 
   const classes = classNames(
     className !== undefined && className,
-    as === "a" && "hover:mv-underline mv-underline-offset-4 mv-decoration-2",
+    as === "link" && "hover:mv-underline mv-underline-offset-4 mv-decoration-2",
     variant === "primary" && "mv-text-primary",
     active && "mv-underline mv-cursor-default mv-pointer-events-none"
   );
 
-  const element = createElement(as, {
-    href,
-    className: classes,
-    to,
-    rel,
-    target,
-    ...otherProps,
-  });
+  if (as === "link") {
+    return (
+      <ReactRouterLink
+        className={`${
+          className !== undefined ? `${className} ` : ""
+        }${classes}`}
+        to={to}
+      >
+        {otherProps.children}
+      </ReactRouterLink>
+    );
+  }
+
+  const element = createElement(
+    as,
+    {
+      ...otherProps,
+      href,
+      className: classes,
+      to,
+      rel,
+      target,
+    },
+    otherProps.children
+  );
   return element;
 }
 

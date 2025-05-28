@@ -161,10 +161,9 @@ function Attachments() {
             </MaterialList>
             {loaderData.mode !== "anon" ? (
               <div className="mv-w-full @md:mv-max-w-fit">
-                {/* TODO: Button as wrapper for Link (better relative path) */}
                 <Button
-                  as="a"
-                  href={`./attachments/download?type=documents`}
+                  as="link"
+                  to={`./download?type=documents`}
                   variant="outline"
                   fullSize
                 >
@@ -223,10 +222,9 @@ function Attachments() {
               })}
             </MaterialList>
             <div className="mv-w-full @md:mv-max-w-fit">
-              {/* TODO: Button as wrapper for Link (better relative path) */}
               <Button
-                as="a"
-                href={`./attachments/download?type=images`}
+                as="link"
+                to={`./download?type=images`}
                 variant="outline"
                 fullSize
               >

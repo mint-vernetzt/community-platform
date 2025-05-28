@@ -3,6 +3,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
   Form,
+  Link,
   redirect,
   useActionData,
   useLoaderData,
@@ -44,7 +45,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       select: { termsAccepted: true },
     });
     if (profile !== null) {
-      if (profile.termsAccepted === true) {
+      if (profile.termsAccepted === false) {
         return redirect("/dashboard");
       }
       const language = await detectLanguage(request);
@@ -142,24 +143,24 @@ export default function AcceptTerms() {
                       {insertComponentsIntoLocale(
                         locales.content.confirmation,
                         [
-                          <a
+                          <Link
                             key="terms-of-use-confirmation"
-                            href="https://mint-vernetzt.de/terms-of-use-community-platform"
+                            to="https://mint-vernetzt.de/terms-of-use-community-platform"
                             target="_blank"
                             rel="noreferrer noopener"
                             className="mv-text-primary mv-font-semibold hover:mv-underline"
                           >
                             {" "}
-                          </a>,
-                          <a
+                          </Link>,
+                          <Link
                             key="privacy-policy-confirmation"
-                            href="https://mint-vernetzt.de/privacy-policy-community-platform"
+                            to="https://mint-vernetzt.de/privacy-policy-community-platform"
                             target="_blank"
                             rel="noreferrer noopener"
                             className="mv-text-primary mv-font-semibold hover:mv-underline"
                           >
                             {" "}
-                          </a>,
+                          </Link>,
                         ]
                       )}
                     </div>

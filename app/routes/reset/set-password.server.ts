@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type User } from "@supabase/supabase-js";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { createSetPasswordSchema } from "./set-password";
@@ -9,7 +9,7 @@ import { z } from "zod";
 import { createAdminAuthClient } from "~/auth.server";
 
 export type SetPasswordLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["reset/set-password"];
 
 export async function setNewPassword(options: {

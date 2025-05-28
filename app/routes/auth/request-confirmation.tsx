@@ -5,6 +5,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  Link,
   redirect,
   useActionData,
   useLoaderData,
@@ -125,13 +126,13 @@ export default function RequestConfirmation() {
                 }),
                 [
                   <span key="email-highlight" className="mv-font-semibold" />,
-                  <a
+                  <Link
                     key="support-mail-link"
-                    href="mailto:{{supportMail}}"
+                    to={`mailto:${actionData.supportMail}`}
                     className="mv-text-primary mv-font-semibold hover:mv-underline"
                   >
                     {" "}
-                  </a>,
+                  </Link>,
                 ]
               )}
             </p>

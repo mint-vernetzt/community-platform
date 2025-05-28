@@ -181,10 +181,17 @@ export default function Index() {
               <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
                 <div className="mv-py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
                   <div className="mv-text-center">
+                    <a
+                      id="login-start"
+                      href="#login-end"
+                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
+                    >
+                      {locales.route.login.skip.start}
+                    </a>
                     <Button
-                      as="a"
+                      as="link"
                       size="large"
-                      href={`/auth/keycloak${
+                      to={`/auth/keycloak${
                         loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                       }`}
                       variant="outline"
@@ -193,14 +200,14 @@ export default function Index() {
                     >
                       {locales.route.login.withMintId}
                     </Button>
-                    <a
-                      href="https://mint-id.org/faq"
+                    <Link
+                      to="https://mint-id.org/faq"
                       target="_blank"
                       rel="noreferrer noopener"
                       className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
                     >
                       {locales.route.login.moreInformation}
-                    </a>
+                    </Link>
                     <div className="mv-mt-4 mv-mb-8">
                       <hr className="mv-mx-5" />
                       <span className="mv-block -mv-my-3 mv-mx-auto mv-w-fit mv-px-4 mv-text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 mv-font-bold">
@@ -359,6 +366,15 @@ export default function Index() {
                       </Link>
                     </div>
                   </>
+                  <div className="mv-w-full mv-flex mv-justify-center">
+                    <a
+                      id="login-end"
+                      href="#login-start"
+                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
+                    >
+                      {locales.route.login.skip.end}
+                    </a>
+                  </div>
                 </div>
 
                 <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
@@ -369,7 +385,7 @@ export default function Index() {
           </div>
 
           <div className="mv-absolute mv-left-1/2 mv-bottom-8 mv-hidden @md:mv-block mv-animate-bounce">
-            <a href="#intro">
+            <Link to="#intro" aria-label={locales.route.content.intro}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="55"
@@ -385,7 +401,7 @@ export default function Index() {
                   />
                 </g>
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -417,8 +433,8 @@ export default function Index() {
               </p>
               <div className="mv-flex mv-justify-center">
                 <Button
-                  as="a"
-                  href={`/register${
+                  as="link"
+                  to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
                 >
@@ -518,9 +534,9 @@ export default function Index() {
           </p>
         </div>
         <Button
-          as="a"
+          as="link"
           variant="outline"
-          href="https://mint-vernetzt.de/"
+          to="https://mint-vernetzt.de/"
           target="_blank"
           rel="noreferrer noopener"
         >
@@ -655,7 +671,7 @@ export default function Index() {
             </Accordion.Item>
           </Accordion>
         </div>
-        <Button as="a" href="/help" variant="outline">
+        <Button as="link" to="/help" variant="outline">
           {locales.route.content.faq.cta}
         </Button>
         <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">

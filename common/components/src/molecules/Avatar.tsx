@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
 import { Image } from "./Image";
 import { Children, isValidElement } from "react";
+import { Link } from "react-router";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -55,7 +56,7 @@ function Avatar(props: AvatarProps) {
     },
     "mv-bg-neutral-600 mv-border-neutral-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-text-white mv-font-normal mv-relative",
     props.to &&
-      "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
+      "hover:mv-border-0 active:mv-border-2 focus-within:mv-border-2 active:mv-border-blue-500 focus-within:mv-border-blue-500 hover:mv-shadow-md active:mv-shadow-md focus-within:mv-shadow-md"
   );
   const child = src ? (
     <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
@@ -66,12 +67,12 @@ function Avatar(props: AvatarProps) {
   return (
     <div className={classes}>
       {props.to ? (
-        <a
-          href={props.to}
+        <Link
+          to={props.to}
           className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
         >
           {child}
-        </a>
+        </Link>
       ) : (
         <>{child}</>
       )}
@@ -96,9 +97,9 @@ function MoreIndicator(props: MoreIndicatorProps) {
     props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
   return props.to ? (
-    <a href={props.to}>
+    <Link to={props.to}>
       <div className={classes}>{amount}</div>
-    </a>
+    </Link>
   ) : (
     <div className={classes}>{amount}</div>
   );

@@ -2,7 +2,7 @@ import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { DefaultImages } from "~/images.shared";
@@ -13,7 +13,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { z } from "zod";
 
 export type MyProjectsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["my/projects"];
 
 export async function getProjects(options: {

@@ -2,7 +2,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { List } from "@mint-vernetzt/components/src/organisms/List";
 import { Video } from "@mint-vernetzt/components/src/organisms/Video";
-import { type LoaderFunctionArgs } from "react-router";
+import { Link, type LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { RichText } from "~/components/Richtext/RichText";
@@ -714,29 +714,29 @@ function About() {
           {loaderData.project.email !== null && (
             <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
               <Envelope />
-              <a href={`mailto:${loaderData.project.email}`}>
+              <Link to={`mailto:${loaderData.project.email}`}>
                 {loaderData.project.email}
-              </a>
+              </Link>
             </div>
           )}
           {loaderData.project.phone !== null && (
             <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
               <Phone />
-              <a href={`tel:${loaderData.project.phone}`}>
+              <Link to={`tel:${loaderData.project.phone}`}>
                 {loaderData.project.phone}
-              </a>
+              </Link>
             </div>
           )}
           {loaderData.project.website !== null && (
             <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
               <Globe />
-              <a
-                href={loaderData.project.website}
+              <Link
+                to={loaderData.project.website}
                 target="__blank"
                 rel="noopener noreferrer"
               >
                 {loaderData.project.website}
-              </a>
+              </Link>
             </div>
           )}
           {(loaderData.project.contactName !== null ||
@@ -765,84 +765,84 @@ function About() {
             loaderData.project.tiktok !== null) && (
             <div className="mv-flex mv-flex-row mv-flex-wrap mv-gap-2">
               {loaderData.project.facebook !== null && (
-                <a
-                  href={loaderData.project.facebook}
+                <Link
+                  to={loaderData.project.facebook}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Facebook />
-                </a>
+                </Link>
               )}
               {loaderData.project.linkedin !== null && (
-                <a
-                  href={loaderData.project.linkedin}
+                <Link
+                  to={loaderData.project.linkedin}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <LinkedIn />
-                </a>
+                </Link>
               )}
               {loaderData.project.twitter !== null && (
-                <a
-                  href={loaderData.project.twitter}
+                <Link
+                  to={loaderData.project.twitter}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Twitter />
-                </a>
+                </Link>
               )}
               {loaderData.project.youtube !== null && (
-                <a
-                  href={loaderData.project.youtube}
+                <Link
+                  to={loaderData.project.youtube}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <YouTube />
-                </a>
+                </Link>
               )}
               {loaderData.project.instagram !== null && (
-                <a
-                  href={loaderData.project.instagram}
+                <Link
+                  to={loaderData.project.instagram}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Instagram />
-                </a>
+                </Link>
               )}
               {loaderData.project.xing !== null && (
-                <a
-                  href={loaderData.project.xing}
+                <Link
+                  to={loaderData.project.xing}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Xing />
-                </a>
+                </Link>
               )}
               {loaderData.project.mastodon !== null && (
-                <a
-                  href={loaderData.project.mastodon}
+                <Link
+                  to={loaderData.project.mastodon}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <Mastodon />
-                </a>
+                </Link>
               )}
               {loaderData.project.tiktok !== null && (
-                <a
-                  href={loaderData.project.tiktok}
+                <Link
+                  to={loaderData.project.tiktok}
                   target="__blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
                   <TikTok />
-                </a>
+                </Link>
               )}
             </div>
           )}

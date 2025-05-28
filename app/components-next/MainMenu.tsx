@@ -1,3 +1,7 @@
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
+import classNames from "classnames";
+import { Children, isValidElement, useState } from "react";
 import {
   Form,
   Link,
@@ -5,88 +9,115 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router";
-import { defaultLanguage, type supportedCookieLanguages } from "~/i18n.shared";
+import {
+  DEFAULT_LANGUAGE,
+  type SUPPORTED_COOKIE_LANGUAGES,
+} from "~/i18n.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type RootLocales } from "~/root.server";
+import { type getFeatureAbilities } from "~/routes/feature-access.server";
 import { type Mode } from "~/utils.server";
 import { HeaderLogo } from "./HeaderLogo";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Icon } from "./icons/Icon";
-import { LocaleSwitch } from "@mint-vernetzt/components/src/organisms/buttons/LocaleSwitch";
-import classNames from "classnames";
-import { type getFeatureAbilities } from "~/routes/feature-access.server";
-import { Children, isValidElement, useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function MainMenu(
   props: React.PropsWithChildren & {
     mode: Mode;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
     username?: string;
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
-    currentLanguage: ArrayElement<typeof supportedCookieLanguages>;
+    currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
     locales?: RootLocales;
   }
 ) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isOpen = searchParams.get(props.openNavBarMenuKey);
+  const isOpen = searchParams.get(props.openMainMenuKey);
 
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   return (
     <nav
-      id="navbarmenu"
+      id="mainMenu"
       className={`${
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
       } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
     >
+      <a
+        id="main-menu-start"
+        href="#main-menu-end"
+        className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
+      >
+        {props.locales !== undefined
+          ? props.locales.route.root.skipMainMenu.start
+          : DEFAULT_LANGUAGE === "de"
+          ? "Hauptmenü überspringen"
+          : "Skip main menu"}
+      </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
         className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
+        aria-label={
+          props.locales !== undefined
+            ? props.mode === "anon"
+              ? props.locales.route.root.toLandingPage
+              : props.mode === "authenticated"
+              ? props.locales.route.root.toDashboard
+              : DEFAULT_LANGUAGE === "de" && props.mode === "anon"
+              ? "Zur Startseite"
+              : DEFAULT_LANGUAGE === "de" && props.mode !== "anon"
+              ? "Zum Dashboard"
+              : props.mode === "anon"
+              ? "To the start page"
+              : "To the dashboard"
+            : ""
+        }
       >
         <HeaderLogo />
       </Link>
-
       <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
         {props.mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
-              <Link to={`/login?login_redirect=${location.pathname}`}>
-                <Button>
-                  {props.locales !== undefined
-                    ? props.locales.route.root.login
-                    : defaultLanguage === "de"
-                    ? "Anmelden"
-                    : "Login"}
-                </Button>
-              </Link>
+              <Button
+                as="link"
+                to={`/login?login_redirect=${location.pathname}`}
+              >
+                {props.locales !== undefined
+                  ? props.locales.route.root.login
+                  : DEFAULT_LANGUAGE === "de"
+                  ? "Anmelden"
+                  : "Login"}
+              </Button>
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
               {props.locales !== undefined
                 ? props.locales.route.root.or
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "oder"
                 : "or"}
             </div>
             <div>
-              <Link to={`/register?login_redirect=${location.pathname}`}>
-                <Button variant="outline">
-                  {props.locales !== undefined
-                    ? props.locales.route.root.register
-                    : defaultLanguage === "de"
-                    ? "Registrieren"
-                    : "Register"}
-                </Button>
-              </Link>
+              <Button
+                as="link"
+                to={`/register?login_redirect=${location.pathname}`}
+                variant="outline"
+              >
+                {props.locales !== undefined
+                  ? props.locales.route.root.register
+                  : DEFAULT_LANGUAGE === "de"
+                  ? "Registrieren"
+                  : "Register"}
+              </Button>
             </div>
           </div>
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <Closer openNavBarMenuKey={props.openNavBarMenuKey} />
+        <Closer openMainMenuKey={props.openMainMenuKey} />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
@@ -95,7 +126,7 @@ export function MainMenu(
               <>
                 <Item
                   to="/dashboard"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   {location.pathname === "/dashboard" ? (
@@ -106,7 +137,7 @@ export function MainMenu(
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.overview
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Überblick"
                       : "Overview"}
                   </div>
@@ -132,7 +163,7 @@ export function MainMenu(
                     <div className="mv-font-semibold">
                       {props.locales !== undefined
                         ? props.locales.route.root.menu.personalSpace.label
-                        : defaultLanguage === "de"
+                        : DEFAULT_LANGUAGE === "de"
                         ? "Mein MINT-Bereich"
                         : "My space"}
                     </div>
@@ -140,45 +171,45 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/profile/${props.username}`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProfile
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Mein Profil"
                       : "My profile"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/organizations`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace
                           .myOrganizations
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Organisationen"
                       : "My organizations"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/events`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myEvents
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Veranstaltungen"
                       : "My events"}
                   </TopicItem>
 
                   <TopicItem
                     to={`/my/projects`}
-                    openNavBarMenuKey={props.openNavBarMenuKey}
+                    openMainMenuKey={props.openMainMenuKey}
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.personalSpace.myProjects
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Meine Projekte"
                       : "My projects"}
                   </TopicItem>
@@ -196,7 +227,7 @@ export function MainMenu(
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
                     ? props.locales.route.root.menu.explore.label
-                    : defaultLanguage === "de"
+                    : DEFAULT_LANGUAGE === "de"
                     ? "Entdecken"
                     : "Explore"}
                 </div>
@@ -204,66 +235,66 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/all"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.index
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Alle Inhalte"
                   : "All content"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/profiles"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.profiles
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Personen"
                   : "Persons"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/organizations"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.organizations
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Organisationen"
                   : "Organizations"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/projects"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.projects
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Projekte"
                   : "Projects"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/events"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.events
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Veranstaltungen"
                   : "Events"}
               </TopicItem>
 
               <TopicItem
                 to="/explore/fundings"
-                openNavBarMenuKey={props.openNavBarMenuKey}
+                openMainMenuKey={props.openMainMenuKey}
               >
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.explore.fundings
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Förderungen"
                   : "Fundings"}
                 <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
@@ -274,7 +305,7 @@ export function MainMenu(
 
             <Item
               to="/resources"
-              openNavBarMenuKey={props.openNavBarMenuKey}
+              openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/resources" ? (
@@ -285,7 +316,7 @@ export function MainMenu(
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.resources.label
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Ressourcen"
                   : "Resources"}
               </div>
@@ -298,12 +329,13 @@ export function MainMenu(
               <LocaleSwitch
                 variant="dark"
                 currentLanguage={props.currentLanguage}
+                locales={props.locales}
               />
             </div>
 
             <Item
               to="/help"
-              openNavBarMenuKey={props.openNavBarMenuKey}
+              openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/help" ? (
@@ -314,7 +346,7 @@ export function MainMenu(
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.help
-                  : defaultLanguage === "de"
+                  : DEFAULT_LANGUAGE === "de"
                   ? "Hilfe"
                   : "Help"}
               </div>
@@ -324,7 +356,7 @@ export function MainMenu(
               <>
                 <Item
                   to={`/profile/${props.username}/settings`}
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   {location.pathname.startsWith(
@@ -337,7 +369,7 @@ export function MainMenu(
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.settings
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Einstellungen"
                       : "Settings"}
                   </div>
@@ -346,14 +378,14 @@ export function MainMenu(
                 <Item
                   to="/logout"
                   method="post"
-                  openNavBarMenuKey={props.openNavBarMenuKey}
+                  openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <Icon type="door-closed-outline" />
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.logout
-                      : defaultLanguage === "de"
+                      : DEFAULT_LANGUAGE === "de"
                       ? "Ausloggen"
                       : "Logout"}
                   </div>
@@ -372,7 +404,7 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.imprint
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Impressum"
                 : "Imprint"}
             </NavLink>
@@ -384,7 +416,7 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.privacy
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Datenschutz"
                 : "Privacy policy"}
             </Link>
@@ -396,13 +428,24 @@ export function MainMenu(
             >
               {props.locales !== undefined
                 ? props.locales.route.root.menu.terms
-                : defaultLanguage === "de"
+                : DEFAULT_LANGUAGE === "de"
                 ? "Nutzungsbedingungen"
                 : "Terms of use"}
             </Link>
           </FooterMenu>
         </div>
       </div>
+      <a
+        id="main-menu-end"
+        href="#main-menu-start"
+        className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
+      >
+        {props.locales !== undefined
+          ? props.locales.route.root.skipMainMenu.end
+          : DEFAULT_LANGUAGE === "de"
+          ? "Zurück zum Anfang des Hauptmenüs"
+          : "Back to the start of the main menu"}
+      </a>
     </nav>
   );
 }
@@ -442,7 +485,7 @@ function FooterMenu(props: React.PropsWithChildren) {
 function Item(
   props: React.PropsWithChildren & {
     to: string;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
     setActiveTopicId: (id: string | null) => void;
     method?: "get" | "post";
   }
@@ -497,13 +540,13 @@ function Topic(
     (child) => isValidElement(child) && child.type === Label
   );
   if (label === undefined) {
-    throw new Error("Label for NavBarMenu.Topic is missing");
+    throw new Error("Label for MainMenu.Topic is missing");
   }
   const topicItems = children.filter(
     (child) => isValidElement(child) && child.type === TopicItem
   );
   if (topicItems.length === 0) {
-    throw new Error("Provide at least one TopicItem for NavBarMenu.Topic");
+    throw new Error("Provide at least one TopicItem for MainMenu.Topic");
   }
 
   return (
@@ -553,7 +596,7 @@ function Label(props: React.PropsWithChildren) {
 function TopicItem(
   props: React.PropsWithChildren & {
     to: string;
-    openNavBarMenuKey: string;
+    openMainMenuKey: string;
   }
 ) {
   const external = props.to.startsWith("http");
@@ -590,9 +633,9 @@ function TopicItem(
   );
 }
 
-function Closer(props: { openNavBarMenuKey: string }) {
+function Closer(props: { openMainMenuKey: string }) {
   const [searchParams] = useSearchParams();
-  searchParams.delete(props.openNavBarMenuKey);
+  searchParams.delete(props.openMainMenuKey);
   const searchParamsString = searchParams.toString();
 
   const location = useLocation();

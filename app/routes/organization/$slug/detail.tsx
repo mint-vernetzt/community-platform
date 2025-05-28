@@ -305,11 +305,9 @@ function OrganizationDetail() {
       innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 xl:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-14 @sm:mv-mb-20 @lg:mv-mb-16 mv-max-w-screen-2xl"
     >
       {/* Back Button Section */}
-
-      {/* TODO: I want prefetch intent here but the TextButton cannot be used with a remix Link wrapped inside. */}
       <TextButton
-        as="a"
-        href="/explore/organizations"
+        as="link"
+        to="/explore/organizations"
         weight="thin"
         variant="neutral"
         arrowLeft
@@ -430,8 +428,8 @@ function OrganizationDetail() {
           {mode === "admin" ? (
             <div className="mv-w-full @lg:mv-w-fit mv-grid @lg:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
               <Button
-                as="a"
-                href={`/organization/${organization.slug}/settings`}
+                as="link"
+                to={`/organization/${organization.slug}/settings`}
                 fullSize
               >
                 <svg

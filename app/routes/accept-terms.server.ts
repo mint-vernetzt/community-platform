@@ -1,5 +1,5 @@
 import { parseWithZod } from "@conform-to/zod-v1";
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { acceptTermsSchema } from "./accept-terms";
@@ -9,7 +9,7 @@ import { type User } from "@supabase/supabase-js";
 import { invariantResponse } from "~/lib/utils/response";
 
 export type AcceptTermsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["accept-terms"];
 
 export async function acceptTerms(options: {

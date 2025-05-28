@@ -1,4 +1,4 @@
-import { type supportedCookieLanguages } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
@@ -9,7 +9,7 @@ import { type User } from "@supabase/supabase-js";
 import { type GetSearchSchema } from "./all.shared";
 
 export type ExploreFundingsLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof supportedCookieLanguages
+  typeof SUPPORTED_COOKIE_LANGUAGES
 >]["explore/fundings"];
 
 export function getKeys(key: FilterKey) {
@@ -239,7 +239,7 @@ export async function getFundingIds(options: {
   filter: GetFundingsSchema["fndFilter"];
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const filterWhereClause = getFundingsFilterWhereClause(options.filter);
   const searchWhereClauses = getFundingsSearchWhereClause(options.search);
@@ -348,7 +348,7 @@ export async function getAllFundings(options: {
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   sessionUser: User | null;
-  language: ArrayElement<typeof supportedCookieLanguages>;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
   const whereClauses = getFundingsFilterWhereClause(options.filter);
   const searchWhereClauses = getFundingsSearchWhereClause(options.search);

@@ -1,5 +1,6 @@
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import classNames from "classnames";
+import { Link } from "react-router";
 
 function getFullName(
   data: { academicTitle?: string | null; firstName: string; lastName: string },
@@ -70,7 +71,7 @@ export function Avatar(props: AvatarProps) {
     "mv-bg-neutral-600 mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
     "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
     props.to &&
-      "hover:mv-border-0 active:mv-border-0 focus:mv-border-0 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
+      "hover:mv-border-0 active:mv-border-2 focus-within:mv-border-2 active:mv-border-blue-500 focus-within:mv-border-blue-500 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
 
   const child = src ? (
@@ -91,7 +92,7 @@ export function Avatar(props: AvatarProps) {
 
   return (
     <div className={classes}>
-      {props.to ? <a href={props.to}>{child}</a> : <>{child}</>}
+      {props.to ? <Link to={props.to}>{child}</Link> : <>{child}</>}
     </div>
   );
 }

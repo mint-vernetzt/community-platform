@@ -31,7 +31,7 @@ export default function Help() {
           <p>
             <span>{locales.subline2}</span>{" "}
             <StyledLink
-              as="a"
+              as="link"
               to={`mailto:${loaderData.supportMail}`}
               variant="primary"
             >
@@ -118,8 +118,8 @@ export default function Help() {
         </div>
         <div className="mv-w-fit">
           <Button
-            as="a"
-            href={`mailto:${loaderData.supportMail}`}
+            as="link"
+            to={`mailto:${loaderData.supportMail}`}
             variant="outline"
           >
             {locales.support.cta}
