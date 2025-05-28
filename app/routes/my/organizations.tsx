@@ -740,7 +740,18 @@ export default function MyOrganizations() {
                 </div>
               </li>
             </ol>
-            {/* TODO: Add FAQ section when design is ready */}
+            <div className="mv-w-full mv-border mv-border-neutral-200 mv-hidden group-has-[:checked]:mv-block" />
+            <div className="mv-hidden group-has-[:checked]:mv-block mv-mb-2">
+              <p className="mv-pb-2">{locales.route.networkInfo.faq.info}</p>
+              <Link
+                to={"/help#organizations"}
+                target="_blank"
+                rel="noreferrer"
+                className="mv-text-neutral-700 mv-font-semibold mv-underline hover:mv-no-underline"
+              >
+                {locales.route.networkInfo.faq.link}
+              </Link>
+            </div>
             <div className="mv-w-full mv-border mv-border-neutral-200" />
             <div
               key="show-more-network-info-container"
