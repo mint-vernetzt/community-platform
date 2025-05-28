@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
 type CircleButtonVariant = "normal" | "outline" | "ghost";
-type CircleButtonType = "button" | "link";
+type CircleButtonType = "button" | "link" | "a";
 type CircleButtonSize = "small" | "medium" | "large";
 
 type CircleButtonProps = {
@@ -18,6 +18,7 @@ function CircleButton(
   props: CircleButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
+      | React.AnchorHTMLAttributes<HTMLAnchorElement>
       | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
     )
 ) {
@@ -82,7 +83,11 @@ function CircleButton(
         {otherProps.children}
       </Link>
     );
-  } else if (as === "button" && "to" in otherProps === false) {
+  } else if (
+    as === "button" &&
+    "to" in otherProps === false &&
+    "disabled" in otherProps
+  ) {
     return (
       <button
         {...otherProps}
@@ -92,6 +97,21 @@ function CircleButton(
       >
         {otherProps.children}
       </button>
+    );
+  } else if (
+    as === "a" &&
+    "to" in otherProps === false &&
+    "href" in otherProps
+  ) {
+    return (
+      <a
+        {...otherProps}
+        className={`${
+          otherProps.className !== undefined ? `${otherProps.className} ` : ""
+        }${classes}`}
+      >
+        {otherProps.children}
+      </a>
     );
   } else {
     return createElement(

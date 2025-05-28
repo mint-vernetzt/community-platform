@@ -447,8 +447,8 @@ export default function App() {
       <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
         <div className="mv-absolute mv-bottom-4 -mv-left-20">
           <CircleButton
-            as="link"
-            to={`${location.pathname}${location.search}#`}
+            as="a"
+            href={`${location.pathname}${location.search}#top`}
             size="large"
             floating
           >
@@ -510,8 +510,8 @@ export default function App() {
       </head>
 
       <body className={bodyClasses}>
-        <div className={bodyClasses}>
-          <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
+        <div id="top" className={bodyClasses}>
+          <div className="mv-flex mv-flex-col mv-min-h-screen">
             <div
               className={`${
                 showFilters ? "mv-hidden container-lg:mv-block " : " "
