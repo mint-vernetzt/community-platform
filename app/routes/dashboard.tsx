@@ -1110,15 +1110,11 @@ function Dashboard() {
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
                 htmlFor="hide-notifications"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
               >
-                {loaderData.locales.route.content.notifications.show}
-              </label>
-              <label
-                htmlFor="hide-notifications"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-              >
-                {loaderData.locales.route.content.notifications.hide}
+                {hideNotifications === false
+                  ? loaderData.locales.route.content.notifications.hide
+                  : loaderData.locales.route.content.notifications.show}
               </label>
               <input
                 id="hide-notifications"
@@ -1217,22 +1213,18 @@ function Dashboard() {
       ) : null}
       {/* Updates Section */}
       <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-        <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
+        <div className="mv-group/hide-show mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
           <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
             {loaderData.locales.route.content.updateTeasers.headline}
           </h2>
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
               htmlFor="hide-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
             >
-              {loaderData.locales.route.content.updateTeasers.show}
-            </label>
-            <label
-              htmlFor="hide-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-            >
-              {loaderData.locales.route.content.updateTeasers.hide}
+              {hideUpdates === false
+                ? loaderData.locales.route.content.updateTeasers.hide
+                : loaderData.locales.route.content.updateTeasers.show}
             </label>
             <input
               id="hide-updates"
@@ -1301,15 +1293,11 @@ function Dashboard() {
             <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
               <label
                 htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline"
+                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
               >
-                {loaderData.locales.route.content.newsTeaser.show}
-              </label>
-              <label
-                htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden"
-              >
-                {loaderData.locales.route.content.newsTeaser.hide}
+                {hideNews === false
+                  ? loaderData.locales.route.content.newsTeaser.hide
+                  : loaderData.locales.route.content.newsTeaser.show}
               </label>
               <input
                 id="hide-news"
@@ -1546,7 +1534,10 @@ function Dashboard() {
         preventScrollReset
         hidden
       >
-        <input hidden name="modal-avatar" defaultValue="true" />
+        <label htmlFor="show-modal" className="mv-hidden">
+          Show Modal
+        </label>
+        <input id="show-modal" hidden name="modal-avatar" defaultValue="true" />
       </Form>
       <Modal searchParam="modal-avatar">
         <Modal.Title>
