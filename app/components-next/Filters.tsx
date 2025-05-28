@@ -225,7 +225,14 @@ export function Filters(props: FiltersProps) {
 
   return (
     <>
+      <label
+        htmlFor="show-filters"
+        className="mv-absolute mv-h-0 mv-w-0 mv-opacity-0"
+      >
+        {showFilters ? "Hide filters" : "Show filters"}
+      </label>
       <input
+        id="show-filters"
         form="none"
         type="checkbox"
         name={showFiltersName}
