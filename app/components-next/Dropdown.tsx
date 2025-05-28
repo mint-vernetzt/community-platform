@@ -50,7 +50,7 @@ function DropdownLabel(
   return (
     <label
       ref={ref}
-      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-1 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-border-2 group-has-[:focus-within]/dropdown:mv-border-blue-400 mv-transition mv-bg-white"
+      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-1 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-ring-2 group-has-[:focus-within]/dropdown:mv-ring-blue-400 mv-transition mv-bg-white"
     >
       <span>{props.children}</span>
       <input
@@ -127,7 +127,7 @@ const DropdownList = forwardRef<
               child.type !== DropdownListCategory &&
               child.type !== "div" &&
               child.type !== "p" &&
-              "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100"
+              "hover:mv-bg-gray-100 focus-within:mv-bg-gray-100 focus-within:mv-ring-2 focus-within:mv-ring-blue-400"
           );
 
           return <li className={classes}>{child}</li>;

@@ -77,7 +77,7 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
   return (
     <Link
       to={props.to}
-      className="hover:mv-underline mv-w-fit"
+      className="hover:mv-underline mv-w-fit mv-rounded-lg"
       target="_blank"
       rel="noreferrer nofollow noopenner"
     >

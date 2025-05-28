@@ -89,7 +89,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
   );
 
   const linkClasses = classNames(
-    "mv-w-full @lg:mv-max-w-content mv-cursor-pointer mv-p-2 @lg:mv-p-0 mv-outline-none focus:mv-border-blue-400 focus:mv-border-2 mv-rounded-lg"
+    "mv-w-full @lg:mv-max-w-content mv-cursor-pointer mv-p-2 @lg:mv-p-0 mv-outline-none focus:mv-ring-blue-400 focus:mv-ring-2 mv-rounded-lg"
   );
 
   return (
@@ -138,7 +138,7 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
     "mv-w-full mv-py-1 mv-pr-4 mv-cursor-pointer",
     "mv-inline-flex @lg:mv-hidden mv-items-center mv-justify-between mv-cursor-pointer",
     "mv-bg-neutral-50 mv-rounded-lg mv-border mv-border-neutral-200",
-    "group-has-[:focus-within]/dropdown-label:mv-bg-neutral-100 group-has-[:focus-within]/dropdown-label:mv-border-2 group-has-[:focus-within]/dropdown-label:mv-border-blue-400"
+    "group-has-[:focus-within]/dropdown-label:mv-bg-neutral-100 group-has-[:focus-within]/dropdown-label:mv-ring-2 group-has-[:focus-within]/dropdown-label:mv-ring-blue-400"
   );
 
   return (

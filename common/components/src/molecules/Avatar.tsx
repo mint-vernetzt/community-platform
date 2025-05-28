@@ -97,7 +97,7 @@ function MoreIndicator(props: MoreIndicatorProps) {
     props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
   return props.to ? (
-    <Link to={props.to}>
+    <Link to={props.to} className="mv-rounded-full">
       <div className={classes}>{amount}</div>
     </Link>
   ) : (
