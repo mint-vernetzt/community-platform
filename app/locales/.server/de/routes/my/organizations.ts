@@ -24,6 +24,10 @@ export const locale = {
       "Bist Du Koordinator:in oder Teammitglied eines MINT-Clusters, einer MINT-Region oder eines anderen Netzwerks?",
     sublineTwo:
       "Lies Dir folgende Schritte durch um Deine Organisation als <0>Netzwerk-Organisation</0> anzulegen.",
+    faq: {
+      info: "Weitere Infos zu diesem Thema findest Du auch in unserem FAQ in unserer Hilfe:",
+      link: "Fragen zu Organisation / Netzwerk?",
+    },
     steps: {
       headline: "Lege in 3 Schritten Dein Netzwerk richtig an:",
       checkExisting: {

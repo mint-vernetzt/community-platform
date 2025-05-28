@@ -56,7 +56,6 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
-import { z } from "zod";
 import { searchOrganizations } from "../utils.server";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { searchOrganizationsSchema } from "~/form-helpers";
@@ -142,34 +141,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     currentTimestamp,
   };
 };
-
-export const createOrCancelOrganizationMemberRequestSchema = z.object({
-  organizationId: z.string(),
-});
-
-export const updateOrganizationMemberInviteSchema = z.object({
-  organizationId: z.string(),
-  role: z.enum(["admin", "member"]),
-});
-
-export const updateNetworkInviteSchema = z.object({
-  organizationId: z.string(),
-  networkId: z.string(),
-});
-
-export const acceptOrRejectOrganizationMemberRequestSchema = z.object({
-  organizationId: z.string(),
-  profileId: z.string(),
-});
-
-export const updateNetworkRequestSchema = z.object({
-  organizationId: z.string(),
-  networkId: z.string(),
-});
-
-export const quitOrganizationSchema = z.object({
-  organizationId: z.string(),
-});
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
@@ -740,7 +711,18 @@ export default function MyOrganizations() {
                 </div>
               </li>
             </ol>
-            {/* TODO: Add FAQ section when design is ready */}
+            <div className="mv-w-full mv-border mv-border-neutral-200 mv-hidden group-has-[:checked]:mv-block" />
+            <div className="mv-hidden group-has-[:checked]:mv-block mv-mb-2">
+              <p className="mv-pb-2">{locales.route.networkInfo.faq.info}</p>
+              <Link
+                to={"/help#organizations"}
+                target="_blank"
+                rel="noreferrer"
+                className="mv-text-neutral-700 mv-font-semibold mv-underline hover:mv-no-underline"
+              >
+                {locales.route.networkInfo.faq.link}
+              </Link>
+            </div>
             <div className="mv-w-full mv-border mv-border-neutral-200" />
             <div
               key="show-more-network-info-container"
