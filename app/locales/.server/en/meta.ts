@@ -35,6 +35,8 @@ export const locale = {
       placeholder: "Search (min. 3 characters)",
     },
     menu: {
+      open: "Open main menu",
+      close: "Close main menu",
       overview: "Overview",
       personalSpace: {
         label: "My space",
