@@ -1,6 +1,7 @@
 export const locale = {
   description:
     "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
+  bmbf: "Zum Bildungsministerium für Bildung und Forschung",
   discover: {
     title: "Entdecken",
     profiles: "Personen",
@@ -23,5 +24,10 @@ export const locale = {
     termsOfUse: "Nutzungsbedingungen",
     contact: "Kontakt",
     needHelp: "Benötigst Du Hilfe? Melde dich bei",
+  },
+  soMe: {
+    github: "Zum MINTvernetzt GitHub Repository",
+    instagram: "Zum MINTvernetzt Instagram Profil",
+    linkedin: "Zum MINTvernetzt LinkedIn Profil",
   },
 } as const;

@@ -1,5 +1,6 @@
 export const locale = {
   description: "The networking platform for STEM actors in Germany.",
+  bmbf: "To the German Federal Ministry of Education and Research",
   discover: {
     title: "Discover",
     profiles: "Persons",
@@ -22,5 +23,11 @@ export const locale = {
     termsOfUse: "Terms of use",
     contact: "Contact",
     needHelp: "Need help? Contact us at",
+  },
+
+  soMe: {
+    github: "To the MINTvernetzt GitHub repository",
+    instagram: "To the MINTvernetzt Instagram profile",
+    linkedin: "To the MINTvernetzt LinkedIn profile",
   },
 } as const;
