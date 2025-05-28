@@ -35,6 +35,8 @@ export const locale = {
       placeholder: "Suche (mind. 3 Buchstaben)",
     },
     menu: {
+      open: "Hauptmenü öffnen",
+      close: "Hauptmenü schließen",
       overview: "Überblick",
       personalSpace: {
         label: "Mein MINT-Bereich",

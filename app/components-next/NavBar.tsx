@@ -116,7 +116,7 @@ export function NavBar(props: NavBarProps) {
           </Form>
 
           <div className="mv-flex-shrink mv-block xl:mv-hidden">
-            <Opener openMainMenuKey="mainMenu" />
+            <Opener openMainMenuKey="mainMenu" locales={props.locales} />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
@@ -187,14 +187,23 @@ export function NavBar(props: NavBarProps) {
   );
 }
 
-function Opener(props: { openMainMenuKey: string }) {
+function Opener(props: { openMainMenuKey: string; locales?: RootLocales }) {
   const [searchParams] = useSearchParams();
   if (!searchParams.has(props.openMainMenuKey)) {
     searchParams.append(props.openMainMenuKey, "true");
   }
 
   return (
-    <Link to={`?${searchParams.toString()}#top`}>
+    <Link
+      to={`?${searchParams.toString()}#top`}
+      aria-label={
+        props.locales !== undefined
+          ? props.locales.route.root.menu.open
+          : DEFAULT_LANGUAGE === "de"
+          ? "Hauptmenü öffnen"
+          : "Open main menu"
+      }
+    >
       <Icon type="menu" />
     </Link>
   );

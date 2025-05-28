@@ -117,7 +117,10 @@ export function MainMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <Closer openMainMenuKey={props.openMainMenuKey} />
+        <Closer
+          openMainMenuKey={props.openMainMenuKey}
+          locales={props.locales}
+        />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
@@ -633,7 +636,7 @@ function TopicItem(
   );
 }
 
-function Closer(props: { openMainMenuKey: string }) {
+function Closer(props: { openMainMenuKey: string; locales?: RootLocales }) {
   const [searchParams] = useSearchParams();
   searchParams.delete(props.openMainMenuKey);
   const searchParamsString = searchParams.toString();
@@ -648,6 +651,13 @@ function Closer(props: { openMainMenuKey: string }) {
           : location.pathname
       }`}
       preventScrollReset
+      aria-label={
+        props.locales !== undefined
+          ? props.locales.route.root.menu.close
+          : DEFAULT_LANGUAGE === "de"
+          ? "Hauptmenü schließen"
+          : "Close main menu"
+      }
     >
       <Icon type="close-x" />
     </Link>
