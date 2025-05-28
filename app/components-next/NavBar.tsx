@@ -127,7 +127,7 @@ export function NavBar(props: NavBarProps) {
               <div>
                 <Button
                   to={`/login?login_redirect=${location.pathname}`}
-                  as="a"
+                  as="link"
                   variant="ghost"
                 >
                   <span className="mv-underline">
@@ -142,7 +142,7 @@ export function NavBar(props: NavBarProps) {
               <div>
                 <Button
                   to={`/register?login_redirect=${location.pathname}`}
-                  as="a"
+                  as="link"
                 >
                   {props.locales !== undefined
                     ? props.locales.route.root.register

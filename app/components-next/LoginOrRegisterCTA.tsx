@@ -73,7 +73,7 @@ export function LoginOrRegisterCTA(props: {
       <div className="mv-flex mv-w-full mv-gap-4 mv-items-baseline">
         <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
           <Button
-            as="a"
+            as="link"
             to={`/login?login_redirect=${location.pathname}`}
             variant="outline"
             fullSize
@@ -86,7 +86,7 @@ export function LoginOrRegisterCTA(props: {
         </p>
         <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
           <Button
-            as="a"
+            as="link"
             to={`/register?login_redirect=${location.pathname}`}
             fullSize
           >

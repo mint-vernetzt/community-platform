@@ -1613,7 +1613,7 @@ function Details() {
                     {locales.route.content.reset}
                   </Button>
                   <noscript className="mv-absolute mv-top-0">
-                    <Button as="a" to="." variant="outline" fullSize>
+                    <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.content.reset}
                     </Button>
                   </noscript>

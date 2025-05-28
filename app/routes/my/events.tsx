@@ -141,7 +141,7 @@ function MyEvents() {
       <Container.Header>
         <Container.Title>{locales.route.title}</Container.Title>
         {loaderData.abilities["events"].hasAccess ? (
-          <Button as="a" to="/event/create">
+          <Button as="link" to="/event/create">
             <Add />
             {locales.route.create}
           </Button>
@@ -155,7 +155,7 @@ function MyEvents() {
           <Placeholder.Text>
             {locales.route.placeholder.description}
           </Placeholder.Text>
-          <Button as="a" to="/explore/events" variant="outline">
+          <Button as="link" to="/explore/events" variant="outline">
             {locales.route.placeholder.cta}
           </Button>
         </Placeholder>

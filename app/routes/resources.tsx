@@ -221,7 +221,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
@@ -288,7 +288,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
@@ -360,7 +360,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
@@ -421,7 +421,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ContentSection>
                 <ResourceList.ListItem.ActionSection>
                   <Button
-                    as="a"
+                    as="link"
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={

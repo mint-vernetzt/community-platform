@@ -150,7 +150,7 @@ function FiltersResetButton(props: { form: string } & React.PropsWithChildren) {
   ) : (
     <div className="mv-grow">
       <Button
-        as="a"
+        as="link"
         to={`./${location.search
           .replace("showFilters=on", "")
           .replace("&&", "&")
@@ -175,7 +175,7 @@ function FiltersApplyButton(props: React.PropsWithChildren) {
   return (
     <div className="mv-grow mv-relative">
       <Button
-        as="a"
+        as="link"
         to={`./${location.search
           .replace("showFilters=on", "")
           .replace("&&", "&")

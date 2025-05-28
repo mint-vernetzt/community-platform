@@ -189,7 +189,7 @@ export default function Index() {
                       {locales.route.login.skip.start}
                     </a>
                     <Button
-                      as="a"
+                      as="link"
                       size="large"
                       to={`/auth/keycloak${
                         loginRedirect ? `?login_redirect=${loginRedirect}` : ""
@@ -433,7 +433,7 @@ export default function Index() {
               </p>
               <div className="mv-flex mv-justify-center">
                 <Button
-                  as="a"
+                  as="link"
                   to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
@@ -534,7 +534,7 @@ export default function Index() {
           </p>
         </div>
         <Button
-          as="a"
+          as="link"
           variant="outline"
           to="https://mint-vernetzt.de/"
           target="_blank"
@@ -671,7 +671,7 @@ export default function Index() {
             </Accordion.Item>
           </Accordion>
         </div>
-        <Button as="a" to="/help" variant="outline">
+        <Button as="link" to="/help" variant="outline">
           {locales.route.content.faq.cta}
         </Button>
         <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">

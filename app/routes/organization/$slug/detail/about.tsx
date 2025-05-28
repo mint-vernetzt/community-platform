@@ -286,7 +286,7 @@ function About() {
                 </div>
                 {mode === "admin" ? (
                   <Button
-                    as="a"
+                    as="link"
                     to={`/organization/${organization.slug}/settings`}
                   >
                     {locales.route.blankState.owner.cta}

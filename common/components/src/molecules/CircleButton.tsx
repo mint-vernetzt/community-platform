@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
 type CircleButtonVariant = "normal" | "outline" | "ghost";
-type CircleButtonType = "button" | "a";
+type CircleButtonType = "button" | "link";
 type CircleButtonSize = "small" | "medium" | "large";
 
 type CircleButtonProps = {
@@ -71,7 +71,7 @@ function CircleButton(
     floating && "mv-shadow-lg"
   );
 
-  if (as === "a" && "to" in otherProps) {
+  if (as === "link" && "to" in otherProps) {
     return (
       <Link
         {...otherProps}

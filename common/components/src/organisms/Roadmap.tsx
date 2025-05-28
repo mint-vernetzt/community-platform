@@ -193,7 +193,7 @@ function Roadmap(props: { locales: LandingPageLocales }) {
         </div>
         <div className="mv-flex mv-flex-col mv-items-center mv-mt-12 mv-gap-4">
           <Button
-            as="a"
+            as="link"
             variant="outline"
             to="mailto:community@mint-vernetzt.de"
           >

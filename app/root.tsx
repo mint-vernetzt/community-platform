@@ -296,7 +296,7 @@ export const ErrorBoundary = () => {
                   <p>
                     Please capture a screenshot and send it over to{" "}
                     <StyledLink
-                      as="a"
+                      as="link"
                       to="mailto:support@mint-vernetzt.de"
                       variant="primary"
                     >
@@ -447,7 +447,7 @@ export default function App() {
       <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
         <div className="mv-absolute mv-bottom-4 -mv-left-20">
           <CircleButton
-            as="a"
+            as="link"
             to={`${location.pathname}${location.search}#`}
             size="large"
             floating

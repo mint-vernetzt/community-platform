@@ -623,7 +623,7 @@ export default function MyOrganizations() {
             <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
               {locales.route.headline}
             </h1>
-            <Button as="a" to={"/organization/create"}>
+            <Button as="link" to={"/organization/create"}>
               <svg
                 width="20"
                 height="20"

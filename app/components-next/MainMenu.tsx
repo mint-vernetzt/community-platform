@@ -64,7 +64,10 @@ export function MainMenu(
         {props.mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
-              <Button as="a" to={`/login?login_redirect=${location.pathname}`}>
+              <Button
+                as="link"
+                to={`/login?login_redirect=${location.pathname}`}
+              >
                 {props.locales !== undefined
                   ? props.locales.route.root.login
                   : defaultLanguage === "de"
@@ -81,7 +84,7 @@ export function MainMenu(
             </div>
             <div>
               <Button
-                as="a"
+                as="link"
                 to={`/register?login_redirect=${location.pathname}`}
                 variant="outline"
               >

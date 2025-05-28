@@ -11,6 +11,7 @@ export function Footer(props: { locales?: RootLocales }) {
       <div className="mv-flex mv-gap-0 @sm:mv-gap-18 mv-items-center">
         <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
           <MVLink
+            as="link"
             to="/"
             variant="primary"
             className="mv-flex mv-flex-row mv-items-center hover:mv-no-underline"
@@ -53,7 +54,7 @@ export function Footer(props: { locales?: RootLocales }) {
         </div>
         {/* BMBF Logo */}
         <div className="mv-flex-grow mv-flex mv-justify-end mv-items-center">
-          <MVLink to="https://www.bmbf.de/" isExternal>
+          <MVLink as="link" to="https://www.bmbf.de/" isExternal>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 153 109"
@@ -98,7 +99,11 @@ export function Footer(props: { locales?: RootLocales }) {
         {/* SoMe icons */}
         <ul className="mv-flex mv-items-center mv-gap-6">
           <li>
-            <MVLink as="a" to="https://www.github.com/mint-vernetzt" isExternal>
+            <MVLink
+              as="link"
+              to="https://www.github.com/mint-vernetzt"
+              isExternal
+            >
               <svg
                 width="16"
                 height="16"
@@ -115,7 +120,7 @@ export function Footer(props: { locales?: RootLocales }) {
           </li>
           <li>
             <MVLink
-              as="a"
+              as="link"
               to="https://www.instagram.com/mintvernetzt"
               isExternal
             >
@@ -135,7 +140,7 @@ export function Footer(props: { locales?: RootLocales }) {
           </li>
           <li>
             <MVLink
-              as="a"
+              as="link"
               to="https://bs.linkedin.com/company/mintvernetzt"
               isExternal
             >

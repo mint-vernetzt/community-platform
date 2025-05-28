@@ -5,7 +5,7 @@ import { Link, type LinkProps } from "react-router";
 export type TextButtonVariants = "primary" | "neutral" | "dark";
 type TextButtonSize = "small" | "medium" | "large";
 type TextButtonWeight = "normal" | "thin";
-type TextButtonType = "button" | "a";
+type TextButtonType = "button" | "link";
 
 type TextButtonProps = {
   size?: TextButtonSize;
@@ -134,7 +134,7 @@ function TextButton(
 
   const as = props.as || "button";
 
-  if (as === "a" && "to" in otherProps) {
+  if (as === "link" && "to" in otherProps) {
     return (
       <Link
         {...otherProps}

@@ -6,7 +6,7 @@ import { Link, type LinkProps } from "react-router";
 
 type ButtonSize = "x-small" | "small" | "medium" | "large";
 type ButtonVariant = "normal" | "outline" | "ghost";
-type ButtonType = "button" | "a" | "div" | "label";
+type ButtonType = "button" | "link" | "div" | "label";
 type ButtonLevel =
   | "primary"
   // | "secondary"
@@ -110,7 +110,7 @@ function Button(
     loading !== undefined && loading !== false && "mv-loading"
   );
 
-  if (as === "a" && "to" in otherProps) {
+  if (as === "link" && "to" in otherProps) {
     return (
       <Link
         {...otherProps}

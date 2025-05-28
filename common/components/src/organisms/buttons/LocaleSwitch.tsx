@@ -30,7 +30,7 @@ export function LocaleSwitch(props: {
             {index > 0 ? <span className="mv-px-2">|</span> : ""}
             <span>
               <TextButton
-                as="a"
+                as="link"
                 to={`?${newSearchParams.toString()}`}
                 variant={variant}
                 weight={language === props.currentLanguage ? "normal" : "thin"}

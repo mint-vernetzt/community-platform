@@ -355,7 +355,7 @@ function WebSocial() {
                     {locales.route.form.reset}
                   </Button>
                   <noscript className="mv-absolute mv-top-0">
-                    <Button as="a" to="." variant="outline" fullSize>
+                    <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.form.reset}
                     </Button>
                   </noscript>

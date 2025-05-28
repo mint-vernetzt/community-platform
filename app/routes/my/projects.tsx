@@ -182,7 +182,7 @@ function MyProjects() {
     <Container>
       <Container.Header>
         <Container.Title>{locales.route.title}</Container.Title>
-        <Button as="a" to="/project/create">
+        <Button as="link" to="/project/create">
           <Add />
           {locales.route.create}
         </Button>
@@ -195,7 +195,7 @@ function MyProjects() {
           <Placeholder.Text>
             {locales.route.placeholder.description}
           </Placeholder.Text>
-          <Button as="a" to="/project/create" variant="outline">
+          <Button as="link" to="/project/create" variant="outline">
             {locales.route.placeholder.cta}
           </Button>
         </Placeholder>
