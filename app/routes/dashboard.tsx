@@ -1224,13 +1224,13 @@ function Dashboard() {
           <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
             <label
               htmlFor="show-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-blue-400"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline mv-hidden group-has-[:checked]:mv-inline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
             >
               {loaderData.locales.route.content.updateTeasers.show}
             </label>
             <label
               htmlFor="hide-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-blue-400"
+              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:checked]:mv-hidden group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
             >
               {loaderData.locales.route.content.updateTeasers.hide}
             </label>
