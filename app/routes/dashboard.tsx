@@ -1398,7 +1398,7 @@ function Dashboard() {
       </section>
       {/* Project Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.projects}
           </div>
@@ -1426,7 +1426,7 @@ function Dashboard() {
       </section>
       {/* Profile Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.profiles}
           </div>
@@ -1454,7 +1454,7 @@ function Dashboard() {
       </section>
       {/* Organization Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.organizations}
           </div>
@@ -1482,7 +1482,7 @@ function Dashboard() {
       </section>
       {/* Event Card Section */}
       <section className="mv-w-full mv-mb-24 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
+        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
           <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.events}
           </div>
