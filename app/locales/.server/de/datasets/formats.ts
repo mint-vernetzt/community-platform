@@ -73,4 +73,8 @@ export const locale = assertFormatLocales({
     title: "Ganztagsangebot",
     description: null,
   },
+  mentoring: {
+    title: "Mentoring",
+    description: null,
+  },
 } as const);
