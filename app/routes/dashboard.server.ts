@@ -227,7 +227,7 @@ export async function getEventsForCards(take: number) {
     },
     where: {
       published: true,
-      endTime: { gte: new Date() },
+      startTime: { gte: new Date() },
     },
     take,
     orderBy: { startTime: "asc" },
