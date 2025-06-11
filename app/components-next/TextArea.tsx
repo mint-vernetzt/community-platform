@@ -16,7 +16,9 @@ export interface TextAreaProps {
   rte?: {
     locales: RTELocales;
     defaultValue?: string;
-    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
+    legacyFormRegister?: UseFormRegisterReturn<
+      "bioRTEState" | "descriptionRTEState"
+    >;
   };
   helperText?: string;
 }
