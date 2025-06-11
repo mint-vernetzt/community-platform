@@ -1,16 +1,17 @@
+import { format } from "date-fns";
+import { createRef, useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useActionData,
   useFetcher,
   useLoaderData,
-  useParams,
   useNavigation,
-  redirect,
+  useParams,
 } from "react-router";
-import { format } from "date-fns";
-import { FormProvider, useForm } from "react-hook-form";
 import type { InferType } from "yup";
 import { array, object, string } from "yup";
 import {
@@ -18,15 +19,17 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { TextArea } from "~/components-next/TextArea";
 import InputText from "~/components/FormElements/InputText/InputText";
 import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
-import { TextArea } from "~/components-next/TextArea";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { FormError } from "~/lib/utils/yup";
 import {
@@ -37,35 +40,32 @@ import {
   nullOrString,
   website,
 } from "~/lib/utils/yup";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   getAreas,
+  getEventTargetGroups,
   getExperienceLevels,
   getFocuses,
   getStages,
   getTags,
-  getEventTargetGroups,
   getTypes,
 } from "~/utils.server";
+import { deriveEventMode } from "../../utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
 import { type action as cancelAction, cancelSchema } from "./events/cancel";
 import { type action as publishAction, publishSchema } from "./events/publish";
+import {
+  type GeneralEventSettingsLocales,
+  getEventBySlug,
+  getEventBySlugForAction,
+} from "./general.server";
 import {
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
   validateTimePeriods,
 } from "./utils.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { deriveEventMode } from "../../utils.server";
-import {
-  type GeneralEventSettingsLocales,
-  getEventBySlug,
-  getEventBySlugForAction,
-} from "./general.server";
-import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { languageModuleMap } from "~/locales/.server";
-import { createRef, useEffect } from "react";
 
 const SUBLINE_MAX_LENGTH = 100;
 const DESCRIPTION_MAX_LENGTH = 2000;
@@ -232,7 +232,6 @@ export const action = async (args: ActionFunctionArgs) => {
     request,
     createSchema(locales)
   );
-
   let updated = false;
 
   let errors = result.errors;
@@ -300,22 +299,23 @@ function General() {
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
-  let event: (typeof loaderData)["event"];
-  if (actionData !== undefined) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
-      originalEvent;
-    event = {
-      ...rest,
-      focuses: actionData.data.focuses,
-      types: actionData.data.types,
-      eventTargetGroups: actionData.data.eventTargetGroups,
-      tags: actionData.data.tags,
-      areas: actionData.data.areas,
-    };
-  } else {
-    event = originalEvent;
-  }
+  const event = actionData?.data ?? originalEvent;
+
+  // if (actionData !== undefined) {
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
+  //     originalEvent;
+  //   event = {
+  //     ...originalEvent,
+  //     focuses: actionData.data.focuses,
+  //     types: actionData.data.types,
+  //     eventTargetGroups: actionData.data.eventTargetGroups,
+  //     tags: actionData.data.tags,
+  //     areas: actionData.data.areas,
+  //   };
+  // } else {
+  //   event = originalEvent;
+  // }
 
   const formRef = createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
@@ -622,10 +622,12 @@ function General() {
             return (
               <>
                 <div className="mv-hidden">
+                  {/** @ts-expect-error  event.canceled exists because of fetcher */}
                   <Field name="cancel" value={!event.canceled} />
                 </div>
                 <div className="mv-mt-2">
                   <Button className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                    {/** @ts-expect-error  event.canceled exists because of fetcher */}
                     {event.canceled
                       ? locales.route.content.revert
                       : locales.route.content.cancel}
@@ -933,6 +935,7 @@ function General() {
               rte={{
                 locales: locales,
                 defaultValue: event.descriptionRTEState || undefined,
+                legacyFormRegister: register("descriptionRTEState"),
               }}
             />
             {errors?.description?.message ? (
@@ -1111,9 +1114,11 @@ function General() {
                 return (
                   <>
                     <div className="mv-hidden">
+                      {/** @ts-expect-error  event.published exists because of fetcher */}
                       <Field name="publish" value={!event.published} />
                     </div>
                     <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                      {/** @ts-expect-error  event.published exists because of fetcher */}
                       {event.published
                         ? locales.route.form.hide.label
                         : locales.route.form.publish.label}

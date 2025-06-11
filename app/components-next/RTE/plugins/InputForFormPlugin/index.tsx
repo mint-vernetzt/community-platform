@@ -5,7 +5,9 @@ import { type UseFormRegisterReturn } from "react-hook-form";
 
 function InputForFormPlugin(
   props: Omit<InputForFormProps, "defaultValue"> & {
-    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
+    legacyFormRegister?: UseFormRegisterReturn<
+      "bioRTEState" | "descriptionRTEState"
+    >;
   }
 ) {
   const { contentEditableRef, legacyFormRegister, ...rest } = props;
