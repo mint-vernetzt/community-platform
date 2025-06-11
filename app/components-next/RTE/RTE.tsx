@@ -58,7 +58,9 @@ export type RTELocales =
 function RTE(
   props: Omit<InputForFormProps, "contentEditableRef"> & {
     locales: RTELocales;
-    legacyFormRegister?: UseFormRegisterReturn<"bioRTEState">;
+    legacyFormRegister?: UseFormRegisterReturn<
+      "bioRTEState" | "descriptionRTEState"
+    >;
   }
 ) {
   const {
