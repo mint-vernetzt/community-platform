@@ -18,8 +18,9 @@ import {
 } from "~/mailer.server";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { generateOrganizationSlug } from "~/utils.server";
+import { generateOrganizationSlug, triggerEntityScore } from "~/utils.server";
 import { captureException } from "@sentry/node";
+import { updateFilterVectorOfOrganization } from "./$slug/settings/utils.server";
 
 export type CreateOrganizationLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -36,7 +37,7 @@ async function createOrganizationOnProfile(
 ) {
   const { organizationName, networkTypes, organizationTypes } =
     submissionValues;
-  const [profile] = await prismaClient.$transaction([
+  const [profile, organization] = await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
         id: profileId,
@@ -88,7 +89,7 @@ async function createOrganizationOnProfile(
       },
     }),
   ]);
-  return profile;
+  return { profile, organization };
 }
 
 export async function getOrganizationsFromProfile(id: string) {
@@ -492,7 +493,16 @@ export async function createOrganization(options: {
         }
         const slug = generateOrganizationSlug(data.organizationName);
         try {
-          await createOrganizationOnProfile(sessionUser.id, data, slug);
+          const { organization } = await createOrganizationOnProfile(
+            sessionUser.id,
+            data,
+            slug
+          );
+          updateFilterVectorOfOrganization(organization.id);
+          triggerEntityScore({
+            entity: "organization",
+            where: { id: organization.id },
+          });
         } catch (error) {
           captureException(error);
           ctx.addIssue({
