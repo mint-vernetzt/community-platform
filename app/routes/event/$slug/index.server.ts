@@ -16,8 +16,8 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
-import { createAbuseReportSchema } from ".";
 import { captureException } from "@sentry/node";
+import { createAbuseReportSchema } from "./index.shared";
 
 export type EventDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
