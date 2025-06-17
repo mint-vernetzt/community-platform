@@ -1401,10 +1401,10 @@ function Index() {
                     return (
                       <div
                         key={`child-event-${event.id}`}
-                        className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                        className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden focus-within:mv-ring-2 focus-within:mv-ring-primary-200"
                       >
                         <Link
-                          className="mv-flex"
+                          className="mv-flex focus:mv-outline-none"
                           to={`/event/${event.slug}`}
                           reloadDocument
                         >
