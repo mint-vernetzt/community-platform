@@ -1313,6 +1313,13 @@ function Index() {
                 <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.speakers}
                 </h3>
+                <a
+                  id="speaker-start"
+                  href="#speaker-end"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mb-2 mv-px-1"
+                >
+                  {locales.route.content.event.skipSpeakers}
+                </a>
                 <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4 mv-mb-16">
                   {loaderData.event.speakers.map((speaker) => {
                     const { profile } = speaker;
@@ -1352,6 +1359,13 @@ function Index() {
                     );
                   })}
                 </div>
+                <a
+                  id="speaker-end"
+                  href="#speaker-start"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mt-2 mv-px-1"
+                >
+                  {locales.route.content.event.backToSpeakers}
+                </a>
               </>
             ) : null}
             {loaderData.event.childEvents.length > 0 ? (
@@ -1367,6 +1381,13 @@ function Index() {
                     }
                   )}
                 </p>
+                <a
+                  id="child-events-start"
+                  href="#child-events-end"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mb-2 mv-px-1"
+                >
+                  {locales.route.content.event.skipRelatedEvents}
+                </a>
                 <div className="mv-mb-16">
                   {loaderData.event.childEvents.map((event) => {
                     const eventStartTime = utcToZonedTime(
@@ -1559,6 +1580,13 @@ function Index() {
                     );
                   })}
                 </div>
+                <a
+                  id="child-events-end"
+                  href="#child-events-start"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mt-2 mv-px-1"
+                >
+                  {locales.route.content.event.backToRelatedEvents}
+                </a>
               </>
             ) : null}
 
@@ -1567,6 +1595,13 @@ function Index() {
                 <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.team}
                 </h3>
+                <a
+                  id="team-members-start"
+                  href="#team-members-end"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mb-2 mv-px-1"
+                >
+                  {locales.route.content.event.skipTeam}
+                </a>
                 <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.teamMembers.map((member) => {
                     return (
@@ -1605,6 +1640,13 @@ function Index() {
                     );
                   })}
                 </div>
+                <a
+                  id="team-members-end"
+                  href="#team-members-start"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mt-2 mv-px-1"
+                >
+                  {locales.route.content.event.backToTeam}
+                </a>
               </>
             ) : null}
             {loaderData.event.responsibleOrganizations.length > 0 ? (
@@ -1615,6 +1657,13 @@ function Index() {
                 >
                   {locales.route.content.event.organizedBy}
                 </h3>
+                <a
+                  id="responsible-organizations-start"
+                  href="#responsible-organizations-end"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mb-2 mv-px-1"
+                >
+                  {locales.route.content.event.skipOrganizedBy}
+                </a>
                 <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.responsibleOrganizations.map((item) => {
                     return (
@@ -1674,6 +1723,13 @@ function Index() {
                     );
                   })}
                 </div>
+                <a
+                  id="responsible-organizations-end"
+                  href="#responsible-organizations-start"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mt-2 mv-px-1"
+                >
+                  {locales.route.content.event.backToOrganizedBy}
+                </a>
               </>
             ) : null}
 
@@ -1683,6 +1739,13 @@ function Index() {
                 <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.participants}
                 </h3>
+                <a
+                  id="participants-start"
+                  href="#participants-end"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mb-2 mv-px-1"
+                >
+                  {locales.route.content.event.skipParticipants}
+                </a>
                 <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-4">
                   {loaderData.event.participants.map((participant) => {
                     const { profile } = participant;
@@ -1722,6 +1785,13 @@ function Index() {
                     );
                   })}
                 </div>
+                <a
+                  id="participants-end"
+                  href="#participants-start"
+                  className="mv-fixed mv-w-0 mv-h-0 mv-opacity-0 focus:mv-relative focus:mv-block focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 mv-mt-2 mv-px-1"
+                >
+                  {locales.route.content.event.backToParticipants}
+                </a>
               </>
             ) : null}
           </div>
