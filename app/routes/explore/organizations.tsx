@@ -440,6 +440,7 @@ export default function ExploreOrganizations() {
         area: [],
         focus: [],
         type: [],
+        networkType: [],
       },
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
