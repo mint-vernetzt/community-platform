@@ -5,6 +5,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
@@ -22,7 +23,6 @@ import {
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
 import ImageCropper, {
@@ -31,7 +31,6 @@ import ImageCropper, {
 import { RichText } from "~/components/Richtext/RichText";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import {
   canUserAccessConferenceLink,
@@ -48,9 +47,12 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
-import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
@@ -59,13 +61,16 @@ import {
   disconnectBackgroundImage,
   submitEventAbuseReport,
   uploadBackgroundImage,
-  type EventDetailLocales,
 } from "./index.server";
+import {
+  createAbuseReportSchema,
+  formatDateTime,
+  getCallToActionForm,
+  OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH,
+} from "./index.shared";
 import { AddParticipantButton } from "./settings/participants/add-participant";
-import { RemoveParticipantForm } from "./settings/participants/remove-participant";
 import { getRedirectPathOnProtectedEventRoute } from "./settings/utils.server";
 import { AddToWaitingListButton } from "./settings/waiting-list/add-to-waiting-list";
-import { RemoveFromWaitingListButton } from "./settings/waiting-list/remove-from-waiting-list";
 import {
   addImgUrls,
   enhanceChildEventsWithParticipationStatus,
@@ -82,11 +87,6 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/routes/feature-access.server";
-import { captureException } from "@sentry/node";
 
 export function links() {
   return [
@@ -376,23 +376,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-export const OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH = 250;
-
-export const createAbuseReportSchema = (locales: EventDetailLocales) =>
-  z.object({
-    [INTENT_FIELD_NAME]: z.enum(["submit-abuse-report"]),
-    reasons: z.array(z.string()),
-    otherReason: z
-      .string()
-      .max(
-        OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.abuseReport.max, {
-          max: OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH,
-        })
-      )
-      .optional(),
-  });
-
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
@@ -493,121 +476,6 @@ export const action = async (args: ActionFunctionArgs) => {
   }
   return redirectWithToast(redirectUrl, toast);
 };
-
-function getCallToActionForm(loaderData: {
-  locales: EventDetailLocales;
-  userId?: string;
-  isParticipant: boolean;
-  isOnWaitingList: boolean;
-  event: {
-    id: string;
-    participantLimit: number | null;
-    _count: {
-      participants: number;
-    };
-  };
-}) {
-  const isParticipating = loaderData.isParticipant;
-  const isOnWaitingList = loaderData.isOnWaitingList;
-
-  const participantLimitReached =
-    loaderData.event.participantLimit !== null
-      ? loaderData.event.participantLimit <=
-        loaderData.event._count.participants
-      : false;
-
-  if (isParticipating) {
-    return (
-      <>
-        <Form method="get" preventScrollReset>
-          <input hidden name="modal-remove-participant" defaultValue="true" />
-          <button
-            type="submit"
-            className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
-          >
-            {loaderData.locales.route.content.event.removeParticipant.action}
-          </button>
-        </Form>
-        <div className="mv-hidden">
-          <RemoveParticipantForm
-            id="remove-participant"
-            action="./settings/participants/remove-participant"
-            profileId={loaderData.userId}
-            modalSearchParam="modal-remove-participant"
-            locales={loaderData.locales}
-          />
-        </div>
-        <Modal searchParam="modal-remove-participant">
-          <Modal.Title>
-            {
-              loaderData.locales.route.content.event.removeParticipant
-                .doubleCheck.title
-            }
-          </Modal.Title>
-          <Modal.Section>
-            {
-              loaderData.locales.route.content.event.removeParticipant
-                .doubleCheck.description
-            }
-          </Modal.Section>
-          <Modal.SubmitButton form="remove-participant">
-            {loaderData.locales.route.content.event.removeParticipant.action}
-          </Modal.SubmitButton>
-          <Modal.CloseButton>
-            {
-              loaderData.locales.route.content.event.removeParticipant
-                .doubleCheck.abort
-            }
-          </Modal.CloseButton>
-        </Modal>
-      </>
-    );
-  } else if (isOnWaitingList) {
-    return (
-      <RemoveFromWaitingListButton
-        action="./settings/waiting-list/remove-from-waiting-list"
-        profileId={loaderData.userId}
-        locales={loaderData.locales}
-      />
-    );
-  } else {
-    if (participantLimitReached) {
-      return (
-        <AddToWaitingListButton
-          action="./settings/waiting-list/add-to-waiting-list"
-          profileId={loaderData.userId}
-          locales={loaderData.locales}
-        />
-      );
-    } else {
-      return (
-        <AddParticipantButton
-          action="./settings/participants/add-participant"
-          profileId={loaderData.userId}
-          locales={loaderData.locales}
-        />
-      );
-    }
-  }
-}
-
-function formatDateTime(
-  date: Date,
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>,
-  locales: EventDetailLocales
-) {
-  return insertParametersIntoLocale(locales.route.content.clock, {
-    date: date.toLocaleDateString(language, {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }),
-    time: date.toLocaleTimeString(language, {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-  });
-}
 
 function Index() {
   const loaderData = useLoaderData<typeof loader>();
