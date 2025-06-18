@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
+import { type RootLocales } from "~/root.server";
 
 export interface SearchProps {
   query?: string | null;
+  locales?: RootLocales;
 }
 
 function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
   const [value, setValue] = useState(props.query || "");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { ...inputProps } = props;
+  const { locales, ...inputProps } = props;
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -44,7 +47,12 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
     <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
       <div className="mv-relative">
         <div className="mv-absolute mv-left-4 mv-top-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            aria-hidden="true"
+          >
             <path
               fill="#3C4658"
               fillRule="nonzero"
@@ -70,13 +78,25 @@ function Search(props: React.HTMLProps<HTMLInputElement> & SearchProps) {
         />
         {value.length > 0 && (
           <div className="mv-absolute mv-right-0 mv-top-0.5">
-            <button className="mv-p-4" type="reset" onClick={handleClear}>
+            <button
+              className="mv-p-4"
+              type="reset"
+              onClick={handleClear}
+              aria-label={
+                locales !== undefined
+                  ? locales.route.root.search.clear
+                  : DEFAULT_LANGUAGE === "de"
+                  ? "Suchleiste leeren"
+                  : "Clear search field"
+              }
+            >
               <svg
                 viewBox="0 0 10 10"
                 width="10px"
                 height="10px"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
               >
                 <path
                   d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"

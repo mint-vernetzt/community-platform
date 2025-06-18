@@ -464,6 +464,7 @@ export default function App() {
               viewBox="0 0 30 31"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
             >
               <path
                 d="M15 4V29"

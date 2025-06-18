@@ -48,6 +48,7 @@ function Link(props: LinkProps) {
           className !== undefined ? `${className} ` : ""
         }${classes}`}
         to={to}
+        {...otherProps}
       >
         {otherProps.children}
       </ReactRouterLink>

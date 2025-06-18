@@ -33,6 +33,7 @@ export const locale = {
     register: "Register",
     search: {
       placeholder: "Search (min. 3 characters)",
+      clear: "Clear search field",
     },
     menu: {
       open: "Open main menu",

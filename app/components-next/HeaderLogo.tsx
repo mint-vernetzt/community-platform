@@ -10,6 +10,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
         height="56"
         viewBox="0 0 56 56"
         className="mv-w-10 mv-h-10 lg:mv-w-auto lg:mv-h-auto"
+        aria-hidden="true"
       >
         <g fill="none">
           <path
