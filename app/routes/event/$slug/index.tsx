@@ -566,7 +566,13 @@ function Index() {
           loaderData.mode === "authenticated" &&
           loaderData.alreadyAbuseReported === false && (
             <Form method="get" preventScrollReset>
-              <input hidden name="modal-report" defaultValue="true" />
+              <input
+                hidden
+                name="modal-report"
+                defaultValue="true"
+                aria-label={locales.route.content.report}
+                aria-hidden="true"
+              />
               <button type="submit">{locales.route.content.report}</button>
             </Form>
           )}
@@ -590,6 +596,8 @@ function Index() {
                     type: "hidden",
                   })}
                   key="submit-abuse-report"
+                  aria-label={locales.route.abuseReport.submit}
+                  aria-hidden="true"
                 />
                 <div className="mv-flex mv-flex-col mv-gap-6">
                   {loaderData.abuseReportReasons.map((reason) => {
@@ -661,7 +669,7 @@ function Index() {
                     })}
                     maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
                   >
-                    <Input.Label>
+                    <Input.Label htmlFor={abuseReportFields.otherReason.id}>
                       {locales.route.abuseReport.otherReason}
                     </Input.Label>
                     {typeof abuseReportFields.reasons.errors !== "undefined" &&
@@ -709,7 +717,13 @@ function Index() {
               loaderData.abilities.events.hasAccess ? (
                 <div className="mv-absolute mv-bottom-6 mv-right-6">
                   <Form method="get" preventScrollReset>
-                    <input hidden name="modal-background" defaultValue="true" />
+                    <input
+                      hidden
+                      name="modal-background"
+                      defaultValue="true"
+                      aria-hidden="true"
+                      aria-label={locales.route.content.change}
+                    />
                     <Button type="submit">
                       {locales.route.content.change}
                     </Button>
@@ -1310,9 +1324,9 @@ function Index() {
             {loaderData.event.speakers !== null &&
             loaderData.event.speakers.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.speakers}
-                </h3>
+                </h2>
                 <a
                   id="speaker-start"
                   href="#speaker-end"
@@ -1345,11 +1359,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
@@ -1370,9 +1384,9 @@ function Index() {
             ) : null}
             {loaderData.event.childEvents.length > 0 ? (
               <>
-                <h3 id="child-events" className="mv-mt-16 mv-font-bold">
+                <h2 id="child-events" className="mv-mt-16 mv-font-bold">
                   {locales.route.content.event.relatedEvents}
-                </h3>
+                </h2>
                 <p className="mv-mb-8">
                   {insertParametersIntoLocale(
                     locales.route.content.event.eventContext,
@@ -1592,9 +1606,9 @@ function Index() {
 
             {loaderData.event.teamMembers.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.team}
-                </h3>
+                </h2>
                 <a
                   id="team-members-start"
                   href="#team-members-end"
@@ -1626,11 +1640,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${member.profile.academicTitle || ""} ${
                                 member.profile.firstName
                               } ${member.profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {member.profile.position}
                             </p>
@@ -1651,12 +1665,12 @@ function Index() {
             ) : null}
             {loaderData.event.responsibleOrganizations.length > 0 ? (
               <>
-                <h3
+                <h2
                   id="responsible-organizations"
                   className="mv-mt-16 mv-mb-8 mv-font-bold"
                 >
                   {locales.route.content.event.organizedBy}
-                </h3>
+                </h2>
                 <a
                   id="responsible-organizations-start"
                   href="#responsible-organizations-end"
@@ -1688,9 +1702,9 @@ function Index() {
                             </div>
                           )}
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {item.organization.name}
-                            </h5>
+                            </h3>
 
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {item.organization.types
@@ -1736,9 +1750,9 @@ function Index() {
             {loaderData.event.participants !== null &&
             loaderData.event.participants.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.participants}
-                </h3>
+                </h2>
                 <a
                   id="participants-start"
                   href="#participants-end"
@@ -1771,11 +1785,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>

@@ -20,6 +20,7 @@ function ModalClose(props: { route: string }) {
       className="mv-text-primary"
       to={props.route}
       preventScrollReset
+      aria-label="Close modal"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
