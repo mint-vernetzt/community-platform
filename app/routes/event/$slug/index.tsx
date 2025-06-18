@@ -566,7 +566,13 @@ function Index() {
           loaderData.mode === "authenticated" &&
           loaderData.alreadyAbuseReported === false && (
             <Form method="get" preventScrollReset>
-              <input hidden name="modal-report" defaultValue="true" />
+              <input
+                hidden
+                name="modal-report"
+                defaultValue="true"
+                aria-label={locales.route.content.report}
+                aria-hidden="true"
+              />
               <button type="submit">{locales.route.content.report}</button>
             </Form>
           )}
@@ -590,6 +596,8 @@ function Index() {
                     type: "hidden",
                   })}
                   key="submit-abuse-report"
+                  aria-label={locales.route.abuseReport.submit}
+                  aria-hidden="true"
                 />
                 <div className="mv-flex mv-flex-col mv-gap-6">
                   {loaderData.abuseReportReasons.map((reason) => {
@@ -661,7 +669,7 @@ function Index() {
                     })}
                     maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
                   >
-                    <Input.Label>
+                    <Input.Label htmlFor={abuseReportFields.otherReason.id}>
                       {locales.route.abuseReport.otherReason}
                     </Input.Label>
                     {typeof abuseReportFields.reasons.errors !== "undefined" &&
@@ -709,7 +717,13 @@ function Index() {
               loaderData.abilities.events.hasAccess ? (
                 <div className="mv-absolute mv-bottom-6 mv-right-6">
                   <Form method="get" preventScrollReset>
-                    <input hidden name="modal-background" defaultValue="true" />
+                    <input
+                      hidden
+                      name="modal-background"
+                      defaultValue="true"
+                      aria-hidden="true"
+                      aria-label={locales.route.content.change}
+                    />
                     <Button type="submit">
                       {locales.route.content.change}
                     </Button>
