@@ -37,12 +37,12 @@ function FormControlCounter(props: React.PropsWithChildren) {
 function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <input
-        {...props}
-        type="checkbox"
-        className="mv-h-0 mv-w-0 mv-opacity-0"
-      />
       <div className="mv-w-5 mv-h-5 mv-relative">
+        <input
+          {...props}
+          type="checkbox"
+          className="mv-h-0 mv-w-0 mv-opacity-0 mv-fixed"
+        />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"

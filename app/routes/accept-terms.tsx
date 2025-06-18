@@ -25,8 +25,8 @@ import { checkboxSchema } from "~/lib/utils/schemas";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
-import { FormControl } from "~/components-next/FormControl";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { Checkbox } from "~/components-next/Checkbox";
 
 export const acceptTermsSchema = z.object({
   termsAccepted: checkboxSchema,
@@ -45,7 +45,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       select: { termsAccepted: true },
     });
     if (profile !== null) {
-      if (profile.termsAccepted === false) {
+      if (profile.termsAccepted === true) {
         return redirect("/dashboard");
       }
       const language = await detectLanguage(request);
@@ -130,42 +130,37 @@ export default function AcceptTerms() {
           <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
             <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
               <h1 className="mv-mb-8">{locales.content.headline}</h1>
-              <div className="mv-mb-4 -mv-ml-5">
-                <FormControl
-                  {...getInputProps(acceptTermsFields.termsAccepted, {
-                    type: "checkbox",
-                  })}
-                  key="termsAccepted"
-                  labelPosition="right"
-                >
-                  <FormControl.Label>
-                    <div className="mv-pl-2">
-                      {insertComponentsIntoLocale(
-                        locales.content.confirmation,
-                        [
-                          <Link
-                            key="terms-of-use-confirmation"
-                            to="https://mint-vernetzt.de/terms-of-use-community-platform"
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="mv-text-primary mv-font-semibold hover:mv-underline"
-                          >
-                            {" "}
-                          </Link>,
-                          <Link
-                            key="privacy-policy-confirmation"
-                            to="https://mint-vernetzt.de/privacy-policy-community-platform"
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="mv-text-primary mv-font-semibold hover:mv-underline"
-                          >
-                            {" "}
-                          </Link>,
-                        ]
-                      )}
-                    </div>
-                  </FormControl.Label>
-                </FormControl>
+              <div className="mv-mb-4">
+                <div className="mv-flex mv-gap-2 mv-items-center">
+                  <Checkbox
+                    {...getInputProps(acceptTermsFields.termsAccepted, {
+                      type: "checkbox",
+                    })}
+                    key="termsAccepted"
+                  />
+                  <label htmlFor={acceptTermsFields.termsAccepted.id}>
+                    {insertComponentsIntoLocale(locales.content.confirmation, [
+                      <Link
+                        key="terms-of-use-confirmation"
+                        to="https://mint-vernetzt.de/terms-of-use-community-platform"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      >
+                        {" "}
+                      </Link>,
+                      <Link
+                        key="privacy-policy-confirmation"
+                        to="https://mint-vernetzt.de/privacy-policy-community-platform"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      >
+                        {" "}
+                      </Link>,
+                    ])}
+                  </label>
+                </div>
               </div>
               {typeof acceptTermsForm.errors !== "undefined" &&
               acceptTermsForm.errors.length > 0 ? (
