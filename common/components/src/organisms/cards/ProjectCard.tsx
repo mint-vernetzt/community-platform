@@ -14,6 +14,7 @@ import {
   useState,
 } from "react";
 import { Heading } from "~/components/Heading/Heading";
+import { Button } from "../../molecules/Button";
 
 const ProjectCardContext = createContext<ProjectCardProps | null>(null);
 
@@ -64,25 +65,33 @@ function ContextMenu(props: React.PropsWithChildren) {
 
   return (
     <div className="mv-absolute mv-top-2 mv-right-2">
-      <label
-        htmlFor={`project-context-menu-${project.slug}`}
-        className="mv-p-2 mv-w-8 mv-h-8 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-lg mv-border mv-border-primary mv-bg-neutral-50 mv-cursor-pointer"
-        aria-description={`project context menu for ${project.name}`}
-        aria-label={locales.projectCard.contextMenu}
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+      <div className="mv-w-8 mv-h-8">
+        <Button
+          as="label"
+          variant="outline"
+          fullSize
+          htmlFor={`project-context-menu-${project.slug}`}
+          aria-label={locales.projectCard.contextMenu}
+          aria-description={`project context menu for ${project.name}`}
+          className="mv-h-8 mv-w-8"
         >
-          <path
-            d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z"
-            fill="black"
-          />
-        </svg>
-      </label>
+          <div className="mv-w-8 mv-h-8 mv-flex mv-items-center mv-justify-center">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z"
+                fill="black"
+              />
+            </svg>
+          </div>
+        </Button>
+      </div>
       <input
         ref={inputRef}
         type="checkbox"
