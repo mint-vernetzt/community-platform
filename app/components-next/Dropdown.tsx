@@ -127,7 +127,7 @@ const DropdownList = forwardRef<
               child.type !== DropdownListCategory &&
               child.type !== "div" &&
               child.type !== "p" &&
-              "hover:mv-bg-gray-100"
+              "mv-bg-white hover:mv-bg-gray-100"
           );
 
           return (
