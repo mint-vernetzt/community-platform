@@ -13,6 +13,7 @@ import { getFullName } from "./../../utils";
 import { Image } from "./../../molecules/Image";
 import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
+import { Heading } from "~/components/Heading/Heading";
 
 type ProfileCardProps = {
   match?: number;
@@ -36,12 +37,13 @@ type ProfileCardProps = {
     areas: string[];
     offers: string[];
   };
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 };
 
 function ProfileCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & ProfileCardProps
 ) {
-  const { profile, publicAccess = false, locales } = props;
+  const { profile, publicAccess = false, locales, as = "h4" } = props;
 
   const fullName = getFullName(profile);
 
@@ -73,9 +75,12 @@ function ProfileCard(
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}
             <div className="mv-max-h-10 mv-overflow-hidden">
-              <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden">
+              <Heading
+                as={as}
+                className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+              >
                 {fullName}
-              </h4>
+              </Heading>
             </div>
             <div className="mv-h-5 mv-overflow-hidden">
               {profile.position && (
