@@ -18,8 +18,8 @@ export const locale = {
     action: "Registrieren",
   },
   label: {
-    email: "E-Mail",
-    password: "Passwort",
+    email: "E-Mail *",
+    password: "Passwort *",
     showPassword: "Passwort anzeigen",
     hidePassword: "Passwort ausblenden",
     submit: "Login",
