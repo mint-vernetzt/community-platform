@@ -371,7 +371,7 @@ export default function Register() {
                     })}
                     key="termsAccepted"
                   />
-                  <div>
+                  <label htmlFor={registerFields.termsAccepted.id}>
                     {insertComponentsIntoLocale(locales.form.confirmation, [
                       <Link
                         key="terms-of-use-confirmation"
@@ -392,7 +392,7 @@ export default function Register() {
                         {" "}
                       </Link>,
                     ])}
-                  </div>
+                  </label>
                 </div>
                 {typeof registerFields.termsAccepted.errors !== "undefined" &&
                 registerFields.termsAccepted.errors.length > 0 ? (

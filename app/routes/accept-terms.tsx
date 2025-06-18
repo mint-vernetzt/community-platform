@@ -138,7 +138,7 @@ export default function AcceptTerms() {
                     })}
                     key="termsAccepted"
                   />
-                  <div>
+                  <label htmlFor={acceptTermsFields.termsAccepted.id}>
                     {insertComponentsIntoLocale(locales.content.confirmation, [
                       <Link
                         key="terms-of-use-confirmation"
@@ -159,7 +159,7 @@ export default function AcceptTerms() {
                         {" "}
                       </Link>,
                     ])}
-                  </div>
+                  </label>
                 </div>
               </div>
               {typeof acceptTermsForm.errors !== "undefined" &&
