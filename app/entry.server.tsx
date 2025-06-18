@@ -55,7 +55,7 @@ export default async function handleRequest(
             ""
           )
             .replace(/sentry\.io.*/, "sentry.io")
-            .replace(/^.*@/, "")};`
+            .replace(/^.*@/, "")} ${process.env.MATOMO_URL};`
         : ` connect-src 'self' ${process.env.MATOMO_URL};`
     }`
   );
