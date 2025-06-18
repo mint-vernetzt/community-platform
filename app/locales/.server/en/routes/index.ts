@@ -37,8 +37,8 @@ export const locale = {
   },
   form: {
     label: {
-      email: "Email",
-      password: "Password",
+      email: "Email *",
+      password: "Password *",
       showPassword: "Show password",
       hidePassword: "Hide password",
       submit: "Login",

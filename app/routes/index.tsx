@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -20,9 +21,10 @@ import { Accordion } from "~/components-next/Accordion";
 import { CountUp } from "~/components-next/CountUp";
 import { HidePassword } from "~/components-next/icons/HidePassword";
 import { ShowPassword } from "~/components-next/icons/ShowPassword";
-import { H1, H3 } from "~/components/Heading/Heading";
+import { H1 } from "~/components/Heading/Heading";
 import { RichText } from "~/components/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { createLoginSchema } from "./login";
@@ -33,8 +35,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -414,9 +414,9 @@ export default function Index() {
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
-              <H3 className="mv-text-center mv-font-semibold mv-all-small-caps mv-subpixel-antialiased mv-mb-12 mv-text-primary-600 mv-text-5xl mv-leading-9">
+              <h2 className="mv-text-center mv-font-semibold mv-all-small-caps mv-subpixel-antialiased mv-mb-12 mv-text-primary-600 mv-text-5xl mv-leading-9">
                 {locales.route.content.education.headline}
-              </H3>
+              </h2>
               <p className="mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8 mv-mb-12 mv-hyphens-auto">
                 {insertComponentsIntoLocale(
                   locales.route.content.education.content,
@@ -450,9 +450,9 @@ export default function Index() {
       <section className="mv-pt-16 mv-pb-10 @md:mv-pt-20 @md:mv-pb-[50px] @lg:mv-pt-24 @lg:mv-pb-[60px] mv-relative mv-bg-primary-600">
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
           <div className="mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-12">
-            <H3 className="mv-text-center mv-mb-0 mv-text-5xl mv-font-semibold mv-leading-9 mv-text-neutral-50 mv-all-small-caps mv-subpixel-antialiased">
+            <h2 className="mv-text-center mv-mb-0 mv-text-5xl mv-font-semibold mv-leading-9 mv-text-neutral-50 mv-all-small-caps mv-subpixel-antialiased">
               {locales.route.content.growth.headline}
-            </H3>
+            </h2>
             <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @lg:mv-gap-24 @xl:mv-gap-44">
               <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
                 <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">

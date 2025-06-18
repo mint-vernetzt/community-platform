@@ -14,9 +14,9 @@ function RoadmapColumn(props: RoadmapColumnProps) {
   const countRoadmapCards = Children.count(props.children);
   return (
     <div>
-      <h4 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
+      <h3 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
         {props.title}
-      </h4>
+      </h3>
       <div className="mv-bg-blue-50 mv-rounded-lg mv-p-4 @xl:mv-p-6 mv-flex mv-flex-col mv-group">
         <input
           type="checkbox"
@@ -86,7 +86,7 @@ type RoadmapCardProps = {
 function RoadmapCard(props: RoadmapCardProps) {
   return (
     <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 @xl:mv-px-6">
-      <h5 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h5>
+      <h4 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h4>
       <p>{props.text}</p>
     </div>
   );
@@ -99,9 +99,9 @@ function Roadmap(props: { locales: LandingPageLocales }) {
       id="roadmap"
       className="mv-bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16"
     >
-      <h3 className="mv-text-center mv-mb-4 mv-text-5xl mv-text-primary-600 mv-font-bold mv-all-small-caps mv-subpixel-antialiased mv-leading-9">
+      <h2 className="mv-text-center mv-mb-4 mv-text-5xl mv-text-primary-600 mv-font-bold mv-all-small-caps mv-subpixel-antialiased mv-leading-9">
         {locales.roadmap.headline}
-      </h3>
+      </h2>
       <p className="mv-text-center mv-mb-16 mv-text-2xl mv-font-semibold mv-leading-[26px] mv-text-primary-600">
         {locales.roadmap.subline}
       </p>
