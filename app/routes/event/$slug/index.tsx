@@ -1310,9 +1310,9 @@ function Index() {
             {loaderData.event.speakers !== null &&
             loaderData.event.speakers.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.speakers}
-                </h3>
+                </h2>
                 <a
                   id="speaker-start"
                   href="#speaker-end"
@@ -1345,11 +1345,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
@@ -1370,9 +1370,9 @@ function Index() {
             ) : null}
             {loaderData.event.childEvents.length > 0 ? (
               <>
-                <h3 id="child-events" className="mv-mt-16 mv-font-bold">
+                <h2 id="child-events" className="mv-mt-16 mv-font-bold">
                   {locales.route.content.event.relatedEvents}
-                </h3>
+                </h2>
                 <p className="mv-mb-8">
                   {insertParametersIntoLocale(
                     locales.route.content.event.eventContext,
@@ -1592,9 +1592,9 @@ function Index() {
 
             {loaderData.event.teamMembers.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.team}
-                </h3>
+                </h2>
                 <a
                   id="team-members-start"
                   href="#team-members-end"
@@ -1626,11 +1626,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${member.profile.academicTitle || ""} ${
                                 member.profile.firstName
                               } ${member.profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {member.profile.position}
                             </p>
@@ -1651,12 +1651,12 @@ function Index() {
             ) : null}
             {loaderData.event.responsibleOrganizations.length > 0 ? (
               <>
-                <h3
+                <h2
                   id="responsible-organizations"
                   className="mv-mt-16 mv-mb-8 mv-font-bold"
                 >
                   {locales.route.content.event.organizedBy}
-                </h3>
+                </h2>
                 <a
                   id="responsible-organizations-start"
                   href="#responsible-organizations-end"
@@ -1688,9 +1688,9 @@ function Index() {
                             </div>
                           )}
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {item.organization.name}
-                            </h5>
+                            </h3>
 
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {item.organization.types
@@ -1736,9 +1736,9 @@ function Index() {
             {loaderData.event.participants !== null &&
             loaderData.event.participants.length > 0 ? (
               <>
-                <h3 className="mv-mt-16 mv-mb-8 mv-font-bold">
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.participants}
-                </h3>
+                </h2>
                 <a
                   id="participants-start"
                   href="#participants-end"
@@ -1771,11 +1771,11 @@ function Index() {
                           </div>
 
                           <div className="mv-pl-4">
-                            <h5 className="mv-text-sm mv-m-0 mv-font-bold">
+                            <h3 className="mv-text-sm mv-m-0 mv-font-bold">
                               {`${profile.academicTitle || ""} ${
                                 profile.firstName
                               } ${profile.lastName}`.trimStart()}
-                            </h5>
+                            </h3>
                             <p className="mv-text-sm mv-m-0 mv-line-clamp-2">
                               {profile.position}
                             </p>
