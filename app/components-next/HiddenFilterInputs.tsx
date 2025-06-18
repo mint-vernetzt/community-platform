@@ -16,6 +16,8 @@ function HiddenFilterInputs(props: {
   const orgFilterAreaFieldList = orgFilterFieldset.area.getFieldList();
   const orgFilterFocusFieldList = orgFilterFieldset.focus.getFieldList();
   const orgFilterTypeFieldList = orgFilterFieldset.type.getFieldList();
+  const orgFilterNetworkTypeFieldList =
+    orgFilterFieldset.networkType.getFieldList();
   const evtFilterFieldset = fields.evtFilter.getFieldset();
   const evtFilterAreaFieldList = evtFilterFieldset.area.getFieldList();
   const evtFilterTargetGroupFieldList =
@@ -96,6 +98,15 @@ function HiddenFilterInputs(props: {
             </ul>
             <ul>
               {orgFilterTypeFieldList.map((usedFields) => {
+                return (
+                  <li key={usedFields.key}>
+                    <input {...getInputProps(usedFields, { type: "hidden" })} />
+                  </li>
+                );
+              })}
+            </ul>
+            <ul>
+              {orgFilterNetworkTypeFieldList.map((usedFields) => {
                 return (
                   <li key={usedFields.key}>
                     <input {...getInputProps(usedFields, { type: "hidden" })} />
