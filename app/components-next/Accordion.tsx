@@ -95,7 +95,7 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
       >
         <p className="mv-max-w-[800px]">{itemLabel}</p>
         <span className="mv-w-fit mv-h-fit mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-mr-0 @md:mv-mr-3 @lg:mv-mr-6">
-          <Icon type="chevron-right" />
+          <Icon type="chevron-right" aria-hidden="true" />
         </span>
         <input
           id={`expand-question-${props.id}`}

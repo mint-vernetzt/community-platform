@@ -1,8 +1,8 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -14,17 +14,17 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { HidePassword } from "~/components-next/icons/HidePassword";
-import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { z } from "zod";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { RichText } from "~/components/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import { login, type LoginLocales } from "./index.server";
-import { z } from "zod";
 import { type LandingPageLocales } from "../index.server";
-import { useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { login, type LoginLocales } from "./index.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -204,21 +204,22 @@ export default function Index() {
                   {isHydrated === true ? (
                     <Input.Controls>
                       <div className="mv-h-10 mv-w-10">
-                        <CircleButton
-                          type="button"
+                        <ShowPasswordButton
                           onClick={() => {
                             setShowPassword(!showPassword);
                           }}
-                          variant="outline"
-                          fullSize
                           aria-label={
                             showPassword
                               ? locales.label.hidePassword
                               : locales.label.showPassword
                           }
                         >
-                          {showPassword ? <HidePassword /> : <ShowPassword />}
-                        </CircleButton>
+                          {showPassword ? (
+                            <PublicVisibility aria-hidden="true" />
+                          ) : (
+                            <PrivateVisibility aria-hidden="true" />
+                          )}
+                        </ShowPasswordButton>
                       </div>
                     </Input.Controls>
                   ) : null}
