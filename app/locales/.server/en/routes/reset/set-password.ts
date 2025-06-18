@@ -22,8 +22,8 @@ export const locale = {
   },
   form: {
     label: {
-      password: "New password",
-      confirmPassword: "Repeat password",
+      password: "New password *",
+      confirmPassword: "Repeat password *",
       submit: "Save password",
     },
     showPassword: "Show password",

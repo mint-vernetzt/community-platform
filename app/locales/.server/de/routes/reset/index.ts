@@ -14,7 +14,7 @@ export const locale = {
     intro:
       "Du hast Dein Passwort vergessen? Dann gib hier Deine E-Mail-Adresse ein, die Du bei der Anmeldung verwendet hast. Wir senden Dir eine Mail, über die Du ein neues Passwort einstellen kannst.",
     label: {
-      email: "E-Mail",
+      email: "E-Mail *",
       submit: "Passwort zurücksetzen",
     },
   },
