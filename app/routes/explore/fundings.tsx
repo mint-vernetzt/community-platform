@@ -907,7 +907,7 @@ export default function ExploreFundings() {
                     })
                     .join(", ")}
                 </FundingCard.Subtitle>
-                <FundingCard.Title>{funding.title}</FundingCard.Title>
+                <FundingCard.Title as="h2">{funding.title}</FundingCard.Title>
                 <FundingCard.Category
                   items={funding.regions.map((relation) => {
                     return relation.area.name;

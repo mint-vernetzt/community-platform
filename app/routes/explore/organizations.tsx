@@ -1279,6 +1279,7 @@ export default function ExploreOrganizations() {
                     key={`organization-${organization.id}`}
                     publicAccess={!loaderData.isLoggedIn}
                     organization={organization}
+                    as="h2"
                   />
                 );
               })}

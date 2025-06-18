@@ -13,4 +13,4 @@ export const locale = {
     projects: "More projects",
     fundings: "More fundings",
   },
-};
+} as const;
