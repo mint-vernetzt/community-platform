@@ -14,7 +14,7 @@ export const locale = {
     intro:
       "Forgot your password? Enter your email address that you used to sign up. We will send you an email through which you can set a new password.",
     label: {
-      email: "Email",
+      email: "Email *",
       submit: "Reset password",
     },
   },
