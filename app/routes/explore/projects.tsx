@@ -1872,6 +1872,7 @@ export default function ExploreProjects() {
                     locales={locales}
                     key={`project-${project.id}`}
                     project={project}
+                    as="h2"
                   />
                 );
               })}

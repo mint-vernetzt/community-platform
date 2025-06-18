@@ -1,5 +1,6 @@
 import { Children, isValidElement } from "react";
 import { Link } from "react-router";
+import { Heading } from "~/components/Heading/Heading";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
 
 export function FundingCard(props: {
@@ -57,11 +58,18 @@ function FundingCardSubtitle(props: { children?: React.ReactNode }) {
   );
 }
 
-function FundingCardTitle(props: { children: React.ReactNode }) {
+function FundingCardTitle(props: {
+  children: React.ReactNode;
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+}) {
+  const { children, as = "h4" } = props;
   return (
-    <span className="mv-text-primary-500 @lg:mv-text-lg mv-font-bold mv-min-h-[48px] @lg:mv-min-h-[54px] mv-line-clamp-2">
-      {props.children}
-    </span>
+    <Heading
+      as={as}
+      className="mv-text-primary-500 @lg:mv-text-lg mv-font-bold mv-min-h-[48px] @lg:mv-min-h-[54px] mv-line-clamp-2"
+    >
+      {children}
+    </Heading>
   );
 }
 

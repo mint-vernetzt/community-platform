@@ -519,9 +519,9 @@ export default function ExploreAll() {
       {loaderData.profiles.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.profiles}
-            </div>
+            </h2>
             <div className="mv-text-right">
               <LinkButton
                 to={
@@ -542,6 +542,7 @@ export default function ExploreAll() {
                     key={`newest-profile-card-${profile.username}`}
                     profile={profile}
                     locales={loaderData.locales.dashboard}
+                    as="h3"
                   />
                 );
               })}
@@ -553,9 +554,9 @@ export default function ExploreAll() {
       {loaderData.organizations.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.organizations}
-            </h3>
+            </h2>
             <div className="mv-text-right">
               <LinkButton
                 to={
@@ -576,6 +577,7 @@ export default function ExploreAll() {
                     key={`newest-organization-card-${organization.slug}`}
                     organization={organization}
                     locales={loaderData.locales.dashboard}
+                    as="h3"
                   />
                 );
               })}
@@ -587,9 +589,9 @@ export default function ExploreAll() {
       {loaderData.events.length > 0 ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.events}
-            </h3>
+            </h2>
             <div className="mv-text-right">
               <LinkButton
                 to={
@@ -629,6 +631,7 @@ export default function ExploreAll() {
                           (item) => item.organization
                         ),
                     }}
+                    as="h3"
                   />
                 );
               })}
@@ -640,9 +643,9 @@ export default function ExploreAll() {
       {loaderData.projects.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.projects}
-            </h3>
+            </h2>
             <div className="mv-text-right">
               <LinkButton
                 to={
@@ -663,6 +666,7 @@ export default function ExploreAll() {
                     key={`newest-project-card-${project.slug}`}
                     project={project}
                     locales={loaderData.locales.dashboard}
+                    as="h3"
                   />
                 );
               })}
@@ -674,9 +678,9 @@ export default function ExploreAll() {
       {loaderData.fundings.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h3 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
               {loaderData.locales.index.content.fundings}
-            </h3>
+            </h2>
             <div className="mv-text-right">
               <LinkButton
                 to={
@@ -705,7 +709,9 @@ export default function ExploreAll() {
                         })
                         .join(", ")}
                     </FundingCard.Subtitle>
-                    <FundingCard.Title>{funding.title}</FundingCard.Title>
+                    <FundingCard.Title as="h3">
+                      {funding.title}
+                    </FundingCard.Title>
                     <FundingCard.Category
                       items={funding.regions.map((relation) => {
                         return relation.area.name;

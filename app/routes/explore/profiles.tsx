@@ -929,6 +929,7 @@ export default function ExploreProfiles() {
                     key={`profile-${profile.id}`}
                     publicAccess={!loaderData.isLoggedIn}
                     profile={profile}
+                    as="h2"
                   />
                 );
               })}
