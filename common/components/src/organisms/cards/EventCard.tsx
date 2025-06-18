@@ -1,6 +1,14 @@
 import type React from "react";
+import { Heading } from "~/components/Heading/Heading";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type DashboardLocales } from "~/routes/dashboard.server";
+import { type ExploreEventsLocales } from "~/routes/explore/events.server";
 import { removeHtmlTags } from "../../../../../app/lib/utils/transformHtml";
 import { Avatar, AvatarList } from "../../molecules/Avatar";
+import { Image } from "../../molecules/Image";
 import {
   Card,
   CardBody,
@@ -10,13 +18,6 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
-import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
-import { Image } from "../../molecules/Image";
-import { type DashboardLocales } from "~/routes/dashboard.server";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
-import { type ExploreEventsLocales } from "~/routes/explore/events.server";
 
 type EventCardProps = {
   match?: number;
@@ -54,6 +55,7 @@ type EventCardProps = {
   };
   participateControl?: React.ReactElement;
   waitingListControl?: React.ReactElement;
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 };
 
 function IconOnSite() {
@@ -104,7 +106,7 @@ function IconHybrid() {
 function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
-  const { event, locales, currentLanguage } = props;
+  const { event, locales, currentLanguage, as = "h4" } = props;
 
   const now = new Date();
 
@@ -239,9 +241,12 @@ function EventCard(
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}
             <div className="mv-max-h-10 mv-overflow-hidden">
-              <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden">
+              <Heading
+                as={as}
+                className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+              >
                 {event.name}
-              </h4>
+              </Heading>
             </div>
             <div className="mv-h-9">
               {(event.subline || event.description) && (

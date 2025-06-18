@@ -13,6 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Heading } from "~/components/Heading/Heading";
 
 const ProjectCardContext = createContext<ProjectCardProps | null>(null);
 
@@ -143,6 +144,7 @@ type ProjectCardProps = {
     }[];
   };
   locales: DashboardLocales | ExploreProjectsLocales | MyProjectsLocales;
+  as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 };
 
 function ProjectCard(
@@ -150,7 +152,7 @@ function ProjectCard(
     children?: React.ReactNode;
   }
 ) {
-  const { project, locales, children } = props;
+  const { project, locales, children, as = "h4" } = props;
 
   const childrenArray =
     props.children !== undefined ? Children.toArray(children) : [];
@@ -180,9 +182,12 @@ function ProjectCard(
           </Card.Header>
           <Card.Body>
             <div className="mv-mt-[30px] mv-max-h-10 mv-overflow-hidden">
-              <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-line-clamp-2">
+              <Heading
+                as={as}
+                className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-line-clamp-2"
+              >
                 {project.name}
-              </h4>
+              </Heading>
             </div>
             <div className="mv-h-14">
               {((typeof project.subline !== "undefined" &&

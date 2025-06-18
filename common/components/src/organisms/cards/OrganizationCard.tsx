@@ -21,6 +21,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Heading } from "~/components/Heading/Heading";
 
 const OrganizationCardContext = createContext<OrganizationCardProps | null>(
   null
@@ -158,6 +159,7 @@ type OrganizationCardProps = {
       username: string;
     }[];
   };
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 };
 
 function OrganizationCard(
@@ -166,7 +168,13 @@ function OrganizationCard(
       children?: React.ReactNode;
     }
 ) {
-  const { organization, publicAccess = false, locales, children } = props;
+  const {
+    organization,
+    publicAccess = false,
+    locales,
+    children,
+    as = "h4",
+  } = props;
 
   const childrenArray =
     props.children !== undefined ? Children.toArray(children) : [];
@@ -201,9 +209,12 @@ function OrganizationCard(
             {
               <div className="mv-mt-[30px] mv-min-h-[80px]">
                 <div className="mv-max-h-10 mv-overflow-hidden">
-                  <h4 className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden">
+                  <Heading
+                    as={as}
+                    className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+                  >
                     {organization.name}
-                  </h4>
+                  </Heading>
                 </div>
                 <div className="mv-overflow-hidden">
                   {(organization.types.length > 0 ||

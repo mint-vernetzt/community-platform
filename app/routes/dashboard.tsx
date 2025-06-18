@@ -1399,9 +1399,9 @@ function Dashboard() {
       {/* Project Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.projects}
-          </div>
+          </h2>
           <div className="mv-text-right">
             <MVLink as="link" to="/explore/projects">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
@@ -1418,6 +1418,7 @@ function Dashboard() {
                   key={`newest-project-card-${project.slug}`}
                   project={project}
                   locales={loaderData.locales}
+                  as="h3"
                 />
               );
             })}
@@ -1427,9 +1428,9 @@ function Dashboard() {
       {/* Profile Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.profiles}
-          </div>
+          </h2>
           <div className="mv-text-right">
             <MVLink as="link" to="/explore/profiles">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
@@ -1446,6 +1447,7 @@ function Dashboard() {
                   key={`newest-profile-card-${profile.username}`}
                   profile={profile}
                   locales={loaderData.locales}
+                  as="h3"
                 />
               );
             })}
@@ -1455,9 +1457,9 @@ function Dashboard() {
       {/* Organization Card Section */}
       <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.organizations}
-          </div>
+          </h2>
           <div className="mv-text-right">
             <MVLink as="link" to="/explore/organizations">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
@@ -1474,6 +1476,7 @@ function Dashboard() {
                   key={`newest-organization-card-${organization.slug}`}
                   organization={organization}
                   locales={loaderData.locales}
+                  as="h3"
                 />
               );
             })}
@@ -1483,9 +1486,9 @@ function Dashboard() {
       {/* Event Card Section */}
       <section className="mv-w-full mv-mb-24 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <div className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
             {loaderData.locales.route.content.events}
-          </div>
+          </h2>
           <div className="mv-text-right">
             <MVLink as="link" to="/explore/events">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
@@ -1521,6 +1524,7 @@ function Dashboard() {
                         (item) => item.organization
                       ),
                   }}
+                  as="h3"
                 />
               );
             })}
