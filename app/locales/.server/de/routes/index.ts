@@ -45,7 +45,7 @@ export const locale = {
     },
   },
   content: {
-    intro: "Zur Beschreibung der MINTvernetzt Community-PLattform",
+    intro: "Zur Beschreibung der MINTvernetzt Community-Plattform",
     education: {
       headline: "Miteinander Bildung gestalten",
       content:

@@ -112,6 +112,7 @@ export function NavBar(props: NavBarProps) {
               }
               name="search"
               query={query}
+              locales={props.locales}
             />
           </Form>
 

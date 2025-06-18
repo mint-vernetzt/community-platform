@@ -133,9 +133,9 @@ export function MainMenu(
                   setActiveTopicId={setActiveTopicId}
                 >
                   {location.pathname === "/dashboard" ? (
-                    <Icon type="grid" />
+                    <Icon type="grid" aria-hidden="true" />
                   ) : (
-                    <Icon type="grid-outline" />
+                    <Icon type="grid-outline" aria-hidden="true" />
                   )}
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
@@ -159,9 +159,9 @@ export function MainMenu(
                     location.pathname === "/event/create" ||
                     location.pathname === "/my/projects" ||
                     location.pathname === "/project/create" ? (
-                      <Icon type="person" />
+                      <Icon type="person" aria-hidden="true" />
                     ) : (
-                      <Icon type="person-outline" />
+                      <Icon type="person-outline" aria-hidden="true" />
                     )}
                     <div className="mv-font-semibold">
                       {props.locales !== undefined
@@ -226,7 +226,7 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               <Label>
-                <Icon type="search" />
+                <Icon type="search" aria-hidden="true" />
                 <div className="mv-font-semibold">
                   {props.locales !== undefined
                     ? props.locales.route.root.menu.explore.label
@@ -312,9 +312,9 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/resources" ? (
-                <Icon type="briefcase" />
+                <Icon type="briefcase" aria-hidden="true" />
               ) : (
-                <Icon type="briefcase-outline" />
+                <Icon type="briefcase-outline" aria-hidden="true" />
               )}
               <div className="mv-font-semibold">
                 {props.locales !== undefined
@@ -342,9 +342,9 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               {location.pathname === "/help" ? (
-                <Icon type="life-preserver" />
+                <Icon type="life-preserver" aria-hidden="true" />
               ) : (
-                <Icon type="life-preserver-outline" />
+                <Icon type="life-preserver-outline" aria-hidden="true" />
               )}
               <div className="mv-font-semibold">
                 {props.locales !== undefined
@@ -365,9 +365,9 @@ export function MainMenu(
                   {location.pathname.startsWith(
                     `/profile/${props.username}/settings`
                   ) ? (
-                    <Icon type="gear" />
+                    <Icon type="gear" aria-hidden="true" />
                   ) : (
-                    <Icon type="gear-outline" />
+                    <Icon type="gear-outline" aria-hidden="true" />
                   )}
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
@@ -384,7 +384,7 @@ export function MainMenu(
                   openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
-                  <Icon type="door-closed-outline" />
+                  <Icon type="door-closed-outline" aria-hidden="true" />
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.logout
@@ -590,7 +590,7 @@ function Label(props: React.PropsWithChildren) {
         {children}
       </div>
       <div className="mv-flex-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
-        <Icon type="chevron-right" />
+        <Icon type="chevron-right" aria-hidden="true" />
       </div>
     </div>
   );
@@ -659,7 +659,7 @@ function Closer(props: { openMainMenuKey: string; locales?: RootLocales }) {
           : "Close main menu"
       }
     >
-      <Icon type="close-x" />
+      <Icon type="close-x" aria-hidden="true" />
     </Link>
   );
 }
