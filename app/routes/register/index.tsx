@@ -30,6 +30,7 @@ import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButt
 import { HidePassword } from "~/components-next/icons/HidePassword";
 import { ShowPassword } from "~/components-next/icons/ShowPassword";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { Checkbox } from "~/components-next/Checkbox";
 
 export const createRegisterSchema = (locales: RegisterLocales) => {
   return z.object({
@@ -362,39 +363,37 @@ export default function Register() {
                   ) : null}
                 </Input>
               </div>
-              <div className="mv-mb-10 -mv-ml-5">
-                <FormControl
-                  {...getInputProps(registerFields.termsAccepted, {
-                    type: "checkbox",
-                  })}
-                  key="termsAccepted"
-                  labelPosition="right"
-                >
-                  <FormControl.Label>
-                    <div className="mv-pl-2">
-                      {insertComponentsIntoLocale(locales.form.confirmation, [
-                        <Link
-                          key="terms-of-use-confirmation"
-                          to="https://mint-vernetzt.de/terms-of-use-community-platform"
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="mv-text-primary mv-font-semibold hover:mv-underline"
-                        >
-                          {" "}
-                        </Link>,
-                        <Link
-                          key="privacy-policy-confirmation"
-                          to="https://mint-vernetzt.de/privacy-policy-community-platform"
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="mv-text-primary mv-font-semibold hover:mv-underline"
-                        >
-                          {" "}
-                        </Link>,
-                      ])}
-                    </div>
-                  </FormControl.Label>
-                </FormControl>
+              <div className="mv-mb-10">
+                <div className="mv-flex mv-gap-2 mv-items-center">
+                  <Checkbox
+                    {...getInputProps(registerFields.termsAccepted, {
+                      type: "checkbox",
+                    })}
+                    key="termsAccepted"
+                  />
+                  <div>
+                    {insertComponentsIntoLocale(locales.form.confirmation, [
+                      <Link
+                        key="terms-of-use-confirmation"
+                        to="https://mint-vernetzt.de/terms-of-use-community-platform"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      >
+                        {" "}
+                      </Link>,
+                      <Link
+                        key="privacy-policy-confirmation"
+                        to="https://mint-vernetzt.de/privacy-policy-community-platform"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      >
+                        {" "}
+                      </Link>,
+                    ])}
+                  </div>
+                </div>
                 {typeof registerFields.termsAccepted.errors !== "undefined" &&
                 registerFields.termsAccepted.errors.length > 0 ? (
                   <div className="mv-mb-10 mv-ml-5">

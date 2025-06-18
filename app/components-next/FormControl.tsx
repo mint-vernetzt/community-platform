@@ -37,7 +37,7 @@ function FormControlCounter(props: React.PropsWithChildren) {
 function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <div className="mv-w-5 mv-h-5 mv-relative focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-rounded-sm">
+      <div className="mv-w-5 mv-h-5 mv-relative">
         <input
           {...props}
           type="checkbox"
