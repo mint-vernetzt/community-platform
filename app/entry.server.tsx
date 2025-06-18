@@ -36,7 +36,11 @@ export default async function handleRequest(
   );
   responseHeaders.set(
     "Content-Security-Policy",
-    `default-src 'none'; style-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; form-action 'self'; script-src 'self' 'nonce-${nonce}' ; img-src 'self' data: ${process.env.IMGPROXY_URL.replace(
+    `default-src 'none'; style-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; form-action 'self'; script-src 'self' ${
+      process.env.MATOMO_URL
+    } 'nonce-${nonce}' ; img-src 'self' ${
+      process.env.MATOMO_URL
+    } data: ${process.env.IMGPROXY_URL.replace(
       /https?:\/\//,
       ""
     )}; worker-src blob:; frame-src 'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'; base-uri 'self'; frame-ancestors 'none'; report-uri ${
@@ -51,8 +55,8 @@ export default async function handleRequest(
             ""
           )
             .replace(/sentry\.io.*/, "sentry.io")
-            .replace(/^.*@/, "")};`
-        : " connect-src 'self';"
+            .replace(/^.*@/, "")} ${process.env.MATOMO_URL};`
+        : ` connect-src 'self' ${process.env.MATOMO_URL};`
     }`
   );
   responseHeaders.set("X-Frame-Options", "SAMEORIGIN");

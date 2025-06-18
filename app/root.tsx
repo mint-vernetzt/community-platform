@@ -23,6 +23,8 @@ import {
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import { ToastContainer } from "./components-next/ToastContainer";
+import { Footer } from "~/components-next/Footer";
+import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
 import { createAuthClient, getSessionUser } from "./auth.server";
 import { H1, H2 } from "./components/Heading/Heading";
@@ -31,8 +33,6 @@ import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { getProfileByUserId } from "./root.server";
-import { NavBar } from "~/components-next/NavBar";
-import { Footer } from "~/components-next/Footer";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { getPublicURL } from "./storage.server";
@@ -48,7 +48,6 @@ import { ModalRoot } from "./components-next/ModalRoot";
 import { invariantResponse } from "./lib/utils/response";
 import { getFeatureAbilities } from "./routes/feature-access.server";
 import { useNonce } from "./nonce-provider";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { useEffect } from "react";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
@@ -353,7 +352,6 @@ export default function App() {
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
-  const isHydrated = useHydrated();
 
   useEffect(() => {
     if (matomoSiteId !== undefined && window._paq !== undefined) {
@@ -484,27 +482,6 @@ export default function App() {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
-        {typeof matomoSiteId !== "undefined" &&
-        matomoSiteId !== "" &&
-        isHydrated === true ? (
-          <script
-            async
-            nonce={nonce}
-            dangerouslySetInnerHTML={{
-              __html: `
-                var _paq = window._paq = window._paq || [];
-                _paq.push(['enableLinkTracking']);
-                (function() {
-                  var u="${matomoUrl}";
-                  _paq.push(['setTrackerUrl', u+'matomo.php']);
-                  _paq.push(['setSiteId', '${matomoSiteId}']);
-                  var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-                  g.async=true; g.nonce="${nonce}"; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-                })();
-              `,
-            }}
-          />
-        ) : null}
       </head>
 
       <body className={bodyClasses}>
@@ -553,13 +530,33 @@ export default function App() {
           </div>
           <ModalRoot />
         </div>
-        <ScrollRestoration nonce={nonce} />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(ENV)}`,
           }}
         />
+        {typeof matomoSiteId !== "undefined" && matomoSiteId !== "" ? (
+          <>
+            <script nonce={nonce} src={`${matomoUrl}matomo.js`} async defer />
+            <script
+              nonce={nonce}
+              dangerouslySetInnerHTML={{
+                __html: `
+                var idSite = ${matomoSiteId};
+                var matomoTrackingApiUrl = '${matomoUrl}matomo.php';
+
+                var _paq = window._paq = window._paq || [];  
+                _paq.push(['setTrackerUrl', matomoTrackingApiUrl]);
+                _paq.push(['setSiteId', idSite]);
+                _paq.push(['trackPageView']);
+                _paq.push(['enableLinkTracking']); 
+              `,
+              }}
+            />
+          </>
+        ) : null}
+        <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
     </html>
