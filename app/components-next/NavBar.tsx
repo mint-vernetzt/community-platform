@@ -148,13 +148,11 @@ export function NavBar(props: NavBarProps) {
                   as="link"
                   variant="ghost"
                 >
-                  <span className="mv-underline">
-                    {props.locales !== undefined
-                      ? props.locales.route.root.login
-                      : DEFAULT_LANGUAGE === "de"
-                      ? "Anmelden"
-                      : "Login"}
-                  </span>
+                  {props.locales !== undefined
+                    ? props.locales.route.root.login
+                    : DEFAULT_LANGUAGE === "de"
+                    ? "Anmelden"
+                    : "Login"}
                 </Button>
               </div>
               <div>
