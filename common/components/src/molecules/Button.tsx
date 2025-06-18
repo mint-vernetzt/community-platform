@@ -83,26 +83,26 @@ function Button(
     !isDisabled &&
       variant === "normal" &&
       level === "primary" &&
-      "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700",
+      "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 active:mv-bg-primary-700 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-outline-none",
     // button negative
     !isDisabled &&
       variant === "normal" &&
       level === "negative" &&
-      "mv-bg-negative-600 mv-text-white hover:mv-bg-negative-700 focus:mv-bg-negative-700 active:mv-bg-negative-800",
+      "mv-bg-negative-600 mv-text-white hover:mv-bg-negative-700 active:mv-bg-negative-800 focus:mv-ring-2 focus:mv-ring-negative-900 focus:mv-outline-none",
     // button primary outline disabled
     isDisabled &&
       variant === "outline" &&
-      "mv-bg-neutral-50 mv-border-neutral-300 mv-text-neutral-300",
+      "mv-bg-white mv-border-neutral-300 mv-text-neutral-300",
     // button primary outline
     !isDisabled &&
       variant === "outline" &&
-      "mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100",
+      "mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-outline-none",
     // button primary ghost disabled
-    isDisabled && variant === "ghost" && "mv-bg-neutral-50 mv-text-neutral-300",
+    isDisabled && variant === "ghost" && "mv-bg-white mv-text-neutral-300",
     // button primary ghost
     !isDisabled &&
       variant === "ghost" &&
-      "mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100",
+      "mv-bg-white mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-underline focus:mv-underline-offset-4 active:mv-bg-neutral-100 focus:mv-outline-none",
 
     Array.isArray(otherProps.children) &&
       otherProps.children.length > 1 &&
