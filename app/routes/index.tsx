@@ -1,7 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
 import { useState } from "react";
@@ -19,8 +18,6 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
 import { CountUp } from "~/components-next/CountUp";
-import { HidePassword } from "~/components-next/icons/HidePassword";
-import { ShowPassword } from "~/components-next/icons/ShowPassword";
 import { H1 } from "~/components/Heading/Heading";
 import { RichText } from "~/components/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
@@ -36,6 +33,9 @@ import {
   getProjectCount,
 } from "./utils.server";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -281,13 +281,10 @@ export default function Index() {
                       {isHydrated === true ? (
                         <Input.Controls>
                           <div className="mv-h-10 mv-w-10">
-                            <CircleButton
-                              type="button"
+                            <ShowPasswordButton
                               onClick={() => {
                                 setShowPassword(!showPassword);
                               }}
-                              variant="outline"
-                              fullSize
                               aria-label={
                                 showPassword
                                   ? locales.route.form.label.hidePassword
@@ -295,11 +292,11 @@ export default function Index() {
                               }
                             >
                               {showPassword ? (
-                                <HidePassword />
+                                <PublicVisibility aria-hidden="true" />
                               ) : (
-                                <ShowPassword />
+                                <PrivateVisibility aria-hidden="true" />
                               )}
-                            </CircleButton>
+                            </ShowPasswordButton>
                           </div>
                         </Input.Controls>
                       ) : null}
@@ -392,6 +389,7 @@ export default function Index() {
                 width="55"
                 height="37"
                 className="mv-drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
+                aria-hidden="true"
               >
                 <g>
                   <path
@@ -546,6 +544,7 @@ export default function Index() {
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               className="mv-w-4 mv-h-4"
+              aria-hidden="true"
             >
               <path
                 fill="currentColor"

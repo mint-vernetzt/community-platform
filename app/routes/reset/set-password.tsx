@@ -1,7 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -15,8 +14,10 @@ import {
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
-import { HidePassword } from "~/components-next/icons/HidePassword";
-import { ShowPassword } from "~/components-next/icons/ShowPassword";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import {
@@ -25,7 +26,6 @@ import {
   getSessionUserOrThrow,
 } from "../../auth.server";
 import { setNewPassword, type SetPasswordLocales } from "./set-password.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
   return z.object({
@@ -166,21 +166,22 @@ export default function SetPassword() {
                   {isHydrated === true ? (
                     <Input.Controls>
                       <div className="mv-h-10 mv-w-10">
-                        <CircleButton
-                          type="button"
+                        <ShowPasswordButton
                           onClick={() => {
                             setShowPassword(!showPassword);
                           }}
-                          variant="outline"
-                          fullSize
                           aria-label={
                             showPassword
                               ? locales.form.hidePassword
                               : locales.form.showPassword
                           }
                         >
-                          {showPassword ? <HidePassword /> : <ShowPassword />}
-                        </CircleButton>
+                          {showPassword ? (
+                            <PublicVisibility aria-hidden="true" />
+                          ) : (
+                            <PrivateVisibility aria-hidden="true" />
+                          )}
+                        </ShowPasswordButton>
                       </div>
                     </Input.Controls>
                   ) : null}
@@ -211,25 +212,22 @@ export default function SetPassword() {
                   {isHydrated === true ? (
                     <Input.Controls>
                       <div className="mv-h-10 mv-w-10">
-                        <CircleButton
-                          type="button"
+                        <ShowPasswordButton
                           onClick={() => {
                             setShowConfirmPassword(!showConfirmPassword);
                           }}
-                          variant="outline"
-                          fullSize
                           aria-label={
                             showConfirmPassword
                               ? locales.form.hidePassword
                               : locales.form.showPassword
                           }
                         >
-                          {showConfirmPassword ? (
-                            <HidePassword />
+                          {showPassword ? (
+                            <PublicVisibility aria-hidden="true" />
                           ) : (
-                            <ShowPassword />
+                            <PrivateVisibility aria-hidden="true" />
                           )}
-                        </CircleButton>
+                        </ShowPasswordButton>
                       </div>
                     </Input.Controls>
                   ) : null}
