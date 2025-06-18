@@ -35,6 +35,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -674,10 +675,15 @@ export default function Index() {
         <Button as="link" to="/help" variant="outline">
           {locales.route.content.faq.cta}
         </Button>
-        <div className="mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
+        <div className="mv-flex mv-flex-col mv-items-center mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
           <p>{locales.route.content.faq.supportQuestion}</p>
           <p>{locales.route.content.faq.supportCta}</p>
-          <p>{locales.route.content.faq.supportEmail}</p>
+          <TextButton
+            as="link"
+            to={`mailto:${locales.route.content.faq.supportEmail}`}
+          >
+            {locales.route.content.faq.supportEmail}
+          </TextButton>
         </div>
       </section>
     </>

@@ -91,7 +91,7 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
     >
       <label
         htmlFor={`expand-question-${props.id}`}
-        className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 focus-within:mv-rounded-lg"
+        className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0 focus-within:mv-underline focus-within:mv-underline-offset-4 focus-within:mv-decoration-2"
       >
         <p className="mv-max-w-[800px]">{itemLabel}</p>
         <span className="mv-w-fit mv-h-fit mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-mr-0 @md:mv-mr-3 @lg:mv-mr-6">
