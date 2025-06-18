@@ -29,7 +29,7 @@ export const locale = {
       hidePassword: "Hide password",
     },
     confirmation:
-      "I agree to the <0>Terms of service</0>. I have taken note of the <1>Privacy policy</1>.",
+      "I agree to the <0>Terms of service</0>. I have taken note of the <1>Privacy policy</1>. *",
     submit: "Create profile",
   },
   validation: {

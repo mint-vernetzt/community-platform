@@ -369,6 +369,7 @@ export default function Register() {
                     {...getInputProps(registerFields.termsAccepted, {
                       type: "checkbox",
                     })}
+                    required
                     key="termsAccepted"
                   />
                   <label htmlFor={registerFields.termsAccepted.id}>

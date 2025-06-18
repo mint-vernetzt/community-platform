@@ -136,6 +136,7 @@ export default function AcceptTerms() {
                     {...getInputProps(acceptTermsFields.termsAccepted, {
                       type: "checkbox",
                     })}
+                    required
                     key="termsAccepted"
                   />
                   <label htmlFor={acceptTermsFields.termsAccepted.id}>
