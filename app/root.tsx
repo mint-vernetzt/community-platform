@@ -354,40 +354,42 @@ export default function App() {
   const nonce = useNonce();
 
   useEffect(() => {
-    try {
-      const _paq = (window._paq = window._paq || []);
-      _paq.push(["setCustomUrl", window.location.href]);
-      _paq.push(["trackPageView"]);
-      _paq.push(["enableLinkTracking"]);
-      _paq.push(["setTrackerUrl", `${matomoUrl}matomo.php`]);
-      _paq.push(["setSiteId", matomoSiteId]);
-      const matomoScriptElement = document.createElement("script");
-      const firstScriptElement = document.getElementsByTagName("script")[0];
-      matomoScriptElement.async = true;
-      matomoScriptElement.src = `${matomoUrl}matomo.js`;
-      matomoScriptElement.nonce = nonce;
-      if (
-        firstScriptElement !== null &&
-        firstScriptElement.parentNode !== null
-      ) {
-        firstScriptElement.parentNode.insertBefore(
-          matomoScriptElement,
-          firstScriptElement
+    if (matomoSiteId !== "" && matomoUrl !== "") {
+      try {
+        const _paq = (window._paq = window._paq || []);
+        _paq.push(["setCustomUrl", window.location.href]);
+        _paq.push(["trackPageView"]);
+        _paq.push(["enableLinkTracking"]);
+        _paq.push(["setTrackerUrl", `${matomoUrl}matomo.php`]);
+        _paq.push(["setSiteId", matomoSiteId]);
+        const matomoScriptElement = document.createElement("script");
+        const firstScriptElement = document.getElementsByTagName("script")[0];
+        matomoScriptElement.async = true;
+        matomoScriptElement.src = `${matomoUrl}matomo.js`;
+        matomoScriptElement.nonce = nonce;
+        if (
+          firstScriptElement !== null &&
+          firstScriptElement.parentNode !== null
+        ) {
+          firstScriptElement.parentNode.insertBefore(
+            matomoScriptElement,
+            firstScriptElement
+          );
+        } else {
+          throw new Error(
+            "Matomo script element could not be inserted into the DOM."
+          );
+        }
+      } catch (error) {
+        console.warn(`Matomo initialization failed.`);
+        const stringifiedError = JSON.stringify(
+          error,
+          Object.getOwnPropertyNames(error)
         );
-      } else {
-        throw new Error(
-          "Matomo script element could not be inserted into the DOM."
-        );
+        fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+          method: "GET",
+        });
       }
-    } catch (error) {
-      console.warn(`Matomo initialization failed.`);
-      const stringifiedError = JSON.stringify(
-        error,
-        Object.getOwnPropertyNames(error)
-      );
-      fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-        method: "GET",
-      });
     }
   }, [location, matomoSiteId, matomoUrl, nonce]);
 
