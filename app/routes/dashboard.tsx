@@ -845,25 +845,6 @@ function Dashboard() {
           </div>
         </section>
       }
-      {/* <section className="mv-w-full mv-mx-auto mv-m-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-px-4 @xl:mv-px-6">
-          <h1 className="mv-text-primary mv-font-black mv-text-5xl @lg:mv-text-7xl mv-leading-tight mv-mb-2">
-            {loaderData.locales.route.content.welcome}
-            <br />
-            {loaderData.firstName} {loaderData.lastName}
-          </h1>
-          <p className="mv-font-semibold mv-mb-6">
-            {loaderData.locales.route.content.community}
-          </p>
-          <Button
-            variant="outline"
-            as="link"
-            to={`/profile/${loaderData.username}`}
-          >
-            {loaderData.locales.route.content.myProfile}
-          </Button>
-        </div>
-      </section> */}
       {/* Organization Member Invites Section */}
       {loaderData.organizationMemberInvites.length > 0 && (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
@@ -888,13 +869,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.organizationMemberInvites.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
                   +{loaderData.organizationMemberInvites.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-primary">
-              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="mv-flex-1 mv-text-neutral-700">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.invites.headline_one,
@@ -946,13 +927,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.organizationMemberRequests.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
                   +{loaderData.organizationMemberRequests.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-primary">
-              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="mv-flex-1 mv-text-neutral-700">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.requests.headline_one,
@@ -1004,13 +985,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.networkInvites.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
                   +{loaderData.networkInvites.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-primary">
-              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="mv-flex-1 mv-text-neutral-700">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkInvites
@@ -1064,13 +1045,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.networkRequests.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-primary">
+                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
                   +{loaderData.networkRequests.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-primary">
-              <h3 className="mv-font-bold mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="mv-flex-1 mv-text-neutral-700">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkRequests
