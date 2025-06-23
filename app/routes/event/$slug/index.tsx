@@ -1492,9 +1492,9 @@ function Index() {
                                 </>
                               ) : null}
                             </p>
-                            <h4 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
+                            <h3 className="mv-font-bold mv-text-base mv-m-0 @md:mv-line-clamp-1">
                               {event.name}
-                            </h4>
+                            </h3>
                             {event.subline !== null ? (
                               <p className="mv-hidden mv-text-xs mv-mt-1 @md:mv-line-clamp-1">
                                 {event.subline}
