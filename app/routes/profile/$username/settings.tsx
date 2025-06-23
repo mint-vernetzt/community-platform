@@ -9,7 +9,7 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import { BreadCrump } from "~/components-next/BreadCrump";
+import { BackButton } from "~/components-next/BackButton";
 import { detectLanguage } from "~/i18n.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
@@ -47,11 +47,9 @@ function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BreadCrump>
-          <BreadCrump.Link standalone to={`/profile/${loaderData.username}`}>
-            {locales.back}
-          </BreadCrump.Link>
-        </BreadCrump>
+        <BackButton to={`/profile/${loaderData.username}`}>
+          {locales.back}
+        </BackButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
         <div className="mv-flex mv-flex-col @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0">

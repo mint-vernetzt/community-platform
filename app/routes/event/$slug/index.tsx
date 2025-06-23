@@ -87,6 +87,7 @@ import {
   type ParticipantsQuery,
   type SpeakersQuery,
 } from "./utils.server";
+import { BackButton } from "~/components-next/BackButton";
 
 export function links() {
   return [
@@ -545,11 +546,9 @@ function Index() {
               <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
             </BreadCrump>
           ) : (
-            <BreadCrump>
-              <BreadCrump.Link standalone to="/explore/events">
-                {locales.route.content.back}
-              </BreadCrump.Link>
-            </BreadCrump>
+            <BackButton to="/explore/events">
+              {locales.route.content.back}
+            </BackButton>
           )}
         </div>
         {loaderData.abilities.abuse_report.hasAccess &&

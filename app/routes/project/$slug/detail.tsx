@@ -28,7 +28,7 @@ import {
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BreadCrump } from "~/components-next/BreadCrump";
+import { BackButton } from "~/components-next/BackButton";
 import { Modal } from "~/components-next/Modal";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper, {
@@ -423,11 +423,9 @@ function ProjectDetail() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BreadCrump>
-          <BreadCrump.Link standalone to="/explore/projects">
-            {locales.route.content.back}
-          </BreadCrump.Link>
-        </BreadCrump>
+        <BackButton to="/explore/projects">
+          {locales.route.content.back}
+        </BackButton>
       </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>

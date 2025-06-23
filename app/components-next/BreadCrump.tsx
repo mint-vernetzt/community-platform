@@ -26,23 +26,11 @@ export function BreadCrump(props: PropsWithChildren) {
   );
 }
 
-function Link(props: {
-  to: string;
-  isFirst?: boolean;
-  standalone?: boolean;
-  children: React.ReactNode;
-}) {
-  const { to, standalone = false, children } = props;
+function Link(props: { to: string; children: React.ReactNode }) {
+  const { to, children } = props;
 
   return (
-    <TextButton
-      as="link"
-      to={to}
-      arrowRight={standalone === false}
-      arrowLeft={standalone === true}
-      variant="dark"
-      weight="base"
-    >
+    <TextButton as="link" to={to} arrowRight variant="dark" weight="base">
       {children}
     </TextButton>
   );

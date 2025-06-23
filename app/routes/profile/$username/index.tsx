@@ -21,7 +21,7 @@ import {
   useLoaderData,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BreadCrump } from "~/components-next/BreadCrump";
+import { BackButton } from "~/components-next/BackButton";
 import { Mastodon } from "~/components-next/icons/Mastodon";
 import { TikTok } from "~/components-next/icons/TikTok";
 import { Modal } from "~/components-next/Modal";
@@ -517,11 +517,7 @@ export default function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BreadCrump>
-          <BreadCrump.Link standalone to="/explore/profiles">
-            {locales.route.back}
-          </BreadCrump.Link>
-        </BreadCrump>
+        <BackButton to="/explore/profiles">{locales.route.back}</BackButton>
       </section>
       <section className="mv-hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-rounded-3xl mv-relative mv-overflow-hidden mv-bg-yellow-100 mv-w-full mv-aspect-[31/10]">

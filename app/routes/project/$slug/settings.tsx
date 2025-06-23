@@ -10,7 +10,7 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BreadCrump } from "~/components-next/BreadCrump";
+import { BackButton } from "~/components-next/BackButton";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
@@ -100,14 +100,9 @@ function ProjectSettings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <BreadCrump>
-            <BreadCrump.Link
-              standalone
-              to={`/project/${loaderData.project.slug}`}
-            >
-              {locales.content.toProject}
-            </BreadCrump.Link>
-          </BreadCrump>
+          <BackButton to={`/project/${loaderData.project.slug}`}>
+            {locales.content.toProject}
+          </BackButton>
           <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>
       </div>
