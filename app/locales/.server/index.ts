@@ -455,6 +455,7 @@ const de = {
     organizationTypes: deOrganizationTypes,
     imageCropper: deImageCropper,
     upload: deUpload,
+    components: deComponents,
   },
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
@@ -588,7 +589,10 @@ const de = {
     components: deComponents,
     schemas: deSchemas,
   },
-  "organization/$slug/settings": deOrganizationSettings,
+  "organization/$slug/settings": {
+    route: deOrganizationSettings,
+    components: deComponents,
+  },
   // profile routes
   "profile/$username/settings/delete": deDeleteProfile,
   "profile/$username/settings/general": {
@@ -855,6 +859,7 @@ const en = {
     organizationTypes: enOrganizationTypes,
     imageCropper: enImageCropper,
     upload: enUpload,
+    components: enComponents,
   },
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
@@ -988,7 +993,10 @@ const en = {
     components: enComponents,
     schemas: enSchemas,
   },
-  "organization/$slug/settings": enOrganizationSettings,
+  "organization/$slug/settings": {
+    route: enOrganizationSettings,
+    components: enComponents,
+  },
   // profile routes
   "profile/$username/settings/delete": enDeleteProfile,
   "profile/$username/settings/general": {

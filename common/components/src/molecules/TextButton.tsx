@@ -4,7 +4,7 @@ import { Link, type LinkProps } from "react-router";
 
 export type TextButtonVariants = "primary" | "neutral" | "dark";
 type TextButtonSize = "small" | "medium" | "large";
-type TextButtonWeight = "normal" | "thin";
+type TextButtonWeight = "normal" | "thin" | "base";
 type TextButtonType = "button" | "link";
 
 type TextButtonProps = {
@@ -83,13 +83,14 @@ function TextButton(
   } = props;
 
   const classes = classNames(
-    "mv-flex mv-w-fit mv-items-center mv-gap-1 hover:mv-underline active:mv-underline mv-underline-offset-4",
+    "mv-flex mv-w-fit mv-items-center mv-gap-2 hover:mv-underline active:mv-underline mv-underline-offset-4",
     variant === "primary" && "mv-text-primary",
     variant === "neutral" && "mv-text-neutral",
     variant === "dark" && "mv-text-neutral-700",
     size === "small" && "mv-text-sm",
     size === "large" && "mv-text-2xl",
     weight === "thin" && "mv-font-thin",
+    weight === "base" && "mv-font-normal",
     weight === "normal" && "mv-font-semibold"
   );
 

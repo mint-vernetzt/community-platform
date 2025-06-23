@@ -4,7 +4,6 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
@@ -24,6 +23,7 @@ import {
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BreadCrump } from "~/components-next/BreadCrump";
 import { Modal } from "~/components-next/Modal";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
@@ -536,30 +536,21 @@ function Index() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
         <div className="mv-font-semibold mv-text-neutral-500 mv-flex mv-flex-wrap mv-items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
-            <>
-              <TextButton
-                as="link"
+            <BreadCrump locales={loaderData.locales}>
+              <BreadCrump.Link
+                isFirst
                 to={`/event/${loaderData.event.parentEvent.slug}`}
-                weight="thin"
-                variant="neutral"
-                arrowRight
               >
                 {loaderData.event.parentEvent.name}
-              </TextButton>
-              <span className="mv-w-full @md:mv-w-auto mv-text-neutral mv-font-thin">
-                {loaderData.event.name}
-              </span>
-            </>
+              </BreadCrump.Link>
+              <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
+            </BreadCrump>
           ) : (
-            <TextButton
-              as="link"
-              to="/explore/events"
-              weight="thin"
-              variant="neutral"
-              arrowLeft
-            >
-              {locales.route.content.back}
-            </TextButton>
+            <BreadCrump locales={loaderData.locales}>
+              <BreadCrump.Link standalone to="/explore/events">
+                {locales.route.content.back}
+              </BreadCrump.Link>
+            </BreadCrump>
           )}
         </div>
         {loaderData.abilities.abuse_report.hasAccess &&
