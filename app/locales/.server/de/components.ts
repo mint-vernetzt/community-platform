@@ -24,7 +24,4 @@ export const locale = {
     ariaLabel:
       "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
   },
-  BreadCrump: {
-    prefix: "Zurück zu ...",
-  },
 } as const;

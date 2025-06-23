@@ -103,7 +103,7 @@ function Settings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <BreadCrump locales={loaderData.locales}>
+          <BreadCrump>
             <BreadCrump.Link
               standalone
               to={`/organization/${loaderData.organization.slug}`}

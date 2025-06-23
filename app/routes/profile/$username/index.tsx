@@ -1,11 +1,12 @@
 import { Avatar as MVAvatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import type { Profile } from "@prisma/client";
 import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
+import { useCallback } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import type {
   ActionFunctionArgs,
@@ -20,6 +21,7 @@ import {
   useLoaderData,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BreadCrump } from "~/components-next/BreadCrump";
 import { Mastodon } from "~/components-next/icons/Mastodon";
 import { TikTok } from "~/components-next/icons/TikTok";
 import { Modal } from "~/components-next/Modal";
@@ -50,6 +52,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { AddParticipantButton } from "~/routes/event/$slug/settings/participants/add-participant";
 import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-list/add-to-waiting-list";
 import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
@@ -66,9 +69,6 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { useCallback } from "react";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 
 export function links() {
   return [
@@ -517,15 +517,11 @@ export default function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <TextButton
-          as="link"
-          to="/explore/profiles"
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.route.back}
-        </TextButton>
+        <BreadCrump>
+          <BreadCrump.Link standalone to="/explore/profiles">
+            {locales.route.back}
+          </BreadCrump.Link>
+        </BreadCrump>
       </section>
       <section className="mv-hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <div className="mv-rounded-3xl mv-relative mv-overflow-hidden mv-bg-yellow-100 mv-w-full mv-aspect-[31/10]">

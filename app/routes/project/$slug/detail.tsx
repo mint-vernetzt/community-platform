@@ -6,7 +6,6 @@ import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButt
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Status } from "@mint-vernetzt/components/src/molecules/Status";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Header } from "@mint-vernetzt/components/src/organisms/Header";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
@@ -29,6 +28,7 @@ import {
 } from "react-router";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BreadCrump } from "~/components-next/BreadCrump";
 import { Modal } from "~/components-next/Modal";
 import { H1 } from "~/components/Heading/Heading";
 import ImageCropper, {
@@ -43,6 +43,7 @@ import {
   MaxImageSizes,
   MinCropSizes,
 } from "~/images.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValue, getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
@@ -57,7 +58,6 @@ import {
   uploadImage,
 } from "./detail.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export function links() {
   return [
@@ -423,15 +423,11 @@ function ProjectDetail() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <TextButton
-          as="link"
-          to="/explore/projects"
-          weight="thin"
-          variant="neutral"
-          arrowLeft
-        >
-          {locales.route.content.back}
-        </TextButton>
+        <BreadCrump>
+          <BreadCrump.Link standalone to="/explore/projects">
+            {locales.route.content.back}
+          </BreadCrump.Link>
+        </BreadCrump>
       </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
         <Header>

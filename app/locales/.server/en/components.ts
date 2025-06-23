@@ -23,7 +23,4 @@ export const locale = {
   VisibilityCheckbox: {
     ariaLabel: "Set visibility to private or public. Checkmark means public.",
   },
-  BreadCrump: {
-    prefix: "Back to ...",
-  },
 } as const;

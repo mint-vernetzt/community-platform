@@ -536,9 +536,8 @@ function Index() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
         <div className="mv-font-semibold mv-text-neutral-500 mv-flex mv-flex-wrap mv-items-center mv-mb-4">
           {loaderData.event.parentEvent !== null ? (
-            <BreadCrump locales={loaderData.locales}>
+            <BreadCrump>
               <BreadCrump.Link
-                isFirst
                 to={`/event/${loaderData.event.parentEvent.slug}`}
               >
                 {loaderData.event.parentEvent.name}
@@ -546,7 +545,7 @@ function Index() {
               <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
             </BreadCrump>
           ) : (
-            <BreadCrump locales={loaderData.locales}>
+            <BreadCrump>
               <BreadCrump.Link standalone to="/explore/events">
                 {locales.route.content.back}
               </BreadCrump.Link>
