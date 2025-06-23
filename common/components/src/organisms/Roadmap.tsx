@@ -32,7 +32,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
         {countRoadmapCards > 3 ? (
           <label
             htmlFor={`collapse-col-${props.id}`}
-            className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-text-nowrap mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer"
+            className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-text-nowrap mv-text-sm mv-font-semibold mv-h-5 mv-text-primary-700 mv-cursor-pointer"
           >
             <span className="group-has-[:checked]:mv-hidden mv-block mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
               {locales.roadmap.controls.showMore}
@@ -45,7 +45,7 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           <>
             <label
               htmlFor={`collapse-col-${props.id}`}
-              className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary mv-cursor-pointer @md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
+              className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary-700 mv-cursor-pointer @md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
             >
               <span className="group-has-[:checked]:mv-hidden mv-inset-0 mv-text-center mv-absolute group-hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
                 {locales.roadmap.controls.showMore}
