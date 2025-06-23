@@ -182,7 +182,8 @@ function CardImage(props: {
           {props.blurSrc ? (
             <img
               src={props.blurSrc}
-              alt="Rahmen des Hintergrundbildes"
+              alt=""
+              aria-hidden="true"
               className="mv-w-full mv-h-full mv-object-cover"
             />
           ) : null}
@@ -197,14 +198,18 @@ function CardImage(props: {
                       : "opacity-0 invisible"
                   }
                   `}
+            // TODO: alt text for user generated images
             alt=""
+            aria-hidden="true"
           />
           {props.isHydrated !== undefined && (
             <noscript>
               <img
                 src={props.src}
                 className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0`}
+                // TODO: alt text for user generated images
                 alt=""
+                aria-hidden="true"
               />
             </noscript>
           )}
@@ -213,7 +218,9 @@ function CardImage(props: {
         <img
           src={props.src}
           className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
+          // TODO: alt text for user generated images
           alt=""
+          aria-hidden="true"
         />
       )}
     </>
@@ -255,10 +262,10 @@ export function CardBodySection(props: CardBodySectionProps) {
       {typeof firstChild === "string" && (
         <p
           className={classNames(
-            "mv-font-semibold mv-leading-4 mv-min-h-6 mv-truncate",
+            "mv-min-h-6 mv-truncate",
             firstChild === ""
-              ? "mv-text-sm mv-text-neutral-400"
-              : "mv-text-base"
+              ? "mv-text-sm mv-font-normal mv-text-neutral-700 mv-leading-5 mv-tracking-[2%]"
+              : "mv-text-base mv-font-semibold mv-leading-4"
           )}
         >
           {firstChild === "" ? emptyMessage : firstChild}
