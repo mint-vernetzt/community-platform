@@ -59,7 +59,13 @@ function Avatar(props: AvatarProps) {
       "hover:mv-border-0 active:mv-border-2 focus-within:mv-border-2 active:mv-border-blue-500 focus-within:mv-border-blue-500 hover:mv-shadow-md active:mv-shadow-md focus-within:mv-shadow-md"
   );
   const child = src ? (
-    <Image alt={displayName} src={src} blurredSrc={blurredSrc} />
+    <Image
+      alt={`${displayName}${
+        typeof props.altSuffix !== "undefined" ? ` - ${props.altSuffix}` : ""
+      }`}
+      src={src}
+      blurredSrc={blurredSrc}
+    />
   ) : (
     <div>{initials}</div>
   );
@@ -157,6 +163,7 @@ type AvatarProps = {
   size?: AvatarSize;
   textSize?: TextSize;
   to?: string;
+  altSuffix?: string;
 } & (
   | {
       name: string;
