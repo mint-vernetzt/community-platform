@@ -122,7 +122,7 @@ function InputHelperText(
       className={`mv-text-sm mv-mt-2 ${
         typeof props.disabled !== "undefined" && props.disabled !== false
           ? "mv-text-neutral-300"
-          : "mv-text-gray-700"
+          : "mv-text-neutral-700"
       }`}
     >
       {props.children}
@@ -151,7 +151,7 @@ function InputCounter(props: { currentCount: number; maxCount: number }) {
     <div
       className={`mv-text-sm ${
         props.currentCount < props.maxCount
-          ? "mv-text-gray-700"
+          ? "mv-text-neutral-700"
           : "mv-text-negative-600"
       } mv-mt-2`}
     >
@@ -280,7 +280,7 @@ function Input(props: InputProps) {
   });
 
   const inputClasses = classNames(
-    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0",
+    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-2 focus:mv-border-primary-200 focus-visible:mv-outline-0",
     errors.length > 0 && "mv-border-negative-600",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
