@@ -169,7 +169,7 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
 
 function EntitiesSelectDropdownLabel(props: React.PropsWithChildren) {
   return (
-    <p className="mv-block @lg:mv-hidden mv-mb-2 mv-text-sm mv-font-semibold mv-text-neutral-500">
+    <p className="mv-block @lg:mv-hidden mv-mb-2 mv-text-sm mv-font-semibold mv-text-neutral-700">
       {props.children}
     </p>
   );
