@@ -94,8 +94,11 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
 
   return (
     <EntitiesSelectMenuItemContext.Provider value={{ pathname, disabled }}>
-      {isActive ? (
+      {isActive &&
+      (typeof isDropdownLabel === "undefined" || isDropdownLabel === false) ? (
         <li className={classes}>{children}</li>
+      ) : isActive ? (
+        <p className={classes}>{children}</p>
       ) : (
         <li className={classes}>
           <NavLink
