@@ -1352,6 +1352,7 @@ function Index() {
                                 lastName={profile.lastName}
                                 avatar={profile.avatar}
                                 blurredAvatar={profile.blurredAvatar}
+                                altSuffix={locales.route.content.event.speaker}
                               />
                             ) : (
                               getInitials(profile)
@@ -1633,6 +1634,9 @@ function Index() {
                                 lastName={member.profile.lastName}
                                 avatar={member.profile.avatar}
                                 blurredAvatar={member.profile.blurredAvatar}
+                                altSuffix={
+                                  locales.route.content.event.teamMember
+                                }
                               />
                             ) : (
                               getInitials(member.profile)
@@ -1694,6 +1698,9 @@ function Index() {
                                 name={item.organization.name}
                                 logo={item.organization.logo}
                                 blurredLogo={item.organization.blurredLogo}
+                                altSuffix={
+                                  locales.route.content.event.organizer
+                                }
                               />
                             </div>
                           ) : (
@@ -1778,6 +1785,9 @@ function Index() {
                                 lastName={profile.lastName}
                                 avatar={profile.avatar}
                                 blurredAvatar={profile.blurredAvatar}
+                                altSuffix={
+                                  locales.route.content.event.participant
+                                }
                               />
                             ) : (
                               getInitials(profile)
