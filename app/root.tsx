@@ -357,8 +357,6 @@ export default function App() {
     if (matomoSiteId !== "" && matomoUrl !== "") {
       try {
         const _paq = (window._paq = window._paq || []);
-        _paq.push(["setCustomUrl", window.location.href]);
-        _paq.push(["trackPageView"]);
         _paq.push(["enableLinkTracking"]);
         _paq.push(["setTrackerUrl", `${matomoUrl}matomo.php`]);
         _paq.push(["setSiteId", matomoSiteId]);
@@ -382,6 +380,25 @@ export default function App() {
         }
       } catch (error) {
         console.warn(`Matomo initialization failed.`);
+        const stringifiedError = JSON.stringify(
+          error,
+          Object.getOwnPropertyNames(error)
+        );
+        fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+          method: "GET",
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (matomoSiteId !== "" && matomoUrl !== "" && window._paq !== undefined) {
+      try {
+        window._paq.push(["setCustomUrl", window.location.href]);
+        window._paq.push(["trackPageView"]);
+      } catch (error) {
+        console.warn(`Matomo tracking failed.`);
         const stringifiedError = JSON.stringify(
           error,
           Object.getOwnPropertyNames(error)
