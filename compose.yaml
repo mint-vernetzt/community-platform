@@ -1,0 +1,35 @@
+name: community-platform
+
+services:
+  community-platform-service:
+    image: community-platform-image:latest
+    container_name: community-platform
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "3000"
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+  nginx-service:
+    container_name: nginx
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

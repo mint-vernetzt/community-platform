@@ -1,0 +1,29 @@
+name: Platform Docker Stage Without Registry
+
+on:
+  push:
+    branches: [main]
+  # allow trigger manually
+  workflow_dispatch:
+
+jobs:
+  login-and-run-commands:
+    name: Build and start on remote
+    runs-on: ubuntu-latest
+    environment: staging-docker
+    steps:
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            eval `ssh-agent`
+            ssh-add ~/.ssh/github-dk
+            cd repository/
+            git pull
+            docker compose build
+            docker compose up -d
