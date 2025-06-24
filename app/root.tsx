@@ -408,7 +408,7 @@ export default function App() {
         });
       }
     }
-  }, [location, matomoSiteId, matomoUrl, nonce]);
+  }, [location, matomoSiteId, matomoUrl]);
 
   const nonAppBaseRoutes = [
     "/login",
