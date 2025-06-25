@@ -12,7 +12,6 @@ docker
 node_modules
 prisma/json-schema
 prisma/migrations
-prisma/scripts
 scripts
 supabase
 templates
