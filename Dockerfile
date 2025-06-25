@@ -1,12 +1,12 @@
 FROM node:23.11.1 AS development-dependencies-env
 COPY . /app
 WORKDIR /app
-RUN npm ci
+RUN npm install
 
 FROM node:23.11.1 AS production-dependencies-env
 COPY ./package.json package-lock.json /app/
 WORKDIR /app
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 FROM node:23.11.1 AS build-env
 COPY . /app/
