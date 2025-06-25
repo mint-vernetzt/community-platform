@@ -16,7 +16,7 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { searchOrganizationsSchema } from "~/form-helpers";
@@ -255,9 +255,9 @@ function Team() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname}>
         {locales.route.content.headline}
-      </BackButton>
+      </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
 
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">

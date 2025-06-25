@@ -588,7 +588,9 @@ const de = {
     components: deComponents,
     schemas: deSchemas,
   },
-  "organization/$slug/settings": deOrganizationSettings,
+  "organization/$slug/settings": {
+    route: deOrganizationSettings,
+  },
   // profile routes
   "profile/$username/settings/delete": deDeleteProfile,
   "profile/$username/settings/general": {
@@ -988,7 +990,9 @@ const en = {
     components: enComponents,
     schemas: enSchemas,
   },
-  "organization/$slug/settings": enOrganizationSettings,
+  "organization/$slug/settings": {
+    route: enOrganizationSettings,
+  },
   // profile routes
   "profile/$username/settings/delete": enDeleteProfile,
   "profile/$username/settings/general": {

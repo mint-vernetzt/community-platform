@@ -33,7 +33,7 @@ import {
 import { detectLanguage } from "~/i18n.server";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
@@ -180,9 +180,9 @@ function WebSocial() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname}>
         {locales.route.content.back}
-      </BackButton>
+      </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
       <Form
         {...getFormProps(form)}

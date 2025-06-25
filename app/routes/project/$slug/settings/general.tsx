@@ -11,7 +11,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { createPhoneSchema } from "~/lib/utils/schemas";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import {
   createAreaOptions,
@@ -406,9 +406,9 @@ function General() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname}>
         {locales.route.content.back}
-      </BackButton>
+      </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
       <Form
         {...getFormProps(form)}

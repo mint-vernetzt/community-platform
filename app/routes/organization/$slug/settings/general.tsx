@@ -19,7 +19,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { TextArea } from "~/components-next/TextArea";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
@@ -442,9 +442,9 @@ function General() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <BackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname}>
         {locales.route.content.headline}
-      </BackButton>
+      </SettingsMenuBackButton>
       <Form
         {...getFormProps(form)}
         method="post"

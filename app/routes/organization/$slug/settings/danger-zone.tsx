@@ -2,7 +2,7 @@ import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { type LoaderFunctionArgs } from "react-router";
 import { Link, Outlet, useLoaderData, useLocation } from "react-router";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
@@ -25,7 +25,9 @@ function DangerZone() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>{locales.content.back}</BackButton>
+      <SettingsMenuBackButton to={location.pathname}>
+        {locales.content.back}
+      </SettingsMenuBackButton>
       <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
