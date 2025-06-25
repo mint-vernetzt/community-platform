@@ -22,7 +22,7 @@ services:
       context: .
       dockerfile: ./nginx/Dockerfile
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/nginx/sites-available/default.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
       - "80:80"

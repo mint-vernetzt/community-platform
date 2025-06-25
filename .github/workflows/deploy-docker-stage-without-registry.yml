@@ -10,7 +10,7 @@ jobs:
   login-and-run-commands:
     name: Build and start on remote
     runs-on: ubuntu-latest
-    environment: staging-docker
+    environment: staging-mint-vm
     steps:
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@master
@@ -22,8 +22,9 @@ jobs:
           script_stop: true
           script: |
             eval `ssh-agent`
-            ssh-add ~/.ssh/github-dk
+            ssh-add ~/.ssh/staging-mint-vm_github-dk_id_ed25519
             cd repository/
-            git pull
+            git checkout main
+            git pull origin main
             docker compose build
             docker compose up -d
