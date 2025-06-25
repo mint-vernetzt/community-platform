@@ -2,7 +2,6 @@ FROM node:23.11.1 AS development-dependencies-env
 COPY . /app
 WORKDIR /app
 RUN npm install
-RUN npm run copy:fonts
 
 FROM node:23.11.1 AS production-dependencies-env
 COPY ./package.json package-lock.json /app/

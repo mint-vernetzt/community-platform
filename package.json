@@ -126,7 +126,6 @@
     "plop": "^4.0.1",
     "postcss": "^8.5.3",
     "prisma": "^5.7.1",
-    "rsync": "^0.6.1",
     "simple-git": "^3.21.0",
     "supabase": "^2.22.12",
     "tailwindcss": "^3.4.17",
