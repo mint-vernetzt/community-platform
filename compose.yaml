@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: ./nginx/Dockerfile
+      dockerfile: ./docker/nginx/Dockerfile
     volumes:
       - /etc/nginx/sites-available/default.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
