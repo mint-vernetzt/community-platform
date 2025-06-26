@@ -424,7 +424,7 @@ export function MainMenu(
                 : "Privacy policy"}
             </Link>
             <Link
-              className="hover:mv-underline mv-w-full"
+              className="hover:mv-underline"
               target="_blank"
               rel="noopener noreferrer"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
@@ -435,6 +435,18 @@ export function MainMenu(
                 ? "Nutzungsbedingungen"
                 : "Terms of use"}
             </Link>
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "mv-underline" : "hover:mv-underline"
+              }
+              to="/accessibility-statement"
+            >
+              {props.locales !== undefined
+                ? props.locales.route.root.menu.accessibilityStatement
+                : DEFAULT_LANGUAGE === "de"
+                ? "Barrierefreiheit"
+                : "Accessibility"}
+            </NavLink>
           </FooterMenu>
         </div>
       </div>
@@ -478,7 +490,10 @@ function FooterMenu(props: React.PropsWithChildren) {
 
   return (
     <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-[15px] mv-px-6 mv-select-none">
-      <div className="mv-flex mv-flex-wrap mv-items-center mv-gap-x-4 mv-gap-y-2 mv-w-full mv-px-2 mv-py-4 mv-text-xs mv-border-t mv-border-gray-200">
+      <div className="mv-relative mv-flex mv-flex-wrap mv-items-center mv-gap-x-4 mv-gap-y-2 mv-w-full mv-px-2.5 mv-pb-4 mv-pt-6 mv-text-xs">
+        <div className="mv-absolute mv-top-0 mv-left-0 mv-px-4 mv-w-full">
+          <div className="mv-w-full mv-border-t mv-border-gray-200" />
+        </div>
         {children}
       </div>
     </div>
