@@ -138,6 +138,8 @@ import { locale as deDeleteImage } from "./de/routes/upload/delete";
 import { locale as deUploadImage } from "./de/routes/upload/image";
 // accept terms route
 import { locale as deAcceptTerms } from "./de/routes/accept-terms";
+// accessibility-statement route
+import { locale as deAccessibilityStatement } from "./de/routes/accessibility-statement";
 // dashboard route
 import { locale as deDashboard } from "./de/routes/dashboard";
 // goodbye route
@@ -308,6 +310,8 @@ import { locale as enDeleteImage } from "./en/routes/upload/delete";
 import { locale as enUploadImage } from "./en/routes/upload/image";
 // accept terms route
 import { locale as enAcceptTerms } from "./en/routes/accept-terms";
+// accessibility-statement route
+import { locale as enAccessibilityStatement } from "./en/routes/accessibility-statement";
 // dashboard route
 import { locale as enDashboard } from "./en/routes/dashboard";
 // goodbye route
@@ -709,6 +713,8 @@ const de = {
   "upload/image": deUploadImage,
   // accept terms route
   "accept-terms": deAcceptTerms,
+  // accessibility-statement route
+  "accessibility-statement": deAccessibilityStatement,
   // dashboard route
   dashboard: {
     route: deDashboard,
@@ -1109,6 +1115,8 @@ const en = {
   "upload/image": enUploadImage,
   // accept terms route
   "accept-terms": enAcceptTerms,
+  // accessibility-statement route
+  "accessibility-statement": enAccessibilityStatement,
   // dashboard route
   dashboard: {
     route: enDashboard,
