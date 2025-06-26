@@ -1,32 +1,47 @@
 import { z } from "zod";
 
 const schema = z.object({
+  // node
   NODE_ENV: z.enum(["production", "development", "test"] as const),
-  SUPABASE_ANON_KEY: z.string(),
+
+  // app
+  COMMUNITY_BASE_URL: z.string(),
   SESSION_SECRET: z.string(),
+  HASH_SECRET: z.string(),
+  SYSTEM_MAIL_SENDER: z.string(),
+  SUPPORT_MAIL: z.string(),
+  FEATURE_FLAGS: z.string(),
+  UNDER_CONSTRUCTION: z.enum(["true", "false"] as const).optional(),
+
+  // supabase
   SUPABASE_URL: z.string(),
   SUPABASE_IMAGE_URL: z.string().optional(),
-  HASH_SECRET: z.string(),
+  SUPABASE_ANON_KEY: z.string(),
+  SERVICE_ROLE_KEY: z.string(),
+  DATABASE_URL: z.string(),
+  DATABASE_DIRECT_URL: z.string(),
+
+  // imgproxy
   IMGPROXY_URL: z.string(),
   IMGPROXY_KEY: z.string(),
   IMGPROXY_SALT: z.string(),
-  COMMUNITY_BASE_URL: z.string(),
-  DATABASE_URL: z.string(),
-  SERVICE_ROLE_KEY: z.string(),
-  MATOMO_URL: z.string(),
-  MATOMO_SITE_ID: z.string(),
+
+  // nodemailer
   MAILER_HOST: z.string(),
   MAILER_PORT: z.string(),
-  MAILER_USER: z.string(),
-  MAILER_PASS: z.string(),
-  SYSTEM_MAIL_SENDER: z.string(),
-  FEATURE_FLAGS: z.string(),
+  MAILER_USER: z.string().optional(),
+  MAILER_PASS: z.string().optional(),
+
+  // matomo
+  MATOMO_URL: z.string().optional(),
+  MATOMO_SITE_ID: z.string().optional(),
+
+  // sentry
   SENTRY_DSN: z.string().optional(),
   SENTRY_ORGANIZATION_NAME: z.string().optional(),
   SENTRY_PROJECT_NAME: z.string().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
   TRIGGER_SENTRY_RELEASE: z.enum(["true"] as const).optional(),
-  SUPPORT_MAIL: z.string(),
 });
 
 declare global {
