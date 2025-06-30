@@ -1,5 +1,6 @@
 export const locale = {
   title: "Accessibility statement for the MINTvernetzt community platform",
+  date: "As of: June 18, 2025",
   scope: {
     title: "1. Scope of this declaration",
     content:
