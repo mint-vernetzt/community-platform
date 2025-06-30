@@ -23,6 +23,7 @@ export default function Imprint() {
   return (
     <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 @md:mv-my-10 @lg:mv-my-20">
       <h1>{locales.title}</h1>
+      <p>{locales.date}</p>
       <section className="mv-mt-6">
         <h2>{locales.scope.title}</h2>
         <p>
