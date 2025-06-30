@@ -20,9 +20,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
+          envs: SSH_KEY_PASSPHRASE
           script: |
             eval `ssh-agent`
-            ssh-add ~/.ssh/staging-mint-vm_github-dk_id_ed25519
+            export SSH_ASKPASS=$(mktemp)
+            echo '#!/bin/sh' > $SSH_ASKPASS
+            echo "echo \$SSH_KEY_PASSPHRASE" >> $SSH_ASKPASS
+            chmod +x $SSH_ASKPASS
+            setsid ssh-add ~/.ssh/staging-mint-vm_github-dk_id_ed25519 < /dev/null
+            rm $SSH_ASKPASS
             cd repository/
             git checkout main
             git pull origin main
