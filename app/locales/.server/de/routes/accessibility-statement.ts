@@ -1,5 +1,6 @@
 export const locale = {
   title: "Barrierefreiheitserklärung für die MINTvernetzt Community-Plattform",
+  date: "Stand: 18.06.2025",
   scope: {
     title: "1. Geltungsbereich dieser Erklärung",
     content:
