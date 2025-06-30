@@ -354,7 +354,10 @@ export default function App() {
   const nonce = useNonce();
 
   useEffect(() => {
-    if (matomoSiteId !== "" && matomoUrl !== "") {
+    if (
+      typeof matomoSiteId !== "undefined" &&
+      typeof matomoUrl !== "undefined"
+    ) {
       try {
         const _paq = (window._paq = window._paq || []);
         _paq.push(["enableLinkTracking"]);
