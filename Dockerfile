@@ -16,7 +16,6 @@ ARG TRIGGER_SENTRY_RELEASE
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-RUN echo "TRIGGER_SENTRY_RELEASE=$TRIGGER_SENTRY_RELEASE"
 RUN if [ "$TRIGGER_SENTRY_RELEASE" = "true" ]; then npm run build:release; else npm run build; fi
 
 FROM node:23.11.1
