@@ -1,21 +1,22 @@
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type LoaderFunctionArgs, redirect } from "react-router";
+import classNames from "classnames";
 import {
   Link,
+  type LoaderFunctionArgs,
   Outlet,
+  redirect,
   useLoaderData,
   useLocation,
   useSearchParams,
 } from "react-router";
-import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { Deep } from "~/lib/utils/searchParams";
+import { BackButton } from "~/components-next/BackButton";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
 import { type OrganizationSettingsLocales } from "./settings.server";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -61,14 +62,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
 function createNavLinks(locales: OrganizationSettingsLocales) {
   return [
-    { to: "./general", label: locales.links.general },
-    { to: "./manage", label: locales.links.manage },
-    { to: "./web-social", label: locales.links.webSocial },
-    { to: "./admins", label: locales.links.admins },
-    { to: "./team", label: locales.links.team },
+    { to: "./general", label: locales.route.links.general },
+    { to: "./manage", label: locales.route.links.manage },
+    { to: "./web-social", label: locales.route.links.webSocial },
+    { to: "./admins", label: locales.route.links.admins },
+    { to: "./team", label: locales.route.links.team },
     {
       to: "./danger-zone/change-url",
-      label: locales.links.dangerZone,
+      label: locales.route.links.dangerZone,
       variant: "negative",
     },
   ];
@@ -102,16 +103,10 @@ function Settings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <TextButton
-            as="link"
-            to={`/organization/${loaderData.organization.slug}`}
-            weight="thin"
-            variant="neutral"
-            arrowLeft
-          >
-            {locales.content.back}
-          </TextButton>
-          <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
+          <BackButton to={`/organization/${loaderData.organization.slug}`}>
+            {locales.route.content.back}
+          </BackButton>
+          <h3 className="mv-mb-0 mv-font-bold">{locales.route.content.edit}</h3>
         </div>
       </div>
       <div className="mv-hidden @md:mv-block">
@@ -123,7 +118,9 @@ function Settings() {
         <div className={menuClasses}>
           <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
             <span className="mv-p-6 mv-pr-0">
-              <h1 className="mv-text-2xl mv-m-0">{locales.content.settings}</h1>
+              <h1 className="mv-text-2xl mv-m-0">
+                {locales.route.content.settings}
+              </h1>
             </span>
             <Link
               to={`/organization/${loaderData.organization.slug}`}

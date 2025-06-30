@@ -73,6 +73,7 @@ export const locale = {
       imprint: "Imprint",
       privacy: "Privacy policy",
       terms: "Terms of use",
+      accessibilityStatement: "Accessibility",
     },
     loginOrRegisterCTA: {
       info: "Log in or register to fully utilize the platform.",

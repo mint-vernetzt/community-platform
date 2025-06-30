@@ -18,7 +18,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 import { MaterialList } from "~/components-next/MaterialList";
 import { Modal } from "~/components-next/Modal";
@@ -469,9 +469,9 @@ function Attachments() {
 
   return (
     <Section>
-      <BackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname}>
         {locales.route.content.back}
-      </BackButton>
+      </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
       <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
         <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">

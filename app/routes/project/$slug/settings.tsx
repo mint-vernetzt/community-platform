@@ -1,22 +1,23 @@
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import classNames from "classnames";
 import {
   Link,
   Outlet,
+  redirect,
   useLoaderData,
   useLocation,
   useSearchParams,
+  type LoaderFunctionArgs,
 } from "react-router";
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import classNames from "classnames";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
-import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { Deep } from "~/lib/utils/searchParams";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { BackButton } from "~/components-next/BackButton";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 import { type ProjectSettingsLocales } from "./settings.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -99,15 +100,9 @@ function ProjectSettings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <TextButton
-            as="link"
-            to={`/project/${loaderData.project.slug}`}
-            weight="thin"
-            variant="neutral"
-            arrowLeft
-          >
+          <BackButton to={`/project/${loaderData.project.slug}`}>
             {locales.content.toProject}
-          </TextButton>
+          </BackButton>
           <h3 className="mv-mb-0 mv-font-bold">{locales.content.edit}</h3>
         </div>
       </div>

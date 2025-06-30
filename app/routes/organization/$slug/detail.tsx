@@ -1,33 +1,45 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { captureException } from "@sentry/node";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import {
-  type ActionFunctionArgs,
+  Form,
+  Link,
+  Outlet,
   redirect,
   useActionData,
+  useLoaderData,
+  useLocation,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router";
-import { Form, Link, Outlet, useLoaderData, useLocation } from "react-router";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { BackButton } from "~/components-next/BackButton";
+import { Modal } from "~/components-next/Modal";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
 } from "~/components/ImageCropper/ImageCropper";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { detectLanguage } from "~/i18n.server";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
-import { detectLanguage } from "~/i18n.server";
-import { Modal } from "~/components-next/Modal";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { languageModuleMap } from "~/locales/.server";
 import {
   deriveOrganizationMode,
   getRedirectPathOnProtectedOrganizationRoute,
 } from "~/routes/organization/$slug/utils.server";
-import {
-  hasEventsData,
-  hasNetworkData,
-  hasProjectsData,
-  hasTeamData,
-} from "./detail.shared";
+import { parseMultipartFormData } from "~/storage.server";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { redirectWithToast } from "~/toast.server";
 import {
   addImgUrls,
   disconnectImage,
@@ -35,19 +47,12 @@ import {
   getOrganization,
   uploadImage,
 } from "./detail.server";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
-import { languageModuleMap } from "~/locales/.server";
-import { parseMultipartFormData } from "~/storage.server";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import {
+  hasEventsData,
+  hasNetworkData,
+  hasProjectsData,
+  hasTeamData,
+} from "./detail.shared";
 
 export function links() {
   return [
@@ -305,15 +310,7 @@ function OrganizationDetail() {
       innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 xl:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-14 @sm:mv-mb-20 @lg:mv-mb-16 mv-max-w-screen-2xl"
     >
       {/* Back Button Section */}
-      <TextButton
-        as="link"
-        to="/explore/organizations"
-        weight="thin"
-        variant="neutral"
-        arrowLeft
-      >
-        {locales.route.back}
-      </TextButton>
+      <BackButton to="/explore/organizations">{locales.route.back}</BackButton>
       {/* Header Section */}
       <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
         <div className="mv-w-full mv-h-[196px] @lg:mv-h-[168px]">

@@ -23,7 +23,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { BackButton } from "~/components-next/BackButton";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
@@ -551,9 +551,9 @@ function Manage() {
     <>
       <Section>
         {UnsavedChangesBlockerModal}
-        <BackButton to={location.pathname}>
+        <SettingsMenuBackButton to={location.pathname}>
           {locales.route.content.headline}
-        </BackButton>
+        </SettingsMenuBackButton>
         <Form
           {...getFormProps(manageForm)}
           method="post"

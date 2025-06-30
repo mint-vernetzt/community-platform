@@ -12,6 +12,7 @@ export default [
   route("/dashboard", "./routes/dashboard.tsx"),
   route("/csp-reports", "./routes/csp-reports.ts"),
   route("/accept-terms", "./routes/accept-terms.tsx"),
+  route("/accessibility-statement", "./routes/accessibility-statement.tsx"),
   route("/reset", "./routes/reset/index.tsx"),
   route("/reset/set-password", "./routes/reset/set-password.tsx"),
   route("/register", "./routes/register/index.tsx"),
