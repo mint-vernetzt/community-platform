@@ -8,6 +8,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./prisma/prod-ca-2021.crt:/app/prisma/prod-ca-2021.crt:ro
     expose:
       - "3000"
     env_file:
