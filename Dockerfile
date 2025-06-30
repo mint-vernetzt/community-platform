@@ -1,3 +1,5 @@
+ARG TRIGGER_SENTRY_RELEASE=false
+
 FROM node:23.11.1 AS development-dependencies-env
 COPY . /app
 WORKDIR /app
@@ -14,7 +16,7 @@ FROM node:23.11.1 AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-RUN npm run build
+RUN if [ "$TRIGGER_SENTRY_RELEASE" = "true" ]; then npm run build:release; else npm run build; fi
 
 FROM node:23.11.1
 COPY ./package.json package-lock.json /app/

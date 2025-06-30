@@ -1,8 +1,6 @@
-name: Platform Docker Stage Without Registry
+name: Platform Docker Prod Without Registry
 
 on:
-  push:
-    branches: [main]
   # allow trigger manually
   workflow_dispatch:
 
@@ -10,7 +8,7 @@ jobs:
   login-and-run-commands:
     name: Build and start on remote
     runs-on: ubuntu-latest
-    environment: staging-mint-vm
+    environment: mint-vm
     steps:
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@master
@@ -27,10 +25,9 @@ jobs:
             echo '#!/bin/sh' > $SSH_ASKPASS
             echo "echo \$SSH_KEY_PASSPHRASE" >> $SSH_ASKPASS
             chmod +x $SSH_ASKPASS
-            setsid ssh-add ~/.ssh/staging-mint-vm_github-dk_id_ed25519 < /dev/null
+            setsid ssh-add ~/.ssh/mint-vm_github-dk_id_ed25519 < /dev/null
             rm $SSH_ASKPASS
             cd repository/
-            git checkout main
-            git pull origin main
-            npm run docker:build
+            git pull
+            npm run docker:build:release
             npm run docker:start
