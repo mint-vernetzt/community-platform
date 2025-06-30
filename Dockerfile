@@ -12,6 +12,7 @@ FROM node:23.11.1 AS build-env
 COPY . /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:23.11.1
