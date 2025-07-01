@@ -30,7 +30,6 @@ jobs:
             setsid ssh-add ~/.ssh/staging-mint-vm_github-dk_id_ed25519 < /dev/null
             rm $SSH_ASKPASS
             cd repository/
-            git checkout main
-            git pull origin main
-            npm run docker:build
-            npm run docker:start
+            git pull
+            npm run docker:build:stage
+            npm run docker:start:stage

@@ -28,7 +28,7 @@ apply-bucket-rls: ## Applies the RLS policies for the supabase storage buckets
 	npx tsx prisma/scripts/apply-bucket-rls/index.ts
 
 imgproxy: ## Start imgproxy
-	docker run --rm -p 8080:8080 --network supabase_network_community-platform -e IMGPROXY_KEY -e IMGPROXY_SALT --name imgproxy -itd darthsim/imgproxy
+	docker run --rm -p 127.0.0.1:8080:8080 --network supabase_network_community-platform -e IMGPROXY_KEY -e IMGPROXY_SALT --name imgproxy -itd darthsim/imgproxy
 	
 imgproxy_stop: ## Stop imgproxy
 	docker stop `docker ps --format "{{.ID}}" --filter name=imgproxy`

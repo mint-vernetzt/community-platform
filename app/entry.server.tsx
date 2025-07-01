@@ -36,10 +36,14 @@ export default async function handleRequest(
   );
   responseHeaders.set(
     "Content-Security-Policy",
-    `default-src 'none'; style-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; form-action 'self'; script-src 'self' ${
-      process.env.MATOMO_URL
-    } 'nonce-${nonce}' ; img-src 'self' ${
-      process.env.MATOMO_URL
+    `default-src 'none'; style-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; form-action 'self'; script-src-elem 'self' 'nonce-${nonce}';${
+      typeof process.env.MATOMO_URL !== "undefined"
+        ? ` script-src 'self' ${process.env.MATOMO_URL} 'nonce-${nonce}';`
+        : ""
+    } img-src 'self'${
+      typeof process.env.MATOMO_URL !== "undefined"
+        ? ` ${process.env.MATOMO_URL}`
+        : ""
     } data: ${process.env.IMGPROXY_URL.replace(
       /https?:\/\//,
       ""
@@ -55,8 +59,14 @@ export default async function handleRequest(
             ""
           )
             .replace(/sentry\.io.*/, "sentry.io")
-            .replace(/^.*@/, "")} ${process.env.MATOMO_URL};`
-        : ` connect-src 'self' ${process.env.MATOMO_URL};`
+            .replace(/^.*@/, "")}${
+            typeof process.env.MATOMO_URL !== "undefined"
+              ? ` ${process.env.MATOMO_URL};`
+              : ""
+          }`
+        : typeof process.env.MATOMO_URL !== "undefined"
+        ? ` connect-src 'self' ${process.env.MATOMO_URL};`
+        : " connect-src 'self';"
     }`
   );
   responseHeaders.set("X-Frame-Options", "SAMEORIGIN");

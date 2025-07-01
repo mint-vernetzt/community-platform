@@ -7,7 +7,6 @@
 .react-router
 app/__mocks__
 build
-common/api
 docker
 node_modules
 prisma/json-schema
@@ -18,7 +17,9 @@ templates
 tests
 
 .env
+.env.docker
 .env.example
+.env.docker.example
 .eslintrc.cjs
 .gitignore
 .npmrc

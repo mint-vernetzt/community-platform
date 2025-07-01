@@ -1,4 +1,4 @@
-name: community-platform
+name: community-platform-stage
 
 services:
   community-platform-service:
@@ -24,13 +24,15 @@ services:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
-      - /etc/nginx/sites-available/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/default.stage.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     ports:
       - "80:80"
       - "443:443"
     networks:
       - app-network
+    depends_on:
+      - community-platform-service
 
 networks:
   app-network:

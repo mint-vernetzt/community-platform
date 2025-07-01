@@ -3,11 +3,6 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
-console.log("TRIGGER_SENTRY_RELEASE:", process.env.TRIGGER_SENTRY_RELEASE);
-console.log("SENTRY_ORGANIZATION_NAME:", process.env.SENTRY_ORGANIZATION_NAME);
-console.log("SENTRY_PROJECT_NAME:", process.env.SENTRY_PROJECT_NAME);
-console.log("SENTRY_AUTH_TOKEN:", process.env.SENTRY_AUTH_TOKEN);
-
 export default defineConfig({
   base: "/",
   server: {

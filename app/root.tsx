@@ -396,7 +396,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (matomoSiteId !== "" && matomoUrl !== "" && window._paq !== undefined) {
+    if (
+      typeof matomoSiteId !== "undefined" &&
+      typeof matomoUrl !== "undefined" &&
+      window._paq !== undefined
+    ) {
       try {
         window._paq.push(["setCustomUrl", window.location.href]);
         window._paq.push(["trackPageView"]);

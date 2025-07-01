@@ -1,5 +1,3 @@
-FROM nginx:alpine
-
-EXPOSE 80 443
+FROM nginx:latest
 
 CMD ["nginx", "-g", "daemon off;"]
