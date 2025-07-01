@@ -61,7 +61,7 @@ upload-sentry-sourcemaps: ## Sourcemaps are created with each remix build (see n
 	npx sentry-upload-sourcemaps --org ${SENTRY_ORGANIZATION_NAME} --project ${SENTRY_PROJECT_NAME}
 
 mailer: ## Start mailer
-	cd docker/mailhog && docker compose up
+	cd docker/mailhog && docker compose up -d
 
 mailer_stop: ## Stop mailer
 	cd docker/mailhog && docker compose down

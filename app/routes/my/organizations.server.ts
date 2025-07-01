@@ -1145,6 +1145,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
                     html
                   );
                 } catch (error) {
+                  console.log("Error sending email:", error);
                   captureException(error);
                   ctx.addIssue({
                     code: "custom",
@@ -1158,6 +1159,7 @@ export async function createOrCancelOrganizationMemberRequest(options: {
               })
             );
           } catch (error) {
+            console.log("Error creating or canceling request:", error);
             captureException(error);
             ctx.addIssue({
               code: "custom",

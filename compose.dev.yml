@@ -33,6 +33,15 @@ services:
     depends_on:
       - community-platform-service
 
+  mailhog-service:
+    image: "mailhog/mailhog"
+    container_name: "mailhog"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

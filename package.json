@@ -14,7 +14,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "build:styles": "npx tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/styles.css --minify",
     "build:styles:watch": "npm run build:styles -- --watch",
-    "docker:dev": "docker compose -f compose.dev.yml down --volumes --remove-orphans && docker compose -f compose.dev.yml build && docker compose -f compose.dev.yml up -d",
+    "docker:dev": "docker compose -f compose.dev.yml down --volumes --remove-orphans && docker compose -f compose.dev.yml build && docker compose -f compose.dev.yml up",
     "docker:dev:stop": "docker compose -f compose.dev.yml down",
     "docker:build:stage": "docker system prune -af --volumes && docker compose -f compose.stage.yml build",
     "docker:start:stage": "docker compose -f compose.stage.yml up -d",
