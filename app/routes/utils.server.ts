@@ -429,7 +429,7 @@ export async function searchOrganizations(options: {
           },
         },
       },
-      take: 10,
+      // take: 10, // Do not limit results to prevent creating duplicates
     });
   };
 
@@ -446,7 +446,6 @@ export async function searchOrganizations(options: {
     };
   }
 
-  const query = submission.value[SearchOrganizations].trim().split(" ");
   const whereStatements: WhereStatements = [];
   if (idsToExclude !== undefined && idsToExclude.length > 0) {
     whereStatements.push({
@@ -455,15 +454,29 @@ export async function searchOrganizations(options: {
       },
     });
   }
-  for (const word of query) {
-    whereStatements.push({
-      OR: [
-        { name: { contains: word, mode: "insensitive" } },
-        { slug: { contains: word, mode: "insensitive" } },
-        { email: { contains: word, mode: "insensitive" } },
-      ],
-    });
-  }
+
+  whereStatements.push({
+    OR: [
+      {
+        name: {
+          contains: submission.value[SearchOrganizations],
+          mode: "insensitive",
+        },
+      },
+    ],
+  });
+
+  // Only search for exact matches in the name field
+  // const query = submission.value[SearchOrganizations].trim().split(" ");
+  // for (const word of query) {
+  //   whereStatements.push({
+  //     OR: [
+  //       { name: { contains: word, mode: "insensitive" } },
+  //       { slug: { contains: word, mode: "insensitive" } },
+  //       { email: { contains: word, mode: "insensitive" } },
+  //     ],
+  //   });
+  // }
   const searchedOrganizations = await prismaQuery(whereStatements);
 
   let filteredSearchedOrganizations;
