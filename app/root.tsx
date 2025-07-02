@@ -258,69 +258,73 @@ export const ErrorBoundary = () => {
       </head>
 
       <body className={bodyClasses}>
-        <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
-          <NavBar
-            sessionUserInfo={
-              hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
-            }
-            openMainMenuKey={openMainMenuKey}
-            locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-          />
-          <div className="mv-flex mv-h-full mv-min-h-screen">
-            <MainMenu
-              mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
+        <div id="top" className={bodyClasses}>
+          <div className="mv-flex mv-flex-col mv-min-h-screen">
+            <NavBar
+              sessionUserInfo={
+                hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
+              }
               openMainMenuKey={openMainMenuKey}
-              username={
-                hasRootLoaderData &&
-                typeof rootLoaderData.sessionUserInfo !== "undefined"
-                  ? rootLoaderData.sessionUserInfo.username
-                  : undefined
-              }
-              abilities={
-                hasRootLoaderData ? rootLoaderData.abilities : undefined
-              }
-              currentLanguage={
-                hasRootLoaderData
-                  ? rootLoaderData.currentLanguage
-                  : DEFAULT_LANGUAGE
-              }
               locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
             />
-            <div className="mv-flex-grow mv-@container mv-min-h-screen">
-              <div className="mv-min-h-screen">
-                {/* Content */}
-                <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                  <H1 like="h0">{errorTitle}</H1>
-                  <H2 like="h1">Sorry, something went wrong!</H2>
-                  <p>
-                    Please capture a screenshot and send it over to{" "}
-                    <StyledLink
-                      as="link"
-                      to="mailto:support@mint-vernetzt.de"
-                      variant="primary"
-                    >
-                      support@mint-vernetzt.de
-                    </StyledLink>
-                    . We will do our best to help you with this issue.
-                  </p>
-                </section>
-                {errorText !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Text:</p>
-                    {errorText}
-                  </section>
-                ) : null}
-                {errorData !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Data:</p>
-                    {errorData}
-                  </section>
-                ) : null}
-              </div>
-              <Footer
-                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+            <div className="mv-flex mv-h-full mv-min-h-screen">
+              <MainMenu
                 mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
+                openMainMenuKey={openMainMenuKey}
+                username={
+                  hasRootLoaderData &&
+                  typeof rootLoaderData.sessionUserInfo !== "undefined"
+                    ? rootLoaderData.sessionUserInfo.username
+                    : undefined
+                }
+                abilities={
+                  hasRootLoaderData ? rootLoaderData.abilities : undefined
+                }
+                currentLanguage={
+                  hasRootLoaderData
+                    ? rootLoaderData.currentLanguage
+                    : DEFAULT_LANGUAGE
+                }
+                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
               />
+              <div className="mv-flex-grow mv-@container mv-min-h-screen">
+                <div className="mv-min-h-screen">
+                  {/* Content */}
+                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                    <H1 like="h0">{errorTitle}</H1>
+                    <H2 like="h1">Sorry, something went wrong!</H2>
+                    <p>
+                      Please capture a screenshot and send it over to{" "}
+                      <StyledLink
+                        as="link"
+                        to="mailto:support@mint-vernetzt.de"
+                        variant="primary"
+                      >
+                        support@mint-vernetzt.de
+                      </StyledLink>
+                      . We will do our best to help you with this issue.
+                    </p>
+                  </section>
+                  {errorText !== undefined ? (
+                    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                      <p>Error Text:</p>
+                      {errorText}
+                    </section>
+                  ) : null}
+                  {errorData !== undefined ? (
+                    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                      <p>Error Data:</p>
+                      {errorData}
+                    </section>
+                  ) : null}
+                </div>
+                <Footer
+                  locales={
+                    hasRootLoaderData ? rootLoaderData.locales : undefined
+                  }
+                  mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
+                />
+              </div>
             </div>
           </div>
         </div>
