@@ -47,6 +47,10 @@ import {
   getPendingRequestsToOrganizations,
 } from "./create.server";
 import { createOrganizationSchema } from "./create.shared";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -411,86 +415,105 @@ function CreateOrganization() {
                 : null}
             </Input>
           </noscript>
+
           {searchedOrganizations.length > 0 ? (
-            <Form
-              {...getFormProps(createOrganizationMemberRequestForm)}
-              method="post"
-              preventScrollReset
-            >
-              <ListContainer
-                locales={locales}
-                listKey="organizations-to-request-membership-search-results"
-                hideAfter={3}
-              >
-                {searchedOrganizations.map((searchedOrganization, index) => {
-                  return (
-                    <ListItem
-                      key={`organizations-to-request-membership-search-result-${searchedOrganization.slug}`}
-                      entity={searchedOrganization}
-                      locales={locales}
-                      listIndex={index}
-                      hideAfter={3}
-                    >
-                      {organizations.some((organization) => {
-                        return organization.id === searchedOrganization.id;
-                      }) ? (
-                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
-                          {
-                            locales.route.form.organizationName
-                              .requestOrganizationMembership.alreadyMember
-                          }
-                        </div>
-                      ) : pendingRequestsToOrganizations.some(
-                          (organization) => {
-                            return organization.id === searchedOrganization.id;
-                          }
-                        ) ? (
-                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
-                          {
-                            locales.route.form.organizationName
-                              .requestOrganizationMembership.alreadyRequested
-                          }
-                        </div>
-                      ) : (
-                        <Button
-                          name="intent"
-                          variant="outline"
-                          value={`create-organization-member-request-${searchedOrganization.id}`}
-                          type="submit"
-                          fullSize
-                          disabled={isSubmitting}
-                        >
-                          {
-                            locales.route.form.organizationName
-                              .requestOrganizationMembership
-                              .createOrganizationMemberRequestCta
-                          }
-                        </Button>
-                      )}
-                    </ListItem>
-                  );
-                })}
-              </ListContainer>
-              {typeof createOrganizationMemberRequestForm.errors !==
-                "undefined" &&
-              createOrganizationMemberRequestForm.errors.length > 0 ? (
-                <div>
-                  {createOrganizationMemberRequestForm.errors.map(
-                    (error, index) => {
-                      return (
-                        <div
-                          id={createOrganizationMemberRequestForm.errorId}
-                          key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                        >
-                          {error}
-                        </div>
-                      );
-                    }
+            <>
+              <div className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center">
+                <p>
+                  {insertParametersIntoLocale(
+                    decideBetweenSingularOrPlural(
+                      locales.route.form.organizationName
+                        .similarOrganizationsFound.singular,
+                      locales.route.form.organizationName
+                        .similarOrganizationsFound.plural,
+                      searchedOrganizations.length
+                    ),
+                    { count: searchedOrganizations.length }
                   )}
-                </div>
-              ) : null}
-            </Form>
+                </p>
+              </div>
+              <Form
+                {...getFormProps(createOrganizationMemberRequestForm)}
+                method="post"
+                preventScrollReset
+              >
+                <ListContainer
+                  locales={locales}
+                  listKey="organizations-to-request-membership-search-results"
+                  // hideAfter={3}
+                >
+                  {searchedOrganizations.map((searchedOrganization, index) => {
+                    return (
+                      <ListItem
+                        key={`organizations-to-request-membership-search-result-${searchedOrganization.slug}`}
+                        entity={searchedOrganization}
+                        locales={locales}
+                        listIndex={index}
+                        // hideAfter={3}
+                      >
+                        {organizations.some((organization) => {
+                          return organization.id === searchedOrganization.id;
+                        }) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.form.organizationName
+                                .requestOrganizationMembership.alreadyMember
+                            }
+                          </div>
+                        ) : pendingRequestsToOrganizations.some(
+                            (organization) => {
+                              return (
+                                organization.id === searchedOrganization.id
+                              );
+                            }
+                          ) ? (
+                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                            {
+                              locales.route.form.organizationName
+                                .requestOrganizationMembership.alreadyRequested
+                            }
+                          </div>
+                        ) : (
+                          <Button
+                            name="intent"
+                            variant="outline"
+                            value={`create-organization-member-request-${searchedOrganization.id}`}
+                            type="submit"
+                            fullSize
+                            disabled={isSubmitting}
+                          >
+                            {
+                              locales.route.form.organizationName
+                                .requestOrganizationMembership
+                                .createOrganizationMemberRequestCta
+                            }
+                          </Button>
+                        )}
+                      </ListItem>
+                    );
+                  })}
+                </ListContainer>
+                {typeof createOrganizationMemberRequestForm.errors !==
+                  "undefined" &&
+                createOrganizationMemberRequestForm.errors.length > 0 ? (
+                  <div>
+                    {createOrganizationMemberRequestForm.errors.map(
+                      (error, index) => {
+                        return (
+                          <div
+                            id={createOrganizationMemberRequestForm.errorId}
+                            key={index}
+                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          >
+                            {error}
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                ) : null}
+              </Form>
+            </>
           ) : null}
         </div>
         {/* Organization types section */}

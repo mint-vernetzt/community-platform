@@ -43,6 +43,10 @@ export const locale = {
           },
         },
       },
+      similarOrganizationsFound: {
+        singular: "{{count}} similar organization found.",
+        plural: "{{count}} similar organizations found.",
+      },
     },
     organizationTypes: {
       cta: "Please select",
