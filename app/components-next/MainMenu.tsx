@@ -44,7 +44,7 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-0 mv-bg-white`}
     >
       <a
         id="main-menu-start"
@@ -59,7 +59,7 @@ export function MainMenu(
       </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
+        className="mv-my-3 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
         aria-label={
           props.locales !== undefined
             ? props.mode === "anon"
