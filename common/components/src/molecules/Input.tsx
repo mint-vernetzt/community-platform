@@ -280,7 +280,7 @@ function Input(props: InputProps) {
   });
 
   const inputClasses = classNames(
-    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-2 focus:mv-border-primary-200 focus-visible:mv-outline-0",
+    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-border-transparent focus-visible:mv-outline-0",
     errors.length > 0 && "mv-border-negative-600",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
