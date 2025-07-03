@@ -523,9 +523,9 @@ export default function App() {
             >
               <ScrollToTopButton locales={locales} />
             </div>
-            <ModalRoot />
           </>
         ) : null}
+        <ModalRoot />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
