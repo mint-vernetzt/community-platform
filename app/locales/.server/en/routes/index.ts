@@ -49,7 +49,7 @@ export const locale = {
     education: {
       headline: "Shaping education together",
       content:
-        "The nationwide STEM community thrives on <0>exchanging ideas, sharing knowledge, and learning from one another</0>. On our community platform, you can <0>connect with each other and with organizations, find inspiration, and locate<1>experts</1></0> on specific topics in your area.",
+        "Our nationwide STE(A)M community thrives on <0>exchanging ideas, sharing knowledge, and learning from one another</0>. On our community platform, you can <0>connect with each other and with organizations, find inspiration, and locate <1>experts</1></0> on specific topics in your area.",
       action: "Register now",
     },
     growth: {
