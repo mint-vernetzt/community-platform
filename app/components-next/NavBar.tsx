@@ -41,7 +41,7 @@ export function NavBar(props: NavBarProps) {
         <a
           id="nav-bar-start"
           href="#nav-bar-end"
-          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-1 focus:mv-px-1 mv-text-nowrap"
+          className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-1 focus:mv-px-1 mv-text-nowrap"
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
@@ -178,7 +178,7 @@ export function NavBar(props: NavBarProps) {
         <a
           id="nav-bar-end"
           href="#nav-bar-start"
-          className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-ml-4 focus:mv-px-1 mv-text-nowrap"
+          className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-ml-4 focus:mv-px-1 mv-text-nowrap"
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end
