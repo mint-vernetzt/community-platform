@@ -484,6 +484,7 @@ export default function ExploreProjects() {
     id: "filter-projects",
     defaultValue: {
       ...loaderData.submission.value,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -497,6 +498,7 @@ export default function ExploreProjects() {
     defaultValue: {
       ...loaderData.submission.value,
       prjPage: loaderData.submission.value.prjPage + 1,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -519,6 +521,7 @@ export default function ExploreProjects() {
       prjPage: 1,
       prjSortBy: PROJECT_SORT_VALUES[0],
       prjAreaSearch: "",
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -1428,6 +1431,7 @@ export default function ExploreProjects() {
                               (discipline) => discipline !== selectedDiscipline
                             ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
@@ -1495,6 +1499,9 @@ export default function ExploreProjects() {
                                   selectedAdditionalDiscipline
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1558,6 +1565,7 @@ export default function ExploreProjects() {
                                 projectTargetGroup !== selectedTargetGroup
                             ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
@@ -1605,6 +1613,7 @@ export default function ExploreProjects() {
                             (area) => area !== selectedArea.slug
                           ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
@@ -1663,6 +1672,7 @@ export default function ExploreProjects() {
                               (format) => format !== selectedFormat
                             ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
@@ -1729,6 +1739,9 @@ export default function ExploreProjects() {
                                   selectedSpecialTargetGroup
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1789,6 +1802,7 @@ export default function ExploreProjects() {
                               (financing) => financing !== selectedFinancing
                             ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),

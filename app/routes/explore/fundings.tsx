@@ -352,6 +352,7 @@ export default function ExploreFundings() {
     id: "filter-fundings",
     defaultValue: {
       ...loaderData.submission.value,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -365,6 +366,7 @@ export default function ExploreFundings() {
     defaultValue: {
       ...loaderData.submission.value,
       fndPage: loaderData.submission.value.fndPage + 1,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -383,6 +385,7 @@ export default function ExploreFundings() {
       },
       fndPage: 1,
       fndSortBy: FUNDING_SORT_VALUES[0],
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -691,6 +694,9 @@ export default function ExploreFundings() {
                                 (currentType) => currentType !== type.slug
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -739,6 +745,9 @@ export default function ExploreFundings() {
                                 (currentArea) => currentArea !== area.slug
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -787,6 +796,9 @@ export default function ExploreFundings() {
                                 (currentRegion) => currentRegion !== region.slug
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -835,6 +847,9 @@ export default function ExploreFundings() {
                                 (currentEntity) => currentEntity !== entity.slug
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),

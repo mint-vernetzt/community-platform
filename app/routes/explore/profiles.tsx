@@ -348,6 +348,7 @@ export default function ExploreProfiles() {
     id: "filter-profiles",
     defaultValue: {
       ...loaderData.submission.value,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -361,6 +362,7 @@ export default function ExploreProfiles() {
     defaultValue: {
       ...loaderData.submission.value,
       prfPage: loaderData.submission.value.prfPage + 1,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -378,6 +380,7 @@ export default function ExploreProfiles() {
       prfPage: 1,
       prfSortBy: PROFILE_SORT_VALUES[0],
       prfAreaSearch: "",
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -798,6 +801,7 @@ export default function ExploreProfiles() {
                               (offer) => offer !== selectedOffer
                             ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
@@ -845,6 +849,7 @@ export default function ExploreProfiles() {
                             (area) => area !== selectedArea.slug
                           ),
                         },
+                        search: [loaderData.submission.value.search.join(" ")],
                         showFilters: "",
                       },
                       constraint: getZodConstraint(getFilterSchemes),
