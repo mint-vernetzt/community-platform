@@ -561,7 +561,9 @@ export default function ExploreProjects() {
 
           {/* Project Filters */}
           <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
-          <ShowFiltersButton>
+          <ShowFiltersButton
+            showFilters={loaderData.submission.value.showFilters}
+          >
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
@@ -1384,115 +1386,57 @@ export default function ExploreProjects() {
           </noscript>
         </Form>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-        <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
-      </div>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
-        {(loaderData.selectedDisciplines.length > 0 ||
-          loaderData.selectedAdditionalDisciplines.length > 0 ||
-          loaderData.selectedTargetGroups.length > 0 ||
-          loaderData.selectedAreas.length > 0 ||
-          loaderData.selectedFormats.length > 0 ||
-          loaderData.selectedSpecialTargetGroups.length > 0 ||
-          loaderData.selectedFinancings.length > 0) && (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
-              {loaderData.selectedDisciplines.map((selectedDiscipline) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prjFilterFieldset.discipline.name,
-                  selectedDiscipline
-                );
-                let title;
-                if (selectedDiscipline in locales.disciplines) {
-                  type LocaleKey = keyof typeof locales.disciplines;
-                  title =
-                    locales.disciplines[selectedDiscipline as LocaleKey].title;
-                } else {
-                  console.error(
-                    `Discipline ${selectedDiscipline} not found in locales`
-                  );
-                  title = selectedDiscipline;
-                }
-                return (
-                  <ConformForm
-                    key={selectedDiscipline}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedDiscipline}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prjFilter: {
-                          ...loaderData.submission.value.prjFilter,
-                          discipline:
-                            loaderData.submission.value.prjFilter.discipline.filter(
-                              (discipline) => discipline !== selectedDiscipline
-                            ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedAdditionalDisciplines.map(
-                (selectedAdditionalDiscipline) => {
+      <div
+        className={
+          loaderData.submission.value.showFilters === true
+            ? "mv-hidden @lg:mv-block"
+            : undefined
+        }
+      >
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        </div>
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+          {(loaderData.selectedDisciplines.length > 0 ||
+            loaderData.selectedAdditionalDisciplines.length > 0 ||
+            loaderData.selectedTargetGroups.length > 0 ||
+            loaderData.selectedAreas.length > 0 ||
+            loaderData.selectedFormats.length > 0 ||
+            loaderData.selectedSpecialTargetGroups.length > 0 ||
+            loaderData.selectedFinancings.length > 0) && (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+                {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
-                    prjFilterFieldset.additionalDiscipline.name,
-                    selectedAdditionalDiscipline
+                    prjFilterFieldset.discipline.name,
+                    selectedDiscipline
                   );
                   let title;
-                  if (
-                    selectedAdditionalDiscipline in
-                    locales.additionalDisciplines
-                  ) {
-                    type LocaleKey = keyof typeof locales.additionalDisciplines;
+                  if (selectedDiscipline in locales.disciplines) {
+                    type LocaleKey = keyof typeof locales.disciplines;
                     title =
-                      locales.additionalDisciplines[
-                        selectedAdditionalDiscipline as LocaleKey
-                      ].title;
+                      locales.disciplines[selectedDiscipline as LocaleKey]
+                        .title;
                   } else {
                     console.error(
-                      `Additional discipline ${selectedAdditionalDiscipline} not found in locales`
+                      `Discipline ${selectedDiscipline} not found in locales`
                     );
-                    title = selectedAdditionalDiscipline;
+                    title = selectedDiscipline;
                   }
                   return (
                     <ConformForm
-                      key={selectedAdditionalDiscipline}
+                      key={selectedDiscipline}
                       useFormOptions={{
-                        id: `delete-filter-${selectedAdditionalDiscipline}`,
+                        id: `delete-filter-${selectedDiscipline}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
                             ...loaderData.submission.value.prjFilter,
-                            additionalDiscipline:
-                              loaderData.submission.value.prjFilter.additionalDiscipline.filter(
-                                (additionalDiscipline) =>
-                                  additionalDiscipline !==
-                                  selectedAdditionalDiscipline
+                            discipline:
+                              loaderData.submission.value.prjFilter.discipline.filter(
+                                (discipline) =>
+                                  discipline !== selectedDiscipline
                               ),
                           },
                           showFilters: "",
@@ -1522,211 +1466,110 @@ export default function ExploreProjects() {
                       </Chip>
                     </ConformForm>
                   );
-                }
-              )}
-              {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prjFilterFieldset.projectTargetGroup.name,
-                  selectedTargetGroup
-                );
-                let title;
-                if (selectedTargetGroup in locales.projectTargetGroups) {
-                  type LocaleKey = keyof typeof locales.projectTargetGroups;
-                  title =
-                    locales.projectTargetGroups[
-                      selectedTargetGroup as LocaleKey
-                    ].title;
-                } else {
-                  console.error(
-                    `Project target group ${selectedTargetGroup} not found in locales`
-                  );
-                  title = selectedTargetGroup;
-                }
-                return (
-                  <ConformForm
-                    key={selectedTargetGroup}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedTargetGroup}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prjFilter: {
-                          ...loaderData.submission.value.prjFilter,
-                          projectTargetGroup:
-                            loaderData.submission.value.prjFilter.projectTargetGroup.filter(
-                              (projectTargetGroup) =>
-                                projectTargetGroup !== selectedTargetGroup
-                            ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedAreas.map((selectedArea) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prjFilterFieldset.area.name,
-                  selectedArea.slug
-                );
-                return selectedArea.name !== null ? (
-                  <ConformForm
-                    key={selectedArea.slug}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedArea.slug}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prjFilter: {
-                          ...loaderData.submission.value.prjFilter,
-                          area: loaderData.submission.value.prjFilter.area.filter(
-                            (area) => area !== selectedArea.slug
-                          ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {selectedArea.name}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                ) : null;
-              })}
-              {loaderData.selectedFormats.map((selectedFormat) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prjFilterFieldset.format.name,
-                  selectedFormat
-                );
-                let title;
-                if (selectedFormat in locales.formats) {
-                  type LocaleKey = keyof typeof locales.formats;
-                  title = locales.formats[selectedFormat as LocaleKey].title;
-                } else {
-                  console.error(
-                    `Format ${selectedFormat} not found in locales`
-                  );
-                  title = selectedFormat;
-                }
-                return (
-                  <ConformForm
-                    key={selectedFormat}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedFormat}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prjFilter: {
-                          ...loaderData.submission.value.prjFilter,
-                          format:
-                            loaderData.submission.value.prjFilter.format.filter(
-                              (format) => format !== selectedFormat
-                            ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedSpecialTargetGroups.map(
-                (selectedSpecialTargetGroup) => {
+                })}
+                {loaderData.selectedAdditionalDisciplines.map(
+                  (selectedAdditionalDiscipline) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      prjFilterFieldset.additionalDiscipline.name,
+                      selectedAdditionalDiscipline
+                    );
+                    let title;
+                    if (
+                      selectedAdditionalDiscipline in
+                      locales.additionalDisciplines
+                    ) {
+                      type LocaleKey =
+                        keyof typeof locales.additionalDisciplines;
+                      title =
+                        locales.additionalDisciplines[
+                          selectedAdditionalDiscipline as LocaleKey
+                        ].title;
+                    } else {
+                      console.error(
+                        `Additional discipline ${selectedAdditionalDiscipline} not found in locales`
+                      );
+                      title = selectedAdditionalDiscipline;
+                    }
+                    return (
+                      <ConformForm
+                        key={selectedAdditionalDiscipline}
+                        useFormOptions={{
+                          id: `delete-filter-${selectedAdditionalDiscipline}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            prjFilter: {
+                              ...loaderData.submission.value.prjFilter,
+                              additionalDiscipline:
+                                loaderData.submission.value.prjFilter.additionalDiscipline.filter(
+                                  (additionalDiscipline) =>
+                                    additionalDiscipline !==
+                                    selectedAdditionalDiscipline
+                                ),
+                            },
+                            showFilters: "",
+                          },
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {title}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    );
+                  }
+                )}
+                {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
-                    prjFilterFieldset.specialTargetGroup.name,
-                    selectedSpecialTargetGroup
+                    prjFilterFieldset.projectTargetGroup.name,
+                    selectedTargetGroup
                   );
                   let title;
-                  if (
-                    selectedSpecialTargetGroup in locales.specialTargetGroups
-                  ) {
-                    type LocaleKey = keyof typeof locales.specialTargetGroups;
+                  if (selectedTargetGroup in locales.projectTargetGroups) {
+                    type LocaleKey = keyof typeof locales.projectTargetGroups;
                     title =
-                      locales.specialTargetGroups[
-                        selectedSpecialTargetGroup as LocaleKey
+                      locales.projectTargetGroups[
+                        selectedTargetGroup as LocaleKey
                       ].title;
                   } else {
                     console.error(
-                      `Special target group ${selectedSpecialTargetGroup} not found in locales`
+                      `Project target group ${selectedTargetGroup} not found in locales`
                     );
-                    title = selectedSpecialTargetGroup;
+                    title = selectedTargetGroup;
                   }
                   return (
                     <ConformForm
-                      key={selectedSpecialTargetGroup}
+                      key={selectedTargetGroup}
                       useFormOptions={{
-                        id: `delete-filter-${selectedSpecialTargetGroup}`,
+                        id: `delete-filter-${selectedTargetGroup}`,
                         defaultValue: {
                           ...loaderData.submission.value,
                           prjFilter: {
                             ...loaderData.submission.value.prjFilter,
-                            specialTargetGroup:
-                              loaderData.submission.value.prjFilter.specialTargetGroup.filter(
-                                (specialTargetGroup) =>
-                                  specialTargetGroup !==
-                                  selectedSpecialTargetGroup
+                            projectTargetGroup:
+                              loaderData.submission.value.prjFilter.projectTargetGroup.filter(
+                                (projectTargetGroup) =>
+                                  projectTargetGroup !== selectedTargetGroup
                               ),
                           },
                           showFilters: "",
@@ -1756,154 +1599,329 @@ export default function ExploreProjects() {
                       </Chip>
                     </ConformForm>
                   );
-                }
-              )}
-              {loaderData.selectedFinancings.map((selectedFinancing) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prjFilterFieldset.financing.name,
-                  selectedFinancing
-                );
-                let title;
-                if (selectedFinancing in locales.financings) {
-                  type LocaleKey = keyof typeof locales.financings;
-                  title =
-                    locales.financings[selectedFinancing as LocaleKey].title;
-                } else {
-                  console.error(
-                    `Financing ${selectedFinancing} not found in locales`
+                })}
+                {loaderData.selectedAreas.map((selectedArea) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    prjFilterFieldset.area.name,
+                    selectedArea.slug
                   );
-                  title = selectedFinancing;
-                }
-                return (
-                  <ConformForm
-                    key={selectedFinancing}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedFinancing}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prjFilter: {
-                          ...loaderData.submission.value.prjFilter,
-                          financing:
-                            loaderData.submission.value.prjFilter.financing.filter(
-                              (financing) => financing !== selectedFinancing
+                  return selectedArea.name !== null ? (
+                    <ConformForm
+                      key={selectedArea.slug}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedArea.slug}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          prjFilter: {
+                            ...loaderData.submission.value.prjFilter,
+                            area: loaderData.submission.value.prjFilter.area.filter(
+                              (area) => area !== selectedArea.slug
                             ),
+                          },
+                          showFilters: "",
                         },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-            </div>
-            <Form
-              {...getFormProps(resetForm)}
-              method="get"
-              preventScrollReset
-              className="mv-w-fit"
-            >
-              <HiddenFilterInputs
-                fields={resetFields}
-                defaultValue={loaderData.submission.value}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                loading={navigation.state === "loading"}
-                disabled={navigation.state === "loading"}
-              >
-                {locales.route.filter.reset}
-              </Button>
-            </Form>
-          </div>
-        )}
-      </section>
-
-      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
-        loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                locales.route.notShown_one,
-                locales.route.notShown_other,
-                loaderData.projectsCount - loaderData.filteredByVisibilityCount
-              ),
-              {
-                count:
-                  loaderData.projectsCount -
-                  loaderData.filteredByVisibilityCount,
-              }
-            )}
-          </p>
-        ) : loaderData.projectsCount === 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            {locales.route.empty}
-          </p>
-        ) : null}
-        {loaderData.projects.length > 0 && (
-          <>
-            <CardContainer type="multi row">
-              {loaderData.projects.map((project) => {
-                return (
-                  <ProjectCard
-                    locales={locales}
-                    key={`project-${project.id}`}
-                    project={project}
-                    as="h2"
-                  />
-                );
-              })}
-            </CardContainer>
-            {showMore && (
-              <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Form
-                  {...getFormProps(loadMoreForm)}
-                  method="get"
-                  preventScrollReset
-                  replace
-                >
-                  <HiddenFilterInputs
-                    fields={loadMoreFields}
-                    defaultValue={loaderData.submission.value}
-                  />
-                  <Button
-                    type="submit"
-                    size="large"
-                    variant="outline"
-                    loading={navigation.state === "loading"}
-                    disabled={navigation.state === "loading"}
-                  >
-                    {locales.route.more}
-                  </Button>
-                </Form>
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {selectedArea.name}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  ) : null;
+                })}
+                {loaderData.selectedFormats.map((selectedFormat) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    prjFilterFieldset.format.name,
+                    selectedFormat
+                  );
+                  let title;
+                  if (selectedFormat in locales.formats) {
+                    type LocaleKey = keyof typeof locales.formats;
+                    title = locales.formats[selectedFormat as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Format ${selectedFormat} not found in locales`
+                    );
+                    title = selectedFormat;
+                  }
+                  return (
+                    <ConformForm
+                      key={selectedFormat}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedFormat}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          prjFilter: {
+                            ...loaderData.submission.value.prjFilter,
+                            format:
+                              loaderData.submission.value.prjFilter.format.filter(
+                                (format) => format !== selectedFormat
+                              ),
+                          },
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {title}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  );
+                })}
+                {loaderData.selectedSpecialTargetGroups.map(
+                  (selectedSpecialTargetGroup) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      prjFilterFieldset.specialTargetGroup.name,
+                      selectedSpecialTargetGroup
+                    );
+                    let title;
+                    if (
+                      selectedSpecialTargetGroup in locales.specialTargetGroups
+                    ) {
+                      type LocaleKey = keyof typeof locales.specialTargetGroups;
+                      title =
+                        locales.specialTargetGroups[
+                          selectedSpecialTargetGroup as LocaleKey
+                        ].title;
+                    } else {
+                      console.error(
+                        `Special target group ${selectedSpecialTargetGroup} not found in locales`
+                      );
+                      title = selectedSpecialTargetGroup;
+                    }
+                    return (
+                      <ConformForm
+                        key={selectedSpecialTargetGroup}
+                        useFormOptions={{
+                          id: `delete-filter-${selectedSpecialTargetGroup}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            prjFilter: {
+                              ...loaderData.submission.value.prjFilter,
+                              specialTargetGroup:
+                                loaderData.submission.value.prjFilter.specialTargetGroup.filter(
+                                  (specialTargetGroup) =>
+                                    specialTargetGroup !==
+                                    selectedSpecialTargetGroup
+                                ),
+                            },
+                            showFilters: "",
+                          },
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {title}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    );
+                  }
+                )}
+                {loaderData.selectedFinancings.map((selectedFinancing) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    prjFilterFieldset.financing.name,
+                    selectedFinancing
+                  );
+                  let title;
+                  if (selectedFinancing in locales.financings) {
+                    type LocaleKey = keyof typeof locales.financings;
+                    title =
+                      locales.financings[selectedFinancing as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Financing ${selectedFinancing} not found in locales`
+                    );
+                    title = selectedFinancing;
+                  }
+                  return (
+                    <ConformForm
+                      key={selectedFinancing}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedFinancing}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          prjFilter: {
+                            ...loaderData.submission.value.prjFilter,
+                            financing:
+                              loaderData.submission.value.prjFilter.financing.filter(
+                                (financing) => financing !== selectedFinancing
+                              ),
+                          },
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {title}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  );
+                })}
               </div>
-            )}
-          </>
-        )}
-      </section>
+              <Form
+                {...getFormProps(resetForm)}
+                method="get"
+                preventScrollReset
+                className="mv-w-fit"
+              >
+                <HiddenFilterInputs
+                  fields={resetFields}
+                  defaultValue={loaderData.submission.value}
+                />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                >
+                  {locales.route.filter.reset}
+                </Button>
+              </Form>
+            </div>
+          )}
+        </section>
+
+        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+          loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+              {insertParametersIntoLocale(
+                decideBetweenSingularOrPlural(
+                  locales.route.notShown_one,
+                  locales.route.notShown_other,
+                  loaderData.projectsCount -
+                    loaderData.filteredByVisibilityCount
+                ),
+                {
+                  count:
+                    loaderData.projectsCount -
+                    loaderData.filteredByVisibilityCount,
+                }
+              )}
+            </p>
+          ) : loaderData.projectsCount === 0 ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+              {locales.route.empty}
+            </p>
+          ) : null}
+          {loaderData.projects.length > 0 && (
+            <>
+              <CardContainer type="multi row">
+                {loaderData.projects.map((project) => {
+                  return (
+                    <ProjectCard
+                      locales={locales}
+                      key={`project-${project.id}`}
+                      project={project}
+                      as="h2"
+                    />
+                  );
+                })}
+              </CardContainer>
+              {showMore && (
+                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+                  <Form
+                    {...getFormProps(loadMoreForm)}
+                    method="get"
+                    preventScrollReset
+                    replace
+                  >
+                    <HiddenFilterInputs
+                      fields={loadMoreFields}
+                      defaultValue={loaderData.submission.value}
+                    />
+                    <Button
+                      type="submit"
+                      size="large"
+                      variant="outline"
+                      loading={navigation.state === "loading"}
+                      disabled={navigation.state === "loading"}
+                    >
+                      {locales.route.more}
+                    </Button>
+                  </Form>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </div>
     </>
   );
 }

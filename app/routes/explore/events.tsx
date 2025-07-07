@@ -438,7 +438,9 @@ export default function ExploreEvents() {
 
           {/* Event Filters */}
           <input {...getInputProps(fields.evtPage, { type: "hidden" })} />
-          <ShowFiltersButton>
+          <ShowFiltersButton
+            showFilters={loaderData.submission.value.showFilters}
+          >
             {locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
@@ -981,286 +983,301 @@ export default function ExploreEvents() {
           </noscript>
         </Form>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-        <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
-      </div>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
-        {(loaderData.selectedFocuses.length > 0 ||
-          loaderData.selectedTargetGroups.length > 0 ||
-          loaderData.selectedAreas.length > 0) && (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
-              {loaderData.selectedFocuses.map((selectedFocus) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  evtFilterFieldset.focus.name,
-                  selectedFocus
-                );
-                let title;
-                if (selectedFocus in locales.focuses) {
-                  type LocaleKey = keyof typeof locales.focuses;
-                  title = locales.focuses[selectedFocus as LocaleKey].title;
-                } else {
-                  console.error(`Focus ${selectedFocus} not found in locales`);
-                  title = selectedFocus;
-                }
-                return (
-                  <ConformForm
-                    key={selectedFocus}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedFocus}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        evtFilter: {
-                          ...loaderData.submission.value.evtFilter,
-                          focus:
-                            loaderData.submission.value.evtFilter.focus.filter(
-                              (focus) => focus !== selectedFocus
-                            ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  evtFilterFieldset.eventTargetGroup.name,
-                  selectedTargetGroup
-                );
-                let title;
-                if (selectedTargetGroup in locales.eventTargetGroups) {
-                  type LocaleKey = keyof typeof locales.eventTargetGroups;
-                  title =
-                    locales.eventTargetGroups[selectedTargetGroup as LocaleKey]
-                      .title;
-                } else {
-                  console.error(
-                    `Focus ${selectedTargetGroup} not found in locales`
+      <div
+        className={
+          loaderData.submission.value.showFilters === true
+            ? "mv-hidden @lg:mv-block"
+            : undefined
+        }
+      >
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        </div>
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+          {(loaderData.selectedFocuses.length > 0 ||
+            loaderData.selectedTargetGroups.length > 0 ||
+            loaderData.selectedAreas.length > 0) && (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+                {loaderData.selectedFocuses.map((selectedFocus) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    evtFilterFieldset.focus.name,
+                    selectedFocus
                   );
-                  title = selectedTargetGroup;
-                }
-                return (
-                  <ConformForm
-                    key={selectedTargetGroup}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedTargetGroup}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        evtFilter: {
-                          ...loaderData.submission.value.evtFilter,
-                          eventTargetGroup:
-                            loaderData.submission.value.evtFilter.eventTargetGroup.filter(
-                              (eventTargetGroup) =>
-                                eventTargetGroup !== selectedTargetGroup
+                  let title;
+                  if (selectedFocus in locales.focuses) {
+                    type LocaleKey = keyof typeof locales.focuses;
+                    title = locales.focuses[selectedFocus as LocaleKey].title;
+                  } else {
+                    console.error(
+                      `Focus ${selectedFocus} not found in locales`
+                    );
+                    title = selectedFocus;
+                  }
+                  return (
+                    <ConformForm
+                      key={selectedFocus}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedFocus}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          evtFilter: {
+                            ...loaderData.submission.value.evtFilter,
+                            focus:
+                              loaderData.submission.value.evtFilter.focus.filter(
+                                (focus) => focus !== selectedFocus
+                              ),
+                          },
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {title}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  );
+                })}
+                {loaderData.selectedTargetGroups.map((selectedTargetGroup) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    evtFilterFieldset.eventTargetGroup.name,
+                    selectedTargetGroup
+                  );
+                  let title;
+                  if (selectedTargetGroup in locales.eventTargetGroups) {
+                    type LocaleKey = keyof typeof locales.eventTargetGroups;
+                    title =
+                      locales.eventTargetGroups[
+                        selectedTargetGroup as LocaleKey
+                      ].title;
+                  } else {
+                    console.error(
+                      `Focus ${selectedTargetGroup} not found in locales`
+                    );
+                    title = selectedTargetGroup;
+                  }
+                  return (
+                    <ConformForm
+                      key={selectedTargetGroup}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedTargetGroup}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          evtFilter: {
+                            ...loaderData.submission.value.evtFilter,
+                            eventTargetGroup:
+                              loaderData.submission.value.evtFilter.eventTargetGroup.filter(
+                                (eventTargetGroup) =>
+                                  eventTargetGroup !== selectedTargetGroup
+                              ),
+                          },
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {title}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  );
+                })}
+                {loaderData.selectedAreas.map((selectedArea) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    evtFilterFieldset.area.name,
+                    selectedArea.slug
+                  );
+                  return selectedArea.name !== null ? (
+                    <ConformForm
+                      key={selectedArea.slug}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedArea.slug}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          evtFilter: {
+                            ...loaderData.submission.value.evtFilter,
+                            area: loaderData.submission.value.evtFilter.area.filter(
+                              (area) => area !== selectedArea.slug
                             ),
+                          },
+                          showFilters: "",
                         },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedAreas.map((selectedArea) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  evtFilterFieldset.area.name,
-                  selectedArea.slug
-                );
-                return selectedArea.name !== null ? (
-                  <ConformForm
-                    key={selectedArea.slug}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedArea.slug}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        evtFilter: {
-                          ...loaderData.submission.value.evtFilter,
-                          area: loaderData.submission.value.evtFilter.area.filter(
-                            (area) => area !== selectedArea.slug
-                          ),
-                        },
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {selectedArea.name}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                ) : null;
-              })}
-            </div>
-            <Form
-              {...getFormProps(resetForm)}
-              method="get"
-              preventScrollReset
-              className="mv-w-fit"
-            >
-              <HiddenFilterInputs
-                fields={resetFields}
-                defaultValue={loaderData.submission.value}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                loading={navigation.state === "loading"}
-                disabled={navigation.state === "loading"}
-              >
-                {locales.route.filter.reset}
-              </Button>
-            </Form>
-          </div>
-        )}
-      </section>
-
-      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
-        loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                locales.route.notShown_one,
-                locales.route.notShown_other,
-                loaderData.eventsCount - loaderData.filteredByVisibilityCount
-              ),
-              {
-                count:
-                  loaderData.eventsCount - loaderData.filteredByVisibilityCount,
-              }
-            )}
-          </p>
-        ) : loaderData.eventsCount === 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            {locales.route.empty}
-          </p>
-        ) : null}
-        {loaderData.events.length > 0 && (
-          <>
-            <CardContainer type="multi row">
-              {loaderData.events.map((event) => {
-                const startTime = utcToZonedTime(
-                  event.startTime,
-                  "Europe/Berlin"
-                );
-                const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-                const participationUntil = utcToZonedTime(
-                  event.participationUntil,
-                  "Europe/Berlin"
-                );
-
-                return (
-                  <EventCard
-                    key={event.id}
-                    publicAccess={!loaderData.isLoggedIn}
-                    locales={locales}
-                    currentLanguage={loaderData.language}
-                    event={{
-                      ...event,
-                      startTime,
-                      endTime,
-                      participationUntil,
-                      responsibleOrganizations:
-                        event.responsibleOrganizations.map(
-                          (item) => item.organization
-                        ),
-                    }}
-                    as="h2"
-                  />
-                );
-              })}
-            </CardContainer>
-            {showMore && (
-              <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Form
-                  {...getFormProps(loadMoreForm)}
-                  method="get"
-                  preventScrollReset
-                  replace
-                >
-                  <HiddenFilterInputs
-                    fields={loadMoreFields}
-                    defaultValue={loaderData.submission.value}
-                  />
-                  <Button
-                    type="submit"
-                    size="large"
-                    variant="outline"
-                    loading={navigation.state === "loading"}
-                    disabled={navigation.state === "loading"}
-                  >
-                    {locales.route.more}
-                  </Button>
-                </Form>
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {selectedArea.name}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  ) : null;
+                })}
               </div>
-            )}
-          </>
-        )}
-      </section>
+              <Form
+                {...getFormProps(resetForm)}
+                method="get"
+                preventScrollReset
+                className="mv-w-fit"
+              >
+                <HiddenFilterInputs
+                  fields={resetFields}
+                  defaultValue={loaderData.submission.value}
+                />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                >
+                  {locales.route.filter.reset}
+                </Button>
+              </Form>
+            </div>
+          )}
+        </section>
+
+        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+          loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+              {insertParametersIntoLocale(
+                decideBetweenSingularOrPlural(
+                  locales.route.notShown_one,
+                  locales.route.notShown_other,
+                  loaderData.eventsCount - loaderData.filteredByVisibilityCount
+                ),
+                {
+                  count:
+                    loaderData.eventsCount -
+                    loaderData.filteredByVisibilityCount,
+                }
+              )}
+            </p>
+          ) : loaderData.eventsCount === 0 ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+              {locales.route.empty}
+            </p>
+          ) : null}
+          {loaderData.events.length > 0 && (
+            <>
+              <CardContainer type="multi row">
+                {loaderData.events.map((event) => {
+                  const startTime = utcToZonedTime(
+                    event.startTime,
+                    "Europe/Berlin"
+                  );
+                  const endTime = utcToZonedTime(
+                    event.endTime,
+                    "Europe/Berlin"
+                  );
+                  const participationUntil = utcToZonedTime(
+                    event.participationUntil,
+                    "Europe/Berlin"
+                  );
+
+                  return (
+                    <EventCard
+                      key={event.id}
+                      publicAccess={!loaderData.isLoggedIn}
+                      locales={locales}
+                      currentLanguage={loaderData.language}
+                      event={{
+                        ...event,
+                        startTime,
+                        endTime,
+                        participationUntil,
+                        responsibleOrganizations:
+                          event.responsibleOrganizations.map(
+                            (item) => item.organization
+                          ),
+                      }}
+                      as="h2"
+                    />
+                  );
+                })}
+              </CardContainer>
+              {showMore && (
+                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+                  <Form
+                    {...getFormProps(loadMoreForm)}
+                    method="get"
+                    preventScrollReset
+                    replace
+                  >
+                    <HiddenFilterInputs
+                      fields={loadMoreFields}
+                      defaultValue={loaderData.submission.value}
+                    />
+                    <Button
+                      type="submit"
+                      size="large"
+                      variant="outline"
+                      loading={navigation.state === "loading"}
+                      disabled={navigation.state === "loading"}
+                    >
+                      {locales.route.more}
+                    </Button>
+                  </Form>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </div>
     </>
   );
 }
