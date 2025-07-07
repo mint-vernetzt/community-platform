@@ -496,7 +496,18 @@ export default function App() {
                   locales={locales}
                 />
               )}
-              <Outlet />
+              <div className="mv-flex mv-flex-nowrap mv-w-full">
+                <div className="mv-w-full">
+                  <Outlet />
+                </div>
+                <div
+                  className={`${
+                    isSettings ? "mv-hidden @md:mv-block " : ""
+                  }mv-w-0`}
+                >
+                  <ScrollToTopButton locales={locales} />
+                </div>
+              </div>
               {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
               {alert !== null ? (
                 <Alert level={alert.level}>
@@ -509,11 +520,6 @@ export default function App() {
                 </Alert>
               ) : null}
               {toast !== null ? <ToastContainer toast={toast} /> : null}
-            </div>
-            <div
-              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}
-            >
-              <ScrollToTopButton locales={locales} />
             </div>
           </>
         ) : null}
