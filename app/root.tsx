@@ -275,49 +275,51 @@ export const ErrorBoundary = () => {
           }
           locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
         />
-        {mainMenuIsOpen === null || mainMenuIsOpen === "false" ? (
-          <>
-            <div className="mv-flex mv-flex-col mv-w-full mv-@container mv-relative">
-              <NavBar
-                sessionUserInfo={
-                  hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
-                }
-                openMainMenuKey={openMainMenuKey}
-                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-              />
-              <main className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
-                {/* Content */}
-                <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                  <H1 like="h0">{errorTitle}</H1>
-                  <H2 like="h1">Sorry, something went wrong!</H2>
-                  <p>
-                    Please capture a screenshot and send it over to{" "}
-                    <StyledLink
-                      as="link"
-                      to="mailto:support@mint-vernetzt.de"
-                      variant="primary"
-                    >
-                      support@mint-vernetzt.de
-                    </StyledLink>
-                    . We will do our best to help you with this issue.
-                  </p>
-                </section>
-                {errorText !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Text:</p>
-                    {errorText}
-                  </section>
-                ) : null}
-                {errorData !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Data:</p>
-                    {errorData}
-                  </section>
-                ) : null}
-              </main>
-            </div>
-          </>
-        ) : null}
+        <div
+          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+            mainMenuIsOpen === null || mainMenuIsOpen === "false"
+              ? ""
+              : "mv-hidden xl:mv-block"
+          }`}
+        >
+          <NavBar
+            sessionUserInfo={
+              hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
+            }
+            openMainMenuKey={openMainMenuKey}
+            locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+          />
+          <main className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
+            {/* Content */}
+            <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+              <H1 like="h0">{errorTitle}</H1>
+              <H2 like="h1">Sorry, something went wrong!</H2>
+              <p>
+                Please capture a screenshot and send it over to{" "}
+                <StyledLink
+                  as="link"
+                  to="mailto:support@mint-vernetzt.de"
+                  variant="primary"
+                >
+                  support@mint-vernetzt.de
+                </StyledLink>
+                . We will do our best to help you with this issue.
+              </p>
+            </section>
+            {errorText !== undefined ? (
+              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                <p>Error Text:</p>
+                {errorText}
+              </section>
+            ) : null}
+            {errorData !== undefined ? (
+              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                <p>Error Data:</p>
+                {errorData}
+              </section>
+            ) : null}
+          </main>
+        </div>
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
@@ -474,55 +476,51 @@ export default function App() {
           currentLanguage={currentLanguage}
           locales={locales}
         />
-        {mainMenuIsOpen === null || mainMenuIsOpen === "false" ? (
-          <>
-            <div className="mv-flex mv-flex-col mv-w-full mv-@container mv-relative">
-              <div
-                className={`${showFilters ? "mv-hidden @lg:mv-block " : " "}${
-                  isProjectSettings || isOrganizationSettings
-                    ? "mv-hidden @md:mv-block"
-                    : ""
-                }`}
-              >
-                <NavBar
-                  sessionUserInfo={sessionUserInfo}
-                  openMainMenuKey={openMainMenuKey}
-                  locales={locales}
-                />
-              </div>
-              {isIndexRoute === false && isNonAppBaseRoute === false && (
-                <LoginOrRegisterCTA
-                  isAnon={mode === "anon"}
-                  locales={locales}
-                />
-              )}
-              <div className="mv-flex mv-flex-nowrap mv-w-full">
-                <main className="mv-w-full @md:mv-bg-neutral-50">
-                  <Outlet />
-                </main>
-                <div
-                  className={`${
-                    isSettings ? "mv-hidden @md:mv-block " : ""
-                  }mv-w-0`}
-                >
-                  <ScrollToTopButton locales={locales} />
-                </div>
-              </div>
-              {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
-              {alert !== null ? (
-                <Alert level={alert.level}>
-                  {alert.isRichtext !== undefined &&
-                  alert.isRichtext === true ? (
-                    <RichText html={alert.message} />
-                  ) : (
-                    alert.message
-                  )}
-                </Alert>
-              ) : null}
-              {toast !== null ? <ToastContainer toast={toast} /> : null}
+        <div
+          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+            mainMenuIsOpen === null || mainMenuIsOpen === "false"
+              ? ""
+              : "mv-hidden xl:mv-block"
+          }`}
+        >
+          <div
+            className={`${showFilters ? "mv-hidden @lg:mv-block " : " "}${
+              isProjectSettings || isOrganizationSettings
+                ? "mv-hidden @md:mv-block"
+                : ""
+            }`}
+          >
+            <NavBar
+              sessionUserInfo={sessionUserInfo}
+              openMainMenuKey={openMainMenuKey}
+              locales={locales}
+            />
+          </div>
+          {isIndexRoute === false && isNonAppBaseRoute === false && (
+            <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
+          )}
+          <div className="mv-flex mv-flex-nowrap mv-w-full">
+            <main className="mv-w-full @md:mv-bg-neutral-50">
+              <Outlet />
+            </main>
+            <div
+              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}
+            >
+              <ScrollToTopButton locales={locales} />
             </div>
-          </>
-        ) : null}
+          </div>
+          {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
+          {alert !== null ? (
+            <Alert level={alert.level}>
+              {alert.isRichtext !== undefined && alert.isRichtext === true ? (
+                <RichText html={alert.message} />
+              ) : (
+                alert.message
+              )}
+            </Alert>
+          ) : null}
+          {toast !== null ? <ToastContainer toast={toast} /> : null}
+        </div>
         <ModalRoot />
         <script
           nonce={nonce}
