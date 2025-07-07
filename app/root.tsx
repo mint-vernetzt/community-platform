@@ -285,7 +285,7 @@ export const ErrorBoundary = () => {
                 openMainMenuKey={openMainMenuKey}
                 locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
               />
-              <div className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
+              <main className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
                 {/* Content */}
                 <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
                   <H1 like="h0">{errorTitle}</H1>
@@ -314,7 +314,7 @@ export const ErrorBoundary = () => {
                     {errorData}
                   </section>
                 ) : null}
-              </div>
+              </main>
             </div>
           </>
         ) : null}
@@ -497,9 +497,9 @@ export default function App() {
                 />
               )}
               <div className="mv-flex mv-flex-nowrap mv-w-full">
-                <div className="mv-w-full @md:mv-bg-neutral-50">
+                <main className="mv-w-full @md:mv-bg-neutral-50">
                   <Outlet />
-                </div>
+                </main>
                 <div
                   className={`${
                     isSettings ? "mv-hidden @md:mv-block " : ""
