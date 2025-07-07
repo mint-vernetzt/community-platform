@@ -500,14 +500,18 @@ export default function App() {
             />
           </div>
           {isIndexRoute === false && isNonAppBaseRoute === false && (
-            <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
+            <div className={showFilters ? "mv-hidden @lg:mv-block" : undefined}>
+              <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
+            </div>
           )}
           <div className="mv-flex mv-flex-nowrap mv-w-full">
             <main className="mv-w-full @md:mv-bg-neutral-50">
               <Outlet />
             </main>
             <div
-              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}
+              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
+                showFilters ? "mv-hidden @lg:mv-block " : ""
+              }mv-w-0`}
             >
               <ScrollToTopButton locales={locales} />
             </div>

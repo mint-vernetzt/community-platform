@@ -9,14 +9,22 @@ import {
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 
-export function ShowFiltersButton(props: React.PropsWithChildren) {
-  const { children } = props;
+export function ShowFiltersButton(
+  props: React.PropsWithChildren & {
+    showFilters?: boolean;
+  }
+) {
+  const { children, showFilters } = props;
 
   const [searchParams] = useSearchParams();
   searchParams.set("showFilters", "on");
 
   return (
-    <div className="@lg:mv-hidden mv-text-center">
+    <div
+      className={`${
+        showFilters === true ? "mv-hidden" : "@lg:mv-hidden"
+      } mv-text-center`}
+    >
       <Link
         className="mv-inline-flex mv-items-center mv-font-semibold mv-whitespace-nowrap mv-px-6 mv-py-2.5 mv-border mv-rounded-lg mv-border-primary-500 mv-gap-2 mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-cursor-pointer"
         to={`./?${searchParams.toString()}#top`}
