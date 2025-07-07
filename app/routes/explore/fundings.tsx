@@ -420,7 +420,9 @@ export default function ExploreFundings() {
 
           {/* Funding Filters */}
           <input {...getInputProps(fields.fndPage, { type: "hidden" })} />
-          <ShowFiltersButton>
+          <ShowFiltersButton
+            showFilters={loaderData.submission.value.showFilters}
+          >
             {loaderData.locales.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
@@ -664,321 +666,339 @@ export default function ExploreFundings() {
             <Button>{loaderData.locales.filter.apply}</Button>
           </noscript>
         </Form>
-        <div className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
-        </div>
-        <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
-          {(loaderData.selectedFundingTypes.length > 0 ||
-            loaderData.selectedFundingAreas.length > 0 ||
-            loaderData.selectedRegions.length > 0 ||
-            loaderData.selectedEligibleEntities.length > 0) && (
-            <div className="mv-flex mv-flex-col">
-              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
-                {loaderData.selectedFundingTypes.map((type) => {
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    fndFilterFieldset.types.name,
-                    type.slug
-                  );
-                  return type.title !== null ? (
-                    <ConformForm
-                      key={type.slug}
-                      useFormOptions={{
-                        id: `delete-filter-${type.slug}`,
-                        defaultValue: {
-                          ...loaderData.submission.value,
-                          fndFilter: {
-                            ...loaderData.submission.value.fndFilter,
-                            types:
-                              loaderData.submission.value.fndFilter.types.filter(
-                                (currentType) => currentType !== type.slug
-                              ),
+        <div
+          className={
+            loaderData.submission.value.showFilters === true
+              ? "mv-hidden @lg:mv-block"
+              : undefined
+          }
+        >
+          <div className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+            <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+          </div>
+          <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
+            {(loaderData.selectedFundingTypes.length > 0 ||
+              loaderData.selectedFundingAreas.length > 0 ||
+              loaderData.selectedRegions.length > 0 ||
+              loaderData.selectedEligibleEntities.length > 0) && (
+              <div className="mv-flex mv-flex-col">
+                <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+                  {loaderData.selectedFundingTypes.map((type) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      fndFilterFieldset.types.name,
+                      type.slug
+                    );
+                    return type.title !== null ? (
+                      <ConformForm
+                        key={type.slug}
+                        useFormOptions={{
+                          id: `delete-filter-${type.slug}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            fndFilter: {
+                              ...loaderData.submission.value.fndFilter,
+                              types:
+                                loaderData.submission.value.fndFilter.types.filter(
+                                  (currentType) => currentType !== type.slug
+                                ),
+                            },
+                            search: [
+                              loaderData.submission.value.search.join(" "),
+                            ],
+                            showFilters: "",
                           },
-                          search: [
-                            loaderData.submission.value.search.join(" "),
-                          ],
-                          showFilters: "",
-                        },
-                        constraint: getZodConstraint(getFilterSchemes),
-                        lastResult:
-                          navigation.state === "idle"
-                            ? loaderData.submission
-                            : null,
-                      }}
-                      formProps={{
-                        method: "get",
-                        preventScrollReset: true,
-                      }}
-                    >
-                      <HiddenFilterInputsInContext />
-                      <Chip size="medium">
-                        {type.title}
-                        <Chip.Delete>
-                          <button
-                            type="submit"
-                            disabled={navigation.state === "loading"}
-                          >
-                            X
-                          </button>
-                        </Chip.Delete>
-                      </Chip>
-                    </ConformForm>
-                  ) : null;
-                })}
-                {loaderData.selectedFundingAreas.map((area) => {
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    fndFilterFieldset.areas.name,
-                    area.slug
-                  );
-                  return area.title !== null ? (
-                    <ConformForm
-                      key={area.slug}
-                      useFormOptions={{
-                        id: `delete-filter-${area.slug}`,
-                        defaultValue: {
-                          ...loaderData.submission.value,
-                          fndFilter: {
-                            ...loaderData.submission.value.fndFilter,
-                            areas:
-                              loaderData.submission.value.fndFilter.areas.filter(
-                                (currentArea) => currentArea !== area.slug
-                              ),
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {type.title}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    ) : null;
+                  })}
+                  {loaderData.selectedFundingAreas.map((area) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      fndFilterFieldset.areas.name,
+                      area.slug
+                    );
+                    return area.title !== null ? (
+                      <ConformForm
+                        key={area.slug}
+                        useFormOptions={{
+                          id: `delete-filter-${area.slug}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            fndFilter: {
+                              ...loaderData.submission.value.fndFilter,
+                              areas:
+                                loaderData.submission.value.fndFilter.areas.filter(
+                                  (currentArea) => currentArea !== area.slug
+                                ),
+                            },
+                            search: [
+                              loaderData.submission.value.search.join(" "),
+                            ],
+                            showFilters: "",
                           },
-                          search: [
-                            loaderData.submission.value.search.join(" "),
-                          ],
-                          showFilters: "",
-                        },
-                        constraint: getZodConstraint(getFilterSchemes),
-                        lastResult:
-                          navigation.state === "idle"
-                            ? loaderData.submission
-                            : null,
-                      }}
-                      formProps={{
-                        method: "get",
-                        preventScrollReset: true,
-                      }}
-                    >
-                      <HiddenFilterInputsInContext />
-                      <Chip size="medium">
-                        {area.title}
-                        <Chip.Delete>
-                          <button
-                            type="submit"
-                            disabled={navigation.state === "loading"}
-                          >
-                            X
-                          </button>
-                        </Chip.Delete>
-                      </Chip>
-                    </ConformForm>
-                  ) : null;
-                })}
-                {loaderData.selectedRegions.map((region) => {
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    fndFilterFieldset.regions.name,
-                    region.slug
-                  );
-                  return region.name !== null ? (
-                    <ConformForm
-                      key={region.slug}
-                      useFormOptions={{
-                        id: `delete-filter-${region.slug}`,
-                        defaultValue: {
-                          ...loaderData.submission.value,
-                          fndFilter: {
-                            ...loaderData.submission.value.fndFilter,
-                            regions:
-                              loaderData.submission.value.fndFilter.regions.filter(
-                                (currentRegion) => currentRegion !== region.slug
-                              ),
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {area.title}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    ) : null;
+                  })}
+                  {loaderData.selectedRegions.map((region) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      fndFilterFieldset.regions.name,
+                      region.slug
+                    );
+                    return region.name !== null ? (
+                      <ConformForm
+                        key={region.slug}
+                        useFormOptions={{
+                          id: `delete-filter-${region.slug}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            fndFilter: {
+                              ...loaderData.submission.value.fndFilter,
+                              regions:
+                                loaderData.submission.value.fndFilter.regions.filter(
+                                  (currentRegion) =>
+                                    currentRegion !== region.slug
+                                ),
+                            },
+                            search: [
+                              loaderData.submission.value.search.join(" "),
+                            ],
+                            showFilters: "",
                           },
-                          search: [
-                            loaderData.submission.value.search.join(" "),
-                          ],
-                          showFilters: "",
-                        },
-                        constraint: getZodConstraint(getFilterSchemes),
-                        lastResult:
-                          navigation.state === "idle"
-                            ? loaderData.submission
-                            : null,
-                      }}
-                      formProps={{
-                        method: "get",
-                        preventScrollReset: true,
-                      }}
-                    >
-                      <HiddenFilterInputsInContext />
-                      <Chip size="medium">
-                        {region.name}
-                        <Chip.Delete>
-                          <button
-                            type="submit"
-                            disabled={navigation.state === "loading"}
-                          >
-                            X
-                          </button>
-                        </Chip.Delete>
-                      </Chip>
-                    </ConformForm>
-                  ) : null;
-                })}
-                {loaderData.selectedEligibleEntities.map((entity) => {
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    fndFilterFieldset.eligibleEntities.name,
-                    entity.slug
-                  );
-                  return entity.title !== null ? (
-                    <ConformForm
-                      key={entity.slug}
-                      useFormOptions={{
-                        id: `delete-filter-${entity.slug}`,
-                        defaultValue: {
-                          ...loaderData.submission.value,
-                          fndFilter: {
-                            ...loaderData.submission.value.fndFilter,
-                            eligibleEntities:
-                              loaderData.submission.value.fndFilter.eligibleEntities.filter(
-                                (currentEntity) => currentEntity !== entity.slug
-                              ),
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {region.name}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    ) : null;
+                  })}
+                  {loaderData.selectedEligibleEntities.map((entity) => {
+                    const deleteSearchParams = new URLSearchParams(
+                      searchParams
+                    );
+                    deleteSearchParams.delete(
+                      fndFilterFieldset.eligibleEntities.name,
+                      entity.slug
+                    );
+                    return entity.title !== null ? (
+                      <ConformForm
+                        key={entity.slug}
+                        useFormOptions={{
+                          id: `delete-filter-${entity.slug}`,
+                          defaultValue: {
+                            ...loaderData.submission.value,
+                            fndFilter: {
+                              ...loaderData.submission.value.fndFilter,
+                              eligibleEntities:
+                                loaderData.submission.value.fndFilter.eligibleEntities.filter(
+                                  (currentEntity) =>
+                                    currentEntity !== entity.slug
+                                ),
+                            },
+                            search: [
+                              loaderData.submission.value.search.join(" "),
+                            ],
+                            showFilters: "",
                           },
-                          search: [
-                            loaderData.submission.value.search.join(" "),
-                          ],
-                          showFilters: "",
-                        },
-                        constraint: getZodConstraint(getFilterSchemes),
-                        lastResult:
-                          navigation.state === "idle"
-                            ? loaderData.submission
-                            : null,
-                      }}
-                      formProps={{
-                        method: "get",
-                        preventScrollReset: true,
-                      }}
-                    >
-                      <HiddenFilterInputsInContext />
-                      <Chip size="medium">
-                        {entity.title}
-                        <Chip.Delete>
-                          <button
-                            type="submit"
-                            disabled={navigation.state === "loading"}
-                          >
-                            X
-                          </button>
-                        </Chip.Delete>
-                      </Chip>
-                    </ConformForm>
-                  ) : null;
-                })}
+                          constraint: getZodConstraint(getFilterSchemes),
+                          lastResult:
+                            navigation.state === "idle"
+                              ? loaderData.submission
+                              : null,
+                        }}
+                        formProps={{
+                          method: "get",
+                          preventScrollReset: true,
+                        }}
+                      >
+                        <HiddenFilterInputsInContext />
+                        <Chip size="medium">
+                          {entity.title}
+                          <Chip.Delete>
+                            <button
+                              type="submit"
+                              disabled={navigation.state === "loading"}
+                            >
+                              X
+                            </button>
+                          </Chip.Delete>
+                        </Chip>
+                      </ConformForm>
+                    ) : null;
+                  })}
+                </div>
+                <Form
+                  {...getFormProps(resetForm)}
+                  method="get"
+                  preventScrollReset
+                  className="mv-w-fit"
+                >
+                  <HiddenFilterInputs
+                    fields={resetFields}
+                    defaultValue={loaderData.submission.value}
+                  />
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    loading={navigation.state === "loading"}
+                    disabled={navigation.state === "loading"}
+                  >
+                    {loaderData.locales.filter.reset}
+                  </Button>
+                </Form>
               </div>
+            )}
+          </section>
+          {loaderData.count === 0 ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+              {loaderData.locales.empty}
+            </p>
+          ) : null}
+
+          <FundingCard.Container>
+            {loaderData.fundings.map((funding) => {
+              return (
+                <FundingCard
+                  key={funding.url}
+                  url={funding.url}
+                  locales={loaderData.locales}
+                >
+                  <FundingCard.Subtitle>
+                    {funding.types
+                      .map((relation) => {
+                        return relation.type.title;
+                      })
+                      .join(", ")}
+                  </FundingCard.Subtitle>
+                  <FundingCard.Title as="h2">{funding.title}</FundingCard.Title>
+                  <FundingCard.Category
+                    items={funding.regions.map((relation) => {
+                      return relation.area.name;
+                    })}
+                    locales={loaderData.locales}
+                  >
+                    <FundingCard.Category.Title>
+                      {loaderData.locales.card.region}
+                    </FundingCard.Category.Title>
+                  </FundingCard.Category>
+                  <FundingCard.Category
+                    items={funding.sourceEntities}
+                    locales={loaderData.locales}
+                  >
+                    <FundingCard.Category.Title>
+                      {loaderData.locales.card.eligibleEntity}
+                    </FundingCard.Category.Title>
+                  </FundingCard.Category>
+
+                  <FundingCard.Category
+                    items={funding.sourceAreas}
+                    locales={loaderData.locales}
+                  >
+                    <FundingCard.Category.Title>
+                      {loaderData.locales.card.area}
+                    </FundingCard.Category.Title>
+                  </FundingCard.Category>
+                </FundingCard>
+              );
+            })}
+          </FundingCard.Container>
+
+          {loaderData.count > loaderData.fundings.length && (
+            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
               <Form
-                {...getFormProps(resetForm)}
+                {...getFormProps(loadMoreForm)}
                 method="get"
                 preventScrollReset
-                className="mv-w-fit"
+                replace
               >
                 <HiddenFilterInputs
-                  fields={resetFields}
+                  fields={loadMoreFields}
                   defaultValue={loaderData.submission.value}
                 />
                 <Button
                   type="submit"
+                  size="large"
                   variant="outline"
                   loading={navigation.state === "loading"}
                   disabled={navigation.state === "loading"}
                 >
-                  {loaderData.locales.filter.reset}
+                  {loaderData.locales.more}
                 </Button>
               </Form>
             </div>
           )}
-        </section>
-        {loaderData.count === 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            {loaderData.locales.empty}
-          </p>
-        ) : null}
-
-        <FundingCard.Container>
-          {loaderData.fundings.map((funding) => {
-            return (
-              <FundingCard
-                key={funding.url}
-                url={funding.url}
-                locales={loaderData.locales}
-              >
-                <FundingCard.Subtitle>
-                  {funding.types
-                    .map((relation) => {
-                      return relation.type.title;
-                    })
-                    .join(", ")}
-                </FundingCard.Subtitle>
-                <FundingCard.Title as="h2">{funding.title}</FundingCard.Title>
-                <FundingCard.Category
-                  items={funding.regions.map((relation) => {
-                    return relation.area.name;
-                  })}
-                  locales={loaderData.locales}
-                >
-                  <FundingCard.Category.Title>
-                    {loaderData.locales.card.region}
-                  </FundingCard.Category.Title>
-                </FundingCard.Category>
-                <FundingCard.Category
-                  items={funding.sourceEntities}
-                  locales={loaderData.locales}
-                >
-                  <FundingCard.Category.Title>
-                    {loaderData.locales.card.eligibleEntity}
-                  </FundingCard.Category.Title>
-                </FundingCard.Category>
-
-                <FundingCard.Category
-                  items={funding.sourceAreas}
-                  locales={loaderData.locales}
-                >
-                  <FundingCard.Category.Title>
-                    {loaderData.locales.card.area}
-                  </FundingCard.Category.Title>
-                </FundingCard.Category>
-              </FundingCard>
-            );
-          })}
-        </FundingCard.Container>
-
-        {loaderData.count > loaderData.fundings.length && (
-          <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
-            <Form
-              {...getFormProps(loadMoreForm)}
-              method="get"
-              preventScrollReset
-              replace
-            >
-              <HiddenFilterInputs
-                fields={loadMoreFields}
-                defaultValue={loaderData.submission.value}
-              />
-              <Button
-                type="submit"
-                size="large"
-                variant="outline"
-                loading={navigation.state === "loading"}
-                disabled={navigation.state === "loading"}
-              >
-                {loaderData.locales.more}
-              </Button>
-            </Form>
-          </div>
-        )}
+        </div>
       </section>
     </>
   );

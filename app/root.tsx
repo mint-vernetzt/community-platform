@@ -1,5 +1,4 @@
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
@@ -48,6 +47,7 @@ import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
+import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -220,13 +220,13 @@ export const ErrorBoundary = () => {
 
   const [searchParams] = useSearchParams();
   const openMainMenuKey = "mainMenu";
-  const navBarMenuIsOpen = searchParams.get(openMainMenuKey);
+  const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-min-h-screen mv-break-words",
-    navBarMenuIsOpen !== null &&
-      navBarMenuIsOpen !== "false" &&
-      "mv-overflow-hidden xl:mv-overflow-auto"
+    "mv-flex mv-min-h-screen mv-break-words mv-antialiased mv-overflow-x-hidden",
+    mainMenuIsOpen !== null &&
+      mainMenuIsOpen !== "false" &&
+      "mv-overflow-y-hidden xl:mv-overflow-y-visible"
   );
 
   let errorTitle;
@@ -257,8 +257,31 @@ export const ErrorBoundary = () => {
         <Links />
       </head>
 
-      <body className={bodyClasses}>
-        <div id="top" className="mv-flex mv-flex-col mv-min-h-screen">
+      <body id="top" className={bodyClasses}>
+        <MainMenu
+          mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
+          openMainMenuKey={openMainMenuKey}
+          username={
+            hasRootLoaderData &&
+            typeof rootLoaderData.sessionUserInfo !== "undefined"
+              ? rootLoaderData.sessionUserInfo.username
+              : undefined
+          }
+          abilities={hasRootLoaderData ? rootLoaderData.abilities : undefined}
+          currentLanguage={
+            hasRootLoaderData
+              ? rootLoaderData.currentLanguage
+              : DEFAULT_LANGUAGE
+          }
+          locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+        />
+        <div
+          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+            mainMenuIsOpen === null || mainMenuIsOpen === "false"
+              ? ""
+              : "mv-hidden xl:mv-block"
+          }`}
+        >
           <NavBar
             sessionUserInfo={
               hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
@@ -266,71 +289,44 @@ export const ErrorBoundary = () => {
             openMainMenuKey={openMainMenuKey}
             locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
-          <div className="mv-flex mv-h-full mv-min-h-screen">
-            <MainMenu
-              mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
-              openMainMenuKey={openMainMenuKey}
-              username={
-                hasRootLoaderData &&
-                typeof rootLoaderData.sessionUserInfo !== "undefined"
-                  ? rootLoaderData.sessionUserInfo.username
-                  : undefined
-              }
-              abilities={
-                hasRootLoaderData ? rootLoaderData.abilities : undefined
-              }
-              currentLanguage={
-                hasRootLoaderData
-                  ? rootLoaderData.currentLanguage
-                  : DEFAULT_LANGUAGE
-              }
-              locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-            />
-            <div className="mv-flex-grow mv-@container mv-min-h-screen">
-              <div className="mv-min-h-screen">
-                {/* Content */}
-                <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                  <H1 like="h0">{errorTitle}</H1>
-                  <H2 like="h1">Sorry, something went wrong!</H2>
-                  <p>
-                    Please capture a screenshot and send it over to{" "}
-                    <StyledLink
-                      as="link"
-                      to="mailto:support@mint-vernetzt.de"
-                      variant="primary"
-                    >
-                      support@mint-vernetzt.de
-                    </StyledLink>
-                    . We will do our best to help you with this issue.
-                  </p>
-                </section>
-                {errorText !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Text:</p>
-                    {errorText}
-                  </section>
-                ) : null}
-                {errorData !== undefined ? (
-                  <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
-                    <p>Error Data:</p>
-                    {errorData}
-                  </section>
-                ) : null}
-              </div>
-              <Footer
-                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-                mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
-              />
-            </div>
-          </div>
+          <main className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
+            {/* Content */}
+            <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+              <H1 like="h0">{errorTitle}</H1>
+              <H2 like="h1">Sorry, something went wrong!</H2>
+              <p>
+                Please capture a screenshot and send it over to{" "}
+                <StyledLink
+                  as="link"
+                  to="mailto:support@mint-vernetzt.de"
+                  variant="primary"
+                >
+                  support@mint-vernetzt.de
+                </StyledLink>
+                . We will do our best to help you with this issue.
+              </p>
+            </section>
+            {errorText !== undefined ? (
+              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                <p>Error Text:</p>
+                {errorText}
+              </section>
+            ) : null}
+            {errorData !== undefined ? (
+              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+                <p>Error Data:</p>
+                {errorData}
+              </section>
+            ) : null}
+          </main>
         </div>
-        <ScrollRestoration nonce={nonce} />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `window.ENV = ${JSON.stringify(ENV)}`,
           }}
         />
+        <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
       </body>
     </html>
@@ -449,85 +445,17 @@ export default function App() {
   });
   const showFilters = searchParams.get("showFilters");
   const openMainMenuKey = "mainMenu";
-  const navBarMenuIsOpen = searchParams.get(openMainMenuKey);
+  const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-min-h-screen mv-break-words mv-antialiased",
-    modal && "mv-overflow-hidden",
+    "mv-flex mv-min-h-screen mv-break-words mv-antialiased mv-overflow-x-hidden",
+    modal && "mv-overflow-y-hidden",
     showFilters !== null &&
       showFilters === "on" &&
-      "mv-overflow-hidden container-lg:mv-overflow-visible",
-    navBarMenuIsOpen !== null &&
-      navBarMenuIsOpen !== "false" &&
-      "mv-overflow-hidden xl:mv-overflow-visible"
-  );
-
-  const main = (
-    <main className="mv-flex-auto mv-relative mv-w-full mv-bg-white container-md:mv-bg-neutral-50">
-      {alert !== null ? (
-        <div className="mv-w-full mv-flex mv-justify-center">
-          <div className="mv-w-full mv-max-w-screen-2xl mv-px-4 @lg:mv-px-8">
-            <Alert level={alert.level}>
-              {alert.isRichtext !== undefined && alert.isRichtext === true ? (
-                <RichText html={alert.message} />
-              ) : (
-                alert.message
-              )}
-            </Alert>
-          </div>
-        </div>
-      ) : null}
-      <Outlet />
-      {toast !== null ? <ToastContainer toast={toast} /> : null}
-    </main>
-  );
-
-  // Scroll to top button
-  // Should this be a component?
-  const scrollButton = (
-    <div className={`${isSettings ? "mv-hidden @md:mv-block " : ""}mv-w-0`}>
-      <div className="mv-w-0 mv-h-4"></div>
-      <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
-        <div className="mv-absolute mv-bottom-4 -mv-left-20">
-          <CircleButton
-            as="a"
-            href={`${location.pathname}${location.search}#top`}
-            size="large"
-            floating
-            aria-label={
-              locales !== undefined
-                ? locales.route.root.scrollToTop
-                : DEFAULT_LANGUAGE === "de"
-                ? "Nach oben scrollen"
-                : "Scroll to top"
-            }
-          >
-            <svg
-              width="30"
-              height="31"
-              viewBox="0 0 30 31"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                d="M15 4V29"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path
-                d="M3 13L15 2L27 13"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </CircleButton>
-        </div>
-      </div>
-    </div>
+      "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",
+    mainMenuIsOpen !== null &&
+      mainMenuIsOpen !== "false" &&
+      "mv-overflow-y-hidden xl:mv-overflow-y-visible"
   );
 
   return (
@@ -539,52 +467,79 @@ export default function App() {
         <Links />
       </head>
 
-      <body className={bodyClasses}>
-        <div id="top" className={bodyClasses}>
-          <div className="mv-flex mv-flex-col mv-min-h-screen">
+      <body id="top" className={bodyClasses}>
+        <div
+          inert={modal ? true : undefined}
+          className={
+            mainMenuIsOpen ? "mv-w-full xl:mv-w-fit" : "mv-hidden xl:mv-block"
+          }
+        >
+          <MainMenu
+            mode={mode}
+            openMainMenuKey={openMainMenuKey}
+            username={sessionUserInfo?.username}
+            abilities={abilities}
+            currentLanguage={currentLanguage}
+            locales={locales}
+          />
+        </div>
+        <div
+          inert={modal ? true : undefined}
+          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+            mainMenuIsOpen === null || mainMenuIsOpen === "false"
+              ? ""
+              : "mv-hidden xl:mv-block"
+          }`}
+        >
+          <div
+            className={`${showFilters ? "mv-hidden @lg:mv-block " : " "}${
+              isProjectSettings || isOrganizationSettings
+                ? "mv-hidden @md:mv-block"
+                : ""
+            }`}
+          >
+            <NavBar
+              sessionUserInfo={sessionUserInfo}
+              openMainMenuKey={openMainMenuKey}
+              locales={locales}
+            />
+          </div>
+          {isIndexRoute === false && isNonAppBaseRoute === false && (
             <div
               className={`${
-                showFilters ? "mv-hidden container-lg:mv-block " : " "
-              }${
                 isProjectSettings || isOrganizationSettings
-                  ? "mv-hidden container-md:mv-block"
+                  ? "mv-hidden @md:mv-block "
                   : ""
-              }`}
+              }${showFilters ? "mv-hidden @lg:mv-block" : ""}`}
             >
-              <NavBar
-                sessionUserInfo={sessionUserInfo}
-                openMainMenuKey={openMainMenuKey}
-                locales={locales}
-              />
+              <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
             </div>
-
-            <div className="mv-flex mv-h-full mv-min-h-screen">
-              <MainMenu
-                mode={mode}
-                openMainMenuKey={openMainMenuKey}
-                username={sessionUserInfo?.username}
-                abilities={abilities}
-                currentLanguage={currentLanguage}
-                locales={locales}
-              />
-              <div className="mv-flex-grow mv-@container">
-                {isIndexRoute === false && isNonAppBaseRoute === false && (
-                  <LoginOrRegisterCTA
-                    isAnon={mode === "anon"}
-                    locales={locales}
-                  />
-                )}
-                <div className="mv-flex mv-flex-nowrap mv-min-h-[calc(100dvh - 76px)] xl:mv-min-h-[calc(100dvh - 80px)]">
-                  {main}
-                  {/* TODO: This should be rendered when the page content is smaller then the screen height. Not only on specific routes like nonAppBaseRoutes*/}
-                  {scrollButton}
-                </div>
-                {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
-              </div>
+          )}
+          <div className="mv-flex mv-flex-nowrap mv-w-full">
+            <main className="mv-w-full @md:mv-bg-neutral-50">
+              <Outlet />
+            </main>
+            <div
+              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
+                showFilters ? "mv-hidden @lg:mv-block " : ""
+              }mv-w-0`}
+            >
+              <ScrollToTopButton locales={locales} />
             </div>
           </div>
-          <ModalRoot />
+          {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
+          {alert !== null ? (
+            <Alert level={alert.level}>
+              {alert.isRichtext !== undefined && alert.isRichtext === true ? (
+                <RichText html={alert.message} />
+              ) : (
+                alert.message
+              )}
+            </Alert>
+          ) : null}
+          {toast !== null ? <ToastContainer toast={toast} /> : null}
         </div>
+        <ModalRoot />
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{

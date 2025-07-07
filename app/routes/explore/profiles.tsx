@@ -435,7 +435,9 @@ export default function ExploreProfiles() {
 
           {/* Profile Filters */}
           <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
-          <ShowFiltersButton>
+          <ShowFiltersButton
+            showFilters={loaderData.submission.value.showFilters}
+          >
             {loaderData.locales.route.filter.showFiltersLabel}
           </ShowFiltersButton>
           <Filters
@@ -764,208 +766,222 @@ export default function ExploreProfiles() {
           </noscript>
         </Form>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-        <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
-      </div>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
-        {(loaderData.selectedOffers.length > 0 ||
-          loaderData.selectedAreas.length > 0) && (
-          <div className="mv-flex mv-flex-col mv-gap-2">
-            <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
-              {loaderData.selectedOffers.map((selectedOffer) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prfFilterFieldset.offer.name,
-                  selectedOffer
-                );
-                let title;
-                if (selectedOffer in loaderData.locales.offers === false) {
-                  console.error(`No locale found for offer ${selectedOffer}`);
-                  title = selectedOffer;
-                } else {
-                  type LocaleKey = keyof typeof loaderData.locales.offers;
-                  title =
-                    loaderData.locales.offers[selectedOffer as LocaleKey].title;
-                }
-                return (
-                  <ConformForm
-                    key={selectedOffer}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedOffer}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prfFilter: {
-                          ...loaderData.submission.value.prfFilter,
-                          offer:
-                            loaderData.submission.value.prfFilter.offer.filter(
-                              (offer) => offer !== selectedOffer
+      <div
+        className={
+          loaderData.submission.value.showFilters === true
+            ? "mv-hidden @lg:mv-block"
+            : undefined
+        }
+      >
+        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        </div>
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+          {(loaderData.selectedOffers.length > 0 ||
+            loaderData.selectedAreas.length > 0) && (
+            <div className="mv-flex mv-flex-col mv-gap-2">
+              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+                {loaderData.selectedOffers.map((selectedOffer) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    prfFilterFieldset.offer.name,
+                    selectedOffer
+                  );
+                  let title;
+                  if (selectedOffer in loaderData.locales.offers === false) {
+                    console.error(`No locale found for offer ${selectedOffer}`);
+                    title = selectedOffer;
+                  } else {
+                    type LocaleKey = keyof typeof loaderData.locales.offers;
+                    title =
+                      loaderData.locales.offers[selectedOffer as LocaleKey]
+                        .title;
+                  }
+                  return (
+                    <ConformForm
+                      key={selectedOffer}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedOffer}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          prfFilter: {
+                            ...loaderData.submission.value.prfFilter,
+                            offer:
+                              loaderData.submission.value.prfFilter.offer.filter(
+                                (offer) => offer !== selectedOffer
+                              ),
+                          },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {title}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  );
+                })}
+                {loaderData.selectedAreas.map((selectedArea) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    prfFilterFieldset.area.name,
+                    selectedArea.slug
+                  );
+                  return selectedArea.name !== null ? (
+                    <ConformForm
+                      key={selectedArea.slug}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedArea.slug}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          prfFilter: {
+                            ...loaderData.submission.value.prfFilter,
+                            area: loaderData.submission.value.prfFilter.area.filter(
+                              (area) => area !== selectedArea.slug
                             ),
+                          },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
+                          showFilters: "",
                         },
-                        search: [loaderData.submission.value.search.join(" ")],
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {title}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                );
-              })}
-              {loaderData.selectedAreas.map((selectedArea) => {
-                const deleteSearchParams = new URLSearchParams(searchParams);
-                deleteSearchParams.delete(
-                  prfFilterFieldset.area.name,
-                  selectedArea.slug
-                );
-                return selectedArea.name !== null ? (
-                  <ConformForm
-                    key={selectedArea.slug}
-                    useFormOptions={{
-                      id: `delete-filter-${selectedArea.slug}`,
-                      defaultValue: {
-                        ...loaderData.submission.value,
-                        prfFilter: {
-                          ...loaderData.submission.value.prfFilter,
-                          area: loaderData.submission.value.prfFilter.area.filter(
-                            (area) => area !== selectedArea.slug
-                          ),
-                        },
-                        search: [loaderData.submission.value.search.join(" ")],
-                        showFilters: "",
-                      },
-                      constraint: getZodConstraint(getFilterSchemes),
-                      lastResult:
-                        navigation.state === "idle"
-                          ? loaderData.submission
-                          : null,
-                    }}
-                    formProps={{
-                      method: "get",
-                      preventScrollReset: true,
-                    }}
-                  >
-                    <HiddenFilterInputsInContext />
-                    <Chip size="medium">
-                      {selectedArea.name}
-                      <Chip.Delete>
-                        <button
-                          type="submit"
-                          disabled={navigation.state === "loading"}
-                        >
-                          X
-                        </button>
-                      </Chip.Delete>
-                    </Chip>
-                  </ConformForm>
-                ) : null;
-              })}
-            </div>
-            <Form
-              {...getFormProps(resetForm)}
-              method="get"
-              preventScrollReset
-              className="mv-w-fit"
-            >
-              <HiddenFilterInputs
-                fields={resetFields}
-                defaultValue={loaderData.submission.value}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                loading={navigation.state === "loading"}
-                disabled={navigation.state === "loading"}
-              >
-                {loaderData.locales.route.filter.reset}
-              </Button>
-            </Form>
-          </div>
-        )}
-      </section>
-
-      <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
-        loaderData.filteredByVisibilityCount !== loaderData.profilesCount ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                loaderData.locales.route.notShown_singular,
-                loaderData.locales.route.notShown_plural,
-                loaderData.profilesCount - loaderData.filteredByVisibilityCount
-              ),
-              {
-                count:
-                  loaderData.profilesCount -
-                  loaderData.filteredByVisibilityCount,
-              }
-            )}
-          </p>
-        ) : loaderData.profilesCount === 0 ? (
-          <p className="mv-text-center mv-text-gray-700 mv-mb-4">
-            {loaderData.locales.route.empty}
-          </p>
-        ) : null}
-        {loaderData.profiles.length > 0 && (
-          <>
-            <CardContainer type="multi row">
-              {loaderData.profiles.map((profile) => {
-                return (
-                  <ProfileCard
-                    locales={loaderData.locales}
-                    key={`profile-${profile.id}`}
-                    publicAccess={!loaderData.isLoggedIn}
-                    profile={profile}
-                    as="h2"
-                  />
-                );
-              })}
-            </CardContainer>
-            {showMore && (
-              <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                <Form
-                  {...getFormProps(loadMoreForm)}
-                  method="get"
-                  preventScrollReset
-                  replace
-                >
-                  <HiddenFilterInputs
-                    fields={loadMoreFields}
-                    defaultValue={loaderData.submission.value}
-                  />
-                  <Button
-                    type="submit"
-                    size="large"
-                    variant="outline"
-                    loading={navigation.state === "loading"}
-                    disabled={navigation.state === "loading"}
-                  >
-                    {loaderData.locales.route.more}
-                  </Button>
-                </Form>
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {selectedArea.name}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  ) : null;
+                })}
               </div>
-            )}
-          </>
-        )}
-      </section>
+              <Form
+                {...getFormProps(resetForm)}
+                method="get"
+                preventScrollReset
+                className="mv-w-fit"
+              >
+                <HiddenFilterInputs
+                  fields={resetFields}
+                  defaultValue={loaderData.submission.value}
+                />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  loading={navigation.state === "loading"}
+                  disabled={navigation.state === "loading"}
+                >
+                  {loaderData.locales.route.filter.reset}
+                </Button>
+              </Form>
+            </div>
+          )}
+        </section>
+
+        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+          {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
+          loaderData.filteredByVisibilityCount !== loaderData.profilesCount ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+              {insertParametersIntoLocale(
+                decideBetweenSingularOrPlural(
+                  loaderData.locales.route.notShown_singular,
+                  loaderData.locales.route.notShown_plural,
+                  loaderData.profilesCount -
+                    loaderData.filteredByVisibilityCount
+                ),
+                {
+                  count:
+                    loaderData.profilesCount -
+                    loaderData.filteredByVisibilityCount,
+                }
+              )}
+            </p>
+          ) : loaderData.profilesCount === 0 ? (
+            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+              {loaderData.locales.route.empty}
+            </p>
+          ) : null}
+          {loaderData.profiles.length > 0 && (
+            <>
+              <CardContainer type="multi row">
+                {loaderData.profiles.map((profile) => {
+                  return (
+                    <ProfileCard
+                      locales={loaderData.locales}
+                      key={`profile-${profile.id}`}
+                      publicAccess={!loaderData.isLoggedIn}
+                      profile={profile}
+                      as="h2"
+                    />
+                  );
+                })}
+              </CardContainer>
+              {showMore && (
+                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+                  <Form
+                    {...getFormProps(loadMoreForm)}
+                    method="get"
+                    preventScrollReset
+                    replace
+                  >
+                    <HiddenFilterInputs
+                      fields={loadMoreFields}
+                      defaultValue={loaderData.submission.value}
+                    />
+                    <Button
+                      type="submit"
+                      size="large"
+                      variant="outline"
+                      loading={navigation.state === "loading"}
+                      disabled={navigation.state === "loading"}
+                    >
+                      {loaderData.locales.route.more}
+                    </Button>
+                  </Form>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </div>
     </>
   );
 }

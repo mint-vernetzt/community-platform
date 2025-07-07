@@ -44,12 +44,12 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-h-dvh mv-max-h-dvh mv-sticky mv-top-0 xl:-mv-mt-28 mv-bg-white mv-z-10`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-0 mv-bg-white`}
     >
       <a
         id="main-menu-start"
         href="#main-menu-end"
-        className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
+        className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.start
@@ -59,7 +59,7 @@ export function MainMenu(
       </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="xl:mv-py-3 xl:mv-w-full mv-pl-4 xl:mv-pl-6 mv-pr-2 xl:mv-pr-0 mv-hidden xl:mv-block mv-flex-shrink"
+        className="mv-my-3 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
         aria-label={
           props.locales !== undefined
             ? props.mode === "anon"
@@ -453,7 +453,7 @@ export function MainMenu(
       <a
         id="main-menu-end"
         href="#main-menu-start"
-        className="mv-w-fit mv-h-fit mv-opacity-0 focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
+        className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
       >
         {props.locales !== undefined
           ? props.locales.route.root.skipMainMenu.end
