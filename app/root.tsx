@@ -468,7 +468,12 @@ export default function App() {
       </head>
 
       <body id="top" className={bodyClasses}>
-        <div inert={modal ? true : undefined}>
+        <div
+          inert={modal ? true : undefined}
+          className={
+            mainMenuIsOpen ? "mv-w-full xl:mv-w-fit" : "mv-hidden xl:mv-block"
+          }
+        >
           <MainMenu
             mode={mode}
             openMainMenuKey={openMainMenuKey}
@@ -500,7 +505,13 @@ export default function App() {
             />
           </div>
           {isIndexRoute === false && isNonAppBaseRoute === false && (
-            <div className={showFilters ? "mv-hidden @lg:mv-block" : undefined}>
+            <div
+              className={`${
+                isProjectSettings || isOrganizationSettings
+                  ? "mv-hidden @md:mv-block "
+                  : ""
+              }${showFilters ? "mv-hidden @lg:mv-block" : ""}`}
+            >
               <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
             </div>
           )}
