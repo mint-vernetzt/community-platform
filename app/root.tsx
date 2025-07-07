@@ -468,15 +468,18 @@ export default function App() {
       </head>
 
       <body id="top" className={bodyClasses}>
-        <MainMenu
-          mode={mode}
-          openMainMenuKey={openMainMenuKey}
-          username={sessionUserInfo?.username}
-          abilities={abilities}
-          currentLanguage={currentLanguage}
-          locales={locales}
-        />
+        <div inert={modal ? true : undefined}>
+          <MainMenu
+            mode={mode}
+            openMainMenuKey={openMainMenuKey}
+            username={sessionUserInfo?.username}
+            abilities={abilities}
+            currentLanguage={currentLanguage}
+            locales={locales}
+          />
+        </div>
         <div
+          inert={modal ? true : undefined}
           className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
             mainMenuIsOpen === null || mainMenuIsOpen === "false"
               ? ""
