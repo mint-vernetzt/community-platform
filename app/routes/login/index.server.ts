@@ -58,6 +58,8 @@ export async function login(options: {
             email: data.email,
             options: { emailRedirectTo: data.loginRedirect },
           });
+          console.error("Resending confirmation email", error);
+          // If the error is not null, it means the
           invariantResponse(
             error === null,
             "Error while resending confirmation email",
