@@ -58,8 +58,9 @@ export async function login(options: {
             email: data.email,
             options: { emailRedirectTo: data.loginRedirect },
           });
+          // Ignoring the rate limit error here, because when this happens the user will still have a valid confirmation email and gets informed about it
           invariantResponse(
-            error === null,
+            error === null || error.code === "over_email_send_rate_limit",
             "Error while resending confirmation email",
             { status: 500 }
           );
