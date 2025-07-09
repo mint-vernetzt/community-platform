@@ -5,9 +5,9 @@ export const eventAbuseReportReasonSuggestions = [
     description: "Es handelt sich um eine Werbeveranstaltung.",
   },
   {
-    id: "5473dfed-72de-4848-a473-35108e34fbd9",
-    slug: "inappropriate_pictures",
-    description: "Es werden unpassende Bilder gezeigt.",
+    id: "6309a916-3cd3-4811-b5af-73a36fbcf72a",
+    slug: "inappropriate_content",
+    description: "Es werden unpassende Inhalte gezeigt.",
   },
   {
     id: "d3313efc-374b-482b-ba9b-8c9e02aeb3b2",

@@ -570,9 +570,14 @@ function Index() {
         loaderData.mode === "authenticated" &&
         loaderData.alreadyAbuseReported === false && (
           <Modal searchParam="modal-report">
-            <Modal.Title>{locales.route.abuseReport.title}</Modal.Title>
+            <Modal.Title>
+              <span className="mv-text-5xl mv-leading-9">
+                {locales.route.abuseReport.title}
+              </span>
+            </Modal.Title>
             <Modal.Section>
               {locales.route.abuseReport.description}
+              <RichText html={locales.route.abuseReport.faq} />
             </Modal.Section>
             <Modal.Section>
               <Form
@@ -648,7 +653,7 @@ function Index() {
                             />
                           </svg>
                         </div>
-                        <span>{description}</span>
+                        <span className="mv-font-semibold">{description}</span>
                       </label>
                     );
                   })}

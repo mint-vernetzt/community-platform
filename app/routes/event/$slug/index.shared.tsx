@@ -11,7 +11,7 @@ import { AddParticipantButton } from "./settings/participants/add-participant";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 
-export const OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH = 250;
+export const OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH = 80;
 
 export const createAbuseReportSchema = (locales: EventDetailLocales) =>
   z.object({

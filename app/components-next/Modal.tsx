@@ -10,7 +10,11 @@ import {
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 function ModalSection(props: { children: React.ReactNode }) {
-  return <div className="mv-w-full mv-text-sm mv-gap-2">{props.children}</div>;
+  return (
+    <div className="mv-w-full mv-text-sm mv-leading-1 mv-flex mv-flex-col mv-gap-4">
+      {props.children}
+    </div>
+  );
 }
 
 function ModalClose(props: { route: string }) {
@@ -166,7 +170,7 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
       <div
         id="modal"
         tabIndex={-1}
-        className="mv-max-w-[31rem] mv-rounded-lg mv-bg-white mv-p-8 mv-flex mv-flex-col mv-gap-6"
+        className="mv-max-w-[31rem] mv-rounded-2xl mv-bg-white mv-p-6 mv-flex mv-flex-col mv-gap-6"
       >
         <div className="mv-flex mv-justify-between mv-items-baseline mv-gap-4">
           {title}
