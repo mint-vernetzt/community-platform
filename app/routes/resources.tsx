@@ -57,7 +57,7 @@ function getDataForToolsSection() {
       imagePath: "/images/funding-search.png",
       blurredImagePath: "/images/funding-search-blurred.png",
       external: false,
-      beta: true,
+      beta: false,
       bgClassName: "mv-bg-neutral-50",
     },
     oeb: {

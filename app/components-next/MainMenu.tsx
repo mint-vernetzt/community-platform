@@ -300,9 +300,6 @@ export function MainMenu(
                   : DEFAULT_LANGUAGE === "de"
                   ? "Förderungen"
                   : "Fundings"}
-                <span className="mv-text-white mv-text-xs mv-pt-[4px] mv-px-[5px] mv-bg-secondary mv-rounded mv-leading-none mv-h-[20px] mv-absolute mv-top-2 mv-right-2 mv-font-semibold">
-                  BETA
-                </span>
               </TopicItem>
             </Topic>
 
