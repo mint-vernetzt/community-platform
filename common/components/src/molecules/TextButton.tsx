@@ -17,12 +17,12 @@ type TextButtonProps = {
 };
 
 function getIconSize(size: TextButtonSize) {
-  let iconSize = "0.875rem";
+  let iconSize = 14;
   if (size === "small") {
-    iconSize = "0.75rem";
+    iconSize = 12;
   }
   if (size === "large") {
-    iconSize = "1.25rem";
+    iconSize = 20;
   }
   return iconSize;
 }
