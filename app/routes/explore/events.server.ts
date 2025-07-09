@@ -945,6 +945,18 @@ export async function getEventFilterVectorForAttribute(options: {
     } else if (typedFilterKey === "stage") {
       const filterValue = filter[typedFilterKey];
       if (typeof filterValue === "string" && filterValue !== "all") {
+        const allPossibleStages = await prismaClient.stage.findMany({
+          select: {
+            slug: true,
+          },
+        });
+        invariantResponse(
+          allPossibleStages.some((value) => {
+            return value.slug === filterValue;
+          }),
+          "Cannot filter by the specified slug.",
+          { status: 400 }
+        );
         const tuple = `${typedFilterKey}\\:${filterValue}`;
         const whereStatement = `filter_vector @@ '${tuple}'::tsquery`;
         fieldWhereStatements.push(whereStatement);
