@@ -413,6 +413,7 @@ export default function ExploreOrganizations() {
     id: "filter-organizations",
     defaultValue: {
       ...loaderData.submission.value,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -426,6 +427,7 @@ export default function ExploreOrganizations() {
     defaultValue: {
       ...loaderData.submission.value,
       orgPage: loaderData.submission.value.orgPage + 1,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -445,6 +447,7 @@ export default function ExploreOrganizations() {
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
       orgAreaSearch: "",
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -1039,6 +1042,9 @@ export default function ExploreOrganizations() {
                               (type) => type !== selectedType
                             ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1100,6 +1106,9 @@ export default function ExploreOrganizations() {
                                   networkType !== selectedNetworkType
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1158,6 +1167,9 @@ export default function ExploreOrganizations() {
                                 (focus) => focus !== selectedFocus
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1205,6 +1217,9 @@ export default function ExploreOrganizations() {
                               (area) => area !== selectedArea.slug
                             ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),

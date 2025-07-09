@@ -364,6 +364,7 @@ export default function ExploreEvents() {
     id: "filter-events",
     defaultValue: {
       ...loaderData.submission.value,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "on",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -377,6 +378,7 @@ export default function ExploreEvents() {
     defaultValue: {
       ...loaderData.submission.value,
       evtPage: loaderData.submission.value.evtPage + 1,
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -397,6 +399,7 @@ export default function ExploreEvents() {
       evtPage: 1,
       evtSortBy: EVENT_SORT_VALUES[0],
       evtAreaSearch: "",
+      search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
     constraint: getZodConstraint(getFilterSchemes),
@@ -1029,6 +1032,9 @@ export default function ExploreEvents() {
                                 (focus) => focus !== selectedFocus
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1091,6 +1097,9 @@ export default function ExploreEvents() {
                                   eventTargetGroup !== selectedTargetGroup
                               ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
@@ -1138,6 +1147,9 @@ export default function ExploreEvents() {
                               (area) => area !== selectedArea.slug
                             ),
                           },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
                           showFilters: "",
                         },
                         constraint: getZodConstraint(getFilterSchemes),
