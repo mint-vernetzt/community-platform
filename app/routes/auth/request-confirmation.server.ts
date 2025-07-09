@@ -38,12 +38,13 @@ export async function requestConfirmation(options: {
 
       if (data.type === "signup" || data.type === "email_change") {
         const { error } = await authClient.auth.resend({
-          type: "signup",
+          type: data.type,
           email: data.email,
           options: { emailRedirectTo: loginRedirect },
         });
+        // Ignoring the rate limit error here, because when this happens the user will still have a valid confirmation email and gets informed about it
         invariantResponse(
-          error === null,
+          error === null || error.code === "over_email_send_rate_limit",
           "Error while resending confirmation email",
           { status: 500 }
         );
