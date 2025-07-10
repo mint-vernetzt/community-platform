@@ -1,6 +1,6 @@
 import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
 import { Children, isValidElement, useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useSearchParams, useSubmit } from "react-router";
 
 function OverlayMenu(
   props: React.PropsWithChildren & {
@@ -14,6 +14,8 @@ function OverlayMenu(
       isValidElement(child) &&
       (child.type === ListItem || child.type === Divider)
   );
+
+  const submit = useSubmit();
 
   const [searchParams] = useSearchParams();
   const enhancedSearchParams = new URLSearchParams(searchParams.toString());
@@ -48,6 +50,15 @@ function OverlayMenu(
             clientY >= linkRect.bottom)
         ) {
           setIsOpen(false);
+          const enhancedSearchParams = new URLSearchParams(
+            searchParams.toString()
+          );
+          enhancedSearchParams.delete(searchParam);
+          submit(enhancedSearchParams, {
+            method: "get",
+            replace: true,
+            preventScrollReset: true,
+          });
         }
       }
     };
@@ -55,7 +66,7 @@ function OverlayMenu(
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);
+  });
 
   return (
     <div className="mv-relative">
@@ -65,10 +76,11 @@ function OverlayMenu(
         as="link"
         ref={linkRef}
         to={`?${enhancedSearchParams.toString()}`}
-        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-          event.preventDefault();
+        onClick={() => {
           setIsOpen((prev) => !prev);
         }}
+        preventScrollReset
+        replace
       >
         <svg
           width="17"
@@ -84,24 +96,23 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <div className="mv-fixed mv-w-screen @md:mv-w-fit mv-h-screen @md:mv-h-fit mv-bg-opacity-40 @md:mv-bg-opacity-100 mv-p-4 @md:mv-p-0 @md:mv-absolute mv-top-0 @md:mv-top-10 mv-left-0 @md:mv-left-auto mv-right-0 mv-text-nowrap mv-rounded-none @md:mv-rounded-lg mv-shadow-none @md:mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-primary-900 @md:mv-bg-white mv-flex mv-flex-col mv-gap-4 mv-justify-end @md:mv-justify-normal mv-z-10 mv-overflow-hidden">
+        <div className="mv-fixed mv-w-screen @lg:mv-w-fit mv-h-screen @lg:mv-h-fit mv-bg-opacity-40 @lg:mv-bg-opacity-100 mv-p-4 @lg:mv-p-0 @lg:mv-absolute mv-top-0 @lg:mv-top-10 mv-left-0 @lg:mv-left-auto mv-right-0 mv-text-nowrap mv-rounded-none @lg:mv-rounded-lg mv-shadow-none @lg:mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-primary-900 @lg:mv-bg-white mv-flex mv-flex-col mv-gap-4 mv-justify-end @lg:mv-justify-normal mv-z-10 mv-overflow-hidden">
           <ul
             ref={listRef}
             className="mv-flex mv-flex-col mv-gap-2 mv-bg-white mv-rounded-lg"
           >
             {listItems}
           </ul>
-          <ul className="mv-flex @md:mv-hidden mv-flex-col mv-gap-2 mv-bg-white mv-rounded-lg">
+          <ul className="mv-flex @lg:mv-hidden mv-flex-col mv-gap-2 mv-bg-white mv-rounded-lg">
             <ListItem>
               <Link
                 to={`?${enhancedSearchParams.toString()}`}
                 className="mv-w-full mv-text-center mv-px-3 mv-py-2 focus:mv-outline-none"
-                onClick={(
-                  event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-                ) => {
-                  event.preventDefault();
+                onClick={() => {
                   setIsOpen(false);
                 }}
+                preventScrollReset
+                replace
               >
                 Schließen
               </Link>
