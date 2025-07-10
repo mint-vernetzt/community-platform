@@ -19,6 +19,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -88,6 +89,10 @@ import {
   type SpeakersQuery,
 } from "./utils.server";
 import { BackButton } from "~/components-next/BackButton";
+import { useState } from "react";
+import { OverlayMenu } from "~/components-next/OverlayMenu";
+import { copyToClipboard } from "~/lib/utils/clipboard";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
 export function links() {
   return [
@@ -483,7 +488,9 @@ function Index() {
   const { locales, language } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+  const location = useLocation();
   const isHydrated = useHydrated();
+  const [hasCopied, setHasCopied] = useState(false);
 
   const now = utcToZonedTime(new Date(), "Europe/Berlin");
 
@@ -551,152 +558,261 @@ function Index() {
             </BackButton>
           )}
         </div>
-        {loaderData.abilities.abuse_report.hasAccess &&
-          loaderData.mode === "authenticated" &&
-          loaderData.alreadyAbuseReported === false && (
-            <Form method="get" preventScrollReset>
-              <input
-                hidden
-                name="modal-report"
-                defaultValue="true"
-                aria-label={locales.route.content.report}
-                aria-hidden="true"
-              />
-              <button type="submit">{locales.route.content.report}</button>
-            </Form>
-          )}
-      </section>
-      {loaderData.abilities.abuse_report.hasAccess &&
-        loaderData.mode === "authenticated" &&
-        loaderData.alreadyAbuseReported === false && (
-          <Modal searchParam="modal-report">
-            <Modal.Title>
-              <span className="mv-text-5xl mv-leading-9">
-                {locales.route.abuseReport.title}
-              </span>
-            </Modal.Title>
-            <Modal.Section>
-              {locales.route.abuseReport.description}
-              <RichText html={locales.route.abuseReport.faq} />
-            </Modal.Section>
-            <Modal.Section>
-              <Form
-                {...getFormProps(abuseReportForm)}
-                method="post"
-                preventScrollReset
-              >
-                <input
-                  {...getInputProps(abuseReportFields[INTENT_FIELD_NAME], {
-                    type: "hidden",
-                  })}
-                  key="submit-abuse-report"
-                  aria-label={locales.route.abuseReport.submit}
-                  aria-hidden="true"
-                />
-                <div className="mv-flex mv-flex-col mv-gap-6">
-                  {loaderData.abuseReportReasons.map((reason) => {
-                    let description;
-                    if (
-                      reason.slug in locales.eventAbuseReportReasonSuggestions
-                    ) {
-                      type LocaleKey =
-                        keyof typeof locales.eventAbuseReportReasonSuggestions;
-                      description =
-                        locales.eventAbuseReportReasonSuggestions[
-                          reason.slug as LocaleKey
-                        ].description;
-                    } else {
-                      console.error(
-                        `Event abuse report reason suggestion ${reason.slug} not found in locales`
+        {loaderData.abilities.abuse_report.hasAccess ? (
+          <div className="mv-w-full mv-flex mv-justify-end">
+            <OverlayMenu searchParam="overlay-menu-test">
+              {isHydrated ? (
+                <OverlayMenu.ListItem>
+                  <button
+                    className="mv-flex mv-items-center mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                    onClick={async () => {
+                      await copyToClipboard(
+                        `${loaderData.meta.baseUrl}${location.pathname}${location.search}${location.hash}`
                       );
-                      description = reason.slug;
-                    }
-                    return (
-                      <label key={reason.slug} className="mv-flex mv-group">
-                        <input
-                          {...getInputProps(abuseReportFields.reasons, {
-                            type: "checkbox",
-                            value: reason.slug,
-                          })}
-                          key={reason.slug}
-                          className="mv-h-0 mv-w-0 mv-opacity-0"
-                        />
-                        <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                            className="mv-block group-has-[:checked]:mv-hidden"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
-                            />
-                          </svg>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                            className="mv-hidden group-has-[:checked]:mv-block"
-                          >
-                            <path
-                              fill="currentColor"
-                              d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
-                            />
-                            <path
-                              fill="currentColor"
-                              d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
-                            />
-                          </svg>
-                        </div>
-                        <span className="mv-font-semibold">{description}</span>
-                      </label>
-                    );
-                  })}
-                  <Input
-                    {...getInputProps(abuseReportFields.otherReason, {
-                      type: "text",
-                    })}
-                    maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
+                      setHasCopied(true);
+                      setTimeout(() => {
+                        setHasCopied(false);
+                      }, 2000);
+                    }}
                   >
-                    <Input.Label htmlFor={abuseReportFields.otherReason.id}>
-                      {locales.route.abuseReport.otherReason}
-                    </Input.Label>
-                    {typeof abuseReportFields.reasons.errors !== "undefined" &&
-                    abuseReportFields.reasons.errors.length > 0
-                      ? abuseReportFields.reasons.errors.map((error) => (
-                          <Input.Error
-                            id={abuseReportFields.reasons.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-              </Form>
-            </Modal.Section>
-            <Modal.SubmitButton
-              form={abuseReportForm.id} // Don't disable button when js is disabled
-              disabled={
-                isHydrated
-                  ? abuseReportForm.dirty === false ||
-                    abuseReportForm.valid === false
-                  : false
-              }
-            >
-              {locales.route.abuseReport.submit}
-            </Modal.SubmitButton>
-            <Modal.CloseButton>
-              {locales.route.abuseReport.abort}
-            </Modal.CloseButton>
-          </Modal>
-        )}
+                    <span className="mv-p-1">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3.68849 6.83637L1.88774 8.63712C1.14925 9.37561 0.734375 10.3772 0.734375 11.4216C0.734375 12.466 1.14925 13.4676 1.88774 14.2061C2.62623 14.9445 3.62783 15.3594 4.67221 15.3594C5.71659 15.3594 6.71819 14.9445 7.45668 14.2061L9.85593 11.8055C10.3013 11.3601 10.6332 10.8144 10.824 10.2142C11.0148 9.61392 11.0588 8.97667 10.9523 8.3559C10.8459 7.73514 10.5921 7.14897 10.2122 6.64659C9.8323 6.14422 9.33746 5.74031 8.76918 5.46875L8.00005 6.23787C7.92197 6.3161 7.85406 6.40385 7.79793 6.49906C8.23699 6.62528 8.63552 6.86391 8.9541 7.19135C9.27268 7.51879 9.50029 7.92371 9.61443 8.36607C9.72856 8.80843 9.72528 9.27292 9.60489 9.71362C9.4845 10.1543 9.25118 10.556 8.92799 10.8789L6.53005 13.2781C6.0375 13.7707 5.36945 14.0474 4.67286 14.0474C3.97628 14.0474 3.30823 13.7707 2.81568 13.2781C2.32312 12.7856 2.0464 12.1175 2.0464 11.4209C2.0464 10.7244 2.32312 10.0563 2.81568 9.56375L3.85649 8.52425C3.70964 7.97395 3.65291 7.40481 3.68849 6.83637Z"
+                          fill="#4D5970"
+                        />
+                        <path
+                          d="M6.14404 4.38199C5.69871 4.82738 5.36673 5.3731 5.17595 5.97334C4.98517 6.57358 4.94116 7.21082 5.04763 7.83159C5.15409 8.45235 5.40791 9.03852 5.78778 9.5409C6.16766 10.0433 6.66251 10.4472 7.23079 10.7187L8.24797 9.70024C7.80297 9.58088 7.39722 9.34649 7.07149 9.02063C6.74577 8.69477 6.51155 8.28893 6.39238 7.84387C6.2732 7.39881 6.27326 6.93023 6.39255 6.4852C6.51184 6.04018 6.74617 5.63439 7.07197 5.30862L9.46991 2.90937C9.96247 2.41681 10.6305 2.14009 11.3271 2.14009C12.0237 2.14009 12.6917 2.41681 13.1843 2.90937C13.6768 3.40192 13.9536 4.06997 13.9536 4.76655C13.9536 5.46313 13.6768 6.13118 13.1843 6.62374L12.1435 7.66324C12.2905 8.21449 12.3469 8.78543 12.3115 9.35243L14.1122 7.55168C14.8507 6.81319 15.2656 5.81159 15.2656 4.76721C15.2656 3.72283 14.8507 2.72123 14.1122 1.98274C13.3737 1.24425 12.3721 0.829376 11.3278 0.829376C10.2834 0.829376 9.28177 1.24425 8.54329 1.98274L6.14404 4.38199Z"
+                          fill="#4D5970"
+                        />
+                      </svg>
+                    </span>
+                    <span>
+                      {hasCopied === false
+                        ? locales.route.content.copy
+                        : locales.route.content.copied}
+                    </span>
+                  </button>
+                </OverlayMenu.ListItem>
+              ) : null}
+              {loaderData.mode === "authenticated" ? (
+                <OverlayMenu.ListItem
+                  disabled={loaderData.alreadyAbuseReported === true}
+                >
+                  <Form
+                    id="abuse-report"
+                    method="get"
+                    preventScrollReset
+                    className="mv-hidden"
+                  >
+                    <input
+                      hidden
+                      name="modal-report"
+                      defaultValue="true"
+                      aria-label={locales.route.content.report}
+                      aria-hidden="true"
+                    />
+                  </Form>
+                  <button
+                    type="submit"
+                    form="abuse-report"
+                    disabled={loaderData.alreadyAbuseReported === true}
+                    className="mv-w-full mv-flex mv-items-center mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                  >
+                    {loaderData.alreadyAbuseReported === false ? (
+                      <span className="mv-p-0.5">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M18.4731 0.10593C18.6462 0.221985 18.75 0.416642 18.75 0.625V10C18.75 10.2556 18.5944 10.4854 18.3571 10.5803L18.125 10C18.3571 10.5803 18.3572 10.5803 18.3571 10.5803L18.3539 10.5816L18.3462 10.5846L18.3176 10.5959C18.2929 10.6056 18.257 10.6196 18.2109 10.6373C18.1187 10.6726 17.9859 10.7227 17.821 10.7827C17.4916 10.9025 17.0321 11.0623 16.5119 11.2224C15.4927 11.536 14.1644 11.875 13.125 11.875C12.0666 11.875 11.1896 11.5241 10.4277 11.2192L10.3929 11.2053C9.60032 10.8883 8.92543 10.625 8.125 10.625C7.24981 10.625 6.07698 10.9116 5.07819 11.2219C4.58838 11.374 4.15731 11.5264 3.84886 11.6407C3.81431 11.6535 3.78133 11.6659 3.75 11.6776V19.375C3.75 19.7202 3.47018 20 3.125 20C2.77982 20 2.5 19.7202 2.5 19.375V0.625C2.5 0.279822 2.77982 0 3.125 0C3.47018 0 3.75 0.279822 3.75 0.625V0.977815C4.03263 0.878926 4.37015 0.765844 4.73807 0.652638C5.75727 0.339038 7.08564 0 8.125 0C9.17594 0 10.0299 0.346159 10.7762 0.648704C10.7944 0.656068 10.8125 0.663406 10.8305 0.670712C11.6073 0.985329 12.2848 1.25 13.125 1.25C14.0002 1.25 15.173 0.963423 16.1718 0.653138C16.6616 0.500975 17.0927 0.34858 17.4011 0.234265C17.5552 0.177178 17.6782 0.129766 17.762 0.0968685C17.8039 0.0804242 17.8361 0.0676203 17.8574 0.0590629L17.8811 0.0494923L17.8866 0.0472411L17.8878 0.0467559M17.5 1.52804C17.2255 1.62545 16.8992 1.7361 16.5427 1.84686C15.5296 2.16158 14.2024 2.5 13.125 2.5C12.0172 2.5 11.1349 2.14262 10.3707 1.83311L10.3613 1.82929C9.57736 1.51179 8.92348 1.25 8.125 1.25C7.28936 1.25 6.11773 1.53596 5.10568 1.84736C4.61026 1.9998 4.17125 2.15248 3.85617 2.26706C3.81899 2.28058 3.78356 2.29356 3.75 2.30593V10.347C4.0245 10.2495 4.35082 10.1389 4.70735 10.0281C5.7204 9.71342 7.04757 9.375 8.125 9.375C9.1834 9.375 10.0604 9.72593 10.8223 10.0308L10.8571 10.0447C11.6497 10.3617 12.3246 10.625 13.125 10.625C13.9606 10.625 15.1323 10.339 16.1443 10.0276C16.6397 9.8752 17.0788 9.72252 17.3938 9.60794C17.431 9.59442 17.4664 9.58144 17.5 9.56907V1.52804Z"
+                            fill="#4D5970"
+                          />
+                        </svg>
+                      </span>
+                    ) : (
+                      // TODO: Link to specific faq section/question
+                      <CircleButton
+                        as="link"
+                        to="/help"
+                        size="x-small"
+                        variant="outline"
+                        aria-label={locales.route.content.reportFaq}
+                      >
+                        <div className="mv-flex mv-flex-col mv-gap-[1px]">
+                          <div className="mv-w-0.5 mv-h-0.5 mv-bg-primary mv-rounded-lg" />
+                          <div className="mv-w-0.5 mv-h-2 mv-bg-primary mv-rounded-lg" />
+                        </div>
+                      </CircleButton>
+                    )}
+                    <span>
+                      {loaderData.alreadyAbuseReported === false
+                        ? locales.route.content.report
+                        : locales.route.content.reported}
+                    </span>
+                  </button>
+                  {loaderData.alreadyAbuseReported === false ? (
+                    <Modal searchParam="modal-report">
+                      <Modal.Title>
+                        <span className="mv-text-5xl mv-leading-9">
+                          {locales.route.abuseReport.title}
+                        </span>
+                      </Modal.Title>
+                      <Modal.Section>
+                        {locales.route.abuseReport.description}
+                        <RichText html={locales.route.abuseReport.faq} />
+                      </Modal.Section>
+                      <Modal.Section>
+                        <Form
+                          {...getFormProps(abuseReportForm)}
+                          method="post"
+                          preventScrollReset
+                        >
+                          <input
+                            {...getInputProps(
+                              abuseReportFields[INTENT_FIELD_NAME],
+                              {
+                                type: "hidden",
+                              }
+                            )}
+                            key="submit-abuse-report"
+                            aria-label={locales.route.abuseReport.submit}
+                            aria-hidden="true"
+                          />
+                          <div className="mv-flex mv-flex-col mv-gap-6">
+                            {loaderData.abuseReportReasons.map((reason) => {
+                              let description;
+                              if (
+                                reason.slug in
+                                locales.eventAbuseReportReasonSuggestions
+                              ) {
+                                type LocaleKey =
+                                  keyof typeof locales.eventAbuseReportReasonSuggestions;
+                                description =
+                                  locales.eventAbuseReportReasonSuggestions[
+                                    reason.slug as LocaleKey
+                                  ].description;
+                              } else {
+                                console.error(
+                                  `Event abuse report reason suggestion ${reason.slug} not found in locales`
+                                );
+                                description = reason.slug;
+                              }
+                              return (
+                                <label
+                                  key={reason.slug}
+                                  className="mv-flex mv-group"
+                                >
+                                  <input
+                                    {...getInputProps(
+                                      abuseReportFields.reasons,
+                                      {
+                                        type: "checkbox",
+                                        value: reason.slug,
+                                      }
+                                    )}
+                                    key={reason.slug}
+                                    className="mv-h-0 mv-w-0 mv-opacity-0"
+                                  />
+                                  <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="20"
+                                      height="20"
+                                      fill="none"
+                                      viewBox="0 0 20 20"
+                                      className="mv-block group-has-[:checked]:mv-hidden"
+                                    >
+                                      <path
+                                        fill="currentColor"
+                                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                                      />
+                                    </svg>
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="20"
+                                      height="20"
+                                      fill="none"
+                                      viewBox="0 0 20 20"
+                                      className="mv-hidden group-has-[:checked]:mv-block"
+                                    >
+                                      <path
+                                        fill="currentColor"
+                                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                                      />
+                                      <path
+                                        fill="currentColor"
+                                        d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <span className="mv-font-semibold">
+                                    {description}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                            <Input
+                              {...getInputProps(abuseReportFields.otherReason, {
+                                type: "text",
+                              })}
+                              maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
+                            >
+                              <Input.Label
+                                htmlFor={abuseReportFields.otherReason.id}
+                              >
+                                {locales.route.abuseReport.otherReason}
+                              </Input.Label>
+                              {typeof abuseReportFields.reasons.errors !==
+                                "undefined" &&
+                              abuseReportFields.reasons.errors.length > 0
+                                ? abuseReportFields.reasons.errors.map(
+                                    (error) => (
+                                      <Input.Error
+                                        id={abuseReportFields.reasons.errorId}
+                                        key={error}
+                                      >
+                                        {error}
+                                      </Input.Error>
+                                    )
+                                  )
+                                : null}
+                            </Input>
+                          </div>
+                        </Form>
+                      </Modal.Section>
+                      <Modal.SubmitButton
+                        form={abuseReportForm.id} // Don't disable button when js is disabled
+                        disabled={
+                          isHydrated
+                            ? abuseReportForm.dirty === false ||
+                              abuseReportForm.valid === false
+                            : false
+                        }
+                      >
+                        {locales.route.abuseReport.submit}
+                      </Modal.SubmitButton>
+                      <Modal.CloseButton>
+                        {locales.route.abuseReport.abort}
+                      </Modal.CloseButton>
+                    </Modal>
+                  ) : null}
+                </OverlayMenu.ListItem>
+              ) : null}
+            </OverlayMenu>
+          </div>
+        ) : null}
+      </section>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mt-6">
         <div className="@md:mv-rounded-3xl mv-overflow-hidden mv-w-full mv-relative">
           <div className="mv-hidden @md:mv-block">

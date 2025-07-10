@@ -4,7 +4,7 @@ import { Link, type LinkProps } from "react-router";
 
 type CircleButtonVariant = "normal" | "outline" | "ghost";
 type CircleButtonType = "button" | "link" | "a";
-type CircleButtonSize = "small" | "medium" | "large";
+type CircleButtonSize = "x-small" | "small" | "medium" | "large";
 
 type CircleButtonProps = {
   variant?: CircleButtonVariant;
@@ -36,12 +36,15 @@ function CircleButton(
 
   const classes = classNames(
     "mv-rounded-full mv-flex mv-items-center mv-justify-center mv-font-normal",
+    size === "x-small" &&
+      fullSize === false &&
+      "mv-w-6 mv-h-6 mv-border mv-text-md",
     size === "small" &&
       fullSize === false &&
-      "mv-w-8 mv-h-8 mv-border-1  mv-text-xl",
+      "mv-w-8 mv-h-8 mv-border mv-text-xl",
     size === "medium" &&
       fullSize === false &&
-      "mv-w-12 mv-h-12 mv-border-1  mv-text-5xl",
+      "mv-w-12 mv-h-12 mv-border mv-text-5xl",
     size === "large" &&
       fullSize === false &&
       "mv-w-16 mv-h-16 mv-border-2 mv-text-6xl", // TODO: design 54px (7xl is 48px) see: common/design/tailwind.config.js
@@ -54,14 +57,19 @@ function CircleButton(
     !isDisabled &&
       variant === "normal" &&
       "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700",
-    // button outline disabled
+    // button primary outline disabled
     isDisabled &&
       variant === "outline" &&
-      "mv-bg-neutral-50 mv-border-neutral-300 mv-text-neutral-300",
-    // button outline
+      "mv-bg-white mv-border-neutral-300 mv-text-neutral-300",
+    // button primary outline
     !isDisabled &&
       variant === "outline" &&
-      "mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100",
+      size !== "large" &&
+      "mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200",
+    !isDisabled &&
+      variant === "outline" &&
+      size === "large" &&
+      "mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-outline-none focus:mv-border-primary-200",
     // button ghost disabled
     isDisabled && variant === "ghost" && "mv-bg-neutral-50 mv-text-neutral-300",
     // button ghost

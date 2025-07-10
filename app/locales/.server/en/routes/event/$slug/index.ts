@@ -10,7 +10,11 @@ export const locale = {
     abuseReport: "The abuse report was successfully submitted.",
   },
   content: {
-    report: "Report event",
+    report: "Report",
+    reported: "Report is being checked",
+    reportFaq: "Further information on reporting",
+    copy: "Copy URL",
+    copied: "URL copied!",
     clock: "{{date}}, {{time}} o'clock",
     backgroundImage: "Current background image",
     borderOfImage: "Frame of the background image",
