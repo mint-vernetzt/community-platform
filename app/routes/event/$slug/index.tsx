@@ -560,7 +560,7 @@ function Index() {
         </div>
         {loaderData.abilities.abuse_report.hasAccess ? (
           <div className="mv-w-full mv-flex mv-justify-end">
-            <OverlayMenu searchParam="overlay-menu-test">
+            <OverlayMenu searchParam="overlay-menu-abuse-report">
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button
@@ -665,155 +665,142 @@ function Index() {
                         : locales.route.content.reported}
                     </span>
                   </button>
-                  {loaderData.alreadyAbuseReported === false ? (
-                    <Modal searchParam="modal-report">
-                      <Modal.Title>
-                        <span className="mv-text-5xl mv-leading-9">
-                          {locales.route.abuseReport.title}
-                        </span>
-                      </Modal.Title>
-                      <Modal.Section>
-                        {locales.route.abuseReport.description}
-                        <RichText html={locales.route.abuseReport.faq} />
-                      </Modal.Section>
-                      <Modal.Section>
-                        <Form
-                          {...getFormProps(abuseReportForm)}
-                          method="post"
-                          preventScrollReset
-                        >
-                          <input
-                            {...getInputProps(
-                              abuseReportFields[INTENT_FIELD_NAME],
-                              {
-                                type: "hidden",
-                              }
-                            )}
-                            key="submit-abuse-report"
-                            aria-label={locales.route.abuseReport.submit}
-                            aria-hidden="true"
-                          />
-                          <div className="mv-flex mv-flex-col mv-gap-6">
-                            {loaderData.abuseReportReasons.map((reason) => {
-                              let description;
-                              if (
-                                reason.slug in
-                                locales.eventAbuseReportReasonSuggestions
-                              ) {
-                                type LocaleKey =
-                                  keyof typeof locales.eventAbuseReportReasonSuggestions;
-                                description =
-                                  locales.eventAbuseReportReasonSuggestions[
-                                    reason.slug as LocaleKey
-                                  ].description;
-                              } else {
-                                console.error(
-                                  `Event abuse report reason suggestion ${reason.slug} not found in locales`
-                                );
-                                description = reason.slug;
-                              }
-                              return (
-                                <label
-                                  key={reason.slug}
-                                  className="mv-flex mv-group"
-                                >
-                                  <input
-                                    {...getInputProps(
-                                      abuseReportFields.reasons,
-                                      {
-                                        type: "checkbox",
-                                        value: reason.slug,
-                                      }
-                                    )}
-                                    key={reason.slug}
-                                    className="mv-h-0 mv-w-0 mv-opacity-0"
-                                  />
-                                  <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="20"
-                                      height="20"
-                                      fill="none"
-                                      viewBox="0 0 20 20"
-                                      className="mv-block group-has-[:checked]:mv-hidden"
-                                    >
-                                      <path
-                                        fill="currentColor"
-                                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
-                                      />
-                                    </svg>
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="20"
-                                      height="20"
-                                      fill="none"
-                                      viewBox="0 0 20 20"
-                                      className="mv-hidden group-has-[:checked]:mv-block"
-                                    >
-                                      <path
-                                        fill="currentColor"
-                                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
-                                      />
-                                      <path
-                                        fill="currentColor"
-                                        d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
-                                      />
-                                    </svg>
-                                  </div>
-                                  <span className="mv-font-semibold">
-                                    {description}
-                                  </span>
-                                </label>
-                              );
-                            })}
-                            <Input
-                              {...getInputProps(abuseReportFields.otherReason, {
-                                type: "text",
-                              })}
-                              maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
-                            >
-                              <Input.Label
-                                htmlFor={abuseReportFields.otherReason.id}
-                              >
-                                {locales.route.abuseReport.otherReason}
-                              </Input.Label>
-                              {typeof abuseReportFields.reasons.errors !==
-                                "undefined" &&
-                              abuseReportFields.reasons.errors.length > 0
-                                ? abuseReportFields.reasons.errors.map(
-                                    (error) => (
-                                      <Input.Error
-                                        id={abuseReportFields.reasons.errorId}
-                                        key={error}
-                                      >
-                                        {error}
-                                      </Input.Error>
-                                    )
-                                  )
-                                : null}
-                            </Input>
-                          </div>
-                        </Form>
-                      </Modal.Section>
-                      <Modal.SubmitButton
-                        form={abuseReportForm.id} // Don't disable button when js is disabled
-                        disabled={
-                          isHydrated
-                            ? abuseReportForm.dirty === false ||
-                              abuseReportForm.valid === false
-                            : false
-                        }
-                      >
-                        {locales.route.abuseReport.submit}
-                      </Modal.SubmitButton>
-                      <Modal.CloseButton>
-                        {locales.route.abuseReport.abort}
-                      </Modal.CloseButton>
-                    </Modal>
-                  ) : null}
                 </OverlayMenu.ListItem>
               ) : null}
             </OverlayMenu>
+            {loaderData.alreadyAbuseReported === false ? (
+              <Modal searchParam="modal-report">
+                <Modal.Title>
+                  <span className="mv-text-5xl mv-leading-9">
+                    {locales.route.abuseReport.title}
+                  </span>
+                </Modal.Title>
+                <Modal.Section>
+                  {locales.route.abuseReport.description}
+                  <RichText html={locales.route.abuseReport.faq} />
+                </Modal.Section>
+                <Modal.Section>
+                  <Form
+                    {...getFormProps(abuseReportForm)}
+                    method="post"
+                    preventScrollReset
+                  >
+                    <input
+                      {...getInputProps(abuseReportFields[INTENT_FIELD_NAME], {
+                        type: "hidden",
+                      })}
+                      key="submit-abuse-report"
+                      aria-label={locales.route.abuseReport.submit}
+                      aria-hidden="true"
+                    />
+                    <div className="mv-flex mv-flex-col mv-gap-6">
+                      {loaderData.abuseReportReasons.map((reason) => {
+                        let description;
+                        if (
+                          reason.slug in
+                          locales.eventAbuseReportReasonSuggestions
+                        ) {
+                          type LocaleKey =
+                            keyof typeof locales.eventAbuseReportReasonSuggestions;
+                          description =
+                            locales.eventAbuseReportReasonSuggestions[
+                              reason.slug as LocaleKey
+                            ].description;
+                        } else {
+                          console.error(
+                            `Event abuse report reason suggestion ${reason.slug} not found in locales`
+                          );
+                          description = reason.slug;
+                        }
+                        return (
+                          <label key={reason.slug} className="mv-flex mv-group">
+                            <input
+                              {...getInputProps(abuseReportFields.reasons, {
+                                type: "checkbox",
+                                value: reason.slug,
+                              })}
+                              key={reason.slug}
+                              className="mv-h-0 mv-w-0 mv-opacity-0"
+                            />
+                            <div className="mv-w-5 mv-h-5 mv-relative mv-mr-2">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                                className="mv-block group-has-[:checked]:mv-hidden"
+                              >
+                                <path
+                                  fill="currentColor"
+                                  d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                                />
+                              </svg>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                                className="mv-hidden group-has-[:checked]:mv-block"
+                              >
+                                <path
+                                  fill="currentColor"
+                                  d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                                />
+                                <path
+                                  fill="currentColor"
+                                  d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
+                                />
+                              </svg>
+                            </div>
+                            <span className="mv-font-semibold">
+                              {description}
+                            </span>
+                          </label>
+                        );
+                      })}
+                      <Input
+                        {...getInputProps(abuseReportFields.otherReason, {
+                          type: "text",
+                        })}
+                        maxLength={OTHER_ABUSE_REPORT_REASONS_MAX_LENGTH}
+                      >
+                        <Input.Label htmlFor={abuseReportFields.otherReason.id}>
+                          {locales.route.abuseReport.otherReason}
+                        </Input.Label>
+                        {typeof abuseReportFields.reasons.errors !==
+                          "undefined" &&
+                        abuseReportFields.reasons.errors.length > 0
+                          ? abuseReportFields.reasons.errors.map((error) => (
+                              <Input.Error
+                                id={abuseReportFields.reasons.errorId}
+                                key={error}
+                              >
+                                {error}
+                              </Input.Error>
+                            ))
+                          : null}
+                      </Input>
+                    </div>
+                  </Form>
+                </Modal.Section>
+                <Modal.SubmitButton
+                  form={abuseReportForm.id} // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? abuseReportForm.dirty === false ||
+                        abuseReportForm.valid === false
+                      : false
+                  }
+                >
+                  {locales.route.abuseReport.submit}
+                </Modal.SubmitButton>
+                <Modal.CloseButton>
+                  {locales.route.abuseReport.abort}
+                </Modal.CloseButton>
+              </Modal>
+            ) : null}
           </div>
         ) : null}
       </section>

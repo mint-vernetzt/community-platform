@@ -34,9 +34,14 @@ function OverlayMenu(
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
+    setIsOpen(fallBackIsOpen);
+  }, [fallBackIsOpen]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const { target } = event;
       if (
+        isOpen === true &&
         listRef.current !== null &&
         linkRef.current !== null &&
         listRef.current !== target &&

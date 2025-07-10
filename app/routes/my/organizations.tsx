@@ -1583,6 +1583,9 @@ export default function MyOrganizations() {
                               `modal-quit-organization-${key}-${organization.id}`,
                               "true"
                             );
+                            doubleCheckModalSearchParams.delete(
+                              `overlay-menu-${key}-${organization.id}`
+                            );
                             return (
                               <OrganizationCard
                                 key={`${key}-organization-${organization.id}`}
@@ -1591,7 +1594,7 @@ export default function MyOrganizations() {
                               >
                                 <OrganizationCard.Controls>
                                   <OverlayMenu
-                                    searchParam={`overlay-menu-${organization.id}`}
+                                    searchParam={`overlay-menu-${key}-${organization.id}`}
                                   >
                                     {key === "admin" ? (
                                       <OverlayMenu.ListItem
@@ -1629,6 +1632,7 @@ export default function MyOrganizations() {
                                         id={`quit-organization-${organization.slug}`}
                                         to={`?${doubleCheckModalSearchParams.toString()}`}
                                         className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                                        preventScrollReset
                                       >
                                         <svg
                                           width="20"
@@ -1651,82 +1655,81 @@ export default function MyOrganizations() {
                                           {locales.organizationCard.quit}
                                         </span>
                                       </Link>
-                                      <Modal
-                                        searchParam={`modal-quit-organization-${key}-${organization.id}`}
-                                      >
-                                        <Modal.Title>
-                                          {
-                                            locales.route.quit.modal[
-                                              key as keyof typeof organizations
-                                            ].headline
-                                          }
-                                        </Modal.Title>
-                                        <Modal.Section>
-                                          {insertComponentsIntoLocale(
-                                            insertParametersIntoLocale(
-                                              locales.route.quit.modal[
-                                                key as keyof typeof organizations
-                                              ].subline,
-                                              {
-                                                name: organization.name,
-                                              }
-                                            ),
-                                            [
-                                              <span
-                                                key="highlighted-organization-name"
-                                                className="mv-font-semibold"
-                                              />,
-                                            ]
-                                          )}
-                                        </Modal.Section>
-                                        <Modal.Section>
-                                          {typeof quitOrganizationForm.errors !==
-                                            "undefined" &&
-                                          quitOrganizationForm.errors.length >
-                                            0 ? (
-                                            <div>
-                                              {quitOrganizationForm.errors.map(
-                                                (error, index) => {
-                                                  return (
-                                                    <div
-                                                      id={
-                                                        quitOrganizationForm.errorId
-                                                      }
-                                                      key={index}
-                                                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                                                    >
-                                                      {error}
-                                                    </div>
-                                                  );
-                                                }
-                                              )}
-                                            </div>
-                                          ) : null}
-                                        </Modal.Section>
-                                        <Modal.SubmitButton
-                                          form={quitOrganizationForm.id}
-                                          type="submit"
-                                          name="intent"
-                                          value={`quit-organization-${key}-${organization.id}`}
-                                          disabled={
-                                            isHydrated === true
-                                              ? quitOrganizationForm.valid ===
-                                                  false || isSubmitting
-                                              : false
-                                          }
-                                        >
-                                          {
-                                            locales.route.quit.modal[
-                                              key as keyof typeof organizations
-                                            ].cta
-                                          }
-                                        </Modal.SubmitButton>
-                                        <Modal.CloseButton>
-                                          {locales.route.quit.modal.cancelCta}
-                                        </Modal.CloseButton>
-                                      </Modal>
                                     </OverlayMenu.ListItem>
                                   </OverlayMenu>
+                                  <Modal
+                                    searchParam={`modal-quit-organization-${key}-${organization.id}`}
+                                  >
+                                    <Modal.Title>
+                                      {
+                                        locales.route.quit.modal[
+                                          key as keyof typeof organizations
+                                        ].headline
+                                      }
+                                    </Modal.Title>
+                                    <Modal.Section>
+                                      {insertComponentsIntoLocale(
+                                        insertParametersIntoLocale(
+                                          locales.route.quit.modal[
+                                            key as keyof typeof organizations
+                                          ].subline,
+                                          {
+                                            name: organization.name,
+                                          }
+                                        ),
+                                        [
+                                          <span
+                                            key="highlighted-organization-name"
+                                            className="mv-font-semibold"
+                                          />,
+                                        ]
+                                      )}
+                                    </Modal.Section>
+                                    <Modal.Section>
+                                      {typeof quitOrganizationForm.errors !==
+                                        "undefined" &&
+                                      quitOrganizationForm.errors.length > 0 ? (
+                                        <div>
+                                          {quitOrganizationForm.errors.map(
+                                            (error, index) => {
+                                              return (
+                                                <div
+                                                  id={
+                                                    quitOrganizationForm.errorId
+                                                  }
+                                                  key={index}
+                                                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                                >
+                                                  {error}
+                                                </div>
+                                              );
+                                            }
+                                          )}
+                                        </div>
+                                      ) : null}
+                                    </Modal.Section>
+                                    <Modal.SubmitButton
+                                      form={quitOrganizationForm.id}
+                                      type="submit"
+                                      name="intent"
+                                      value={`quit-organization-${key}-${organization.id}`}
+                                      disabled={
+                                        isHydrated === true
+                                          ? quitOrganizationForm.valid ===
+                                              false || isSubmitting
+                                          : false
+                                      }
+                                    >
+                                      {
+                                        locales.route.quit.modal[
+                                          key as keyof typeof organizations
+                                        ].cta
+                                      }
+                                    </Modal.SubmitButton>
+                                    <Modal.CloseButton>
+                                      {locales.route.quit.modal.cancelCta}
+                                    </Modal.CloseButton>
+                                  </Modal>
                                 </OrganizationCard.Controls>
                               </OrganizationCard>
                             );

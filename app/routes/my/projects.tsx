@@ -262,6 +262,9 @@ function MyProjects() {
                     `modal-quit-${projects}-${project.id}`,
                     "true"
                   );
+                  doubleCheckModalSearchParams.delete(
+                    `overlay-menu-${projects}-${project.id}`
+                  );
                   return (
                     <ProjectCard
                       key={project.slug}
@@ -270,7 +273,7 @@ function MyProjects() {
                     >
                       <ProjectCard.Controls>
                         <OverlayMenu
-                          searchParam={`overlay-menu-${project.slug}`}
+                          searchParam={`overlay-menu-${projects}-${project.id}`}
                         >
                           {projects === "adminProjects" ? (
                             <OverlayMenu.ListItem
@@ -306,6 +309,7 @@ function MyProjects() {
                               id={`quit-project-${project.slug}`}
                               to={`?${doubleCheckModalSearchParams.toString()}`}
                               className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                              preventScrollReset
                             >
                               <svg
                                 width="20"
@@ -326,72 +330,69 @@ function MyProjects() {
 
                               <span>{locales.projectCard.quit}</span>
                             </Link>
-                            <Modal
-                              searchParam={`modal-quit-${projects}-${project.id}`}
-                            >
-                              <Modal.Title>
-                                {
-                                  locales.route.quit.modal[
-                                    projects as
-                                      | "adminProjects"
-                                      | "teamMemberProjects"
-                                  ].headline
-                                }
-                              </Modal.Title>
-                              <Modal.Section>
-                                {insertParametersIntoLocale(
-                                  locales.route.quit.modal[
-                                    projects as
-                                      | "adminProjects"
-                                      | "teamMemberProjects"
-                                  ].subline,
-                                  {
-                                    name: project.name,
-                                  }
-                                )}
-                              </Modal.Section>
-                              <Modal.Section>
-                                {typeof quitProjectForm.errors !==
-                                  "undefined" &&
-                                quitProjectForm.errors.length > 0 ? (
-                                  <div>
-                                    {quitProjectForm.errors.map(
-                                      (error, index) => {
-                                        return (
-                                          <div
-                                            id={quitProjectForm.errorId}
-                                            key={index}
-                                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
-                                          >
-                                            {error}
-                                          </div>
-                                        );
-                                      }
-                                    )}
-                                  </div>
-                                ) : null}
-                              </Modal.Section>
-                              <Modal.SubmitButton
-                                form={quitProjectForm.id}
-                                type="submit"
-                                name="intent"
-                                value={`quit-${projects}-${project.id}`}
-                                disabled={isSubmitting}
-                              >
-                                {
-                                  locales.route.quit.modal[
-                                    projects as
-                                      | "adminProjects"
-                                      | "teamMemberProjects"
-                                  ].cta
-                                }
-                              </Modal.SubmitButton>
-                              <Modal.CloseButton>
-                                {locales.route.quit.modal.cancelCta}
-                              </Modal.CloseButton>
-                            </Modal>
                           </OverlayMenu.ListItem>
                         </OverlayMenu>
+                        <Modal
+                          searchParam={`modal-quit-${projects}-${project.id}`}
+                        >
+                          <Modal.Title>
+                            {
+                              locales.route.quit.modal[
+                                projects as
+                                  | "adminProjects"
+                                  | "teamMemberProjects"
+                              ].headline
+                            }
+                          </Modal.Title>
+                          <Modal.Section>
+                            {insertParametersIntoLocale(
+                              locales.route.quit.modal[
+                                projects as
+                                  | "adminProjects"
+                                  | "teamMemberProjects"
+                              ].subline,
+                              {
+                                name: project.name,
+                              }
+                            )}
+                          </Modal.Section>
+                          <Modal.Section>
+                            {typeof quitProjectForm.errors !== "undefined" &&
+                            quitProjectForm.errors.length > 0 ? (
+                              <div>
+                                {quitProjectForm.errors.map((error, index) => {
+                                  return (
+                                    <div
+                                      id={quitProjectForm.errorId}
+                                      key={index}
+                                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                    >
+                                      {error}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : null}
+                          </Modal.Section>
+                          <Modal.SubmitButton
+                            form={quitProjectForm.id}
+                            type="submit"
+                            name="intent"
+                            value={`quit-${projects}-${project.id}`}
+                            disabled={isSubmitting}
+                          >
+                            {
+                              locales.route.quit.modal[
+                                projects as
+                                  | "adminProjects"
+                                  | "teamMemberProjects"
+                              ].cta
+                            }
+                          </Modal.SubmitButton>
+                          <Modal.CloseButton>
+                            {locales.route.quit.modal.cancelCta}
+                          </Modal.CloseButton>
+                        </Modal>
                       </ProjectCard.Controls>
                     </ProjectCard>
                   );
