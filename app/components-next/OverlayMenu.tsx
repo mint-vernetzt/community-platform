@@ -1,5 +1,5 @@
 import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
-import { Children, isValidElement, useState } from "react";
+import { Children, isValidElement, useEffect, useRef, useState } from "react";
 import { useSearchParams, type LinkProps } from "react-router";
 
 function OverlayMenu(
@@ -30,6 +30,28 @@ function OverlayMenu(
   }
 
   const [isOpen, setIsOpen] = useState(fallBackIsOpen);
+  const listRef = useRef<HTMLUListElement>(null);
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const { target } = event;
+      if (
+        listRef.current !== null &&
+        linkRef.current !== null &&
+        linkRef.current.contains(target as Node) === false &&
+        target !== linkRef.current &&
+        listRef.current.contains(target as Node) === false &&
+        target !== listRef.current
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="mv-relative">
@@ -37,6 +59,7 @@ function OverlayMenu(
         size="small"
         variant="outline"
         as="link"
+        ref={linkRef}
         to={`?${enhancedSearchParams.toString()}`}
         {...linkProps}
         onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
@@ -61,7 +84,10 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <ul className="mv-absolute mv-top-10 mv-right-0 mv-text-nowrap mv-rounded-lg mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-white mv-flex mv-flex-col mv-z-10 mv-overflow-hidden">
+        <ul
+          ref={listRef}
+          className="mv-absolute mv-top-10 mv-right-0 mv-text-nowrap mv-rounded-lg mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-white mv-flex mv-flex-col mv-z-10 mv-overflow-hidden"
+        >
           {listItems}
         </ul>
       ) : null}
