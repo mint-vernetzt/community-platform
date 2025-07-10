@@ -144,19 +144,47 @@ export const locale = {
       },
     },
     events: {
-      headline: "Fragen zu Veranstaltungen",
+      headline: "Fragen zu Events",
       qAndAs: {
-        eventParticipation: {
+        findEvents: {
+          question: "Wo finde ich passende Veranstaltungen?",
+          answer:
+            "<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Übersicht aller zukünftiger Events. Nutze die Filter für Themen, Zielgruppen oder Orte.</br>Vergangene Events lassen sich finden, wenn Du den Filter von “Ab heute” auf “Vergangene Veranstaltungen” setzt. </p>",
+        },
+        participate: {
           question:
             "Ich möchte an einer Veranstaltung teilnehmen. Wie kann ich mich anmelden?",
           answer:
-            '<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf <b>“Teilnehmen“</b>. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <a href="/register">registrieren</a>.</p>',
+            '<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf „Teilnehmen“. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <b><a href="/register">registrieren</a></b>.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>',
+        },
+        cancelParticipation: {
+          question:
+            "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
+          answer:
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Event-Detailseite über den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Du findest die Events für die Du Dich angemeldet hast unter <b>Mein MINT-Bereich > Meine Veranstaltungen</b>. Klickst Du Dein Event an, gelangst Du auf die Event-Detailseite.</p>",
         },
         eventCreation: {
           question:
             "Ich möchte eine Veranstaltung erstellen. Was muss ich beachten?",
           answer:
             "<p>Aktuell stellen wir ausschließlich MINTvernetzt, MINT-Campus und interessierten Beta-Tester:innen die Veranstaltungserstellung auf der Community-Plattform zur Verfügung. Im nächsten Schritt öffnen wir für die gesamte Community die Möglichkeit, eigene Events zu erstellen.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich <b>NICHT</b> an Kinder und Jugendliche, sondern <b>ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc</b>. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>",
+        },
+        reportEvent: {
+          question: "Wie kann ich Events melden?",
+          answer:
+            '<p>Nutzer:innen haben die Möglichkeit, Events zu melden. Der Melden-Button befindet sich auf der Event-Detailseite im oberen Bereich hinter dem 3-Punkte-Menü-Button <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In der folgenden Abfrage, muss mindestens ein Grund für die Meldung angeben sein.</br></br><b>Folgende Gründe sprechen dafür ein Event zu melden:</b></br></br><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>Zum Beispiel: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren.</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen.</p>',
+          featureFlag: "abuse_report",
+        },
+        iReportedAnEvent: {
+          question: "Ich habe ein Event gemeldet, was passiert jetzt?",
+          answer:
+            '<p>Danke, dass Du uns auf unpassende oder rechtswidrige Inhalte hinweist.</br></br>Wie geht es nun weiter?</br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen. </br></br>Wenn wir feststellen, dass kein Verstoß stattgefunden hat, werden wir das Event weiterhin sichtbar lassen. Solltest Du mit unserer Entscheidung nach der Prüfung nicht zufrieden sein, nimm bitte Kontakt zu uns auf: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
+          featureFlag: "abuse_report",
+        },
+        feedback: {
+          question: "Feedback zu den Events",
+          answer:
+            '<p><b>Noch Fragen oder Ideen für neue Funktionen?</b> Dann schreib uns jederzeit an <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b> – wir freuen uns auf Dein Feedback!</p>',
         },
       },
     },

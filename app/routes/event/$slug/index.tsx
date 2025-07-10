@@ -644,12 +644,16 @@ function Index() {
                       // TODO: Link to specific faq section/question
                       <CircleButton
                         as="link"
-                        to="/help"
+                        to="/help#events-iReportedAnEvent"
+                        target="_blank"
                         size="x-small"
                         variant="outline"
                         aria-label={locales.route.content.reportFaq}
                       >
-                        <div className="mv-flex mv-flex-col mv-gap-[1px]">
+                        <div
+                          aria-hidden="true"
+                          className="mv-flex mv-flex-col mv-gap-[1px]"
+                        >
                           <div className="mv-w-0.5 mv-h-0.5 mv-bg-primary mv-rounded-lg" />
                           <div className="mv-w-0.5 mv-h-2 mv-bg-primary mv-rounded-lg" />
                         </div>

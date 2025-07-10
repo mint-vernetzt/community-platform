@@ -140,15 +140,45 @@ export const locale = {
     events: {
       headline: "Questions about events",
       qAndAs: {
-        eventParticipation: {
-          question: "I would like to attend an event. How do I register?",
+        findEvents: {
+          question:
+            "Where can I find events on the MINTvernetzt community platform?",
           answer:
-            '<p>Under <b>Explore > Events</b> you will find a list of current events. Select the desired event and click <b>“Participate“</b>. Please note that you must be logged in to the platform to register for an event.</br></br>Don\'t have a profile on the MINTvernetzt community platform yet? You can <a href="/register">register</a> here.</p>',
+            '<p>Under <b>Explore > Events</b> you will find an overview of all upcoming events. Use the filters for topics, target groups or locations.</br>Past events can be found by changing the filter from "Until now" to "Past events".</p>',
+        },
+        participate: {
+          question: "I want to participate in an event. How can I register?",
+          answer:
+            '<p>Under <b>Explore > Events</b> you will find a list of current events. Select the desired event and click on "Participate". Please note that you must be registered on the platform to register for an event.</br></br>If you do not have a profile on the MINTvernetzt community platform yet, you can <b><a href="/register">register here</a></b>.</br></br>For events with external registration, you will be redirected to external registration pages.</p>',
+        },
+        cancelParticipation: {
+          question:
+            "I have registered for an event, but I can no longer attend. How can I cancel my participation?",
+          answer:
+            "<p>If you accidentally registered or find that you can no longer attend, please withdraw your participation on the event detail page using the <b>“Cancel Participation”</b> button. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event detail page.</p>",
         },
         eventCreation: {
-          question: "I want to create an event. What do I need to consider?",
+          question:
+            "How can I create events on the MINTvernetzt community platform?",
           answer:
-            "<p>Currently, we only offer event creation on the community platform to MINTvernetzt, MINT-Campus, and interested beta testers. In the next step, we will open up the possibility for the entire community to create their own events.</br></br><b>Important:</b> Our platform is <b>NOT</b> aimed at children and young people, but <b>exclusively at MINT stakeholders, education providers, network coordinators, etc</b>. Events such as MINT holiday courses or weekly offerings in a student lab do not belong here.</p>",
+            "<p>Currently, we only provide event creation on the community platform for MINTvernetzt, MINT-Campus, and interested beta testers. In the next step, we will open up the possibility for the entire community to create their own events.</br></br><b>Important:</b> Our platform is <b>NOT</b> aimed at children and young people, but <b>exclusively at MINT actors, educational providers, network coordinators, etc</b>. Events such as MINT holiday courses or weekly offerings in a student laboratory do not belong here.</p>",
+        },
+        reportEvent: {
+          question: "How can I report an event?",
+          answer:
+            '<p>Users have the option to report events. The report button is located on the event detail page in the upper area behind the 3-dot menu button <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason for the report must be provided.</br></br><b>The following reasons speak for reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>For example: MINT holiday camps for students or regular courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></br></br>After the event has been reported, it will be checked by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</p>',
+          featureFlag: "abuse_report",
+        },
+        iReportedAnEvent: {
+          question: "I reported an event, what happens next?",
+          answer:
+            '<p>Thank you for bringing inappropriate or illegal content to our attention.</br></br>What happens next?</br></br>After the event has been reported, it will be reviewed by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</br></br>If we determine that no violation has occurred, we will keep the event visible. If you are not satisfied with our decision after the review, please contact us at: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
+          featureFlag: "abuse_report",
+        },
+        feedback: {
+          question: "Feedback about events",
+          answer:
+            '<p><b>Any questions or ideas for new features?</b> Then feel free to write to us at <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b> – we look forward to your feedback!</p>',
         },
       },
     },

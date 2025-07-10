@@ -6,11 +6,16 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type LoaderFunctionArgs } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { getFeatureAbilities } from "./feature-access.server";
+import { createAuthClient } from "~/auth.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["help"];
+  const { authClient } = createAuthClient(request);
+  const abilities = await getFeatureAbilities(authClient, ["abuse_report"]);
   return {
+    abilities,
     supportMail: process.env.SUPPORT_MAIL,
     locales,
   };
@@ -18,7 +23,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Help() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, abilities } = loaderData;
 
   return (
     <>
@@ -50,12 +55,23 @@ export default function Help() {
                 {typedTopicValue.headline}
                 {Object.entries(typedTopicValue.qAndAs).map(([qAndAkey]) => {
                   if (qAndAkey in typedTopicValue.qAndAs) {
+                    if (
+                      // TODO: fix type issues -> caused by nested loops
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      "featureFlag" in typedTopicValue.qAndAs[qAndAkey] &&
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
+                      abilities[typedTopicValue.qAndAs[qAndAkey].featureFlag]
+                        .hasAccess === false
+                    ) {
+                      return null;
+                    }
                     return (
                       <Accordion.Item
                         id={`${typedTopicKey}-${qAndAkey}`}
                         key={`${typedTopicKey}-${qAndAkey}`}
                       >
-                        {/* TODO: fix type issues -> caused by nested loops */}
                         {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                         {/* @ts-ignore */}
                         {typedTopicValue.qAndAs[qAndAkey].question}
