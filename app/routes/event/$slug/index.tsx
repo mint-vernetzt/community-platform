@@ -564,7 +564,7 @@ function Index() {
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button
-                    className="mv-flex mv-items-center mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                    className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
                     onClick={async () => {
                       await copyToClipboard(
                         `${loaderData.meta.baseUrl}${location.pathname}${location.search}${location.hash}`
@@ -623,7 +623,7 @@ function Index() {
                     type="submit"
                     form="abuse-report"
                     disabled={loaderData.alreadyAbuseReported === true}
-                    className="mv-w-full mv-flex mv-items-center mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                    className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
                   >
                     {loaderData.alreadyAbuseReported === false ? (
                       <span className="mv-p-0.5">

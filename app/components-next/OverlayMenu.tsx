@@ -1,15 +1,13 @@
 import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
 import { Children, isValidElement, useEffect, useRef, useState } from "react";
-import { useSearchParams, type LinkProps } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 function OverlayMenu(
-  props: React.PropsWithChildren &
-    Omit<LinkProps, "to"> &
-    React.RefAttributes<HTMLAnchorElement> & {
-      searchParam: string;
-    }
+  props: React.PropsWithChildren & {
+    searchParam: string;
+  }
 ) {
-  const { children, searchParam, ...linkProps } = props;
+  const { children, searchParam } = props;
   const childrenArray = Children.toArray(children);
   const listItems = childrenArray.filter(
     (child) =>
@@ -35,16 +33,22 @@ function OverlayMenu(
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const { target } = event;
-      if (
-        listRef.current !== null &&
-        linkRef.current !== null &&
-        linkRef.current.contains(target as Node) === false &&
-        target !== linkRef.current &&
-        listRef.current.contains(target as Node) === false &&
-        target !== listRef.current
-      ) {
-        setIsOpen(false);
+      const { clientX, clientY } = event;
+      if (listRef.current !== null && linkRef.current !== null) {
+        const listRect = listRef.current.getBoundingClientRect();
+        const linkRect = linkRef.current.getBoundingClientRect();
+        if (
+          (clientX <= listRect.left ||
+            clientX >= listRect.right ||
+            clientY <= listRect.top ||
+            clientY >= listRect.bottom) &&
+          (clientX <= linkRect.left ||
+            clientX >= linkRect.right ||
+            clientY <= linkRect.top ||
+            clientY >= linkRect.bottom)
+        ) {
+          setIsOpen(false);
+        }
       }
     };
     document.addEventListener("click", handleClickOutside);
@@ -61,12 +65,8 @@ function OverlayMenu(
         as="link"
         ref={linkRef}
         to={`?${enhancedSearchParams.toString()}`}
-        {...linkProps}
         onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
           event.preventDefault();
-          if (typeof linkProps.onClick !== "undefined") {
-            linkProps.onClick(event);
-          }
           setIsOpen((prev) => !prev);
         }}
       >
@@ -84,12 +84,30 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <ul
-          ref={listRef}
-          className="mv-absolute mv-top-10 mv-right-0 mv-text-nowrap mv-rounded-lg mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-white mv-flex mv-flex-col mv-z-10 mv-overflow-hidden"
-        >
-          {listItems}
-        </ul>
+        <div className="mv-fixed mv-w-screen @md:mv-w-fit mv-h-screen @md:mv-h-fit mv-bg-opacity-40 @md:mv-bg-opacity-100 mv-p-4 @md:mv-p-0 @md:mv-absolute mv-top-0 @md:mv-top-10 mv-left-0 @md:mv-left-auto mv-right-0 mv-text-nowrap mv-rounded-none @md:mv-rounded-lg mv-shadow-none @md:mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-primary-900 @md:mv-bg-white mv-flex mv-flex-col mv-gap-4 mv-justify-end @md:mv-justify-normal mv-z-10 mv-overflow-hidden">
+          <ul
+            ref={listRef}
+            className="mv-flex mv-flex-col mv-gap-2 mv-bg-white mv-rounded-lg"
+          >
+            {listItems}
+          </ul>
+          <ul className="mv-flex @md:mv-hidden mv-flex-col mv-gap-2 mv-bg-white mv-rounded-lg">
+            <ListItem>
+              <Link
+                to={`?${enhancedSearchParams.toString()}`}
+                className="mv-w-full mv-text-center mv-px-3 mv-py-2 focus:mv-outline-none"
+                onClick={(
+                  event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                ) => {
+                  event.preventDefault();
+                  setIsOpen(false);
+                }}
+              >
+                Schließen
+              </Link>
+            </ListItem>
+          </ul>
+        </div>
       ) : null}
     </div>
   );
