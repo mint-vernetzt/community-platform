@@ -35,31 +35,25 @@ function OverlayMenu(
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const { clientX, clientY } = event;
-      if (listRef.current !== null && linkRef.current !== null) {
-        const listRect = listRef.current.getBoundingClientRect();
-        const linkRect = linkRef.current.getBoundingClientRect();
-        if (
-          (clientX <= listRect.left ||
-            clientX >= listRect.right ||
-            clientY <= listRect.top ||
-            clientY >= listRect.bottom) &&
-          (clientX <= linkRect.left ||
-            clientX >= linkRect.right ||
-            clientY <= linkRect.top ||
-            clientY >= linkRect.bottom)
-        ) {
-          setIsOpen(false);
-          const enhancedSearchParams = new URLSearchParams(
-            searchParams.toString()
-          );
-          enhancedSearchParams.delete(searchParam);
-          submit(enhancedSearchParams, {
-            method: "get",
-            replace: true,
-            preventScrollReset: true,
-          });
-        }
+      const { target } = event;
+      if (
+        listRef.current !== null &&
+        linkRef.current !== null &&
+        listRef.current !== target &&
+        linkRef.current !== target &&
+        listRef.current.contains(target as Node) === false &&
+        linkRef.current.contains(target as Node) === false
+      ) {
+        setIsOpen(false);
+        const enhancedSearchParams = new URLSearchParams(
+          searchParams.toString()
+        );
+        enhancedSearchParams.delete(searchParam);
+        submit(enhancedSearchParams, {
+          method: "get",
+          replace: true,
+          preventScrollReset: true,
+        });
       }
     };
     document.addEventListener("click", handleClickOutside);
