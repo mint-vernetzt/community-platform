@@ -4,8 +4,8 @@ export const locale = assertEventAbuseReportReasonSuggestionLocales({
   promotional_event: {
     description: "Es handelt sich um eine Werbeveranstaltung.",
   },
-  inappropriate_pictures: {
-    description: "Es werden unpassende Bilder gezeigt.",
+  inappropriate_content: {
+    description: "Es werden unpassende Inhalte gezeigt.",
   },
   discriminatory_content: {
     description: "Es enthält diskriminierende Inhalte.",
