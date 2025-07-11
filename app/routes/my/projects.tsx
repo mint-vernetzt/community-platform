@@ -280,7 +280,7 @@ function MyProjects() {
                               key={`edit-project-${project.slug}`}
                             >
                               <Link
-                                className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                                {...OverlayMenu.getListItemProps()}
                                 to={`/project/${project.slug}/settings`}
                               >
                                 <svg
@@ -306,9 +306,8 @@ function MyProjects() {
                             key={`quit-project-${project.slug}`}
                           >
                             <Link
-                              id={`quit-project-${project.slug}`}
+                              {...OverlayMenu.getListItemProps()}
                               to={`?${doubleCheckModalSearchParams.toString()}`}
-                              className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
                               preventScrollReset
                             >
                               <svg

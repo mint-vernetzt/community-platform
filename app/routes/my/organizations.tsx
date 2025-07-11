@@ -1601,7 +1601,7 @@ export default function MyOrganizations() {
                                         key={`edit-organization-${organization.slug}`}
                                       >
                                         <Link
-                                          className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
+                                          {...OverlayMenu.getListItemProps()}
                                           to={`/organization/${organization.slug}/settings`}
                                         >
                                           <svg
@@ -1629,9 +1629,8 @@ export default function MyOrganizations() {
                                       key={`quit-organization-${organization.slug}`}
                                     >
                                       <Link
-                                        id={`quit-organization-${organization.slug}`}
+                                        {...OverlayMenu.getListItemProps()}
                                         to={`?${doubleCheckModalSearchParams.toString()}`}
-                                        className="mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none"
                                         preventScrollReset
                                       >
                                         <svg

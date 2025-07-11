@@ -14,6 +14,9 @@ function OverlayMenu(
       isValidElement(child) &&
       (child.type === ListItem || child.type === Divider)
   );
+  const hiddenItems = childrenArray.filter(
+    (child) => isValidElement(child) && child.type === HiddenItem
+  );
 
   const submit = useSubmit();
 
@@ -117,6 +120,7 @@ function OverlayMenu(
               </Link>
             </ListItem>
           </ul>
+          {hiddenItems.length > 0 ? hiddenItems : null}
         </div>
       ) : null}
     </div>
@@ -142,11 +146,26 @@ function ListItem(
   );
 }
 
+function getListItemProps() {
+  return {
+    className:
+      "mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none",
+  };
+}
+
 function Divider() {
   return <div className="mv-w-full mv-h-0 mv-border-b mv-border-neutral-200" />;
 }
 
+function HiddenItem(props: React.PropsWithChildren) {
+  const { children } = props;
+
+  return <div className="mv-hidden">{children}</div>;
+}
+
 OverlayMenu.ListItem = ListItem;
+OverlayMenu.getListItemProps = getListItemProps;
 OverlayMenu.Divider = Divider;
+OverlayMenu.HiddenItem = HiddenItem;
 
 export { OverlayMenu };
