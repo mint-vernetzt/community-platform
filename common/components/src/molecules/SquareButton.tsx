@@ -2,30 +2,28 @@ import classnames from "classnames";
 import { createElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
-// eigene Komponente für Icon-Button mit Varianten für Circle und Square
-
-type ButtonSize = "x-small" | "small" | "medium" | "large";
-type ButtonVariant = "normal" | "outline" | "ghost";
-type ButtonType = "button" | "link" | "div" | "label";
-type ButtonLevel =
+type SquareButtonSize = "small" | "medium" | "large";
+type SquareButtonVariant = "normal" | "outline" | "ghost";
+type SquareButtonType = "button" | "link" | "div" | "label";
+type SquareButtonLevel =
   | "primary"
   // | "secondary"
   // | "positive"
   // | "attention"
   | "negative";
 
-type ButtonProps = {
-  size?: ButtonSize;
+type SquareButtonProps = {
+  size?: SquareButtonSize;
   loading?: boolean;
-  variant?: ButtonVariant;
-  level?: ButtonLevel;
+  variant?: SquareButtonVariant;
+  level?: SquareButtonLevel;
   responsive?: boolean; // lg -> md -> sm
-  as?: ButtonType;
+  as?: SquareButtonType;
   fullSize?: boolean;
 };
 
-function Button(
-  props: ButtonProps &
+function SquareButton(
+  props: SquareButtonProps &
     (
       | React.ButtonHTMLAttributes<HTMLButtonElement>
       | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
@@ -55,19 +53,18 @@ function Button(
     "mv-align-middle",
     "mv-text-center",
     "mv-rounded-lg",
+    "mv-p-2",
     isDisabled && "mv-pointer-events-none",
     as === "label" && isDisabled === false && "mv-cursor-pointer",
     // button size
-    size === "x-small" && "mv-text-xs mv-p-2 mv-leading-4",
-    size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-leading-4",
-    size === "medium" && "mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5",
-    size === "large" &&
-      "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-leading-[22px]",
+    size === "small" && "mv-h-8 mv-w-8 mv-text-xs mv-leading-4",
+    size === "medium" && "mv-h-10 mv-w-10 mv-text-sm mv-leading-5",
+    size === "large" && "mv-h-12 mv-w-12 mv-text-base mv-leading-[22px]",
     // button border
     variant === "outline" && size !== "large" && "mv-border",
     variant === "outline" && size === "large" && "mv-border-2",
     // button full size
-    fullSize ? "mv-w-full" : "mv-w-fit",
+    fullSize && "mv-w-full mv-aspect-square",
     // button primary disabled
     isDisabled &&
       variant === "normal" &&
@@ -165,4 +162,4 @@ function Button(
   }
 }
 
-export { Button };
+export { SquareButton };

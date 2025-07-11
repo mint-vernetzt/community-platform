@@ -443,6 +443,12 @@ export default function App() {
       modal = true;
     }
   });
+  let overlayMenu = false;
+  searchParams.forEach((value, key) => {
+    if (key.startsWith("overlay-menu") && value !== "false") {
+      overlayMenu = true;
+    }
+  });
   const showFilters = searchParams.get("showFilters");
   const openMainMenuKey = "mainMenu";
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
@@ -450,6 +456,7 @@ export default function App() {
   const bodyClasses = classNames(
     "mv-flex mv-min-h-screen mv-break-words mv-antialiased mv-overflow-x-hidden",
     modal && "mv-overflow-y-hidden",
+    overlayMenu && "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",
     showFilters !== null &&
       showFilters === "on" &&
       "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",

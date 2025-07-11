@@ -10,7 +10,11 @@ export const locale = {
     abuseReport: "Die Meldung der Veranstaltung wurde verschickt.",
   },
   content: {
-    report: "Veranstaltung melden",
+    report: "Melden",
+    reported: "Meldung wird geprüft",
+    reportFaq: "Weitere Infos zum Melden",
+    copy: "URL kopieren",
+    copied: "URL kopiert!",
     clock: "{{date}}, {{time}} Uhr",
     backgroundImage: "Aktuelles Hintergrundbild",
     borderOfImage: "Rahmen des Hintergrundbildes",
@@ -95,7 +99,7 @@ export const locale = {
     title: "Warum möchstest Du dieses Event melden?",
     description:
       "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
-    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">Hilfebereich</a>.`,
+    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">Hilfebereich</a>.`,
     otherReason: "Anderer Grund",
     max: "Maximal {{max}} Zeichen",
     noReasons: "Bitte gib mindestens einen Grund an.",
