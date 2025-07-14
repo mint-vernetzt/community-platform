@@ -10,7 +10,11 @@ export const locale = {
     abuseReport: "The abuse report was successfully submitted.",
   },
   content: {
-    report: "Report event",
+    report: "Report",
+    reported: "Report is being checked",
+    reportFaq: "Further information on reporting",
+    copy: "Copy URL",
+    copied: "URL copied!",
     clock: "{{date}}, {{time}} o'clock",
     backgroundImage: "Current background image",
     borderOfImage: "Frame of the background image",
@@ -92,7 +96,7 @@ export const locale = {
     title: "Why do you want to report this event?",
     description:
       "In order to follow up on your report, we need the reason why you want to report this event.",
-    faq: 'Further information about the reporting process can be found in our <a href="/help" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">help section</a>.',
+    faq: 'Further information about the reporting process can be found in our <a href="/help#events-reportEvent" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">help section</a>.',
     otherReason: "Other reason",
     noReasons: "Please give at least one reason.",
     alreadySubmitted: "You have already reported this event.",

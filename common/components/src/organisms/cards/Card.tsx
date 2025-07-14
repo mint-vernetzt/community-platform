@@ -25,6 +25,10 @@ function Card(props: CardProps) {
     return isValidElement(child) && child.type === CardFooter;
   });
 
+  const controls = children.find((child) => {
+    return isValidElement(child) && child.type === CardControls;
+  });
+
   return (
     <div className="mv-w-full mv-h-full mv-bg-white mv-border focus-within:mv-ring-2 mv-border-neutral-200 focus-within:mv-ring-primary-200 mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
       {props.to !== undefined && props.to !== "" ? (
@@ -44,6 +48,7 @@ function Card(props: CardProps) {
           {footer || null}
         </>
       )}
+      {controls || null}
     </div>
   );
 }
@@ -337,5 +342,13 @@ function CardRowContainer(props: CardRowContainerProps) {
 }
 
 Card.RowContainer = CardRowContainer;
+
+export function CardControls(props: React.PropsWithChildren) {
+  const { children } = props;
+
+  return <div className="mv-absolute mv-top-4 mv-right-4">{children}</div>;
+}
+
+Card.Controls = CardControls;
 
 export { Card };
