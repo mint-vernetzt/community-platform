@@ -42,7 +42,6 @@ import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
 import { getProfileByUserId } from "./root.server";
-import { getFeatureAbilities } from "./routes/feature-access.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
@@ -105,8 +104,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient, headers } = createAuthClient(request);
 
-  const abilities = await getFeatureAbilities(authClient, ["sharepic"]);
-
   const user = await getSessionUser(authClient);
 
   let sessionUserInfo;
@@ -167,7 +164,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       locales,
       ENV: getEnv(),
       mode,
-      abilities,
       meta: {
         baseUrl: process.env.COMMUNITY_BASE_URL,
         url: request.url,
@@ -267,7 +263,6 @@ export const ErrorBoundary = () => {
               ? rootLoaderData.sessionUserInfo.username
               : undefined
           }
-          abilities={hasRootLoaderData ? rootLoaderData.abilities : undefined}
           currentLanguage={
             hasRootLoaderData
               ? rootLoaderData.currentLanguage
@@ -344,7 +339,6 @@ export default function App() {
     locales,
     mode,
     ENV,
-    abilities,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -485,7 +479,6 @@ export default function App() {
             mode={mode}
             openMainMenuKey={openMainMenuKey}
             username={sessionUserInfo?.username}
-            abilities={abilities}
             currentLanguage={currentLanguage}
             locales={locales}
           />
