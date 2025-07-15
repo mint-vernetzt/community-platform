@@ -30,12 +30,12 @@ function getDataForToolsSection() {
     };
   };
   const resourceListItems: Omit<ResourceListItem, "headline"> = {
-    mediaDatabase: {
-      link: "https://mediendatenbank.mint-vernetzt.de",
-      imagePath: "/images/media-database.png",
-      blurredImagePath: "/images/media-database-blurred.png",
-      external: true,
-      beta: true,
+    fundingSearch: {
+      link: "/explore/fundings",
+      imagePath: "/images/funding-search.png",
+      blurredImagePath: "/images/funding-search-blurred.png",
+      external: false,
+      beta: false,
       bgClassName: "mv-bg-neutral-50",
     },
     sharepic: {
@@ -46,12 +46,12 @@ function getDataForToolsSection() {
       beta: true,
       bgClassName: "mv-bg-neutral-100",
     },
-    fundingSearch: {
-      link: "/explore/fundings",
-      imagePath: "/images/funding-search.png",
-      blurredImagePath: "/images/funding-search-blurred.png",
-      external: false,
-      beta: false,
+    mediaDatabase: {
+      link: "https://mediendatenbank.mint-vernetzt.de",
+      imagePath: "/images/media-database.png",
+      blurredImagePath: "/images/media-database-blurred.png",
+      external: true,
+      beta: true,
       bgClassName: "mv-bg-neutral-50",
     },
     oeb: {
