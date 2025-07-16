@@ -105,17 +105,38 @@ export function NavBar(props: NavBarProps) {
           <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-w-full mv-items-center">
             <Form className="mv-flex-grow" method="get" action="/explore/all">
               <Search
-                placeholder={
-                  props.locales !== undefined
-                    ? props.locales.route.root.search.placeholder
-                    : DEFAULT_LANGUAGE === "de"
-                    ? "Suche (min. 3 Zeichen)"
-                    : "Search (min. 3 characters)"
-                }
-                name="search"
+                inputProps={{
+                  id: "search-bar",
+                  placeholder:
+                    typeof props.locales === "undefined"
+                      ? DEFAULT_LANGUAGE === "de"
+                        ? "Suche..."
+                        : "Search..."
+                      : props.locales.route.root.search.placeholder.default,
+                  name: "search",
+                }}
                 query={query}
                 locales={props.locales}
-              />
+              >
+                <label className="mv-line-clamp-1">
+                  {typeof props.locales === "undefined" ? (
+                    DEFAULT_LANGUAGE === "de" ? (
+                      "Suche..."
+                    ) : (
+                      "Search..."
+                    )
+                  ) : (
+                    <>
+                      <span className="xl:mv-hidden">
+                        {props.locales.route.root.search.placeholder.default}
+                      </span>
+                      <span className="mv-hidden xl:mv-inline">
+                        {props.locales.route.root.search.placeholder.xl}
+                      </span>
+                    </>
+                  )}
+                </label>
+              </Search>
             </Form>
 
             <div className="mv-flex-shrink mv-block xl:mv-hidden">
