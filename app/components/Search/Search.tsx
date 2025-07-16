@@ -49,9 +49,9 @@ function Search(props: SearchProps) {
   }, []);
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full mv-h-[48px]">
-      <div className="mv-relative mv-group">
-        <div className="mv-absolute mv-left-1.5 mv-top-1.5 mv-w-full mv-flex mv-gap-2 xl:mv-flex-row-reverse xl:mv-justify-between mv-pointer-events-none mv-px-1 xl:mv-px-3 mv-py-1">
+    <div className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center">
+      <div className="mv-relative mv-group mv-w-full">
+        <div className="mv-absolute mv-left-1.5 mv-top-1 xl:mv-top-2 mv-w-full mv-flex mv-gap-2 xl:mv-flex-row-reverse xl:mv-justify-between mv-pointer-events-none mv-px-1 xl:mv-px-3 mv-py-1">
           <div className="mv-mt-0.5 xl:mv-hidden">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ function Search(props: SearchProps) {
           </div>
           {value.length === 0 && (
             <>
-              <div className="mv-hidden xl:mv-block mv-mt-0.5 xl:mv--mt-1 xl:mv-p-1.5 mv-rounded-lg mv-bg-transparent xl:group-focus-within:mv-bg-primary-500">
+              <div className="mv-hidden xl:mv-block mv-mt-0.5 xl:mv-mr-0.5 xl:mv--mt-1 xl:mv-p-1.5 mv-rounded-lg mv-bg-transparent xl:group-focus-within:mv-bg-primary-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -90,7 +90,7 @@ function Search(props: SearchProps) {
         </div>
 
         <input
-          className="mv-w-full mv-outline-none mv-bg-neutral-100 xl:mv-bg-neutral-50 mv-h-auto mv-min-w-[230px] mv-rounded-lg mv-border-2 mv-border-neutral-100 xl:mv-border-neutral-200 mv-py-2 mv-pl-9 xl:mv-pl-4 mv-pr-4 mv-text-base mv-font-semibold mv-text-neutral-700 mv-appearance-none mv-leading-6 focus:mv-border-primary-200"
+          className="mv-w-full mv-h-10 xl:mv-h-12 mv-outline-none mv-bg-neutral-100 xl:mv-bg-neutral-50 mv-min-w-[230px] mv-rounded-lg mv-border mv-border-neutral-100 xl:mv-border-neutral-200 mv-py-2 mv-pl-9 xl:mv-pl-4 mv-pr-4 mv-text-base mv-font-semibold mv-text-neutral-700 mv-appearance-none mv-leading-6 focus:mv-border-primary-200"
           aria-placeholder={placeholder}
           minLength={minLength || 3}
           value={value}
@@ -99,9 +99,9 @@ function Search(props: SearchProps) {
           {...otherInputProps}
         />
         {value.length > 0 && (
-          <div className="mv-absolute mv-right-0 mv-top-0.5 mv-text-neutral-700 xl:mv-text-neutral-600">
+          <div className="mv-absolute mv-right-0 xl:mv-right-1 mv-top-0 xl:mv-top-1 mv-text-neutral-700 xl:mv-text-neutral-600">
             <button
-              className="mv-p-4"
+              className="mv-px-3 mv-py-4 xl:mv-px-4 mv-bg-transparent"
               type="reset"
               onClick={handleClear}
               aria-label={
@@ -114,8 +114,8 @@ function Search(props: SearchProps) {
             >
               <svg
                 viewBox="0 0 10 10"
-                width="10px"
-                height="10px"
+                width="10"
+                height="10"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
