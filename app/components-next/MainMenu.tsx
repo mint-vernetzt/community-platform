@@ -44,7 +44,7 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-0 mv-bg-white`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-2 mv-bg-white`}
     >
       <a
         id="main-menu-start"
@@ -59,7 +59,7 @@ export function MainMenu(
       </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="mv-my-3 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
+        className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
         aria-label={
           props.locales !== undefined
             ? props.mode === "anon"
@@ -466,7 +466,7 @@ function TopMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-4 mv-px-6 mv-select-none">
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-2 mv-px-6 mv-select-none">
       {children}
     </div>
   );
