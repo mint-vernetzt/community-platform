@@ -32,7 +32,10 @@ export const locale = {
     login: "Anmelden",
     register: "Registrieren",
     search: {
-      placeholder: "Suche (mind. 3 Buchstaben)",
+      placeholder: {
+        default: "Suche...",
+        xl: "Entdecke die Community und finde neue Förderungen...",
+      },
       clear: "Suchfeld leeren",
     },
     menu: {
