@@ -44,7 +44,7 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-0 mv-bg-white`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-bg-white`}
     >
       <a
         id="main-menu-start"
@@ -59,7 +59,7 @@ export function MainMenu(
       </a>
       <Link
         to={props.mode !== "anon" ? "/dashboard" : "/"}
-        className="mv-my-3 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
+        className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
         aria-label={
           props.locales !== undefined
             ? props.mode === "anon"
@@ -132,11 +132,13 @@ export function MainMenu(
                   openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
-                  {location.pathname === "/dashboard" ? (
-                    <Icon type="grid" aria-hidden="true" />
-                  ) : (
-                    <Icon type="grid-outline" aria-hidden="true" />
-                  )}
+                  <IconWrapper>
+                    {location.pathname === "/dashboard" ? (
+                      <Icon type="grid" aria-hidden="true" />
+                    ) : (
+                      <Icon type="grid-outline" aria-hidden="true" />
+                    )}
+                  </IconWrapper>
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.overview
@@ -152,17 +154,19 @@ export function MainMenu(
                   setActiveTopicId={setActiveTopicId}
                 >
                   <Label>
-                    {location.pathname === `/profile/${props.username}` ||
-                    location.pathname === "/my/organizations" ||
-                    location.pathname === "/organization/create" ||
-                    location.pathname === "/my/events" ||
-                    location.pathname === "/event/create" ||
-                    location.pathname === "/my/projects" ||
-                    location.pathname === "/project/create" ? (
-                      <Icon type="person" aria-hidden="true" />
-                    ) : (
-                      <Icon type="person-outline" aria-hidden="true" />
-                    )}
+                    <IconWrapper orientation="left">
+                      {location.pathname === `/profile/${props.username}` ||
+                      location.pathname === "/my/organizations" ||
+                      location.pathname === "/organization/create" ||
+                      location.pathname === "/my/events" ||
+                      location.pathname === "/event/create" ||
+                      location.pathname === "/my/projects" ||
+                      location.pathname === "/project/create" ? (
+                        <Icon type="person" aria-hidden="true" />
+                      ) : (
+                        <Icon type="person-outline" aria-hidden="true" />
+                      )}
+                    </IconWrapper>
                     <div className="mv-font-semibold">
                       {props.locales !== undefined
                         ? props.locales.route.root.menu.personalSpace.label
@@ -226,8 +230,10 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               <Label>
-                <Icon type="search" aria-hidden="true" />
-                <div className="mv-font-semibold">
+                <IconWrapper className="mv--ml-1">
+                  <Icon type="search" aria-hidden="true" />
+                </IconWrapper>
+                <div className="mv-font-semibold mv-ml-1">
                   {props.locales !== undefined
                     ? props.locales.route.root.menu.explore.label
                     : DEFAULT_LANGUAGE === "de"
@@ -308,11 +314,13 @@ export function MainMenu(
               openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
-              {location.pathname === "/resources" ? (
-                <Icon type="briefcase" aria-hidden="true" />
-              ) : (
-                <Icon type="briefcase-outline" aria-hidden="true" />
-              )}
+              <IconWrapper>
+                {location.pathname === "/resources" ? (
+                  <Icon type="briefcase" aria-hidden="true" />
+                ) : (
+                  <Icon type="briefcase-outline" aria-hidden="true" />
+                )}
+              </IconWrapper>
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.resources.label
@@ -338,11 +346,13 @@ export function MainMenu(
               openMainMenuKey={props.openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
-              {location.pathname === "/help" ? (
-                <Icon type="life-preserver" aria-hidden="true" />
-              ) : (
-                <Icon type="life-preserver-outline" aria-hidden="true" />
-              )}
+              <IconWrapper>
+                {location.pathname === "/help" ? (
+                  <Icon type="life-preserver" aria-hidden="true" />
+                ) : (
+                  <Icon type="life-preserver-outline" aria-hidden="true" />
+                )}
+              </IconWrapper>
               <div className="mv-font-semibold">
                 {props.locales !== undefined
                   ? props.locales.route.root.menu.help
@@ -359,13 +369,15 @@ export function MainMenu(
                   openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
-                  {location.pathname.startsWith(
-                    `/profile/${props.username}/settings`
-                  ) ? (
-                    <Icon type="gear" aria-hidden="true" />
-                  ) : (
-                    <Icon type="gear-outline" aria-hidden="true" />
-                  )}
+                  <IconWrapper>
+                    {location.pathname.startsWith(
+                      `/profile/${props.username}/settings`
+                    ) ? (
+                      <Icon type="gear" aria-hidden="true" />
+                    ) : (
+                      <Icon type="gear-outline" aria-hidden="true" />
+                    )}
+                  </IconWrapper>
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.settings
@@ -381,7 +393,9 @@ export function MainMenu(
                   openMainMenuKey={props.openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
-                  <Icon type="door-closed-outline" aria-hidden="true" />
+                  <IconWrapper>
+                    <Icon type="door-closed-outline" aria-hidden="true" />
+                  </IconWrapper>
                   <div className="mv-font-semibold">
                     {props.locales !== undefined
                       ? props.locales.route.root.menu.logout
@@ -462,11 +476,30 @@ export function MainMenu(
   );
 }
 
+function IconWrapper(
+  props: React.PropsWithChildren & {
+    orientation?: "left" | "center" | "right";
+    className?: string;
+  }
+) {
+  const { orientation = "center", className } = props;
+
+  const classes = classNames(
+    "mv-w-5 mv-h-5 mv-flex mv-items-center",
+    orientation === "left" && "mv-justify-start",
+    orientation === "right" && "mv-justify-end",
+    orientation === "center" && "mv-justify-center",
+    className
+  );
+
+  return <div className={classes}>{props.children}</div>;
+}
+
 function TopMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-4 mv-px-6 mv-select-none">
+    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-2 mv-px-6 mv-select-none">
       {children}
     </div>
   );
@@ -517,7 +550,7 @@ function Item(
         }}
         form={props.to}
         type="submit"
-        className="mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
+        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
         disabled={isSubmitting}
       >
         {children}
@@ -531,7 +564,7 @@ function Item(
       to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-flex mv-items-center mv-gap-4 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
+          "mv-flex mv-items-center mv-gap-2.5 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
         }
@@ -597,8 +630,8 @@ function Label(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-flex mv-items-center mv-justify-between mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
-      <div className="mv-flex mv-items-center mv-gap-4 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
+    <div className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
+      <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
         {children}
       </div>
       <div className="mv-flex-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
@@ -636,7 +669,7 @@ function TopicItem(
       to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4";
+          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-[38px] mv-pr-2 mv-py-4";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
         }

@@ -51,7 +51,7 @@ export function NavBar(props: NavBarProps) {
         </a>
       </div>
       <header id="header" className={classes}>
-        <div className="mv-flex mv-h-full mv-w-full mv-items-center mv-pr-4 xl:mv-pr-8 mv-overflow-hidden">
+        <div className="mv-flex mv-h-full mv-w-full mv-items-center mv-pr-4 xl:mv-pr-6 mv-overflow-hidden">
           <Link
             to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
             className={`mv-ml-4 mv-mr-2 ${
@@ -144,9 +144,9 @@ export function NavBar(props: NavBarProps) {
             </div>
 
             {props.sessionUserInfo !== undefined ? (
-              <div className="mv-flex-col mv-items-center mv-hidden xl:mv-flex">
+              <div className="mv-w-12 mv-h-12 mv-hidden xl:mv-block">
                 <Avatar
-                  size="xs"
+                  size="full"
                   firstName={props.sessionUserInfo.firstName}
                   lastName={props.sessionUserInfo.lastName}
                   avatar={props.sessionUserInfo.avatar}
@@ -157,11 +157,6 @@ export function NavBar(props: NavBarProps) {
                       : "/"
                   }
                 />
-
-                <div className="mv-text-sm mv-font-semibold mv-text-primary mv-cursor-default">
-                  {props.sessionUserInfo.firstName}{" "}
-                  {props.sessionUserInfo.lastName}
-                </div>
               </div>
             ) : (
               <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
@@ -169,7 +164,7 @@ export function NavBar(props: NavBarProps) {
                   <Button
                     to={`/login?login_redirect=${location.pathname}`}
                     as="link"
-                    variant="ghost"
+                    variant="outline"
                   >
                     {props.locales !== undefined
                       ? props.locales.route.root.login

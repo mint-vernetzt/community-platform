@@ -6,10 +6,9 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
     <div className="mv-flex mv-flex-row mv-items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="56"
-        height="56"
+        width="48"
+        height="48"
         viewBox="0 0 56 56"
-        className="mv-w-10 mv-h-10 lg:mv-w-auto lg:mv-h-auto"
         aria-hidden="true"
       >
         <g fill="none">
