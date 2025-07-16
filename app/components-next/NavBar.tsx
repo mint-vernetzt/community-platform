@@ -144,9 +144,9 @@ export function NavBar(props: NavBarProps) {
             </div>
 
             {props.sessionUserInfo !== undefined ? (
-              <div className="mv-flex-col mv-items-center mv-hidden xl:mv-flex">
+              <div className="mv-w-12 mv-h-12 mv-hidden xl:mv-block">
                 <Avatar
-                  size="xs"
+                  size="full"
                   firstName={props.sessionUserInfo.firstName}
                   lastName={props.sessionUserInfo.lastName}
                   avatar={props.sessionUserInfo.avatar}
@@ -157,11 +157,6 @@ export function NavBar(props: NavBarProps) {
                       : "/"
                   }
                 />
-
-                <div className="mv-text-sm mv-font-semibold mv-text-primary mv-cursor-default">
-                  {props.sessionUserInfo.firstName}{" "}
-                  {props.sessionUserInfo.lastName}
-                </div>
               </div>
             ) : (
               <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
