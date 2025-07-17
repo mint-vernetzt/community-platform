@@ -417,11 +417,13 @@ export default function App() {
   let isProjectSettings = false;
   let isOrganizationSettings = false;
   let isDashboard = false;
+  let isExplore = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
       matches[1].id === "routes/organization/$slug/settings";
     isDashboard = matches[1].id === "routes/dashboard";
+    isExplore = matches[1].id === "routes/explore";
     const otherSettingsRoutes = [
       "routes/profile/$username/settings",
       "routes/organization/$slug/settings",
@@ -500,7 +502,7 @@ export default function App() {
                 : ""
             }`}
           >
-            {isDashboard === false ? (
+            {isDashboard === false && isExplore === false ? (
               <NavBar
                 sessionUserInfo={sessionUserInfo}
                 openMainMenuKey={openMainMenuKey}
