@@ -518,8 +518,8 @@ export default function ExploreAll() {
       {/* Profile Card Section */}
       {loaderData.profiles.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
               {loaderData.locales.index.content.profiles}
             </h2>
             <div className="mv-text-right">
@@ -553,8 +553,8 @@ export default function ExploreAll() {
       {/* Organization Card Section */}
       {loaderData.organizations.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
               {loaderData.locales.index.content.organizations}
             </h2>
             <div className="mv-text-right">
@@ -588,8 +588,8 @@ export default function ExploreAll() {
       {/* Event Card Section */}
       {loaderData.events.length > 0 ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
               {loaderData.locales.index.content.events}
             </h2>
             <div className="mv-text-right">
@@ -642,8 +642,8 @@ export default function ExploreAll() {
       {/* Project Card Section */}
       {loaderData.projects.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
               {loaderData.locales.index.content.projects}
             </h2>
             <div className="mv-text-right">
@@ -677,8 +677,8 @@ export default function ExploreAll() {
       {/* Funding Card Section */}
       {loaderData.fundings.length > 0 ? (
         <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-6 mv-px-4 @xl:mv-px-6 @lg:mv-mb-8 mv-flex-nowrap mv-items-end mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7">
+          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
+            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
               {loaderData.locales.index.content.fundings}
             </h2>
             <div className="mv-text-right">
