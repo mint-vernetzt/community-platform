@@ -9,6 +9,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
@@ -75,6 +76,7 @@ import {
 } from "./utils.server";
 import { useEffect, useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import Search from "~/components/Search/Search";
 
 export function links() {
   return [
@@ -703,6 +705,9 @@ function Dashboard() {
   const location = useLocation();
   const isSubmitting = useIsSubmitting();
 
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("search");
+
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
 
@@ -820,8 +825,8 @@ function Dashboard() {
                   </button>
                 </div>
               </div>
-              <div className="mv-flex mv-flex-col mv-gap-2 mv-mt-2 mv-mb-4 mv-text-center">
-                <h1 className="mv-text-[2.25rem] @md:mv-text-[2.5rem] mv-font-black mv-text-primary-500 mv-leading-[3.25rem]">
+              <div className="mv-flex mv-flex-col mv-mt-2 mv-mb-4 mv-text-center mv-gap-2">
+                <h1 className="mv-text-[2.25rem] @md:mv-text-[2.5rem] mv-font-black mv-text-primary-500 mv-leading-[3.25rem] mv-mb-0">
                   {insertParametersIntoLocale(
                     loaderData.locales.route.content.header.welcome,
                     {
@@ -841,6 +846,19 @@ function Dashboard() {
               >
                 {loaderData.locales.route.content.header.cta}
               </Button>
+            </div>
+            <div className="mv-hidden @md:mv-block mv-px-8 mv-mt-12 mv-w-full mv-z-10">
+              <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-p-6 mv-bg-white mv-rounded-xl mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                <h2 className="mv-text-2xl mv-font-bold mv-text-primary-500 mv-mb-0">
+                  Entdecke die Community und finde neue Förderungen
+                </h2>
+                <Form method="get" action="/explore/all">
+                  <Search
+                    inputProps={{ id: "search-bar", name: "search" }}
+                    query={query}
+                  />
+                </Form>
+              </div>
             </div>
           </div>
         </section>

@@ -416,10 +416,12 @@ export default function App() {
   let isSettings = false;
   let isProjectSettings = false;
   let isOrganizationSettings = false;
+  let isDashboard = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
       matches[1].id === "routes/organization/$slug/settings";
+    isDashboard = matches[1].id === "routes/dashboard";
     const otherSettingsRoutes = [
       "routes/profile/$username/settings",
       "routes/organization/$slug/settings",
@@ -498,11 +500,21 @@ export default function App() {
                 : ""
             }`}
           >
-            <NavBar
-              sessionUserInfo={sessionUserInfo}
-              openMainMenuKey={openMainMenuKey}
-              locales={locales}
-            />
+            {isDashboard === false ? (
+              <NavBar
+                sessionUserInfo={sessionUserInfo}
+                openMainMenuKey={openMainMenuKey}
+                locales={locales}
+              />
+            ) : (
+              <div className="md:mv-hidden">
+                <NavBar
+                  sessionUserInfo={sessionUserInfo}
+                  openMainMenuKey={openMainMenuKey}
+                  locales={locales}
+                />
+              </div>
+            )}
           </div>
           {isIndexRoute === false && isNonAppBaseRoute === false && (
             <div
