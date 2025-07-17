@@ -126,14 +126,14 @@ export function NavBar(props: NavBarProps) {
                       "Search..."
                     )
                   ) : (
-                    <>
+                    <div className="mv-mt-3">
                       <span className="xl:mv-hidden">
                         {props.locales.route.root.search.placeholder.default}
                       </span>
                       <span className="mv-hidden xl:mv-inline">
                         {props.locales.route.root.search.placeholder.xl}
                       </span>
-                    </>
+                    </div>
                   )}
                 </label>
               </Search>
