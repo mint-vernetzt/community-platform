@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 
@@ -47,6 +48,8 @@ function Search(props: SearchProps) {
       }
     };
   }, []);
+
+  const isHydrated = useHydrated();
 
   return (
     <div className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center mv-overflow-hidden">
@@ -99,9 +102,11 @@ function Search(props: SearchProps) {
                   />
                 </svg>
               </div>
-              <div className="mv-font-base mv-font-semibold mv-text-neutral-500 mv--mt-3">
-                {children}
-              </div>
+              {isHydrated && (
+                <div className="mv-font-base mv-font-semibold mv-text-neutral-500 mv--mt-3">
+                  {children}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -109,6 +114,7 @@ function Search(props: SearchProps) {
         <input
           className="mv-w-full mv-h-10 xl:mv-h-12 mv-outline-none mv-bg-neutral-100 xl:mv-bg-neutral-50 mv-min-w-[230px] mv-rounded-lg mv-border mv-border-neutral-100 xl:mv-border-neutral-200 mv-py-2 mv-pl-9 xl:mv-pl-4 mv-pr-4 mv-text-base mv-font-semibold mv-text-neutral-700 mv-appearance-none mv-leading-6 focus:mv-border-primary-200"
           aria-placeholder={placeholder}
+          placeholder={isHydrated === false ? placeholder : undefined}
           minLength={minLength || 3}
           value={value}
           onChange={handleChange}

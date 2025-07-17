@@ -711,7 +711,6 @@ function DashboardSearchPlaceholderRotation(props: {
   useEffect(() => {
     const interval = setInterval(
       () => {
-        console.log("Rotating search placeholder");
         if (count >= props.locales.length + 1) {
           setCount(0);
         } else {
@@ -780,7 +779,16 @@ function DashboardSearch(props: {
         </h2>
         <Form method="get" action="/explore/all">
           <Search
-            inputProps={{ id: "search-bar", name: "search" }}
+            inputProps={{
+              id: "search-bar",
+              name: "search",
+              placeholder:
+                typeof props.locales === "undefined"
+                  ? DEFAULT_LANGUAGE === "de"
+                    ? "Suche..."
+                    : "Search..."
+                  : props.locales.placeholder.default,
+            }}
             query={query}
           >
             <label className="mv-line-clamp-1">
