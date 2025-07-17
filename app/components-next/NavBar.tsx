@@ -116,7 +116,11 @@ export function NavBar(props: NavBarProps) {
                   name: "search",
                 }}
                 query={query}
-                locales={props.locales}
+                locales={
+                  typeof props.locales === "undefined"
+                    ? undefined
+                    : props.locales.route.root.search
+                }
               >
                 <label className="mv-line-clamp-1">
                   {typeof props.locales === "undefined" ? (

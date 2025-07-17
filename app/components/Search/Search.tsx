@@ -5,7 +5,7 @@ import { type RootLocales } from "~/root.server";
 
 export interface SearchProps {
   query?: string | null;
-  locales?: RootLocales;
+  locales?: RootLocales["route"]["root"]["search"];
   inputProps: React.HTMLProps<HTMLInputElement>;
   children?: React.ReactNode;
 }
@@ -129,7 +129,7 @@ function Search(props: SearchProps) {
               onClick={handleClear}
               aria-label={
                 locales !== undefined
-                  ? locales.route.root.search.clear
+                  ? locales.clear
                   : DEFAULT_LANGUAGE === "de"
                   ? "Suchleiste leeren"
                   : "Clear search field"

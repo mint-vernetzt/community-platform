@@ -1,5 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import {
+  Form,
   type LoaderFunctionArgs,
   Outlet,
   useLoaderData,
@@ -20,6 +21,8 @@ import { getFilterSchemes } from "./explore/all.shared";
 import { getEventIds } from "./explore/events.server";
 import { getFundingIds } from "./explore/fundings.server";
 import { getProjectIds } from "./explore/projects.server";
+import Search from "~/components/Search/Search";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -106,6 +109,7 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+  const query = searchParams.get("search");
   const links = [
     {
       pathname: "/explore/all",
@@ -187,7 +191,7 @@ export default function Explore() {
             : ""
         }`}
       >
-        <h1 className="mv-font-black mv-text-5xl mv-text-center mv-mt-4 mv-mb-8 mv-word-break-normal mv-px-4">
+        <h1 className="mv-font-black mv-text-6xl mv-text-center mv-mt-8 mv-mb-8 mv-word-break-normal mv-px-4">
           {searchParams.has("search") && searchParams.get("search") !== ""
             ? insertParametersIntoLocale(
                 loaderData.locales.route.content.searchHeadline,
@@ -195,7 +199,50 @@ export default function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-items-center mv-justify-center @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 mv-px-4 @lg:mv-bg-white">
+        <div className="mv-flex mv-flex-col mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
+          <div className="mv-hidden @lg:mv-block mv-w-full">
+            <Form method="get" action="/explore/all">
+              <Search
+                inputProps={{
+                  id: "search-bar",
+                  placeholder:
+                    typeof loaderData.locales.route.content.search
+                      .placeholder === "undefined"
+                      ? DEFAULT_LANGUAGE === "de"
+                        ? "Suche..."
+                        : "Search..."
+                      : loaderData.locales.route.content.search.placeholder
+                          .default,
+                  name: "search",
+                }}
+                query={query}
+                locales={loaderData.locales.route.content.search}
+              >
+                <label className="mv-line-clamp-1">
+                  {typeof loaderData.locales.route.content.search
+                    .placeholder === "undefined" ? (
+                    DEFAULT_LANGUAGE === "de" ? (
+                      "Suche..."
+                    ) : (
+                      "Search..."
+                    )
+                  ) : (
+                    <div className="mv-mt-3">
+                      <span className="xl:mv-hidden">
+                        {
+                          loaderData.locales.route.content.search.placeholder
+                            .default
+                        }
+                      </span>
+                      <span className="mv-hidden xl:mv-inline">
+                        {loaderData.locales.route.content.search.placeholder.xl}
+                      </span>
+                    </div>
+                  )}
+                </label>
+              </Search>
+            </Form>
+          </div>
           <EntitiesSelect>
             <EntitiesSelect.Menu.Label>
               {loaderData.locales.route.content.menu.label}
