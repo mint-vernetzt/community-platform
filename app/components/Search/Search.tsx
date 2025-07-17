@@ -49,7 +49,7 @@ function Search(props: SearchProps) {
   }, []);
 
   return (
-    <div className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center">
+    <div className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center mv-overflow-hidden">
       <div className="mv-relative mv-group mv-w-full">
         <div className="mv-absolute mv-left-1.5 mv-top-1 xl:mv-top-2 mv-w-full mv-flex mv-gap-2 xl:mv-flex-row-reverse xl:mv-justify-between mv-px-1 xl:mv-px-3 mv-py-1 mv-pointer-events-none">
           <div className="mv-mt-0.5 xl:mv-hidden">
@@ -68,7 +68,7 @@ function Search(props: SearchProps) {
           </div>
           <button
             tabIndex={-1}
-            className="mv-hidden xl:group-focus-within:mv-block mv-mt-0.5 xl:mv-mr-0.5 xl:mv--mt-1 xl:mv-p-1.5 mv-rounded-lg mv-bg-transparent xl:group-focus-within:mv-bg-primary-500 mv-pointer-events-auto"
+            className="mv-hidden mv-h-8 xl:group-focus-within:mv-block mv-mt-0.5 xl:mv-mr-0.5 xl:mv--mt-1 xl:mv-p-1.5 mv-rounded-lg mv-bg-transparent xl:group-focus-within:mv-bg-primary-500 mv-pointer-events-auto"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +99,7 @@ function Search(props: SearchProps) {
                   />
                 </svg>
               </div>
-              <div className="mv-font-base mv-font-semibold mv-text-neutral-500">
+              <div className="mv-font-base mv-font-semibold mv-text-neutral-500 mv--mt-3">
                 {children}
               </div>
             </>

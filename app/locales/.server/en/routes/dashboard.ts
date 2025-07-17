@@ -20,9 +20,23 @@ export const locale = {
       subline: "to your MINTvernetzt Community!",
       cta: "View my profile",
     },
+    search: {
+      headline: "Discover the community and find new funding opportunities",
+      placeholder: {
+        default: "Search...",
+        xl: "Search for",
+        rotation: [
+          "inspiration from the STEM world",
+          "organizations",
+          "funding",
+          "events",
+          "people",
+        ],
+      },
+    },
     cropper: {
       avatar: {
-        headline: "Profilbild ändern",
+        headline: "Change profile picture",
       },
     },
     updateTeasers: {

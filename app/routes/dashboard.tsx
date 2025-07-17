@@ -65,6 +65,7 @@ import {
   getUpcomingCanceledEvents,
   getNetworkInvites,
   getNetworkRequests,
+  type DashboardLocales,
 } from "./dashboard.server";
 import { getFeatureAbilities } from "./feature-access.server";
 import { disconnectImage, uploadImage } from "./profile/$username/index.server";
@@ -77,6 +78,8 @@ import {
 import { useEffect, useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import Search from "~/components/Search/Search";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
+import classNames from "classnames";
 
 export function links() {
   return [
@@ -699,14 +702,120 @@ export const action = async (args: ActionFunctionArgs) => {
   return redirectWithToast(redirectUrl, toast);
 };
 
+function DashboardSearchPlaceholderRotation(props: {
+  locales: DashboardLocales["route"]["content"]["search"]["placeholder"]["rotation"];
+}) {
+  const [count, setCount] = useState(0);
+  const defaultClasses = "mv-text-neutral-700 mv-flex mv-flex-col mv-gap-3";
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        console.log("Rotating search placeholder");
+        if (count >= props.locales.length + 1) {
+          setCount(0);
+        } else {
+          setCount((prevCount) => prevCount + 1);
+        }
+      },
+      count === 0 ? 2000 : 3000
+    );
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [count, props.locales.length]);
+
+  const [classes, setClasses] = useState(defaultClasses);
+
+  useEffect(() => {
+    const newClasses = classNames(
+      defaultClasses,
+      count === 0 && "mv-mt-0",
+      count === 1 && "mv-mt-[-2.25rem]",
+      count === 2 && "mv-mt-[-4.5rem]",
+      count === 3 && "mv-mt-[-6.75rem]",
+      count === 4 && "mv-mt-[-9rem]",
+      count === 5 && "mv-mt-[-11.25rem]",
+      count <= 5 && count > 0 && "mv-transition-margin mv-duration-1000"
+    );
+    setClasses(newClasses);
+
+    let timeout = null;
+    if (count >= props.locales.length) {
+      timeout = setTimeout(() => {
+        setClasses(defaultClasses);
+        setCount(0);
+      }, 1000);
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [count, defaultClasses, props.locales.length]);
+
+  return (
+    <div className={classes}>
+      {props.locales.map((item, index) => {
+        return <div key={index}>{item}</div>;
+      })}
+      <div key={props.locales.length}>{props.locales[0]}</div>
+    </div>
+  );
+}
+
+function DashboardSearch(props: {
+  locales: DashboardLocales["route"]["content"]["search"];
+}) {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("search");
+
+  return (
+    <div className="mv-hidden @md:mv-block mv-px-8 mv-mt-12 mv-w-full mv-z-10">
+      <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-p-6 mv-bg-white mv-rounded-xl mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+        <h2 className="mv-text-2xl mv-font-bold mv-text-primary-500 mv-mb-0">
+          {props.locales.headline}
+        </h2>
+        <Form method="get" action="/explore/all">
+          <Search
+            inputProps={{ id: "search-bar", name: "search" }}
+            query={query}
+          >
+            <label className="mv-line-clamp-1">
+              {typeof props.locales === "undefined" ? (
+                DEFAULT_LANGUAGE === "de" ? (
+                  "Suche..."
+                ) : (
+                  "Search..."
+                )
+              ) : (
+                <>
+                  <div className="xl:mv-hidden mv-mt-3">
+                    {props.locales.placeholder.default}
+                  </div>
+                  <div className="mv-hidden xl:mv-flex mv-gap-1 mv-mt-[0.75rem]">
+                    <div className="">{props.locales.placeholder.xl}</div>
+                    <DashboardSearchPlaceholderRotation
+                      locales={props.locales.placeholder.rotation}
+                    />
+                  </div>
+                </>
+              )}
+            </label>
+          </Search>
+        </Form>
+      </div>
+    </div>
+  );
+}
+
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const location = useLocation();
   const isSubmitting = useIsSubmitting();
-
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
 
   const updateTeasers = getDataForUpdateTeasers();
   const newsTeasers = getDataForNewsTeasers();
@@ -847,19 +956,9 @@ function Dashboard() {
                 {loaderData.locales.route.content.header.cta}
               </Button>
             </div>
-            <div className="mv-hidden @md:mv-block mv-px-8 mv-mt-12 mv-w-full mv-z-10">
-              <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-p-6 mv-bg-white mv-rounded-xl mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-                <h2 className="mv-text-2xl mv-font-bold mv-text-primary-500 mv-mb-0">
-                  Entdecke die Community und finde neue Förderungen
-                </h2>
-                <Form method="get" action="/explore/all">
-                  <Search
-                    inputProps={{ id: "search-bar", name: "search" }}
-                    query={query}
-                  />
-                </Form>
-              </div>
-            </div>
+            <DashboardSearch
+              locales={loaderData.locales.route.content.search}
+            />
           </div>
         </section>
       }

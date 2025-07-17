@@ -20,6 +20,20 @@ export const locale = {
       subline: "in Deiner MINTvernetzt-Community!",
       cta: "Mein Profil besuchen",
     },
+    search: {
+      headline: "Entdecke die Community und finde neue Förderungen",
+      placeholder: {
+        default: "Suche...",
+        xl: "Suche nach",
+        rotation: [
+          "Inspiration aus der MINT-Welt",
+          "Organisationen",
+          "Förderungen",
+          "Events",
+          "Personen",
+        ],
+      },
+    },
     cropper: {
       avatar: {
         headline: "Profilbild ändern",
