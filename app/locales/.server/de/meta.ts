@@ -4,8 +4,8 @@ export const locale = {
     toDashboard: "Zum Dashboard",
     community: "Community",
     skipNavBar: {
-      start: "Suchleiste überspringen",
-      end: "Zurück zum Anfang der Suchleiste",
+      start: "Navigationsleiste überspringen",
+      end: "Zurück zum Anfang der Navigationsleiste",
     },
     skipMainMenu: {
       start: "Hauptmenü überspringen",

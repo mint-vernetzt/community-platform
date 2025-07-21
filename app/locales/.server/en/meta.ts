@@ -4,8 +4,8 @@ export const locale = {
     toDashboard: "To the dashboard",
     community: "Community",
     skipNavBar: {
-      start: "Skip search bar",
-      end: "Back to the start of the search bar",
+      start: "Skip navigation bar",
+      end: "Back to the start of the navigation bar",
     },
     skipMainMenu: {
       start: "Skip main menu",
