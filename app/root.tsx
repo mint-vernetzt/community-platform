@@ -496,11 +496,11 @@ export default function App() {
           }`}
         >
           <div
-            className={`${showFilters ? "mv-hidden @lg:mv-block " : " "}${
+            className={`${showFilters ? "mv-hidden @lg:mv-block " : ""}${
               isProjectSettings || isOrganizationSettings
-                ? "mv-hidden @md:mv-block"
+                ? "mv-hidden @md:mv-block "
                 : ""
-            }`}
+            }mv-sticky mv-top-0 mv-z-10`}
           >
             {isDashboard === false && isExplore === false ? (
               <NavBar
