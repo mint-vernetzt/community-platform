@@ -570,7 +570,7 @@ export default function Index() {
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-mb-20">
         <div className="mv-flex mv-flex-col @lg:mv-flex-row mv--mx-4">
           <div className="mv-flex-gridcol @lg:mv-w-5/12 mv-px-4 mv-pt-10 @lg:mv-pt-0">
-            <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 @md:mv-pb-5 mv-rounded-3xl mv-border mv-border-neutral-100 mv-bg-neutral-50 mv-shadow-lg @lg:mv-ml-14 -mv-mt-2 @lg:-mv-mt-44 mv-sticky mv-top-4">
+            <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 @md:mv-pb-5 mv-rounded-3xl mv-border mv-border-neutral-100 mv-bg-neutral-50 mv-shadow-lg @lg:mv-ml-14 -mv-mt-2 @lg:-mv-mt-44 mv-sticky mv-top-24">
               <div className="mv-flex mv-items-center mv-flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" ? (
