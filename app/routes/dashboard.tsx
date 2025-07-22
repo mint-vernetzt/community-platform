@@ -1000,7 +1000,7 @@ function Dashboard() {
               )}
             </div>
             <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.invites.headline_one,
@@ -1010,7 +1010,7 @@ function Dashboard() {
                   { count: loaderData.organizationMemberInvites.length }
                 )}
               </h3>
-              <p className="mv-text-normal mv-text-sm">
+              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.invites.description,
                   [
@@ -1022,7 +1022,11 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="link" to="/my/organizations">
+            <Button
+              as="link"
+              to="/my/organizations"
+              className="mv-w-full @lg:mv-w-fit"
+            >
               {loaderData.locales.route.content.invites.linkDescription}
             </Button>
           </div>
@@ -1058,7 +1062,7 @@ function Dashboard() {
               )}
             </div>
             <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.requests.headline_one,
@@ -1068,7 +1072,7 @@ function Dashboard() {
                   { count: loaderData.organizationMemberRequests.length }
                 )}
               </h3>
-              <p className="mv-text-normal mv-text-sm">
+              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.requests.description,
                   [
@@ -1080,7 +1084,11 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="link" to="/my/organizations">
+            <Button
+              as="link"
+              to="/my/organizations"
+              className="mv-w-full @lg:mv-w-fit"
+            >
               {loaderData.locales.route.content.requests.linkDescription}
             </Button>
           </div>
@@ -1116,7 +1124,7 @@ function Dashboard() {
               )}
             </div>
             <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkInvites
@@ -1128,7 +1136,7 @@ function Dashboard() {
                   { count: loaderData.networkInvites.length }
                 )}
               </h3>
-              <p className="mv-text-normal mv-text-sm">
+              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.networkInvites.description,
                   [
@@ -1140,7 +1148,11 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="link" to="/my/organizations">
+            <Button
+              as="link"
+              to="/my/organizations"
+              className="mv-w-full @lg:mv-w-fit"
+            >
               {loaderData.locales.route.content.networkInvites.linkDescription}
             </Button>
           </div>
@@ -1176,7 +1188,7 @@ function Dashboard() {
               )}
             </div>
             <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-neutral-700 mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkRequests
@@ -1188,7 +1200,7 @@ function Dashboard() {
                   { count: loaderData.networkRequests.length }
                 )}
               </h3>
-              <p className="mv-text-normal mv-text-sm">
+              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.networkRequests.description,
                   [
@@ -1200,7 +1212,11 @@ function Dashboard() {
                 )}
               </p>
             </div>
-            <Button as="link" to="/my/organizations">
+            <Button
+              as="link"
+              to="/my/organizations"
+              className="mv-w-full @lg:mv-w-fit"
+            >
               {loaderData.locales.route.content.networkRequests.linkDescription}
             </Button>
           </div>
@@ -1250,7 +1266,7 @@ function Dashboard() {
                 return (
                   <li
                     key={`canceled-event-${event.slug}`}
-                    className={`mv-w-full mv-min-h-[110px] mv-overflow-hidden p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
+                    className={`mv-w-full mv-min-h-[110px] mv-overflow-hidden mv-p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
                       index > 1
                         ? "mv-hidden group-has-[:checked]:mv-flex"
                         : "mv-flex"
