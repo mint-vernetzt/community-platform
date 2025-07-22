@@ -159,7 +159,7 @@ function OrganizationCard(
           <AvatarList
             visibleAvatars={2}
             moreIndicatorProps={{
-              to: `/organization/${organization.slug}/#team-members`,
+              to: `/organization/${organization.slug}/detail/team`,
             }}
           >
             {organization.teamMembers.map((profile) => {
