@@ -345,7 +345,7 @@ function ImageCropper(props: ImageCropperProps) {
                   key={INTENT_FIELD_NAME}
                 />
                 <button
-                  className={`mv-bg-transparent mv-w-8 mv-h-8 mv-p-0 mv-border-transparent mv-absolute ${
+                  className={`mv-bg-transparent mv-w-8 mv-h-8 mv-p-0 mv-absolute ${
                     uploadKey === "logo" || uploadKey === "avatar"
                       ? "mv-top-1 mv-right-1"
                       : "-mv-top-3 -mv-right-3"
@@ -361,6 +361,7 @@ function ImageCropper(props: ImageCropperProps) {
                     }
                   }}
                   disabled={isSubmitting}
+                  aria-label={locales.imageCropper.imageCropper.disconnect}
                 >
                   <svg
                     width="32"
@@ -369,6 +370,7 @@ function ImageCropper(props: ImageCropperProps) {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="mv-w-full mv-h-auto"
+                    aria-hidden="true"
                   >
                     <circle cx="16" cy="16" r="16" fill="#EE7775" />
                     <path
@@ -452,7 +454,8 @@ function ImageCropper(props: ImageCropperProps) {
               }),
               id: `${uploadKey}-${FILE_FIELD_NAME}`,
               key: `${uploadKey}-${FILE_FIELD_NAME}`,
-              className: "mv-hidden",
+              className:
+                "mv-peer mv-opacity-0 mv-pointer-events-none mv-w-0 mv-h-0 mv-fixed mv-top-0 mv-left-0",
               accept: IMAGE_MIME_TYPES.join(", "),
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                 onSelectFile(event);
