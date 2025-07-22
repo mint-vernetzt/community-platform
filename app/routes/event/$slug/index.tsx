@@ -1481,8 +1481,12 @@ function Index() {
               </>
             ) : null}
             {loaderData.event.childEvents.length > 0 ? (
-              <>
-                <h2 id="child-events" className="mv-mt-16 mv-font-bold">
+              <div className="mv-relative">
+                <div
+                  id="child-events"
+                  className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+                />
+                <h2 className="mv-mt-16 mv-font-bold">
                   {locales.route.content.event.relatedEvents}
                 </h2>
                 <p className="mv-mb-8">
@@ -1699,7 +1703,7 @@ function Index() {
                 >
                   {locales.route.content.event.backToRelatedEvents}
                 </a>
-              </>
+              </div>
             ) : null}
 
             {loaderData.event.teamMembers.length > 0 ? (
@@ -1765,11 +1769,12 @@ function Index() {
               </>
             ) : null}
             {loaderData.event.responsibleOrganizations.length > 0 ? (
-              <>
-                <h2
+              <div className="mv-relative">
+                <div
                   id="responsible-organizations"
-                  className="mv-mt-16 mv-mb-8 mv-font-bold"
-                >
+                  className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+                />
+                <h2 className="mv-mt-16 mv-mb-8 mv-font-bold">
                   {locales.route.content.event.organizedBy}
                 </h2>
                 <a
@@ -1848,7 +1853,7 @@ function Index() {
                 >
                   {locales.route.content.event.backToOrganizedBy}
                 </a>
-              </>
+              </div>
             ) : null}
 
             {loaderData.event.participants !== null &&

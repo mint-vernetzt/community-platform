@@ -405,10 +405,8 @@ export default function Index() {
         </div>
       </section>
 
-      <section
-        className="mv-py-16 @lg:mv-py-24 mv-relative mv-bg-accent-100"
-        id="intro"
-      >
+      <section className="mv-py-16 @lg:mv-py-24 mv-relative mv-bg-accent-100">
+        <div id="intro" className="mv-absolute -mv-top-[76px] xl:-mv-top-20" />
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
           <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
             <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
