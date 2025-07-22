@@ -496,27 +496,30 @@ export default function App() {
           }`}
         >
           <div
-            className={`${showFilters ? "mv-hidden @lg:mv-block " : " "}${
+            className={`${showFilters ? "mv-hidden @lg:mv-block " : ""}${
               isProjectSettings || isOrganizationSettings
-                ? "mv-hidden @md:mv-block"
+                ? "mv-hidden @md:mv-block "
                 : ""
-            }`}
+            }mv-sticky mv-top-0 mv-z-20`}
           >
-            {isDashboard === false && isExplore === false ? (
-              <NavBar
-                sessionUserInfo={sessionUserInfo}
-                openMainMenuKey={openMainMenuKey}
-                locales={locales}
-              />
-            ) : (
-              <div className="md:mv-hidden">
-                <NavBar
-                  sessionUserInfo={sessionUserInfo}
-                  openMainMenuKey={openMainMenuKey}
-                  locales={locales}
-                />
-              </div>
-            )}
+            <NavBar
+              sessionUserInfo={sessionUserInfo}
+              openMainMenuKey={openMainMenuKey}
+              locales={locales}
+              hideSearchBar={
+                isDashboard
+                  ? {
+                      untilScrollY: 570,
+                      afterBreakpoint: "@md",
+                    }
+                  : isExplore
+                  ? {
+                      untilScrollY: 274,
+                      afterBreakpoint: "@lg",
+                    }
+                  : undefined
+              }
+            />
           </div>
           {isIndexRoute === false && isNonAppBaseRoute === false && (
             <div

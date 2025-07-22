@@ -7,11 +7,16 @@ import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { Icon } from "./icons/Icon";
 import { HeaderLogo } from "./HeaderLogo";
+import { useEffect, useState } from "react";
 
 type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
   openMainMenuKey: string;
   locales?: RootLocales;
+  hideSearchBar?: {
+    untilScrollY: number;
+    afterBreakpoint: "@md" | "@lg";
+  };
 };
 
 type SessionUserInfo = {
@@ -35,6 +40,29 @@ export function NavBar(props: NavBarProps) {
       "mv-hidden xl:mv-block"
   );
 
+  const [hideSearchBar, setHideSearchBar] = useState(
+    typeof props.hideSearchBar !== "undefined" ? true : false
+  );
+
+  useEffect(() => {
+    if (typeof props.hideSearchBar !== "undefined") {
+      const handleScroll = () => {
+        if (typeof props.hideSearchBar !== "undefined") {
+          const { scrollY } = window;
+          if (scrollY > props.hideSearchBar.untilScrollY) {
+            setHideSearchBar(false);
+          } else {
+            setHideSearchBar(true);
+          }
+        }
+      };
+      document.addEventListener("scroll", handleScroll);
+      return () => {
+        document.removeEventListener("scroll", handleScroll);
+      };
+    }
+  });
+
   return (
     <div className="mv-flex mv-w-full mv-overflow-hidden">
       <div className="mv-h-[76px] xl:mv-h-20 mv-flex mv-items-center focus-within:mv-px-2">
@@ -46,8 +74,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
             : DEFAULT_LANGUAGE === "de"
-            ? "Suchleiste überspringen"
-            : "Skip search bar"}
+            ? "Navigationsleiste überspringen"
+            : "Skip navigation bar"}
         </a>
       </div>
       <header id="header" className={classes}>
@@ -103,45 +131,56 @@ export function NavBar(props: NavBarProps) {
           )}
 
           <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-w-full mv-items-center">
-            <Form className="mv-flex-grow" method="get" action="/explore/all">
-              <Search
-                inputProps={{
-                  id: "search-bar",
-                  placeholder:
-                    typeof props.locales === "undefined"
-                      ? DEFAULT_LANGUAGE === "de"
-                        ? "Suche..."
-                        : "Search..."
-                      : props.locales.route.root.search.placeholder.default,
-                  name: "search",
-                }}
-                query={query}
-                locales={
-                  typeof props.locales === "undefined"
-                    ? undefined
-                    : props.locales.route.root.search
+            <div className="mv-flex-grow">
+              <Form
+                className={
+                  hideSearchBar === true &&
+                  typeof props.hideSearchBar !== "undefined"
+                    ? `mv-block ${props.hideSearchBar.afterBreakpoint}:mv-hidden`
+                    : "mv-w-full"
                 }
+                method="get"
+                action="/explore/all"
               >
-                <label className="mv-line-clamp-1">
-                  {typeof props.locales === "undefined" ? (
-                    DEFAULT_LANGUAGE === "de" ? (
-                      "Suche..."
+                <Search
+                  inputProps={{
+                    id: "search-bar",
+                    placeholder:
+                      typeof props.locales === "undefined"
+                        ? DEFAULT_LANGUAGE === "de"
+                          ? "Suche..."
+                          : "Search..."
+                        : props.locales.route.root.search.placeholder.default,
+                    name: "search",
+                  }}
+                  query={query}
+                  locales={
+                    typeof props.locales === "undefined"
+                      ? undefined
+                      : props.locales.route.root.search
+                  }
+                >
+                  <label className="mv-line-clamp-1">
+                    {typeof props.locales === "undefined" ? (
+                      DEFAULT_LANGUAGE === "de" ? (
+                        "Suche..."
+                      ) : (
+                        "Search..."
+                      )
                     ) : (
-                      "Search..."
-                    )
-                  ) : (
-                    <div className="mv-mt-3">
-                      <span className="xl:mv-hidden">
-                        {props.locales.route.root.search.placeholder.default}
-                      </span>
-                      <span className="mv-hidden xl:mv-inline">
-                        {props.locales.route.root.search.placeholder.xl}
-                      </span>
-                    </div>
-                  )}
-                </label>
-              </Search>
-            </Form>
+                      <div className="mv-mt-3">
+                        <span className="xl:mv-hidden">
+                          {props.locales.route.root.search.placeholder.default}
+                        </span>
+                        <span className="mv-hidden xl:mv-inline">
+                          {props.locales.route.root.search.placeholder.xl}
+                        </span>
+                      </div>
+                    )}
+                  </label>
+                </Search>
+              </Form>
+            </div>
 
             <div className="mv-flex-shrink mv-block xl:mv-hidden">
               <Opener openMainMenuKey="mainMenu" locales={props.locales} />
