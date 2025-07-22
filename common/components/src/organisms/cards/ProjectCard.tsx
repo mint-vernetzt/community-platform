@@ -83,7 +83,12 @@ function ProjectCard(
           </div>
         </Card.Body>
         <Card.Footer>
-          <Avatar.List visibleAvatars={2}>
+          <Avatar.List
+            visibleAvatars={2}
+            moreIndicatorProps={{
+              to: `/project/${project.slug}/detail/about#responsible-organizations`,
+            }}
+          >
             {project.responsibleOrganizations.map((item) => {
               const { organization } = item;
               return (
