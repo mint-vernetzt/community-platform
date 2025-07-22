@@ -71,7 +71,7 @@ export const locale = {
           headline: "Neue Funktion",
           description:
             "Finde passende Förderungen mit unserer neuen Fördermittelsuche",
-          linkDescription: "Jetzt ausprobieren",
+          linkDescription: "Förderung suchen",
         },
         mediaDatabase: {
           headline: "Neues Feature",
