@@ -70,7 +70,7 @@ export const locale = {
         crawler: {
           headline: "New feature",
           description: "Find suitable funding with our new funding search",
-          linkDescription: "Try now",
+          linkDescription: "Search funding",
         },
         mediaDatabase: {
           headline: "New feature",
