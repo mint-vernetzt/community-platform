@@ -57,6 +57,7 @@ export function NavBar(props: NavBarProps) {
         }
       };
       document.addEventListener("scroll", handleScroll);
+      handleScroll();
       return () => {
         document.removeEventListener("scroll", handleScroll);
       };
