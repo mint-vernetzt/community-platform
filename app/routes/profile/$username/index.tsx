@@ -913,10 +913,11 @@ export default function Index() {
             {loaderData.data.memberOf.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
-                <div
-                  id="organizations"
-                  className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center"
-                >
+                <div className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center mv-relative">
+                  <div
+                    id="organizations"
+                    className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+                  />
                   <div className="mv-flex-auto mv-pr-4">
                     <h3 className="mv-mb-0 mv-font-bold">
                       {locales.route.section.organizations.title}

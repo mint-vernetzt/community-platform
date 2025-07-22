@@ -638,10 +638,11 @@ function About() {
         </div>
       )}
       {loaderData.project.responsibleOrganizations.length > 0 && (
-        <div
-          id="responsible-organizations"
-          className="mv-flex mv-flex-col mv-gap-2"
-        >
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-relative">
+          <div
+            id="responsible-organizations"
+            className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+          />
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
             {locales.route.content.responsibleOrganizations}
           </h2>

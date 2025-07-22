@@ -145,7 +145,11 @@ function Index() {
               </p>
             </div>
           </div>
-          <div id="settings" className="mv-basis-6/12 mv-px-4 mv-pb-24">
+          <div className="mv-basis-6/12 mv-px-4 mv-pb-24 mv-relative">
+            <div
+              id="settings"
+              className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+            />
             <main>
               <Outlet />
             </main>

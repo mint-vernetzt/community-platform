@@ -42,7 +42,8 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
   }
 
   return (
-    <li id={props.id} key={`${props.id}-key`}>
+    <li key={`${props.id}-key`} className="mv-relative">
+      <div id={props.id} className="mv-absolute -mv-top-[76px] xl:-mv-top-20" />
       <h2 className="mv-mb-2 @md:mv-mb-3 @xl:mv-mb-5 mv-text-secondary mv-text-3xl mv-font-semibold mv-leading-7">
         {topicLabel}
       </h2>
@@ -56,11 +57,11 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
   const [isExpanded, setIsExpanded] = useState(
     location.hash === `#${props.id}`
   );
-  const listItemRef = useRef<HTMLLIElement>(null);
+  const scrollAnchorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (listItemRef.current !== null && location.hash === `#${props.id}`) {
+    if (scrollAnchorRef.current !== null && location.hash === `#${props.id}`) {
       setIsExpanded(true);
-      listItemRef.current.scrollIntoView({
+      scrollAnchorRef.current.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
@@ -84,11 +85,14 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
 
   return (
     <li
-      ref={listItemRef}
-      id={props.id}
       key={`${props.id}-key`}
-      className="mv-group mv-border-neutral-200 mv-border-b"
+      className="mv-group mv-border-neutral-200 mv-border-b mv-relative"
     >
+      <div
+        ref={scrollAnchorRef}
+        id={props.id}
+        className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+      />
       <label
         htmlFor={`expand-question-${props.id}`}
         className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0 focus-within:mv-underline focus-within:mv-underline-offset-4 focus-within:mv-decoration-2"
