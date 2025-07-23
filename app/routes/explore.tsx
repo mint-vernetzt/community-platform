@@ -109,7 +109,6 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
   const links = [
     {
       pathname: "/explore/all",
@@ -215,7 +214,6 @@ export default function Explore() {
                           .default,
                   name: "search",
                 }}
-                query={query}
                 locales={loaderData.locales.route.content.search}
               >
                 <label className="mv-line-clamp-1">

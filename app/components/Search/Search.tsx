@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
@@ -16,7 +17,9 @@ function Search(props: SearchProps) {
     children,
     inputProps: { placeholder, minLength, ...otherInputProps },
   } = props;
-  const [value, setValue] = useState(props.query || "");
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("search");
+  const [value, setValue] = useState(query !== null ? query : "");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +51,11 @@ function Search(props: SearchProps) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    const query = searchParams.get("search");
+    setValue(query !== null ? query : "");
+  }, [searchParams]);
 
   const isHydrated = useHydrated();
 

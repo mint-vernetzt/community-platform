@@ -9,7 +9,6 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
-  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
@@ -34,7 +33,9 @@ import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/Profi
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { captureException } from "@sentry/node";
+import classNames from "classnames";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
+import { useEffect, useState } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { Icon } from "~/components-next/icons/Icon";
 import { Modal } from "~/components-next/Modal";
@@ -42,7 +43,10 @@ import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
 } from "~/components/ImageCropper/ImageCropper";
+import Search from "~/components/Search/Search";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { DEFAULT_LANGUAGE } from "~/i18n.shared";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   decideBetweenSingularOrPlural,
   insertComponentsIntoLocale,
@@ -56,15 +60,15 @@ import { redirectWithToast } from "~/toast.server";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
-  getOrganizationsForCards,
-  getOrganizationMemberInvites,
-  getProfileById,
-  getProfilesForCards,
-  getOrganizationMemberRequests,
-  getProjectsForCards,
-  getUpcomingCanceledEvents,
   getNetworkInvites,
   getNetworkRequests,
+  getOrganizationMemberInvites,
+  getOrganizationMemberRequests,
+  getOrganizationsForCards,
+  getProfileById,
+  getProfilesForCards,
+  getProjectsForCards,
+  getUpcomingCanceledEvents,
   type DashboardLocales,
 } from "./dashboard.server";
 import { getFeatureAbilities } from "./feature-access.server";
@@ -75,11 +79,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { useEffect, useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import Search from "~/components/Search/Search";
-import { DEFAULT_LANGUAGE } from "~/i18n.shared";
-import classNames from "classnames";
 
 export function links() {
   return [
@@ -768,9 +767,6 @@ function DashboardSearchPlaceholderRotation(props: {
 function DashboardSearch(props: {
   locales: DashboardLocales["route"]["content"]["search"];
 }) {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
-
   return (
     <div className="mv-hidden @md:mv-block mv-px-8 mv-mt-12 mv-w-full mv-z-10">
       <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-p-6 mv-bg-white mv-rounded-xl mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
@@ -789,7 +785,6 @@ function DashboardSearch(props: {
                     : "Search..."
                   : props.locales.placeholder.default,
             }}
-            query={query}
           >
             <label className="mv-line-clamp-1">
               {typeof props.locales === "undefined" ? (

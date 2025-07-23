@@ -1,13 +1,13 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
 import { Form, Link, useLocation, useSearchParams } from "react-router";
 import Search from "~/components/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
-import { Icon } from "./icons/Icon";
 import { HeaderLogo } from "./HeaderLogo";
-import { useEffect, useState } from "react";
+import { Icon } from "./icons/Icon";
 
 type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
@@ -30,7 +30,6 @@ type SessionUserInfo = {
 export function NavBar(props: NavBarProps) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
   const navBarMenuIsOpen = searchParams.get(props.openMainMenuKey);
 
   const classes = classNames(
@@ -154,7 +153,7 @@ export function NavBar(props: NavBarProps) {
                         : props.locales.route.root.search.placeholder.default,
                     name: "search",
                   }}
-                  query={query}
+                  // query={query}
                   locales={
                     typeof props.locales === "undefined"
                       ? undefined
