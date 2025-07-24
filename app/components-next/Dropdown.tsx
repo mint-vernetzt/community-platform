@@ -120,6 +120,14 @@ const DropdownList = forwardRef<
     <div ref={ref} className={classes}>
       <ul>
         {Children.map(props.children, (child) => {
+          const isEnabled =
+            isValidElement(child) &&
+            "props" in child &&
+            typeof child.props === "object" &&
+            child.props !== null &&
+            "disabled" in child.props &&
+            child.props.disabled !== true;
+
           const classes = classNames(
             isValidElement(child) &&
               child.type !== DropdownListDivider &&
@@ -127,12 +135,19 @@ const DropdownList = forwardRef<
               child.type !== DropdownListCategory &&
               child.type !== "div" &&
               child.type !== "p" &&
+              isEnabled &&
               "mv-bg-white hover:mv-bg-gray-100"
           );
 
           return (
             <li className={classes}>
-              <div className="focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-m-[2px]">
+              <div
+                className={
+                  isValidElement(child) && child.type !== "div"
+                    ? "focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-m-[2px]"
+                    : "mv-m-[2px]"
+                }
+              >
                 {child}
               </div>
             </li>
