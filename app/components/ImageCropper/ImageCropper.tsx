@@ -351,12 +351,10 @@ function ImageCropper(props: ImageCropperProps) {
 
     if (buttonId === "scaleDown" && scale > 0.1) {
       const newScale = Math.round((scale - 0.1) * 10) / 10;
-      console.log("scale changed to (Button)", buttonId, newScale);
       setScale(newScale);
     }
     if (buttonId === "scaleUp" && scale < DEFAULT_SCALE * 2) {
       const newScale = Math.round((scale + 0.1) * 10) / 10;
-      console.log("scale changed to (Button)", buttonId, newScale);
       setScale(newScale);
     }
   }
@@ -571,7 +569,6 @@ function ImageCropper(props: ImageCropperProps) {
                 value={scale}
                 // TODO: can this type assertion be removed and proofen by code?
                 onChange={(v) => {
-                  console.log("scale changed to (Slider)", v);
                   return setScale(v as number);
                 }}
               />
