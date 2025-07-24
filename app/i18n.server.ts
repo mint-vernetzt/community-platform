@@ -113,6 +113,11 @@ export function getSlugFromLocaleThatContainsWord(options: {
   word: string;
 }) {
   const { language, locales, word } = options;
+
+  if (word.length === 0) {
+    return;
+  }
+
   const slugs = Object.entries(languageModuleMap[language][locales]).find(
     ([, value]) => {
       if (

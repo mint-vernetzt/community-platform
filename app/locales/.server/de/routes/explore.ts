@@ -8,6 +8,13 @@ export const locale = {
         xl: "Entdecke die Community und finde neue Förderungen...",
       },
       clear: "Suchfeld leeren",
+      entities: {
+        profile: "Person",
+        organization: "Organisation",
+        event: "Event",
+        project: "Projekt",
+        funding: "Förderung",
+      },
     },
     menu: {
       allContent: "Alle Inhalte",

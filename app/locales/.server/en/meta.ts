@@ -37,6 +37,13 @@ export const locale = {
         xl: "Discover the community and find new fundings...",
       },
       clear: "Clear search field",
+      entities: {
+        profile: "Person",
+        organization: "Organization",
+        event: "Event",
+        project: "Project",
+        funding: "Funding",
+      },
     },
     menu: {
       open: "Open main menu",

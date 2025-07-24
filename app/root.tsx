@@ -31,6 +31,7 @@ import { createAuthClient, getSessionUser } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
+import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
@@ -41,12 +42,18 @@ import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
-import { getProfileByUserId } from "./root.server";
+import {
+  getEventTagsBySearchQuery,
+  getFundingTagsBySearchQuery,
+  getOrganizationTagsBySearchQuery,
+  getProfileByUserId,
+  getProfileTagsBySearchQuery,
+  getProjectTagsBySearchQuery,
+} from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -153,6 +160,102 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const mode = deriveMode(user);
 
+  const searchParams = new URL(request.url).searchParams;
+  const searchQuery = searchParams.get("search");
+
+  const profileTags =
+    searchQuery !== null
+      ? await getProfileTagsBySearchQuery(searchQuery, language)
+      : [];
+  const organizationTags =
+    searchQuery !== null
+      ? await getOrganizationTagsBySearchQuery(searchQuery, language)
+      : [];
+  const eventTags =
+    searchQuery !== null
+      ? await getEventTagsBySearchQuery(searchQuery, language)
+      : [];
+  const projectTags =
+    searchQuery !== null
+      ? await getProjectTagsBySearchQuery(searchQuery, language)
+      : [];
+  const fundingTags =
+    searchQuery !== null ? await getFundingTagsBySearchQuery(searchQuery) : [];
+
+  // Create alternately tags array from profile and organization tags
+  const tags: {
+    type: "profile" | "organization" | "event" | "project" | "funding";
+    title: string;
+  }[] = [];
+  const maxTags = 7;
+  let profileTagsIndex = 0;
+  let organizationTagsIndex = 0;
+  let eventTagsIndex = 0;
+  let projectTagsIndex = 0;
+  let fundingTagsIndex = 0;
+
+  while (tags.length < maxTags) {
+    if (profileTagsIndex < profileTags.length) {
+      tags.push({
+        type: "profile",
+        title: profileTags[profileTagsIndex].title,
+      });
+      profileTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (organizationTagsIndex < organizationTags.length) {
+      tags.push({
+        type: "organization",
+        title: organizationTags[organizationTagsIndex].title,
+      });
+      organizationTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (eventTagsIndex < eventTags.length) {
+      tags.push({
+        type: "event",
+        title: eventTags[eventTagsIndex].title,
+      });
+      eventTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (projectTagsIndex < projectTags.length) {
+      tags.push({
+        type: "project",
+        title: projectTags[projectTagsIndex].title,
+      });
+      projectTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (fundingTagsIndex < fundingTags.length) {
+      tags.push({
+        type: "funding",
+        title: fundingTags[fundingTagsIndex].title,
+      });
+      fundingTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (
+      profileTagsIndex >= profileTags.length &&
+      organizationTagsIndex >= organizationTags.length &&
+      projectTagsIndex >= projectTags.length &&
+      eventTagsIndex >= eventTags.length &&
+      fundingTagsIndex >= fundingTags.length
+    ) {
+      break;
+    }
+  }
+
   return data(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -168,6 +271,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         baseUrl: process.env.COMMUNITY_BASE_URL,
         url: request.url,
       },
+      tags,
     },
     {
       headers: combineHeaders(
