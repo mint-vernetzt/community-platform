@@ -1,68 +1,75 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
+  Link,
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
-  redirect,
-  Link,
 } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
-import { performMutation } from "remix-forms";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
-  sendResetEmailLink,
-  updatePassword,
 } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import InputPassword from "~/components/FormElements/InputPassword/InputPassword";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
+import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
 import { deriveProfileMode } from "../utils.server";
 import {
+  changeEmail,
+  changePassword,
   getProfileByUsername,
   type ProfileSecurityLocales,
 } from "./security.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
-const createEmailSchema = (locales: ProfileSecurityLocales) => {
+export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
   return z.object({
     email: z
-      .string()
+      .string({
+        message: locales.validation.email.required,
+      })
       .min(1, locales.validation.email.min)
-      .email(locales.validation.email.email)
+      .email(locales.validation.email.required)
       .transform((value) => value.trim()),
     confirmEmail: z
-      .string()
+      .string({
+        message: locales.validation.confirmEmail.required,
+      })
       .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.email)
+      .email(locales.validation.confirmEmail.required)
       .transform((value) => value.trim()),
-    submittedForm: z.string(),
   });
 };
 
-const createPasswordSchema = (locales: ProfileSecurityLocales) => {
+export const changePasswordSchema = (locales: ProfileSecurityLocales) => {
   return z.object({
-    password: z.string().min(8, locales.validation.password.min),
-    confirmPassword: z.string().min(8, locales.validation.confirmPassword.min),
-    submittedForm: z.string(),
+    password: z
+      .string({
+        message: locales.validation.password.required,
+      })
+      .min(8, locales.validation.password.min),
+    confirmPassword: z
+      .string({
+        message: locales.validation.confirmPassword.required,
+      })
+      .min(8, locales.validation.confirmPassword.min),
   });
 };
-
-const passwordEnvironmentSchema = z.object({
-  sessionUser: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
-
-const emailEnvironmentSchema = z.object({
-  authClient: z.unknown(),
-  // authClient: z.instanceof(SupabaseClient),
-});
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -87,58 +94,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const provider = sessionUser.app_metadata.provider || "email";
 
-  return { provider, locales };
-};
-
-const createPasswordMutation = (locales: ProfileSecurityLocales) => {
-  return makeDomainFunction(
-    createPasswordSchema(locales),
-    passwordEnvironmentSchema
-  )(async (values, environment) => {
-    if (values.confirmPassword !== values.password) {
-      throw new InputError(
-        "Deine Passwörter stimmen nicht überein.",
-        "confirmPassword"
-      ); // -- Field error
-    }
-
-    const { error } = await updatePassword(
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      environment.sessionUser,
-      values.password
-    );
-    if (error !== null) {
-      throw error.message;
-    }
-
-    return values;
-  });
-};
-
-const createEmailMutation = (locales: ProfileSecurityLocales) => {
-  return makeDomainFunction(
-    createEmailSchema(locales),
-    emailEnvironmentSchema
-  )(async (values, environment) => {
-    if (values.confirmEmail !== values.email) {
-      throw new InputError(locales.error.emailsDontMatch, "confirmEmail"); // -- Field error
-    }
-
-    const { error } = await sendResetEmailLink(
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      environment.authClient,
-      values.email
-    );
-    if (error !== null) {
-      throw error.message;
-    }
-
-    return values;
-  });
+  return { provider, locales, currentTimestamp: Date.now() };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -153,55 +109,110 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     status: 403,
   });
 
-  if (sessionUser.app_metadata.provider === "keycloak") {
-    invariantResponse(false, locales.error.notAllowed, { status: 403 });
-  }
+  invariantResponse(
+    sessionUser.app_metadata.provider !== "keycloak",
+    locales.error.notAllowed,
+    { status: 403 }
+  );
 
-  const requestClone = request.clone(); // we need to clone request, because unpack formData can be used only once
-  const formData = await requestClone.formData();
+  let result;
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  invariantResponse(typeof intent === "string", locales.error.noStringIntent, {
+    status: 400,
+  });
 
-  const submittedForm = formData.get("submittedForm");
-
-  let result = null;
-  if (submittedForm === "changeEmail") {
-    result = await performMutation({
-      request,
-      schema: createEmailSchema(locales),
-      mutation: createEmailMutation(locales),
-      environment: { authClient: authClient },
+  if (intent === "change-email") {
+    result = await changeEmail({
+      formData,
+      sessionUser,
+      locales,
+    });
+  } else if (intent === "change-password") {
+    result = await changePassword({
+      formData,
+      sessionUser,
+      locales,
     });
   } else {
-    result = await performMutation({
-      request,
-      schema: createPasswordSchema(locales),
-      mutation: createPasswordMutation(locales),
-      environment: { sessionUser: sessionUser },
+    invariantResponse(false, locales.error.wrongIntent, {
+      status: 400,
     });
   }
-  return result;
+
+  if (
+    result.submission !== undefined &&
+    result.submission.status === "success" &&
+    result.toast !== undefined
+  ) {
+    return redirectWithToast(request.url, result.toast);
+  }
+  return { submission: result.submission, currentTimestamp: Date.now() };
 };
 
 export default function Security() {
-  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, currentTimestamp } = loaderData;
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = useIsSubmitting();
+  const isHydrated = useHydrated();
 
-  let showPasswordFeedback = false,
-    showEmailFeedback = false;
-  if (actionData !== undefined) {
-    showPasswordFeedback =
-      actionData.success &&
-      "password" in actionData.data &&
-      actionData.data.password !== undefined;
-    showEmailFeedback =
-      actionData.success &&
-      "email" in actionData.data &&
-      actionData.data.email !== undefined;
-  }
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changePasswordForm, changePasswordFields] = useForm({
+    id: `change-password-form-${
+      actionData?.currentTimestamp || currentTimestamp
+    }`,
+    constraint: getZodConstraint(changePasswordSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      const submission = parseWithZod(values.formData, {
+        schema: changePasswordSchema(locales).transform((data, ctx) => {
+          if (data.password !== data.confirmPassword) {
+            ctx.addIssue({
+              code: "custom",
+              message: locales.error.passwordMismatch,
+              path: ["confirmPassword"],
+            });
+            return z.NEVER;
+          }
 
-  const passwordSchema = createPasswordSchema(locales);
-  const emailSchema = createEmailSchema(locales);
+          return { ...data };
+        }),
+      });
+      return submission;
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
+
+  const [changeEmailForm, changeEmailFields] = useForm({
+    id: `change-email-form-${actionData?.currentTimestamp || currentTimestamp}`,
+    constraint: getZodConstraint(changeEmailSchema(locales)),
+    // Client side validation onInput, server side validation on submit
+    shouldValidate: "onInput",
+    onValidate: (values) => {
+      const submission = parseWithZod(values.formData, {
+        schema: changeEmailSchema(locales).transform((data, ctx) => {
+          if (data.email !== data.confirmEmail) {
+            ctx.addIssue({
+              code: "custom",
+              message: locales.error.emailsDontMatch,
+              path: ["confirmEmail"],
+            });
+            return z.NEVER;
+          }
+
+          return { ...data };
+        }),
+      });
+      return submission;
+    },
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
 
   return (
     <>
@@ -226,80 +237,119 @@ export default function Security() {
           </p>
         </>
       ) : (
-        <fieldset disabled={navigation.state === "submitting"}>
+        <>
           <h4 className="mv-mb-4 mv-font-semibold">
             {locales.section.changePassword2.headline}
           </h4>
 
           <p className="mv-mb-8">{locales.section.changePassword2.intro}</p>
 
-          <RemixFormsForm method="post" schema={passwordSchema}>
-            {({ Field, Errors, register }) => (
-              <>
-                <Field
-                  name="password"
-                  label="Neues Passwort"
-                  className="mv-mb-4"
-                >
-                  {({ Errors }) => (
-                    <>
-                      <InputPassword
-                        id="password"
-                        label={
-                          locales.section.changePassword2.form.password.label
+          <Form
+            {...getFormProps(changePasswordForm)}
+            method="post"
+            autoComplete="off"
+          >
+            <div className="mv-mb-4">
+              <Input
+                {...getInputProps(changePasswordFields.password, {
+                  type: showPassword ? "text" : "password",
+                })}
+                key="password"
+              >
+                <Input.Label htmlFor={changePasswordFields.password.id}>
+                  {locales.section.changePassword2.form.password.label}
+                </Input.Label>
+                {typeof changePasswordFields.password.errors !== "undefined" &&
+                changePasswordFields.password.errors.length > 0
+                  ? changePasswordFields.password.errors.map((error) => (
+                      <Input.Error
+                        id={changePasswordFields.password.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+                {isHydrated === true ? (
+                  <Input.Controls>
+                    <div className="mv-h-10 mv-w-10">
+                      <ShowPasswordButton
+                        onClick={() => {
+                          setShowPassword(!showPassword);
+                        }}
+                        aria-label={
+                          showPassword
+                            ? locales.section.changePassword2.form.hidePassword
+                            : locales.section.changePassword2.form.showPassword
                         }
-                        {...register("password")}
-                      />
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-
-                <Field name="confirmPassword" label="Wiederholen">
-                  {({ Errors }) => (
-                    <>
-                      <InputPassword
-                        id="confirmPassword"
-                        label={
-                          locales.section.changePassword2.form.confirmPassword
-                            .label
-                        }
-                        {...register("confirmPassword")}
-                      />
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <Field name="submittedForm">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        defaultValue="changePassword"
-                        {...register("submittedForm")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-
-                <button
-                  type="submit"
-                  className="mv-mt-8 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
-                >
-                  {locales.section.changePassword2.form.submit.label}
-                </button>
-                {showPasswordFeedback ? (
-                  <span
-                    className={"mv-mt-2 mv-ml-2 mv-text-green-500 mv-text-bold"}
-                  >
-                    {locales.section.changePassword2.feedback}
-                  </span>
+                      >
+                        {showPassword ? (
+                          <PublicVisibility aria-hidden="true" />
+                        ) : (
+                          <PrivateVisibility aria-hidden="true" />
+                        )}
+                      </ShowPasswordButton>
+                    </div>
+                  </Input.Controls>
                 ) : null}
-                <Errors />
-              </>
-            )}
-          </RemixFormsForm>
+              </Input>
+            </div>
+            <div className="mv-mb-10">
+              <Input
+                {...getInputProps(changePasswordFields.confirmPassword, {
+                  type: showConfirmPassword ? "text" : "password",
+                })}
+                key="confirmPassword"
+              >
+                <Input.Label htmlFor={changePasswordFields.confirmPassword.id}>
+                  {locales.section.changePassword2.form.confirmPassword.label}
+                </Input.Label>
+                {typeof changePasswordFields.confirmPassword.errors !==
+                  "undefined" &&
+                changePasswordFields.confirmPassword.errors.length > 0
+                  ? changePasswordFields.confirmPassword.errors.map((error) => (
+                      <Input.Error
+                        id={changePasswordFields.confirmPassword.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+                {isHydrated === true ? (
+                  <Input.Controls>
+                    <div className="mv-h-10 mv-w-10">
+                      <ShowPasswordButton
+                        onClick={() => {
+                          setShowConfirmPassword(!showConfirmPassword);
+                        }}
+                        aria-label={
+                          showConfirmPassword
+                            ? locales.section.changePassword2.form.hidePassword
+                            : locales.section.changePassword2.form.showPassword
+                        }
+                      >
+                        {showPassword ? (
+                          <PublicVisibility aria-hidden="true" />
+                        ) : (
+                          <PrivateVisibility aria-hidden="true" />
+                        )}
+                      </ShowPasswordButton>
+                    </div>
+                  </Input.Controls>
+                ) : null}
+              </Input>
+            </div>
+            <Button
+              name="intent"
+              value="change-password"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {locales.section.changePassword2.form.submit.label}
+            </Button>
+          </Form>
+
           <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
 
           <h4 className="mv-mb-4 mv-font-semibold">
@@ -307,67 +357,69 @@ export default function Security() {
           </h4>
 
           <p className="mv-mb-8">{locales.section.changeEmail.intro}</p>
-          <RemixFormsForm method="post" schema={emailSchema}>
-            {({ Field, Errors, register }) => (
-              <>
-                <Field name="email" label="Neue E-Mail" className="mv-mb-4">
-                  {({ Errors }) => (
-                    <>
-                      <Input
-                        id="email"
-                        label={locales.section.changeEmail.form.email.label}
-                        {...register("email")}
-                      />
-                      <Errors />
-                    </>
-                  )}
-                </Field>
 
-                <Field name="confirmEmail" label="Wiederholen">
-                  {({ Errors }) => (
-                    <>
-                      <Input
-                        id="confirmEmail"
-                        label={
-                          locales.section.changeEmail.form.confirmEmail.label
-                        }
-                        {...register("confirmEmail")}
-                      />
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-
-                <Field name="submittedForm">
-                  {({ Errors }) => (
-                    <>
-                      <input
-                        type="hidden"
-                        defaultValue="changeEmail"
-                        {...register("submittedForm")}
-                      ></input>
-                      <Errors />
-                    </>
-                  )}
-                </Field>
-                <button
-                  type="submit"
-                  className="mv-mt-8 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
-                >
-                  {locales.section.changeEmail.form.submit.label}
-                </button>
-                {showEmailFeedback ? (
-                  <span
-                    className={"mv-mt-2 mv-ml-2 mv-text-green-500 mv-text-bold"}
-                  >
-                    {locales.section.changeEmail.feedback}
-                  </span>
-                ) : null}
-                <Errors />
-              </>
-            )}
-          </RemixFormsForm>
-        </fieldset>
+          <Form
+            {...getFormProps(changeEmailForm)}
+            method="post"
+            preventScrollReset
+            autoComplete="off"
+          >
+            <div className="mv-mb-4">
+              <Input
+                {...getInputProps(changeEmailFields.email, {
+                  type: "email",
+                })}
+                key="email"
+              >
+                <Input.Label htmlFor={changeEmailFields.email.id}>
+                  {locales.section.changeEmail.form.email.label}
+                </Input.Label>
+                {typeof changeEmailFields.email.errors !== "undefined" &&
+                changeEmailFields.email.errors.length > 0
+                  ? changeEmailFields.email.errors.map((error) => (
+                      <Input.Error
+                        id={changeEmailFields.email.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+            </div>
+            <div className="mv-mb-10">
+              <Input
+                {...getInputProps(changeEmailFields.confirmEmail, {
+                  type: "email",
+                })}
+                key="confirmEmail"
+              >
+                <Input.Label htmlFor={changeEmailFields.confirmEmail.id}>
+                  {locales.section.changeEmail.form.confirmEmail.label}
+                </Input.Label>
+                {typeof changeEmailFields.confirmEmail.errors !== "undefined" &&
+                changeEmailFields.confirmEmail.errors.length > 0
+                  ? changeEmailFields.confirmEmail.errors.map((error) => (
+                      <Input.Error
+                        id={changeEmailFields.confirmEmail.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+            </div>
+            <Button
+              name="intent"
+              value="change-email"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {locales.section.changeEmail.form.submit.label}
+            </Button>
+          </Form>
+        </>
       )}
     </>
   );

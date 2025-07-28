@@ -1,10 +1,9 @@
+import { captureException } from "@sentry/node";
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
-import { updateProfileEmailByUserId } from "./verify.server";
-import { captureException } from "@sentry/node";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
@@ -13,11 +12,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   invariantResponse(token_hash !== null && type !== null, "Bad request", {
     status: 400,
   });
-  invariantResponse(
-    type === "signup" || type === "email_change" || type === "recovery",
-    "Bad request",
-    { status: 400 }
-  );
+  invariantResponse(type === "signup" || type === "recovery", "Bad request", {
+    status: 400,
+  });
   const { authClient, headers } = createAuthClient(request);
   const { error, data } = await authClient.auth.verifyOtp({
     type,
@@ -60,15 +57,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     sendWelcomeMail(profile).catch((error) => {
       captureException(error);
     });
-    return redirect(loginRedirect || `/profile/${profile.username}`, {
-      headers,
-    });
-  }
-  if (type === "email_change") {
-    invariantResponse(user.email !== undefined, "Server error", {
-      status: 500,
-    });
-    const profile = await updateProfileEmailByUserId(user.id, user.email);
     return redirect(loginRedirect || `/profile/${profile.username}`, {
       headers,
     });

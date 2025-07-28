@@ -205,17 +205,12 @@ export async function updatePassword(sessionUser: User, password: string) {
   return { data, error };
 }
 
-export async function sendResetEmailLink(
-  authClient: SupabaseClient,
-  email: string,
-  redirectToAfterResetEmail?: string
-) {
-  const { data, error } = await authClient.auth.updateUser(
+export async function updateEmail(sessionUser: User, email: string) {
+  const adminAuthClient = createAdminAuthClient();
+  const { data, error } = await adminAuthClient.auth.admin.updateUserById(
+    sessionUser.id,
     {
       email,
-    },
-    {
-      emailRedirectTo: redirectToAfterResetEmail,
     }
   );
   return { data, error };
