@@ -37,11 +37,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const type = url.searchParams.get("type") as EmailOtpType | null;
   invariantResponse(type !== null, "Bad request", { status: 400 });
   // Check if type === "signup"
-  invariantResponse(
-    type === "signup" || type === "email_change" || type === "recovery",
-    "Bad request",
-    { status: 400 }
-  );
+  invariantResponse(type === "signup" || type === "recovery", "Bad request", {
+    status: 400,
+  });
   // Get search param login_redirect
   const loginRedirect = url.searchParams.get("login_redirect");
   invariantResponse(
@@ -84,19 +82,6 @@ export default function Confirm() {
                   className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                 >
                   {locales.signup.action}
-                </Link>
-              </>
-            )}
-            {type === "email_change" && (
-              <>
-                <h1 className="mv-mb-4">{locales.changeEmail.title}</h1>
-
-                <p className="mv-mb-6">{locales.changeEmail.description}</p>
-                <Link
-                  to={confirmationLink}
-                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
-                >
-                  {locales.changeEmail.action}
                 </Link>
               </>
             )}
