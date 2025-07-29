@@ -42,7 +42,7 @@ export const locale = {
     changePassword2: {
       headline: "Passwort ändern",
       feedback:
-        "Dein Passwort wurde geändert. Es wurde eine Benachrichtigung an die alte E-Mail-Adresse gesendet.",
+        "Dein Passwort wurde geändert. Aus Sicherheitsgründen wurde eine Benachrichtigung an deine E-Mail-Adresse gesendet.",
       intro:
         "Hier kannst Du Dein Passwort ändern. Es muss mindestens 8 Zeichen lang sein. Benutze auch Zahlen und Zeichen, damit es sicherer ist.",
       form: {
@@ -62,13 +62,13 @@ export const locale = {
         subject: "Dein Passwort wurde geändert",
         headline: "Hallo {{firstName}},",
         message:
-          "Die Login Daten Deines MINTvernetzt Profils haben sich geändert. Dein Passwort wurde geändert. Falls Du das nicht warst, kontaktiere bitte den Support unter:",
+          "das Passwort deines MINTvernetzt Profils wurde geändert. Falls Du das nicht warst, kontaktiere bitte den Support unter:",
       },
     },
     changeEmail: {
       headline: "E-Mail ändern",
       feedback:
-        "E-Mail Adresse geändert. Es wurde eine Benachrichtigung an die alte E-Mail-Adresse gesendet.",
+        "E-Mail Adresse geändert. Aus Sicherheitsgründen wurde eine Benachrichtigung an deine alte E-Mail-Adresse gesendet.",
       intro:
         "Hier kannst Du Deine E-Mail-Adresse für die Anmeldung auf der Community-Plattform ändern.",
       form: {
@@ -86,7 +86,7 @@ export const locale = {
         subject: "Deine E-Mail-Adresse wurde geändert",
         headline: "Hallo {{firstName}},",
         message:
-          "Die Login Daten Deines MINTvernetzt Profils haben sich geändert. Deine E-Mail Adresse wurde von {{oldEmail}} auf {{newEmail}} geändert. Falls Du das nicht warst, kontaktiere bitte den Support unter:",
+          "die E-Mail Adresse Deines MINTvernetzt Profils wurde von {{oldEmail}} auf {{newEmail}} geändert. Falls Du das nicht warst, kontaktiere bitte den Support unter:",
       },
     },
   },

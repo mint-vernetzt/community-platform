@@ -41,7 +41,7 @@ export const locale = {
     changePassword2: {
       headline: "Change password",
       feedback:
-        "Your password has been changed. A notification has been sent to the old email address.",
+        "Your password has been changed. For security reasons a notification has been sent to your email address.",
       intro:
         "Here you can change your password. It must be at least 8 characters long. Use numbers and symbols to make it more secure.",
       form: {
@@ -61,13 +61,13 @@ export const locale = {
         subject: "Your password has been changed",
         headline: "Hello {{firstName}},",
         message:
-          "The login data for your MINTvernetzt profile has changed. Your password has been changed. If you did not make this change, please contact support at:",
+          "the password of your MINTvernetzt profile has been changed. If you did not make this change, please contact support at:",
       },
     },
     changeEmail: {
       headline: "Change email",
       feedback:
-        "Email address changed. A notification has been sent to the old email address.",
+        "Email address changed. For security reasons a notification has been sent to your old email address.",
       intro:
         "Here you can change your email address for logging in on the community platform.",
       form: {
@@ -85,7 +85,7 @@ export const locale = {
         subject: "Your email address has been changed",
         headline: "Hello {{firstName}},",
         message:
-          "The login data for your MINTvernetzt profile has changed. Your email address has been changed from {{oldEmail}} to {{newEmail}}. If you did not make this change, please contact support at:",
+          "the email address of your MINTvernetzt profile has been changed from {{oldEmail}} to {{newEmail}}. If you did not make this change, please contact support at:",
       },
     },
   },
