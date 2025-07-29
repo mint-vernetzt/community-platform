@@ -49,7 +49,8 @@ function FundingCardContainer(props: { children: React.ReactNode }) {
 function FundingCardSubtitle(props: { children?: React.ReactNode }) {
   return typeof props.children !== "undefined" &&
     props.children !== null &&
-    props.children !== "" ? (
+    props.children !== "" &&
+    props.children !== "ohne Kategorie" ? (
     <span className="mv-text-neutral-700 mv-text-sm mv-font-bold">
       {props.children}
     </span>
@@ -135,13 +136,14 @@ function FundingCardCategory(props: {
     <div className="mv-flex mv-flex-col mv-text-neutral-700 mv-font-semibold mv-gap-1.5">
       {title}
       <div className="mv-min-h-[48px] @lg:mv-min-h-[54px]">
-        {props.items.length > 0 ? (
-          <span className="@xl:mv-text-lg mv-line-clamp-2">
-            {props.items.join(", ")}
-          </span>
-        ) : (
+        {props.items.length === 0 ||
+        (props.items.length === 1 && props.items[0] === "ohne Kategorie") ? (
           <span className="mv-text-neutral-400 mv-text-sm mv-tracking-wide">
             {locales.card.notProvided}
+          </span>
+        ) : (
+          <span className="@xl:mv-text-lg mv-line-clamp-2">
+            {props.items.join(", ")}
           </span>
         )}
       </div>

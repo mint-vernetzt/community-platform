@@ -714,7 +714,7 @@ export default function ExploreAll() {
                     </FundingCard.Title>
                     <FundingCard.Category
                       items={funding.regions.map((relation) => {
-                        return relation.area.name;
+                        return relation.region.title;
                       })}
                       locales={loaderData.locales.fundings}
                     >
@@ -723,7 +723,9 @@ export default function ExploreAll() {
                       </FundingCard.Category.Title>
                     </FundingCard.Category>
                     <FundingCard.Category
-                      items={funding.sourceEntities}
+                      items={funding.eligibleEntities.map((relation) => {
+                        return relation.entity.title;
+                      })}
                       locales={loaderData.locales.fundings}
                     >
                       <FundingCard.Category.Title>
@@ -732,7 +734,9 @@ export default function ExploreAll() {
                     </FundingCard.Category>
 
                     <FundingCard.Category
-                      items={funding.sourceAreas}
+                      items={funding.areas.map((relation) => {
+                        return relation.area.title;
+                      })}
                       locales={loaderData.locales.fundings}
                     >
                       <FundingCard.Category.Title>
