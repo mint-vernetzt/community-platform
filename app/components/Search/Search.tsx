@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useFetcher, useSearchParams } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { DEFAULT_LANGUAGE, SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { type RootLocales } from "~/root.server";
+import {
+  DEFAULT_LANGUAGE,
+  type SUPPORTED_COOKIE_LANGUAGES,
+} from "~/i18n.shared";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
 import { type loader as rootLoader } from "~/root";
-import { languageModuleMap } from "~/locales/.server";
-import { ArrayElement } from "~/lib/utils/types";
+import { type RootLocales } from "~/root.server";
+
+type DashboardSearchLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof SUPPORTED_COOKIE_LANGUAGES
+>]["dashboard"]["route"]["content"]["search"];
 
 export interface SearchProps {
   query?: string | null;
-  locales?: RootLocales["route"]["root"]["search"];
+  locales?: RootLocales["route"]["root"]["search"] | DashboardSearchLocales;
   inputProps: React.HTMLProps<HTMLInputElement>;
   children?: React.ReactNode;
 }
@@ -25,6 +32,9 @@ function Search(props: SearchProps) {
   const [value, setValue] = useState(query !== null ? query : "");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fetcher = useFetcher<typeof rootLoader>();
+  const searchRef = useRef<HTMLDivElement | null>(null);
+  const [showResults, setShowResults] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
@@ -38,6 +48,14 @@ function Search(props: SearchProps) {
   const handleClear = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setValue("");
+  };
+
+  const handleFocus = () => {
+    setIsInputFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsInputFocused(false);
   };
 
   useEffect(() => {
@@ -61,15 +79,56 @@ function Search(props: SearchProps) {
   }, []);
 
   useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchRef.current !== null &&
+        searchRef.current.contains(event.target as Node) === false
+      ) {
+        setShowResults(false);
+      }
+    }
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      if (typeof document !== "undefined") {
+        document.removeEventListener("click", handleClickOutside);
+      }
+    };
+  }, [searchRef, fetcher]);
+
+  useEffect(() => {
     const query = searchParams.get("search");
     setValue(query !== null ? query : "");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (isInputFocused === false) {
+      return;
+    }
+
+    if (
+      value.length > minLength ||
+      (value.length > minLength &&
+        typeof fetcher.data !== "undefined" &&
+        fetcher.data.tags.length > minLength)
+    ) {
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  }, [fetcher.data, minLength, value, isInputFocused]);
 
   const isHydrated = useHydrated();
 
   return (
     <>
-      <div className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center mv-overflow-hidden">
+      <div
+        className="mv-flex mv-gap-2 mv-h-[48px] mv-items-center mv-overflow-hidden"
+        ref={searchRef}
+      >
         <div className="mv-relative mv-group mv-w-full">
           <div className="mv-absolute mv-left-1.5 mv-top-1 xl:mv-top-2 mv-w-full mv-flex mv-gap-2 xl:mv-flex-row-reverse xl:mv-justify-between mv-px-1 xl:mv-px-3 mv-py-1 mv-pointer-events-none">
             <div className="mv-mt-0.5 xl:mv-hidden">
@@ -135,6 +194,8 @@ function Search(props: SearchProps) {
             minLength={minLength || 3}
             value={value}
             onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             ref={inputRef}
             autoComplete="off"
             {...otherInputProps}
@@ -172,40 +233,45 @@ function Search(props: SearchProps) {
           )}
         </div>
       </div>
-      {value.length > minLength &&
-        typeof fetcher.data !== "undefined" &&
-        fetcher.data.tags.length > 0 && (
-          <div className="mv-absolute mv-top-[76px] mv-h-[calc(100dvh-76px)] mv-w-full mv-left-0">
-            <div className="mv-absolute mv-inset-0 mv-bg-neutral-600 mv-opacity-60 mv-w-full mv-h-full" />
-            <ul className="mv-absolute mv-inset-0 mv-h-fit mv-bg-white mv-border-t mv-border-b mv-border-neutral-200 mv-p-4 mv-text-sm mv-text-neutral-700 mv-flex mv-flex-col mv-gap-4">
-              <ResultItem title={value} />
-              {fetcher.data.tags.map((tag) => (
+      {showResults && (
+        <div className="mv-absolute lg:mv-relative mv-top-[76px] lg:mv-top-2 mv-h-[calc(100dvh-76px)] lg:mv-h-auto mv-w-full mv-left-0 mv-z-20">
+          <div className="mv-absolute mv-inset-0 mv-bg-neutral-600 mv-opacity-60 mv-w-full mv-h-full lg:mv-hidden" />
+          <ul className="mv-absolute mv-inset-0 mv-h-fit mv-bg-white mv-border-t mv-border-b mv-border-neutral-200 lg:mv-border lg:mv-rounded-lg mv-p-4 mv-text-sm mv-text-neutral-700 mv-flex mv-flex-col mv-gap-4">
+            <ResultItem title={value} />
+            {typeof fetcher.data !== "undefined" &&
+              fetcher.data.tags.map((tag, index) => (
                 <ResultItem
-                  key={`${tag.title}-${tag.type}`}
+                  key={`${tag.title}-${tag.type}-${index}`}
                   title={tag.title}
                   value={value}
                   entity={tag.type}
                   locales={props.locales}
                 />
               ))}
-            </ul>
-          </div>
-        )}
+          </ul>
+        </div>
+      )}
     </>
   );
 }
 
 function ResultItem(props: {
   title: string;
-  locales?: RootLocales["route"]["root"]["search"];
+  locales?: RootLocales["route"]["root"]["search"] | DashboardSearchLocales;
   entity?: keyof (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["root"]["route"]["root"]["search"]["entities"];
   value?: string;
 }) {
   let to: string;
-  if (props.entity === "profile") {
-    to = `/explore/profiles?search=${props.title}`;
+  if (
+    props.entity === "profile" ||
+    props.entity === "organization" ||
+    props.entity === "event" ||
+    props.entity === "project" ||
+    props.entity === "funding"
+  ) {
+    to = `/explore/${props.entity}s?search=${props.title}`;
   } else {
     to = `/explore/all?search=${props.title}`;
   }
@@ -246,7 +312,7 @@ function ResultItem(props: {
     <li>
       <Link
         to={to}
-        className="mv-inline-block mv-w-full mv-h-12 mv-flex mv-items-center mv-gap-2 mv-text-sm"
+        className="mv-inline-block mv-w-full mv-h-12 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -261,7 +327,7 @@ function ResultItem(props: {
             fill="#3C4658"
           />
         </svg>
-        <div className="mv-flex mv-flex-col">
+        <div className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-between lg:mv-items-center mv-w-full">
           <div className="mv-line-clamp-1">{title}</div>
           {typeof props.entity !== "undefined" && (
             <div className="mv-text-neutral-500 mv-font-semibold">

@@ -33,6 +33,14 @@ export const locale = {
           "people",
         ],
       },
+      clear: "Clear search field",
+      entities: {
+        profile: "Person",
+        organization: "Organization",
+        event: "Event",
+        project: "Project",
+        funding: "Funding",
+      },
     },
     cropper: {
       avatar: {

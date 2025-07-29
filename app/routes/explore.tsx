@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage, getTagsBySearchQuery } from "~/root.server";
 import { getProfileIds } from "./explore/profiles.server";
 
 import { invariantResponse } from "~/lib/utils/response";
@@ -89,6 +89,12 @@ export async function loader(args: LoaderFunctionArgs) {
   const allContentCount =
     profileCount + organizationCount + eventCount + projectCount + fundingCount;
 
+  const searchQuery = searchParams.get("search");
+  const tags =
+    searchQuery !== null
+      ? await getTagsBySearchQuery(searchQuery, language)
+      : [];
+
   return {
     locales,
     url: {
@@ -103,6 +109,7 @@ export async function loader(args: LoaderFunctionArgs) {
       projects: projectCount,
       fundings: fundingCount,
     },
+    tags,
   };
 }
 
@@ -198,7 +205,46 @@ export default function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="mv-flex mv-flex-col mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
+        <div className="mv-flex mv-flex-col-reverse mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
+          <EntitiesSelect>
+            <EntitiesSelect.Menu.Label>
+              {loaderData.locales.route.content.menu.label}
+            </EntitiesSelect.Menu.Label>
+            {typeof currentLink !== "undefined" && (
+              <EntitiesSelect.Label>
+                <EntitiesSelect.Menu.Item
+                  {...currentLink}
+                  disabled={currentLink.value === 0}
+                  isDropdownLabel={true}
+                >
+                  <EntitiesSelect.Menu.Item.Label>
+                    {currentLink.label}{" "}
+                    {typeof currentLink.value !== "undefined" ? (
+                      <EntitiesSelect.Badge>
+                        {currentLink.value}
+                      </EntitiesSelect.Badge>
+                    ) : null}{" "}
+                  </EntitiesSelect.Menu.Item.Label>
+                </EntitiesSelect.Menu.Item>
+              </EntitiesSelect.Label>
+            )}
+            <EntitiesSelect.Menu>
+              {links.map((item) => {
+                return (
+                  <EntitiesSelect.Menu.Item
+                    key={`${item.pathname}${item.search}`}
+                    {...item}
+                    disabled={item.value === 0}
+                  >
+                    <EntitiesSelect.Menu.Item.Label>
+                      {item.label}{" "}
+                      <EntitiesSelect.Badge>{item.value}</EntitiesSelect.Badge>
+                    </EntitiesSelect.Menu.Item.Label>
+                  </EntitiesSelect.Menu.Item>
+                );
+              })}
+            </EntitiesSelect.Menu>
+          </EntitiesSelect>
           <div className="mv-hidden @lg:mv-block mv-w-full">
             <Form method="get" action="/explore/all">
               <Search
@@ -241,45 +287,6 @@ export default function Explore() {
               </Search>
             </Form>
           </div>
-          <EntitiesSelect>
-            <EntitiesSelect.Menu.Label>
-              {loaderData.locales.route.content.menu.label}
-            </EntitiesSelect.Menu.Label>
-            {typeof currentLink !== "undefined" && (
-              <EntitiesSelect.Label>
-                <EntitiesSelect.Menu.Item
-                  {...currentLink}
-                  disabled={currentLink.value === 0}
-                  isDropdownLabel={true}
-                >
-                  <EntitiesSelect.Menu.Item.Label>
-                    {currentLink.label}{" "}
-                    {typeof currentLink.value !== "undefined" ? (
-                      <EntitiesSelect.Badge>
-                        {currentLink.value}
-                      </EntitiesSelect.Badge>
-                    ) : null}{" "}
-                  </EntitiesSelect.Menu.Item.Label>
-                </EntitiesSelect.Menu.Item>
-              </EntitiesSelect.Label>
-            )}
-            <EntitiesSelect.Menu>
-              {links.map((item) => {
-                return (
-                  <EntitiesSelect.Menu.Item
-                    key={`${item.pathname}${item.search}`}
-                    {...item}
-                    disabled={item.value === 0}
-                  >
-                    <EntitiesSelect.Menu.Item.Label>
-                      {item.label}{" "}
-                      <EntitiesSelect.Badge>{item.value}</EntitiesSelect.Badge>
-                    </EntitiesSelect.Menu.Item.Label>
-                  </EntitiesSelect.Menu.Item>
-                );
-              })}
-            </EntitiesSelect.Menu>
-          </EntitiesSelect>
         </div>
       </section>
       <Outlet />

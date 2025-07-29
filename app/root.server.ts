@@ -908,3 +908,103 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
     ...normalizedAreas,
   ];
 }
+
+export async function getTagsBySearchQuery(
+  searchQuery: string,
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
+) {
+  const profileTags =
+    searchQuery !== null
+      ? await getProfileTagsBySearchQuery(searchQuery, language)
+      : [];
+  const organizationTags =
+    searchQuery !== null
+      ? await getOrganizationTagsBySearchQuery(searchQuery, language)
+      : [];
+  const eventTags =
+    searchQuery !== null
+      ? await getEventTagsBySearchQuery(searchQuery, language)
+      : [];
+  const projectTags =
+    searchQuery !== null
+      ? await getProjectTagsBySearchQuery(searchQuery, language)
+      : [];
+  const fundingTags =
+    searchQuery !== null ? await getFundingTagsBySearchQuery(searchQuery) : [];
+
+  // Create alternately tags array from profile and organization tags
+  const tags: {
+    type: "profile" | "organization" | "event" | "project" | "funding";
+    title: string;
+  }[] = [];
+  const maxTags = 7;
+  let profileTagsIndex = 0;
+  let organizationTagsIndex = 0;
+  let eventTagsIndex = 0;
+  let projectTagsIndex = 0;
+  let fundingTagsIndex = 0;
+
+  while (tags.length < maxTags) {
+    if (profileTagsIndex < profileTags.length) {
+      tags.push({
+        type: "profile",
+        title: profileTags[profileTagsIndex].title,
+      });
+      profileTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (organizationTagsIndex < organizationTags.length) {
+      tags.push({
+        type: "organization",
+        title: organizationTags[organizationTagsIndex].title,
+      });
+      organizationTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (eventTagsIndex < eventTags.length) {
+      tags.push({
+        type: "event",
+        title: eventTags[eventTagsIndex].title,
+      });
+      eventTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (projectTagsIndex < projectTags.length) {
+      tags.push({
+        type: "project",
+        title: projectTags[projectTagsIndex].title,
+      });
+      projectTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (fundingTagsIndex < fundingTags.length) {
+      tags.push({
+        type: "funding",
+        title: fundingTags[fundingTagsIndex].title,
+      });
+      fundingTagsIndex++;
+      if (tags.length >= maxTags) {
+        break;
+      }
+    }
+    if (
+      profileTagsIndex >= profileTags.length &&
+      organizationTagsIndex >= organizationTags.length &&
+      projectTagsIndex >= projectTags.length &&
+      eventTagsIndex >= eventTags.length &&
+      fundingTagsIndex >= fundingTags.length
+    ) {
+      break;
+    }
+  }
+
+  return tags;
+}

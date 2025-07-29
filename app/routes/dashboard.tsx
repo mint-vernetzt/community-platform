@@ -21,7 +21,7 @@ import {
   MaxImageSizes,
   MinCropSizes,
 } from "~/images.shared";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage, getTagsBySearchQuery } from "~/root.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 // import styles from "../../common/design/styles/styles.css?url";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
@@ -544,6 +544,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     sessionUser
   );
 
+  const searchParams = new URL(request.url).searchParams;
+  const searchQuery = searchParams.get("search");
+  const tags =
+    searchQuery !== null
+      ? await getTagsBySearchQuery(searchQuery, language)
+      : [];
+
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
   return {
@@ -563,6 +570,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     abilities,
     ...profile,
     currentTimestamp: Date.now(),
+    tags,
   };
 };
 
@@ -705,7 +713,8 @@ function DashboardSearchPlaceholderRotation(props: {
   locales: DashboardLocales["route"]["content"]["search"]["placeholder"]["rotation"];
 }) {
   const [count, setCount] = useState(0);
-  const defaultClasses = "mv-text-neutral-700 mv-flex mv-flex-col mv-gap-3";
+  const defaultClasses =
+    "mv-text-neutral-700 mv-flex mv-flex-col mv-gap-3 mv-line-clamp-1";
 
   useEffect(() => {
     const interval = setInterval(
@@ -785,8 +794,9 @@ function DashboardSearch(props: {
                     : "Search..."
                   : props.locales.placeholder.default,
             }}
+            locales={props.locales}
           >
-            <label className="mv-line-clamp-1">
+            <label className="">
               {typeof props.locales === "undefined" ? (
                 DEFAULT_LANGUAGE === "de" ? (
                   "Suche..."
@@ -799,7 +809,7 @@ function DashboardSearch(props: {
                     {props.locales.placeholder.default}
                   </div>
                   <div className="mv-hidden xl:mv-flex mv-gap-1 mv-mt-[0.75rem]">
-                    <div className="">{props.locales.placeholder.xl}</div>
+                    <div>{props.locales.placeholder.xl}</div>
                     <DashboardSearchPlaceholderRotation
                       locales={props.locales.placeholder.rotation}
                     />
