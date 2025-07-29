@@ -280,7 +280,7 @@ function MyProjects() {
                               key={`edit-project-${project.slug}`}
                             >
                               <Link
-                                {...OverlayMenu.getListItemProps()}
+                                {...OverlayMenu.getListChildrenStyles()}
                                 to={`/project/${project.slug}/settings`}
                               >
                                 <svg
@@ -306,7 +306,7 @@ function MyProjects() {
                             key={`quit-project-${project.slug}`}
                           >
                             <Link
-                              {...OverlayMenu.getListItemProps()}
+                              {...OverlayMenu.getListChildrenStyles()}
                               to={`?${doubleCheckModalSearchParams.toString()}`}
                               preventScrollReset
                             >

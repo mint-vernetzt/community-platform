@@ -1601,7 +1601,7 @@ export default function MyOrganizations() {
                                         key={`edit-organization-${organization.slug}`}
                                       >
                                         <Link
-                                          {...OverlayMenu.getListItemProps()}
+                                          {...OverlayMenu.getListChildrenStyles()}
                                           to={`/organization/${organization.slug}/settings`}
                                         >
                                           <svg
@@ -1629,7 +1629,7 @@ export default function MyOrganizations() {
                                       key={`quit-organization-${organization.slug}`}
                                     >
                                       <Link
-                                        {...OverlayMenu.getListItemProps()}
+                                        {...OverlayMenu.getListChildrenStyles()}
                                         to={`?${doubleCheckModalSearchParams.toString()}`}
                                         preventScrollReset
                                       >

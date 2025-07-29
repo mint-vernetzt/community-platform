@@ -564,7 +564,7 @@ function Index() {
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button
-                    {...OverlayMenu.getListItemProps()}
+                    {...OverlayMenu.getListChildrenStyles()}
                     onClick={async () => {
                       await copyToClipboard(
                         `${loaderData.meta.baseUrl}${location.pathname}${location.search}${location.hash}`
@@ -619,7 +619,7 @@ function Index() {
                   disabled={loaderData.alreadyAbuseReported === true}
                 >
                   <button
-                    {...OverlayMenu.getListItemProps()}
+                    {...OverlayMenu.getListChildrenStyles()}
                     type="submit"
                     form="abuse-report"
                     disabled={loaderData.alreadyAbuseReported === true}
