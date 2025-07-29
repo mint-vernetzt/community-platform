@@ -565,6 +565,7 @@ function Index() {
                 <OverlayMenu.ListItem>
                   <button
                     {...OverlayMenu.getListChildrenStyles()}
+                    {...OverlayMenu.getIdToFocusWhenOpening()}
                     onClick={async () => {
                       await copyToClipboard(
                         `${loaderData.meta.baseUrl}${location.pathname}${location.search}${location.hash}`

@@ -71,16 +71,17 @@ function OverlayMenu(
   });
 
   useEffect(() => {
-    if (
-      listRef.current !== null &&
-      listRef.current.firstElementChild !== null &&
-      listRef.current.firstElementChild.firstElementChild !== null &&
-      "focus" in listRef.current.firstElementChild.firstElementChild &&
-      isOpen === true
-    ) {
-      (
-        listRef.current.firstElementChild.firstElementChild as HTMLElement
-      ).focus();
+    if (listRef.current !== null) {
+      const firstFocusableElement = listRef.current.querySelector(
+        `#${getIdToFocusWhenOpening().id}`
+      );
+      if (
+        firstFocusableElement !== null &&
+        "focus" in firstFocusableElement &&
+        isOpen === true
+      ) {
+        (firstFocusableElement as HTMLElement).focus();
+      }
     }
   }, [isOpen]);
 
@@ -167,6 +168,12 @@ function getListItemChildrenStyles() {
   };
 }
 
+function getIdToFocusWhenOpening() {
+  return {
+    id: "overlay-menu-first-focusable-element",
+  };
+}
+
 function Divider() {
   return <div className="mv-w-full mv-h-0 mv-border-b mv-border-neutral-200" />;
 }
@@ -179,6 +186,7 @@ function HiddenItem(props: React.PropsWithChildren) {
 
 OverlayMenu.ListItem = ListItem;
 OverlayMenu.getListChildrenStyles = getListItemChildrenStyles;
+OverlayMenu.getIdToFocusWhenOpening = getIdToFocusWhenOpening;
 OverlayMenu.Divider = Divider;
 OverlayMenu.HiddenItem = HiddenItem;
 

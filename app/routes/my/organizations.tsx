@@ -1602,6 +1602,7 @@ export default function MyOrganizations() {
                                       >
                                         <Link
                                           {...OverlayMenu.getListChildrenStyles()}
+                                          {...OverlayMenu.getIdToFocusWhenOpening()}
                                           to={`/organization/${organization.slug}/settings`}
                                         >
                                           <svg
