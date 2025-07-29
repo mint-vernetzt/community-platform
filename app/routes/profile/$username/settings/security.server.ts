@@ -1,7 +1,11 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { type User } from "@supabase/supabase-js";
 import { z } from "zod";
-import { updateEmail, updatePassword } from "~/auth.server";
+import {
+  createAdminAuthClient,
+  updateEmail,
+  updatePassword,
+} from "~/auth.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
@@ -48,17 +52,16 @@ export async function changeEmail(options: {
         return z.NEVER;
       }
 
-      const alreadyExistingProfile = await prismaClient.profile.findFirst({
-        where: {
-          email: {
-            equals: data.email,
-            mode: "insensitive",
-          },
-        },
-        select: { id: true },
+      const adminAuthClient = createAdminAuthClient();
+      const {
+        data: { users },
+        error: getUsersError,
+      } = await adminAuthClient.auth.admin.listUsers();
+      invariantResponse(getUsersError === null, "Error while getting users", {
+        status: 500,
       });
 
-      if (alreadyExistingProfile !== null) {
+      if (users.some((user) => user.email === data.email)) {
         ctx.addIssue({
           code: "custom",
           message: locales.error.emailAlreadyUsed,
