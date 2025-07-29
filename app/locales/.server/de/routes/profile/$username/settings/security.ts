@@ -28,7 +28,7 @@ export const locale = {
     emailChangeFailed: "E-Mail-Änderung fehlgeschlagen.",
     sendEmailNoticeFailed: "Fehler beim Senden der E-Mail-Benachrichtigung.",
     emailAlreadyUsed:
-      "Diese E-Mail-Adresse wird bereits von einem anderen Benutzer verwendet.",
+      "Diese E-Mail-Adresse wird bereits von einer anderen Person verwendet.",
   },
   content: {
     headline: "Login und Sicherheit",
