@@ -235,7 +235,7 @@ function Search(props: SearchProps) {
       </div>
       {showResults && (
         <div className="mv-absolute lg:mv-relative mv-top-[76px] lg:mv-top-2 mv-h-[calc(100dvh-76px)] lg:mv-h-auto mv-w-full mv-left-0 mv-z-20">
-          <div className="mv-absolute mv-inset-0 mv-bg-neutral-600 mv-opacity-60 mv-w-full mv-h-full lg:mv-hidden" />
+          <div className="mv-absolute mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-w-full mv-h-full lg:mv-hidden" />
           <ul className="mv-absolute mv-inset-0 mv-h-fit mv-bg-white mv-border-t mv-border-b mv-border-neutral-200 lg:mv-border lg:mv-rounded-lg mv-p-4 mv-text-sm mv-text-neutral-700 mv-flex mv-flex-col mv-gap-4">
             <ResultItem title={value} />
             {typeof fetcher.data !== "undefined" &&
