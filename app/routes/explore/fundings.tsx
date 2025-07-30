@@ -954,9 +954,7 @@ export default function ExploreFundings() {
                     </FundingCard.Category.Title>
                   </FundingCard.Category>
                   <FundingCard.Category
-                    items={funding.eligibleEntities.map((relation) => {
-                      return relation.entity.title;
-                    })}
+                    items={funding.sourceEntities}
                     locales={loaderData.locales}
                   >
                     <FundingCard.Category.Title>
@@ -965,9 +963,7 @@ export default function ExploreFundings() {
                   </FundingCard.Category>
 
                   <FundingCard.Category
-                    items={funding.areas.map((relation) => {
-                      return relation.area.title;
-                    })}
+                    items={funding.sourceAreas}
                     locales={loaderData.locales}
                   >
                     <FundingCard.Category.Title>

@@ -407,6 +407,8 @@ export async function getAllFundings(options: {
           },
         },
       },
+      sourceEntities: true,
+      sourceAreas: true,
     },
     where: {
       AND: whereClauses,

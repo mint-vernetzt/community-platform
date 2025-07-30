@@ -81,12 +81,6 @@ async function main() {
   const eligibleEntities: string[] = [];
   const fundingRegions: string[] = [];
   for (const funding of fundings) {
-    if (
-      funding.mapping.funder.length === 0 &&
-      funders.includes("ohne Kategorie") === false
-    ) {
-      funders.push("ohne Kategorie");
-    }
     for (const funder of funding.mapping.funder) {
       if (funders.includes(funder) === false) {
         funders.push(funder);

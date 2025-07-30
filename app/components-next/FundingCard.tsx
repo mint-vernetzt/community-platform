@@ -1,7 +1,19 @@
-import { Children, isValidElement } from "react";
+import { Children, createContext, isValidElement, useContext } from "react";
 import { Link } from "react-router";
 import { Heading } from "~/components/Heading/Heading";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
+
+const FundingCardContext = createContext<{
+  locales: ExploreFundingsLocales;
+} | null>(null);
+
+function useFundingCardContext() {
+  const context = useContext(FundingCardContext);
+  if (context === null) {
+    throw new Error("Missing FundingCardContext.Provider");
+  }
+  return context;
+}
 
 export function FundingCard(props: {
   url: string;
@@ -24,17 +36,19 @@ export function FundingCard(props: {
   });
 
   return (
-    <li
-      key={props.url}
-      className="mv-border mv-border-neutral-200 mv-rounded-3xl mv-px-6 mv-py-8 mv-flex mv-flex-col mv-gap-4 mv-bg-white"
-    >
-      {subtitle}
-      {title}
-      {categories}
-      <FundingCard.Link to={props.url}>
-        {locales.card.toFunding}
-      </FundingCard.Link>
-    </li>
+    <FundingCardContext.Provider value={{ locales }}>
+      <li
+        key={props.url}
+        className="mv-border mv-border-neutral-200 mv-rounded-3xl mv-px-6 mv-py-8 mv-flex mv-flex-col mv-gap-4 mv-bg-white"
+      >
+        {subtitle}
+        {title}
+        {categories}
+        <FundingCard.Link to={props.url}>
+          {locales.card.toFunding}
+        </FundingCard.Link>
+      </li>
+    </FundingCardContext.Provider>
   );
 }
 
@@ -47,15 +61,17 @@ function FundingCardContainer(props: { children: React.ReactNode }) {
 }
 
 function FundingCardSubtitle(props: { children?: React.ReactNode }) {
-  return typeof props.children !== "undefined" &&
-    props.children !== null &&
-    props.children !== "" &&
-    props.children !== "ohne Kategorie" ? (
+  const { locales } = useFundingCardContext();
+
+  return (
     <span className="mv-text-neutral-700 mv-text-sm mv-font-bold">
-      {props.children}
+      {typeof props.children !== "undefined" &&
+      props.children !== null &&
+      props.children !== "" &&
+      props.children !== "ohne Kategorie"
+        ? props.children
+        : locales.card.noFundingType}
     </span>
-  ) : (
-    <pre> </pre>
   );
 }
 

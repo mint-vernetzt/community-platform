@@ -33,6 +33,7 @@ export const locale = {
     area: "Was wird gefördert?",
     toFunding: "Zur Förderung",
     notProvided: "-nicht angegeben-",
+    noFundingType: "Keine Förderart angegeben",
   },
   survey: {
     title: "Feedback zum Fördertool",
