@@ -746,7 +746,6 @@ model Area {
   AreasOnOrganizations AreasOnOrganizations[]
   AreasOnProfiles      AreasOnProfiles[]
   AreasOnProjects      AreasOnProjects[]
-  AreasOnFundings      AreasOnFundings[]
 
   @@map("areas")
 }
@@ -1296,16 +1295,6 @@ model AreasOnProjects {
   @@map("areas_on_projects")
 }
 
-model AreasOnFundings {
-  fundingId String  @map("funding_id")
-  areaId    String  @map("area_id")
-  area      Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
-  funding   Funding @relation(fields: [fundingId], references: [id], onDelete: Cascade)
-
-  @@id([fundingId, areaId])
-  @@map("areas_on_fundings")
-}
-
 model ResponsibleOrganizationOfProject {
   projectId      String       @map("project_id")
   organizationId String       @map("organization_id")
@@ -1387,7 +1376,7 @@ model Funding {
   title            String
   funders          FundersOnFundings[]
   types            FundingTypesOnFundings[]
-  regions          AreasOnFundings[]
+  regions          FundingRegionsOnFundings[]
   areas            FundingAreasOnFundings[]
   eligibleEntities FundingEligibleEntitiesOnFundings[]
   sourceFunders    String[]
@@ -1462,6 +1451,26 @@ model FundingAreasOnFundings {
 
   @@id([fundingId, areaId])
   @@map("funding_areas_on_fundings")
+}
+
+model FundingRegion {
+  id       String                     @id @default(uuid())
+  title    String                     @unique
+  slug     String                     @unique
+  fundings FundingRegionsOnFundings[]
+
+  @@map("funding_regions")
+}
+
+model FundingRegionsOnFundings {
+  fundingId String        @map("funding_id")
+  regionId  String        @map("region_id")
+  createdAt DateTime      @default(now()) @map("created_at")
+  funding   Funding       @relation(fields: [fundingId], references: [id], onDelete: Cascade)
+  region    FundingRegion @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@id([fundingId, regionId])
+  @@map("funding_regions_on_fundings")
 }
 
 model FundingEligibleEntity {

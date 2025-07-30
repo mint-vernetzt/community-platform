@@ -59,8 +59,8 @@ type SearchWhereStatement = {
     | {
         [K in "regions"]?: {
           some: {
-            [K in "area"]?: {
-              [K in "name"]?: {
+            [K in "region"]?: {
+              [K in "title"]?: {
                 contains: string;
                 mode: Prisma.QueryMode;
               };
@@ -106,8 +106,7 @@ function getFundingsFilterWhereClause(filter: GetFundingsSchema["fndFilter"]) {
       const whereStatement = {
         [pluralKey]: {
           some: {
-            [typedKey === "regions" ? "area" : singularKey]: {
-              // funding data for areas is stored in regions
+            [singularKey]: {
               slug: value,
             },
           },
@@ -171,8 +170,8 @@ function getFundingsSearchWhereClause(
         {
           regions: {
             some: {
-              area: {
-                name: {
+              region: {
+                title: {
                   contains: word,
                   mode: "insensitive",
                 },
@@ -275,7 +274,7 @@ export async function updateFilterVectorOfFunding(fundingId: string) {
       },
       regions: {
         select: {
-          area: {
+          region: {
             select: {
               slug: true,
             },
@@ -319,7 +318,7 @@ export async function updateFilterVectorOfFunding(fundingId: string) {
       );
       const { singularKey: regionKey } = getKeys("regions");
       const regionVectors = funding.regions.map(
-        (relation) => `${regionKey}:${relation.area.slug}`
+        (relation) => `${regionKey}:${relation.region.slug}`
       );
       const { singularKey: areaKey } = getKeys("areas");
       const areaVectors = funding.areas.map(
@@ -400,10 +399,10 @@ export async function getAllFundings(options: {
       },
       regions: {
         select: {
-          area: {
+          region: {
             select: {
               slug: true,
-              name: true,
+              title: true,
             },
           },
         },
@@ -453,7 +452,7 @@ export async function getFundingFilterVectorForAttribute(options: {
     if (filterKey === "types") {
       tableKey = "fundingType";
     } else if (filterKey === "regions") {
-      tableKey = "area";
+      tableKey = "fundingRegion";
     } else if (filterKey === "areas") {
       tableKey = "fundingArea";
     } else {

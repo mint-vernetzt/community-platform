@@ -270,18 +270,18 @@ export async function loader(args: LoaderFunctionArgs) {
         title: entityMatch?.title || null,
       };
     });
-  const regions = await prismaClient.area.findMany({
+  const regions = await prismaClient.fundingRegion.findMany({
     where: {
-      type: {
-        not: "district",
+      fundings: {
+        some: {},
       },
     },
     select: {
       slug: true,
-      name: true,
+      title: true,
     },
     orderBy: {
-      name: "asc",
+      title: "asc",
     },
   });
   const fundingRegionIds =
@@ -301,7 +301,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const enhancedRegions = regions
     .sort((a) => {
-      if (a.name === "Bundesweit" || a.name === "International") {
+      if (a.title === "Bundesweit" || a.title === "International") {
         return -1;
       }
       return 0;
@@ -321,7 +321,7 @@ export async function loader(args: LoaderFunctionArgs) {
     const regionMatch = regions.find((region) => region.slug === slug);
     return {
       slug,
-      name: regionMatch?.name || null,
+      title: regionMatch?.title || null,
     };
   });
 
@@ -523,34 +523,35 @@ export default function ExploreFundings() {
                     <br />
                     {loaderData.selectedRegions
                       .map((region) => {
-                        return region.name;
+                        return region.title;
                       })
                       .join(", ")}
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {loaderData.regions.map((area) => {
+                  {loaderData.regions.map((region) => {
                     const isChecked =
                       fndFilterFieldset.regions.initialValue &&
                       Array.isArray(fndFilterFieldset.regions.initialValue)
                         ? fndFilterFieldset.regions.initialValue.includes(
-                            area.slug
+                            region.slug
                           )
-                        : fndFilterFieldset.regions.initialValue === area.slug;
+                        : fndFilterFieldset.regions.initialValue ===
+                          region.slug;
                     return (
                       <FormControl
                         {...getInputProps(fndFilterFieldset.regions, {
                           type: "checkbox",
-                          value: area.slug,
+                          value: region.slug,
                         })}
-                        key={area.slug}
+                        key={region.slug}
                         defaultChecked={isChecked}
                         readOnly
-                        disabled={area.vectorCount === 0 && !isChecked}
+                        disabled={region.vectorCount === 0 && !isChecked}
                       >
-                        <FormControl.Label>{area.name}</FormControl.Label>
+                        <FormControl.Label>{region.title}</FormControl.Label>
                         <FormControl.Counter>
-                          {area.vectorCount}
+                          {region.vectorCount}
                         </FormControl.Counter>
                       </FormControl>
                     );
@@ -797,7 +798,7 @@ export default function ExploreFundings() {
                       fndFilterFieldset.regions.name,
                       region.slug
                     );
-                    return region.name !== null ? (
+                    return region.title !== null ? (
                       <ConformForm
                         key={region.slug}
                         useFormOptions={{
@@ -830,7 +831,7 @@ export default function ExploreFundings() {
                       >
                         <HiddenFilterInputsInContext />
                         <Chip size="medium">
-                          {region.name}
+                          {region.title}
                           <Chip.Delete>
                             <button
                               type="submit"
@@ -944,7 +945,7 @@ export default function ExploreFundings() {
                   <FundingCard.Title as="h2">{funding.title}</FundingCard.Title>
                   <FundingCard.Category
                     items={funding.regions.map((relation) => {
-                      return relation.area.name;
+                      return relation.region.title;
                     })}
                     locales={loaderData.locales}
                   >

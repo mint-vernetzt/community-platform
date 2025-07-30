@@ -86,23 +86,47 @@ async function main() {
         funders.push(funder);
       }
     }
+    if (
+      funding.mapping.fundingType.length === 0 &&
+      fundingTypes.includes("ohne Kategorie") === false
+    ) {
+      fundingTypes.push("ohne Kategorie");
+    }
     for (const type of funding.mapping.fundingType) {
-      if (funders.includes(type) === false) {
+      if (fundingTypes.includes(type) === false) {
         fundingTypes.push(type);
       }
     }
+    if (
+      funding.mapping.fundingArea.length === 0 &&
+      fundingAreas.includes("ohne Kategorie") === false
+    ) {
+      fundingAreas.push("ohne Kategorie");
+    }
     for (const area of funding.mapping.fundingArea) {
-      if (funders.includes(area) === false) {
+      if (fundingAreas.includes(area) === false) {
         fundingAreas.push(area);
       }
     }
+    if (
+      funding.mapping.eligibleEntities.length === 0 &&
+      eligibleEntities.includes("ohne Kategorie") === false
+    ) {
+      eligibleEntities.push("ohne Kategorie");
+    }
     for (const entity of funding.mapping.eligibleEntities) {
-      if (funders.includes(entity) === false) {
+      if (eligibleEntities.includes(entity) === false) {
         eligibleEntities.push(entity);
       }
     }
+    if (
+      funding.mapping.fundingRegion.length === 0 &&
+      fundingRegions.includes("ohne Kategorie") === false
+    ) {
+      fundingRegions.push("ohne Kategorie");
+    }
     for (const region of funding.mapping.fundingRegion) {
-      if (funders.includes(region) === false) {
+      if (fundingRegions.includes(region) === false) {
         fundingRegions.push(region);
       }
     }
@@ -157,25 +181,18 @@ async function main() {
     }),
     skipDuplicates: true,
   });
-
-  const existingAreas = await prismaClient.area.findMany({
-    where: {
-      type: {
-        not: "district",
-      },
-    },
+  await prismaClient.fundingRegion.createMany({
+    data: fundingRegions.map((region) => {
+      const slug = generateValidSlug(region, {
+        hashFunction: (str) => str,
+      });
+      return {
+        slug,
+        title: region,
+      };
+    }),
+    skipDuplicates: true,
   });
-  const notExistingAreas = fundingRegions.filter((region) => {
-    return (
-      typeof existingAreas.find((area) => area.name === region) === "undefined"
-    );
-  });
-
-  if (notExistingAreas.length > 0) {
-    console.log("Missing areas:", notExistingAreas);
-    console.log("Please add the missing areas to the database. Aborting.");
-    return;
-  }
 
   for await (const funding of fundings) {
     const existingFunding = await prismaClient.funding.count({
@@ -204,44 +221,76 @@ async function main() {
       },
     });
 
-    const funders = await prismaClient.funder.findMany({
-      where: {
-        title: {
-          in: funding.mapping.funder,
-        },
-      },
-    });
-    const fundingTypes = await prismaClient.fundingType.findMany({
-      where: {
-        title: {
-          in: funding.mapping.fundingType,
-        },
-      },
-    });
-    const fundingAreas = await prismaClient.fundingArea.findMany({
-      where: {
-        title: {
-          in: funding.mapping.fundingArea,
-        },
-      },
-    });
-    const eligibleEntities = await prismaClient.fundingEligibleEntity.findMany({
-      where: {
-        title: {
-          in: funding.mapping.eligibleEntities,
-        },
-      },
-    });
-    const regions = await prismaClient.area.findMany({
-      where: {
-        type: {
-          not: "district",
-        },
-        name: {
-          in: funding.mapping.fundingRegion,
-        },
-      },
-    });
+    const funders =
+      funding.mapping.funder.length > 0
+        ? await prismaClient.funder.findMany({
+            where: {
+              title: {
+                in: funding.mapping.funder,
+              },
+            },
+          })
+        : await prismaClient.funder.findMany({
+            where: {
+              title: "ohne Kategorie",
+            },
+          });
+    const fundingTypes =
+      funding.mapping.fundingType.length > 0
+        ? await prismaClient.fundingType.findMany({
+            where: {
+              title: {
+                in: funding.mapping.fundingType,
+              },
+            },
+          })
+        : await prismaClient.fundingType.findMany({
+            where: {
+              title: "ohne Kategorie",
+            },
+          });
+    const fundingAreas =
+      funding.mapping.fundingArea.length > 0
+        ? await prismaClient.fundingArea.findMany({
+            where: {
+              title: {
+                in: funding.mapping.fundingArea,
+              },
+            },
+          })
+        : await prismaClient.fundingArea.findMany({
+            where: {
+              title: "ohne Kategorie",
+            },
+          });
+    const eligibleEntities =
+      funding.mapping.eligibleEntities.length > 0
+        ? await prismaClient.fundingEligibleEntity.findMany({
+            where: {
+              title: {
+                in: funding.mapping.eligibleEntities,
+              },
+            },
+          })
+        : await prismaClient.fundingEligibleEntity.findMany({
+            where: {
+              title: "ohne Kategorie",
+            },
+          });
+    const regions =
+      funding.mapping.fundingRegion.length > 0
+        ? await prismaClient.fundingRegion.findMany({
+            where: {
+              title: {
+                in: funding.mapping.fundingRegion,
+              },
+            },
+          })
+        : await prismaClient.fundingRegion.findMany({
+            where: {
+              title: "ohne Kategorie",
+            },
+          });
 
     await prismaClient.funding.update({
       where: {
@@ -312,13 +361,13 @@ async function main() {
           connectOrCreate: regions.map((region) => {
             return {
               where: {
-                fundingId_areaId: {
-                  areaId: region.id,
+                fundingId_regionId: {
+                  regionId: region.id,
                   fundingId: result.id,
                 },
               },
               create: {
-                areaId: region.id,
+                regionId: region.id,
               },
             };
           }),
