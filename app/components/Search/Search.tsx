@@ -312,7 +312,7 @@ function ResultItem(props: {
     <li>
       <Link
         to={to}
-        className="mv-inline-block mv-w-full mv-h-12 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base"
+        className="mv-inline-block mv-w-full mv-h-12 mv-px-2 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base hover:mv-bg-neutral-100 mv-rounded focus:mv-ring-2 focus:mv-ring-primary-200"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
