@@ -8,7 +8,7 @@ import {
 } from "react-router";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { detectLanguage } from "~/root.server";
+import { detectLanguage, getTagsBySearchQuery } from "~/root.server";
 import { getProfileIds } from "./explore/profiles.server";
 
 import { invariantResponse } from "~/lib/utils/response";
@@ -89,6 +89,12 @@ export async function loader(args: LoaderFunctionArgs) {
   const allContentCount =
     profileCount + organizationCount + eventCount + projectCount + fundingCount;
 
+  const searchQuery = searchParams.get("search");
+  const tags =
+    searchQuery !== null
+      ? await getTagsBySearchQuery(searchQuery, language)
+      : [];
+
   return {
     locales,
     url: {
@@ -103,13 +109,13 @@ export async function loader(args: LoaderFunctionArgs) {
       projects: projectCount,
       fundings: fundingCount,
     },
+    tags,
   };
 }
 
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("search");
   const links = [
     {
       pathname: "/explore/all",
@@ -199,50 +205,7 @@ export default function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="mv-flex mv-flex-col mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
-          <div className="mv-hidden @lg:mv-block mv-w-full">
-            <Form method="get" action="/explore/all">
-              <Search
-                inputProps={{
-                  id: "search-bar",
-                  placeholder:
-                    typeof loaderData.locales.route.content.search
-                      .placeholder === "undefined"
-                      ? DEFAULT_LANGUAGE === "de"
-                        ? "Suche..."
-                        : "Search..."
-                      : loaderData.locales.route.content.search.placeholder
-                          .default,
-                  name: "search",
-                }}
-                query={query}
-                locales={loaderData.locales.route.content.search}
-              >
-                <label className="mv-line-clamp-1">
-                  {typeof loaderData.locales.route.content.search
-                    .placeholder === "undefined" ? (
-                    DEFAULT_LANGUAGE === "de" ? (
-                      "Suche..."
-                    ) : (
-                      "Search..."
-                    )
-                  ) : (
-                    <div className="mv-mt-3">
-                      <span className="xl:mv-hidden">
-                        {
-                          loaderData.locales.route.content.search.placeholder
-                            .default
-                        }
-                      </span>
-                      <span className="mv-hidden xl:mv-inline">
-                        {loaderData.locales.route.content.search.placeholder.xl}
-                      </span>
-                    </div>
-                  )}
-                </label>
-              </Search>
-            </Form>
-          </div>
+        <div className="mv-flex mv-flex-col-reverse mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
           <EntitiesSelect>
             <EntitiesSelect.Menu.Label>
               {loaderData.locales.route.content.menu.label}
@@ -282,6 +245,48 @@ export default function Explore() {
               })}
             </EntitiesSelect.Menu>
           </EntitiesSelect>
+          <div className="mv-hidden @lg:mv-block mv-w-full">
+            <Form method="get" action="/explore/all">
+              <Search
+                inputProps={{
+                  id: "search-bar",
+                  placeholder:
+                    typeof loaderData.locales.route.content.search
+                      .placeholder === "undefined"
+                      ? DEFAULT_LANGUAGE === "de"
+                        ? "Suche..."
+                        : "Search..."
+                      : loaderData.locales.route.content.search.placeholder
+                          .default,
+                  name: "search",
+                }}
+                locales={loaderData.locales.route.content.search}
+              >
+                <label className="mv-line-clamp-1">
+                  {typeof loaderData.locales.route.content.search
+                    .placeholder === "undefined" ? (
+                    DEFAULT_LANGUAGE === "de" ? (
+                      "Suche..."
+                    ) : (
+                      "Search..."
+                    )
+                  ) : (
+                    <div className="mv-mt-3">
+                      <span className="xl:mv-hidden">
+                        {
+                          loaderData.locales.route.content.search.placeholder
+                            .default
+                        }
+                      </span>
+                      <span className="mv-hidden xl:mv-inline">
+                        {loaderData.locales.route.content.search.placeholder.xl}
+                      </span>
+                    </div>
+                  )}
+                </label>
+              </Search>
+            </Form>
+          </div>
         </div>
       </section>
       <Outlet />

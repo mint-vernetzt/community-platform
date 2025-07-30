@@ -31,6 +31,7 @@ import { createAuthClient, getSessionUser } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
+import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
@@ -41,12 +42,11 @@ import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
-import { getProfileByUserId } from "./root.server";
+import { getProfileByUserId, getTagsBySearchQuery } from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -153,6 +153,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const mode = deriveMode(user);
 
+  const searchParams = new URL(request.url).searchParams;
+  const searchQuery = searchParams.get("search");
+
+  const tags =
+    searchQuery !== null
+      ? await getTagsBySearchQuery(searchQuery, language)
+      : [];
+
   return data(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -168,6 +176,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         baseUrl: process.env.COMMUNITY_BASE_URL,
         url: request.url,
       },
+      tags,
     },
     {
       headers: combineHeaders(
