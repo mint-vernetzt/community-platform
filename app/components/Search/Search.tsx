@@ -188,7 +188,7 @@ function Search(props: SearchProps) {
           </div>
 
           <input
-            className="mv-w-full mv-h-10 xl:mv-h-12 mv-outline-none mv-bg-neutral-100 xl:mv-bg-neutral-50 mv-min-w-[230px] mv-rounded-lg mv-border mv-border-neutral-100 xl:mv-border-neutral-200 mv-py-2 mv-pl-9 xl:mv-pl-4 mv-pr-4 mv-text-base mv-font-semibold mv-text-neutral-700 mv-appearance-none mv-leading-6 focus:mv-border-primary-200"
+            className="mv-w-full mv-h-10 xl:mv-h-12 mv-outline-none mv-bg-neutral-100 xl:mv-bg-neutral-50 mv-min-w-[230px] mv-rounded-lg mv-border mv-border-neutral-100 xl:mv-border-neutral-200 mv-py-2 mv-pl-9 xl:mv-pl-4 mv-pr-4 mv-text-base mv-font-semibold mv-text-neutral-700 mv-appearance-none mv-leading-6 focus:mv-border-primary-200 focus:mv-border-2"
             aria-placeholder={placeholder}
             placeholder={isHydrated === false ? placeholder : undefined}
             minLength={minLength || 3}
