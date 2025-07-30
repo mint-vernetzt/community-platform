@@ -83,7 +83,7 @@ function FundingCardTitle(props: {
   return (
     <Heading
       as={as}
-      className="mv-text-primary-500 @lg:mv-text-lg mv-font-bold mv-min-h-[48px] @lg:mv-min-h-[54px] mv-line-clamp-2"
+      className="mv-text-primary-500 @lg:mv-text-lg mv-font-bold mv-min-h-[48px] @lg:mv-min-h-[50px] mv-line-clamp-2"
     >
       {children}
     </Heading>
