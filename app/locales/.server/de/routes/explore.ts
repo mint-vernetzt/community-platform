@@ -1,7 +1,7 @@
 export const locale = {
   content: {
     headline: "Entdecke die MINT-Community",
-    searchHeadline: 'Deine Suche zu "{{search}}"',
+    searchHeadline: "Deine Suche zu “{{search}}”",
     search: {
       placeholder: {
         default: "Suche...",

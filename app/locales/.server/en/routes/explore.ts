@@ -1,7 +1,7 @@
 export const locale = {
   content: {
     headline: "Discover the STEM community",
-    searchHeadline: 'Your search for "{{search}}"',
+    searchHeadline: "Your search for “{{search}}”",
     search: {
       placeholder: {
         default: "Search...",
