@@ -24,6 +24,7 @@ export const locale = {
     hints: "Tipps zum Nachmachen",
     furtherDescription2: "Weitere Informationen",
     team: "Team",
-    responsibleOrganizations: "Verantwortliche Organisation(en)",
+    responsibleOrganizations_one: "Verantwortliche Organisation",
+    responsibleOrganizations_many: "Verantwortliche Organisationen",
   },
 } as const;

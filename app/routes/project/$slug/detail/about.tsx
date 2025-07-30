@@ -25,6 +25,7 @@ import { Xing } from "~/components-next/icons/Xing";
 import { YouTube } from "~/components-next/icons/YouTube";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -644,7 +645,11 @@ function About() {
             className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
           />
           <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
-            {locales.route.content.responsibleOrganizations}
+            {decideBetweenSingularOrPlural(
+              locales.route.content.responsibleOrganizations_one,
+              locales.route.content.responsibleOrganizations_many,
+              loaderData.project.responsibleOrganizations.length
+            )}
           </h2>
           <List maxColumns={2}>
             {loaderData.project.responsibleOrganizations.map((relation) => {
