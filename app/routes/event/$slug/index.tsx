@@ -564,7 +564,8 @@ function Index() {
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button
-                    {...OverlayMenu.getListItemProps()}
+                    {...OverlayMenu.getListChildrenStyles()}
+                    {...OverlayMenu.getIdToFocusWhenOpening()}
                     onClick={async () => {
                       await copyToClipboard(
                         `${loaderData.meta.baseUrl}${location.pathname}${location.search}${location.hash}`
@@ -577,8 +578,8 @@ function Index() {
                   >
                     <span className="mv-p-1">
                       <svg
-                        width="16"
-                        height="16"
+                        width="20"
+                        height="20"
                         viewBox="0 0 16 16"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -619,7 +620,7 @@ function Index() {
                   disabled={loaderData.alreadyAbuseReported === true}
                 >
                   <button
-                    {...OverlayMenu.getListItemProps()}
+                    {...OverlayMenu.getListChildrenStyles()}
                     type="submit"
                     form="abuse-report"
                     disabled={loaderData.alreadyAbuseReported === true}

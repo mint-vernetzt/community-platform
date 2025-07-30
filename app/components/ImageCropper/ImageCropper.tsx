@@ -100,8 +100,49 @@ function centerAspectCrop(
 }
 
 const IMAGE_QUALITY = 1.0;
-const DEFAULT_SCALE = 1.0;
 const DEFAULT_ASPECT = 16 / 9;
+const DEFAULT_SCALE = 1.0;
+const SCALE_CLASSES = {
+  0.1: "mv-scale-[0.1]",
+  0.15: "mv-scale-[0.15]",
+  0.2: "mv-scale-[0.2]",
+  0.25: "mv-scale-[0.25]",
+  0.3: "mv-scale-[0.3]",
+  0.35: "mv-scale-[0.35]",
+  0.4: "mv-scale-[0.4]",
+  0.45: "mv-scale-[0.45]",
+  0.5: "mv-scale-[0.5]",
+  0.55: "mv-scale-[0.55]",
+  0.6: "mv-scale-[0.6]",
+  0.65: "mv-scale-[0.65]",
+  0.7: "mv-scale-[0.7]",
+  0.75: "mv-scale-[0.75]",
+  0.8: "mv-scale-[0.8]",
+  0.85: "mv-scale-[0.85]",
+  0.9: "mv-scale-[0.9]",
+  0.95: "mv-scale-[0.95]",
+  1: "mv-scale-[1]",
+  1.05: "mv-scale-[1.05]",
+  1.1: "mv-scale-[1.1]",
+  1.15: "mv-scale-[1.15]",
+  1.2: "mv-scale-[1.2]",
+  1.25: "mv-scale-[1.25]",
+  1.3: "mv-scale-[1.3]",
+  1.35: "mv-scale-[1.35]",
+  1.4: "mv-scale-[1.4]",
+  1.45: "mv-scale-[1.45]",
+  1.5: "mv-scale-[1.5]",
+  1.55: "mv-scale-[1.55]",
+  1.6: "mv-scale-[1.6]",
+  1.65: "mv-scale-[1.65]",
+  1.7: "mv-scale-[1.7]",
+  1.75: "mv-scale-[1.75]",
+  1.8: "mv-scale-[1.8]",
+  1.85: "mv-scale-[1.85]",
+  1.9: "mv-scale-[1.9]",
+  1.95: "mv-scale-[1.95]",
+  2: "mv-scale-[2]",
+};
 
 function ImageCropper(props: ImageCropperProps) {
   const navigation = useNavigation();
@@ -307,11 +348,14 @@ function ImageCropper(props: ImageCropperProps) {
     e.preventDefault();
 
     const buttonId = e.currentTarget.id;
-    if (buttonId === "scaleDown") {
-      setScale(scale - 0.1);
+
+    if (buttonId === "scaleDown" && scale > 0.1) {
+      const newScale = Math.round((scale - 0.1) * 10) / 10;
+      setScale(newScale);
     }
-    if (buttonId === "scaleUp") {
-      setScale(scale + 0.1);
+    if (buttonId === "scaleUp" && scale < DEFAULT_SCALE * 2) {
+      const newScale = Math.round((scale + 0.1) * 10) / 10;
+      setScale(newScale);
     }
   }
 
@@ -397,7 +441,11 @@ function ImageCropper(props: ImageCropperProps) {
                 ref={imgRef}
                 alt="Crop Preview"
                 src={imgSrc}
-                className={`mv-transform-[scale(${scale})]`}
+                className={
+                  scale in SCALE_CLASSES
+                    ? SCALE_CLASSES[scale as keyof typeof SCALE_CLASSES]
+                    : "mv-scale-100"
+                }
                 onLoad={onImageLoad}
               />
             </ReactCrop>
@@ -520,7 +568,9 @@ function ImageCropper(props: ImageCropperProps) {
                 step={0.05}
                 value={scale}
                 // TODO: can this type assertion be removed and proofen by code?
-                onChange={(v) => setScale(v as number)}
+                onChange={(v) => {
+                  return setScale(v as number);
+                }}
               />
             </div>
             <div className="mv-flex-auto mv-w-1/2 md:mv-w-[calc(25%+1rem)] mv-flex mv-justify-start mv-px-4 md:mv-px-2">

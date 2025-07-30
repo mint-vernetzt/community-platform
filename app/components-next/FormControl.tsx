@@ -18,7 +18,7 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
         {...otherProps}
         form="none"
         type="checkbox"
-        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 mv-hidden"
+        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 mv-fixed mv-top-0 mv-left-0"
         onChange={(event) => {
           event.stopPropagation();
         }}
@@ -183,8 +183,8 @@ export function FormControl(
   });
 
   const classes = classNames(
-    "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-cursor-pointer mv-gap-1 mv-transition",
-    props.disabled && "mv-text-gray-400 mv-cursor-not-allowed"
+    "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-gap-1 mv-transition",
+    props.disabled ? "mv-text-gray-400 mv-cursor-auto" : "mv-cursor-pointer"
   );
 
   return (

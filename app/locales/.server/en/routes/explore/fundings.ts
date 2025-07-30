@@ -33,6 +33,7 @@ export const locale = {
     area: "What is being funded?",
     toFunding: "To funding",
     notProvided: "-not provided-",
+    noFundingType: "No funding type specified",
   },
   survey: {
     title: "Feedback on the funding search",

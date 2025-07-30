@@ -714,7 +714,7 @@ export default function ExploreAll() {
                     </FundingCard.Title>
                     <FundingCard.Category
                       items={funding.regions.map((relation) => {
-                        return relation.area.name;
+                        return relation.region.title;
                       })}
                       locales={loaderData.locales.fundings}
                     >
