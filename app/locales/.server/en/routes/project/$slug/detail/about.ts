@@ -23,6 +23,7 @@ export const locale = {
     hints: "Tips for setting it up",
     furtherDescription2: "Further information",
     team: "Team",
-    responsibleOrganizations: "Responsible organizations",
+    responsibleOrganizations_one: "Responsible organization",
+    responsibleOrganizations_many: "Responsible organizations",
   },
 } as const;
