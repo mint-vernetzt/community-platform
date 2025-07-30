@@ -783,14 +783,14 @@ export async function getEventTagsBySearchQuery(
 
 export async function getFundingTagsBySearchQuery(searchQuery: string) {
   // Get all tags that match the search query and have entities associated with them
-  // Categories are regions, funders, types, areas and eligible entities
+  // Categories are funding areas, funders, types, regions and eligible entities
   const words = searchQuery
     .trim()
     .split(" ")
     .filter((word) => {
       return word.length > 0;
     });
-  const [regions, funders, types, areas, eligibleEntities] =
+  const [fundingAreas, funders, types, regions, eligibleEntities] =
     await prismaClient.$transaction([
       prismaClient.fundingArea.findMany({
         where: {
@@ -852,24 +852,24 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
           title: true,
         },
       }),
-      prismaClient.area.findMany({
+      prismaClient.fundingRegion.findMany({
         where: {
           OR: [
             {
               AND: words.map((word) => {
                 return {
-                  name: {
+                  title: {
                     contains: word,
                     mode: "insensitive",
                   },
-                  AreasOnFundings: { some: {} },
+                  fundings: { some: {} },
                 };
               }),
             },
           ],
         },
         select: {
-          name: true,
+          title: true,
         },
       }),
       prismaClient.fundingEligibleEntity.findMany({
@@ -894,18 +894,12 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
       }),
     ]);
 
-  const normalizedAreas = areas.map((area) => {
-    return {
-      title: area.name,
-    };
-  });
-
   return [
-    ...regions,
+    ...fundingAreas,
     ...funders,
     ...types,
     ...eligibleEntities,
-    ...normalizedAreas,
+    ...regions,
   ];
 }
 
