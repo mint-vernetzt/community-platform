@@ -509,7 +509,7 @@ export default function App() {
               isProjectSettings || isOrganizationSettings
                 ? "mv-hidden @md:mv-block "
                 : ""
-            }mv-sticky mv-top-0 mv-z-20`}
+            }mv-sticky mv-top-0 mv-z-30`}
           >
             <NavBar
               sessionUserInfo={sessionUserInfo}
