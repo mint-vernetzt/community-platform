@@ -1,13 +1,13 @@
+import type { Organization, Prisma, Profile, Project } from "@prisma/client";
+import { type User } from "@supabase/supabase-js";
+import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { type GetProjectsSchema } from "./projects.shared";
 import { type GetSearchSchema } from "./all.shared";
-import { type User } from "@supabase/supabase-js";
-import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
-import type { Organization, Prisma, Profile, Project } from "@prisma/client";
+import { type GetProjectsSchema } from "./projects.shared";
 
 export type ExploreProjectsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -33,10 +33,10 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in "areas"]?: {
+          areas: {
             some: {
-              [K in "area"]?: {
-                [K in "name"]?: {
+              area: {
+                name: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -56,11 +56,19 @@ type SearchWhereStatement = {
                 | "discipline"
                 | "projectTargetGroup"
                 | "specialTargetGroup"]?: {
-                [K in "slug"]?: {
-                  contains: string;
+                slug: {
+                  in: string[];
                   mode: Prisma.QueryMode;
                 };
               };
+            };
+          };
+        }
+      | {
+          [K in "responsibleOrganizations" | "teamMembers"]?: {
+            some: {
+              contains: string;
+              mode: Prisma.QueryMode;
             };
           };
         }
@@ -135,22 +143,22 @@ function getProjectsSearchWhereClauses(
 ) {
   const whereClauses = [];
   for (const word of words) {
-    const formatSlug = getSlugFromLocaleThatContainsWord({
+    const formatSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "formats",
       word,
     });
-    const disciplineSlug = getSlugFromLocaleThatContainsWord({
+    const disciplineSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "disciplines",
       word,
     });
-    const projectTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+    const projectTargetGroupSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "projectTargetGroups",
       word,
     });
-    const specialTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+    const specialTargetGroupSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "specialTargetGroups",
       word,
@@ -279,14 +287,14 @@ function getProjectsSearchWhereClauses(
         },
         {
           AND:
-            disciplineSlug !== undefined
+            disciplineSlugs.length > 0
               ? [
                   {
                     disciplines: {
                       some: {
                         discipline: {
                           slug: {
-                            contains: disciplineSlug,
+                            in: disciplineSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -339,14 +347,14 @@ function getProjectsSearchWhereClauses(
         },
         {
           AND:
-            projectTargetGroupSlug !== undefined
+            projectTargetGroupSlugs.length > 0
               ? [
                   {
                     projectTargetGroups: {
                       some: {
                         projectTargetGroup: {
                           slug: {
-                            contains: projectTargetGroupSlug,
+                            in: projectTargetGroupSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -365,14 +373,14 @@ function getProjectsSearchWhereClauses(
         },
         {
           AND:
-            specialTargetGroupSlug !== undefined
+            specialTargetGroupSlugs.length > 0
               ? [
                   {
                     specialTargetGroups: {
                       some: {
                         specialTargetGroup: {
                           slug: {
-                            contains: specialTargetGroupSlug,
+                            in: specialTargetGroupSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -391,14 +399,14 @@ function getProjectsSearchWhereClauses(
         },
         {
           AND:
-            formatSlug !== undefined
+            formatSlugs.length > 0
               ? [
                   {
                     formats: {
                       some: {
                         format: {
                           slug: {
-                            contains: formatSlug,
+                            in: formatSlugs,
                             mode: "insensitive",
                           },
                         },

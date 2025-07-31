@@ -1,18 +1,18 @@
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { invariantResponse } from "~/lib/utils/response";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type languageModuleMap } from "~/locales/.server";
-import { prismaClient } from "~/prisma.server";
-import { type GetProfilesSchema } from "./profiles.shared";
-import { type GetSearchSchema } from "./all.shared";
-import { type User } from "@supabase/supabase-js";
 import {
   type Organization,
   type Prisma,
   type Profile,
   type Project,
 } from "@prisma/client";
-import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
+import { type User } from "@supabase/supabase-js";
+import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { invariantResponse } from "~/lib/utils/response";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { type GetSearchSchema } from "./all.shared";
+import { type GetProfilesSchema } from "./profiles.shared";
 
 export type ExploreProfilesLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -38,11 +38,23 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in "areas" | "offers" | "seekings"]?: {
+          [K in "areas"]?: {
             some: {
-              [K in "area" | "offer"]?: {
-                [K in "name" | "slug"]?: {
+              area: {
+                name: {
                   contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in "offers" | "seekings"]?: {
+            some: {
+              offer: {
+                slug: {
+                  in: string[];
                   mode: Prisma.QueryMode;
                 };
               };
@@ -121,7 +133,7 @@ function getProfilesSearchWhereClauses(
 ) {
   const whereClauses = [];
   for (const word of words) {
-    const offerOrSeekingSlug = getSlugFromLocaleThatContainsWord({
+    const offerOrSeekingSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "offers",
       word,
@@ -338,14 +350,14 @@ function getProfilesSearchWhereClauses(
         },
         {
           AND:
-            offerOrSeekingSlug !== undefined
+            offerOrSeekingSlugs.length > 0
               ? [
                   {
                     offers: {
                       some: {
                         offer: {
                           slug: {
-                            contains: offerOrSeekingSlug,
+                            in: offerOrSeekingSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -364,14 +376,14 @@ function getProfilesSearchWhereClauses(
         },
         {
           AND:
-            offerOrSeekingSlug !== undefined
+            offerOrSeekingSlugs.length > 0
               ? [
                   {
                     seekings: {
                       some: {
                         offer: {
                           slug: {
-                            contains: offerOrSeekingSlug,
+                            in: offerOrSeekingSlugs,
                             mode: "insensitive",
                           },
                         },

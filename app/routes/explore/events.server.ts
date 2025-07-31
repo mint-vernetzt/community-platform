@@ -6,7 +6,7 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetEventsSchema } from "./events.shared";
 import { type GetSearchSchema } from "./all.shared";
-import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
+import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type Prisma } from "@prisma/client";
 
 export type ExploreEventsLocales = (typeof languageModuleMap)[ArrayElement<
@@ -150,20 +150,10 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in
-            | "areas"
-            | "types"
-            | "focuses"
-            | "tags"
-            | "eventTargetGroups"]?: {
+          areas: {
             some: {
-              [K in
-                | "area"
-                | "eventType"
-                | "focus"
-                | "tag"
-                | "eventTargetGroup"]?: {
-                [K in "name" | "slug"]?: {
+              area: {
+                name: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -172,9 +162,21 @@ type SearchWhereStatement = {
           };
         }
       | {
+          [K in "types" | "focuses" | "tags" | "eventTargetGroups"]?: {
+            some: {
+              [K in "eventType" | "focus" | "tag" | "eventTargetGroup"]?: {
+                slug: {
+                  in: string[];
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
           [K in "experienceLevel" | "stage"]?: {
-            [K in "slug"]?: {
-              contains: string;
+            slug: {
+              in: string[];
               mode: Prisma.QueryMode;
             };
           };
@@ -249,32 +251,32 @@ function getEventsSearchWhereClause(
 ) {
   const whereClauses = [];
   for (const word of words) {
-    const eventTypeSlug = getSlugFromLocaleThatContainsWord({
+    const eventTypeSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "eventTypes",
       word,
     });
-    const focusSlug = getSlugFromLocaleThatContainsWord({
+    const focusSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "focuses",
       word,
     });
-    const tagSlug = getSlugFromLocaleThatContainsWord({
+    const tagSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "tags",
       word,
     });
-    const eventTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+    const eventTargetGroupSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "eventTargetGroups",
       word,
     });
-    const experienceLevelSlug = getSlugFromLocaleThatContainsWord({
+    const experienceLevelSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "experienceLevels",
       word,
     });
-    const stageSlug = getSlugFromLocaleThatContainsWord({
+    const stageSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "stages",
       word,
@@ -290,20 +292,10 @@ function getEventsSearchWhereClause(
               };
             }
           | {
-              [K in
-                | "areas"
-                | "types"
-                | "focuses"
-                | "tags"
-                | "eventTargetGroups"]?: {
+              areas: {
                 some: {
-                  [K in
-                    | "area"
-                    | "eventType"
-                    | "focus"
-                    | "tag"
-                    | "eventTargetGroup"]?: {
-                    [K in "name" | "slug"]?: {
+                  area: {
+                    name: {
                       contains: string;
                       mode: Prisma.QueryMode;
                     };
@@ -312,9 +304,21 @@ function getEventsSearchWhereClause(
               };
             }
           | {
+              [K in "types" | "focuses" | "tags" | "eventTargetGroups"]?: {
+                some: {
+                  [K in "eventType" | "focus" | "tag" | "eventTargetGroup"]?: {
+                    slug: {
+                      in: string[];
+                      mode: Prisma.QueryMode;
+                    };
+                  };
+                };
+              };
+            }
+          | {
               [K in "experienceLevel" | "stage"]?: {
-                [K in "slug"]?: {
-                  contains: string;
+                slug: {
+                  in: string[];
                   mode: Prisma.QueryMode;
                 };
               };
@@ -489,14 +493,14 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            eventTypeSlug !== undefined
+            eventTypeSlugs.length > 0
               ? [
                   {
                     types: {
                       some: {
                         eventType: {
                           slug: {
-                            contains: eventTypeSlug,
+                            in: eventTypeSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -515,12 +519,12 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            experienceLevelSlug !== undefined
+            experienceLevelSlugs.length > 0
               ? [
                   {
                     experienceLevel: {
                       slug: {
-                        contains: experienceLevelSlug,
+                        in: experienceLevelSlugs,
                         mode: "insensitive",
                       },
                     },
@@ -537,12 +541,12 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            stageSlug !== undefined
+            stageSlugs.length > 0
               ? [
                   {
                     stage: {
                       slug: {
-                        contains: stageSlug,
+                        in: stageSlugs,
                         mode: "insensitive",
                       },
                     },
@@ -559,14 +563,14 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            focusSlug !== undefined
+            focusSlugs.length > 0
               ? [
                   {
                     focuses: {
                       some: {
                         focus: {
                           slug: {
-                            contains: focusSlug,
+                            in: focusSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -585,14 +589,14 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            tagSlug !== undefined
+            tagSlugs.length > 0
               ? [
                   {
                     tags: {
                       some: {
                         tag: {
                           slug: {
-                            contains: tagSlug,
+                            in: tagSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -611,14 +615,14 @@ function getEventsSearchWhereClause(
         },
         {
           AND:
-            eventTargetGroupSlug !== undefined
+            eventTargetGroupSlugs.length > 0
               ? [
                   {
                     eventTargetGroups: {
                       some: {
                         eventTargetGroup: {
                           slug: {
-                            contains: eventTargetGroupSlug,
+                            in: eventTargetGroupSlugs,
                             mode: "insensitive",
                           },
                         },
