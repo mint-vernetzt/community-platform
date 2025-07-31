@@ -41,10 +41,10 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in "areas"]?: {
+          areas: {
             some: {
-              [K in "area" | "organizationType" | "networkType" | "focus"]?: {
-                [K in "name" | "slug"]?: {
+              area: {
+                name: {
                   contains: string;
                   mode: Prisma.QueryMode;
                 };
@@ -53,10 +53,10 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in "areas" | "types" | "networkTypes" | "focuses"]?: {
+          [K in "types" | "networkTypes" | "focuses"]?: {
             some: {
-              [K in "area" | "organizationType" | "networkType" | "focus"]?: {
-                [K in "name" | "slug"]?: {
+              [K in "organizationType" | "networkType" | "focus"]?: {
+                slug: {
                   in: string[];
                   mode: Prisma.QueryMode;
                 };
