@@ -169,7 +169,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     name: true,
@@ -186,7 +186,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     slug: true,
@@ -203,7 +203,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     email: true,
@@ -220,7 +220,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     street: true,
@@ -237,7 +237,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     city: true,
@@ -254,7 +254,7 @@ function getOrganizationsSearchWhereClause(
                 mode: "insensitive",
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     bio: true,
@@ -270,7 +270,7 @@ function getOrganizationsSearchWhereClause(
                 has: word,
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     supportedBy: true,
@@ -293,7 +293,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     areas: true,
@@ -318,7 +318,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  isLoggedIn
+                  isLoggedIn === false
                     ? {
                         organizationVisibility: {
                           focuses: true,
@@ -341,7 +341,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      isLoggedIn
+                      isLoggedIn === false
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -353,7 +353,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     networkMembers: true,
@@ -375,7 +375,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      isLoggedIn
+                      isLoggedIn === false
                         ? {
                             organizationVisibility: {
                               name: true,
@@ -387,7 +387,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     memberOf: true,
@@ -409,7 +409,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      isLoggedIn
+                      isLoggedIn === false
                         ? {
                             profileVisibility: {
                               firstName: true,
@@ -421,7 +421,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     teamMembers: true,
@@ -443,7 +443,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      isLoggedIn
+                      isLoggedIn === false
                         ? {
                             profileVisibility: {
                               lastName: true,
@@ -455,7 +455,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     teamMembers: true,
@@ -480,7 +480,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  isLoggedIn
+                  isLoggedIn === false
                     ? {
                         organizationVisibility: {
                           types: true,
@@ -506,7 +506,7 @@ function getOrganizationsSearchWhereClause(
                       },
                     },
                   },
-                  isLoggedIn
+                  isLoggedIn === false
                     ? {
                         organizationVisibility: {
                           networkTypes: true,
@@ -529,7 +529,7 @@ function getOrganizationsSearchWhereClause(
                           mode: "insensitive",
                         },
                       },
-                      isLoggedIn
+                      isLoggedIn === false
                         ? {
                             projectVisibility: {
                               name: true,
@@ -541,7 +541,7 @@ function getOrganizationsSearchWhereClause(
                 },
               },
             },
-            isLoggedIn
+            isLoggedIn === false
               ? {
                   organizationVisibility: {
                     responsibleForProject: true,
