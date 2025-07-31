@@ -1,6 +1,6 @@
 import { prismaClient } from "~/prisma.server";
 import {
-  getSlugFromLocaleThatContainsWord,
+  getAllSlugsFromLocaleThatContainsWord,
   detectLanguage as nextDetectLanguage,
 } from "./i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "./i18n.shared";
@@ -38,17 +38,16 @@ export async function getProfileTagsBySearchQuery(
   // Categories are areas, offers and seekings
   const slugs: Array<string> = [];
   const words = searchQuery.split(" ");
+
   for (const word of words) {
-    const offerOrSeekingSlug = getSlugFromLocaleThatContainsWord({
+    const offerOrSeekingSlugs = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "offers",
-    }) as keyof (typeof languageModuleMap)[ArrayElement<
+    }) as (keyof (typeof languageModuleMap)[ArrayElement<
       typeof SUPPORTED_COOKIE_LANGUAGES
-    >]["offers"];
-    if (typeof offerOrSeekingSlug !== "undefined") {
-      slugs.push(offerOrSeekingSlug);
-    }
+    >]["offers"])[];
+    slugs.push(...offerOrSeekingSlugs);
   }
 
   const [offerAndSeekingSlugs, areas] = await prismaClient.$transaction([
@@ -125,30 +124,24 @@ export async function getOrganizationTagsBySearchQuery(
   const networkTypeSlugs: Array<string> = [];
   const words = searchQuery.split(" ");
   for (const word of words) {
-    const focusSlug = getSlugFromLocaleThatContainsWord({
+    const focusSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "focuses",
     });
-    if (typeof focusSlug !== "undefined") {
-      focusSlugs.push(focusSlug);
-    }
-    const organizationTypeSlug = getSlugFromLocaleThatContainsWord({
+    focusSlugs.push(...focusSlugsForWord);
+    const organizationTypeSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "organizationTypes",
       word,
     });
-    if (typeof organizationTypeSlug !== "undefined") {
-      organizationTypeSlugs.push(organizationTypeSlug);
-    }
-    const networkTypeSlug = getSlugFromLocaleThatContainsWord({
+    organizationTypeSlugs.push(...organizationTypeSlugsForWord);
+    const networkTypeSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "networkTypes",
       word,
     });
-    if (typeof networkTypeSlug !== "undefined") {
-      networkTypeSlugs.push(networkTypeSlug);
-    }
+    networkTypeSlugs.push(...networkTypeSlugsForWord);
   }
 
   const [focuses, organizationTypes, networkTypes, areas] =
@@ -162,13 +155,9 @@ export async function getOrganizationTagsBySearchQuery(
               },
             },
             {
-              OR: [
-                {
-                  organizations: {
-                    some: {},
-                  },
-                },
-              ],
+              organizations: {
+                some: {},
+              },
             },
           ],
         },
@@ -178,22 +167,12 @@ export async function getOrganizationTagsBySearchQuery(
       }),
       prismaClient.organizationType.findMany({
         where: {
-          AND: [
-            {
-              slug: {
-                in: organizationTypeSlugs,
-              },
-            },
-            {
-              OR: [
-                {
-                  organizations: {
-                    some: {},
-                  },
-                },
-              ],
-            },
-          ],
+          slug: {
+            in: organizationTypeSlugs,
+          },
+          organizations: {
+            some: {},
+          },
         },
         select: {
           slug: true,
@@ -201,22 +180,12 @@ export async function getOrganizationTagsBySearchQuery(
       }),
       prismaClient.networkType.findMany({
         where: {
-          AND: [
-            {
-              slug: {
-                in: networkTypeSlugs,
-              },
-            },
-            {
-              OR: [
-                {
-                  organizations: {
-                    some: {},
-                  },
-                },
-              ],
-            },
-          ],
+          slug: {
+            in: networkTypeSlugs,
+          },
+          organizations: {
+            some: {},
+          },
         },
         select: {
           slug: true,
@@ -247,6 +216,7 @@ export async function getOrganizationTagsBySearchQuery(
         ].title,
     };
   });
+
   const normalizedOrganizationTypes = organizationTypes.map(
     (organizationType) => {
       return {
@@ -292,46 +262,38 @@ export async function getProjectTagsBySearchQuery(
 
   const words = searchQuery.trim().split(" ");
   for (const word of words) {
-    const disciplineSlug = getSlugFromLocaleThatContainsWord({
+    const disciplineSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "disciplines",
     });
-    if (typeof disciplineSlug !== "undefined") {
-      disciplineSlugs.push(disciplineSlug);
-    }
-    const targetGroupSlug = getSlugFromLocaleThatContainsWord({
+
+    disciplineSlugs.push(...disciplineSlugsForWord);
+    const targetGroupSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "projectTargetGroups",
     });
-    if (typeof targetGroupSlug !== "undefined") {
-      targetGroupsSlugs.push(targetGroupSlug);
-    }
-    const formatSlug = getSlugFromLocaleThatContainsWord({
+    targetGroupsSlugs.push(...targetGroupSlugsForWord);
+    const formatSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "formats",
     });
-    if (typeof formatSlug !== "undefined") {
-      formatSlugs.push(formatSlug);
-    }
-    const furtherTargetGroupSlug = getSlugFromLocaleThatContainsWord({
-      word,
-      language,
-      locales: "specialTargetGroups",
-    });
-    if (typeof furtherTargetGroupSlug !== "undefined") {
-      furtherTargetGroupsSlugs.push(furtherTargetGroupSlug);
-    }
-    const financingSlug = getSlugFromLocaleThatContainsWord({
+    formatSlugs.push(...formatSlugsForWord);
+    const furtherTargetGroupSlugsForWord =
+      getAllSlugsFromLocaleThatContainsWord({
+        word,
+        language,
+        locales: "specialTargetGroups",
+      });
+    furtherTargetGroupsSlugs.push(...furtherTargetGroupSlugsForWord);
+    const financingSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "financings",
     });
-    if (typeof financingSlug !== "undefined") {
-      financingSlugs.push(financingSlug);
-    }
+    financingSlugs.push(...financingSlugsForWord);
   }
 
   const [
@@ -344,18 +306,12 @@ export async function getProjectTagsBySearchQuery(
   ] = await prismaClient.$transaction([
     prismaClient.discipline.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: disciplineSlugs,
-            },
-          },
-          {
-            projects: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: disciplineSlugs,
+        },
+        projects: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -363,18 +319,12 @@ export async function getProjectTagsBySearchQuery(
     }),
     prismaClient.projectTargetGroup.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: targetGroupsSlugs,
-            },
-          },
-          {
-            projects: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: targetGroupsSlugs,
+        },
+        projects: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -382,18 +332,12 @@ export async function getProjectTagsBySearchQuery(
     }),
     prismaClient.format.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: formatSlugs,
-            },
-          },
-          {
-            projects: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: formatSlugs,
+        },
+        projects: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -401,18 +345,12 @@ export async function getProjectTagsBySearchQuery(
     }),
     prismaClient.specialTargetGroup.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: furtherTargetGroupsSlugs,
-            },
-          },
-          {
-            projects: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: furtherTargetGroupsSlugs,
+        },
+        projects: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -420,18 +358,12 @@ export async function getProjectTagsBySearchQuery(
     }),
     prismaClient.financing.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: financingSlugs,
-            },
-          },
-          {
-            projects: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: financingSlugs,
+        },
+        projects: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -526,54 +458,44 @@ export async function getEventTagsBySearchQuery(
   const words = searchQuery.trim().split(" ");
 
   for (const word of words) {
-    const eventTypeSlug = getSlugFromLocaleThatContainsWord({
+    const eventTypeSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "eventTypes",
     });
-    if (typeof eventTypeSlug !== "undefined") {
-      eventTypeSlugs.push(eventTypeSlug);
-    }
-    const focusSlug = getSlugFromLocaleThatContainsWord({
+
+    eventTypeSlugs.push(...eventTypeSlugsForWord);
+    const focusSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "focuses",
     });
-    if (typeof focusSlug !== "undefined") {
-      focusSlugs.push(focusSlug);
-    }
-    const tagSlug = getSlugFromLocaleThatContainsWord({
+
+    focusSlugs.push(...focusSlugsForWord);
+    const tagSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "tags",
     });
-    if (typeof tagSlug !== "undefined") {
-      tagSlugs.push(tagSlug);
-    }
-    const eventTargetGroupSlug = getSlugFromLocaleThatContainsWord({
+    tagSlugs.push(...tagSlugsForWord);
+    const eventTargetGroupSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "eventTargetGroups",
     });
-    if (typeof eventTargetGroupSlug !== "undefined") {
-      eventTargetGroupSlugs.push(eventTargetGroupSlug);
-    }
-    const experienceLevelSlug = getSlugFromLocaleThatContainsWord({
+    eventTargetGroupSlugs.push(...eventTargetGroupSlugsForWord);
+    const experienceLevelSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "experienceLevels",
     });
-    if (typeof experienceLevelSlug !== "undefined") {
-      experienceLevelSlugs.push(experienceLevelSlug);
-    }
-    const stageSlug = getSlugFromLocaleThatContainsWord({
+    experienceLevelSlugs.push(...experienceLevelSlugsForWord);
+    const stageSlugsForWord = getAllSlugsFromLocaleThatContainsWord({
       word,
       language,
       locales: "stages",
     });
-    if (typeof stageSlug !== "undefined") {
-      stageSlugs.push(stageSlug);
-    }
+    stageSlugs.push(...stageSlugsForWord);
   }
 
   const [
@@ -587,18 +509,12 @@ export async function getEventTagsBySearchQuery(
   ] = await prismaClient.$transaction([
     prismaClient.eventType.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: eventTypeSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: eventTypeSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -606,18 +522,12 @@ export async function getEventTagsBySearchQuery(
     }),
     prismaClient.focus.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: focusSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: focusSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -625,18 +535,12 @@ export async function getEventTagsBySearchQuery(
     }),
     prismaClient.tag.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: tagSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: tagSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -644,18 +548,12 @@ export async function getEventTagsBySearchQuery(
     }),
     prismaClient.eventTargetGroup.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: eventTargetGroupSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: eventTargetGroupSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -663,18 +561,12 @@ export async function getEventTagsBySearchQuery(
     }),
     prismaClient.experienceLevel.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: experienceLevelSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: experienceLevelSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -682,18 +574,12 @@ export async function getEventTagsBySearchQuery(
     }),
     prismaClient.stage.findMany({
       where: {
-        AND: [
-          {
-            slug: {
-              in: stageSlugs,
-            },
-          },
-          {
-            events: {
-              some: {},
-            },
-          },
-        ],
+        slug: {
+          in: stageSlugs,
+        },
+        events: {
+          some: {},
+        },
       },
       select: {
         slug: true,
@@ -794,19 +680,15 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
     await prismaClient.$transaction([
       prismaClient.fundingArea.findMany({
         where: {
-          OR: [
-            {
-              AND: words.map((word) => {
-                return {
-                  title: {
-                    contains: word,
-                    mode: "insensitive",
-                  },
-                  fundings: { some: {} },
-                };
-              }),
-            },
-          ],
+          OR: words.map((word) => {
+            return {
+              title: {
+                contains: word,
+                mode: "insensitive",
+              },
+            };
+          }),
+          fundings: { some: {} },
         },
         select: {
           title: true,
@@ -814,19 +696,15 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
       }),
       prismaClient.funder.findMany({
         where: {
-          OR: [
-            {
-              AND: words.map((word) => {
-                return {
-                  title: {
-                    contains: word,
-                    mode: "insensitive",
-                  },
-                  fundings: { some: {} },
-                };
-              }),
-            },
-          ],
+          OR: words.map((word) => {
+            return {
+              title: {
+                contains: word,
+                mode: "insensitive",
+              },
+            };
+          }),
+          fundings: { some: {} },
         },
         select: {
           title: true,
@@ -834,19 +712,15 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
       }),
       prismaClient.fundingType.findMany({
         where: {
-          OR: [
-            {
-              AND: words.map((word) => {
-                return {
-                  title: {
-                    contains: word,
-                    mode: "insensitive",
-                  },
-                  fundings: { some: {} },
-                };
-              }),
-            },
-          ],
+          OR: words.map((word) => {
+            return {
+              title: {
+                contains: word,
+                mode: "insensitive",
+              },
+            };
+          }),
+          fundings: { some: {} },
         },
         select: {
           title: true,
@@ -854,19 +728,15 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
       }),
       prismaClient.fundingRegion.findMany({
         where: {
-          OR: [
-            {
-              AND: words.map((word) => {
-                return {
-                  title: {
-                    contains: word,
-                    mode: "insensitive",
-                  },
-                  fundings: { some: {} },
-                };
-              }),
-            },
-          ],
+          OR: words.map((word) => {
+            return {
+              title: {
+                contains: word,
+                mode: "insensitive",
+              },
+            };
+          }),
+          fundings: { some: {} },
         },
         select: {
           title: true,
@@ -874,19 +744,15 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
       }),
       prismaClient.fundingEligibleEntity.findMany({
         where: {
-          OR: [
-            {
-              AND: words.map((word) => {
-                return {
-                  title: {
-                    contains: word,
-                    mode: "insensitive",
-                  },
-                  fundings: { some: {} },
-                };
-              }),
-            },
-          ],
+          OR: words.map((word) => {
+            return {
+              title: {
+                contains: word,
+                mode: "insensitive",
+              },
+            };
+          }),
+          fundings: { some: {} },
         },
         select: {
           title: true,

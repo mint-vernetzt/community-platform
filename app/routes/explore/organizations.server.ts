@@ -1,18 +1,18 @@
+import {
+  type Organization,
+  type Prisma,
+  type Profile,
+  type Project,
+} from "@prisma/client";
+import { type User } from "@supabase/supabase-js";
+import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { type GetOrganizationsSchema } from "./organizations.shared";
 import { type GetSearchSchema } from "./all.shared";
-import { type User } from "@supabase/supabase-js";
-import { getSlugFromLocaleThatContainsWord } from "~/i18n.server";
-import {
-  type Profile,
-  type Project,
-  type Organization,
-  type Prisma,
-} from "@prisma/client";
+import { type GetOrganizationsSchema } from "./organizations.shared";
 
 export type ExploreOrganizationsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -41,11 +41,23 @@ type SearchWhereStatement = {
           };
         }
       | {
-          [K in "areas" | "types" | "networkTypes" | "focuses"]?: {
+          [K in "areas"]?: {
             some: {
               [K in "area" | "organizationType" | "networkType" | "focus"]?: {
                 [K in "name" | "slug"]?: {
                   contains: string;
+                  mode: Prisma.QueryMode;
+                };
+              };
+            };
+          };
+        }
+      | {
+          [K in "areas" | "types" | "networkTypes" | "focuses"]?: {
+            some: {
+              [K in "area" | "organizationType" | "networkType" | "focus"]?: {
+                [K in "name" | "slug"]?: {
+                  in: string[];
                   mode: Prisma.QueryMode;
                 };
               };
@@ -144,17 +156,17 @@ function getOrganizationsSearchWhereClause(
   const whereClauses = [];
 
   for (const word of words) {
-    const focusSlug = getSlugFromLocaleThatContainsWord({
+    const focusSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "focuses",
       word,
     });
-    const organizationTypeSlug = getSlugFromLocaleThatContainsWord({
+    const organizationTypeSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "organizationTypes",
       word,
     });
-    const networkTypeSlug = getSlugFromLocaleThatContainsWord({
+    const networkTypeSlugs = getAllSlugsFromLocaleThatContainsWord({
       language,
       locales: "networkTypes",
       word,
@@ -304,14 +316,14 @@ function getOrganizationsSearchWhereClause(
         },
         {
           AND:
-            focusSlug !== undefined
+            focusSlugs.length > 0
               ? [
                   {
                     focuses: {
                       some: {
                         focus: {
                           slug: {
-                            contains: focusSlug,
+                            in: focusSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -466,14 +478,14 @@ function getOrganizationsSearchWhereClause(
         },
         {
           AND:
-            organizationTypeSlug !== undefined
+            organizationTypeSlugs.length > 0
               ? [
                   {
                     types: {
                       some: {
                         organizationType: {
                           slug: {
-                            contains: organizationTypeSlug,
+                            in: organizationTypeSlugs,
                             mode: "insensitive",
                           },
                         },
@@ -492,14 +504,14 @@ function getOrganizationsSearchWhereClause(
         },
         {
           AND:
-            networkTypeSlug !== undefined
+            networkTypeSlugs.length > 0
               ? [
                   {
                     networkTypes: {
                       some: {
                         networkType: {
                           slug: {
-                            contains: networkTypeSlug,
+                            in: networkTypeSlugs,
                             mode: "insensitive",
                           },
                         },

@@ -112,27 +112,46 @@ export function getSlugFromLocaleThatContainsWord(options: {
   >];
   word: string;
 }) {
-  const { language, locales, word } = options;
-
-  if (word.length === 0) {
-    return;
-  }
-
-  const slugs = Object.entries(languageModuleMap[language][locales]).find(
-    ([, value]) => {
-      if (
-        typeof value !== "object" &&
-        "title" in value === false &&
-        typeof value.title !== "string"
-      ) {
-        return false;
-      }
-      return (value.title as string).toLowerCase().includes(word.toLowerCase());
-    }
-  );
-
-  if (typeof slugs === "undefined") {
+  const slugs = getAllSlugsFromLocaleThatContainsWord(options);
+  if (slugs.length === 0) {
     return;
   }
   return slugs[0];
+}
+
+export function getAllSlugsFromLocaleThatContainsWord(options: {
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  locales: keyof (typeof languageModuleMap)[ArrayElement<
+    typeof SUPPORTED_COOKIE_LANGUAGES
+  >];
+  word: string;
+}) {
+  const { language, locales, word } = options;
+
+  if (word.length === 0) {
+    return [];
+  }
+
+  const slugsObjects = Object.entries(
+    languageModuleMap[language][locales]
+  ).filter(([, value]) => {
+    if (
+      typeof value !== "object" &&
+      "title" in value === false &&
+      typeof value.title !== "string"
+    ) {
+      return false;
+    }
+    return (value.title as string).toLowerCase().includes(word.toLowerCase());
+  });
+
+  if (slugsObjects.length === 0) {
+    return [];
+  }
+
+  const slugs = slugsObjects.map(([slug]) => {
+    return slug;
+  });
+
+  return slugs;
 }
