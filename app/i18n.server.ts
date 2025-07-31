@@ -105,20 +105,6 @@ export async function detectLanguage(request: Request) {
   }
 }
 
-export function getSlugFromLocaleThatContainsWord(options: {
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
-  locales: keyof (typeof languageModuleMap)[ArrayElement<
-    typeof SUPPORTED_COOKIE_LANGUAGES
-  >];
-  word: string;
-}) {
-  const slugs = getAllSlugsFromLocaleThatContainsWord(options);
-  if (slugs.length === 0) {
-    return;
-  }
-  return slugs[0];
-}
-
 export function getAllSlugsFromLocaleThatContainsWord(options: {
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   locales: keyof (typeof languageModuleMap)[ArrayElement<
