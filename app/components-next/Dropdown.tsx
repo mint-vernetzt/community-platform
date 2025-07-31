@@ -125,8 +125,11 @@ const DropdownList = forwardRef<
             "props" in child &&
             typeof child.props === "object" &&
             child.props !== null &&
-            "disabled" in child.props &&
-            child.props.disabled !== true;
+            (("disabled" in child.props && child.props.disabled !== true) ||
+              ("type" in child.props &&
+                child.props.type === "radio" &&
+                "defaultChecked" in child.props &&
+                child.props.defaultChecked !== true));
 
           const classes = classNames(
             isValidElement(child) &&
