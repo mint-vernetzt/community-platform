@@ -271,9 +271,9 @@ function ResultItem(props: {
     props.entity === "project" ||
     props.entity === "funding"
   ) {
-    to = `/explore/${props.entity}s?search=${props.title}`;
+    to = `/explore/${props.entity}s?search=${encodeURIComponent(props.title)}`;
   } else {
-    to = `/explore/all?search=${props.title}`;
+    to = `/explore/all?search=${encodeURIComponent(props.title)}`;
   }
 
   // Highlight the search term in the title
