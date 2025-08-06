@@ -34,19 +34,29 @@ export const locale = {
   },
   inDevelopment: {
     title: "In development",
+    map: {
+      title: "Map",
+      description:
+        "With the new map view, you can quickly find organizations near you or with a similar focus. Filter by topics, region, or network type – and discover new points of contact for exchange and collaboration.",
+    },
     createOwnEvents: {
       title: "Create your own events",
       description:
         "As a STEM actor, you can create your own events and manage the participants.",
+    },
+  },
+  done: {
+    title: "Already implemented",
+    accessibility: {
+      title: "Accessibility",
+      description:
+        "You should be able to use the platform as easily and accessibly as possible. Many areas are already well accessible – and we continue to work on enabling you to use it even more inclusively.",
     },
     sharepicAndMediaDatabase: {
       title: "STEM sharepic and image database",
       description:
         "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database.",
     },
-  },
-  done: {
-    title: "Already implemented",
     visualizeNetworks: {
       title: "Visualize Networks",
       description:

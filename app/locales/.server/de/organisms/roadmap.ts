@@ -35,23 +35,33 @@ export const locale = {
   },
   inDevelopment: {
     title: "In der Entwicklung",
+    map: {
+      title: "Map",
+      description:
+        "Mit der neuen Karten-Darstellung findest Du schnell Organisationen in Deiner Nähe oder mit ähnlichem Fokus. Filtere nach Themen, Region oder Netzwerkform – und entdecke neue Anknüpfungspunkte für Austausch und Zusammenarbeit.",
+    },
     createOwnEvents: {
       title: "Eigene Events anlegen",
       description:
         "Du kannst als MINT-Akteur:in eigene Events anlegen und die Teilnehmenden verwalten.",
+    },
+  },
+  done: {
+    title: "Bereits umgesetzt",
+    accessibility: {
+      title: "Barrierefreiheit",
+      description:
+        "Du sollst die Plattform möglichst einfach und barrierefrei nutzen können. Viele Bereiche sind bereits gut zugänglich – und wir arbeiten weiter daran, Dir eine noch inklusivere Nutzung zu ermöglichen.",
     },
     sharepicAndMediaDatabase: {
       title: "MINT-Sharepic und -Bilddatenbank",
       description:
         "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank.",
     },
-  },
-  done: {
-    title: "Bereits umgesetzt",
     visualizeNetworks: {
       title: "Netzwerke darstellen",
       description:
-        " Wir wollen die vielfältigen Verbindungen und Netzwerke innerhalb unserer Community darstellen. Du kannst Dein eigenes Netzwerk darstellen und andere Netzwerkstrukturen und -zugehörigkeiten finden z.B. MINT-Cluster, MINT-Regionen, Fablabs etc.",
+        "Wir wollen die vielfältigen Verbindungen und Netzwerke innerhalb unserer Community darstellen. Du kannst Dein eigenes Netzwerk darstellen und andere Netzwerkstrukturen und -zugehörigkeiten finden z.B. MINT-Cluster, MINT-Regionen, Fablabs etc.",
     },
     fundingSearch: {
       title: "Förder-Tool",
