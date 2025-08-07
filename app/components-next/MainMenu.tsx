@@ -44,7 +44,7 @@ export function MainMenu(
         isOpen !== null && isOpen !== "false"
           ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
           : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-screen mv-sticky mv-top-0 mv-bg-white`}
+      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-dvh mv-sticky mv-top-0 mv-bg-white`}
     >
       <a
         id="main-menu-start"

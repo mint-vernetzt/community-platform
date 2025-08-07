@@ -10,8 +10,8 @@ function ScrollToTopButton(props: { locales: RootLocales }) {
   return (
     <>
       <div className="mv-w-0 mv-h-[80px] xl:mv-h-[84px]"></div>
-      <div className="mv-w-0 mv-h-screen mv-sticky mv-top-0">
-        <div className="mv-relative mv-w-0 mv-h-screen">
+      <div className="mv-w-0 mv-h-dvh mv-sticky mv-top-0">
+        <div className="mv-relative mv-w-0 mv-h-dvh">
           <div className="mv-absolute mv-bottom-4 -mv-left-20">
             <CircleButton
               as="a"

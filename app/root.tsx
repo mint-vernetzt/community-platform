@@ -228,7 +228,7 @@ export const ErrorBoundary = () => {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-flex mv-min-h-screen mv-break-words mv-antialiased mv-overflow-x-hidden",
+    "mv-flex mv-min-h-dvh mv-break-words mv-antialiased mv-overflow-x-hidden",
     mainMenuIsOpen !== null &&
       mainMenuIsOpen !== "false" &&
       "mv-overflow-y-hidden xl:mv-overflow-y-visible"
@@ -461,7 +461,7 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-flex mv-min-h-screen mv-break-words mv-antialiased mv-overflow-x-hidden",
+    "mv-flex mv-min-h-dvh mv-break-words mv-antialiased mv-overflow-x-hidden",
     modal && "mv-overflow-y-hidden",
     overlayMenu && "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",
     showFilters !== null &&
