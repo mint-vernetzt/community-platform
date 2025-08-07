@@ -2,7 +2,14 @@ import {
   Input,
   type InputLabelProps,
 } from "@mint-vernetzt/components/src/molecules/Input";
-import { Children, cloneElement, isValidElement } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 function ConformSelectControls(props: React.PropsWithChildren) {
   return (
@@ -20,16 +27,50 @@ function ConformSelectInput(props: {
 }) {
   const { id, disabled = false, cta, listItems } = props;
 
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const labelRef = useRef<HTMLLabelElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const { target } = event;
+      if (
+        isOpen === true &&
+        inputRef.current !== null &&
+        listRef.current !== null &&
+        labelRef.current !== null &&
+        inputRef.current !== target &&
+        listRef.current !== target &&
+        labelRef.current !== target &&
+        inputRef.current.contains(target as Node) === false &&
+        listRef.current.contains(target as Node) === false &&
+        labelRef.current.contains(target as Node) === false
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  });
+
   return (
     <>
       <input
+        ref={inputRef}
         id={id}
         type="checkbox"
-        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0 group-has-[:checked]/conform-select:mv-w-screen group-has-[:checked]/conform-select:mv-h-dvh"
-        defaultChecked={false}
+        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0"
+        checked={isOpen}
         disabled={disabled === true}
+        onChange={() => {
+          setIsOpen((prev) => !prev);
+        }}
       />
       <label
+        ref={labelRef}
         className={`mv-relative mv-bg-white mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/conform-select:mv-border-blue-400 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 ${
           disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
         }`}
@@ -53,7 +94,10 @@ function ConformSelectInput(props: {
           />
         </svg>
       </label>
-      <ul className="mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300">
+      <ul
+        ref={listRef}
+        className="mv-absolute mv-top-[70px] mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300"
+      >
         {listItems.map((button) => {
           if (isValidElement(button)) {
             if (button.type === "button") {
@@ -148,7 +192,7 @@ function ConformSelect(props: ConformSelectProps) {
   });
 
   return (
-    <div className="mv-w-full">
+    <div className="mv-relative mv-w-full">
       {label}
       {typeof controls !== "undefined" ? (
         <div className="mv-flex mv-flex-col mv-w-full">
