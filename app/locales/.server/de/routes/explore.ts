@@ -19,7 +19,7 @@ export const locale = {
     menu: {
       allContent: "Alle Inhalte",
       profiles: "Personen",
-      organizations: "Organisation",
+      organizations: "Organisationen",
       events: "Events",
       projects: "Projekte",
       fundings: "Förderungen",
