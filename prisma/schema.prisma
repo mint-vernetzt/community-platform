@@ -243,6 +243,8 @@ model Organization {
   supportedBy            String[]                             @map("supported_by")
   updatedAt              DateTime                             @default(now()) @updatedAt @map("updated_at")
   zipCode                String?                              @map("zip_code")
+  longitude              String?
+  latitude               String?
   instagram              String?
   youtube                String?
   mastodon               String?
