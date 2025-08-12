@@ -34,7 +34,11 @@ import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { sanitizeUserHtml, triggerEntityScore } from "~/utils.server";
+import {
+  getCoordinatesFromAddress,
+  sanitizeUserHtml,
+  triggerEntityScore,
+} from "~/utils.server";
 import {
   createAreaOptions,
   type GeneralOrganizationSettingsLocales,
@@ -300,6 +304,16 @@ export async function action(args: ActionFunctionArgs) {
     schema: () =>
       createGeneralSchema(locales).transform(async (data, ctx) => {
         const { visibilities, areas, focuses, ...organizationData } = data;
+        const { longitude, latitude, error } = await getCoordinatesFromAddress({
+          id: organization.id,
+          street: organizationData.street,
+          streetNumber: organizationData.streetNumber,
+          city: organizationData.city,
+          zipCode: organizationData.zipCode,
+        });
+        if (error !== null) {
+          console.error(error);
+        }
         try {
           await prismaClient.organization.update({
             where: {
@@ -307,6 +321,8 @@ export async function action(args: ActionFunctionArgs) {
             },
             data: {
               ...organizationData,
+              longitude,
+              latitude,
               bio: sanitizeUserHtml(organizationData.bio),
               areas: {
                 deleteMany: {},
