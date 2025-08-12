@@ -427,6 +427,7 @@ export default function App() {
   let isOrganizationSettings = false;
   let isDashboard = false;
   let isExplore = false;
+  let isMap = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
@@ -441,6 +442,7 @@ export default function App() {
       "routes/project/$slug/settings",
     ];
     isSettings = otherSettingsRoutes.includes(matches[1].id);
+    isMap = matches[1].id === "routes/map/index";
   }
 
   const [searchParams] = useSearchParams();
@@ -482,90 +484,102 @@ export default function App() {
       </head>
 
       <body id="top" className={bodyClasses}>
-        <div
-          inert={modal ? true : undefined}
-          className={
-            mainMenuIsOpen ? "mv-w-full xl:mv-w-fit" : "mv-hidden xl:mv-block"
-          }
-        >
-          <MainMenu
-            mode={mode}
-            openMainMenuKey={openMainMenuKey}
-            username={sessionUserInfo?.username}
-            currentLanguage={currentLanguage}
-            locales={locales}
-          />
-        </div>
-        <div
-          inert={modal ? true : undefined}
-          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
-            mainMenuIsOpen === null || mainMenuIsOpen === "false"
-              ? ""
-              : "mv-hidden xl:mv-block"
-          }`}
-        >
-          <div
-            className={`${showFilters ? "mv-hidden @lg:mv-block " : ""}${
-              isProjectSettings || isOrganizationSettings
-                ? "mv-hidden @md:mv-block "
-                : ""
-            }mv-sticky mv-top-0 mv-z-30`}
-          >
-            <NavBar
-              sessionUserInfo={sessionUserInfo}
-              openMainMenuKey={openMainMenuKey}
-              locales={locales}
-              hideSearchBar={
-                isDashboard
-                  ? {
-                      untilScrollY: 570,
-                      afterBreakpoint: "@md",
-                    }
-                  : isExplore
-                  ? {
-                      untilScrollY: 274,
-                      afterBreakpoint: "@lg",
-                    }
-                  : undefined
+        {isMap === false ? (
+          <>
+            <div
+              inert={modal ? true : undefined}
+              className={
+                mainMenuIsOpen
+                  ? "mv-w-full xl:mv-w-fit"
+                  : "mv-hidden xl:mv-block"
               }
-            />
-          </div>
-          {isIndexRoute === false && isNonAppBaseRoute === false && (
-            <div
-              className={`${
-                isProjectSettings || isOrganizationSettings
-                  ? "mv-hidden @md:mv-block "
-                  : ""
-              }${showFilters ? "mv-hidden @lg:mv-block" : ""}`}
             >
-              <LoginOrRegisterCTA isAnon={mode === "anon"} locales={locales} />
+              <MainMenu
+                mode={mode}
+                openMainMenuKey={openMainMenuKey}
+                username={sessionUserInfo?.username}
+                currentLanguage={currentLanguage}
+                locales={locales}
+              />
             </div>
-          )}
-          <div className="mv-flex mv-flex-nowrap mv-w-full">
-            <main className="mv-w-full @md:mv-bg-neutral-50">
-              <Outlet />
-            </main>
             <div
-              className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
-                showFilters ? "mv-hidden @lg:mv-block " : ""
-              }mv-w-0`}
+              inert={modal ? true : undefined}
+              className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+                mainMenuIsOpen === null || mainMenuIsOpen === "false"
+                  ? ""
+                  : "mv-hidden xl:mv-block"
+              }`}
             >
-              <ScrollToTopButton locales={locales} />
-            </div>
-          </div>
-          {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
-          {alert !== null ? (
-            <Alert level={alert.level}>
-              {alert.isRichtext !== undefined && alert.isRichtext === true ? (
-                <RichText html={alert.message} />
-              ) : (
-                alert.message
+              <div
+                className={`${showFilters ? "mv-hidden @lg:mv-block " : ""}${
+                  isProjectSettings || isOrganizationSettings
+                    ? "mv-hidden @md:mv-block "
+                    : ""
+                }mv-sticky mv-top-0 mv-z-30`}
+              >
+                <NavBar
+                  sessionUserInfo={sessionUserInfo}
+                  openMainMenuKey={openMainMenuKey}
+                  locales={locales}
+                  hideSearchBar={
+                    isDashboard
+                      ? {
+                          untilScrollY: 570,
+                          afterBreakpoint: "@md",
+                        }
+                      : isExplore
+                      ? {
+                          untilScrollY: 274,
+                          afterBreakpoint: "@lg",
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+              {isIndexRoute === false && isNonAppBaseRoute === false && (
+                <div
+                  className={`${
+                    isProjectSettings || isOrganizationSettings
+                      ? "mv-hidden @md:mv-block "
+                      : ""
+                  }${showFilters ? "mv-hidden @lg:mv-block" : ""}`}
+                >
+                  <LoginOrRegisterCTA
+                    isAnon={mode === "anon"}
+                    locales={locales}
+                  />
+                </div>
               )}
-            </Alert>
-          ) : null}
-          {toast !== null ? <ToastContainer toast={toast} /> : null}
-        </div>
-        <ModalRoot />
+              <div className="mv-flex mv-flex-nowrap mv-w-full">
+                <main className="mv-w-full @md:mv-bg-neutral-50">
+                  <Outlet />
+                </main>
+                <div
+                  className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
+                    showFilters ? "mv-hidden @lg:mv-block " : ""
+                  }mv-w-0`}
+                >
+                  <ScrollToTopButton locales={locales} />
+                </div>
+              </div>
+              {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
+              {alert !== null ? (
+                <Alert level={alert.level}>
+                  {alert.isRichtext !== undefined &&
+                  alert.isRichtext === true ? (
+                    <RichText html={alert.message} />
+                  ) : (
+                    alert.message
+                  )}
+                </Alert>
+              ) : null}
+              {toast !== null ? <ToastContainer toast={toast} /> : null}
+            </div>
+            <ModalRoot />
+          </>
+        ) : (
+          <Outlet />
+        )}
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
