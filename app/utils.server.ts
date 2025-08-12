@@ -1,9 +1,9 @@
 import { type User } from "@supabase/supabase-js";
 import type { BinaryToTextEncoding } from "crypto";
-import { createHmac, createHash } from "crypto";
+import { createHash, createHmac } from "crypto";
+import sanitizeHtml from "sanitize-html";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
-import sanitizeHtml from "sanitize-html";
 
 export type Mode = "anon" | "authenticated";
 
@@ -413,3 +413,92 @@ export const sanitizeUserHtml = (
   ).replaceAll("<br />", "<br>");
   return sanitizedHtml;
 };
+
+export async function getCoordinatesFromAddress(options: {
+  id: string;
+  street: string | null;
+  streetNumber: string | null;
+  city: string | null;
+  zipCode: string | null;
+}) {
+  const { id, street, streetNumber, city, zipCode } = options;
+  const searchParams = new URLSearchParams();
+  if (street !== null && streetNumber !== null) {
+    searchParams.set("street", `${street} ${streetNumber}`);
+  } else if (street !== null) {
+    searchParams.set("street", street);
+  }
+  if (city !== null) {
+    searchParams.set("city", city);
+  }
+  if (zipCode !== null) {
+    searchParams.set("postalcode", zipCode);
+  }
+  if (searchParams.toString() === "") {
+    return {
+      longitude: null,
+      latitude: null,
+      error: null,
+    };
+  }
+
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/search?${searchParams.toString()}&format=jsonv2`,
+    {
+      method: "GET",
+    }
+  );
+  if (response.status !== 200) {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `Error fetching location for entity with id ${id}: ${response.statusText}`,
+    };
+  }
+
+  const locationJSON = await response.json();
+
+  if (Array.isArray(locationJSON) === false) {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `Unexpected response format for entity with id ${id}: JSON object is not an array`,
+    };
+  }
+  if (locationJSON.length === 0) {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `No location found for entity with id ${id}`,
+    };
+  }
+  if (
+    "lat" in locationJSON[0] === false ||
+    "lon" in locationJSON[0] === false
+  ) {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `Location JSON does not contain latitude and longitude for entity with id ${id}`,
+    };
+  }
+  if (locationJSON.length > 1) {
+    console.warn(
+      `Multiple locations found for entity with id ${id}. The first was taken:`,
+      locationJSON[0]
+    );
+  }
+  const { lat, lon } = locationJSON[0];
+  if (typeof lat !== "string" || typeof lon !== "string") {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `Latitude and longitude are not strings for entity with id ${id}`,
+    };
+  }
+  return {
+    longitude: lon,
+    latitude: lat,
+    error: null,
+  };
+}
