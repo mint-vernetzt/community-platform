@@ -7,6 +7,7 @@ import { ServerRouter } from "react-router";
 import { getEnv, init as initEnv } from "./env.server";
 import { NonceProvider } from "./nonce-provider";
 import { captureException } from "@sentry/node";
+import { createCSPHeaderOptions } from "./utils.server";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
@@ -29,37 +30,47 @@ export default async function handleRequest(
   reactRouterContext: EntryContext
 ) {
   // Setting global security response headers
+
   const nonce = crypto.randomUUID();
   responseHeaders.set(
     "Reporting-Endpoints",
     `csp-endpoint='${process.env.COMMUNITY_BASE_URL}/csp-reports'`
   );
-  responseHeaders.set(
-    "Content-Security-Policy",
-    `default-src 'none'; style-src 'self'; style-src-attr 'self'; style-src-elem 'self'; font-src 'self'; form-action 'self'; script-src 'self' ${
+
+  const url = new URL(request.url);
+  const isMap = url.pathname === "/map";
+
+  const cspHeaderOptions = createCSPHeaderOptions({
+    "default-src": "'none'",
+    "style-src": "'self'",
+    "style-src-attr": "'self'",
+    "style-src-elem": "'self'",
+    "font-src": "'self'",
+    "form-action": "'self'",
+    "script-src": `'self' ${process.env.MATOMO_URL} 'nonce-${nonce}'`,
+    "img-src": `'self' ${
       process.env.MATOMO_URL
-    } 'nonce-${nonce}' ; img-src 'self' ${
-      process.env.MATOMO_URL
-    } data: ${process.env.IMGPROXY_URL.replace(
-      /https?:\/\//,
-      ""
-    )}; worker-src blob:; frame-src 'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'; base-uri 'self'; frame-ancestors 'none'; report-uri ${
-      process.env.COMMUNITY_BASE_URL
-    }/csp-reports; report-to csp-endpoint;${
-      process.env.NODE_ENV === "production" ? " upgrade-insecure-requests;" : ""
-    }${
+    } data: ${process.env.IMGPROXY_URL.replace(/https?:\/\//, "")}`,
+    "worker-src": "blob:",
+    "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
+    "base-uri": "'self'",
+    "frame-ancestors": isMap ? false : "'none'",
+    "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
+    "report-to": "csp-endpoint",
+    "upgrade-insecure-requests": process.env.NODE_ENV === "production",
+    "connect-src":
       process.env.NODE_ENV === "production" &&
       typeof process.env.SENTRY_DSN !== "undefined"
-        ? ` connect-src 'self' ${process.env.SENTRY_DSN.replace(
-            /https?:\/\//,
-            ""
-          )
+        ? `'self' ${process.env.SENTRY_DSN.replace(/https?:\/\//, "")
             .replace(/sentry\.io.*/, "sentry.io")
-            .replace(/^.*@/, "")} ${process.env.MATOMO_URL};`
-        : ` connect-src 'self' ${process.env.MATOMO_URL};`
-    }`
-  );
-  responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
+            .replace(/^.*@/, "")} ${process.env.MATOMO_URL}`
+        : `'self' ${process.env.MATOMO_URL}`,
+  });
+
+  responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
+  if (isMap === false) {
+    responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
+  }
   responseHeaders.set("Referrer-Policy", "same-origin");
 
   // Appending profiling policy header to the response when sentry is enabled
