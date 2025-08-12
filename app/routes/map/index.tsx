@@ -8,7 +8,7 @@ export function headers(args: HeadersArgs) {
   const cspHeaders = parentHeaders.get("Content-Security-Policy");
   console.log("CSP Headers:", cspHeaders);
 
-  return { headers: parentHeaders };
+  return parentHeaders;
 }
 
 function MapIndex() {
