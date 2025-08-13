@@ -302,6 +302,8 @@ model OrganizationVisibility {
   supportedBy            Boolean      @default(true) @map("supported_by")
   updatedAt              Boolean      @default(true) @map("updated_at")
   zipCode                Boolean      @default(true) @map("zip_code")
+  longitude              Boolean      @default(true)
+  latitude               Boolean      @default(true)
   instagram              Boolean      @default(true)
   youtube                Boolean      @default(true)
   mastodon               Boolean      @default(true)
