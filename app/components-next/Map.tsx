@@ -71,8 +71,8 @@ export function Map(props: {
     <>
       <div ref={mapContainer} className="mv-absolute mv-w-full mv-h-full" />
       {organizations.length > 0 ? (
-        <div className="mv-absolute mv-top-6 mv-bottom-6 mv-left-6 mv-rounded-lg mv-w-[396px] mv-overflow-y-auto">
-          <ul className="mv-flex mv-flex-col mv-gap-2.5 mv-py-6 mv-px-4 mv-bg-white mv-rounded-lg mv-w-full">
+        <div className="mv-hidden lg:mv-block mv-absolute mv-top-6 mv-bottom-6 mv-left-6 mv-rounded-lg mv-w-[396px] mv-overflow-y-auto mv-pointer-events-none">
+          <ul className="mv-flex mv-flex-col mv-gap-2.5 mv-py-6 mv-px-4 mv-bg-white mv-rounded-lg mv-w-full mv-pointer-events-auto">
             {organizations.map((organization) => {
               return (
                 <ListItem
