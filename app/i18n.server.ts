@@ -121,14 +121,10 @@ export function getAllSlugsFromLocaleThatContainsWord(options: {
   const slugsObjects = Object.entries(
     languageModuleMap[language][locales]
   ).filter(([, value]) => {
-    if (
-      typeof value !== "object" &&
-      "title" in value === false &&
-      typeof value.title !== "string"
-    ) {
-      return false;
+    if ("title" in value === true && typeof value.title === "string") {
+      return (value.title as string).toLowerCase().includes(word.toLowerCase());
     }
-    return (value.title as string).toLowerCase().includes(word.toLowerCase());
+    return false;
   });
 
   if (slugsObjects.length === 0) {

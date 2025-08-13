@@ -264,6 +264,8 @@ export function filterOrganizationByVisibility<
         key === "quoteAuthorInformation" ||
         key === "streetNumber" ||
         key === "zipCode" ||
+        key === "longitude" ||
+        key === "latitude" ||
         key === "instagram" ||
         key === "backgroundImage" ||
         key === "backgroundImageId" ||

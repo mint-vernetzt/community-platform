@@ -148,6 +148,8 @@ import { locale as deGoodbye } from "./de/routes/goodbye";
 import { locale as deImprint } from "./de/routes/imprint";
 // landing route
 import { locale as deLanding } from "./de/routes/index";
+// map route
+import { locale as deMap } from "./de/routes/map";
 // resources route
 import { locale as deResources } from "./de/routes/resources";
 // search route
@@ -320,6 +322,8 @@ import { locale as enGoodbye } from "./en/routes/goodbye";
 import { locale as enImprint } from "./en/routes/imprint";
 // landing route
 import { locale as enLanding } from "./en/routes/index";
+// map route
+import { locale as enMap } from "./en/routes/map";
 // resources route
 import { locale as enResources } from "./en/routes/resources";
 // search route
@@ -738,6 +742,11 @@ const de = {
   imprint: deImprint,
   // landing route
   index: { route: deLanding, faq: deHelp.faq, roadmap: deRoadmap },
+  // map route
+  map: {
+    route: deMap,
+    organizationTypes: deOrganizationTypes,
+  },
   // resources route
   resources: deResources,
   // search route
@@ -1142,6 +1151,11 @@ const en = {
   imprint: enImprint,
   // landing route
   index: { route: enLanding, faq: enHelp.faq, roadmap: enRoadmap },
+  // map route
+  map: {
+    route: enMap,
+    organizationTypes: enOrganizationTypes,
+  },
   // resources route
   resources: enResources,
   // search route

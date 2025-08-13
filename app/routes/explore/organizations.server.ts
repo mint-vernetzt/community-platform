@@ -4,7 +4,6 @@ import {
   type Profile,
   type Project,
 } from "@prisma/client";
-import { type User } from "@supabase/supabase-js";
 import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
@@ -569,22 +568,24 @@ function getOrganizationsSearchWhereClause(
   return whereClauses;
 }
 
-export async function getOrganizationIds(options: {
+export function getOrganizationWhereClauses(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
-  const whereClauses = getOrganizationsFilterWhereClause(options.filter);
+  const { filter, search, isLoggedIn, language } = options;
 
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
+  const whereClauses = getOrganizationsFilterWhereClause(filter);
+
+  for (const filterKey in filter) {
+    const typedFilterKey = filterKey as keyof typeof filter;
+    const filterValues = filter[typedFilterKey];
     if (filterValues.length === 0) {
       continue;
     }
-    if (options.isLoggedIn === false) {
-      const visibilityWhereStatement: OrganizationVisibility = {
+    if (isLoggedIn === false) {
+      const visibilityWhereStatement = {
         organizationVisibility: {
           [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
         },
@@ -594,12 +595,29 @@ export async function getOrganizationIds(options: {
   }
 
   const searchWhereClauses = getOrganizationsSearchWhereClause(
-    options.search,
-    options.isLoggedIn,
-    options.language
+    search,
+    isLoggedIn,
+    language
   );
-
   whereClauses.AND.push(...searchWhereClauses);
+
+  return whereClauses;
+}
+
+export async function getOrganizationIds(options: {
+  filter: GetOrganizationsSchema["orgFilter"];
+  search: GetSearchSchema["search"];
+  isLoggedIn: boolean;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+}) {
+  const { filter, search, isLoggedIn, language } = options;
+
+  const whereClauses = getOrganizationWhereClauses({
+    filter,
+    search,
+    isLoggedIn,
+    language,
+  });
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -620,33 +638,17 @@ export async function getAllOrganizations(options: {
   sortBy: GetOrganizationsSchema["orgSortBy"];
   take: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
-  sessionUser: User | null;
+  isLoggedIn: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
-  const whereClauses = getOrganizationsFilterWhereClause(options.filter);
+  const { filter, sortBy, take, search, isLoggedIn, language } = options;
 
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-    if (filterValues.length === 0) {
-      continue;
-    }
-    if (options.sessionUser === null) {
-      const visibilityWhereStatement = {
-        organizationVisibility: {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
-        },
-      };
-      whereClauses.AND.push(visibilityWhereStatement);
-    }
-  }
-
-  const searchWhereClauses = getOrganizationsSearchWhereClause(
-    options.search,
-    options.sessionUser !== null,
-    options.language
-  );
-  whereClauses.AND.push(...searchWhereClauses);
+  const whereClauses = getOrganizationWhereClauses({
+    filter,
+    search,
+    isLoggedIn,
+    language,
+  });
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -734,13 +736,13 @@ export async function getAllOrganizations(options: {
     },
     orderBy: [
       {
-        [options.sortBy.split("-")[0]]: options.sortBy.split("-")[1],
+        [sortBy.split("-")[0]]: sortBy.split("-")[1],
       },
       {
         id: "asc",
       },
     ],
-    take: options.take,
+    take,
   });
 
   return organizations;
