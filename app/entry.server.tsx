@@ -40,6 +40,21 @@ export default async function handleRequest(
   const url = new URL(request.url);
   const isMap = url.pathname === "/map";
 
+  const connectSrc = ["'self'"];
+  if (process.env.NODE_ENV === "production") {
+    connectSrc.push(process.env.MATOMO_URL);
+    if (typeof process.env.SENTRY_DSN !== "undefined") {
+      connectSrc.push(
+        process.env.SENTRY_DSN.replace(/https?:\/\//, "")
+          .replace(/sentry\.io.*/, "sentry.io")
+          .replace(/^.*@/, "")
+      );
+    }
+  }
+  if (isMap) {
+    connectSrc.push("https://tiles.openfreemap.org");
+  }
+
   const cspHeaderOptions = createCSPHeaderOptions({
     "default-src": "'none'",
     "style-src": "'self'",
@@ -58,13 +73,7 @@ export default async function handleRequest(
     "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
     "report-to": "csp-endpoint",
     "upgrade-insecure-requests": process.env.NODE_ENV === "production",
-    "connect-src":
-      process.env.NODE_ENV === "production" &&
-      typeof process.env.SENTRY_DSN !== "undefined"
-        ? `'self' ${process.env.SENTRY_DSN.replace(/https?:\/\//, "")
-            .replace(/sentry\.io.*/, "sentry.io")
-            .replace(/^.*@/, "")} ${process.env.MATOMO_URL}`
-        : `'self' ${process.env.MATOMO_URL}`,
+    "connect-src": connectSrc.join(" "),
   });
 
   responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
