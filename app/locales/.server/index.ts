@@ -745,6 +745,7 @@ const de = {
   // map route
   map: {
     route: deMap,
+    organizationTypes: deOrganizationTypes,
   },
   // resources route
   resources: deResources,
@@ -1153,6 +1154,7 @@ const en = {
   // map route
   map: {
     route: enMap,
+    organizationTypes: enOrganizationTypes,
   },
   // resources route
   resources: enResources,

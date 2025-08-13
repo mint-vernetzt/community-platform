@@ -4,6 +4,11 @@ import { type GetOrganizationsSchema } from "./explore/organizations.shared";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { getOrganizationWhereClauses } from "./explore/organizations.server";
 import { prismaClient } from "~/prisma.server";
+import { type languageModuleMap } from "~/locales/.server";
+
+export type MapLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof SUPPORTED_COOKIE_LANGUAGES
+>]["map"];
 
 export async function getAllOrganizations(options: {
   filter: GetOrganizationsSchema["orgFilter"];
@@ -28,6 +33,15 @@ export async function getAllOrganizations(options: {
       logo: true,
       longitude: true,
       latitude: true,
+      types: {
+        select: {
+          organizationType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       organizationVisibility: {
         select: {
           id: true,
@@ -36,11 +50,22 @@ export async function getAllOrganizations(options: {
           logo: true,
           longitude: true,
           latitude: true,
+          types: true,
         },
       },
     },
     where: {
-      AND: whereClauses,
+      AND: [
+        whereClauses,
+        {
+          longitude: {
+            not: null,
+          },
+          latitude: {
+            not: null,
+          },
+        },
+      ],
     },
     orderBy: [
       {
