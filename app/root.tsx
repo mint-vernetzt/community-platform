@@ -442,7 +442,7 @@ export default function App() {
       "routes/project/$slug/settings",
     ];
     isSettings = otherSettingsRoutes.includes(matches[1].id);
-    isMap = matches[1].id === "routes/map/index";
+    isMap = matches[1].id === "routes/map";
   }
 
   const [searchParams] = useSearchParams();

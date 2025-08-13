@@ -114,7 +114,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filter: submission.value.orgFilter,
     sortBy: submission.value.orgSortBy,
     search: submission.value.search,
-    sessionUser,
+    isLoggedIn,
     take,
     language,
   });
