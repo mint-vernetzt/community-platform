@@ -59,6 +59,7 @@ import {
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -533,6 +534,23 @@ export default function ExploreOrganizations() {
     showMore = loaderData.organizationsCount > loaderData.organizations.length;
   }
 
+  const [visibleNetworks, setVisibleNetworks] = useState<
+    typeof loaderData.networks
+  >(loaderData.networks);
+  const handleNetworkSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    const value = event.target.value;
+    if (value.length >= 3) {
+      setVisibleNetworks(
+        loaderData.networks.filter((network) => {
+          return network.name.toLowerCase().includes(value.toLowerCase());
+        })
+      );
+    } else {
+      setVisibleNetworks(loaderData.networks);
+    }
+  };
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -554,6 +572,9 @@ export default function ExploreOrganizations() {
             ) {
               replace = true;
             }
+            // if ((event.target as HTMLInputElement).name === fields.orgFilter.name) {
+            //   replace = true;
+            // }
             submit(event.currentTarget, {
               preventScrollReset,
               replace,
@@ -1023,10 +1044,7 @@ export default function ExploreOrganizations() {
                 <Dropdown.List>
                   <div className="mv-ml-4 mv-mr-2 mv-my-2">
                     <Input
-                      // {...getInputProps(fields.orgAreaSearch, {
-                      //   type: "search",
-                      // })}
-                      // key="organization-area-search"
+                      onChange={handleNetworkSearch}
                       placeholder={
                         locales.route.filter.networkSearchPlaceholder
                       }
@@ -1046,8 +1064,8 @@ export default function ExploreOrganizations() {
                       </Input.Controls>
                     </Input>
                   </div>
-                  {loaderData.networks.length > 0 &&
-                    loaderData.networks.map((network) => {
+                  {visibleNetworks.length > 0 &&
+                    visibleNetworks.map((network) => {
                       const isChecked =
                         orgFilterFieldset.network.initialValue &&
                         Array.isArray(orgFilterFieldset.network.initialValue)
