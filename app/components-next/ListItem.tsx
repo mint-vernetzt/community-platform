@@ -101,7 +101,7 @@ export function ListItem(
           : "mv-block"
       }
     >
-      <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center">
+      <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-rounded-2xl mv-justify-between mv-items-center mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-bg-white hover:mv-bg-neutral-100 active:mv-bg-neutral-200">
         <Link
           to={
             "academicTitle" in entity
@@ -110,7 +110,7 @@ export function ListItem(
               ? `/project/${entity.slug}`
               : `/organization/${entity.slug}`
           }
-          className={`mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-rounded-2xl mv-w-full mv-grow ${
+          className={`mv-flex mv-gap-2 @sm:mv-gap-4 focus:mv-outline-none mv-items-center mv-rounded-2xl mv-w-full mv-grow ${
             validChildren.length > 0
               ? "mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
               : "mv-p-4"
