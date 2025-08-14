@@ -1,9 +1,12 @@
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { type MapLocales } from "~/routes/map.server";
 import { ListItem, type ListOrganization } from "./ListItem";
+import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
+import { Link, useSearchParams } from "react-router";
+import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 
 type MapOrganization = ListOrganization &
   Pick<Organization, "longitude" | "latitude">;
@@ -13,6 +16,11 @@ export function Map(props: {
   locales: MapLocales;
 }) {
   const { organizations, locales } = props;
+  const [searchParams] = useSearchParams();
+
+  const [mapMenuIsOpen, setMapMenuIsOpen] = useState(
+    searchParams.get("openMapMenu") === "true"
+  );
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibreGL.Map | null>(null);
@@ -69,20 +77,72 @@ export function Map(props: {
 
   return (
     <>
-      <div ref={mapContainer} className="mv-absolute mv-w-full mv-h-full" />
+      <div
+        ref={mapContainer}
+        className="mv-absolute mv-w-full mv-h-full mv-rounded-2xl"
+      />
       {organizations.length > 0 ? (
-        <div className="mv-hidden lg:mv-block mv-absolute mv-top-6 mv-bottom-6 mv-left-6 mv-rounded-lg mv-w-[396px] mv-overflow-y-auto mv-pointer-events-none">
-          <ul className="mv-flex mv-flex-col mv-gap-2.5 mv-py-6 mv-px-4 mv-bg-white mv-rounded-lg mv-w-full mv-pointer-events-auto">
-            {organizations.map((organization) => {
-              return (
-                <ListItem
-                  key={`organization-${organization.slug}`}
-                  entity={organization}
-                  locales={locales}
-                />
-              );
-            })}
-          </ul>
+        <div
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-rounded-l-2xl mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
+            mapMenuIsOpen === true
+              ? "mv-w-screen md:mv-w-[336px]"
+              : "mv-w-fit md:mv-w-[336px]"
+          }`}
+        >
+          <div
+            className={`mv-flex mv-flex-col mv-gap-6 mv-p-4 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
+              mapMenuIsOpen === true
+                ? "mv-min-h-full mv-rounded-l-2xl"
+                : "mv-rounded-br-2xl mv-rounded-tl-2xl"
+            }`}
+          >
+            <div className="mv-flex mv-items-center mv-gap-2.5">
+              <p className="mv-hidden md:mv-block mv-w-full mv-text-neutral-700 mv-leading-5">
+                <span className="mv-font-bold mv-text-lg mv-leading-6">
+                  {organizations.length}
+                </span>{" "}
+                {locales.components.Map.organizationCountHeadline}
+              </p>
+              {mapMenuIsOpen === true ? (
+                <Link
+                  to="."
+                  onClick={() => {
+                    setMapMenuIsOpen(false);
+                  }}
+                >
+                  <BurgerMenuOpen
+                    aria-label={locales.components.Map.openMenu}
+                  />
+                </Link>
+              ) : (
+                <Link
+                  to="?openMapMenu=true"
+                  onClick={() => {
+                    setMapMenuIsOpen(true);
+                  }}
+                >
+                  <BurgerMenuClosed
+                    aria-label={locales.components.Map.closeMenu}
+                  />
+                </Link>
+              )}
+            </div>
+            {mapMenuIsOpen === true ? (
+              <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+                {organizations.map((organization) => {
+                  return (
+                    <ListItem
+                      key={`organization-${organization.slug}`}
+                      entity={organization}
+                      locales={locales}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    />
+                  );
+                })}
+              </ul>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </>

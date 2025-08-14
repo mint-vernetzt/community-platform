@@ -75,11 +75,19 @@ export const loader = async (args: LoaderFunctionArgs) => {
         });
       }
     }
+    const types = enhancedOrganization.types.map((item) => {
+      return item.organizationType;
+    });
+    const networkTypes = enhancedOrganization.networkTypes.map((item) => {
+      return item.networkType;
+    });
 
     const imageEnhancedOrganization = {
       ...enhancedOrganization,
       logo,
       blurredLogo,
+      types,
+      networkTypes,
     };
 
     enhancedOrganizations.push(imageEnhancedOrganization);

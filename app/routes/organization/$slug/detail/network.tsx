@@ -48,9 +48,41 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
+  const networkMembers = enhancedOrganization.networkMembers.map((relation) => {
+    const types = relation.networkMember.types.map((item) => {
+      return item.organizationType;
+    });
+    const networkTypes = relation.networkMember.networkTypes.map((item) => {
+      return item.networkType;
+    });
+    return {
+      ...relation,
+      networkMember: { ...relation.networkMember, types, networkTypes },
+    };
+  });
+
+  const memberOf = enhancedOrganization.memberOf.map((relation) => {
+    const types = relation.network.types.map((item) => {
+      return item.organizationType;
+    });
+    const networkTypes = relation.network.networkTypes.map((item) => {
+      return item.networkType;
+    });
+    return {
+      ...relation,
+      network: { ...relation.network, types, networkTypes },
+    };
+  });
+
+  const formattedOrganization = {
+    ...enhancedOrganization,
+    networkMembers,
+    memberOf,
+  };
+
   type NetworkType = keyof typeof locales.networkTypes;
   const networksByType: {
-    [Key in NetworkType]: typeof enhancedOrganization.memberOf;
+    [Key in NetworkType]: typeof formattedOrganization.memberOf;
   } = {
     alliance: [],
     "mint-cluster": [],
@@ -59,17 +91,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "other-network": [],
   };
   for (const type in locales.networkTypes) {
-    networksByType[type as NetworkType] = enhancedOrganization.memberOf.filter(
+    networksByType[type as NetworkType] = formattedOrganization.memberOf.filter(
       (relation) => {
-        return relation.network.networkTypes.some(
-          (item) => item.networkType.slug === type
-        );
+        return relation.network.networkTypes.some((item) => item.slug === type);
       }
     );
   }
 
   return {
-    organization: enhancedOrganization,
+    organization: formattedOrganization,
     networksByType,
     locales,
   };
