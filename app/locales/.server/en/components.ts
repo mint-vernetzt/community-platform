@@ -27,5 +27,6 @@ export const locale = {
     organizationCountHeadline: "organizations and networks",
     openMenu: "Open organization list",
     closeMenu: "Close organization list",
+    organizationCardCta: "View organization",
   },
 } as const;

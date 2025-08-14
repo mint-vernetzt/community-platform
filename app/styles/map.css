@@ -1,0 +1,62 @@
+.maplibregl-map {
+  font: unset;
+  font-family: "Source Sans Pro";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/fonts/source-sans-pro-latin-400-normal.woff");
+  overflow: hidden;
+  position: relative;
+  -webkit-tap-highlight-color: rgb(0, 0, 0, 0);
+}
+
+.maplibregl-popup-anchor-bottom,
+.maplibregl-popup-anchor-top,
+.maplibregl-popup-anchor-left,
+.maplibregl-popup-anchor-right {
+  max-width: 280px !important;
+}
+
+.maplibregl-popup-content {
+  position: relative;
+  background: none;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 0;
+  pointer-events: auto;
+  width: 280px;
+  height: fit-content;
+  margin-bottom: 8px;
+  margin-top: -24px;
+  margin-right: -12px;
+  margin-left: -12px;
+}
+
+.maplibregl-popup-tip {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  z-index: 1;
+}
+
+.maplibregl-popup-close-button {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border: none;
+  border-radius: unset;
+  cursor: pointer;
+  background-color: transparent;
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+}
+
+.maplibregl-popup-close-button:hover {
+  background-color: transparent;
+}
+
+.maplibregl-popup-close-button:focus {
+  opacity: 100;
+  color: transparent;
+}

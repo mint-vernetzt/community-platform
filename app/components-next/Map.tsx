@@ -1,15 +1,20 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { Link, useSearchParams } from "react-router";
 import { type MapLocales } from "~/routes/map.server";
 import { ListItem, type ListOrganization } from "./ListItem";
-import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
-import { Link, useSearchParams } from "react-router";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
+import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
+import { MapPopupClose } from "./icons/MapPopupClose";
 
 type MapOrganization = ListOrganization &
-  Pick<Organization, "longitude" | "latitude">;
+  Pick<
+    Organization,
+    "longitude" | "latitude" | "street" | "streetNumber" | "zipCode" | "city"
+  >;
 
 export function Map(props: {
   organizations: Array<MapOrganization>;
@@ -58,11 +63,15 @@ export function Map(props: {
         if (organization.longitude === null || organization.latitude === null) {
           continue;
         }
-
         // eslint-disable-next-line import/no-named-as-default-member
         const popup = new maplibreGL.Popup({
           offset: 25,
-        }).setHTML(renderToStaticMarkup(<Popup organization={organization} />));
+        }).setHTML(
+          renderToStaticMarkup(
+            <Popup organization={organization} locales={locales} />
+          )
+        );
+
         // eslint-disable-next-line import/no-named-as-default-member
         new maplibreGL.Marker()
           .setLngLat([
@@ -73,13 +82,17 @@ export function Map(props: {
           .addTo(mapRef.current);
       }
     }
-  }, [mapContainer, organizations]);
+  }, [mapContainer, organizations, locales]);
 
   return (
     <>
       <div
         ref={mapContainer}
-        className="mv-absolute mv-w-full mv-h-full mv-rounded-2xl"
+        className={`mv-absolute mv-w-full mv-h-full mv-rounded-2xl mv-overflow-hidden ${
+          mapMenuIsOpen === true
+            ? "mv-w-[calc(100vw-336px)] mv-left-[336px]"
+            : "mv-w-full"
+        }`}
       />
       {organizations.length > 0 ? (
         <div
@@ -97,7 +110,11 @@ export function Map(props: {
             }`}
           >
             <div className="mv-flex mv-items-center mv-gap-2.5">
-              <p className="mv-hidden md:mv-block mv-w-full mv-text-neutral-700 mv-leading-5">
+              <p
+                className={`${
+                  mapMenuIsOpen === true ? "mv-block" : "mv-hidden md:mv-block"
+                }  mv-w-full mv-text-neutral-700 mv-leading-5`}
+              >
                 <span className="mv-font-bold mv-text-lg mv-leading-6">
                   {organizations.length}
                 </span>{" "}
@@ -149,21 +166,59 @@ export function Map(props: {
   );
 }
 
-function Popup(props: { organization: MapOrganization }) {
-  const { organization } = props;
+function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
+  const { organization, locales } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4">
-      <h1 className="mv-appearance-none mv-text-base mv-text-center mv-mb-0 mv-text-primary mv-font-bold mv-leading-5">
-        {organization.name}
-      </h1>
+    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200">
+      <div className="mv-relative mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-2">
+        <Avatar size="lg" {...organization} disableFadeIn={true} />
+        <div className="mv-flex mv-flex-col mv-gap-1 mv-items-center">
+          <h1 className="mv-appearance-none mv-text-base mv-text-center mv-mb-0 mv-text-primary mv-font-bold mv-leading-5">
+            {organization.name}
+          </h1>
+          <p className="mv-text-neutral-700 mv-text-center mv-font-semibold">
+            {[...organization.types, ...organization.networkTypes]
+              .map((relation) => {
+                let title;
+                if (relation.slug in locales.organizationTypes) {
+                  type LocaleKey = keyof typeof locales.organizationTypes;
+                  title =
+                    locales.organizationTypes[relation.slug as LocaleKey].title;
+                } else if (relation.slug in locales.networkTypes) {
+                  type LocaleKey = keyof typeof locales.networkTypes;
+                  title =
+                    locales.networkTypes[relation.slug as LocaleKey].title;
+                } else {
+                  console.error(
+                    `Organization or network type ${relation.slug} not found in locales`
+                  );
+                  title = relation.slug;
+                }
+                return title;
+              })
+              .join(", ")}
+          </p>
+        </div>
+        <address className="mv-not-italic mv-text-center mv-text-neutral-700">
+          {organization.street !== null ? `${organization.street} ` : ""}
+          {organization.streetNumber !== null
+            ? `${organization.streetNumber}, `
+            : ""}
+          {organization.zipCode !== null ? `${organization.zipCode} ` : ""}
+          {organization.city !== null ? `${organization.city}` : ""}
+        </address>
+        <div className="mv-absolute mv-right-0 mv-top-0">
+          <MapPopupClose />
+        </div>
+      </div>
       <a
         href={`/organization/${organization.slug}`}
-        className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200"
+        className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200"
         rel="noreferrer noopener"
         target="_blank"
       >
-        Organisation ansehen
+        {locales.components.Map.organizationCardCta}
       </a>
     </div>
   );

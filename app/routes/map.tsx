@@ -13,12 +13,14 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";
 import { checkFeatureAbilitiesOrThrow } from "./feature-access.server";
 import { getAllOrganizations } from "./map.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
+  { rel: "stylesheet", href: customMapStyles },
 ];
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -53,6 +55,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       filterOrganizationByVisibility<EnhancedOrganization>(organization);
 
     // Add images from image proxy
+
+    // Usage:
     let logo = enhancedOrganization.logo;
     let blurredLogo;
     if (logo !== null) {
@@ -61,15 +65,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
         logo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.Card.Logo.width,
-            height: ImageSizes.Organization.Card.Logo.height,
+            width: ImageSizes.Organization.MapPopup.Logo.width,
+            height: ImageSizes.Organization.MapPopup.Logo.height,
           },
         });
+
         blurredLogo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.Card.BlurredLogo.width,
-            height: ImageSizes.Organization.Card.BlurredLogo.height,
+            width: ImageSizes.Organization.MapPopup.BlurredLogo.width,
+            height: ImageSizes.Organization.MapPopup.BlurredLogo.height,
           },
           blur: BlurFactor,
         });

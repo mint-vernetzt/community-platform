@@ -22,6 +22,7 @@ import { type MapLocales } from "~/routes/map.server";
 
 export type ListOrganization = {
   logo: string | null;
+  blurredLogo: string | undefined;
   name: string;
   slug: string;
   types: {
@@ -34,6 +35,7 @@ export type ListOrganization = {
 
 type ListProfile = {
   avatar: string | null;
+  blurredAvatar: string | undefined;
   academicTitle: string | null;
   firstName: string;
   lastName: string;
@@ -43,6 +45,7 @@ type ListProfile = {
 
 type ListProject = {
   logo: string | null;
+  blurredLogo: string | undefined;
   name: string;
   slug: string;
   responsibleOrganizations: {
