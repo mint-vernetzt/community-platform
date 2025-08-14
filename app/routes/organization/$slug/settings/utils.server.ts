@@ -46,7 +46,7 @@ export async function updateFilterVectorOfOrganization(organizationId: string) {
         select: {
           network: {
             select: {
-              id: true,
+              slug: true,
             },
           },
         },
@@ -78,7 +78,7 @@ export async function updateFilterVectorOfOrganization(organizationId: string) {
         (relation) => `networkType:${relation.networkType.slug}`
       );
       const networkMemberVectors = organization.memberOf.map(
-        (relation) => `network:${relation.network.id}`
+        (relation) => `network:${relation.network.slug}`
       );
       const vectors = [
         ...typeVectors,

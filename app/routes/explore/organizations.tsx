@@ -254,14 +254,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations.push(transformedOrganization);
   }
 
-  const networks = await getAllNetworks({
-    filter: submission.value.orgFilter,
-    sortBy: submission.value.orgSortBy,
-    search: submission.value.search,
-    isLoggedIn,
-    take,
-    language,
-  });
+  const networks = await getAllNetworks();
 
   const networkOrganizationIds = enhancedOrganizations.map((organization) => {
     return organization.id;
@@ -302,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     });
 
     const vectorCount = getFilterCountForSlug(
-      network.id,
+      network.slug,
       networkFilterVector,
       "network"
     );

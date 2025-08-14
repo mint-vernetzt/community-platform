@@ -128,12 +128,26 @@ function getOrganizationsFilterWhereClause(
     const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
 
     for (const slug of filterValues) {
+      let key: string;
+      if (typedFilterKey === "focus") {
+        key = "focuses";
+      } else if (typedFilterKey === "network") {
+        key = "memberOf";
+      } else {
+        key = `${typedFilterKey}s`;
+      }
+
+      let childKey: string;
+      if (typedFilterKey === "type") {
+        childKey = "organizationType";
+      } else {
+        childKey = typedFilterKey;
+      }
+
       const filterWhereStatement = {
-        [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: {
+        [key]: {
           some: {
-            [`${
-              typedFilterKey === "type" ? "organizationType" : typedFilterKey
-            }`]: {
+            [childKey]: {
               slug,
             },
           },
@@ -585,9 +599,18 @@ export function getOrganizationWhereClauses(options: {
       continue;
     }
     if (isLoggedIn === false) {
+      let key: string;
+      if (typedFilterKey === "focus") {
+        key = "focuses";
+      } else if (typedFilterKey === "network") {
+        key = "memberOf";
+      } else {
+        key = `${typedFilterKey}s`;
+      }
+
       const visibilityWhereStatement = {
         organizationVisibility: {
-          [`${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`]: true,
+          [key]: true,
         },
       };
       whereClauses.AND.push(visibilityWhereStatement);
@@ -633,21 +656,7 @@ export async function getOrganizationIds(options: {
   return ids;
 }
 
-export async function getAllNetworks(options: {
-  filter: GetOrganizationsSchema["orgFilter"];
-  sortBy: GetOrganizationsSchema["orgSortBy"];
-  take: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  isLoggedIn: boolean;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
-}) {
-  const { filter, sortBy, take, search, isLoggedIn, language } = options;
-  const whereClauses = getOrganizationWhereClauses({
-    filter,
-    search,
-    isLoggedIn,
-    language,
-  });
+export async function getAllNetworks() {
   const networks = await prismaClient.organization.findMany({
     select: {
       id: true,
@@ -656,20 +665,19 @@ export async function getAllNetworks(options: {
       logo: true,
     },
     where: {
-      AND: [
-        whereClauses,
-        { types: { some: { organizationType: { slug: "network" } } } },
-      ],
+      types: {
+        some: {
+          organizationType: {
+            slug: "network",
+          },
+        },
+      },
     },
     orderBy: [
       {
-        [sortBy.split("-")[0]]: sortBy.split("-")[1],
-      },
-      {
-        id: "asc",
+        name: "asc",
       },
     ],
-    take,
   });
 
   return networks;
@@ -841,8 +849,17 @@ export async function getOrganizationFilterVectorForAttribute(options: {
     const fakeTypedFilterKey = filterKey as "organizationType";
     let allPossibleFilterValues;
     try {
+      let key: string;
+      if (typedFilterKey === "type") {
+        key = "organizationType";
+      } else if (typedFilterKey === "network") {
+        key = "organization";
+      } else {
+        key = fakeTypedFilterKey;
+      }
+
       allPossibleFilterValues = await prismaClient[
-        `${typedFilterKey === "type" ? "organizationType" : fakeTypedFilterKey}`
+        key as typeof fakeTypedFilterKey
       ].findMany({
         select: {
           slug: true,
