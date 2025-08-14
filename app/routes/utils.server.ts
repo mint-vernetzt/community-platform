@@ -310,7 +310,7 @@ export async function searchProfiles(options: {
     submission.value[SearchProfiles] === undefined
   ) {
     return {
-      searchedProfiles: [] as Awaited<ReturnType<typeof prismaQuery>>,
+      searchedProfiles: [],
       submission: submission.reply(),
     };
   }
