@@ -633,6 +633,48 @@ export async function getOrganizationIds(options: {
   return ids;
 }
 
+export async function getAllNetworks(options: {
+  filter: GetOrganizationsSchema["orgFilter"];
+  sortBy: GetOrganizationsSchema["orgSortBy"];
+  take: ReturnType<typeof getTakeParam>;
+  search: GetSearchSchema["search"];
+  isLoggedIn: boolean;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+}) {
+  const { filter, sortBy, take, search, isLoggedIn, language } = options;
+  const whereClauses = getOrganizationWhereClauses({
+    filter,
+    search,
+    isLoggedIn,
+    language,
+  });
+  const networks = await prismaClient.organization.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logo: true,
+    },
+    where: {
+      AND: [
+        whereClauses,
+        { types: { some: { organizationType: { slug: "network" } } } },
+      ],
+    },
+    orderBy: [
+      {
+        [sortBy.split("-")[0]]: sortBy.split("-")[1],
+      },
+      {
+        id: "asc",
+      },
+    ],
+    take,
+  });
+
+  return networks;
+}
+
 export async function getAllOrganizations(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];

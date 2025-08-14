@@ -14,6 +14,8 @@ export const locale = {
     types: "Organizational form",
     focuses: "Focus of work",
     areas: "Location / Area",
+    network: "Network",
+    networkSearchPlaceholder: "Search by network...",
     searchAreaPlaceholder: "Enter area or location",
     searchAreaHelper: "At least 3 letters.",
     searchAreaButton: "Search",

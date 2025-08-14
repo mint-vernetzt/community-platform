@@ -47,6 +47,7 @@ import { getPublicURL } from "~/storage.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
+  getAllNetworks,
   getAllNetworkTypes,
   getAllOrganizations,
   getAllOrganizationTypes,
@@ -57,6 +58,7 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -252,6 +254,67 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations.push(transformedOrganization);
   }
 
+  const networks = await getAllNetworks({
+    filter: submission.value.orgFilter,
+    sortBy: submission.value.orgSortBy,
+    search: submission.value.search,
+    isLoggedIn,
+    take,
+    language,
+  });
+
+  const networkOrganizationIds = enhancedOrganizations.map((organization) => {
+    return organization.id;
+  });
+
+  const enhancedNetworks = [];
+  for (const network of networks) {
+    const enhancedNetwork = { ...network };
+
+    let logo = enhancedNetwork.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.Logo.width,
+            height: ImageSizes.Organization.Filter.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.BlurredLogo.width,
+            height: ImageSizes.Organization.Filter.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+
+    const networkFilterVector = await getOrganizationFilterVectorForAttribute({
+      attribute: "network",
+      filter: { ...submission.value.orgFilter },
+      search: submission.value.search,
+      ids: networkOrganizationIds,
+    });
+
+    const vectorCount = getFilterCountForSlug(
+      network.id,
+      networkFilterVector,
+      "network"
+    );
+
+    enhancedNetworks.push({
+      ...enhancedNetwork,
+      logo,
+      blurredLogo,
+      vectorCount,
+    });
+  }
+
   const areas = await getAreasBySearchQuery(submission.value.orgAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -398,6 +461,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
     locales,
+    networks: enhancedNetworks,
   };
 };
 
@@ -443,6 +507,7 @@ export default function ExploreOrganizations() {
         focus: [],
         type: [],
         networkType: [],
+        network: [],
       },
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
@@ -517,6 +582,82 @@ export default function ExploreOrganizations() {
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
+              {/* Network filter */}
+              <Dropdown>
+                <Dropdown.Label>
+                  {locales.route.filter.network}
+                  <span className="mv-font-normal @lg:mv-hidden">
+                    <br />
+                    {loaderData.networks
+                      .map((network) => {
+                        return network.name;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <Input
+                      // {...getInputProps(fields.orgAreaSearch, {
+                      //   type: "search",
+                      // })}
+                      // key="organization-area-search"
+                      placeholder={
+                        locales.route.filter.networkSearchPlaceholder
+                      }
+                    >
+                      <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
+                        {locales.route.filter.searchAreaPlaceholder}
+                      </Input.Label>
+                      <Input.HelperText>
+                        {locales.route.filter.searchAreaHelper}
+                      </Input.HelperText>
+                      <Input.Controls>
+                        <noscript>
+                          <Button>
+                            {locales.route.filter.searchAreaButton}
+                          </Button>
+                        </noscript>
+                      </Input.Controls>
+                    </Input>
+                  </div>
+                  {loaderData.networks.length > 0 &&
+                    loaderData.networks.map((network) => {
+                      const isChecked =
+                        orgFilterFieldset.network.initialValue &&
+                        Array.isArray(orgFilterFieldset.network.initialValue)
+                          ? orgFilterFieldset.network.initialValue.includes(
+                              network.slug
+                            )
+                          : orgFilterFieldset.network.initialValue ===
+                            network.slug;
+                      return (
+                        <FormControl
+                          {...getInputProps(orgFilterFieldset.network, {
+                            type: "checkbox",
+                            value: network.slug,
+                          })}
+                          key={network.slug}
+                          defaultChecked={isChecked}
+                          disabled={network.vectorCount === 0 && !isChecked}
+                        >
+                          <FormControl.Label>
+                            <div className="mv-flex mv-gap-2 mv-items-center">
+                              <Avatar size="xs" {...network} />
+                              <div className="mv-line-clamp-2">
+                                {network.name}
+                              </div>
+                            </div>
+                          </FormControl.Label>
+                          <FormControl.Counter>
+                            {network.vectorCount}
+                          </FormControl.Counter>
+                        </FormControl>
+                      );
+                    })}
+                </Dropdown.List>
+              </Dropdown>
+
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.types}
