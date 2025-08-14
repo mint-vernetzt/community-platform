@@ -1,6 +1,9 @@
 import classNames from "classnames";
 import { getFullName, getInitials } from "../utils";
-import { Image } from "./Image";
+import {
+  Image,
+  type ImageProps,
+} from "@mint-vernetzt/components/src/molecules/Image";
 import { Children, isValidElement } from "react";
 import { Link } from "react-router";
 
@@ -65,6 +68,7 @@ function Avatar(props: AvatarProps) {
       }`}
       src={src}
       blurredSrc={blurredSrc}
+      {...props}
     />
   ) : (
     <div>{initials}</div>
@@ -170,12 +174,12 @@ type AvatarProps = {
       logo?: string | null;
       blurredLogo?: string;
     }
-  | {
+  | ({
       firstName: string;
       lastName: string;
       avatar?: string | null;
       blurredAvatar?: string;
-    }
+    } & ImageProps)
 );
 
 Avatar.List = AvatarList;

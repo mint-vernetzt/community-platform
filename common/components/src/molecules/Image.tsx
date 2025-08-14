@@ -5,14 +5,17 @@ export type ImageProps = {
   alt?: string;
   blurredSrc?: string;
   resizeType?: "fit" | "fill";
+  disableFadeIn?: boolean;
 };
 
 function Image(props: ImageProps) {
-  const { resizeType = "fill" } = props;
+  const { resizeType = "fill", disableFadeIn } = props;
   const imageRef = useRef<HTMLImageElement | null>(null);
   const blurredImageRef = useRef<HTMLImageElement | null>(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [blurredImageLoaded, setBlurredImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(disableFadeIn || false);
+  const [blurredImageLoaded, setBlurredImageLoaded] = useState(
+    disableFadeIn || false
+  );
   useEffect(() => {
     if (imageRef.current !== null && imageRef.current.complete) {
       setImageLoaded(true);

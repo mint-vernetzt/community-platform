@@ -52,7 +52,8 @@ export default async function handleRequest(
     }
   }
   if (isMap) {
-    connectSrc.push("https://tiles.openfreemap.org");
+    connectSrc.push("tiles.openfreemap.org");
+    connectSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
   }
 
   const cspHeaderOptions = createCSPHeaderOptions({

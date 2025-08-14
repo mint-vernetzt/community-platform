@@ -33,6 +33,10 @@ export async function getAllOrganizations(options: {
       logo: true,
       longitude: true,
       latitude: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
       types: {
         select: {
           organizationType: {
