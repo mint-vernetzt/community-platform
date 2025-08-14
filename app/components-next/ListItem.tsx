@@ -1,5 +1,5 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";
 import { type OrganizationAdminSettingsLocales } from "~/routes/organization/$slug/settings/admins.server";
@@ -12,7 +12,12 @@ import { type OrganizationTeamLocales } from "~/routes/organization/$slug/detail
 import { type ProjectAdminSettingsLocales } from "~/routes/project/$slug/settings/admins.server";
 import { type ProjectTeamSettingsLocales } from "~/routes/project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "~/routes/project/$slug/settings/responsible-orgs.server";
-import { Children, isValidElement } from "react";
+import {
+  Children,
+  isValidElement,
+  type PropsWithChildren,
+  type RefAttributes,
+} from "react";
 import { type MapLocales } from "~/routes/map.server";
 
 export type ListOrganization = {
@@ -65,14 +70,16 @@ type Locales =
   | MapLocales;
 
 export function ListItem(
-  props: React.PropsWithChildren<{
+  props: PropsWithChildren<{
     entity: Entity;
     locales: Locales;
     listIndex?: number;
     hideAfter?: number;
-  }>
+  }> &
+    Partial<LinkProps & RefAttributes<HTMLAnchorElement>>
 ) {
-  const { entity, children, listIndex, hideAfter, locales } = props;
+  const { entity, children, listIndex, hideAfter, locales, ...linkProps } =
+    props;
 
   const validChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child);
@@ -103,11 +110,12 @@ export function ListItem(
               ? `/project/${entity.slug}`
               : `/organization/${entity.slug}`
           }
-          className={`mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full mv-grow ${
+          className={`mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-rounded-2xl mv-w-full mv-grow ${
             validChildren.length > 0
               ? "mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
               : "mv-p-4"
           }`}
+          {...linkProps}
         >
           <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
             <Avatar size="full" {...entity} />

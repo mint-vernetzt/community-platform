@@ -23,4 +23,9 @@ export const locale = {
   VisibilityCheckbox: {
     ariaLabel: "Set visibility to private or public. Checkmark means public.",
   },
+  Map: {
+    organizationCountHeadline: "organizations and networks",
+    openMenu: "Open organization list",
+    closeMenu: "Close organization list",
+  },
 } as const;

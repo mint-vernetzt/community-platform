@@ -345,7 +345,6 @@ import { locale as enComponents } from "./en/components";
 import { locale as enHelp } from "./en/help";
 // meta
 import { locale as enMeta } from "./en/meta";
-import { networkTypes } from "prisma/scripts/import-datasets/data/networkTypes";
 
 /**
  * This is the map of all language modules.
@@ -755,6 +754,7 @@ const de = {
     route: deMap,
     organizationTypes: deOrganizationTypes,
     networkTypes: deNetworkTypes,
+    components: deComponents,
   },
   // resources route
   resources: deResources,
@@ -1172,6 +1172,7 @@ const en = {
     route: enMap,
     organizationTypes: enOrganizationTypes,
     networkTypes: enNetworkTypes,
+    components: enComponents,
   },
   // resources route
   resources: enResources,

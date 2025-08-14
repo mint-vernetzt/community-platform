@@ -24,4 +24,9 @@ export const locale = {
     ariaLabel:
       "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
   },
+  Map: {
+    organizationCountHeadline: "Organisationen und Netzwerke",
+    openMenu: "Organisationsliste öffnen",
+    closeMenu: "Organisationsliste schließen",
+  },
 } as const;
