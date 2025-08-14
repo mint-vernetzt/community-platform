@@ -1,14 +1,14 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { Link, useSearchParams } from "react-router";
 import { type MapLocales } from "~/routes/map.server";
 import { ListItem, type ListOrganization } from "./ListItem";
-import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
-import { Link, useSearchParams } from "react-router";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
-import { CloseX } from "./icons/CloseX";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
+import { MapPopupClose } from "./icons/MapPopupClose";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -209,7 +209,7 @@ function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
           {organization.city !== null ? `${organization.city}` : ""}
         </address>
         <div className="mv-absolute mv-right-0 mv-top-0">
-          <CloseX width={16} height={16} />
+          <MapPopupClose />
         </div>
       </div>
       <a

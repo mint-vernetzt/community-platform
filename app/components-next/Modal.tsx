@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { CloseX } from "./icons/CloseX";
+import { ModalClose as ModalCloseIcon } from "./icons/ModalClose";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
@@ -27,7 +27,7 @@ function ModalClose(props: { route: string }) {
       preventScrollReset
       aria-label="Close modal"
     >
-      <CloseX />
+      <ModalCloseIcon />
     </Link>
   );
 }
