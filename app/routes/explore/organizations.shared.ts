@@ -13,6 +13,7 @@ export const getOrganizationsSchema = z.object({
     .object({
       type: z.array(z.string()),
       networkType: z.array(z.string()),
+      network: z.array(z.string()),
       focus: z.array(z.string()),
       area: z.array(z.string()),
     })
@@ -24,6 +25,7 @@ export const getOrganizationsSchema = z.object({
           focus: [],
           area: [],
           networkType: [],
+          network: [],
         };
       }
       return filter;
