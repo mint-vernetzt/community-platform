@@ -399,10 +399,8 @@ function Manage() {
   } = organization;
 
   const defaultValues = {
-    organizationTypes: organizationTypes.map(
-      (relation) => relation.organizationType.id
-    ),
-    networkTypes: networkTypes.map((relation) => relation.networkType.id),
+    organizationTypes: organizationTypes.map((relation) => relation.id),
+    networkTypes: networkTypes.map((relation) => relation.id),
   };
 
   const [manageForm, manageFields] = useForm({
@@ -538,7 +536,7 @@ function Manage() {
     networkTypeList = [];
   }
   const isNetwork = organization.types.some((relation) => {
-    return relation.organizationType.id === organizationTypeNetwork.id;
+    return relation.id === organizationTypeNetwork.id;
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
@@ -1489,7 +1487,7 @@ function Manage() {
                             }
                           </div>
                         ) : searchedOrganization.types.some((relation) => {
-                            return relation.organizationType.slug === "network";
+                            return relation.slug === "network";
                           }) === false ? (
                           <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
                             {

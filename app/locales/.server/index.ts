@@ -345,6 +345,7 @@ import { locale as enComponents } from "./en/components";
 import { locale as enHelp } from "./en/help";
 // meta
 import { locale as enMeta } from "./en/meta";
+import { networkTypes } from "prisma/scripts/import-datasets/data/networkTypes";
 
 /**
  * This is the map of all language modules.
@@ -552,11 +553,13 @@ const de = {
   "organization/$slug/detail/projects": {
     route: deOrganizationProjects,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "organization/$slug/detail/team": {
     route: deOrganizationTeam,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "organization/$slug/settings/danger-zone/change-url": {
@@ -568,6 +571,7 @@ const de = {
     route: deOrganizationAdmins,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "organization/$slug/settings/danger-zone": deOrganizationDangerZone,
@@ -589,6 +593,7 @@ const de = {
     route: deOrganizationTeamSettings,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "organization/$slug/settings/web-social": {
@@ -650,6 +655,7 @@ const de = {
     route: deProjectAdmins,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "project/$slug/settings/attachments": {
@@ -684,12 +690,14 @@ const de = {
     route: deResponsibleOrganizationsOfProject,
     searchOrganizationsSchema: deSearchOrganizationsSchema,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "project/$slug/settings/team": {
     route: deProjectTeam,
     searchProfilesSchema: deSearchProfilesSchema,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
     components: deComponents,
   },
   "project/$slug/settings/web-social": {
@@ -746,6 +754,7 @@ const de = {
   map: {
     route: deMap,
     organizationTypes: deOrganizationTypes,
+    networkTypes: deNetworkTypes,
   },
   // resources route
   resources: deResources,
@@ -961,11 +970,13 @@ const en = {
   "organization/$slug/detail/projects": {
     route: enOrganizationProjects,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "organization/$slug/detail/team": {
     route: enOrganizationTeam,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "organization/$slug/settings/danger-zone/change-url": {
@@ -977,6 +988,7 @@ const en = {
     route: enOrganizationAdmins,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "organization/$slug/settings/danger-zone": enOrganizationDangerZone,
@@ -998,6 +1010,7 @@ const en = {
     route: enOrganizationTeamSettings,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "organization/$slug/settings/web-social": {
@@ -1059,6 +1072,7 @@ const en = {
     route: enProjectAdmins,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "project/$slug/settings/attachments": {
@@ -1093,12 +1107,14 @@ const en = {
     route: enResponsibleOrganizationsOfProject,
     searchOrganizationsSchema: enSearchOrganizationsSchema,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "project/$slug/settings/team": {
     route: enProjectTeam,
     searchProfilesSchema: enSearchProfilesSchema,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
     components: enComponents,
   },
   "project/$slug/settings/web-social": {
@@ -1155,6 +1171,7 @@ const en = {
   map: {
     route: enMap,
     organizationTypes: enOrganizationTypes,
+    networkTypes: enNetworkTypes,
   },
   // resources route
   resources: enResources,

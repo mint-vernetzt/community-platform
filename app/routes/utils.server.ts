@@ -419,6 +419,15 @@ export async function searchOrganizations(options: {
             },
           },
         },
+        networkTypes: {
+          select: {
+            networkType: {
+              select: {
+                slug: true,
+              },
+            },
+          },
+        },
         organizationVisibility: {
           select: {
             id: true,
@@ -426,6 +435,7 @@ export async function searchOrganizations(options: {
             logo: true,
             name: true,
             types: true,
+            networkTypes: true,
           },
         },
       },
@@ -441,7 +451,7 @@ export async function searchOrganizations(options: {
     submission.value[SearchOrganizations] === undefined
   ) {
     return {
-      searchedOrganizations: [] as Awaited<ReturnType<typeof prismaQuery>>,
+      searchedOrganizations: [],
       submission: submission.reply(),
     };
   }
@@ -514,7 +524,12 @@ export async function searchOrganizations(options: {
           });
         }
       }
-      return { ...relation, logo, blurredLogo };
+
+      const types = relation.types.map((relation) => relation.organizationType);
+      const networkTypes = relation.networkTypes.map(
+        (relation) => relation.networkType
+      );
+      return { ...relation, logo, blurredLogo, networkTypes, types };
     }
   );
 

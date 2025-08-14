@@ -20,9 +20,10 @@ export type ListOrganization = {
   name: string;
   slug: string;
   types: {
-    organizationType: {
-      slug: string;
-    };
+    slug: string;
+  }[];
+  networkTypes: {
+    slug: string;
   }[];
 };
 
@@ -126,23 +127,24 @@ export function ListItem(
                 ? entity.responsibleOrganizations
                     .map((relation) => relation.organization.name)
                     .join(", ")
-                : entity.types
+                : [...entity.types, ...entity.networkTypes]
                     .map((relation) => {
                       let title;
-                      if (
-                        relation.organizationType.slug in
-                        locales.organizationTypes
-                      ) {
+                      if (relation.slug in locales.organizationTypes) {
                         type LocaleKey = keyof typeof locales.organizationTypes;
                         title =
-                          locales.organizationTypes[
-                            relation.organizationType.slug as LocaleKey
-                          ].title;
+                          locales.organizationTypes[relation.slug as LocaleKey]
+                            .title;
+                      } else if (relation.slug in locales.networkTypes) {
+                        type LocaleKey = keyof typeof locales.networkTypes;
+                        title =
+                          locales.networkTypes[relation.slug as LocaleKey]
+                            .title;
                       } else {
                         console.error(
-                          `Focus ${relation.organizationType.slug} not found in locales`
+                          `Organization or network type ${relation.slug} not found in locales`
                         );
-                        title = relation.organizationType.slug;
+                        title = relation.slug;
                       }
                       return title;
                     })

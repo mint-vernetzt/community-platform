@@ -47,6 +47,15 @@ export async function getProjectWithResponsibleOrganizations(options: {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -81,7 +90,21 @@ export async function getProjectWithResponsibleOrganizations(options: {
           });
         }
       }
-      return { organization: { ...relation.organization, logo, blurredLogo } };
+      const types = relation.organization.types.map(
+        (relation) => relation.organizationType
+      );
+      const networkTypes = relation.organization.networkTypes.map(
+        (relation) => relation.networkType
+      );
+      return {
+        organization: {
+          ...relation.organization,
+          logo,
+          blurredLogo,
+          types,
+          networkTypes,
+        },
+      };
     }
   );
 
@@ -110,18 +133,6 @@ export async function getOwnOrganizationSuggestions(options: {
           organization: {
             select: {
               id: true,
-              slug: true,
-              logo: true,
-              name: true,
-              types: {
-                select: {
-                  organizationType: {
-                    select: {
-                      slug: true,
-                    },
-                  },
-                },
-              },
             },
           },
         },
@@ -131,18 +142,6 @@ export async function getOwnOrganizationSuggestions(options: {
           organization: {
             select: {
               id: true,
-              slug: true,
-              logo: true,
-              name: true,
-              types: {
-                select: {
-                  organizationType: {
-                    select: {
-                      slug: true,
-                    },
-                  },
-                },
-              },
             },
           },
         },
@@ -177,6 +176,15 @@ export async function getOwnOrganizationSuggestions(options: {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -202,7 +210,14 @@ export async function getOwnOrganizationSuggestions(options: {
           });
         }
       }
-      return { ...organization, logo, blurredLogo };
+
+      const types = organization.types.map(
+        (relation) => relation.organizationType
+      );
+      const networkTypes = organization.networkTypes.map(
+        (relation) => relation.networkType
+      );
+      return { ...organization, logo, blurredLogo, types, networkTypes };
     }
   );
 

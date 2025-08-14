@@ -444,6 +444,15 @@ export async function getOrganizationMemberInvites(id: string) {
                 },
               },
             },
+            networkTypes: {
+              select: {
+                networkType: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -470,6 +479,15 @@ export async function getOrganizationMemberInvites(id: string) {
             types: {
               select: {
                 organizationType: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
+            networkTypes: {
+              select: {
+                networkType: {
                   select: {
                     slug: true,
                   },
@@ -522,12 +540,20 @@ export function addImageUrlToOrganizationMemberInvites(
         });
       }
     }
+    const types = invite.organization.types.map(
+      (item) => item.organizationType
+    );
+    const networkTypes = invite.organization.networkTypes.map(
+      (item) => item.networkType
+    );
     return {
       ...invite,
       organization: {
         ...invite.organization,
         logo,
         blurredLogo,
+        types,
+        networkTypes,
       },
     };
   });
@@ -555,12 +581,20 @@ export function addImageUrlToOrganizationMemberInvites(
         });
       }
     }
+    const types = invite.organization.types.map(
+      (item) => item.organizationType
+    );
+    const networkTypes = invite.organization.networkTypes.map(
+      (item) => item.networkType
+    );
     return {
       ...invite,
       organization: {
         ...invite.organization,
         logo,
         blurredLogo,
+        types,
+        networkTypes,
       },
     };
   });
@@ -588,6 +622,15 @@ export async function getPendingRequestsToOrganizations(
             types: {
               select: {
                 organizationType: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
+            networkTypes: {
+              select: {
+                networkType: {
                   select: {
                     slug: true,
                   },
@@ -628,10 +671,14 @@ export async function getPendingRequestsToOrganizations(
         });
       }
     }
+    const types = request.types.map((item) => item.organizationType);
+    const networkTypes = request.networkTypes.map((item) => item.networkType);
     return {
       ...request,
       logo,
       blurredLogo,
+      types,
+      networkTypes,
     };
   });
 
@@ -766,6 +813,15 @@ export async function getNetworkRequests(id: string) {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
             },
           },
           status: true,
@@ -790,9 +846,25 @@ export async function getNetworkRequests(id: string) {
   });
 
   const enhancedOrganizations = organizations.map((organization) => {
-    const receivedNetworkJoinRequests =
-      organization.receivedNetworkJoinRequests.filter((relation) => {
+    const receivedNetworkJoinRequests = organization.receivedNetworkJoinRequests
+      .filter((relation) => {
         return relation.status === "pending";
+      })
+      .map((relation) => {
+        const types = relation.organization.types.map(
+          (item) => item.organizationType
+        );
+        const networkTypes = relation.organization.networkTypes.map(
+          (item) => item.networkType
+        );
+        return {
+          ...relation,
+          organization: {
+            ...relation.organization,
+            types,
+            networkTypes,
+          },
+        };
       });
     return {
       ...organization,
@@ -876,6 +948,15 @@ export async function getNetworkInvites(id: string) {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
             },
           },
           status: true,
@@ -900,9 +981,25 @@ export async function getNetworkInvites(id: string) {
   });
 
   const enhancedOrganizations = organizations.map((organization) => {
-    const receivedNetworkJoinInvites =
-      organization.receivedNetworkJoinInvites.filter((relation) => {
+    const receivedNetworkJoinInvites = organization.receivedNetworkJoinInvites
+      .filter((relation) => {
         return relation.status === "pending";
+      })
+      .map((relation) => {
+        const types = relation.network.types.map(
+          (item) => item.organizationType
+        );
+        const networkTypes = relation.network.networkTypes.map(
+          (item) => item.networkType
+        );
+        return {
+          ...relation,
+          network: {
+            ...relation.network,
+            types,
+            networkTypes,
+          },
+        };
       });
     return {
       ...organization,

@@ -34,6 +34,15 @@ export async function getOrganization(slug: string) {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
               organizationVisibility: {
                 select: {
                   id: true,
@@ -41,6 +50,7 @@ export async function getOrganization(slug: string) {
                   logo: true,
                   name: true,
                   types: true,
+                  networkTypes: true,
                 },
               },
             },
@@ -85,6 +95,7 @@ export async function getOrganization(slug: string) {
                   logo: true,
                   name: true,
                   types: true,
+                  networkTypes: true,
                 },
               },
             },

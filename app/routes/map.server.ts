@@ -42,6 +42,15 @@ export async function getAllOrganizations(options: {
           },
         },
       },
+      networkTypes: {
+        select: {
+          networkType: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       organizationVisibility: {
         select: {
           id: true,
@@ -51,6 +60,7 @@ export async function getAllOrganizations(options: {
           longitude: true,
           latitude: true,
           types: true,
+          networkTypes: true,
         },
       },
     },

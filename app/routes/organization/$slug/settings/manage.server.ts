@@ -69,6 +69,15 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -92,6 +101,15 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
               types: {
                 select: {
                   organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+              networkTypes: {
+                select: {
+                  networkType: {
                     select: {
                       slug: true,
                     },
@@ -124,6 +142,15 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
                   },
                 },
               },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -147,6 +174,15 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
               types: {
                 select: {
                   organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+              networkTypes: {
+                select: {
+                  networkType: {
                     select: {
                       slug: true,
                     },
@@ -190,7 +226,21 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
           });
         }
       }
-      return { network: { ...relation.network, logo, blurredLogo } };
+      const types = relation.network.types.map(
+        (relation) => relation.organizationType
+      );
+      const networkTypes = relation.network.networkTypes.map(
+        (relation) => relation.networkType
+      );
+      return {
+        network: {
+          ...relation.network,
+          logo,
+          blurredLogo,
+          types,
+          networkTypes,
+        },
+      };
     }
   );
 
@@ -215,7 +265,15 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
         });
       }
     }
-    return { network: { ...relation.network, logo, blurredLogo } };
+    const types = relation.network.types.map(
+      (relation) => relation.organizationType
+    );
+    const networkTypes = relation.network.networkTypes.map(
+      (relation) => relation.networkType
+    );
+    return {
+      network: { ...relation.network, logo, blurredLogo, types, networkTypes },
+    };
   });
 
   const sentNetworkJoinInvites = organization.sentNetworkJoinInvites.map(
@@ -240,7 +298,21 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
           });
         }
       }
-      return { organization: { ...relation.organization, logo, blurredLogo } };
+      const types = relation.organization.types.map(
+        (relation) => relation.organizationType
+      );
+      const networkTypes = relation.organization.networkTypes.map(
+        (relation) => relation.networkType
+      );
+      return {
+        organization: {
+          ...relation.organization,
+          logo,
+          blurredLogo,
+          types,
+          networkTypes,
+        },
+      };
     }
   );
 
@@ -265,7 +337,21 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
         });
       }
     }
-    return { networkMember: { ...relation.networkMember, logo, blurredLogo } };
+    const types = relation.networkMember.types.map(
+      (relation) => relation.organizationType
+    );
+    const networkTypes = relation.networkMember.networkTypes.map(
+      (relation) => relation.networkType
+    );
+    return {
+      networkMember: {
+        ...relation.networkMember,
+        logo,
+        blurredLogo,
+        types,
+        networkTypes,
+      },
+    };
   });
 
   const enhancedOrganization = {
@@ -274,6 +360,10 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
     networkMembers,
     sentNetworkJoinRequests,
     sentNetworkJoinInvites,
+    types: organization.types.map((relation) => relation.organizationType),
+    networkTypes: organization.networkTypes.map(
+      (relation) => relation.networkType
+    ),
   };
 
   return enhancedOrganization;
