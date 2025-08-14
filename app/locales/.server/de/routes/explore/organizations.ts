@@ -13,6 +13,8 @@ export const locale = {
     focuses: "Arbeitsschwerpunkte",
     areas: "Ort / Gebiet",
     networkTypes: "Netzwerkform",
+    network: "Netzwerk",
+    networkSearchPlaceholder: "Nach Netzwerk suchen...",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
     searchAreaHelper: "Mindestens 3 Buchstaben.",
     searchAreaButton: "Suchen",

@@ -47,6 +47,7 @@ import { getPublicURL } from "~/storage.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
+  getAllNetworks,
   getAllNetworkTypes,
   getAllOrganizations,
   getAllOrganizationTypes,
@@ -57,6 +58,8 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -252,6 +255,60 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedOrganizations.push(transformedOrganization);
   }
 
+  const networks = await getAllNetworks();
+
+  const networkOrganizationIds = enhancedOrganizations.map((organization) => {
+    return organization.id;
+  });
+
+  const enhancedNetworks = [];
+  for (const network of networks) {
+    const enhancedNetwork = { ...network };
+
+    let logo = enhancedNetwork.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.Logo.width,
+            height: ImageSizes.Organization.Filter.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Filter.BlurredLogo.width,
+            height: ImageSizes.Organization.Filter.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+
+    const networkFilterVector = await getOrganizationFilterVectorForAttribute({
+      attribute: "network",
+      filter: { ...submission.value.orgFilter },
+      search: submission.value.search,
+      ids: networkOrganizationIds,
+    });
+
+    const vectorCount = getFilterCountForSlug(
+      network.slug,
+      networkFilterVector,
+      "network"
+    );
+
+    enhancedNetworks.push({
+      ...enhancedNetwork,
+      logo,
+      blurredLogo,
+      vectorCount,
+    });
+  }
+
   const areas = await getAreasBySearchQuery(submission.value.orgAreaSearch);
   type EnhancedAreas = Array<
     ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
@@ -383,6 +440,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     return { ...networkType, vectorCount };
   });
 
+  const selectedNetworks: { slug: string; name: string }[] = [];
+  for (const slug of submission.value.orgFilter.network) {
+    const network = enhancedNetworks.find((network) => network.slug === slug);
+    if (network) {
+      selectedNetworks.push({ slug: network.slug, name: network.name });
+    }
+  }
+
   return {
     isLoggedIn,
     organizations: enhancedOrganizations,
@@ -398,6 +463,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
     locales,
+    networks: enhancedNetworks,
+    selectedNetworks,
   };
 };
 
@@ -443,6 +510,7 @@ export default function ExploreOrganizations() {
         focus: [],
         type: [],
         networkType: [],
+        network: [],
       },
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
@@ -466,6 +534,23 @@ export default function ExploreOrganizations() {
     showMore = loaderData.organizationsCount > loaderData.organizations.length;
   }
 
+  const [visibleNetworks, setVisibleNetworks] = useState<
+    typeof loaderData.networks
+  >(loaderData.networks);
+  const handleNetworkSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    const value = event.target.value;
+    if (value.length >= 3) {
+      setVisibleNetworks(
+        loaderData.networks.filter((network) => {
+          return network.name.toLowerCase().includes(value.toLowerCase());
+        })
+      );
+    } else {
+      setVisibleNetworks(loaderData.networks);
+    }
+  };
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -487,6 +572,9 @@ export default function ExploreOrganizations() {
             ) {
               replace = true;
             }
+            // if ((event.target as HTMLInputElement).name === fields.orgFilter.name) {
+            //   replace = true;
+            // }
             submit(event.currentTarget, {
               preventScrollReset,
               replace,
@@ -517,6 +605,7 @@ export default function ExploreOrganizations() {
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
+              {/* Organization Types Filter */}
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.types}
@@ -600,88 +689,8 @@ export default function ExploreOrganizations() {
                   })}
                 </Dropdown.List>
               </Dropdown>
-              <Dropdown>
-                <Dropdown.Label>
-                  {locales.route.filter.networkTypes}
-                  <span className="mv-font-normal @lg:mv-hidden">
-                    <br />
-                    {loaderData.selectedNetworkTypes
-                      .map((type) => {
-                        let title;
-                        if (type in locales.networkTypes) {
-                          type LocaleKey = keyof typeof locales.networkTypes;
-                          title = locales.networkTypes[type as LocaleKey].title;
-                        } else {
-                          console.error(
-                            `Network type ${type} not found in locales`
-                          );
-                          title = type;
-                        }
-                        return title;
-                      })
-                      .join(", ")}
-                  </span>
-                </Dropdown.Label>
-                <Dropdown.List>
-                  {loaderData.networkTypes.map((networkType) => {
-                    const isChecked =
-                      orgFilterFieldset.networkType.initialValue &&
-                      Array.isArray(orgFilterFieldset.networkType.initialValue)
-                        ? orgFilterFieldset.networkType.initialValue.includes(
-                            networkType.slug
-                          )
-                        : orgFilterFieldset.networkType.initialValue ===
-                          networkType.slug;
-                    return (
-                      <FormControl
-                        {...getInputProps(orgFilterFieldset.networkType, {
-                          type: "checkbox",
-                          value: networkType.slug,
-                        })}
-                        key={networkType.slug}
-                        defaultChecked={isChecked}
-                        disabled={networkType.vectorCount === 0 && !isChecked}
-                      >
-                        <FormControl.Label>
-                          {(() => {
-                            let title;
-                            let description;
-                            if (networkType.slug in locales.networkTypes) {
-                              type LocaleKey =
-                                keyof typeof locales.networkTypes;
-                              title =
-                                locales.networkTypes[
-                                  networkType.slug as LocaleKey
-                                ].title;
-                              description =
-                                locales.networkTypes[
-                                  networkType.slug as LocaleKey
-                                ].description;
-                            } else {
-                              console.error(
-                                `Network type ${networkType.slug} not found in locales`
-                              );
-                              title = networkType.slug;
-                              description = null;
-                            }
-                            return (
-                              <>
-                                {title}
-                                {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
-                                ) : null}
-                              </>
-                            );
-                          })()}
-                        </FormControl.Label>
-                        <FormControl.Counter>
-                          {networkType.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                </Dropdown.List>
-              </Dropdown>
+
+              {/* Focus filter */}
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.focuses}
@@ -757,6 +766,8 @@ export default function ExploreOrganizations() {
                   })}
                 </Dropdown.List>
               </Dropdown>
+
+              {/* Area filter */}
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.areas}
@@ -932,6 +943,163 @@ export default function ExploreOrganizations() {
                     })}
                 </Dropdown.List>
               </Dropdown>
+
+              {/* Network type filter */}
+              <Dropdown>
+                <Dropdown.Label>
+                  {locales.route.filter.networkTypes}
+                  <span className="mv-font-normal @lg:mv-hidden">
+                    <br />
+                    {loaderData.selectedNetworkTypes
+                      .map((type) => {
+                        let title;
+                        if (type in locales.networkTypes) {
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          title = locales.networkTypes[type as LocaleKey].title;
+                        } else {
+                          console.error(
+                            `Network type ${type} not found in locales`
+                          );
+                          title = type;
+                        }
+                        return title;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  {loaderData.networkTypes.map((networkType) => {
+                    const isChecked =
+                      orgFilterFieldset.networkType.initialValue &&
+                      Array.isArray(orgFilterFieldset.networkType.initialValue)
+                        ? orgFilterFieldset.networkType.initialValue.includes(
+                            networkType.slug
+                          )
+                        : orgFilterFieldset.networkType.initialValue ===
+                          networkType.slug;
+                    return (
+                      <FormControl
+                        {...getInputProps(orgFilterFieldset.networkType, {
+                          type: "checkbox",
+                          value: networkType.slug,
+                        })}
+                        key={networkType.slug}
+                        defaultChecked={isChecked}
+                        disabled={networkType.vectorCount === 0 && !isChecked}
+                      >
+                        <FormControl.Label>
+                          {(() => {
+                            let title;
+                            let description;
+                            if (networkType.slug in locales.networkTypes) {
+                              type LocaleKey =
+                                keyof typeof locales.networkTypes;
+                              title =
+                                locales.networkTypes[
+                                  networkType.slug as LocaleKey
+                                ].title;
+                              description =
+                                locales.networkTypes[
+                                  networkType.slug as LocaleKey
+                                ].description;
+                            } else {
+                              console.error(
+                                `Network type ${networkType.slug} not found in locales`
+                              );
+                              title = networkType.slug;
+                              description = null;
+                            }
+                            return (
+                              <>
+                                {title}
+                                {description !== null ? (
+                                  <p className="mv-text-sm">{description}</p>
+                                ) : null}
+                              </>
+                            );
+                          })()}
+                        </FormControl.Label>
+                        <FormControl.Counter>
+                          {networkType.vectorCount}
+                        </FormControl.Counter>
+                      </FormControl>
+                    );
+                  })}
+                </Dropdown.List>
+              </Dropdown>
+
+              {/* Network filter */}
+              <Dropdown>
+                <Dropdown.Label>
+                  {locales.route.filter.network}
+                  <span className="mv-font-normal @lg:mv-hidden">
+                    <br />
+                    {loaderData.networks
+                      .map((network) => {
+                        return network.name;
+                      })
+                      .join(", ")}
+                  </span>
+                </Dropdown.Label>
+                <Dropdown.List>
+                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <Input
+                      onChange={handleNetworkSearch}
+                      placeholder={
+                        locales.route.filter.networkSearchPlaceholder
+                      }
+                    >
+                      <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
+                        {locales.route.filter.searchAreaPlaceholder}
+                      </Input.Label>
+                      <Input.HelperText>
+                        {locales.route.filter.searchAreaHelper}
+                      </Input.HelperText>
+                      <Input.Controls>
+                        <noscript>
+                          <Button>
+                            {locales.route.filter.searchAreaButton}
+                          </Button>
+                        </noscript>
+                      </Input.Controls>
+                    </Input>
+                  </div>
+                  {visibleNetworks.length > 0 &&
+                    visibleNetworks.map((network) => {
+                      const isChecked =
+                        orgFilterFieldset.network.initialValue &&
+                        Array.isArray(orgFilterFieldset.network.initialValue)
+                          ? orgFilterFieldset.network.initialValue.includes(
+                              network.slug
+                            )
+                          : orgFilterFieldset.network.initialValue ===
+                            network.slug;
+                      return (
+                        <FormControl
+                          {...getInputProps(orgFilterFieldset.network, {
+                            type: "checkbox",
+                            value: network.slug,
+                          })}
+                          key={network.slug}
+                          defaultChecked={isChecked}
+                          disabled={network.vectorCount === 0 && !isChecked}
+                        >
+                          <FormControl.Label>
+                            <div className="mv-flex mv-gap-2 mv-items-center">
+                              <Avatar size="xs" {...network} />
+                              <div className="mv-line-clamp-2">
+                                {network.name}
+                              </div>
+                            </div>
+                          </FormControl.Label>
+                          <FormControl.Counter>
+                            {network.vectorCount}
+                          </FormControl.Counter>
+                        </FormControl>
+                      );
+                    })}
+                </Dropdown.List>
+              </Dropdown>
             </Filters.Fieldset>
             <Filters.Fieldset {...getFieldsetProps(fields.orgSortBy)}>
               <Dropdown orientation="right">
@@ -1008,7 +1176,8 @@ export default function ExploreOrganizations() {
           {(loaderData.selectedTypes.length > 0 ||
             loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedAreas.length > 0 ||
-            loaderData.selectedNetworkTypes.length > 0) && (
+            loaderData.selectedNetworkTypes.length > 0 ||
+            loaderData.selectedNetworks.length > 0) && (
             <div className="mv-flex mv-flex-col mv-gap-2">
               <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
                 {loaderData.selectedTypes.map((selectedType) => {
@@ -1236,6 +1405,57 @@ export default function ExploreOrganizations() {
                       <HiddenFilterInputsInContext />
                       <Chip size="medium">
                         {selectedArea.name}
+                        <Chip.Delete>
+                          <button
+                            type="submit"
+                            disabled={navigation.state === "loading"}
+                          >
+                            X
+                          </button>
+                        </Chip.Delete>
+                      </Chip>
+                    </ConformForm>
+                  ) : null;
+                })}
+                {loaderData.selectedNetworks.map((selectedNetwork) => {
+                  const deleteSearchParams = new URLSearchParams(searchParams);
+                  deleteSearchParams.delete(
+                    orgFilterFieldset.network.name,
+                    selectedNetwork.slug
+                  );
+                  return selectedNetwork.name !== null ? (
+                    <ConformForm
+                      key={selectedNetwork.slug}
+                      useFormOptions={{
+                        id: `delete-filter-${selectedNetwork.slug}`,
+                        defaultValue: {
+                          ...loaderData.submission.value,
+                          orgFilter: {
+                            ...loaderData.submission.value.orgFilter,
+                            network:
+                              loaderData.submission.value.orgFilter.network.filter(
+                                (network) => network !== selectedNetwork.slug
+                              ),
+                          },
+                          search: [
+                            loaderData.submission.value.search.join(" "),
+                          ],
+                          showFilters: "",
+                        },
+                        constraint: getZodConstraint(getFilterSchemes),
+                        lastResult:
+                          navigation.state === "idle"
+                            ? loaderData.submission
+                            : null,
+                      }}
+                      formProps={{
+                        method: "get",
+                        preventScrollReset: true,
+                      }}
+                    >
+                      <HiddenFilterInputsInContext />
+                      <Chip size="medium">
+                        {selectedNetwork.name}
                         <Chip.Delete>
                           <button
                             type="submit"
