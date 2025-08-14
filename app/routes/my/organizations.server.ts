@@ -24,6 +24,7 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { captureException } from "@sentry/node";
+import { updateFilterVectorOfOrganization } from "../organization/$slug/settings/utils.server";
 
 export type MyOrganizationsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -1728,6 +1729,7 @@ export async function updateNetworkInvite(options: {
                   networkMemberId: data.organizationId,
                 },
               });
+              updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
             }
           }
 
@@ -2224,6 +2226,7 @@ export async function updateNetworkRequest(options: {
                   networkMemberId: data.organizationId,
                 },
               });
+              updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
             }
           }
 

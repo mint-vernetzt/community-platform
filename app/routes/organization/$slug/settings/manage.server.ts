@@ -1041,6 +1041,7 @@ export async function removeNetworkMember(options: {
               },
             },
           });
+          updateFilterVectorOfOrganization(organizationId); // no promise because not blocking
         } catch (error) {
           captureException(error);
           ctx.addIssue({
