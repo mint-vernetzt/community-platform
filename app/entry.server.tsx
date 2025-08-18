@@ -38,10 +38,10 @@ export default async function handleRequest(
   );
 
   const url = new URL(request.url);
-  const isMap =
-    url.pathname === "/map" ||
-    (url.pathname === "/explore/organizations" &&
-      url.searchParams.get("view") === "map");
+  const isMap = url.pathname === "/map";
+  const isMapOnExplore =
+    url.pathname === "/explore/organizations" &&
+    url.searchParams.get("view") === "map";
 
   const connectSrc = ["'self'"];
   if (process.env.NODE_ENV === "production") {
@@ -54,7 +54,7 @@ export default async function handleRequest(
       );
     }
   }
-  if (isMap) {
+  if (isMap || isMapOnExplore) {
     connectSrc.push("tiles.openfreemap.org");
     connectSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
   }
