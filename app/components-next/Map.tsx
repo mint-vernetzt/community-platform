@@ -264,32 +264,6 @@ export function Map(props: {
           );
         }
       });
-
-      return () => {
-        if (mapRef.current !== null) {
-          mapRef.current.off("click", "clusters", clusterClickHandler);
-
-          mapRef.current.off(
-            "click",
-            "unclustered-point",
-            unclusteredClickHandler
-          );
-
-          mapRef.current.off("mouseenter", "clusters", mouseEnterHandler);
-          mapRef.current.off("mouseleave", "clusters", mouseLeaveHandler);
-
-          mapRef.current.off(
-            "mouseenter",
-            "unclustered-point",
-            mouseEnterHandler
-          );
-          mapRef.current.off(
-            "mouseleave",
-            "unclustered-point",
-            mouseLeaveHandler
-          );
-        }
-      };
     }
   }, [mapContainer, organizations, locales]);
 
