@@ -33,13 +33,9 @@ export function Map(props: {
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
       const center = [10.451526, 51.165691] as [number, number];
-      const maxBounds = [
-        [-2, 46],
-        [22, 56],
-      ] as [[number, number], [number, number]];
-      const zoom = 0;
-      const minZoom = 5.2;
-      const maxZoom = 12;
+      const zoom = 5.2;
+      const minZoom = 2;
+      const maxZoom = 16;
       // eslint-disable-next-line import/no-named-as-default-member
       mapRef.current = new maplibreGL.Map({
         container: mapContainer.current,
@@ -48,7 +44,6 @@ export function Map(props: {
         zoom,
         minZoom,
         maxZoom,
-        maxBounds,
       });
       mapRef.current.addControl(
         // eslint-disable-next-line import/no-named-as-default-member
@@ -59,28 +54,216 @@ export function Map(props: {
           showCompass: false,
         })
       );
+
+      const geoJSON: GeoJSON.FeatureCollection = {
+        type: "FeatureCollection",
+        features: [],
+      };
+
       for (const organization of organizations) {
         if (organization.longitude === null || organization.latitude === null) {
           continue;
         }
-        // eslint-disable-next-line import/no-named-as-default-member
-        const popup = new maplibreGL.Popup({
-          offset: 25,
-        }).setHTML(
-          renderToStaticMarkup(
-            <Popup organization={organization} locales={locales} />
-          )
-        );
 
-        // eslint-disable-next-line import/no-named-as-default-member
-        new maplibreGL.Marker()
-          .setLngLat([
-            parseFloat(organization.longitude),
-            parseFloat(organization.latitude),
-          ])
-          .setPopup(popup)
-          .addTo(mapRef.current);
+        const feature: GeoJSON.Feature<
+          GeoJSON.Point,
+          GeoJSON.GeoJsonProperties
+        > = {
+          type: "Feature",
+          properties: {
+            id: organization.slug,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [
+              parseFloat(organization.longitude),
+              parseFloat(organization.latitude),
+            ],
+          },
+        };
+
+        geoJSON.features.push(feature);
       }
+
+      const clusterClickHandler = async (
+        event: maplibreGL.MapMouseEvent & {
+          features?: maplibreGL.MapGeoJSONFeature[];
+        }
+      ) => {
+        if (mapRef.current !== null) {
+          const features = mapRef.current.queryRenderedFeatures(event.point, {
+            layers: ["clusters"],
+          });
+          const clusterId = features[0].properties.cluster_id;
+          const source = mapRef.current.getSource("organizations");
+          if (typeof source !== "undefined") {
+            const geoJsonSource = source as maplibreGL.GeoJSONSource;
+            const zoom = await geoJsonSource.getClusterExpansionZoom(clusterId);
+            mapRef.current.easeTo({
+              center: (features[0].geometry as GeoJSON.Point).coordinates as [
+                number,
+                number
+              ],
+              zoom,
+              duration: 1500,
+            });
+          }
+        }
+      };
+
+      const unclusteredClickHandler = (
+        event: maplibreGL.MapMouseEvent & {
+          features?: maplibreGL.MapGeoJSONFeature[];
+        }
+      ) => {
+        if (
+          typeof event.features === "undefined" ||
+          typeof event.features[0] === "undefined" ||
+          mapRef.current === null
+        ) {
+          return;
+        }
+        const feature = event.features[0];
+        const coordinates = (
+          (feature.geometry as GeoJSON.Point).coordinates as [number, number]
+        ).slice();
+        const slug = feature.properties.id as string;
+
+        // Ensure that if the map is zoomed out such that
+        // multiple copies of the feature are visible, the
+        // popup appears over the copy being pointed to.
+        while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        const organization = organizations.find((organization) => {
+          return organization.slug === slug;
+        });
+
+        if (
+          typeof organization !== "undefined" &&
+          organization.longitude !== null &&
+          organization.latitude !== null
+        ) {
+          // eslint-disable-next-line import/no-named-as-default-member
+          new maplibreGL.Popup({
+            offset: 25,
+          })
+            .setLngLat([
+              parseFloat(organization.longitude),
+              parseFloat(organization.latitude),
+            ])
+            .setHTML(
+              renderToStaticMarkup(
+                <Popup organization={organization} locales={locales} />
+              )
+            )
+            .addTo(mapRef.current);
+        }
+      };
+
+      const mouseEnterHandler = () => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "pointer";
+        }
+      };
+
+      const mouseLeaveHandler = () => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "";
+        }
+      };
+
+      mapRef.current.on("load", async () => {
+        if (mapRef.current !== null) {
+          mapRef.current.addSource("organizations", {
+            type: "geojson",
+            data: geoJSON,
+            cluster: true,
+            clusterMaxZoom: 15,
+            clusterRadius: 50,
+          });
+
+          mapRef.current.addLayer({
+            id: "clusters",
+            type: "circle",
+            source: "organizations",
+            filter: ["has", "point_count"],
+            paint: {
+              "circle-color": [
+                "step",
+                ["get", "point_count"],
+                "#2D6BE1",
+                100,
+                "#2D6BE1",
+                750,
+                "#2D6BE1",
+              ],
+              "circle-radius": [
+                "step",
+                ["get", "point_count"],
+                16,
+                100,
+                32,
+                750,
+                40,
+              ],
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+            },
+          });
+
+          mapRef.current.addLayer({
+            id: "unclustered-point",
+            type: "circle",
+            source: "organizations",
+            filter: ["!", ["has", "point_count"]],
+            paint: {
+              "circle-color": "#2D6BE1",
+              "circle-radius": 8,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+            },
+          });
+
+          mapRef.current.addLayer({
+            id: "cluster-count",
+            type: "symbol",
+            source: "organizations",
+            filter: ["has", "point_count"],
+            layout: {
+              "text-field": "{point_count_abbreviated}",
+              "text-font": ["Noto Sans Regular"],
+              "text-size": 12,
+            },
+            paint: {
+              "text-color": "#fff",
+            },
+          });
+
+          mapRef.current.on("click", "clusters", clusterClickHandler);
+
+          mapRef.current.on(
+            "click",
+            "unclustered-point",
+            unclusteredClickHandler
+          );
+
+          mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
+          mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
+
+          mapRef.current.on(
+            "mouseenter",
+            "unclustered-point",
+            mouseEnterHandler
+          );
+          mapRef.current.on(
+            "mouseleave",
+            "unclustered-point",
+            mouseLeaveHandler
+          );
+        }
+      });
     }
   }, [mapContainer, organizations, locales]);
 
@@ -88,15 +271,15 @@ export function Map(props: {
     <>
       <div
         ref={mapContainer}
-        className={`mv-absolute mv-w-full mv-h-full mv-rounded-2xl mv-overflow-hidden ${
+        className={`mv-absolute mv-h-full mv-overflow-hidden ${
           mapMenuIsOpen === true
-            ? "mv-w-[calc(100vw-336px)] mv-left-[336px]"
+            ? "mv-right-0 mv-w-[calc(100vw-336px)]"
             : "mv-w-full"
         }`}
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-rounded-l-2xl mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
             mapMenuIsOpen === true
               ? "mv-w-screen md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
@@ -106,7 +289,7 @@ export function Map(props: {
             className={`mv-flex mv-flex-col mv-gap-6 mv-p-4 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
               mapMenuIsOpen === true
                 ? "mv-min-h-full mv-rounded-l-2xl"
-                : "mv-rounded-br-2xl mv-rounded-tl-2xl"
+                : "mv-rounded-br-2xl"
             }`}
           >
             <div className="mv-flex mv-items-center mv-gap-2.5">
