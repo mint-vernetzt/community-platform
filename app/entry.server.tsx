@@ -56,7 +56,9 @@ export default async function handleRequest(
   }
   if (isMap || isMapOnExplore) {
     connectSrc.push("tiles.openfreemap.org");
-    connectSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
+    if (isMap) {
+      connectSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
+    }
   }
 
   const cspHeaderOptions = createCSPHeaderOptions({
