@@ -271,7 +271,7 @@ export function Map(props: {
     <>
       <div
         ref={mapContainer}
-        className={`mv-absolute mv-w-full mv-h-full mv-rounded-2xl mv-overflow-hidden ${
+        className={`mv-absolute mv-w-full mv-h-full mv-overflow-hidden ${
           mapMenuIsOpen === true
             ? "mv-w-[calc(100vw-336px)] mv-left-[336px]"
             : "mv-w-full"
@@ -279,7 +279,7 @@ export function Map(props: {
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-rounded-l-2xl mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
             mapMenuIsOpen === true
               ? "mv-w-screen md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
@@ -289,7 +289,7 @@ export function Map(props: {
             className={`mv-flex mv-flex-col mv-gap-6 mv-p-4 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
               mapMenuIsOpen === true
                 ? "mv-min-h-full mv-rounded-l-2xl"
-                : "mv-rounded-br-2xl mv-rounded-tl-2xl"
+                : "mv-rounded-br-2xl"
             }`}
           >
             <div className="mv-flex mv-items-center mv-gap-2.5">
