@@ -42,7 +42,9 @@ export const locale = {
   notShown_other:
     "{{count}} Organisationen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
   more: "Weitere laden",
-
   showNumberOfItems_one: "{{count}} Organisation anzeigen",
   showNumberOfItems_other: "{{count}} Organisationen anzeigen",
+  map: {
+    embed: "Aktuelle Ansicht auf der eigenen Website einbinden?",
+  },
 } as const;

@@ -9,6 +9,7 @@ import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -22,6 +23,14 @@ export function Map(props: {
 }) {
   const { organizations, locales } = props;
   const [searchParams] = useSearchParams();
+  const openMenuSearchParams = extendSearchParams(searchParams, {
+    addOrReplace: {
+      openMapMenu: "true",
+    },
+  });
+  const closeMenuSearchParams = extendSearchParams(searchParams, {
+    remove: ["openMapMenu"],
+  });
 
   const [mapMenuIsOpen, setMapMenuIsOpen] = useState(
     searchParams.get("openMapMenu") === "true"
@@ -281,7 +290,7 @@ export function Map(props: {
         <div
           className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
             mapMenuIsOpen === true
-              ? "mv-w-screen md:mv-w-[336px]"
+              ? "mv-w-full md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
           }`}
         >
@@ -305,10 +314,11 @@ export function Map(props: {
               </p>
               {mapMenuIsOpen === true ? (
                 <Link
-                  to="."
+                  to={`?${closeMenuSearchParams.toString()}`}
                   onClick={() => {
                     setMapMenuIsOpen(false);
                   }}
+                  preventScrollReset
                 >
                   <BurgerMenuOpen
                     aria-label={locales.components.Map.openMenu}
@@ -316,10 +326,11 @@ export function Map(props: {
                 </Link>
               ) : (
                 <Link
-                  to="?openMapMenu=true"
+                  to={`?${openMenuSearchParams.toString()}`}
                   onClick={() => {
                     setMapMenuIsOpen(true);
                   }}
+                  preventScrollReset
                 >
                   <BurgerMenuClosed
                     aria-label={locales.components.Map.closeMenu}

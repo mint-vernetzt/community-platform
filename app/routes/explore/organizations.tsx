@@ -10,9 +10,10 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import type { LoaderFunctionArgs } from "react-router";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  Link,
   redirect,
   useLoaderData,
   useNavigation,
@@ -61,7 +62,17 @@ import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { useState } from "react";
 import { List } from "~/components-next/icons/List";
-import { Map } from "~/components-next/icons/Map";
+import { Map as MapIcon } from "~/components-next/icons/Map";
+import { Map } from "~/components-next/Map";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { QuestionMark } from "~/components-next/icons/QuestionMark";
+import customMapStyles from "~/styles/map.css?url";
+import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: mapStyles },
+  { rel: "stylesheet", href: customMapStyles },
+];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -559,6 +570,27 @@ export default function ExploreOrganizations() {
       ? viewSearchParam
       : "map"
   );
+
+  const organizationsWithAddress =
+    currentView === "map"
+      ? loaderData.organizations
+          .filter((org) => org.longitude !== null && org.latitude !== null)
+          .map((organization) => {
+            return {
+              ...organization,
+              types: organization.types.map((type) => {
+                return {
+                  slug: type,
+                };
+              }),
+              networkTypes: organization.networkTypes.map((type) => {
+                return {
+                  slug: type,
+                };
+              }),
+            };
+          })
+      : [];
 
   return (
     <>
@@ -1181,7 +1213,6 @@ export default function ExploreOrganizations() {
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
           <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
         </div>
-        {/* TODO: Map and ListView toggle */}
         <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
           <div className="mv-w-full mv-flex mv-justify-center">
             <ul className="mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-2 mv-p-1 mv-rounded-lg mv-bg-white mv-border mv-border-neutral-300">
@@ -1253,7 +1284,7 @@ export default function ExploreOrganizations() {
                       : "mv-bg-white mv-text-neutral-700"
                   }`}
                 >
-                  <Map aria-hidden="true" />
+                  <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>
                 </button>
               </li>
@@ -1605,7 +1636,7 @@ export default function ExploreOrganizations() {
             </p>
           ) : null}
           {/* TODO: Show map or list here */}
-          {loaderData.organizations.length > 0 && (
+          {loaderData.organizations.length > 0 && currentView === "list" ? (
             <>
               <CardContainer type="multi row">
                 {loaderData.organizations.map((organization) => {
@@ -1645,7 +1676,29 @@ export default function ExploreOrganizations() {
                 </div>
               )}
             </>
-          )}
+          ) : null}
+          {loaderData.organizations.length > 0 && currentView === "map" ? (
+            <>
+              <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
+                <Map
+                  organizations={organizationsWithAddress}
+                  locales={locales}
+                />
+              </div>
+              <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
+                <TextButton size="small" as="link" to={""}>
+                  {locales.route.map.embed}
+                </TextButton>
+                <Link
+                  to="/help#TODO"
+                  target="_blank"
+                  className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                >
+                  <QuestionMark />
+                </Link>
+              </div>
+            </>
+          ) : null}
         </section>
       </div>
     </>

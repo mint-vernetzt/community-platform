@@ -43,7 +43,9 @@ export const locale = {
   notShown_other:
     "{{count}} organizations cannot be viewed because they have marked the specified filter criteria as private information. Private information is only visible to logged in users.",
   more: "Load more",
-
   showNumberOfItems_one: "Show {{count}} organization",
   showNumberOfItems_other: "Show {{count}} organizations",
+  map: {
+    embed: "Embed current view on your own website?",
+  },
 } as const;

@@ -708,6 +708,12 @@ export async function getAllOrganizations(options: {
       bio: true,
       logo: true,
       background: true,
+      longitude: true,
+      latitude: true,
+      street: true,
+      streetNumber: true,
+      city: true,
+      zipCode: true,
       types: {
         select: {
           organizationType: {
@@ -774,6 +780,12 @@ export async function getAllOrganizations(options: {
           bio: true,
           logo: true,
           background: true,
+          longitude: true,
+          latitude: true,
+          street: true,
+          streetNumber: true,
+          city: true,
+          zipCode: true,
           types: true,
           focuses: true,
           areas: true,
