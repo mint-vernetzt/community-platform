@@ -85,6 +85,95 @@ export function Map(props: {
         geoJSON.features.push(feature);
       }
 
+      const clusterClickHandler = async (
+        event: maplibreGL.MapMouseEvent & {
+          features?: maplibreGL.MapGeoJSONFeature[];
+        }
+      ) => {
+        if (mapRef.current !== null) {
+          const features = mapRef.current.queryRenderedFeatures(event.point, {
+            layers: ["clusters"],
+          });
+          const clusterId = features[0].properties.cluster_id;
+          const source = mapRef.current.getSource("organizations");
+          if (typeof source !== "undefined") {
+            const geoJsonSource = source as maplibreGL.GeoJSONSource;
+            const zoom = await geoJsonSource.getClusterExpansionZoom(clusterId);
+            mapRef.current.easeTo({
+              center: (features[0].geometry as GeoJSON.Point).coordinates as [
+                number,
+                number
+              ],
+              zoom,
+              duration: 1500,
+            });
+          }
+        }
+      };
+
+      const unclusteredClickHandler = (
+        event: maplibreGL.MapMouseEvent & {
+          features?: maplibreGL.MapGeoJSONFeature[];
+        }
+      ) => {
+        if (
+          typeof event.features === "undefined" ||
+          typeof event.features[0] === "undefined" ||
+          mapRef.current === null
+        ) {
+          return;
+        }
+        const feature = event.features[0];
+        const coordinates = (
+          (feature.geometry as GeoJSON.Point).coordinates as [number, number]
+        ).slice();
+        const slug = feature.properties.id as string;
+
+        // Ensure that if the map is zoomed out such that
+        // multiple copies of the feature are visible, the
+        // popup appears over the copy being pointed to.
+        while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        const organization = organizations.find((organization) => {
+          return organization.slug === slug;
+        });
+
+        if (
+          typeof organization !== "undefined" &&
+          organization.longitude !== null &&
+          organization.latitude !== null
+        ) {
+          // eslint-disable-next-line import/no-named-as-default-member
+          new maplibreGL.Popup({
+            offset: 25,
+          })
+            .setLngLat([
+              parseFloat(organization.longitude),
+              parseFloat(organization.latitude),
+            ])
+            .setHTML(
+              renderToStaticMarkup(
+                <Popup organization={organization} locales={locales} />
+              )
+            )
+            .addTo(mapRef.current);
+        }
+      };
+
+      const mouseEnterHandler = () => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "pointer";
+        }
+      };
+
+      const mouseLeaveHandler = () => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "";
+        }
+      };
+
       mapRef.current.on("load", async () => {
         if (mapRef.current !== null) {
           mapRef.current.addSource("organizations", {
@@ -152,108 +241,53 @@ export function Map(props: {
             },
           });
 
-          mapRef.current.on("click", "clusters", async (event) => {
-            if (mapRef.current !== null) {
-              const features = mapRef.current.queryRenderedFeatures(
-                event.point,
-                {
-                  layers: ["clusters"],
-                }
-              );
-              const clusterId = features[0].properties.cluster_id;
-              const source = mapRef.current.getSource("organizations");
-              if (typeof source !== "undefined") {
-                const geoJsonSource = source as maplibreGL.GeoJSONSource;
-                const zoom = await geoJsonSource.getClusterExpansionZoom(
-                  clusterId
-                );
-                mapRef.current.easeTo({
-                  center: (features[0].geometry as GeoJSON.Point)
-                    .coordinates as [number, number],
-                  zoom,
-                  duration: 1500,
-                });
-              }
-            }
-          });
+          mapRef.current.on("click", "clusters", clusterClickHandler);
 
-          mapRef.current.on("click", "unclustered-point", (event) => {
-            if (
-              typeof event.features === "undefined" ||
-              typeof event.features[0] === "undefined" ||
-              mapRef.current === null
-            ) {
-              return;
-            }
-            const feature = event.features[0];
-            const coordinates = (
-              (feature.geometry as GeoJSON.Point).coordinates as [
-                number,
-                number
-              ]
-            ).slice();
-            const slug = feature.properties.id as string;
+          mapRef.current.on(
+            "click",
+            "unclustered-point",
+            unclusteredClickHandler
+          );
 
-            // Ensure that if the map is zoomed out such that
-            // multiple copies of the feature are visible, the
-            // popup appears over the copy being pointed to.
-            while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
+          mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
+          mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
 
-            const organization = organizations.find((organization) => {
-              return organization.slug === slug;
-            });
-
-            if (
-              typeof organization !== "undefined" &&
-              organization.longitude !== null &&
-              organization.latitude !== null
-            ) {
-              // eslint-disable-next-line import/no-named-as-default-member
-              new maplibreGL.Popup({
-                offset: 25,
-              })
-                .setLngLat([
-                  parseFloat(organization.longitude),
-                  parseFloat(organization.latitude),
-                ])
-                .setHTML(
-                  renderToStaticMarkup(
-                    <Popup organization={organization} locales={locales} />
-                  )
-                )
-                .addTo(mapRef.current);
-            }
-          });
-
-          mapRef.current.on("mouseenter", "clusters", () => {
-            if (mapRef.current !== null) {
-              mapRef.current.getCanvas().style.cursor = "pointer";
-            }
-          });
-          mapRef.current.on("mouseleave", "clusters", () => {
-            if (mapRef.current !== null) {
-              mapRef.current.getCanvas().style.cursor = "";
-            }
-          });
-
-          mapRef.current.on("mouseenter", "unclustered-point", () => {
-            if (mapRef.current !== null) {
-              mapRef.current.getCanvas().style.cursor = "pointer";
-            }
-          });
-          mapRef.current.on("mouseleave", "unclustered-point", () => {
-            if (mapRef.current !== null) {
-              mapRef.current.getCanvas().style.cursor = "";
-            }
-          });
+          mapRef.current.on(
+            "mouseenter",
+            "unclustered-point",
+            mouseEnterHandler
+          );
+          mapRef.current.on(
+            "mouseleave",
+            "unclustered-point",
+            mouseLeaveHandler
+          );
         }
       });
 
       return () => {
         if (mapRef.current !== null) {
-          mapRef.current.remove();
+          mapRef.current.off("click", "clusters", clusterClickHandler);
+
+          mapRef.current.off(
+            "click",
+            "unclustered-point",
+            unclusteredClickHandler
+          );
+
+          mapRef.current.off("mouseenter", "clusters", mouseEnterHandler);
+          mapRef.current.off("mouseleave", "clusters", mouseLeaveHandler);
+
+          mapRef.current.off(
+            "mouseenter",
+            "unclustered-point",
+            mouseEnterHandler
+          );
+          mapRef.current.off(
+            "mouseleave",
+            "unclustered-point",
+            mouseLeaveHandler
+          );
         }
       };
     }
