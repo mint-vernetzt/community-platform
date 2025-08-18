@@ -33,12 +33,8 @@ export function Map(props: {
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
       const center = [10.451526, 51.165691] as [number, number];
-      const maxBounds = [
-        [-2, 46],
-        [22, 56],
-      ] as [[number, number], [number, number]];
-      const zoom = 0;
-      const minZoom = 5.2;
+      const zoom = 5.2;
+      const minZoom = 2;
       const maxZoom = 16;
       // eslint-disable-next-line import/no-named-as-default-member
       mapRef.current = new maplibreGL.Map({
@@ -48,7 +44,6 @@ export function Map(props: {
         zoom,
         minZoom,
         maxZoom,
-        maxBounds,
       });
       mapRef.current.addControl(
         // eslint-disable-next-line import/no-named-as-default-member
