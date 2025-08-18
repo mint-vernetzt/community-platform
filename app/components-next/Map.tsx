@@ -319,6 +319,7 @@ export function Map(props: {
                     setMapMenuIsOpen(false);
                   }}
                   preventScrollReset
+                  replace
                 >
                   <BurgerMenuOpen
                     aria-label={locales.components.Map.openMenu}
@@ -331,6 +332,7 @@ export function Map(props: {
                     setMapMenuIsOpen(true);
                   }}
                   preventScrollReset
+                  replace
                 >
                   <BurgerMenuClosed
                     aria-label={locales.components.Map.closeMenu}

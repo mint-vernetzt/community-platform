@@ -1234,6 +1234,7 @@ export default function ExploreOrganizations() {
                     method: "get",
                     preventScrollReset: true,
                     className: "mv-hidden",
+                    replace: true,
                   }}
                 >
                   <HiddenFilterInputsInContext />
@@ -1270,6 +1271,7 @@ export default function ExploreOrganizations() {
                     method: "get",
                     preventScrollReset: true,
                     className: "mv-hidden",
+                    replace: true,
                   }}
                 >
                   <HiddenFilterInputsInContext />
