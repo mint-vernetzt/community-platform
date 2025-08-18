@@ -60,6 +60,8 @@ import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { useState } from "react";
+import { List } from "~/components-next/icons/List";
+import { Map } from "~/components-next/icons/Map";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -550,6 +552,13 @@ export default function ExploreOrganizations() {
       setVisibleNetworks(loaderData.networks);
     }
   };
+
+  const viewSearchParam = searchParams.get("view");
+  const [currentView, setCurrentView] = useState<"list" | "map">(
+    viewSearchParam === "map" || viewSearchParam === "list"
+      ? viewSearchParam
+      : "map"
+  );
 
   return (
     <>
@@ -1172,6 +1181,85 @@ export default function ExploreOrganizations() {
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
           <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
         </div>
+        {/* TODO: Map and ListView toggle */}
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <div className="mv-w-full mv-flex mv-justify-center">
+            <ul className="mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-2 mv-p-1 mv-rounded-lg mv-bg-white mv-border mv-border-neutral-300">
+              <li>
+                <ConformForm
+                  useFormOptions={{
+                    id: "change-to-list-view",
+                    defaultValue: {
+                      ...loaderData.submission.value,
+                      view: "list",
+                    },
+                    constraint: getZodConstraint(getFilterSchemes),
+                    lastResult:
+                      navigation.state === "idle"
+                        ? loaderData.submission
+                        : null,
+                  }}
+                  formProps={{
+                    method: "get",
+                    preventScrollReset: true,
+                    className: "mv-hidden",
+                  }}
+                >
+                  <HiddenFilterInputsInContext />
+                </ConformForm>
+                <button
+                  form="change-to-list-view"
+                  type="submit"
+                  onClick={() => setCurrentView("list")}
+                  className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    currentView === "list"
+                      ? "mv-bg-primary-50 mv-text-primary"
+                      : "mv-bg-white mv-text-neutral-700"
+                  }`}
+                >
+                  <List aria-hidden="true" />
+                  <span>{locales.route.view.list}</span>
+                </button>
+              </li>
+              <li>
+                <ConformForm
+                  useFormOptions={{
+                    id: "change-to-map-view",
+                    defaultValue: {
+                      ...loaderData.submission.value,
+                      view: "map",
+                    },
+                    constraint: getZodConstraint(getFilterSchemes),
+                    lastResult:
+                      navigation.state === "idle"
+                        ? loaderData.submission
+                        : null,
+                  }}
+                  formProps={{
+                    method: "get",
+                    preventScrollReset: true,
+                    className: "mv-hidden",
+                  }}
+                >
+                  <HiddenFilterInputsInContext />
+                </ConformForm>
+                <button
+                  form="change-to-map-view"
+                  type="submit"
+                  onClick={() => setCurrentView("map")}
+                  className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    currentView === "map"
+                      ? "mv-bg-primary-50 mv-text-primary"
+                      : "mv-bg-white mv-text-neutral-700"
+                  }`}
+                >
+                  <Map aria-hidden="true" />
+                  <span>{locales.route.view.map}</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </section>
         <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
           {(loaderData.selectedTypes.length > 0 ||
             loaderData.selectedFocuses.length > 0 ||
@@ -1516,6 +1604,7 @@ export default function ExploreOrganizations() {
               {locales.route.empty}
             </p>
           ) : null}
+          {/* TODO: Show map or list here */}
           {loaderData.organizations.length > 0 && (
             <>
               <CardContainer type="multi row">

@@ -33,6 +33,10 @@ export const locale = {
     },
     close: "Close filter",
   },
+  view: {
+    list: "List",
+    map: "Map",
+  },
   empty: "Unfortunately, no organizations could be found.",
   notShown_one:
     "{{count}} organization cannot be viewed because it has marked the specified filter criteria as private information. Private information is only visible to logged in users.",
