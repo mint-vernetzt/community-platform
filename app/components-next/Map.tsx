@@ -35,7 +35,7 @@ export function Map(props: {
       const center = [10.451526, 51.165691] as [number, number];
       const zoom = 5.2;
       const minZoom = 2;
-      const maxZoom = 16;
+      const maxZoom = 18;
       // eslint-disable-next-line import/no-named-as-default-member
       mapRef.current = new maplibreGL.Map({
         container: mapContainer.current,
@@ -99,13 +99,15 @@ export function Map(props: {
           if (typeof source !== "undefined") {
             const geoJsonSource = source as maplibreGL.GeoJSONSource;
             const zoom = await geoJsonSource.getClusterExpansionZoom(clusterId);
-            mapRef.current.easeTo({
+            const currentZoom = mapRef.current.getZoom();
+            const duration = ((zoom - currentZoom) * 4000) / zoom;
+            mapRef.current.flyTo({
               center: (features[0].geometry as GeoJSON.Point).coordinates as [
                 number,
                 number
               ],
               zoom,
-              duration: 1500,
+              duration,
             });
           }
         }
@@ -135,6 +137,19 @@ export function Map(props: {
         while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
           coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
         }
+        // x/2000 = (currentZoom - 16)/16
+        const currentZoom = mapRef.current.getZoom();
+        const zoom = 16;
+        const duration = ((zoom - currentZoom) * 4000) / zoom;
+
+        mapRef.current.flyTo({
+          center: (feature.geometry as GeoJSON.Point).coordinates as [
+            number,
+            number
+          ],
+          zoom,
+          duration,
+        });
 
         const organization = organizations.find((organization) => {
           return organization.slug === slug;
@@ -180,7 +195,7 @@ export function Map(props: {
             type: "geojson",
             data: geoJSON,
             cluster: true,
-            clusterMaxZoom: 15,
+            clusterMaxZoom: 16,
             clusterRadius: 50,
           });
 
@@ -190,26 +205,30 @@ export function Map(props: {
             source: "organizations",
             filter: ["has", "point_count"],
             paint: {
-              "circle-color": [
-                "step",
-                ["get", "point_count"],
-                "#2D6BE1",
-                100,
-                "#2D6BE1",
-                750,
-                "#2D6BE1",
-              ],
+              "circle-color": "#2D6BE1",
               "circle-radius": [
                 "step",
                 ["get", "point_count"],
-                16,
-                100,
+                24,
+                5,
                 32,
-                750,
+                20,
                 40,
+                100,
+                48,
+                300,
+                56,
               ],
-              "circle-stroke-width": 1,
-              "circle-stroke-color": "#fff",
+              "circle-stroke-width": [
+                "step",
+                ["get", "point_count"],
+                2,
+                100,
+                3,
+                300,
+                4,
+              ],
+              "circle-stroke-color": "#2D6BE166",
             },
           });
 
@@ -220,9 +239,9 @@ export function Map(props: {
             filter: ["!", ["has", "point_count"]],
             paint: {
               "circle-color": "#2D6BE1",
-              "circle-radius": 8,
-              "circle-stroke-width": 1,
-              "circle-stroke-color": "#fff",
+              "circle-radius": 16,
+              "circle-stroke-width": 2,
+              "circle-stroke-color": "#2D6BE166",
             },
           });
 
@@ -233,8 +252,8 @@ export function Map(props: {
             filter: ["has", "point_count"],
             layout: {
               "text-field": "{point_count_abbreviated}",
-              "text-font": ["Noto Sans Regular"],
-              "text-size": 12,
+              "text-font": ["Noto Sans Bold"],
+              "text-size": 14,
             },
             paint: {
               "text-color": "#fff",
