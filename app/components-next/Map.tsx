@@ -41,6 +41,9 @@ export function Map(props: {
   const [mapLoaded, setMapLoaded] = useState(false);
   const lastOrgsRef = useRef<MapOrganization[]>([]);
   const popupsRef = useRef<maplibreGL.Popup[]>([]);
+  const [highlightedOrganization, setHighlightedOrganization] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -199,8 +202,23 @@ export function Map(props: {
               renderToStaticMarkup(
                 <Popup organization={organization} locales={locales} />
               )
-            )
-            .addTo(mapRef.current);
+            );
+          popup.on("open", () => {
+            setHighlightedOrganization(organization.slug);
+            const highlightedOrganization = document.getElementById(
+              organization.slug
+            );
+            if (highlightedOrganization !== null) {
+              highlightedOrganization.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }
+          });
+          popup.on("close", () => {
+            setHighlightedOrganization(null);
+          });
+          popup.addTo(mapRef.current);
           popupsRef.current.push(popup);
         }
       };
@@ -382,11 +400,15 @@ export function Map(props: {
                 {organizations.map((organization) => {
                   return (
                     <ListItem
+                      id={organization.slug}
                       key={`organization-${organization.slug}`}
                       entity={organization}
                       locales={locales}
                       rel="noopener noreferrer"
                       target="_blank"
+                      highlighted={
+                        highlightedOrganization === organization.slug
+                      }
                     />
                   );
                 })}
