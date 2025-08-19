@@ -65,6 +65,18 @@ export function Map(props: {
         zoom,
         minZoom,
         maxZoom,
+        transformRequest: (url) => {
+          if (url.startsWith("https://tiles.openfreemap.org/")) {
+            return {
+              url: `${
+                ENV.COMMUNITY_BASE_URL
+              }/map-proxy?path=${encodeURIComponent(
+                url.replace("https://tiles.openfreemap.org", "")
+              )}`,
+            };
+          }
+          return { url };
+        },
       });
       mapRef.current.addControl(
         // eslint-disable-next-line import/no-named-as-default-member

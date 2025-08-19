@@ -361,4 +361,5 @@ export default [
   route("/auth/request-confirmation", "./routes/auth/request-confirmation.tsx"),
   route("/auth/verify", "./routes/auth/verify.tsx"),
   route("/map", "./routes/map.tsx"),
+  route("/map-proxy", "./routes/map-proxy.ts"),
 ] satisfies RouteConfig;

@@ -39,7 +39,6 @@ export default async function handleRequest(
 
   const url = new URL(request.url);
   const isMap = url.pathname === "/map";
-  const isMapOnExplore = url.pathname === "/explore/organizations/map";
 
   const connectSrc = ["'self'"];
   if (process.env.NODE_ENV === "production") {
@@ -51,9 +50,6 @@ export default async function handleRequest(
           .replace(/^.*@/, "")
       );
     }
-  }
-  if (isMap || isMapOnExplore) {
-    connectSrc.push("tiles.openfreemap.org");
   }
 
   const cspHeaderOptions = createCSPHeaderOptions({
