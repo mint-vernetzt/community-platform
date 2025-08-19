@@ -190,9 +190,7 @@ export function Map(props: {
           organization.latitude !== null
         ) {
           // eslint-disable-next-line import/no-named-as-default-member
-          const popup = new maplibreGL.Popup({
-            offset: 25,
-          })
+          const popup = new maplibreGL.Popup()
             .setLngLat([
               parseFloat(organization.longitude),
               parseFloat(organization.latitude),
