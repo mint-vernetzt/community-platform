@@ -43,7 +43,9 @@ export function Map(props: {
   const mapRef = useRef<maplibreGL.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const lastOrgsRef = useRef<MapOrganization[]>([]);
-  const lastLanguageRef = useRef(language);
+  const lastLanguageRef = useRef<ArrayElement<
+    typeof SUPPORTED_COOKIE_LANGUAGES
+  > | null>(null);
   const popupsRef = useRef<maplibreGL.Popup[]>([]);
   const [highlightedOrganization, setHighlightedOrganization] = useState<
     string | null
@@ -73,10 +75,6 @@ export function Map(props: {
           showCompass: false,
         })
       );
-      // mapRef.current.setLayoutProperty("label_country", "text-field", [
-      //   "get",
-      //   `name:${language}`,
-      // ]);
 
       mapRef.current.on("load", async () => {
         setMapLoaded(true);
