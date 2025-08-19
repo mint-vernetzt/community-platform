@@ -1708,8 +1708,14 @@ export default function ExploreOrganizations() {
             <>
               <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
                 <Map
-                  organizations={loaderData.organizations.map(
-                    (organization) => {
+                  organizations={loaderData.organizations
+                    .filter((organization) => {
+                      return (
+                        organization.longitude !== null &&
+                        organization.latitude !== null
+                      );
+                    })
+                    .map((organization) => {
                       return {
                         ...organization,
                         types: organization.types.map((type) => {
@@ -1723,8 +1729,7 @@ export default function ExploreOrganizations() {
                           };
                         }),
                       };
-                    }
-                  )}
+                    })}
                   locales={locales}
                   language={language}
                 />
