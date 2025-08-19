@@ -1,7 +1,7 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams } from "react-router";
 import { type MapLocales } from "~/routes/map.server";
@@ -95,6 +95,101 @@ export function Map(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const unclusteredClickHandler = useCallback(
+    (
+      event: maplibreGL.MapMouseEvent & {
+        features?: maplibreGL.MapGeoJSONFeature[];
+      } & {
+        slug?: string;
+      }
+    ) => {
+      if (mapRef.current === null) {
+        return;
+      }
+      const slug =
+        "slug" in event
+          ? event.slug
+          : typeof event.features !== "undefined"
+          ? (event.features[0].properties.id as string)
+          : null;
+      if (slug === null) {
+        return;
+      }
+      const organization = organizations.find((organization) => {
+        return organization.slug === slug;
+      });
+      if (
+        typeof organization === "undefined" ||
+        organization.longitude === null ||
+        organization.latitude === null
+      ) {
+        return;
+      }
+      const coordinates = [
+        parseFloat(organization.longitude),
+        parseFloat(organization.latitude),
+      ];
+
+      mapRef.current.flyTo({
+        center: coordinates as [number, number],
+        zoom: 18,
+        essential: true,
+      });
+
+      for (const popup of popupsRef.current) {
+        popup.remove();
+      }
+      // eslint-disable-next-line import/no-named-as-default-member
+      const popup = new maplibreGL.Popup()
+        .setLngLat([
+          parseFloat(organization.longitude),
+          parseFloat(organization.latitude),
+        ])
+        .setHTML(
+          renderToStaticMarkup(
+            <Popup organization={organization} locales={locales} />
+          )
+        );
+      popup.on("open", () => {
+        setHighlightedOrganization(organization.slug);
+        const mapMenu = document.getElementById("map-menu");
+        const listItem = document.getElementById(
+          `list-item-${organization.slug}`
+        );
+        if (mapMenu !== null && listItem !== null) {
+          mapMenu.scrollTo({
+            top: listItem.offsetTop - 58,
+            behavior: "smooth",
+          });
+        }
+      });
+      popup.on("close", () => {
+        setHighlightedOrganization(null);
+      });
+      popupsRef.current.push(popup);
+
+      const onMove = () => {
+        if (mapRef.current !== null) {
+          const center = mapRef.current.getCenter();
+          if (
+            Math.abs(center.lng - coordinates[0]) < 0.01 &&
+            Math.abs(center.lat - coordinates[1]) < 0.01
+          ) {
+            popup.addTo(mapRef.current);
+            mapRef.current.off("move", onMove);
+          }
+        }
+      };
+      mapRef.current.on("move", onMove);
+      mapRef.current.once("moveend", () => {
+        if (mapRef.current !== null) {
+          mapRef.current.off("move", onMove);
+        }
+      });
+    },
+    [locales, organizations]
+  );
+
   useEffect(() => {
     if (
       mapLoaded &&
@@ -162,88 +257,6 @@ export function Map(props: {
               duration,
             });
           }
-        }
-      };
-
-      const unclusteredClickHandler = (
-        event: maplibreGL.MapMouseEvent & {
-          features?: maplibreGL.MapGeoJSONFeature[];
-        }
-      ) => {
-        if (
-          typeof event.features === "undefined" ||
-          typeof event.features[0] === "undefined" ||
-          mapRef.current === null
-        ) {
-          return;
-        }
-        const feature = event.features[0];
-        const coordinates = (
-          (feature.geometry as GeoJSON.Point).coordinates as [number, number]
-        ).slice();
-        const slug = feature.properties.id as string;
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-        // x/2000 = (currentZoom - 16)/16
-        const currentZoom = mapRef.current.getZoom();
-        const zoom = 16;
-        const duration = ((zoom - currentZoom) * 4000) / zoom;
-
-        mapRef.current.flyTo({
-          center: (feature.geometry as GeoJSON.Point).coordinates as [
-            number,
-            number
-          ],
-          zoom,
-          duration,
-        });
-
-        for (const popup of popupsRef.current) {
-          popup.remove();
-        }
-
-        const organization = organizations.find((organization) => {
-          return organization.slug === slug;
-        });
-
-        if (
-          typeof organization !== "undefined" &&
-          organization.longitude !== null &&
-          organization.latitude !== null
-        ) {
-          // eslint-disable-next-line import/no-named-as-default-member
-          const popup = new maplibreGL.Popup()
-            .setLngLat([
-              parseFloat(organization.longitude),
-              parseFloat(organization.latitude),
-            ])
-            .setHTML(
-              renderToStaticMarkup(
-                <Popup organization={organization} locales={locales} />
-              )
-            );
-          popup.on("open", () => {
-            setHighlightedOrganization(organization.slug);
-            const highlightedOrganization = document.getElementById(
-              organization.slug
-            );
-            if (highlightedOrganization !== null) {
-              highlightedOrganization.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }
-          });
-          popup.on("close", () => {
-            setHighlightedOrganization(null);
-          });
-          popup.addTo(mapRef.current);
-          popupsRef.current.push(popup);
         }
       };
 
@@ -357,7 +370,7 @@ export function Map(props: {
       mapRef.current.off("mouseleave", "unclustered-point", mouseLeaveHandler);
       mapRef.current.on("mouseleave", "unclustered-point", mouseLeaveHandler);
     }
-  }, [mapLoaded, organizations, locales]);
+  }, [mapLoaded, organizations, locales, unclusteredClickHandler]);
 
   useEffect(() => {
     if (
@@ -404,7 +417,7 @@ export function Map(props: {
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none ${
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-pointer-events-none ${
             mapMenuIsOpen === true
               ? "mv-w-full md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
@@ -412,9 +425,7 @@ export function Map(props: {
         >
           <div
             className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
-              mapMenuIsOpen
-                ? "mv-min-h-full mv-rounded-l-2xl"
-                : "mv-rounded-br-2xl"
+              mapMenuIsOpen ? "mv-h-full mv-rounded-l-2xl" : "mv-rounded-br-2xl"
             }`}
           >
             <Link
@@ -455,10 +466,32 @@ export function Map(props: {
               </div>
             </Link>
             {mapMenuIsOpen ? (
-              <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-px-4">
+              <ul
+                id="map-menu"
+                className="mv-w-full mv-h-full mv-flex mv-flex-col mv-gap-2 mv-px-4 mv-overflow-y-auto"
+              >
                 {organizations.map((organization) => {
                   return (
                     <ListItem
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (mapRef.current === null) {
+                          return;
+                        }
+                        // eslint-disable-next-line import/no-named-as-default-member
+                        const mapEvent = new maplibreGL.MapMouseEvent(
+                          "click",
+                          mapRef.current,
+                          event.nativeEvent
+                        );
+                        unclusteredClickHandler({
+                          ...mapEvent,
+                          preventDefault: () => event.preventDefault(),
+                          defaultPrevented: false,
+                          slug: event.currentTarget.id,
+                        });
+                      }}
                       id={organization.slug}
                       key={`organization-${organization.slug}`}
                       entity={organization}
@@ -468,6 +501,7 @@ export function Map(props: {
                       highlighted={
                         highlightedOrganization === organization.slug
                       }
+                      preventScrollReset
                     />
                   );
                 })}

@@ -104,6 +104,11 @@ export function ListItem(
 
   return (
     <li
+      id={
+        "slug" in entity
+          ? `list-item-${entity.slug}`
+          : `list-item-${entity.username}`
+      }
       className={
         hideAfter !== undefined &&
         listIndex !== undefined &&
