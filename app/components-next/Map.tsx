@@ -113,6 +113,10 @@ export function Map(props: {
         geoJSON.features.push(feature);
       }
 
+      for (const popup of popupsRef.current) {
+        popup.remove();
+      }
+
       const clusterClickHandler = async (
         event: maplibreGL.MapMouseEvent & {
           features?: maplibreGL.MapGeoJSONFeature[];
