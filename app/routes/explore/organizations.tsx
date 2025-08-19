@@ -1728,7 +1728,7 @@ export default function ExploreOrganizations() {
                 />
               </div>
               <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
-                <TextButton size="small" as="link" to={""}>
+                <TextButton size="small" as="link" to={""} preventScrollReset>
                   {locales.route.map.embed}
                 </TextButton>
                 <Link
