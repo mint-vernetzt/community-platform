@@ -101,15 +101,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     organizations: enhancedOrganizations,
     locales,
+    language,
   };
 };
 
 function MapIndex() {
-  const { organizations, locales } = useLoaderData<typeof loader>();
+  const { organizations, locales, language } = useLoaderData<typeof loader>();
 
   return (
     <div className="mv-relative mv-w-screen mv-h-dvh">
-      <Map organizations={organizations} locales={locales} />
+      <Map
+        organizations={organizations}
+        locales={locales}
+        language={language}
+      />
     </div>
   );
 }

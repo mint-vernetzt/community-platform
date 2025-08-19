@@ -10,6 +10,8 @@ import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -20,8 +22,9 @@ type MapOrganization = ListOrganization &
 export function Map(props: {
   organizations: Array<MapOrganization>;
   locales: MapLocales;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
-  const { organizations, locales } = props;
+  const { organizations, locales, language } = props;
   const [searchParams] = useSearchParams();
   const openMenuSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
@@ -40,6 +43,7 @@ export function Map(props: {
   const mapRef = useRef<maplibreGL.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const lastOrgsRef = useRef<MapOrganization[]>([]);
+  const lastLanguageRef = useRef(language);
   const popupsRef = useRef<maplibreGL.Popup[]>([]);
   const [highlightedOrganization, setHighlightedOrganization] = useState<
     string | null
@@ -69,11 +73,16 @@ export function Map(props: {
           showCompass: false,
         })
       );
+      // mapRef.current.setLayoutProperty("label_country", "text-field", [
+      //   "get",
+      //   `name:${language}`,
+      // ]);
 
       mapRef.current.on("load", async () => {
         setMapLoaded(true);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -83,6 +92,7 @@ export function Map(props: {
       JSON.stringify(lastOrgsRef.current) !== JSON.stringify(organizations)
     ) {
       lastOrgsRef.current = organizations;
+
       const geoJSON: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
         features: [],
@@ -338,6 +348,41 @@ export function Map(props: {
       mapRef.current.on("mouseleave", "unclustered-point", mouseLeaveHandler);
     }
   }, [mapLoaded, organizations, locales]);
+
+  useEffect(() => {
+    if (
+      mapLoaded &&
+      mapRef.current !== null &&
+      lastLanguageRef.current !== language
+    ) {
+      lastLanguageRef.current = language;
+
+      mapRef.current.setLayoutProperty("label_country_1", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_country_2", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_country_3", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_state", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_city", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_city_capital", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+    }
+  }, [mapLoaded, language]);
 
   return (
     <>

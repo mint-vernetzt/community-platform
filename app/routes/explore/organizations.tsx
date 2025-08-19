@@ -482,6 +482,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
     locales,
+    language,
     networks: enhancedNetworks,
     selectedNetworks,
   };
@@ -489,7 +490,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
 export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const submit = useSubmit();
@@ -1725,6 +1726,7 @@ export default function ExploreOrganizations() {
                     }
                   )}
                   locales={locales}
+                  language={language}
                 />
               </div>
               <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
