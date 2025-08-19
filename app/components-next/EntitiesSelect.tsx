@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { createContext, useContext } from "react";
-import { NavLink, useMatch } from "react-router";
+import { NavLink, useLocation } from "react-router";
 
 const EntitiesSelectMenuItemContext = createContext<Pick<
   DropDownMenuItemProps,
@@ -15,8 +15,9 @@ function useIsActive() {
     );
   }
   const { pathname } = context;
-  const match = useMatch(pathname);
-  return match !== null;
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(pathname);
+  return isActive;
 }
 
 function useIsDisabled() {
@@ -65,9 +66,8 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
     ...otherProps
   } = props;
 
-  const match = useMatch(pathname);
-
-  const isActive = match !== null;
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(pathname);
 
   const classes = classNames(
     "mv-group/item mv-w-full mv-rounded",

@@ -128,7 +128,6 @@ function HiddenFilterInputs(props: {
           <input {...getInputProps(fields.orgAreaSearch, { type: "hidden" })} />
           <input {...getInputProps(fields.orgPage, { type: "hidden" })} />
           <input {...getInputProps(fields.orgSortBy, { type: "hidden" })} />
-          <input {...getInputProps(fields.view, { type: "hidden" })} />
         </>
       ) : null}
 
