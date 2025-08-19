@@ -352,6 +352,8 @@ export function Map(props: {
                 setMapMenuIsOpen(!mapMenuIsOpen);
               }}
               className="mv-p-2 hover:mv-bg-neutral-100 active:mv-bg-neutral-200 mv-rounded"
+              preventScrollReset
+              replace
             >
               <div className="mv-flex mv-items-center mv-gap-2.5">
                 <p
