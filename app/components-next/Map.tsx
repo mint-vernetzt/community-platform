@@ -272,62 +272,53 @@ export function Map(props: {
       <div
         ref={mapContainer}
         className={`mv-absolute mv-h-full mv-overflow-hidden ${
-          mapMenuIsOpen === true
-            ? "mv-right-0 mv-w-[calc(100vw-336px)]"
-            : "mv-w-full"
+          mapMenuIsOpen ? "mv-right-0 mv-w-[calc(100vw-336px)]" : "mv-w-full"
         }`}
       />
       {organizations.length > 0 ? (
         <div
           className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
-            mapMenuIsOpen === true
+            mapMenuIsOpen
               ? "mv-w-screen md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
           }`}
         >
           <div
             className={`mv-flex mv-flex-col mv-gap-6 mv-p-4 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
-              mapMenuIsOpen === true
+              mapMenuIsOpen
                 ? "mv-min-h-full mv-rounded-l-2xl"
                 : "mv-rounded-br-2xl"
             }`}
           >
-            <div className="mv-flex mv-items-center mv-gap-2.5">
-              <p
-                className={`${
-                  mapMenuIsOpen === true ? "mv-block" : "mv-hidden md:mv-block"
-                }  mv-w-full mv-text-neutral-700 mv-leading-5`}
-              >
-                <span className="mv-font-bold mv-text-lg mv-leading-6">
-                  {organizations.length}
-                </span>{" "}
-                {locales.components.Map.organizationCountHeadline}
-              </p>
-              {mapMenuIsOpen === true ? (
-                <Link
-                  to="."
-                  onClick={() => {
-                    setMapMenuIsOpen(false);
-                  }}
+            <Link
+              to={mapMenuIsOpen ? "." : "?openMapMenu=true"}
+              onClick={() => {
+                setMapMenuIsOpen(!mapMenuIsOpen);
+              }}
+            >
+              <div className="mv-flex mv-items-center mv-gap-2.5">
+                <p
+                  className={`${
+                    mapMenuIsOpen ? "mv-block" : "mv-hidden md:mv-block"
+                  }  mv-w-full mv-text-neutral-700 mv-leading-5`}
                 >
+                  <span className="mv-font-bold mv-text-lg mv-leading-6">
+                    {organizations.length}
+                  </span>{" "}
+                  {locales.components.Map.organizationCountHeadline}
+                </p>
+                {mapMenuIsOpen ? (
                   <BurgerMenuOpen
                     aria-label={locales.components.Map.openMenu}
                   />
-                </Link>
-              ) : (
-                <Link
-                  to="?openMapMenu=true"
-                  onClick={() => {
-                    setMapMenuIsOpen(true);
-                  }}
-                >
+                ) : (
                   <BurgerMenuClosed
                     aria-label={locales.components.Map.closeMenu}
                   />
-                </Link>
-              )}
-            </div>
-            {mapMenuIsOpen === true ? (
+                )}
+              </div>
+            </Link>
+            {mapMenuIsOpen ? (
               <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2">
                 {organizations.map((organization) => {
                   return (
