@@ -606,27 +606,6 @@ export default function ExploreOrganizations() {
     }
   }, [searchParams, submit]);
 
-  const organizationsWithAddress =
-    currentView === "map"
-      ? loaderData.organizations
-          .filter((org) => org.longitude !== null && org.latitude !== null)
-          .map((organization) => {
-            return {
-              ...organization,
-              types: organization.types.map((type) => {
-                return {
-                  slug: type,
-                };
-              }),
-              networkTypes: organization.networkTypes.map((type) => {
-                return {
-                  slug: type,
-                };
-              }),
-            };
-          })
-      : [];
-
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -1728,7 +1707,23 @@ export default function ExploreOrganizations() {
             <>
               <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
                 <Map
-                  organizations={organizationsWithAddress}
+                  organizations={loaderData.organizations.map(
+                    (organization) => {
+                      return {
+                        ...organization,
+                        types: organization.types.map((type) => {
+                          return {
+                            slug: type,
+                          };
+                        }),
+                        networkTypes: organization.networkTypes.map((type) => {
+                          return {
+                            slug: type,
+                          };
+                        }),
+                      };
+                    }
+                  )}
                   locales={locales}
                 />
               </div>
