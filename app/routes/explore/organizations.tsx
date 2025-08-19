@@ -5,11 +5,16 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
+import Cookies from "js-cookie";
+import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
+import { useEffect, useState } from "react";
 import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -30,6 +35,10 @@ import {
   HiddenFilterInputs,
   HiddenFilterInputsInContext,
 } from "~/components-next/HiddenFilterInputs";
+import { List } from "~/components-next/icons/List";
+import { Map as MapIcon } from "~/components-next/icons/Map";
+import { QuestionMark } from "~/components-next/icons/QuestionMark";
+import { Map } from "~/components-next/Map";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -45,6 +54,7 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
@@ -59,15 +69,7 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { useState } from "react";
-import { List } from "~/components-next/icons/List";
-import { Map as MapIcon } from "~/components-next/icons/Map";
-import { Map } from "~/components-next/Map";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { QuestionMark } from "~/components-next/icons/QuestionMark";
-import customMapStyles from "~/styles/map.css?url";
-import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -461,6 +463,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  if (!searchParams.has("view")) {
+    url.searchParams.set("view", submission.value.view);
+    return redirect(url.toString(), { status: 302 });
+  }
+
   return {
     isLoggedIn,
     organizations: enhancedOrganizations,
@@ -570,6 +577,35 @@ export default function ExploreOrganizations() {
       ? viewSearchParam
       : "map"
   );
+  useEffect(() => {
+    const viewCookie = Cookies.get("mv-explore-organizations-view");
+    if (viewCookie === "map") {
+      setCurrentView("map");
+      const mapSearchParams = extendSearchParams(searchParams, {
+        addOrReplace: {
+          view: "map",
+        },
+      });
+      submit(mapSearchParams, {
+        method: "get",
+        preventScrollReset: true,
+        replace: true,
+      });
+    }
+    if (viewCookie === "list") {
+      setCurrentView("list");
+      const listSearchParams = extendSearchParams(searchParams, {
+        addOrReplace: {
+          view: "list",
+        },
+      });
+      submit(listSearchParams, {
+        method: "get",
+        preventScrollReset: true,
+        replace: true,
+      });
+    }
+  }, [searchParams, submit]);
 
   const organizationsWithAddress =
     currentView === "map"
@@ -1242,7 +1278,12 @@ export default function ExploreOrganizations() {
                 <button
                   form="change-to-list-view"
                   type="submit"
-                  onClick={() => setCurrentView("list")}
+                  onClick={() => {
+                    setCurrentView("list");
+                    Cookies.set("mv-explore-organizations-view", "list", {
+                      sameSite: "strict",
+                    });
+                  }}
                   className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
                     currentView === "list"
                       ? "mv-bg-primary-50 mv-text-primary"
@@ -1279,7 +1320,12 @@ export default function ExploreOrganizations() {
                 <button
                   form="change-to-map-view"
                   type="submit"
-                  onClick={() => setCurrentView("map")}
+                  onClick={() => {
+                    setCurrentView("map");
+                    Cookies.set("mv-explore-organizations-view", "map", {
+                      sameSite: "strict",
+                    });
+                  }}
                   className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
                     currentView === "map"
                       ? "mv-bg-primary-50 mv-text-primary"
