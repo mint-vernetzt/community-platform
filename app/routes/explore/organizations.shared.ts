@@ -58,13 +58,4 @@ export const getOrganizationsSchema = z.object({
       return searchQuery;
     }),
   showFilters: z.boolean().optional(),
-  view: z
-    .enum(["list", "map"])
-    .optional()
-    .transform((view) => {
-      if (typeof view === "undefined") {
-        return "map";
-      }
-      return view;
-    }),
 });

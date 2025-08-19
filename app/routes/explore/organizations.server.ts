@@ -12,11 +12,34 @@ import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { type GetSearchSchema } from "./all.shared";
 import { type GetOrganizationsSchema } from "./organizations.shared";
+import { createCookie } from "react-router";
+import { z } from "zod";
 
 export type ExploreOrganizationsLocales =
   (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["explore/organizations"];
+
+const VIEW_COOKIE_NAME = "mv-explore-organizations-view" as const;
+const VIEW_COOKIE_MAX_AGE = 31540000 as const;
+export const VIEW_COOKIE_VALUES = {
+  list: "list",
+  map: "map",
+} as const;
+
+export const viewCookieSchema = z.enum([
+  VIEW_COOKIE_VALUES.list,
+  VIEW_COOKIE_VALUES.map,
+]);
+
+export const viewCookie = createCookie(VIEW_COOKIE_NAME, {
+  path: "/",
+  sameSite: "lax",
+  secure: process.env.NODE_ENV === "production",
+  httpOnly: true,
+  // 1 year
+  maxAge: VIEW_COOKIE_MAX_AGE,
+});
 
 export function getTakeParam(page: GetOrganizationsSchema["orgPage"]) {
   const itemsPerPage = 12;
@@ -686,7 +709,7 @@ export async function getAllNetworks() {
 export async function getAllOrganizations(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];
-  take: ReturnType<typeof getTakeParam>;
+  take: ReturnType<typeof getTakeParam> | undefined;
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;

@@ -9,16 +9,13 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import Cookies from "js-cookie";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import {
   Form,
-  Link,
+  NavLink,
+  Outlet,
   redirect,
   useLoaderData,
   useNavigation,
@@ -37,8 +34,6 @@ import {
 } from "~/components-next/HiddenFilterInputs";
 import { List } from "~/components-next/icons/List";
 import { Map as MapIcon } from "~/components-next/icons/Map";
-import { QuestionMark } from "~/components-next/icons/QuestionMark";
-import { Map } from "~/components-next/Map";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -69,7 +64,6 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -80,6 +74,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const currentView =
+    url.pathname === "/explore/organizations/list" ? "list" : "map";
 
   const showFiltersValue = searchParams.getAll("showFilters");
 
@@ -98,15 +95,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
-  if (searchParams.has("view") === false) {
-    url.searchParams.set("view", submission.value.view);
-    return redirect(url.toString(), { status: 301 });
-  }
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/organizations"];
 
-  const take = getTakeParam(submission.value.orgPage);
+  const take =
+    currentView === "list" ? getTakeParam(submission.value.orgPage) : undefined;
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -485,12 +479,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
     networks: enhancedNetworks,
     selectedNetworks,
+    currentView,
   };
 };
 
 export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
+  const { locales } = loaderData;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const submit = useSubmit();
@@ -508,18 +503,6 @@ export default function ExploreOrganizations() {
   });
 
   const orgFilterFieldset = fields.orgFilter.getFieldset();
-
-  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-organizations",
-    defaultValue: {
-      ...loaderData.submission.value,
-      orgPage: loaderData.submission.value.orgPage + 1,
-      search: [loaderData.submission.value.search.join(" ")],
-      showFilters: "",
-    },
-    constraint: getZodConstraint(getFilterSchemes),
-    lastResult: navigation.state === "idle" ? loaderData.submission : null,
-  });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
     id: "reset-organization-filters",
@@ -546,14 +529,6 @@ export default function ExploreOrganizations() {
     return value === `${loaderData.submission.value.orgSortBy}`;
   });
 
-  let showMore = false;
-  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
-    showMore =
-      loaderData.filteredByVisibilityCount > loaderData.organizations.length;
-  } else {
-    showMore = loaderData.organizationsCount > loaderData.organizations.length;
-  }
-
   const [visibleNetworks, setVisibleNetworks] = useState<
     typeof loaderData.networks
   >(loaderData.networks);
@@ -571,47 +546,12 @@ export default function ExploreOrganizations() {
     }
   };
 
-  const viewSearchParam = searchParams.get("view");
-  const [currentView, setCurrentView] = useState<"list" | "map">(
-    viewSearchParam === "map" || viewSearchParam === "list"
-      ? viewSearchParam
-      : "map"
-  );
-  useEffect(() => {
-    const viewCookie = Cookies.get("mv-explore-organizations-view");
-    if (viewCookie === "map") {
-      setCurrentView("map");
-      const mapSearchParams = extendSearchParams(searchParams, {
-        addOrReplace: {
-          view: "map",
-        },
-      });
-      submit(mapSearchParams, {
-        method: "get",
-        preventScrollReset: true,
-        replace: true,
-      });
-    }
-    if (viewCookie === "list") {
-      setCurrentView("list");
-      const listSearchParams = extendSearchParams(searchParams, {
-        addOrReplace: {
-          view: "list",
-        },
-      });
-      submit(listSearchParams, {
-        method: "get",
-        preventScrollReset: true,
-        replace: true,
-      });
-    }
-  }, [searchParams, submit]);
-
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
+          action={`/explore/organizations/${loaderData.currentView}`}
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
@@ -1232,88 +1172,36 @@ export default function ExploreOrganizations() {
           <div className="mv-w-full mv-flex mv-justify-center">
             <ul className="mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-2 mv-p-1 mv-rounded-lg mv-bg-white mv-border mv-border-neutral-300">
               <li>
-                <ConformForm
-                  useFormOptions={{
-                    id: "change-to-list-view",
-                    defaultValue: {
-                      ...loaderData.submission.value,
-                      view: "list",
-                    },
-                    constraint: getZodConstraint(getFilterSchemes),
-                    lastResult:
-                      navigation.state === "idle"
-                        ? loaderData.submission
-                        : null,
-                  }}
-                  formProps={{
-                    method: "get",
-                    preventScrollReset: true,
-                    className: "mv-hidden",
-                    replace: true,
-                  }}
-                >
-                  <HiddenFilterInputsInContext />
-                </ConformForm>
-                <button
-                  form="change-to-list-view"
-                  type="submit"
-                  onClick={() => {
-                    setCurrentView("list");
-                    Cookies.set("mv-explore-organizations-view", "list", {
-                      sameSite: "strict",
-                    });
-                  }}
-                  className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
-                    currentView === "list"
-                      ? "mv-bg-primary-50 mv-text-primary"
-                      : "mv-bg-white mv-text-neutral-700"
-                  }`}
+                <NavLink
+                  to={`/explore/organizations/list?${searchParams.toString()}`}
+                  className={({ isActive }) =>
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                      isActive
+                        ? "mv-bg-primary-50 mv-text-primary"
+                        : "mv-bg-white mv-text-neutral-700"
+                    }`
+                  }
+                  preventScrollReset
                 >
                   <List aria-hidden="true" />
                   <span>{locales.route.view.list}</span>
-                </button>
+                </NavLink>
               </li>
               <li>
-                <ConformForm
-                  useFormOptions={{
-                    id: "change-to-map-view",
-                    defaultValue: {
-                      ...loaderData.submission.value,
-                      view: "map",
-                    },
-                    constraint: getZodConstraint(getFilterSchemes),
-                    lastResult:
-                      navigation.state === "idle"
-                        ? loaderData.submission
-                        : null,
-                  }}
-                  formProps={{
-                    method: "get",
-                    preventScrollReset: true,
-                    className: "mv-hidden",
-                    replace: true,
-                  }}
-                >
-                  <HiddenFilterInputsInContext />
-                </ConformForm>
-                <button
-                  form="change-to-map-view"
-                  type="submit"
-                  onClick={() => {
-                    setCurrentView("map");
-                    Cookies.set("mv-explore-organizations-view", "map", {
-                      sameSite: "strict",
-                    });
-                  }}
-                  className={`mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
-                    currentView === "map"
-                      ? "mv-bg-primary-50 mv-text-primary"
-                      : "mv-bg-white mv-text-neutral-700"
-                  }`}
+                <NavLink
+                  to={`/explore/organizations/map?${searchParams.toString()}`}
+                  className={({ isActive }) =>
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                      isActive
+                        ? "mv-bg-primary-50 mv-text-primary"
+                        : "mv-bg-white mv-text-neutral-700"
+                    }`
+                  }
+                  preventScrollReset
                 >
                   <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>
-                </button>
+                </NavLink>
               </li>
             </ul>
           </div>
@@ -1371,6 +1259,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1435,6 +1324,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1496,6 +1386,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1546,6 +1437,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1597,6 +1489,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1617,6 +1510,7 @@ export default function ExploreOrganizations() {
               </div>
               <Form
                 {...getFormProps(resetForm)}
+                action={`/explore/organizations/${loaderData.currentView}`}
                 method="get"
                 preventScrollReset
                 className="mv-w-fit"
@@ -1662,92 +1556,7 @@ export default function ExploreOrganizations() {
               {locales.route.empty}
             </p>
           ) : null}
-          {/* TODO: Show map or list here */}
-          {loaderData.organizations.length > 0 && currentView === "list" ? (
-            <>
-              <CardContainer type="multi row">
-                {loaderData.organizations.map((organization) => {
-                  return (
-                    <OrganizationCard
-                      locales={locales}
-                      key={`organization-${organization.id}`}
-                      publicAccess={!loaderData.isLoggedIn}
-                      organization={organization}
-                      as="h2"
-                    />
-                  );
-                })}
-              </CardContainer>
-              {showMore && (
-                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                  <Form
-                    {...getFormProps(loadMoreForm)}
-                    method="get"
-                    preventScrollReset
-                    replace
-                  >
-                    <HiddenFilterInputs
-                      fields={loadMoreFields}
-                      defaultValue={loaderData.submission.value}
-                    />
-                    <Button
-                      type="submit"
-                      size="large"
-                      variant="outline"
-                      loading={navigation.state === "loading"}
-                      disabled={navigation.state === "loading"}
-                    >
-                      {locales.route.more}
-                    </Button>
-                  </Form>
-                </div>
-              )}
-            </>
-          ) : null}
-          {loaderData.organizations.length > 0 && currentView === "map" ? (
-            <>
-              <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
-                <Map
-                  organizations={loaderData.organizations
-                    .filter((organization) => {
-                      return (
-                        organization.longitude !== null &&
-                        organization.latitude !== null
-                      );
-                    })
-                    .map((organization) => {
-                      return {
-                        ...organization,
-                        types: organization.types.map((type) => {
-                          return {
-                            slug: type,
-                          };
-                        }),
-                        networkTypes: organization.networkTypes.map((type) => {
-                          return {
-                            slug: type,
-                          };
-                        }),
-                      };
-                    })}
-                  locales={locales}
-                  language={language}
-                />
-              </div>
-              <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
-                <TextButton size="small" as="link" to={""} preventScrollReset>
-                  {locales.route.map.embed}
-                </TextButton>
-                <Link
-                  to="/help#TODO"
-                  target="_blank"
-                  className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-                >
-                  <QuestionMark />
-                </Link>
-              </div>
-            </>
-          ) : null}
+          {loaderData.organizations.length > 0 ? <Outlet /> : null}
         </section>
       </div>
     </>

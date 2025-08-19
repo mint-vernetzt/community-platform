@@ -420,9 +420,7 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
-  const isMapOnExplore =
-    location.pathname === "/explore/organizations" &&
-    location.search.includes("view=map");
+  const isMapOnExplore = location.pathname === "/explore/organizations/map";
 
   const matches = useMatches();
   let isSettings = false;

@@ -39,9 +39,7 @@ export default async function handleRequest(
 
   const url = new URL(request.url);
   const isMap = url.pathname === "/map";
-  const isMapOnExplore =
-    url.pathname === "/explore/organizations" &&
-    url.searchParams.get("view") === "map";
+  const isMapOnExplore = url.pathname === "/explore/organizations/map";
 
   const connectSrc = ["'self'"];
   if (process.env.NODE_ENV === "production") {
