@@ -38,6 +38,9 @@ export function Map(props: {
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibreGL.Map | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const lastOrgsRef = useRef<MapOrganization[]>([]);
+  const popupsRef = useRef<maplibreGL.Popup[]>([]);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -64,6 +67,19 @@ export function Map(props: {
         })
       );
 
+      mapRef.current.on("load", async () => {
+        setMapLoaded(true);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      mapLoaded &&
+      mapRef.current !== null &&
+      JSON.stringify(lastOrgsRef.current) !== JSON.stringify(organizations)
+    ) {
+      lastOrgsRef.current = organizations;
       const geoJSON: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
         features: [],
@@ -160,6 +176,10 @@ export function Map(props: {
           duration,
         });
 
+        for (const popup of popupsRef.current) {
+          popup.remove();
+        }
+
         const organization = organizations.find((organization) => {
           return organization.slug === slug;
         });
@@ -170,7 +190,7 @@ export function Map(props: {
           organization.latitude !== null
         ) {
           // eslint-disable-next-line import/no-named-as-default-member
-          new maplibreGL.Popup({
+          const popup = new maplibreGL.Popup({
             offset: 25,
           })
             .setLngLat([
@@ -183,6 +203,7 @@ export function Map(props: {
               )
             )
             .addTo(mapRef.current);
+          popupsRef.current.push(popup);
         }
       };
 
@@ -198,102 +219,105 @@ export function Map(props: {
         }
       };
 
-      mapRef.current.on("load", async () => {
-        if (mapRef.current !== null) {
-          mapRef.current.addSource("organizations", {
-            type: "geojson",
-            data: geoJSON,
-            cluster: true,
-            clusterMaxZoom: 16,
-            clusterRadius: 50,
-          });
+      if (mapRef.current.getLayer("clusters")) {
+        mapRef.current.removeLayer("clusters");
+      }
+      if (mapRef.current.getLayer("unclustered-point")) {
+        mapRef.current.removeLayer("unclustered-point");
+      }
+      if (mapRef.current.getLayer("cluster-count")) {
+        mapRef.current.removeLayer("cluster-count");
+      }
+      if (mapRef.current.getSource("organizations")) {
+        mapRef.current.removeSource("organizations");
+      }
 
-          mapRef.current.addLayer({
-            id: "clusters",
-            type: "circle",
-            source: "organizations",
-            filter: ["has", "point_count"],
-            paint: {
-              "circle-color": "#2D6BE1",
-              "circle-radius": [
-                "step",
-                ["get", "point_count"],
-                24,
-                5,
-                32,
-                20,
-                40,
-                100,
-                48,
-                300,
-                56,
-              ],
-              "circle-stroke-width": [
-                "step",
-                ["get", "point_count"],
-                2,
-                100,
-                3,
-                300,
-                4,
-              ],
-              "circle-stroke-color": "#2D6BE166",
-            },
-          });
-
-          mapRef.current.addLayer({
-            id: "unclustered-point",
-            type: "circle",
-            source: "organizations",
-            filter: ["!", ["has", "point_count"]],
-            paint: {
-              "circle-color": "#2D6BE1",
-              "circle-radius": 16,
-              "circle-stroke-width": 2,
-              "circle-stroke-color": "#2D6BE166",
-            },
-          });
-
-          mapRef.current.addLayer({
-            id: "cluster-count",
-            type: "symbol",
-            source: "organizations",
-            filter: ["has", "point_count"],
-            layout: {
-              "text-field": "{point_count_abbreviated}",
-              "text-font": ["Noto Sans Bold"],
-              "text-size": 14,
-            },
-            paint: {
-              "text-color": "#fff",
-            },
-          });
-
-          mapRef.current.on("click", "clusters", clusterClickHandler);
-
-          mapRef.current.on(
-            "click",
-            "unclustered-point",
-            unclusteredClickHandler
-          );
-
-          mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
-          mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
-
-          mapRef.current.on(
-            "mouseenter",
-            "unclustered-point",
-            mouseEnterHandler
-          );
-          mapRef.current.on(
-            "mouseleave",
-            "unclustered-point",
-            mouseLeaveHandler
-          );
-        }
+      mapRef.current.addSource("organizations", {
+        type: "geojson",
+        data: geoJSON,
+        cluster: true,
+        clusterMaxZoom: 16,
+        clusterRadius: 50,
       });
+
+      mapRef.current.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "organizations",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#2D6BE1",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            24,
+            5,
+            32,
+            20,
+            40,
+            100,
+            48,
+            300,
+            56,
+          ],
+          "circle-stroke-width": [
+            "step",
+            ["get", "point_count"],
+            2,
+            100,
+            3,
+            300,
+            4,
+          ],
+          "circle-stroke-color": "#2D6BE166",
+        },
+      });
+
+      mapRef.current.addLayer({
+        id: "unclustered-point",
+        type: "circle",
+        source: "organizations",
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": "#2D6BE1",
+          "circle-radius": 16,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#2D6BE166",
+        },
+      });
+
+      mapRef.current.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "organizations",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 14,
+        },
+        paint: {
+          "text-color": "#fff",
+        },
+      });
+
+      mapRef.current.off("click", "clusters", clusterClickHandler);
+      mapRef.current.on("click", "clusters", clusterClickHandler);
+
+      mapRef.current.off("click", "unclustered-point", unclusteredClickHandler);
+      mapRef.current.on("click", "unclustered-point", unclusteredClickHandler);
+
+      mapRef.current.off("mouseenter", "clusters", mouseEnterHandler);
+      mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
+      mapRef.current.off("mouseleave", "clusters", mouseLeaveHandler);
+      mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
+
+      mapRef.current.off("mouseenter", "unclustered-point", mouseEnterHandler);
+      mapRef.current.on("mouseenter", "unclustered-point", mouseEnterHandler);
+      mapRef.current.off("mouseleave", "unclustered-point", mouseLeaveHandler);
+      mapRef.current.on("mouseleave", "unclustered-point", mouseLeaveHandler);
     }
-  }, [mapContainer, organizations, locales]);
+  }, [mapLoaded, organizations, locales]);
 
   return (
     <>
