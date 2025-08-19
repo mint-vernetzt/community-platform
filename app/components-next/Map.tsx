@@ -284,7 +284,7 @@ export function Map(props: {
           }`}
         >
           <div
-            className={`mv-flex mv-flex-col mv-gap-6 mv-p-4 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
+            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
               mapMenuIsOpen
                 ? "mv-min-h-full mv-rounded-l-2xl"
                 : "mv-rounded-br-2xl"
@@ -295,6 +295,7 @@ export function Map(props: {
               onClick={() => {
                 setMapMenuIsOpen(!mapMenuIsOpen);
               }}
+              className="mv-p-2 hover:mv-bg-neutral-100 active:mv-bg-neutral-200 mv-rounded"
             >
               <div className="mv-flex mv-items-center mv-gap-2.5">
                 <p
@@ -309,17 +310,19 @@ export function Map(props: {
                 </p>
                 {mapMenuIsOpen ? (
                   <BurgerMenuOpen
+                    className="mv-shrink-0"
                     aria-label={locales.components.Map.openMenu}
                   />
                 ) : (
                   <BurgerMenuClosed
+                    className="mv-shrink-0"
                     aria-label={locales.components.Map.closeMenu}
                   />
                 )}
               </div>
             </Link>
             {mapMenuIsOpen ? (
-              <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+              <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-px-4">
                 {organizations.map((organization) => {
                   return (
                     <ListItem
