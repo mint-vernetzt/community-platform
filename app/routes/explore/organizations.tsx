@@ -98,6 +98,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     "Validation failed for get request",
     { status: 400 }
   );
+  if (searchParams.has("view") === false) {
+    url.searchParams.set("view", submission.value.view);
+    return redirect(url.toString(), { status: 301 });
+  }
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/organizations"];
@@ -461,11 +465,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     if (network) {
       selectedNetworks.push({ slug: network.slug, name: network.name });
     }
-  }
-
-  if (!searchParams.has("view")) {
-    url.searchParams.set("view", submission.value.view);
-    return redirect(url.toString(), { status: 302 });
   }
 
   return {
