@@ -1,16 +1,23 @@
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import {
   data,
   Link,
   type LinksFunction,
   useRouteLoaderData,
+  useSearchParams,
 } from "react-router";
-import { type loader as parentLoader } from "../organizations";
-import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
-import customMapStyles from "~/styles/map.css?url";
-import { Map } from "~/components-next/Map";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { QuestionMark } from "~/components-next/icons/QuestionMark";
+import { Map } from "~/components-next/Map";
+import { Modal } from "~/components-next/Modal";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import customMapStyles from "~/styles/map.css?url";
+import { type loader as parentLoader } from "../organizations";
 import { VIEW_COOKIE_VALUES, viewCookie } from "../organizations.server";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { copyToClipboard } from "~/lib/utils/clipboard";
+import { useState } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -30,6 +37,25 @@ export default function ExploreOrganizationsList() {
   const parentLoaderData = useRouteLoaderData<typeof parentLoader>(
     "routes/explore/organizations"
   );
+  const [searchParams] = useSearchParams();
+  const isHydrated = useHydrated();
+
+  const modalOpenSearchParams = extendSearchParams(searchParams, {
+    addOrReplace: {
+      "modal-embed": "true",
+    },
+  });
+  const embedLinkSearchParams = extendSearchParams(searchParams, {
+    remove: ["modal-embed"],
+    addOrReplace: {
+      openMapMenu: "true",
+    },
+  });
+  const [hasCopied, setHasCopied] = useState(false);
+
+  const iframeString = `<iframe width="100%" height="100%" src="${
+    ENV.COMMUNITY_BASE_URL
+  }/map?${embedLinkSearchParams.toString()}" title="MINTvernetzt-Community-Karte" referrerpolicy="no-referrer" allowfullscreen />`;
 
   return typeof parentLoaderData !== "undefined" ? (
     <div className="mv-w-full mv-px-4">
@@ -62,7 +88,108 @@ export default function ExploreOrganizationsList() {
         />
       </div>
       <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
-        <TextButton size="small" as="link" to={""} preventScrollReset>
+        <Modal searchParam="modal-embed">
+          <Modal.Title>
+            {parentLoaderData.locales.route.map.embedModal.title}
+          </Modal.Title>
+          <Modal.Section>
+            <p>
+              {insertComponentsIntoLocale(
+                parentLoaderData.locales.route.map.embedModal.subline,
+                [
+                  <Link
+                    key="help-link-in-modal"
+                    to="/help#TODO"
+                    target="_blank"
+                    className="mv-text-primary hover:mv-underline mv-w-fit mv-inline-flex"
+                  >
+                    {" "}
+                  </Link>,
+                ]
+              )}
+            </p>
+          </Modal.Section>
+          <Modal.Section>
+            <p className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm">
+              {parentLoaderData.locales.route.map.embedModal.description.title}
+            </p>
+            <ul className="mv-flex mv-flex-col mv-gap-5 mv-text-sm">
+              <li className="mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+                  1
+                </span>
+                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                  {
+                    parentLoaderData.locales.route.map.embedModal.description
+                      .step1
+                  }
+                </span>
+              </li>
+              <li className="mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+                  2
+                </span>
+                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                  {
+                    parentLoaderData.locales.route.map.embedModal.description
+                      .step2
+                  }
+                </span>
+              </li>
+              <li className="mv-flex mv-gap-2">
+                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+                  3
+                </span>
+                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                  {
+                    parentLoaderData.locales.route.map.embedModal.description
+                      .step3
+                  }
+                </span>
+              </li>
+            </ul>
+            <div className="mv-flex mv-flex-col mv-gap-1">
+              <label
+                htmlFor="embed-code"
+                className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm"
+              >
+                {parentLoaderData.locales.route.map.embedModal.textarea.label}
+              </label>
+              <textarea
+                id="embed-code"
+                className="mv-w-full mv-h-[162px] mv-py-1 mv-px-2 mv-rounded-lg mv-border mv-border-neutral-300 mv-text-neutral-800 mv-font-semibold mv-leading-5 mv-text-base"
+                value={iframeString}
+                readOnly
+              />
+            </div>
+          </Modal.Section>
+          {isHydrated === true ? (
+            <Modal.SubmitButton
+              onClick={async () => {
+                await copyToClipboard(iframeString);
+                setHasCopied(true);
+                setTimeout(() => {
+                  setHasCopied(false);
+                }, 2000);
+              }}
+            >
+              {parentLoaderData.locales.route.map.embedModal.copy}
+            </Modal.SubmitButton>
+          ) : null}
+          <Modal.CloseButton>
+            {parentLoaderData.locales.route.map.embedModal.cancel}
+          </Modal.CloseButton>
+          {hasCopied ? (
+            <Modal.Alert position="relative">
+              {parentLoaderData.locales.route.map.embedModal.copySuccess}
+            </Modal.Alert>
+          ) : null}
+        </Modal>
+        <TextButton
+          size="small"
+          as="link"
+          to={`?${modalOpenSearchParams.toString()}`}
+        >
           {parentLoaderData.locales.route.map.embed}
         </TextButton>
         <Link

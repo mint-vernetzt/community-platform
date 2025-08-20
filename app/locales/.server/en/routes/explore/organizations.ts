@@ -47,5 +47,23 @@ export const locale = {
   showNumberOfItems_other: "Show {{count}} organizations",
   map: {
     embed: "Embed current view on your own website?",
+    embedModal: {
+      title: "Embed map view",
+      subline:
+        "You can integrate the current map, which you have configured using the filter function, into your website. For more information on embedding the map, please visit our <0>help section</0>.",
+      description: {
+        title: "Follow these steps",
+        step1:
+          "Configure your map according to your requirements (search term, selected filters, view).",
+        step2: "Copy the displayed code.",
+        step3: "Paste it in the appropriate place on your website.",
+      },
+      textarea: {
+        label: "Code to embed",
+      },
+      copy: "Copy",
+      copySuccess: "Embed code copied to clipboard",
+      cancel: "Cancel",
+    },
   },
 } as const;

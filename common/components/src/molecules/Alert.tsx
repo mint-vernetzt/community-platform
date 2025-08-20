@@ -6,10 +6,11 @@ export type AlertLevel = "positive" | "attention" | "negative";
 type AlertProps = {
   children: React.ReactNode;
   level?: AlertLevel;
+  position?: "absolute" | "relative";
 };
 
 export function Alert(props: AlertProps) {
-  const { level = "positive" } = props;
+  const { level = "positive", position = "absolute" } = props;
   const [show, setShow] = useState(true);
 
   const handleClick = () => {
@@ -32,7 +33,13 @@ export function Alert(props: AlertProps) {
   );
 
   return (
-    <div className="mv-w-full mv-absolute mv-top-[84px] xl:mv-top-[88px] mv-px-4 @lg:mv-px-8">
+    <div
+      className={`mv-w-full ${
+        position === "relative"
+          ? "mv-relative"
+          : "mv-absolute mv-top-[84px] xl:mv-top-[88px] mv-px-4 @lg:mv-px-8"
+      }`}
+    >
       <div className={classes}>
         <div className="mv-w-full mv-text-center mv-truncate">
           {props.children}

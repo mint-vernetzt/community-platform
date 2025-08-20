@@ -425,9 +425,11 @@ export function Map(props: {
       <div
         ref={mapContainer}
         className={`mv-absolute mv-h-full mv-overflow-hidden ${
-          mapMenuIsOpen === true
-            ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
-            : "mv-w-full"
+          mapLoaded === true
+            ? mapMenuIsOpen === true
+              ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
+              : "mv-w-full"
+            : "mv-w-0"
         }`}
       />
       {organizations.length > 0 ? (

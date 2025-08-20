@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { ModalClose as ModalCloseIcon } from "./icons/ModalClose";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
@@ -140,6 +141,9 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
   const closeButton = children.find((child) => {
     return isValidElement(child) && child.type === ModalCloseButton;
   });
+  const alert = children.find((child) => {
+    return isValidElement(child) && child.type === Alert;
+  });
 
   if (closeButton === null) {
     throw new Error("Modal requires a close button");
@@ -156,11 +160,11 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
       : null;
 
   return createPortal(
-    <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-flex mv-items-center mv-justify-center mv-z-30 mv-px-4">
+    <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-flex mv-flex-col mv-gap-10 mv-items-center mv-justify-center mv-z-30 mv-px-4">
       <div
         id="modal"
         tabIndex={-1}
-        className="mv-max-w-[31rem] mv-rounded-2xl mv-bg-white mv-p-6 mv-flex mv-flex-col mv-gap-6"
+        className="mv-relative mv-max-w-[31rem] mv-rounded-2xl mv-bg-white mv-p-6 mv-flex mv-flex-col mv-gap-6"
       >
         <div className="mv-flex mv-justify-between mv-items-baseline mv-gap-4">
           {title}
@@ -168,11 +172,14 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
         </div>
         {sections}
         {(submitButton !== null || closeButtonClone !== null) && (
-          <ModalSection>
+          <div className="mv-w-full mv-text-sm mv-leading-1 mv-flex mv-flex-col mv-gap-2">
             {submitButton !== null && submitButton}
             {closeButtonClone !== null && closeButtonClone}
-          </ModalSection>
+          </div>
         )}
+        <div className="mv-absolute -mv-bottom-20 mv-left-0 mv-w-full">
+          {alert !== null ? alert : null}
+        </div>
       </div>
     </div>,
     document.getElementById("modal-root") as HTMLElement
@@ -183,5 +190,6 @@ Modal.Title = ModalTitle;
 Modal.Section = ModalSection;
 Modal.CloseButton = ModalCloseButton;
 Modal.SubmitButton = ModalSubmitButton;
+Modal.Alert = Alert;
 
 export { Modal };
