@@ -50,6 +50,7 @@ export function Map(props: {
   const [highlightedOrganization, setHighlightedOrganization] = useState<
     string | null
   >(null);
+  const popupClosedByHandlerRef = useRef(false);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -136,9 +137,11 @@ export function Map(props: {
         essential: true,
       });
 
+      popupClosedByHandlerRef.current = true;
       for (const popup of popupsRef.current) {
         popup.remove();
       }
+      popupClosedByHandlerRef.current = false;
       // eslint-disable-next-line import/no-named-as-default-member
       const popup = new maplibreGL.Popup()
         .setLngLat([
@@ -165,6 +168,16 @@ export function Map(props: {
       });
       popup.on("close", () => {
         setHighlightedOrganization(null);
+        if (
+          mapRef.current !== null &&
+          popupClosedByHandlerRef.current === false
+        ) {
+          mapRef.current.flyTo({
+            center: mapRef.current.getCenter(),
+            zoom: 6,
+            essential: true,
+          });
+        }
       });
       popupsRef.current.push(popup);
 
@@ -187,7 +200,7 @@ export function Map(props: {
         }
       });
     },
-    [locales, organizations]
+    [locales, organizations, popupClosedByHandlerRef]
   );
 
   useEffect(() => {
