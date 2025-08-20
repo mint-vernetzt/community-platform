@@ -420,6 +420,7 @@ export default function App() {
     location.pathname.startsWith(baseRoute)
   );
   const isIndexRoute = location.pathname === "/";
+  const isMapOnExplore = location.pathname === "/explore/organizations/map";
 
   const matches = useMatches();
   let isSettings = false;
@@ -557,7 +558,7 @@ export default function App() {
                 <div
                   className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
                     showFilters ? "mv-hidden @lg:mv-block " : ""
-                  }mv-w-0`}
+                  }${isMapOnExplore ? "mv-hidden " : ""}mv-w-0`}
                 >
                   <ScrollToTopButton locales={locales} />
                 </div>

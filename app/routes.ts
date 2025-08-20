@@ -200,7 +200,17 @@ export default [
     index("./routes/explore/index.tsx"),
     route("/explore/all", "./routes/explore/all.tsx"),
     route("/explore/profiles", "./routes/explore/profiles.tsx"),
-    route("/explore/organizations", "./routes/explore/organizations.tsx"),
+    route("/explore/organizations", "./routes/explore/organizations.tsx", [
+      index("./routes/explore/organizations/index.tsx"),
+      route(
+        "/explore/organizations/map",
+        "./routes/explore/organizations/map.tsx"
+      ),
+      route(
+        "/explore/organizations/list",
+        "./routes/explore/organizations/list.tsx"
+      ),
+    ]),
     route("/explore/events", "./routes/explore/events.tsx"),
     route("/explore/projects", "./routes/explore/projects.tsx"),
     route("/explore/fundings", "./routes/explore/fundings.tsx"),
@@ -351,4 +361,5 @@ export default [
   route("/auth/request-confirmation", "./routes/auth/request-confirmation.tsx"),
   route("/auth/verify", "./routes/auth/verify.tsx"),
   route("/map", "./routes/map.tsx"),
+  route("/map-proxy", "./routes/map-proxy.ts"),
 ] satisfies RouteConfig;

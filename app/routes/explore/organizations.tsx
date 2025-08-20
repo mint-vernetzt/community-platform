@@ -5,14 +5,17 @@ import {
   useForm,
 } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import type { LoaderFunctionArgs } from "react-router";
+import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
+import { useState } from "react";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  NavLink,
+  Outlet,
   redirect,
   useLoaderData,
   useNavigation,
@@ -29,6 +32,8 @@ import {
   HiddenFilterInputs,
   HiddenFilterInputsInContext,
 } from "~/components-next/HiddenFilterInputs";
+import { List } from "~/components-next/icons/List";
+import { Map as MapIcon } from "~/components-next/icons/Map";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -44,6 +49,7 @@ import {
   filterProfileByVisibility,
 } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
+import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
@@ -58,13 +64,19 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { useState } from "react";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: mapStyles },
+  { rel: "stylesheet", href: customMapStyles },
+];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
+
+  const currentView =
+    url.pathname === "/explore/organizations/list" ? "list" : "map";
 
   const showFiltersValue = searchParams.getAll("showFilters");
 
@@ -87,7 +99,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/organizations"];
 
-  const take = getTakeParam(submission.value.orgPage);
+  const take =
+    currentView === "list" ? getTakeParam(submission.value.orgPage) : undefined;
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
@@ -463,8 +476,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
     locales,
+    language,
     networks: enhancedNetworks,
     selectedNetworks,
+    currentView,
   };
 };
 
@@ -488,18 +503,6 @@ export default function ExploreOrganizations() {
   });
 
   const orgFilterFieldset = fields.orgFilter.getFieldset();
-
-  const [loadMoreForm, loadMoreFields] = useForm<FilterSchemes>({
-    id: "load-more-organizations",
-    defaultValue: {
-      ...loaderData.submission.value,
-      orgPage: loaderData.submission.value.orgPage + 1,
-      search: [loaderData.submission.value.search.join(" ")],
-      showFilters: "",
-    },
-    constraint: getZodConstraint(getFilterSchemes),
-    lastResult: navigation.state === "idle" ? loaderData.submission : null,
-  });
 
   const [resetForm, resetFields] = useForm<FilterSchemes>({
     id: "reset-organization-filters",
@@ -526,14 +529,6 @@ export default function ExploreOrganizations() {
     return value === `${loaderData.submission.value.orgSortBy}`;
   });
 
-  let showMore = false;
-  if (typeof loaderData.filteredByVisibilityCount !== "undefined") {
-    showMore =
-      loaderData.filteredByVisibilityCount > loaderData.organizations.length;
-  } else {
-    showMore = loaderData.organizationsCount > loaderData.organizations.length;
-  }
-
   const [visibleNetworks, setVisibleNetworks] = useState<
     typeof loaderData.networks
   >(loaderData.networks);
@@ -556,6 +551,7 @@ export default function ExploreOrganizations() {
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
         <Form
           {...getFormProps(form)}
+          action={`/explore/organizations/${loaderData.currentView}`}
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
@@ -1172,6 +1168,44 @@ export default function ExploreOrganizations() {
         <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
           <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
         </div>
+        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+          <div className="mv-w-full mv-flex mv-justify-center">
+            <ul className="mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-2 mv-p-1 mv-rounded-lg mv-bg-white mv-border mv-border-neutral-300">
+              <li>
+                <NavLink
+                  to={`/explore/organizations/list?${searchParams.toString()}`}
+                  className={({ isActive }) =>
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                      isActive
+                        ? "mv-bg-primary-50 mv-text-primary"
+                        : "mv-bg-white mv-text-neutral-700"
+                    }`
+                  }
+                  preventScrollReset
+                >
+                  <List aria-hidden="true" />
+                  <span>{locales.route.view.list}</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={`/explore/organizations/map?${searchParams.toString()}`}
+                  className={({ isActive }) =>
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                      isActive
+                        ? "mv-bg-primary-50 mv-text-primary"
+                        : "mv-bg-white mv-text-neutral-700"
+                    }`
+                  }
+                  preventScrollReset
+                >
+                  <MapIcon aria-hidden="true" />
+                  <span>{locales.route.view.map}</span>
+                </NavLink>
+              </li>
+            </ul>
+          </div>
+        </section>
         <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
           {(loaderData.selectedTypes.length > 0 ||
             loaderData.selectedFocuses.length > 0 ||
@@ -1225,6 +1259,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1289,6 +1324,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1350,6 +1386,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1400,6 +1437,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1451,6 +1489,7 @@ export default function ExploreOrganizations() {
                       formProps={{
                         method: "get",
                         preventScrollReset: true,
+                        action: `/explore/organizations/${loaderData.currentView}`,
                       }}
                     >
                       <HiddenFilterInputsInContext />
@@ -1471,6 +1510,7 @@ export default function ExploreOrganizations() {
               </div>
               <Form
                 {...getFormProps(resetForm)}
+                action={`/explore/organizations/${loaderData.currentView}`}
                 method="get"
                 preventScrollReset
                 className="mv-w-fit"
@@ -1516,47 +1556,7 @@ export default function ExploreOrganizations() {
               {locales.route.empty}
             </p>
           ) : null}
-          {loaderData.organizations.length > 0 && (
-            <>
-              <CardContainer type="multi row">
-                {loaderData.organizations.map((organization) => {
-                  return (
-                    <OrganizationCard
-                      locales={locales}
-                      key={`organization-${organization.id}`}
-                      publicAccess={!loaderData.isLoggedIn}
-                      organization={organization}
-                      as="h2"
-                    />
-                  );
-                })}
-              </CardContainer>
-              {showMore && (
-                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
-                  <Form
-                    {...getFormProps(loadMoreForm)}
-                    method="get"
-                    preventScrollReset
-                    replace
-                  >
-                    <HiddenFilterInputs
-                      fields={loadMoreFields}
-                      defaultValue={loaderData.submission.value}
-                    />
-                    <Button
-                      type="submit"
-                      size="large"
-                      variant="outline"
-                      loading={navigation.state === "loading"}
-                      disabled={navigation.state === "loading"}
-                    >
-                      {locales.route.more}
-                    </Button>
-                  </Form>
-                </div>
-              )}
-            </>
-          )}
+          {loaderData.organizations.length > 0 ? <Outlet /> : null}
         </section>
       </div>
     </>

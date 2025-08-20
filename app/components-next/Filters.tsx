@@ -209,7 +209,7 @@ export function Filters(props: FiltersProps) {
   const location = useLocation();
 
   const filterClasses = classNames(
-    "mv-fixed mv-left-0 mv-top-0 mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 @lg:mv-z-10 mv-w-full mv-h-dvh @lg:mv-h-fit @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row mv-bg-white @lg:mv-bg-transparent",
+    "mv-fixed mv-left-0 mv-top-0 mv-overflow-scroll @lg:mv-overflow-visible @lg:mv-relative mv-z-20 mv-w-full mv-h-dvh @lg:mv-h-fit @lg:mv-justify-between mv-flex mv-flex-col @lg:mv-flex-row mv-bg-white @lg:mv-bg-transparent",
     showFilters === true ? "mv-flex" : "mv-hidden @lg:mv-flex"
   );
 

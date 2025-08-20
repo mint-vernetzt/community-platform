@@ -78,11 +78,19 @@ export function ListItem(
     locales: Locales;
     listIndex?: number;
     hideAfter?: number;
+    highlighted?: boolean;
   }> &
     Partial<LinkProps & RefAttributes<HTMLAnchorElement>>
 ) {
-  const { entity, children, listIndex, hideAfter, locales, ...linkProps } =
-    props;
+  const {
+    entity,
+    children,
+    listIndex,
+    hideAfter,
+    locales,
+    highlighted = false,
+    ...linkProps
+  } = props;
 
   const validChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child);
@@ -96,6 +104,11 @@ export function ListItem(
 
   return (
     <li
+      id={
+        "slug" in entity
+          ? `list-item-${entity.slug}`
+          : `list-item-${entity.username}`
+      }
       className={
         hideAfter !== undefined &&
         listIndex !== undefined &&
@@ -104,7 +117,11 @@ export function ListItem(
           : "mv-block"
       }
     >
-      <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-rounded-2xl mv-justify-between mv-items-center mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-bg-white hover:mv-bg-neutral-100 active:mv-bg-neutral-200">
+      <div
+        className={`mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-rounded-2xl mv-justify-between mv-items-center mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
+          highlighted ? "mv-bg-primary-50" : "mv-bg-white"
+        }`}
+      >
         <Link
           to={
             "academicTitle" in entity

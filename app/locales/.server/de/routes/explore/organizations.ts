@@ -32,13 +32,19 @@ export const locale = {
     },
     close: "Filter schließen",
   },
+  view: {
+    list: "Liste",
+    map: "Karte",
+  },
   empty: "Es konnten leider keine Organisationen gefunden werden.",
   notShown_one:
     "{{count}} Organisation kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
   notShown_other:
     "{{count}} Organisationen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
   more: "Weitere laden",
-
   showNumberOfItems_one: "{{count}} Organisation anzeigen",
   showNumberOfItems_other: "{{count}} Organisationen anzeigen",
+  map: {
+    embed: "Aktuelle Ansicht auf der eigenen Website einbinden?",
+  },
 } as const;

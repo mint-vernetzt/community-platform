@@ -485,6 +485,7 @@ const de = {
     networkTypes: deNetworkTypes,
     focuses: deFocuses,
     organizationCard: deOrganizationCard,
+    components: deComponents,
   },
   "explore/profiles": {
     route: deExploreProfiles,
@@ -903,6 +904,7 @@ const en = {
     networkTypes: enNetworkTypes,
     focuses: enFocuses,
     organizationCard: enOrganizationCard,
+    components: enComponents,
   },
   "explore/profiles": {
     route: enExploreProfiles,

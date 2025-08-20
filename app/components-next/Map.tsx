@@ -1,7 +1,7 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams } from "react-router";
 import { type MapLocales } from "~/routes/map.server";
@@ -9,6 +9,9 @@ import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { type ArrayElement } from "~/lib/utils/types";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -19,9 +22,18 @@ type MapOrganization = ListOrganization &
 export function Map(props: {
   organizations: Array<MapOrganization>;
   locales: MapLocales;
+  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
-  const { organizations, locales } = props;
+  const { organizations, locales, language } = props;
   const [searchParams] = useSearchParams();
+  const openMenuSearchParams = extendSearchParams(searchParams, {
+    addOrReplace: {
+      openMapMenu: "true",
+    },
+  });
+  const closeMenuSearchParams = extendSearchParams(searchParams, {
+    remove: ["openMapMenu"],
+  });
 
   const [mapMenuIsOpen, setMapMenuIsOpen] = useState(
     searchParams.get("openMapMenu") === "true"
@@ -29,6 +41,16 @@ export function Map(props: {
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibreGL.Map | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const lastOrgsRef = useRef<MapOrganization[]>([]);
+  const lastLanguageRef = useRef<ArrayElement<
+    typeof SUPPORTED_COOKIE_LANGUAGES
+  > | null>(null);
+  const popupsRef = useRef<maplibreGL.Popup[]>([]);
+  const [highlightedOrganization, setHighlightedOrganization] = useState<
+    string | null
+  >(null);
+  const popupClosedByHandlerRef = useRef(false);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -44,6 +66,18 @@ export function Map(props: {
         zoom,
         minZoom,
         maxZoom,
+        transformRequest: (url) => {
+          if (url.startsWith("https://tiles.openfreemap.org/")) {
+            return {
+              url: `${
+                ENV.COMMUNITY_BASE_URL
+              }/map-proxy?path=${encodeURIComponent(
+                url.replace("https://tiles.openfreemap.org", "")
+              )}`,
+            };
+          }
+          return { url };
+        },
       });
       mapRef.current.addControl(
         // eslint-disable-next-line import/no-named-as-default-member
@@ -54,6 +88,128 @@ export function Map(props: {
           showCompass: false,
         })
       );
+
+      mapRef.current.on("load", async () => {
+        setMapLoaded(true);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const unclusteredClickHandler = useCallback(
+    (
+      event: maplibreGL.MapMouseEvent & {
+        features?: maplibreGL.MapGeoJSONFeature[];
+      } & {
+        slug?: string;
+      }
+    ) => {
+      if (mapRef.current === null) {
+        return;
+      }
+      const slug =
+        "slug" in event
+          ? event.slug
+          : typeof event.features !== "undefined"
+          ? (event.features[0].properties.id as string)
+          : null;
+      if (slug === null) {
+        return;
+      }
+      const organization = organizations.find((organization) => {
+        return organization.slug === slug;
+      });
+      if (
+        typeof organization === "undefined" ||
+        organization.longitude === null ||
+        organization.latitude === null
+      ) {
+        return;
+      }
+      const coordinates = [
+        parseFloat(organization.longitude),
+        parseFloat(organization.latitude),
+      ];
+
+      mapRef.current.flyTo({
+        center: coordinates as [number, number],
+        zoom: 18,
+        essential: true,
+      });
+
+      popupClosedByHandlerRef.current = true;
+      for (const popup of popupsRef.current) {
+        popup.remove();
+      }
+      popupClosedByHandlerRef.current = false;
+      // eslint-disable-next-line import/no-named-as-default-member
+      const popup = new maplibreGL.Popup()
+        .setLngLat([
+          parseFloat(organization.longitude),
+          parseFloat(organization.latitude),
+        ])
+        .setHTML(
+          renderToStaticMarkup(
+            <Popup organization={organization} locales={locales} />
+          )
+        );
+      popup.on("open", () => {
+        setHighlightedOrganization(organization.slug);
+        const mapMenu = document.getElementById("map-menu");
+        const listItem = document.getElementById(
+          `list-item-${organization.slug}`
+        );
+        if (mapMenu !== null && listItem !== null) {
+          mapMenu.scrollTo({
+            top: listItem.offsetTop - 58,
+            behavior: "smooth",
+          });
+        }
+      });
+      popup.on("close", () => {
+        setHighlightedOrganization(null);
+        if (
+          mapRef.current !== null &&
+          popupClosedByHandlerRef.current === false
+        ) {
+          mapRef.current.flyTo({
+            center: mapRef.current.getCenter(),
+            zoom: 6,
+            essential: true,
+          });
+        }
+      });
+      popupsRef.current.push(popup);
+
+      const onMove = () => {
+        if (mapRef.current !== null) {
+          const center = mapRef.current.getCenter();
+          if (
+            Math.abs(center.lng - coordinates[0]) < 0.01 &&
+            Math.abs(center.lat - coordinates[1]) < 0.01
+          ) {
+            popup.addTo(mapRef.current);
+            mapRef.current.off("move", onMove);
+          }
+        }
+      };
+      mapRef.current.on("move", onMove);
+      mapRef.current.once("moveend", () => {
+        if (mapRef.current !== null) {
+          mapRef.current.off("move", onMove);
+        }
+      });
+    },
+    [locales, organizations, popupClosedByHandlerRef]
+  );
+
+  useEffect(() => {
+    if (
+      mapLoaded &&
+      mapRef.current !== null &&
+      JSON.stringify(lastOrgsRef.current) !== JSON.stringify(organizations)
+    ) {
+      lastOrgsRef.current = organizations;
 
       const geoJSON: GeoJSON.FeatureCollection = {
         type: "FeatureCollection",
@@ -85,6 +241,10 @@ export function Map(props: {
         geoJSON.features.push(feature);
       }
 
+      for (const popup of popupsRef.current) {
+        popup.remove();
+      }
+
       const clusterClickHandler = async (
         event: maplibreGL.MapMouseEvent & {
           features?: maplibreGL.MapGeoJSONFeature[];
@@ -113,70 +273,6 @@ export function Map(props: {
         }
       };
 
-      const unclusteredClickHandler = (
-        event: maplibreGL.MapMouseEvent & {
-          features?: maplibreGL.MapGeoJSONFeature[];
-        }
-      ) => {
-        if (
-          typeof event.features === "undefined" ||
-          typeof event.features[0] === "undefined" ||
-          mapRef.current === null
-        ) {
-          return;
-        }
-        const feature = event.features[0];
-        const coordinates = (
-          (feature.geometry as GeoJSON.Point).coordinates as [number, number]
-        ).slice();
-        const slug = feature.properties.id as string;
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-        // x/2000 = (currentZoom - 16)/16
-        const currentZoom = mapRef.current.getZoom();
-        const zoom = 16;
-        const duration = ((zoom - currentZoom) * 4000) / zoom;
-
-        mapRef.current.flyTo({
-          center: (feature.geometry as GeoJSON.Point).coordinates as [
-            number,
-            number
-          ],
-          zoom,
-          duration,
-        });
-
-        const organization = organizations.find((organization) => {
-          return organization.slug === slug;
-        });
-
-        if (
-          typeof organization !== "undefined" &&
-          organization.longitude !== null &&
-          organization.latitude !== null
-        ) {
-          // eslint-disable-next-line import/no-named-as-default-member
-          new maplibreGL.Popup({
-            offset: 25,
-          })
-            .setLngLat([
-              parseFloat(organization.longitude),
-              parseFloat(organization.latitude),
-            ])
-            .setHTML(
-              renderToStaticMarkup(
-                <Popup organization={organization} locales={locales} />
-              )
-            )
-            .addTo(mapRef.current);
-        }
-      };
-
       const mouseEnterHandler = () => {
         if (mapRef.current !== null) {
           mapRef.current.getCanvas().style.cursor = "pointer";
@@ -189,132 +285,176 @@ export function Map(props: {
         }
       };
 
-      mapRef.current.on("load", async () => {
-        if (mapRef.current !== null) {
-          mapRef.current.addSource("organizations", {
-            type: "geojson",
-            data: geoJSON,
-            cluster: true,
-            clusterMaxZoom: 16,
-            clusterRadius: 50,
-          });
+      if (mapRef.current.getLayer("clusters")) {
+        mapRef.current.removeLayer("clusters");
+      }
+      if (mapRef.current.getLayer("unclustered-point")) {
+        mapRef.current.removeLayer("unclustered-point");
+      }
+      if (mapRef.current.getLayer("cluster-count")) {
+        mapRef.current.removeLayer("cluster-count");
+      }
+      if (mapRef.current.getSource("organizations")) {
+        mapRef.current.removeSource("organizations");
+      }
 
-          mapRef.current.addLayer({
-            id: "clusters",
-            type: "circle",
-            source: "organizations",
-            filter: ["has", "point_count"],
-            paint: {
-              "circle-color": "#2D6BE1",
-              "circle-radius": [
-                "step",
-                ["get", "point_count"],
-                24,
-                5,
-                32,
-                20,
-                40,
-                100,
-                48,
-                300,
-                56,
-              ],
-              "circle-stroke-width": [
-                "step",
-                ["get", "point_count"],
-                2,
-                100,
-                3,
-                300,
-                4,
-              ],
-              "circle-stroke-color": "#2D6BE166",
-            },
-          });
-
-          mapRef.current.addLayer({
-            id: "unclustered-point",
-            type: "circle",
-            source: "organizations",
-            filter: ["!", ["has", "point_count"]],
-            paint: {
-              "circle-color": "#2D6BE1",
-              "circle-radius": 16,
-              "circle-stroke-width": 2,
-              "circle-stroke-color": "#2D6BE166",
-            },
-          });
-
-          mapRef.current.addLayer({
-            id: "cluster-count",
-            type: "symbol",
-            source: "organizations",
-            filter: ["has", "point_count"],
-            layout: {
-              "text-field": "{point_count_abbreviated}",
-              "text-font": ["Noto Sans Bold"],
-              "text-size": 14,
-            },
-            paint: {
-              "text-color": "#fff",
-            },
-          });
-
-          mapRef.current.on("click", "clusters", clusterClickHandler);
-
-          mapRef.current.on(
-            "click",
-            "unclustered-point",
-            unclusteredClickHandler
-          );
-
-          mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
-          mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
-
-          mapRef.current.on(
-            "mouseenter",
-            "unclustered-point",
-            mouseEnterHandler
-          );
-          mapRef.current.on(
-            "mouseleave",
-            "unclustered-point",
-            mouseLeaveHandler
-          );
-        }
+      mapRef.current.addSource("organizations", {
+        type: "geojson",
+        data: geoJSON,
+        cluster: true,
+        clusterMaxZoom: 16,
+        clusterRadius: 50,
       });
+
+      mapRef.current.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: "organizations",
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": "#2D6BE1",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            24,
+            5,
+            32,
+            20,
+            40,
+            100,
+            48,
+            300,
+            56,
+          ],
+          "circle-stroke-width": [
+            "step",
+            ["get", "point_count"],
+            2,
+            100,
+            3,
+            300,
+            4,
+          ],
+          "circle-stroke-color": "#2D6BE166",
+        },
+      });
+
+      mapRef.current.addLayer({
+        id: "unclustered-point",
+        type: "circle",
+        source: "organizations",
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": "#2D6BE1",
+          "circle-radius": 16,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#2D6BE166",
+        },
+      });
+
+      mapRef.current.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: "organizations",
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": "{point_count_abbreviated}",
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 14,
+        },
+        paint: {
+          "text-color": "#fff",
+        },
+      });
+
+      mapRef.current.off("click", "clusters", clusterClickHandler);
+      mapRef.current.on("click", "clusters", clusterClickHandler);
+
+      mapRef.current.off("click", "unclustered-point", unclusteredClickHandler);
+      mapRef.current.on("click", "unclustered-point", unclusteredClickHandler);
+
+      mapRef.current.off("mouseenter", "clusters", mouseEnterHandler);
+      mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
+      mapRef.current.off("mouseleave", "clusters", mouseLeaveHandler);
+      mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
+
+      mapRef.current.off("mouseenter", "unclustered-point", mouseEnterHandler);
+      mapRef.current.on("mouseenter", "unclustered-point", mouseEnterHandler);
+      mapRef.current.off("mouseleave", "unclustered-point", mouseLeaveHandler);
+      mapRef.current.on("mouseleave", "unclustered-point", mouseLeaveHandler);
     }
-  }, [mapContainer, organizations, locales]);
+  }, [mapLoaded, organizations, locales, unclusteredClickHandler]);
+
+  useEffect(() => {
+    if (
+      mapLoaded &&
+      mapRef.current !== null &&
+      lastLanguageRef.current !== language
+    ) {
+      lastLanguageRef.current = language;
+
+      mapRef.current.setLayoutProperty("label_country_1", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_country_2", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_country_3", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_state", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_city", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+      mapRef.current.setLayoutProperty("label_city_capital", "text-field", [
+        "get",
+        `name:${language}`,
+      ]);
+    }
+  }, [mapLoaded, language]);
 
   return (
     <>
       <div
         ref={mapContainer}
         className={`mv-absolute mv-h-full mv-overflow-hidden ${
-          mapMenuIsOpen ? "mv-right-0 mv-w-[calc(100vw-336px)]" : "mv-w-full"
+          mapMenuIsOpen === true
+            ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
+            : "mv-w-full"
         }`}
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-overflow-y-auto mv-pointer-events-none mv-z-10 ${
-            mapMenuIsOpen
-              ? "mv-w-screen md:mv-w-[336px]"
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-pointer-events-none mv-z-10 ${
+            mapMenuIsOpen === true
+              ? "mv-w-full md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
           }`}
         >
           <div
             className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
-              mapMenuIsOpen
-                ? "mv-min-h-full mv-rounded-l-2xl"
-                : "mv-rounded-br-2xl"
+              mapMenuIsOpen ? "mv-h-full mv-rounded-l-2xl" : "mv-rounded-br-2xl"
             }`}
           >
             <Link
-              to={mapMenuIsOpen ? "." : "?openMapMenu=true"}
+              to={
+                mapMenuIsOpen
+                  ? `?${closeMenuSearchParams.toString()}`
+                  : `?${openMenuSearchParams.toString()}`
+              }
               onClick={() => {
                 setMapMenuIsOpen(!mapMenuIsOpen);
               }}
               className="mv-p-2 hover:mv-bg-neutral-100 active:mv-bg-neutral-200 mv-rounded"
+              preventScrollReset
+              replace
             >
               <div className="mv-flex mv-items-center mv-gap-2.5">
                 <p
@@ -341,15 +481,42 @@ export function Map(props: {
               </div>
             </Link>
             {mapMenuIsOpen ? (
-              <ul className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-px-4">
+              <ul
+                id="map-menu"
+                className="mv-w-full mv-h-full mv-flex mv-flex-col mv-gap-2 mv-px-4 mv-overflow-y-auto mv-py-2"
+              >
                 {organizations.map((organization) => {
                   return (
                     <ListItem
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (mapRef.current === null) {
+                          return;
+                        }
+                        // eslint-disable-next-line import/no-named-as-default-member
+                        const mapEvent = new maplibreGL.MapMouseEvent(
+                          "click",
+                          mapRef.current,
+                          event.nativeEvent
+                        );
+                        unclusteredClickHandler({
+                          ...mapEvent,
+                          preventDefault: () => event.preventDefault(),
+                          defaultPrevented: false,
+                          slug: event.currentTarget.id,
+                        });
+                      }}
+                      id={organization.slug}
                       key={`organization-${organization.slug}`}
                       entity={organization}
                       locales={locales}
                       rel="noopener noreferrer"
                       target="_blank"
+                      highlighted={
+                        highlightedOrganization === organization.slug
+                      }
+                      preventScrollReset
                     />
                   );
                 })}

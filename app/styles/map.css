@@ -13,7 +13,7 @@
 .maplibregl-popup-anchor-top,
 .maplibregl-popup-anchor-left,
 .maplibregl-popup-anchor-right {
-  max-width: 280px !important;
+  max-width: 308px !important;
 }
 
 .maplibregl-popup-content {
@@ -23,12 +23,12 @@
   box-shadow: none;
   padding: 0;
   pointer-events: auto;
-  width: 280px;
+  width: 308px;
   height: fit-content;
-  margin-bottom: 8px;
-  margin-top: -24px;
-  margin-right: -12px;
-  margin-left: -12px;
+  padding-bottom: 14px;
+  padding-top: 14px;
+  padding-right: 14px;
+  padding-left: 14px;
 }
 
 .maplibregl-popup-tip {
@@ -41,8 +41,8 @@
 
 .maplibregl-popup-close-button {
   position: absolute;
-  right: 16px;
-  top: 16px;
+  right: 30px;
+  top: 30px;
   border: none;
   border-radius: unset;
   cursor: pointer;
@@ -59,4 +59,8 @@
 .maplibregl-popup-close-button:focus {
   opacity: 100;
   color: transparent;
+}
+
+.maplibregl-ctrl {
+  font-size: 12px;
 }
