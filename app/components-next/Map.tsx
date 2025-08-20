@@ -425,7 +425,9 @@ export function Map(props: {
       <div
         ref={mapContainer}
         className={`mv-absolute mv-h-full mv-overflow-hidden ${
-          mapMenuIsOpen ? "mv-right-0 mv-w-[calc(100vw-336px)]" : "mv-w-full"
+          mapMenuIsOpen === true
+            ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
+            : "mv-w-full"
         }`}
       />
       {organizations.length > 0 ? (
