@@ -4,6 +4,8 @@ import {
   data,
   Link,
   type LinksFunction,
+  type LoaderFunctionArgs,
+  useLoaderData,
   useRouteLoaderData,
   useSearchParams,
 } from "react-router";
@@ -18,25 +20,33 @@ import { VIEW_COOKIE_VALUES, viewCookie } from "../organizations.server";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { useState } from "react";
+import { detectLanguage } from "~/i18n.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
   { rel: "stylesheet", href: customMapStyles },
 ];
 
-export async function loader() {
+export async function loader(args: LoaderFunctionArgs) {
+  const { request } = args;
+  const language = await detectLanguage(request);
+
   const viewCookieHeader = {
     "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.map),
   };
-  return data(null, {
-    headers: viewCookieHeader,
-  });
+  return data(
+    { lng: language },
+    {
+      headers: viewCookieHeader,
+    }
+  );
 }
 
 export default function ExploreOrganizationsList() {
   const parentLoaderData = useRouteLoaderData<typeof parentLoader>(
     "routes/explore/organizations"
   );
+  const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const isHydrated = useHydrated();
 
@@ -88,6 +98,9 @@ export default function ExploreOrganizationsList() {
   }
 
   const embedLinkSearchParams = extendSearchParams(searchParams, {
+    addOrReplace: {
+      lng: loaderData.lng,
+    },
     remove: removeParams,
   });
   const [hasCopied, setHasCopied] = useState(false);
