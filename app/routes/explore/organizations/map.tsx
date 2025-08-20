@@ -45,8 +45,50 @@ export default function ExploreOrganizationsList() {
       "modal-embed": "true",
     },
   });
+
+  const searchQuery = searchParams.get("search");
+  const removeParams = [
+    "modal-embed",
+    "showFilters",
+    "prfFilter.offer",
+    "prfFilter.area",
+    "prfSortBy",
+    "prfPage",
+    "prfAreaSearch",
+    "orgPage",
+    "orgAreaSearch",
+    "evtFilter.stage",
+    "evtFilter.focus",
+    "evtFilter.eventTargetGroup",
+    "evtFilter.periodOfTime",
+    "evtFilter.area",
+    "evtSortBy",
+    "evtPage",
+    "evtAreaSearch",
+    "prjFilter.discipline",
+    "prjFilter.additionalDiscipline",
+    "prjFilter.projectTargetGroup",
+    "prjFilter.area",
+    "prjFilter.format",
+    "prjFilter.specialTargetGroup",
+    "prjFilter.financing",
+    "prjSortBy",
+    "prjPage",
+    "prjAreaSearch",
+    "fndFilter.types",
+    "fndFilter.areas",
+    "fndFilter.regions",
+    "fndFilter.eligibleEntities",
+    "fndSortBy",
+    "fndPage",
+  ];
+
+  if (searchQuery === null || searchQuery === "") {
+    removeParams.push("search");
+  }
+
   const embedLinkSearchParams = extendSearchParams(searchParams, {
-    remove: ["modal-embed"],
+    remove: removeParams,
   });
   const [hasCopied, setHasCopied] = useState(false);
 
