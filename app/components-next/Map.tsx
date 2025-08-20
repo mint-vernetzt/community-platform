@@ -468,7 +468,7 @@ export function Map(props: {
             {mapMenuIsOpen ? (
               <ul
                 id="map-menu"
-                className="mv-w-full mv-h-full mv-flex mv-flex-col mv-gap-2 mv-px-4 mv-overflow-y-auto"
+                className="mv-w-full mv-h-full mv-flex mv-flex-col mv-gap-2 mv-px-4 mv-overflow-y-auto mv-py-2"
               >
                 {organizations.map((organization) => {
                   return (
