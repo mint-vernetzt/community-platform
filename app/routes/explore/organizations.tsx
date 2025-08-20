@@ -1175,7 +1175,7 @@ export default function ExploreOrganizations() {
                 <NavLink
                   to={`/explore/organizations/list?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
                       isActive
                         ? "mv-bg-primary-50 mv-text-primary"
                         : "mv-bg-white mv-text-neutral-700"
@@ -1191,7 +1191,7 @@ export default function ExploreOrganizations() {
                 <NavLink
                   to={`/explore/organizations/map?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-primary-50 hover:mv-text-primary focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
                       isActive
                         ? "mv-bg-primary-50 mv-text-primary"
                         : "mv-bg-white mv-text-neutral-700"
