@@ -432,7 +432,7 @@ export function Map(props: {
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-pointer-events-none ${
+          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-pointer-events-none mv-z-10 ${
             mapMenuIsOpen === true
               ? "mv-w-full md:mv-w-[336px]"
               : "mv-w-fit md:mv-w-[336px]"
