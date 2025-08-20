@@ -47,9 +47,6 @@ export default function ExploreOrganizationsList() {
   });
   const embedLinkSearchParams = extendSearchParams(searchParams, {
     remove: ["modal-embed"],
-    addOrReplace: {
-      openMapMenu: "true",
-    },
   });
   const [hasCopied, setHasCopied] = useState(false);
 
