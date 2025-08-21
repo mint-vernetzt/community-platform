@@ -1,7 +1,6 @@
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
-import Cookies from "js-cookie";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -57,22 +56,12 @@ export function Map(props: {
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
+  const [hideAlert, setHideAlert] = useState(false);
 
   let isMobile = false;
   if (typeof window !== "undefined") {
     isMobile = window.matchMedia("(max-width: 768px)").matches;
   }
-
-  const [hideAlert, setHideAlert] = useState(false);
-
-  useEffect(() => {
-    const hideAlertCookie = Cookies.get(
-      "mv-hide-explore-organization-map-alert"
-    );
-    if (hideAlertCookie === "true") {
-      setHideAlert(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -603,9 +592,7 @@ export function Map(props: {
             truncate={false}
             level="neutral"
             onClose={() => {
-              Cookies.set("mv-hide-explore-organization-map-alert", "true", {
-                sameSite: "strict",
-              });
+              setHideAlert(true);
             }}
           >
             {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
