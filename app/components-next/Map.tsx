@@ -176,7 +176,11 @@ export function Map(props: {
         ])
         .setHTML(
           renderToStaticMarkup(
-            <Popup organization={organization} locales={locales} />
+            <Popup
+              organization={organization}
+              locales={locales}
+              embeddable={embeddable}
+            />
           )
         );
       popup.on("open", () => {
@@ -226,7 +230,7 @@ export function Map(props: {
         }
       });
     },
-    [locales, organizations, popupClosedByHandlerRef]
+    [locales, organizations, popupClosedByHandlerRef, embeddable]
   );
 
   useEffect(() => {
@@ -612,8 +616,12 @@ export function Map(props: {
   );
 }
 
-function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
-  const { organization, locales } = props;
+function Popup(props: {
+  organization: MapOrganization;
+  locales: MapLocales;
+  embeddable: boolean;
+}) {
+  const { organization, locales, embeddable } = props;
 
   return (
     <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200">
@@ -661,8 +669,8 @@ function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
       <a
         href={`/organization/${organization.slug}`}
         className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200"
-        rel="noreferrer noopener"
-        target="_blank"
+        rel={embeddable === true ? "noreferrer noopener" : undefined}
+        target={embeddable === true ? "_blank" : undefined}
       >
         {locales.components.Map.organizationCardCta}
       </a>
