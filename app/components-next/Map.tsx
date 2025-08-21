@@ -1,20 +1,20 @@
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams, useSubmit } from "react-router";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { type ArrayElement } from "~/lib/utils/types";
 import { type MapLocales } from "~/routes/map.server";
+import { HeaderLogo } from "./HeaderLogo";
 import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { HeaderLogo } from "./HeaderLogo";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -56,6 +56,8 @@ export function Map(props: {
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
+  const [hideAlert, setHideAlert] = useState(false);
+
   let isMobile = false;
   if (typeof window !== "undefined") {
     isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -111,6 +113,12 @@ export function Map(props: {
     );
     if (ctrlContainerTopRight !== null && embeddable === false) {
       ctrlContainerTopRight.classList.add("maplibregl-ctrl-not-embeddable");
+    }
+    const infoCtrlBottomRight = document.querySelector(
+      ".maplibregl-ctrl-bottom-right .maplibregl-compact-show"
+    );
+    if (infoCtrlBottomRight !== null) {
+      infoCtrlBottomRight.classList.remove("maplibregl-compact-show");
     }
   }, [mapLoaded, embeddable]);
 
@@ -168,7 +176,11 @@ export function Map(props: {
         ])
         .setHTML(
           renderToStaticMarkup(
-            <Popup organization={organization} locales={locales} />
+            <Popup
+              organization={organization}
+              locales={locales}
+              embeddable={embeddable}
+            />
           )
         );
       popup.on("open", () => {
@@ -218,7 +230,7 @@ export function Map(props: {
         }
       });
     },
-    [locales, organizations, popupClosedByHandlerRef]
+    [locales, organizations, popupClosedByHandlerRef, embeddable]
   );
 
   useEffect(() => {
@@ -445,7 +457,7 @@ export function Map(props: {
         className={`mv-absolute mv-h-full mv-min-h-[284px] mv-overflow-hidden ${
           mapLoaded === true
             ? mapMenuIsOpen === true
-              ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
+              ? "mv-left-0 mv-w-full md:mv-left-[336px] md:mv-w-[calc(100%-336px)]"
               : "mv-w-full"
             : "mv-w-0"
         }`}
@@ -459,8 +471,10 @@ export function Map(props: {
           }`}
         >
           <div
-            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
-              mapMenuIsOpen ? "mv-h-full mv-rounded-l-2xl" : "mv-rounded-br-2xl"
+            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
+              mapMenuIsOpen
+                ? "mv-h-full mv-rounded-none mv-border-none md:mv-border-r"
+                : "mv-rounded-br-2xl mv-border-r mv-border-b"
             }`}
           >
             <Link
@@ -513,7 +527,10 @@ export function Map(props: {
                         event.stopPropagation();
                         if (isMobile === true) {
                           setMapMenuIsOpen(false);
-                          submit(closeMenuSearchParams);
+                          submit(closeMenuSearchParams, {
+                            preventScrollReset: true,
+                            replace: true,
+                          });
                         }
                         if (mapRef.current === null) {
                           return;
@@ -550,7 +567,7 @@ export function Map(props: {
         </div>
       ) : null}
       {embeddable === true ? (
-        <div className="mv-absolute mv-top-4 mv-right-4 mv-z-10">
+        <div className="mv-absolute mv-top-4 mv-right-4">
           <Link
             to="/"
             target="_blank"
@@ -566,10 +583,13 @@ export function Map(props: {
             />
           </Link>
         </div>
-      ) : (
+      ) : null}
+      {embeddable === false && hideAlert === false ? (
         <div
           className={`mv-absolute ${
-            mapMenuIsOpen === true ? "mv-left-[344px]" : "mv-left-2"
+            mapMenuIsOpen === true
+              ? "mv-hidden md:mv-block mv-left-[344px]"
+              : "mv-left-2"
           } mv-bottom-2 mv-right-2 mv-z-10 mv-h-fit`}
         >
           <Alert
@@ -577,6 +597,9 @@ export function Map(props: {
             textAlign={mapMenuIsOpen ? "left" : "center"}
             truncate={false}
             level="neutral"
+            onClose={() => {
+              setHideAlert(true);
+            }}
           >
             {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
               <Link
@@ -590,13 +613,17 @@ export function Map(props: {
             ])}
           </Alert>
         </div>
-      )}
+      ) : null}
     </>
   );
 }
 
-function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
-  const { organization, locales } = props;
+function Popup(props: {
+  organization: MapOrganization;
+  locales: MapLocales;
+  embeddable: boolean;
+}) {
+  const { organization, locales, embeddable } = props;
 
   return (
     <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200">
@@ -644,8 +671,8 @@ function Popup(props: { organization: MapOrganization; locales: MapLocales }) {
       <a
         href={`/organization/${organization.slug}`}
         className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200"
-        rel="noreferrer noopener"
-        target="_blank"
+        rel={embeddable === true ? "noreferrer noopener" : undefined}
+        target={embeddable === true ? "_blank" : undefined}
       >
         {locales.components.Map.organizationCardCta}
       </a>
