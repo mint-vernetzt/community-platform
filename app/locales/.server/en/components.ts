@@ -28,5 +28,6 @@ export const locale = {
     openMenu: "Open organization list",
     closeMenu: "Close organization list",
     organizationCardCta: "View organization",
+    toThePlatform: "To the MINTvernetzt community platform",
   },
 } as const;

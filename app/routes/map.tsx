@@ -114,6 +114,7 @@ function MapIndex() {
         organizations={organizations}
         locales={locales}
         language={language}
+        embeddable
       />
     </div>
   );

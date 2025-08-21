@@ -1,7 +1,15 @@
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
+import { type MapLocales } from "~/routes/map.server";
 
-export function HeaderLogo(props: { locales?: RootLocales }) {
+export function HeaderLogo(
+  props: {
+    locales?: RootLocales | MapLocales;
+    showLabel?: boolean;
+  } & React.SVGProps<SVGSVGElement>
+) {
+  const { locales, showLabel = true, ...svgProps } = props;
+
   return (
     <div className="mv-flex mv-flex-row mv-items-center">
       <svg
@@ -10,6 +18,7 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
         height="48"
         viewBox="0 0 56 56"
         aria-hidden="true"
+        {...svgProps}
       >
         <g fill="none">
           <path
@@ -26,13 +35,15 @@ export function HeaderLogo(props: { locales?: RootLocales }) {
           />
         </g>
       </svg>
-      <span className="mv-hidden lg:mv-block mv-font-bold mv-text-primary mv-ml-2">
-        {props.locales !== undefined
-          ? props.locales.route.root.community
-          : DEFAULT_LANGUAGE === "de"
-          ? "Community"
-          : "Community"}
-      </span>
+      {showLabel ? (
+        <span className="mv-hidden lg:mv-block mv-font-bold mv-text-primary mv-ml-2">
+          {locales !== undefined
+            ? locales.route.root.community
+            : DEFAULT_LANGUAGE === "de"
+            ? "Community"
+            : "Community"}
+        </span>
+      ) : null}
     </div>
   );
 }

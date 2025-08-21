@@ -29,5 +29,6 @@ export const locale = {
     openMenu: "Organisationsliste öffnen",
     closeMenu: "Organisationsliste schließen",
     organizationCardCta: "Organisation ansehen",
+    toThePlatform: "Zur MINTvernetzt-Community-Plattform",
   },
 } as const;

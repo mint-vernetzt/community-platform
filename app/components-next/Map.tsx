@@ -12,6 +12,7 @@ import { MapPopupClose } from "./icons/MapPopupClose";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { HeaderLogo } from "./HeaderLogo";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -23,8 +24,9 @@ export function Map(props: {
   organizations: Array<MapOrganization>;
   locales: MapLocales;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  embeddable?: boolean;
 }) {
-  const { organizations, locales, language } = props;
+  const { organizations, locales, language, embeddable = false } = props;
   const [searchParams] = useSearchParams();
   const openMenuSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
@@ -95,6 +97,15 @@ export function Map(props: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const ctrlContainerTopRight = document.querySelector(
+      ".maplibregl-ctrl-top-right .maplibregl-ctrl"
+    );
+    if (ctrlContainerTopRight !== null && embeddable === false) {
+      ctrlContainerTopRight.classList.add("maplibregl-ctrl-not-embeddable");
+    }
+  }, [mapLoaded, embeddable]);
 
   const unclusteredClickHandler = useCallback(
     (
@@ -525,6 +536,19 @@ export function Map(props: {
               </ul>
             ) : null}
           </div>
+        </div>
+      ) : null}
+      {embeddable === true ? (
+        <div className="mv-absolute mv-top-4 mv-right-4 mv-z-10">
+          <Link to="/" aria-label={locales.components.Map.toThePlatform}>
+            <HeaderLogo
+              locales={props.locales}
+              width={32}
+              height={32}
+              aria-hidden="true"
+              showLabel={false}
+            />
+          </Link>
         </div>
       ) : null}
     </>
