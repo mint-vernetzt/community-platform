@@ -550,7 +550,7 @@ export function Map(props: {
         </div>
       ) : null}
       {embeddable === true ? (
-        <div className="mv-absolute mv-top-4 mv-right-4 mv-z-10">
+        <div className="mv-absolute mv-top-4 mv-right-4">
           <Link
             to="/"
             target="_blank"
@@ -569,7 +569,9 @@ export function Map(props: {
       ) : (
         <div
           className={`mv-absolute ${
-            mapMenuIsOpen === true ? "mv-left-[344px]" : "mv-left-2"
+            mapMenuIsOpen === true
+              ? "mv-hidden md:mv-block mv-left-[344px]"
+              : "mv-left-2"
           } mv-bottom-2 mv-right-2 mv-z-10 mv-h-fit`}
         >
           <Alert
