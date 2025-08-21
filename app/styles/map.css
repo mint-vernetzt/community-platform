@@ -22,7 +22,7 @@
   border-radius: 8px !important;
   box-shadow: none !important;
   padding: 0 !important;
-  pointer-events: auto !important;
+  pointer-events: none !important;
   width: 308px !important;
   height: fit-content !important;
   padding-bottom: 14px !important;
@@ -37,6 +37,7 @@
   height: 0 !important;
   border: 10px solid transparent !important;
   z-index: 1 !important;
+  pointer-events: none !important;
 }
 
 .maplibregl-popup-close-button {
@@ -50,6 +51,7 @@
   width: 18px !important;
   height: 18px !important;
   opacity: 0 !important;
+  pointer-events: auto !important;
 }
 
 .maplibregl-popup-close-button:hover {
