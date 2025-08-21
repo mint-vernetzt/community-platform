@@ -457,7 +457,7 @@ export function Map(props: {
         className={`mv-absolute mv-h-full mv-min-h-[284px] mv-overflow-hidden ${
           mapLoaded === true
             ? mapMenuIsOpen === true
-              ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
+              ? "mv-left-0 mv-w-full md:mv-left-[336px] md:mv-w-[calc(100%-336px)]"
               : "mv-w-full"
             : "mv-w-0"
         }`}
@@ -471,8 +471,10 @@ export function Map(props: {
           }`}
         >
           <div
-            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-r mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
-              mapMenuIsOpen ? "mv-h-full mv-rounded-l-2xl" : "mv-rounded-br-2xl"
+            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
+              mapMenuIsOpen
+                ? "mv-h-full mv-rounded-none mv-border-none md:mv-border-r"
+                : "mv-rounded-br-2xl mv-border-r mv-border-b"
             }`}
           >
             <Link
