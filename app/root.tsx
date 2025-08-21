@@ -557,7 +557,9 @@ export default function App() {
                 </main>
                 <div
                   className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
-                    showFilters ? "mv-hidden @lg:mv-block " : ""
+                    showFilters === "true" && isMapOnExplore === false
+                      ? "mv-hidden @lg:mv-block "
+                      : ""
                   }${isMapOnExplore ? "mv-hidden " : ""}mv-w-0`}
                 >
                   <ScrollToTopButton locales={locales} />
