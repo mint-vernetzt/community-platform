@@ -51,17 +51,26 @@ export function Map(props: {
   const lastLanguageRef = useRef<ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   > | null>(null);
-  const popupsRef = useRef<maplibreGL.Popup[]>([]);
+  const activePopupsRef = useRef<maplibreGL.Popup[]>([]);
+  const hoverPopupsRef = useRef<maplibreGL.Popup[]>([]);
   const [highlightedOrganization, setHighlightedOrganization] = useState<
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
   const [hideAlert, setHideAlert] = useState(false);
 
-  let isMobile = false;
-  if (typeof window !== "undefined") {
-    isMobile = window.matchMedia("(max-width: 768px)").matches;
-  }
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -156,15 +165,19 @@ export function Map(props: {
         parseFloat(organization.longitude),
         parseFloat(organization.latitude),
       ];
+      const offsetCoordinateToFocusPopup = coordinates[1] - 0.0002;
 
       mapRef.current.flyTo({
-        center: coordinates as [number, number],
+        center: [coordinates[0], offsetCoordinateToFocusPopup],
         zoom: 18,
         essential: true,
       });
 
       popupClosedByHandlerRef.current = true;
-      for (const popup of popupsRef.current) {
+      for (const popup of activePopupsRef.current) {
+        popup.remove();
+      }
+      for (const popup of hoverPopupsRef.current) {
         popup.remove();
       }
       popupClosedByHandlerRef.current = false;
@@ -210,14 +223,15 @@ export function Map(props: {
           });
         }
       });
-      popupsRef.current.push(popup);
+      activePopupsRef.current.push(popup);
 
       const onMove = () => {
         if (mapRef.current !== null) {
           const center = mapRef.current.getCenter();
+
           if (
             Math.abs(center.lng - coordinates[0]) < 0.00001 &&
-            Math.abs(center.lat - coordinates[1]) < 0.00001
+            Math.abs(center.lat - offsetCoordinateToFocusPopup) < 0.00001
           ) {
             popup.addTo(mapRef.current);
             mapRef.current.off("move", onMove);
@@ -272,7 +286,7 @@ export function Map(props: {
         geoJSON.features.push(feature);
       }
 
-      for (const popup of popupsRef.current) {
+      for (const popup of activePopupsRef.current) {
         popup.remove();
       }
 
@@ -304,13 +318,90 @@ export function Map(props: {
         }
       };
 
-      const mouseEnterHandler = () => {
+      const unclusteredMouseEnterHandler = (
+        event: maplibreGL.MapMouseEvent & {
+          features?: maplibreGL.MapGeoJSONFeature[];
+        }
+      ) => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "pointer";
+          if (
+            typeof event.features === "undefined" ||
+            typeof event.features[0] === "undefined"
+          ) {
+            return;
+          }
+          const feature = event.features[0];
+          const slug = feature.properties.id as string | null | undefined;
+          if (typeof slug === "undefined" || slug === null) {
+            return;
+          }
+          const organization = organizations.find((organization) => {
+            return organization.slug === slug;
+          });
+          if (
+            typeof organization === "undefined" ||
+            organization.longitude === null ||
+            organization.latitude === null
+          ) {
+            return;
+          }
+
+          for (const popup of hoverPopupsRef.current) {
+            popup.remove();
+          }
+          // eslint-disable-next-line import/no-named-as-default-member
+          const popup = new maplibreGL.Popup()
+            .setLngLat([
+              parseFloat(organization.longitude),
+              parseFloat(organization.latitude),
+            ])
+            .setHTML(
+              renderToStaticMarkup(
+                <Popup
+                  organization={organization}
+                  locales={locales}
+                  embeddable={embeddable}
+                />
+              )
+            );
+          popup.on("open", () => {
+            setHighlightedOrganization(organization.slug);
+            const mapMenu = document.getElementById("map-menu");
+            const listItem = document.getElementById(
+              `list-item-${organization.slug}`
+            );
+            if (mapMenu !== null && listItem !== null) {
+              mapMenu.scrollTo({
+                top: listItem.offsetTop - 58,
+                behavior: "smooth",
+              });
+            }
+          });
+          popup.on("close", () => {
+            setHighlightedOrganization(null);
+          });
+          hoverPopupsRef.current.push(popup);
+          popup.addTo(mapRef.current);
+        }
+      };
+
+      const unclusteredMouseLeaveHandler = () => {
+        if (mapRef.current !== null) {
+          mapRef.current.getCanvas().style.cursor = "";
+          for (const popup of hoverPopupsRef.current) {
+            popup.remove();
+          }
+        }
+      };
+
+      const clusterMouseEnterHandler = () => {
         if (mapRef.current !== null) {
           mapRef.current.getCanvas().style.cursor = "pointer";
         }
       };
 
-      const mouseLeaveHandler = () => {
+      const clusterMouseLeaveHandler = () => {
         if (mapRef.current !== null) {
           mapRef.current.getCanvas().style.cursor = "";
         }
@@ -404,17 +495,33 @@ export function Map(props: {
       mapRef.current.off("click", "unclustered-point", unclusteredClickHandler);
       mapRef.current.on("click", "unclustered-point", unclusteredClickHandler);
 
-      mapRef.current.off("mouseenter", "clusters", mouseEnterHandler);
-      mapRef.current.on("mouseenter", "clusters", mouseEnterHandler);
-      mapRef.current.off("mouseleave", "clusters", mouseLeaveHandler);
-      mapRef.current.on("mouseleave", "clusters", mouseLeaveHandler);
+      mapRef.current.off("mouseenter", "clusters", clusterMouseEnterHandler);
+      mapRef.current.on("mouseenter", "clusters", clusterMouseEnterHandler);
+      mapRef.current.off("mouseleave", "clusters", clusterMouseLeaveHandler);
+      mapRef.current.on("mouseleave", "clusters", clusterMouseLeaveHandler);
 
-      mapRef.current.off("mouseenter", "unclustered-point", mouseEnterHandler);
-      mapRef.current.on("mouseenter", "unclustered-point", mouseEnterHandler);
-      mapRef.current.off("mouseleave", "unclustered-point", mouseLeaveHandler);
-      mapRef.current.on("mouseleave", "unclustered-point", mouseLeaveHandler);
+      mapRef.current.off(
+        "mouseenter",
+        "unclustered-point",
+        unclusteredMouseEnterHandler
+      );
+      mapRef.current.on(
+        "mouseenter",
+        "unclustered-point",
+        unclusteredMouseEnterHandler
+      );
+      mapRef.current.off(
+        "mouseleave",
+        "unclustered-point",
+        unclusteredMouseLeaveHandler
+      );
+      mapRef.current.on(
+        "mouseleave",
+        "unclustered-point",
+        unclusteredMouseLeaveHandler
+      );
     }
-  }, [mapLoaded, organizations, locales, unclusteredClickHandler]);
+  }, [mapLoaded, organizations, locales, unclusteredClickHandler, embeddable]);
 
   useEffect(() => {
     if (
