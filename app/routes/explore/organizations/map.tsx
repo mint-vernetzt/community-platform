@@ -111,7 +111,7 @@ export default function ExploreOrganizationsList() {
 
   return typeof parentLoaderData !== "undefined" ? (
     <div className="mv-w-full mv-px-4">
-      <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
+      <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-min-h-[284px] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
         <Map
           organizations={parentLoaderData.organizations
             .filter((organization) => {

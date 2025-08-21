@@ -427,7 +427,7 @@ export function Map(props: {
     <>
       <div
         ref={mapContainer}
-        className={`mv-absolute mv-h-full mv-overflow-hidden ${
+        className={`mv-absolute mv-h-full mv-min-h-[284px] mv-overflow-hidden ${
           mapLoaded === true
             ? mapMenuIsOpen === true
               ? "mv-left-[336px] mv-w-[calc(100%-336px)]"
