@@ -513,7 +513,10 @@ export function Map(props: {
                         event.stopPropagation();
                         if (isMobile === true) {
                           setMapMenuIsOpen(false);
-                          submit(closeMenuSearchParams);
+                          submit(closeMenuSearchParams, {
+                            preventScrollReset: true,
+                            replace: true,
+                          });
                         }
                         if (mapRef.current === null) {
                           return;
