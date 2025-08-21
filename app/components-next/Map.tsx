@@ -12,6 +12,8 @@ import { MapPopupClose } from "./icons/MapPopupClose";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -23,8 +25,9 @@ export function Map(props: {
   organizations: Array<MapOrganization>;
   locales: MapLocales;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  embeddable?: boolean;
 }) {
-  const { organizations, locales, language } = props;
+  const { organizations, locales, language, embeddable = false } = props;
   const [searchParams] = useSearchParams();
   const openMenuSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
@@ -525,6 +528,31 @@ export function Map(props: {
               </ul>
             ) : null}
           </div>
+        </div>
+      ) : null}
+      {embeddable === false ? (
+        <div
+          className={`mv-absolute ${
+            mapMenuIsOpen === true ? "mv-left-[344px]" : "mv-left-2"
+          } mv-bottom-2 mv-right-2 mv-z-10 mv-h-fit`}
+        >
+          <Alert
+            position="relative"
+            textAlign={mapMenuIsOpen ? "left" : "center"}
+            truncate={false}
+            level="neutral"
+          >
+            {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
+              <Link
+                key="help-link"
+                to="/help#TODO"
+                target="_blank"
+                className="mv-font-bold hover:mv-underline"
+              >
+                {" "}
+              </Link>,
+            ])}
+          </Alert>
         </div>
       ) : null}
     </>
