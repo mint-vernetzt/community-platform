@@ -215,8 +215,8 @@ export function Map(props: {
         if (mapRef.current !== null) {
           const center = mapRef.current.getCenter();
           if (
-            Math.abs(center.lng - coordinates[0]) < 0.01 &&
-            Math.abs(center.lat - coordinates[1]) < 0.01
+            Math.abs(center.lng - coordinates[0]) < 0.00001 &&
+            Math.abs(center.lat - coordinates[1]) < 0.00001
           ) {
             popup.addTo(mapRef.current);
             mapRef.current.off("move", onMove);
