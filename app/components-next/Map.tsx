@@ -59,10 +59,18 @@ export function Map(props: {
   const popupClosedByHandlerRef = useRef(false);
   const [hideAlert, setHideAlert] = useState(false);
 
-  let isMobile = false;
-  if (typeof window !== "undefined") {
-    isMobile = window.matchMedia("(max-width: 768px)").matches;
-  }
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
