@@ -15,7 +15,6 @@ import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.s
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";
-import { checkFeatureAbilitiesOrThrow } from "./feature-access.server";
 import { getAllOrganizations } from "./map.server";
 
 export const links: LinksFunction = () => [
@@ -26,7 +25,6 @@ export const links: LinksFunction = () => [
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "map");
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["map"];
 
