@@ -3,7 +3,7 @@ import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Link, useSearchParams } from "react-router";
+import { Link, useSearchParams, useSubmit } from "react-router";
 import { type MapLocales } from "~/routes/map.server";
 import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
@@ -29,6 +29,7 @@ export function Map(props: {
   embeddable?: boolean;
 }) {
   const { organizations, locales, language, embeddable = false } = props;
+  const submit = useSubmit();
   const [searchParams] = useSearchParams();
   const openMenuSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
@@ -55,6 +56,10 @@ export function Map(props: {
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
+  let isMobile = false;
+  if (typeof window !== "undefined") {
+    isMobile = window.matchMedia("(max-width: 768px)").matches;
+  }
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -506,6 +511,10 @@ export function Map(props: {
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
+                        if (isMobile === true) {
+                          setMapMenuIsOpen(false);
+                          submit(closeMenuSearchParams);
+                        }
                         if (mapRef.current === null) {
                           return;
                         }
