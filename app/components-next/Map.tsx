@@ -626,14 +626,16 @@ function Popup(props: {
   const { organization, locales, embeddable } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200">
+    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
       <div className="mv-relative mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-2">
-        <Avatar size="lg" {...organization} disableFadeIn={true} />
+        <div className="mv-pointer-events-auto">
+          <Avatar size="lg" {...organization} disableFadeIn={true} />
+        </div>
         <div className="mv-flex mv-flex-col mv-gap-1 mv-items-center">
-          <h1 className="mv-appearance-none mv-text-base mv-text-center mv-mb-0 mv-text-primary mv-font-bold mv-leading-5">
+          <h1 className="mv-appearance-none mv-text-base mv-text-center mv-mb-0 mv-text-primary mv-font-bold mv-leading-5 mv-pointer-events-auto">
             {organization.name}
           </h1>
-          <p className="mv-text-neutral-700 mv-text-center mv-font-semibold">
+          <p className="mv-text-neutral-700 mv-text-center mv-font-semibold mv-pointer-events-auto">
             {[...organization.types, ...organization.networkTypes]
               .map((relation) => {
                 let title;
@@ -656,7 +658,7 @@ function Popup(props: {
               .join(", ")}
           </p>
         </div>
-        <address className="mv-not-italic mv-text-center mv-text-neutral-700">
+        <address className="mv-not-italic mv-text-center mv-text-neutral-700 mv-pointer-events-auto">
           {organization.street !== null ? `${organization.street} ` : ""}
           {organization.streetNumber !== null
             ? `${organization.streetNumber}, `
@@ -664,13 +666,13 @@ function Popup(props: {
           {organization.zipCode !== null ? `${organization.zipCode} ` : ""}
           {organization.city !== null ? `${organization.city}` : ""}
         </address>
-        <div className="mv-absolute mv-right-0 mv-top-0">
+        <div className="mv-absolute mv-right-0 mv-top-0 mv-pointer-events-auto">
           <MapPopupClose />
         </div>
       </div>
       <a
         href={`/organization/${organization.slug}`}
-        className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200"
+        className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200 mv-pointer-events-auto"
         rel={embeddable === true ? "noreferrer noopener" : undefined}
         target={embeddable === true ? "_blank" : undefined}
       >
