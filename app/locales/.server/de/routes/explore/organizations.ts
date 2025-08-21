@@ -46,5 +46,23 @@ export const locale = {
   showNumberOfItems_other: "{{count}} Organisationen anzeigen",
   map: {
     embed: "Aktuelle Ansicht auf der eigenen Website einbinden?",
+    embedModal: {
+      title: "Kartenansicht einbetten",
+      subline:
+        "Du kannst die aktuelle, von Dir mit Hilfe der Filterfunktion, konfigurierte Karte, auf Deiner Website einbinden. Weitere Infos zum Thema, Einbetten der Karte, findest Du in unserem <0>Hilfebereich</0>.",
+      description: {
+        title: "Führe folgende Schritte aus",
+        step1:
+          "Konfiguriere Deine Karte entsprechend Deiner Anforderungen hast (Suchbegriff, ausgewählte Filter, Ansicht).",
+        step2: "Kopiere den angezeigten Code.",
+        step3: "Füge ihn an der passenden Stelle auf Deiner Website ein.",
+      },
+      textarea: {
+        label: "Code zum Einbinden",
+      },
+      copy: "Kopieren",
+      copySuccess: "Code zum Einbinden in die Zwischenablage kopiert",
+      cancel: "Abbrechen",
+    },
   },
 } as const;
