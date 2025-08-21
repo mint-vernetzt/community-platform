@@ -93,12 +93,17 @@ export const signUp = async (
   >,
   emailRedirectTo?: string
 ) => {
+  let redirectURL;
+  if (typeof emailRedirectTo !== "undefined") {
+    redirectURL = `${process.env.COMMUNITY_BASE_URL}${emailRedirectTo}`;
+  }
+
   const { data, error } = await authClient.auth.signUp({
     email: email,
     password: password,
     options: {
       data: metaData,
-      emailRedirectTo: emailRedirectTo,
+      emailRedirectTo: redirectURL,
     },
   });
   return { data, error };
