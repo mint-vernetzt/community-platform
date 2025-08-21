@@ -139,7 +139,7 @@ export default function ExploreOrganizationsList() {
           language={parentLoaderData.language}
         />
       </div>
-      <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
+      <div className="mv-hidden @lg:mv-flex mv-w-full mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
         <Modal searchParam="modal-embed">
           <Modal.Title>
             {parentLoaderData.locales.route.map.embedModal.title}
