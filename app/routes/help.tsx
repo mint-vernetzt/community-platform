@@ -13,7 +13,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["help"];
   const { authClient } = createAuthClient(request);
-  const abilities = await getFeatureAbilities(authClient, ["abuse_report"]);
+  const abilities = await getFeatureAbilities(authClient, [
+    "abuse_report",
+    "provisional_organizations",
+  ]);
   return {
     abilities,
     supportMail: process.env.SUPPORT_MAIL,

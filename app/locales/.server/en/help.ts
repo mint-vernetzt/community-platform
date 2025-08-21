@@ -88,7 +88,7 @@ export const locale = {
       },
     },
     organizations: {
-      headline: "Questions about organization / network",
+      headline: "Questions about organizations and networks",
       qAndAs: {
         networkVsOrganizationVsProject: {
           question:
@@ -125,6 +125,117 @@ export const locale = {
           answer:
             '<p>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>.</br></br>Alternatively, you can click on your organization\'s card (box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here. This will take you to your <b>organization settings</b>. Under <b>“Manage organization“</b>, under the query <b>“Is your organization part of a network?“</b>, you can select organizations that are already created on the platform and request to <b>join the network</b>. As soon as the admins of these organizations confirm your request to join, your organization will be listed as a network member. This is visible on the organization\'s details page under “Network“, and your organization will also be listed as a network member on the network organization\'s details page.</p>',
         },
+        exploreOrganizations: {
+          question: "Where can I find an overview of all organizations?",
+          answer:
+            '<p>Under <b>Explore > Organizations</b>, you can view all organizations that have been created on the platform. You can choose whether to display the organizations in list or map view.</br></br>Here you will find <a href="/help#organizationMapView">information about the map view of organizations</a>.</p>',
+        },
+        filterOrganizationsByArea: {
+          question: "How can I filter organizations by federal state or city?",
+          answer:
+            "<p>Use the filters „Location / Area“. There you can enter, for example, „Saxony“ or „Leipzig“.</p>",
+        },
+        filterOrganizationsByNetworkType: {
+          question: "How can I filter organizations by network type?",
+          answer:
+            "<p>You can filter by the following network types: Alliance, MINT-Cluster, MINT-Region, State Initiative, or Other Network.</p>",
+        },
+        filterOrganizationsByFocus: {
+          question:
+            "What does „Focus of work“ mean and what options are available?",
+          answer:
+            "<p>„Focus of work“ describes the topics an organization works on – e.g. diversity, early childhood education, education for sustainable development, career orientation, and many more.</p>",
+        },
+        filterOrganizationsByMultipleCriteria: {
+          question:
+            "Can I filter by multiple criteria at the same time (e.g. location and focus of work)?",
+          answer:
+            "<p>Yes. The list or map will only show you organizations that meet <i>all</i> selected criteria.</p>",
+        },
+        filterOrganizationsByNetwork: {
+          question: "Can I filter by a specific network?",
+          answer:
+            "<p>Yes. Select a network in the filter, e.g. „Schülerforschungszentren/SFZ-Netzwerk“, and all associated organizations will be displayed.</p>",
+        },
+        whatAreProvisionalOrganizations: {
+          question: "What are „organizations created by us“?",
+          answer:
+            '<p>Organizations created by us are profiles of organizations that we have compiled using data from external overview pages. The data origins from following Websites:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>These organizational profiles do not yet have administrators or team members on the platform. These profiles created by us can be claimed by the respective stakeholders as their organization. There are various ways to request the management of these organizational profiles. How this is possible will be answered in the next question and answer.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        howToClaimProvisionalOrganizations: {
+          question:
+            "How can I claim the organizational profile of an organization created by the MINTvernetzt community platform?",
+          answer:
+            '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>„Claim“</b> button on the organizational detail page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>„Claim Organization“</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > „Add Me to an Organization“</b> and click on <b>„Claim Organization“</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
+          featureFlag: "provisional_organizations",
+        },
+      },
+    },
+    organizationMapView: {
+      headline: "Questions about the organization map view",
+      qAndAs: {
+        whereToFind: {
+          question: "Where can I find the organization map view?",
+          answer:
+            "<p>Under <b>Explore > Organizations</b> you can choose whether you want to see the organizations in list or map view.</p>",
+        },
+        whatIsShown: {
+          question: "What does the map show me?",
+          answer:
+            "<p>The map shows you STEM organizations from all over Germany and beyond, <b>whose addresses are stored on the platform</b>. Within the „Location / Area“ filter, you can specifically filter for certain locations or areas.</p>",
+        },
+        showOrganizationsNearBy: {
+          question: "Can I also display only organizations in my vicinity?",
+          answer:
+            "<p>Yes. Just enter your location or federal state in the filter.</p>",
+        },
+        isLoginRequired: {
+          question: "Is login required to use the map?",
+          answer:
+            "<p>No, you can use the map without logging in. However, if you want to add your own organization to the map, you will need a profile on the platform.</p>",
+        },
+        areAllOrganizationsPresent: {
+          question:
+            "Are all STEM organizations in Germany represented on the map?",
+          answer:
+            '<p>Only organizations that have a profile on the platform and have also <b>provided their address</b> are displayed. The map grows with each new organization that registers. Additionally, the map also displays <b><a href="/help#whatAreProvisionalOrganizations">provisional organization profiles created by us</a></b>, whose data we found and verified on external overview pages, such as <a href="https://www.schuelerforschungszentren.de" target="_blank" rel="noopener noreferrer">www.schuelerforschungszentren.de</a>.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        showOwnOrganizationOnMap: {
+          question: "How can I make my own organization visible on the map?",
+          answer:
+            "<p>To make your organization visible on the map, create an organization profile on the platform or edit your existing profile. Provide the address, organization type, network type(s), and focus of work. Once the information is saved, your organization will automatically appear on the map.</p>",
+        },
+        currentnessOfData: {
+          question: "How current is the data on the map?",
+          answer:
+            '<p>The map is automatically updated as organizations change their information or new organizations are added. The data for the <b><a href="/help#whatAreProvisionalOrganizations">provisional organization profiles created by us</a></b> is from August 2025.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        cannotFindMyOrganization: {
+          question:
+            "My organization cannot be found on the map - what can I do?",
+          answer:
+            '<p>This is usually because your organization profile does not exist on the platform or is not fully completed. Check your profile under <b>My space > My Organizations</b> and complete any missing address information. After that, your organization should appear on the map.</br></br>Please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> if you need further assistance.</p>',
+        },
+        howToEmbedMapOnMyWebsite: {
+          question:
+            "How does embedding the map via iFrame on my own website work?",
+          answer:
+            "<p><ol><li>Set up the map as you need it (enter search term, set filters).</li><li>Click on “Embed current map view on my own website.” below the map view.</li><li>Copy the displayed code for embedding (iFrame code).</li><li>Paste this code in the desired location in the HTML area of your website.</li></ol></br></br>Done – your website now shows exactly the map view you have set.</p>",
+        },
+        isTheFilterPersistentWhenEmbedding: {
+          question:
+            "Does the filter remain active when embedding the map on my own website?",
+          answer:
+            "<p>Yes. Visitors to your website will see exactly the selection of organizations that you set through the filter before copying the code.</p>",
+        },
+        knowledgeNeededToEmbed: {
+          question: "Do I need technical knowledge to embed the map?",
+          answer:
+            "<p>A little bit: You need to insert the embedding code in the right place on your website – just like with a YouTube video. If you're unsure, the person who manages your website can usually help you.</p>",
+        },
       },
     },
     projects: {
@@ -133,7 +244,7 @@ export const locale = {
         projectWithoutOrganization: {
           question: "Can I create projects without a responsible organization?",
           answer:
-            "<p>Yes, since projects are also carried out by individuals, you can create a project with us even without an organization behind it.</p>",
+            "<p>Yes, since projects are also carried out by individuals, you can create a project even without an organization behind it.</p>",
         },
       },
     },
