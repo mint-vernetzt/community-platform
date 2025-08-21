@@ -542,7 +542,12 @@ export function Map(props: {
       ) : null}
       {embeddable === true ? (
         <div className="mv-absolute mv-top-4 mv-right-4 mv-z-10">
-          <Link to="/" aria-label={locales.components.Map.toThePlatform}>
+          <Link
+            to="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={locales.components.Map.toThePlatform}
+          >
             <HeaderLogo
               locales={props.locales}
               width={32}
