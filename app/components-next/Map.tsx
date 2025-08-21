@@ -157,9 +157,10 @@ export function Map(props: {
         parseFloat(organization.longitude),
         parseFloat(organization.latitude),
       ];
+      const offsetCoordinateToFocusPopup = coordinates[1] - 0.0002;
 
       mapRef.current.flyTo({
-        center: coordinates as [number, number],
+        center: [coordinates[0], offsetCoordinateToFocusPopup],
         zoom: 18,
         essential: true,
       });
@@ -219,9 +220,10 @@ export function Map(props: {
       const onMove = () => {
         if (mapRef.current !== null) {
           const center = mapRef.current.getCenter();
+
           if (
             Math.abs(center.lng - coordinates[0]) < 0.00001 &&
-            Math.abs(center.lat - coordinates[1]) < 0.00001
+            Math.abs(center.lat - offsetCoordinateToFocusPopup) < 0.00001
           ) {
             popup.addTo(mapRef.current);
             mapRef.current.off("move", onMove);
