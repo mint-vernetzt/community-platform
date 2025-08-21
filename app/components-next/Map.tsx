@@ -125,6 +125,12 @@ export function Map(props: {
     if (ctrlContainerTopRight !== null && embeddable === false) {
       ctrlContainerTopRight.classList.add("maplibregl-ctrl-not-embeddable");
     }
+    const infoCtrlBottomRight = document.querySelector(
+      ".maplibregl-ctrl-bottom-right .maplibregl-compact-show"
+    );
+    if (infoCtrlBottomRight !== null) {
+      infoCtrlBottomRight.classList.remove("maplibregl-compact-show");
+    }
   }, [mapLoaded, embeddable]);
 
   const unclusteredClickHandler = useCallback(
