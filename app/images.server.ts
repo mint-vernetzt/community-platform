@@ -20,6 +20,16 @@ const key = process.env.IMGPROXY_KEY;
 const salt = process.env.IMGPROXY_SALT;
 
 export const ImageSizes = {
+  Search: {
+    Icon: {
+      width: 32,
+      height: 32,
+    },
+    BlurredIcon: {
+      width: 4,
+      height: 4,
+    },
+  },
   Profile: {
     Dashboard: {
       Avatar: {

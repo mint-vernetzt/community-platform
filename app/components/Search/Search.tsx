@@ -1,3 +1,4 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { useEffect, useRef, useState } from "react";
 import { Link, useFetcher, useSearchParams } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -236,18 +237,33 @@ function Search(props: SearchProps) {
       {showResults && (
         <div className="mv-absolute lg:mv-relative mv-top-[76px] lg:mv-top-2 mv-h-[calc(100dvh-76px)] lg:mv-h-auto mv-w-full mv-left-0 mv-z-20">
           <div className="mv-absolute mv-inset-0 mv-bg-black mv-bg-opacity-50 mv-backdrop-blur-sm mv-w-full mv-h-full lg:mv-hidden" />
-          <ul className="mv-absolute mv-inset-0 mv-h-fit mv-bg-white mv-border-t mv-border-b mv-border-neutral-200 lg:mv-border lg:mv-rounded-lg mv-p-4 mv-text-sm mv-text-neutral-700 mv-flex mv-flex-col mv-gap-4">
+          <ul className="mv-absolute mv-inset-0 mv-h-fit mv-bg-white mv-border-t mv-border-b mv-border-neutral-200 lg:mv-border lg:mv-rounded-lg mv-p-4 mv-text-sm mv-text-neutral-700 mv-flex mv-flex-col mv-gap-4 lg:mv-gap-2">
             <ResultItem title={value} />
             {typeof fetcher.data !== "undefined" &&
-              fetcher.data.tags.map((tag, index) => (
+              fetcher.data.entities.map((entity, index) => (
                 <ResultItem
-                  key={`${tag.title}-${tag.type}-${index}`}
-                  title={tag.title}
-                  value={value}
-                  entity={tag.type}
+                  key={`${entity.name}-${entity.type}-${index}`}
+                  title={entity.name}
+                  entity={entity.type}
                   locales={props.locales}
+                  value={value}
+                  url={entity.url}
+                  logo={entity.logo}
+                  blurredLogo={entity.blurredLogo}
                 />
               ))}
+            {typeof fetcher.data !== "undefined" &&
+              fetcher.data.tags
+                .slice(0, 7 - fetcher.data.entities.length)
+                .map((tag, index) => (
+                  <ResultItem
+                    key={`${tag.title}-${tag.type}-${index}`}
+                    title={tag.title}
+                    value={value}
+                    entity={tag.type}
+                    locales={props.locales}
+                  />
+                ))}
           </ul>
         </div>
       )}
@@ -262,16 +278,28 @@ function ResultItem(props: {
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["root"]["route"]["root"]["search"]["entities"];
   value?: string;
+  url?: string;
+  logo?: string | null;
+  blurredLogo?: string;
 }) {
   let to: string;
   if (
-    props.entity === "profile" ||
-    props.entity === "organization" ||
-    props.entity === "event" ||
-    props.entity === "project" ||
-    props.entity === "funding"
+    (props.entity === "profile" ||
+      props.entity === "organization" ||
+      props.entity === "event" ||
+      props.entity === "project" ||
+      props.entity === "funding") &&
+    typeof props.url !== "undefined"
   ) {
-    to = `/explore/${props.entity}s?search=${encodeURIComponent(props.title)}`;
+    to = props.url;
+  } else if (
+    props.entity === "profiles" ||
+    props.entity === "organizations" ||
+    props.entity === "events" ||
+    props.entity === "projects" ||
+    props.entity === "fundings"
+  ) {
+    to = `/explore/${props.entity}?search=${encodeURIComponent(props.title)}`;
   } else {
     to = `/explore/all?search=${encodeURIComponent(props.title)}`;
   }
@@ -313,22 +341,60 @@ function ResultItem(props: {
       <Link
         to={to}
         className="mv-inline-block mv-w-full mv-h-12 mv-px-2 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base hover:mv-bg-neutral-100 mv-rounded focus:mv-ring-2 focus:mv-ring-primary-200"
+        {...(typeof props.url !== "undefined" && props.url.startsWith("http")
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          className="mv-flex-shrink-0"
-          aria-hidden="true"
-        >
-          <path
-            d="M13.2747 12.049C14.1219 10.8929 14.5013 9.45956 14.3371 8.0357C14.1729 6.61183 13.4771 5.30246 12.389 4.36957C11.3008 3.43667 9.90056 2.94903 8.46832 3.00422C7.03607 3.05941 5.67748 3.65335 4.66434 4.66721C3.6512 5.68107 3.05824 7.04009 3.00407 8.47238C2.94991 9.90466 3.43855 11.3046 4.37222 12.3921C5.3059 13.4795 6.61576 14.1744 8.03975 14.3376C9.46373 14.5008 10.8968 14.1203 12.0523 13.2722H12.0515C12.0777 13.3072 12.1057 13.3405 12.1372 13.3729L15.5058 16.7415C15.6699 16.9057 15.8925 16.9979 16.1246 16.998C16.3567 16.9981 16.5793 16.906 16.7435 16.7419C16.9076 16.5779 16.9999 16.3553 17 16.1232C17.0001 15.8911 16.908 15.6685 16.7439 15.5043L13.3753 12.1357C13.344 12.104 13.3104 12.0747 13.2747 12.0482V12.049ZM13.5004 8.68567C13.5004 9.31763 13.3759 9.9434 13.1341 10.5273C12.8922 11.1111 12.5378 11.6416 12.0909 12.0885C11.644 12.5354 11.1135 12.8898 10.5297 13.1317C9.94582 13.3735 9.32004 13.498 8.68808 13.498C8.05612 13.498 7.43034 13.3735 6.84649 13.1317C6.26263 12.8898 5.73212 12.5354 5.28526 12.0885C4.83839 11.6416 4.48392 11.1111 4.24208 10.5273C4.00023 9.9434 3.87576 9.31763 3.87576 8.68567C3.87576 7.40936 4.38277 6.18533 5.28526 5.28284C6.18774 4.38036 7.41177 3.87335 8.68808 3.87335C9.96439 3.87335 11.1884 4.38036 12.0909 5.28284C12.9934 6.18533 13.5004 7.40936 13.5004 8.68567V8.68567Z"
-            fill="#3C4658"
-          />
-        </svg>
-        <div className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-between lg:mv-items-center mv-w-full">
+        <div className="mv-w-8 mv-h-8 mv-flex mv-items-center mv-justify-center">
+          {props.entity === "profile" ||
+          props.entity === "organization" ||
+          props.entity === "event" ||
+          props.entity === "project" ? (
+            <Avatar
+              name={props.title}
+              logo={props.logo}
+              blurredLogo={props.blurredLogo}
+              size="full"
+            />
+          ) : props.entity === "funding" ? (
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M8.63636 3.5C8.63636 3.22386 8.41251 3 8.13636 3H1.5C0.671572 3 0 3.67157 0 4.5V14.5C0 15.3284 0.671573 16 1.5 16H11.5C12.3284 16 13 15.3284 13 14.5V7.86364C13 7.58749 12.7761 7.36364 12.5 7.36364C12.2239 7.36364 12 7.58749 12 7.86364V14.5C12 14.7761 11.7761 15 11.5 15H1.5C1.22386 15 1 14.7761 1 14.5V4.5C1 4.22386 1.22386 4 1.5 4H8.13636C8.41251 4 8.63636 3.77614 8.63636 3.5Z"
+                fill="#4D5970"
+              />
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M16 0.5C16 0.223858 15.7761 0 15.5 0H10.5C10.2239 0 10 0.223858 10 0.5C10 0.776142 10.2239 1 10.5 1H14.2929L6.14645 9.14645C5.95118 9.34171 5.95118 9.65829 6.14645 9.85355C6.34171 10.0488 6.65829 10.0488 6.85355 9.85355L15 1.70711V5.5C15 5.77614 15.2239 6 15.5 6C15.7761 6 16 5.77614 16 5.5V0.5Z"
+                fill="#4D5970"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              className="mv-flex-shrink-0"
+              aria-hidden="true"
+            >
+              <path
+                d="M13.2747 12.049C14.1219 10.8929 14.5013 9.45956 14.3371 8.0357C14.1729 6.61183 13.4771 5.30246 12.389 4.36957C11.3008 3.43667 9.90056 2.94903 8.46832 3.00422C7.03607 3.05941 5.67748 3.65335 4.66434 4.66721C3.6512 5.68107 3.05824 7.04009 3.00407 8.47238C2.94991 9.90466 3.43855 11.3046 4.37222 12.3921C5.3059 13.4795 6.61576 14.1744 8.03975 14.3376C9.46373 14.5008 10.8968 14.1203 12.0523 13.2722H12.0515C12.0777 13.3072 12.1057 13.3405 12.1372 13.3729L15.5058 16.7415C15.6699 16.9057 15.8925 16.9979 16.1246 16.998C16.3567 16.9981 16.5793 16.906 16.7435 16.7419C16.9076 16.5779 16.9999 16.3553 17 16.1232C17.0001 15.8911 16.908 15.6685 16.7439 15.5043L13.3753 12.1357C13.344 12.104 13.3104 12.0747 13.2747 12.0482V12.049ZM13.5004 8.68567C13.5004 9.31763 13.3759 9.9434 13.1341 10.5273C12.8922 11.1111 12.5378 11.6416 12.0909 12.0885C11.644 12.5354 11.1135 12.8898 10.5297 13.1317C9.94582 13.3735 9.32004 13.498 8.68808 13.498C8.05612 13.498 7.43034 13.3735 6.84649 13.1317C6.26263 12.8898 5.73212 12.5354 5.28526 12.0885C4.83839 11.6416 4.48392 11.1111 4.24208 10.5273C4.00023 9.9434 3.87576 9.31763 3.87576 8.68567C3.87576 7.40936 4.38277 6.18533 5.28526 5.28284C6.18774 4.38036 7.41177 3.87335 8.68808 3.87335C9.96439 3.87335 11.1884 4.38036 12.0909 5.28284C12.9934 6.18533 13.5004 7.40936 13.5004 8.68567V8.68567Z"
+                fill="#3C4658"
+              />
+            </svg>
+          )}
+        </div>
+        <div className="mv-flex mv-flex-col lg:mv-flex-row lg:mv-justify-between lg:mv-items-center mv-w-full lg:mv-gap-4">
           <div className="mv-line-clamp-1">{title}</div>
           {typeof props.entity !== "undefined" && (
             <div className="mv-text-neutral-500 mv-font-semibold">

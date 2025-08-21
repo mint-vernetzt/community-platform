@@ -8,7 +8,11 @@ import {
 } from "react-router";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { detectLanguage, getTagsBySearchQuery } from "~/root.server";
+import {
+  detectLanguage,
+  getEntitiesBySearchQuery,
+  getTagsBySearchQuery,
+} from "~/root.server";
 import { getProfileIds } from "./explore/profiles.server";
 
 import { invariantResponse } from "~/lib/utils/response";
@@ -23,6 +27,8 @@ import { getFundingIds } from "./explore/fundings.server";
 import { getProjectIds } from "./explore/projects.server";
 import Search from "~/components/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
+import { getPublicURL } from "~/storage.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -94,6 +100,38 @@ export async function loader(args: LoaderFunctionArgs) {
     searchQuery !== null
       ? await getTagsBySearchQuery(searchQuery, language)
       : [];
+  const entities =
+    searchQuery !== null ? await getEntitiesBySearchQuery(searchQuery) : [];
+
+  const enhancedEntities = entities.map((entity) => {
+    let logo = entity.logo;
+    let blurredLogo;
+    if (typeof logo !== "undefined" && logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.Avatar.width,
+            height: ImageSizes.Profile.NavBar.Avatar.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.BlurredAvatar.width,
+            height: ImageSizes.Profile.NavBar.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return {
+      ...entity,
+      logo,
+      blurredLogo,
+    };
+  });
 
   return {
     locales,
@@ -110,6 +148,7 @@ export async function loader(args: LoaderFunctionArgs) {
       fundings: fundingCount,
     },
     tags,
+    entities: enhancedEntities,
   };
 }
 
