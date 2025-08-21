@@ -200,10 +200,11 @@ export function Map(props: {
         setHighlightedOrganization(null);
         if (
           mapRef.current !== null &&
-          popupClosedByHandlerRef.current === false
+          popupClosedByHandlerRef.current === false &&
+          mapRef.current.getZoom() > 6
         ) {
           mapRef.current.flyTo({
-            center: mapRef.current.getCenter(),
+            center: coordinates as [number, number],
             zoom: 6,
             essential: true,
           });
