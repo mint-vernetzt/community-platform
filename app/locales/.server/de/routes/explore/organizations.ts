@@ -65,4 +65,7 @@ export const locale = {
       cancel: "Abbrechen",
     },
   },
+  root: {
+    community: "Community",
+  },
 } as const;

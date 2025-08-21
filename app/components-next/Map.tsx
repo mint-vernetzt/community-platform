@@ -12,6 +12,7 @@ import { MapPopupClose } from "./icons/MapPopupClose";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { HeaderLogo } from "./HeaderLogo";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
@@ -98,6 +99,15 @@ export function Map(props: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const ctrlContainerTopRight = document.querySelector(
+      ".maplibregl-ctrl-top-right .maplibregl-ctrl"
+    );
+    if (ctrlContainerTopRight !== null && embeddable === false) {
+      ctrlContainerTopRight.classList.add("maplibregl-ctrl-not-embeddable");
+    }
+  }, [mapLoaded, embeddable]);
 
   const unclusteredClickHandler = useCallback(
     (
@@ -530,7 +540,24 @@ export function Map(props: {
           </div>
         </div>
       ) : null}
-      {embeddable === false ? (
+      {embeddable === true ? (
+        <div className="mv-absolute mv-top-4 mv-right-4 mv-z-10">
+          <Link
+            to="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={locales.components.Map.toThePlatform}
+          >
+            <HeaderLogo
+              locales={props.locales}
+              width={32}
+              height={32}
+              aria-hidden="true"
+              showLabel={false}
+            />
+          </Link>
+        </div>
+      ) : (
         <div
           className={`mv-absolute ${
             mapMenuIsOpen === true ? "mv-left-[344px]" : "mv-left-2"
@@ -554,7 +581,7 @@ export function Map(props: {
             ])}
           </Alert>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

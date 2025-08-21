@@ -105,7 +105,7 @@ export function NavBar(props: NavBarProps) {
               : ""
           }
         >
-          <HeaderLogo locales={props.locales} />
+          <HeaderLogo locales={props.locales} aria-hidden="true" />
         </Link>
         {props.sessionUserInfo !== undefined && (
           <div

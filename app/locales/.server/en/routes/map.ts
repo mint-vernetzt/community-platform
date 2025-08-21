@@ -1,1 +1,5 @@
-export const locale = {} as const;
+export const locale = {
+  root: {
+    community: "Community",
+  },
+} as const;
