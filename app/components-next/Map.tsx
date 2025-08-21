@@ -456,7 +456,7 @@ export function Map(props: {
         ref={mapContainer}
         className={`mv-absolute mv-h-full mv-min-h-[284px] mv-overflow-hidden ${
           mapLoaded === true
-            ? mapMenuIsOpen === true
+            ? mapMenuIsOpen === true && organizations.length > 0
               ? "mv-left-0 mv-w-full md:mv-left-[336px] md:mv-w-[calc(100%-336px)]"
               : "mv-w-full"
             : "mv-w-0"
@@ -587,14 +587,16 @@ export function Map(props: {
       {embeddable === false && hideAlert === false ? (
         <div
           className={`mv-absolute ${
-            mapMenuIsOpen === true
+            mapMenuIsOpen === true && organizations.length > 0
               ? "mv-hidden md:mv-block mv-left-[344px]"
               : "mv-left-2"
           } mv-bottom-2 mv-right-2 mv-z-10 mv-h-fit`}
         >
           <Alert
             position="relative"
-            textAlign={mapMenuIsOpen ? "left" : "center"}
+            textAlign={
+              mapMenuIsOpen && organizations.length > 0 ? "left" : "center"
+            }
             truncate={false}
             level="neutral"
             onClose={() => {
