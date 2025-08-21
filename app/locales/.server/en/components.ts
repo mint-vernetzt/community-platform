@@ -28,5 +28,7 @@ export const locale = {
     openMenu: "Open organization list",
     closeMenu: "Close organization list",
     organizationCardCta: "View organization",
+    whatIsShown:
+      "On the map, only organizations that have provided their address are shown. If you have further questions about the map, <0>here is the help section</0>.",
   },
 } as const;
