@@ -11,17 +11,21 @@ type AlertProps = {
   truncate?: boolean;
 };
 
-export function Alert(props: AlertProps) {
+export function Alert(props: AlertProps & { onClose?: () => void }) {
   const {
     level = "positive",
     position = "absolute",
     textAlign = "center",
     truncate = true,
+    onClose,
   } = props;
   const [show, setShow] = useState(true);
 
   const handleClick = () => {
     setShow(false);
+    if (typeof onClose !== "undefined") {
+      onClose();
+    }
   };
 
   useEffect(() => {

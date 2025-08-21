@@ -1,20 +1,21 @@
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
+import Cookies from "js-cookie";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams, useSubmit } from "react-router";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { type ArrayElement } from "~/lib/utils/types";
 import { type MapLocales } from "~/routes/map.server";
+import { HeaderLogo } from "./HeaderLogo";
 import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import { type ArrayElement } from "~/lib/utils/types";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { HeaderLogo } from "./HeaderLogo";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -56,10 +57,22 @@ export function Map(props: {
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
+
   let isMobile = false;
   if (typeof window !== "undefined") {
     isMobile = window.matchMedia("(max-width: 768px)").matches;
   }
+
+  const [hideAlert, setHideAlert] = useState(false);
+
+  useEffect(() => {
+    const hideAlertCookie = Cookies.get(
+      "mv-hide-explore-organization-map-alert"
+    );
+    if (hideAlertCookie === "true") {
+      setHideAlert(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -569,7 +582,8 @@ export function Map(props: {
             />
           </Link>
         </div>
-      ) : (
+      ) : null}
+      {embeddable === false && hideAlert === false ? (
         <div
           className={`mv-absolute ${
             mapMenuIsOpen === true
@@ -582,6 +596,11 @@ export function Map(props: {
             textAlign={mapMenuIsOpen ? "left" : "center"}
             truncate={false}
             level="neutral"
+            onClose={() => {
+              Cookies.set("mv-hide-explore-organization-map-alert", "true", {
+                sameSite: "strict",
+              });
+            }}
           >
             {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
               <Link
@@ -595,7 +614,7 @@ export function Map(props: {
             ])}
           </Alert>
         </div>
-      )}
+      ) : null}
     </>
   );
 }
