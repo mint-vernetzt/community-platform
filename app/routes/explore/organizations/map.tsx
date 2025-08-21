@@ -111,7 +111,7 @@ export default function ExploreOrganizationsList() {
 
   return typeof parentLoaderData !== "undefined" ? (
     <div className="mv-w-full mv-px-4">
-      <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
+      <div className="mv-w-full mv-relative @sm:mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-min-h-[284px] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
         <Map
           organizations={parentLoaderData.organizations
             .filter((organization) => {
@@ -139,7 +139,7 @@ export default function ExploreOrganizationsList() {
           language={parentLoaderData.language}
         />
       </div>
-      <div className="mv-w-full mv-flex mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
+      <div className="mv-hidden @lg:mv-flex mv-w-full mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
         <Modal searchParam="modal-embed">
           <Modal.Title>
             {parentLoaderData.locales.route.map.embedModal.title}

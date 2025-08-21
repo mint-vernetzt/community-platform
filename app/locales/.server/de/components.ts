@@ -30,5 +30,7 @@ export const locale = {
     closeMenu: "Organisationsliste schließen",
     organizationCardCta: "Organisation ansehen",
     toThePlatform: "Zur MINTvernetzt-Community-Plattform",
+    whatIsShown:
+      "Auf der Karte werden nur Organisationen gezeigt, die ihre Adresse angegeben haben. Hast Du weitere Fragen zur Karte? <0>Hier geht’s zum Hilfebereich</0>.",
   },
 } as const;

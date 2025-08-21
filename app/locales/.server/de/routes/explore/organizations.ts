@@ -45,7 +45,7 @@ export const locale = {
   showNumberOfItems_one: "{{count}} Organisation anzeigen",
   showNumberOfItems_other: "{{count}} Organisationen anzeigen",
   map: {
-    embed: "Aktuelle Ansicht auf der eigenen Website einbinden?",
+    embed: "Aktuelle Ansicht auf der eigenen Website einbinden",
     embedModal: {
       title: "Kartenansicht einbetten",
       subline:

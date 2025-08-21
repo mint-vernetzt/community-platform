@@ -46,7 +46,7 @@ export const locale = {
   showNumberOfItems_one: "Show {{count}} organization",
   showNumberOfItems_other: "Show {{count}} organizations",
   map: {
-    embed: "Embed current view on your own website?",
+    embed: "Embed current view on your own website",
     embedModal: {
       title: "Embed map view",
       subline:

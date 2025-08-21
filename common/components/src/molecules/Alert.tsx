@@ -1,16 +1,23 @@
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 
-export type AlertLevel = "positive" | "attention" | "negative";
+export type AlertLevel = "neutral" | "positive" | "attention" | "negative";
 
 type AlertProps = {
   children: React.ReactNode;
   level?: AlertLevel;
   position?: "absolute" | "relative";
+  textAlign?: "left" | "center";
+  truncate?: boolean;
 };
 
 export function Alert(props: AlertProps) {
-  const { level = "positive", position = "absolute" } = props;
+  const {
+    level = "positive",
+    position = "absolute",
+    textAlign = "center",
+    truncate = true,
+  } = props;
   const [show, setShow] = useState(true);
 
   const handleClick = () => {
@@ -27,6 +34,7 @@ export function Alert(props: AlertProps) {
 
   const classes = classNames(
     "mv-w-full mv-px-4 mv-py-2 mv-flex mv-justify-end mv-gap-2 mv-text-sm mv-font-semibold mv-rounded",
+    level === "neutral" && "mv-bg-primary-50 mv-text-primary-700",
     level === "positive" && "mv-bg-positive-200 mv-text-positive-900",
     level === "attention" && "mv-bg-attention-200 mv-text-attention-900",
     level === "negative" && "mv-bg-negative-100 mv-text-negative-900"
@@ -41,7 +49,11 @@ export function Alert(props: AlertProps) {
       }`}
     >
       <div className={classes}>
-        <div className="mv-w-full mv-text-center mv-truncate">
+        <div
+          className={`mv-w-full ${
+            textAlign === "left" ? "mv-text-left" : "mv-text-center"
+          }${truncate ? " mv-truncate" : ""}`}
+        >
           {props.children}
         </div>
         <button onClick={handleClick}>
