@@ -871,6 +871,7 @@ export async function getEventsBySearchQuery(searchQuery: string) {
           },
         };
       }),
+      published: true,
     },
     select: {
       name: true,
@@ -909,6 +910,7 @@ export async function getProjectsBySearchQuery(searchQuery: string) {
           },
         };
       }),
+      published: true,
     },
     select: {
       name: true,
