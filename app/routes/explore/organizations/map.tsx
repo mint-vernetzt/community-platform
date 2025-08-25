@@ -151,7 +151,7 @@ export default function ExploreOrganizationsList() {
                 [
                   <Link
                     key="help-link-in-modal"
-                    to="/help#TODO"
+                    to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
                     target="_blank"
                     className="mv-text-primary hover:mv-underline mv-w-fit mv-inline-flex"
                   >
@@ -245,7 +245,7 @@ export default function ExploreOrganizationsList() {
           {parentLoaderData.locales.route.map.embed}
         </TextButton>
         <Link
-          to="/help#TODO"
+          to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
           target="_blank"
           className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
         >

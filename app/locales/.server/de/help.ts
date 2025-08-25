@@ -92,7 +92,7 @@ export const locale = {
       },
     },
     organizations: {
-      headline: "Fragen zu Organisation / Netzwerk",
+      headline: "Fragen zu Organisationen und Netzwerken",
       qAndAs: {
         networkVsOrganizationVsProject: {
           question:
@@ -129,6 +129,120 @@ export const locale = {
             "Meine Organisation ist kein Netzwerk, aber Teil eines Netzwerks. Wie kann ich das angeben?",
           answer:
             '<p>Du gelangst zu Deinen Organisationen über den Navigationspunkt <b>Mein MINT-Bereich > Meine Organisationen</b>. In einer Tabelle siehst Du die Organisationen, bei denen Du Admin bist. Klicke auf das Symbol mit den drei Punkten <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> und wähle <b>Bearbeiten</b>.</br></br>Alternativ kannst Du auch auf die Karte Deiner Organisation (Box mit Infos zu Deiner Organisation) klicken. Du wirst dann auf die Detailseite Deiner Organisation geführt. Klicke hier auf den Bearbeiten-Button. So gelangst Du in Deine <b>Organisationseinstellungen</b>. Unter <b>“Organisation verwalten“</b> kannst unter der Abfrage <b>“Ist Deine Organisation Teil eines Netzwerks?“</b> Organisationen auswählen, die auf der Plattform bereits angelegt sind, und fragst den <b>Beitritt zum Netzwerk</b> an. Sobald die Admins dieser Organisationen Deine Beitrittsanfrage bestätigen, wird Deine Organisation als Netzwerkmitglied gelistet. Das ist zum einen auf der Organisations-Detailseite Deiner Organisation unter “Netzwerk“ sichtbar und zum anderen wird Deine Organisation auch als Netzwerkmitglied auf der Detailseite der Netzwerk-Organisation gelistet.</p>',
+        },
+        exploreOrganizations: {
+          question: "Wo finde ich eine Übersicht aller Organisationen?",
+          answer:
+            '<p>Unter <b>Entdecken > Organisationen</b> kannst Du Dir alle Organisationen anzeigen lassen, die auf der Plattform angelegt sind. Du kannst wählen, ob Dir die Organisationen in der Listen- oder Kartenansicht angezeigt werden sollen.</br></br>Hier findest Du <a href="/help#organizationMapView">Hinweise zur Kartenansicht der Organisationen</a>.</p>',
+        },
+        filterOrganizationsByArea: {
+          question:
+            "Wie kann ich Organisationen nach Bundesland oder Stadt filtern?",
+          answer:
+            "<p>Nutze die Filter „Ort / Gebiet“. Dort kannst Du z. B. „Sachsen“ oder „Leipzig“ eingeben.</p>",
+        },
+        filterOrganizationsByNetworkType: {
+          question: "Welche Netzwerkformen kann ich auswählen?",
+          answer:
+            "<p>Du kannst nach folgenden Netzwerkformen filtern: Bündnis, MINT-Cluster, MINT-Region, Landesinitiative oder Sonstiges Netzwerk.</p>",
+        },
+        filterOrganizationsByFocus: {
+          question:
+            "Was bedeutet „Arbeitsschwerpunkte“ und welche Auswahlmöglichkeiten gibt es?",
+          answer:
+            "<p>„Arbeitsschwerpunkte“ beschreibt, zu welchen Themen eine Organisation arbeitet – z. B. Diversität, frühkindliche Bildung, Bildung für nachhaltige Entwicklung, Berufsorientierung und viele weitere.</p>",
+        },
+        filterOrganizationsByMultipleCriteria: {
+          question:
+            "Kann ich nach mehreren Kriterien gleichzeitig filtern (z. B. Ort und Arbeitsschwerpunkt)?",
+          answer:
+            "<p>Ja. Die Liste bzw. Karte zeigt Dir dann nur Organisationen an, die <i>alle</i> ausgewählten Kriterien erfüllen.</p>",
+        },
+        filterOrganizationsByNetwork: {
+          question: "Kann ich gezielt nach einem bestimmten Netzwerk filtern?",
+          answer:
+            "<p>Ja. Wähle im Filter „Netzwerk“ z. B. „Schülerforschungszentren/SFZ-Netzwerk“ aus, und Dir werden alle dazugehörigen Organisationen angezeigt.</p>",
+        },
+        whatAreProvisionalOrganizations: {
+          question: "Was sind „von uns angelegte Organisationsprofile“?",
+          answer:
+            '<p>Von uns angelegte Organisationsprofile sind Profile von Organisationen, die wir anhand von Daten von externen Übersichtsseiten zusammengetragen haben. Die Daten stammen von folgenden Seiten:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>Diese Organisationsprofile haben noch keine Administrator:innen und keine Teammitglieder auf der Plattform. Diese von uns angelegten Organisationsprofile können von den entsprechenden Akteur:innen als ihre Organisation übernommen werden. Es gibt verschiedene Wege, die Verwaltung dieser Organisationsprofile anzufragen. Wie das möglich ist, wird innerhalb der nächsten Frage und Antwort beantwortet.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        howToClaimProvisionalOrganizations: {
+          question:
+            "Wie kann ich das von der MINTvernetzt Community-Plattform erstellte Organisationsprofil meiner Organisation übernehmen?",
+          answer:
+            '<p>Es gibt mehrere Wege das Organisationsprofil einer von uns angelegten Organisation zu übernehmen:</br></br><ul><li>Zum einem kannst Du auf der Organisationsdetailseite einer von uns angelegten der Organisation den Button <b>„Übernehmen“</b> klicken.</li><li>Zweite Möglichkeit: Wenn Du beim Anlegen einer Organisation feststellst, dass Deine Organisation schon auf der Plattform, als von uns angelegte Organisation existiert, kannst Du sie direkt übernehmen und Administrator:in werden. Klicke dafür auf <b>„Organisation übernehmen“</b>.</li><li>Dritte Möglichkeit: Du kannst das Organisationsprofil auch übernehmen, wenn Du unter <b>Mein MINT-Bereich > Meine Organisationen > „Mich zu einer Organisation hinzufügen“</b> die von uns angelegte Organisation suchst und auf <b>„Organisation übernehmen“</b> klickst.</li></ul></br></br>In jedem dieser Fälle wird eine E-Mail an uns gesendet. Wir überprüfen Deine Anfrage und schalten Dich nach erfolgreicher Prüfung als Administrator:in frei.</br></br>Hast Du weitere Fragen oder benötigst Unterstützung, melde Dich gern unter <a href="mailto:support@mintvernetzt.de">support@mintvernetzt.de</a>.</p>',
+          featureFlag: "provisional_organizations",
+        },
+      },
+    },
+    organizationMapView: {
+      headline: "Fragen zur Kartenansicht der Organisationen",
+      qAndAs: {
+        whereToFind: {
+          question: "Wo finde ich die Kartenansicht der Organisationen?",
+          answer:
+            "<p>Unter <b>Entdecken > Organisationen</b> kannst Du wählen, ob Dir die Organisationen in der Listen- oder Kartenansicht angezeigt werden sollen.</p>",
+        },
+        whatIsShown: {
+          question: "Was zeigt mir die Karte genau an?",
+          answer:
+            "<p>Die Karte zeigt Dir MINT-Organisationen aus ganz Deutschland und darüber hinaus an, <b>deren Adressen auf der Plattform hinterlegt sind</b>. Innerhalb des Filters Ort / Gebiet kannst Du gezielt nach bestimmten Orten oder Gebieten filtern.</p>",
+        },
+        showOrganizationsNearBy: {
+          question:
+            "Kann ich mir auch nur Organisationen in meiner Nähe anzeigen lassen?",
+          answer:
+            "<p>Ja. Gib einfach Deinen Ort oder Dein Bundesland in den Filter ein.</p>",
+        },
+        isLoginRequired: {
+          question: "Muss ich für die Nutzung der Karte eingeloggt sein?",
+          answer:
+            "<p>Nein, Du kannst die Karte auch ohne Login nutzen. Wenn Du Deine eigene Organisation auf die Karte bringen möchtest, brauchst Du allerdings ein Profil auf der Plattform.</p>",
+        },
+        areAllOrganizationsPresent: {
+          question:
+            "Sind auf der Karte alle MINT-Organisationen in Deutschland zu finden?",
+          answer:
+            '<p>Es werden zum Einen die Organisationen angezeigt, die ein Profil auf der Plattform haben und <b>auch ihre Adresse</b> angegeben haben. Die Karte wächst also mit jeder neuen Organisation, die sich einträgt. Zum Anderen werden auf der Karte auch <b><a href="/help#whatAreProvisionalOrganizations">von uns angelegte Organisationsprofile</a></b> angezeigt, deren Daten wir auf externen Übersichtsseiten, wie bspw. auf <a href="https://www.schuelerforschungszentren.de" target="_blank" rel="noopener noreferrer">www.schuelerforschungszentren.de</a> gefunden und geprüft haben.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        showOwnOrganizationOnMap: {
+          question:
+            "Wie kann ich meine eigene Organisation auf der Karte sichtbar machen?",
+          answer:
+            "<p>Lege auf der Plattform ein Organisationsprofil an oder bearbeite Dein bestehendes Profil. Gib dabei die Adresse, die Organisationsform, Netzwerkform(en) und Arbeitsschwerpunkte an. Sobald die Angaben gespeichert sind, erscheint Deine Organisation automatisch auf der Karte.</p>",
+        },
+        currentnessOfData: {
+          question: "Wie aktuell sind die Daten auf der Karte?",
+          answer:
+            '<p>Die Karte wird automatisch aktualisiert, sobald Organisationen ihre Angaben ändern oder neue Organisationen hinzukommen. Die Daten, der <b><a href="/help#whatAreProvisionalOrganizations">von uns angelegten Organisationsprofile</a></b>, stammen vom August 2025.</p>',
+          featureFlag: "provisional_organizations",
+        },
+        cannotFindMyOrganization: {
+          question:
+            "Meine Organisation ist auf der Karte nicht zu finden – was kann ich tun?",
+          answer:
+            '<p>Das liegt meist daran, dass Dein Organisationsprofil auf der Plattform nicht existiert oder nicht vollständig ausgefüllt ist. Prüfe Dein Profil unter <b>Mein MINT-Bereich > Meine Organisationen</b> und ergänze fehlende Angaben zur Adresse. Danach sollte Deine Organisation auf der Karte erscheinen.</br></br>Melde Dich gern unter <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>, wenn Du weitere Unterstützung benötigst.</p>',
+        },
+        howToEmbedMapOnMyWebsite: {
+          question:
+            "Wie funktioniert das Einfügen der Karte per iFrame auf meiner eigenen Website?",
+          answer:
+            "<p><ol><li>Stelle die Karte so ein, wie Du sie brauchst (Suchbegriff eingeben, Filter setzen).</li><li>Klicke auf „Die aktuelle Kartenansicht auf der eigenen Website einbinden.“ unterhalb der Kartenansicht.</li><li>Kopiere den angezeigten Code zum Einbinden (iFrame-Code).</li><li>Füge diesen Code an der gewünschten Stelle in den HTML-Bereich Deiner Website ein.</li></ol></br></br>Fertig – Deine Website zeigt nun genau die Kartenansicht, die Du eingestellt hast.</p>",
+        },
+        isTheFilterPersistentWhenEmbedding: {
+          question:
+            "Bleiben die Filtereinstellungen erhalten, wenn ich die Karte einbette?",
+          answer:
+            "<p>Ja. Die Besucher:innen Deiner Website sehen genau die Auswahl an Organisationen, die Du vor dem Kopieren des Codes durch den Filter eingestellt hast.</p>",
+        },
+        knowledgeNeededToEmbed: {
+          question: "Muss ich für die Einbettung technische Kenntnisse haben?",
+          answer:
+            "<p>Ein kleines bisschen: Du musst den Code zum Einbinden an der richtigen Stelle in Deine Website einfügen – so wie bei einem YouTube-Video. Wenn Du unsicher bist, hilft Dir meist die Person, die Deine Website betreut.</p>",
         },
       },
     },

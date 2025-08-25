@@ -714,7 +714,7 @@ export function Map(props: {
             {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
               <Link
                 key="help-link"
-                to="/help#TODO"
+                to="/help#organizationMapView"
                 target="_blank"
                 className="mv-font-bold hover:mv-underline"
               >
