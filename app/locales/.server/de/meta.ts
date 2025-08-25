@@ -43,6 +43,11 @@ export const locale = {
         event: "Event",
         project: "Projekt",
         funding: "Förderung",
+        profiles: "Personen",
+        organizations: "Organisationen",
+        events: "Events",
+        projects: "Projekte",
+        fundings: "Förderungen",
       },
     },
     menu: {

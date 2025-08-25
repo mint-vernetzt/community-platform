@@ -769,6 +769,292 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
   ];
 }
 
+export async function getProfilesBySearchQuery(searchQuery: string) {
+  const words = searchQuery.split(" ").filter((word) => {
+    return word.length > 0 && word !== "";
+  });
+
+  const profiles = await prismaClient.profile.findMany({
+    where: {
+      OR: words.map((word) => {
+        return {
+          OR: [
+            {
+              firstName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            {
+              lastName: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+          ],
+        };
+      }),
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      username: true,
+      avatar: true,
+    },
+  });
+
+  const normalizedProfiles = profiles.map((profile) => {
+    const name = `${profile.firstName} ${profile.lastName}`;
+    const url = `/profile/${profile.username}`;
+    const logo = profile.avatar;
+
+    return {
+      name,
+      url,
+      logo,
+    };
+  });
+
+  return normalizedProfiles;
+}
+
+export async function getOrganizationsBySearchQuery(searchQuery: string) {
+  const words = searchQuery.split(" ").filter((word) => {
+    return word.length > 0 && word !== "";
+  });
+
+  const organizations = await prismaClient.organization.findMany({
+    where: {
+      OR: words.map((word) => {
+        return {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        };
+      }),
+    },
+    select: {
+      name: true,
+      slug: true,
+      logo: true,
+    },
+  });
+
+  const normalizedOrganizations = organizations.map((organization) => {
+    const name = organization.name;
+    const url = `/organization/${organization.slug}`;
+    const logo = organization.logo;
+
+    return {
+      name,
+      url,
+      logo,
+    };
+  });
+
+  return normalizedOrganizations;
+}
+
+export async function getEventsBySearchQuery(searchQuery: string) {
+  const words = searchQuery.split(" ").filter((word) => {
+    return word.length > 0 && word !== "";
+  });
+
+  const events = await prismaClient.event.findMany({
+    where: {
+      OR: words.map((word) => {
+        return {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        };
+      }),
+    },
+    select: {
+      name: true,
+      slug: true,
+      background: true,
+    },
+  });
+
+  const normalizedEvents = events.map((event) => {
+    const name = event.name;
+    const url = `/event/${event.slug}`;
+    const logo = event.background;
+
+    return {
+      name,
+      url,
+      logo,
+    };
+  });
+
+  return normalizedEvents;
+}
+
+export async function getProjectsBySearchQuery(searchQuery: string) {
+  const words = searchQuery.split(" ").filter((word) => {
+    return word.length > 0 && word !== "";
+  });
+
+  const projects = await prismaClient.project.findMany({
+    where: {
+      OR: words.map((word) => {
+        return {
+          name: {
+            contains: word,
+            mode: "insensitive",
+          },
+        };
+      }),
+    },
+    select: {
+      name: true,
+      slug: true,
+      logo: true,
+    },
+  });
+
+  const normalizedProjects = projects.map((project) => {
+    const name = project.name;
+    const url = `/project/${project.slug}`;
+    const logo = project.logo;
+
+    return {
+      name,
+      url,
+      logo,
+    };
+  });
+
+  return normalizedProjects;
+}
+
+export async function getFundingsBySearchQuery(searchQuery: string) {
+  const words = searchQuery.split(" ").filter((word) => {
+    return word.length > 0 && word !== "";
+  });
+
+  const fundings = await prismaClient.funding.findMany({
+    where: {
+      OR: words.map((word) => {
+        return {
+          title: {
+            contains: word,
+            mode: "insensitive",
+          },
+        };
+      }),
+    },
+    select: {
+      title: true,
+      url: true,
+    },
+  });
+
+  const normalizedFundings = fundings.map((funding) => {
+    const name = funding.title;
+    const url = funding.url;
+
+    return {
+      name,
+      url,
+    };
+  });
+
+  return normalizedFundings;
+}
+
+export async function getEntitiesBySearchQuery(searchQuery: string) {
+  const profiles = await getProfilesBySearchQuery(searchQuery);
+  const organizations = await getOrganizationsBySearchQuery(searchQuery);
+  const events = await getEventsBySearchQuery(searchQuery);
+  const projects = await getProjectsBySearchQuery(searchQuery);
+  const fundings = await getFundingsBySearchQuery(searchQuery);
+  const entities: {
+    type: "profile" | "organization" | "event" | "project" | "funding";
+    name: string;
+    url: string;
+    logo?: string | null;
+  }[] = [];
+
+  const maxEntities = 7;
+  let profileIndex = 0;
+  let organizationIndex = 0;
+  let eventIndex = 0;
+  let projectIndex = 0;
+  let fundingIndex = 0;
+
+  while (entities.length < maxEntities) {
+    if (profileIndex < profiles.length) {
+      entities.push({
+        type: "profile",
+        ...profiles[profileIndex],
+      });
+      profileIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+    if (organizationIndex < organizations.length) {
+      entities.push({
+        type: "organization",
+        ...organizations[organizationIndex],
+      });
+      organizationIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+    if (eventIndex < events.length) {
+      entities.push({
+        type: "event",
+        ...events[eventIndex],
+      });
+      eventIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (projectIndex < projects.length) {
+      entities.push({
+        type: "project",
+        ...projects[projectIndex],
+      });
+      projectIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (fundingIndex < fundings.length) {
+      entities.push({
+        type: "funding",
+        ...fundings[fundingIndex],
+      });
+      fundingIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (
+      profileIndex >= profiles.length &&
+      organizationIndex >= organizations.length &&
+      eventIndex >= events.length &&
+      projectIndex >= projects.length &&
+      fundingIndex >= fundings.length
+    ) {
+      break;
+    }
+  }
+
+  return entities;
+}
+
 export async function getTagsBySearchQuery(
   searchQuery: string,
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
@@ -794,7 +1080,7 @@ export async function getTagsBySearchQuery(
 
   // Create alternately tags array from profile and organization tags
   const tags: {
-    type: "profile" | "organization" | "event" | "project" | "funding";
+    type: "profiles" | "organizations" | "events" | "projects" | "fundings";
     title: string;
   }[] = [];
   const maxTags = 7;
@@ -807,7 +1093,7 @@ export async function getTagsBySearchQuery(
   while (tags.length < maxTags) {
     if (profileTagsIndex < profileTags.length) {
       tags.push({
-        type: "profile",
+        type: "profiles",
         title: profileTags[profileTagsIndex].title,
       });
       profileTagsIndex++;
@@ -817,7 +1103,7 @@ export async function getTagsBySearchQuery(
     }
     if (organizationTagsIndex < organizationTags.length) {
       tags.push({
-        type: "organization",
+        type: "organizations",
         title: organizationTags[organizationTagsIndex].title,
       });
       organizationTagsIndex++;
@@ -827,7 +1113,7 @@ export async function getTagsBySearchQuery(
     }
     if (eventTagsIndex < eventTags.length) {
       tags.push({
-        type: "event",
+        type: "events",
         title: eventTags[eventTagsIndex].title,
       });
       eventTagsIndex++;
@@ -837,7 +1123,7 @@ export async function getTagsBySearchQuery(
     }
     if (projectTagsIndex < projectTags.length) {
       tags.push({
-        type: "project",
+        type: "projects",
         title: projectTags[projectTagsIndex].title,
       });
       projectTagsIndex++;
@@ -847,7 +1133,7 @@ export async function getTagsBySearchQuery(
     }
     if (fundingTagsIndex < fundingTags.length) {
       tags.push({
-        type: "funding",
+        type: "fundings",
         title: fundingTags[fundingTagsIndex].title,
       });
       fundingTagsIndex++;

@@ -40,6 +40,11 @@ export const locale = {
         event: "Event",
         project: "Project",
         funding: "Funding",
+        profiles: "Persons",
+        organizations: "Organizations",
+        events: "Events",
+        projects: "Projects",
+        fundings: "Fundings",
       },
     },
     cropper: {

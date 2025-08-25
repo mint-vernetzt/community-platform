@@ -42,7 +42,11 @@ import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
 import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
-import { getProfileByUserId, getTagsBySearchQuery } from "./root.server";
+import {
+  getEntitiesBySearchQuery,
+  getProfileByUserId,
+  getTagsBySearchQuery,
+} from "./root.server";
 import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
@@ -160,6 +164,38 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchQuery !== null
       ? await getTagsBySearchQuery(searchQuery, language)
       : [];
+  const entities =
+    searchQuery !== null ? await getEntitiesBySearchQuery(searchQuery) : [];
+
+  const enhancedEntities = entities.map((entity) => {
+    let logo = entity.logo;
+    let blurredLogo;
+    if (typeof logo !== "undefined" && logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.Avatar.width,
+            height: ImageSizes.Profile.NavBar.Avatar.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.BlurredAvatar.width,
+            height: ImageSizes.Profile.NavBar.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return {
+      ...entity,
+      logo,
+      blurredLogo,
+    };
+  });
 
   return data(
     {
@@ -177,6 +213,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
         url: request.url,
       },
       tags,
+      entities: enhancedEntities,
     },
     {
       headers: combineHeaders(

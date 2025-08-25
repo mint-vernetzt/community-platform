@@ -21,7 +21,11 @@ import {
   MaxImageSizes,
   MinCropSizes,
 } from "~/images.shared";
-import { detectLanguage, getTagsBySearchQuery } from "~/root.server";
+import {
+  detectLanguage,
+  getEntitiesBySearchQuery,
+  getTagsBySearchQuery,
+} from "~/root.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 // import styles from "../../common/design/styles/styles.css?url";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
@@ -550,6 +554,38 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchQuery !== null
       ? await getTagsBySearchQuery(searchQuery, language)
       : [];
+  const entities =
+    searchQuery !== null ? await getEntitiesBySearchQuery(searchQuery) : [];
+
+  const enhancedEntities = entities.map((entity) => {
+    let logo = entity.logo;
+    let blurredLogo;
+    if (typeof logo !== "undefined" && logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.Avatar.width,
+            height: ImageSizes.Profile.NavBar.Avatar.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.NavBar.BlurredAvatar.width,
+            height: ImageSizes.Profile.NavBar.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return {
+      ...entity,
+      logo,
+      blurredLogo,
+    };
+  });
 
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
@@ -571,6 +607,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     ...profile,
     currentTimestamp: Date.now(),
     tags,
+    entities: enhancedEntities,
   };
 };
 
