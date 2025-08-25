@@ -515,7 +515,7 @@ function General() {
                         name: fields.formats.name,
                         defaultValue: format.id,
                       })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>
@@ -727,7 +727,7 @@ function General() {
                           name: fields.areas.name,
                           defaultValue: filteredOption.value,
                         })}
-                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                        {...ConformSelect.getListItemChildrenStyles()}
                       >
                         {filteredOption.label}
                       </button>
@@ -738,7 +738,7 @@ function General() {
                     return (
                       <div
                         key={`${filteredOption.label}-${index}-divider`}
-                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-500 mv-py-1 mv-px-2"
+                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-600 mv-font-semibold mv-py-1 mv-px-2"
                       >
                         {filteredOption.label}
                       </div>

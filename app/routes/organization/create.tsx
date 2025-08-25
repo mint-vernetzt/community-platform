@@ -579,7 +579,7 @@ function CreateOrganization() {
                     })}
                     form={createOrganizationForm.id}
                     key={filteredOrganizationType.id}
-                    className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    {...ConformSelect.getListItemChildrenStyles()}
                   >
                     {title}
                   </button>
@@ -712,7 +712,7 @@ function CreateOrganization() {
                     form={createOrganizationForm.id}
                     key={filteredNetworkType.id}
                     disabled={!isNetwork}
-                    className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                    {...ConformSelect.getListItemChildrenStyles()}
                   >
                     {title}
                   </button>

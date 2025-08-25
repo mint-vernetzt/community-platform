@@ -788,7 +788,7 @@ function Details() {
                         name: fields.disciplines.name,
                         defaultValue: discipline.id,
                       })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>
@@ -914,7 +914,7 @@ function Details() {
                         defaultValue: filteredAdditionalDiscipline.id,
                       })}
                       disabled={hasDisciplines === false}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>
@@ -1173,7 +1173,7 @@ function Details() {
                         name: fields.projectTargetGroups.name,
                         defaultValue: filteredTargetGroup.id,
                       })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>
@@ -1286,7 +1286,7 @@ function Details() {
                         name: fields.specialTargetGroups.name,
                         defaultValue: filteredSpecialTargetGroup.id,
                       })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>

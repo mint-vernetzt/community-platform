@@ -71,19 +71,19 @@ function ConformSelectInput(props: {
       />
       <label
         ref={labelRef}
-        className={`mv-relative mv-bg-white mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-p-2 mv-pr-12 mv-text-base mv-leading-snug mv-font-semibold group-focus-within/conform-select:mv-border-blue-400 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 ${
-          disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-800"
+        className={`mv-relative mv-flex mv-gap-2.5 mv-justify-between mv-bg-white mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-pl-3 mv-py-2 mv-pr-2 mv-text-base mv-leading-5 mv-font-semibold peer-focus:mv-border-primary-200 peer-focus:mv-ring-1 peer-focus:mv-ring-primary-200 peer-checked:mv-rounded-b-none ${
+          disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-600"
         }`}
         htmlFor={id}
       >
-        {cta}
+        <span>{cta}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="21"
           fill="none"
           viewBox="0 0 20 21"
-          className="mv-absolute mv-right-2 mv-top-2 group-has-[:checked]/conform-select:mv-rotate-180"
+          className="group-has-[:checked]/conform-select:mv-rotate-180"
         >
           <path
             stroke="#262D38"
@@ -96,7 +96,7 @@ function ConformSelectInput(props: {
       </label>
       <ul
         ref={listRef}
-        className="mv-absolute mv-top-[70px] mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-lg mv-p-2 mv-border mv-border-gray-300"
+        className="mv-absolute mv-top-[64px] mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-b-lg mv-border mv-border-gray-300 mv-border-t-transparent peer-focus:mv-border-t-primary-200"
       >
         {listItems.map((button) => {
           if (isValidElement(button)) {
@@ -104,7 +104,7 @@ function ConformSelectInput(props: {
               return (
                 <li
                   key={button.key}
-                  className="mv-w-full hover:mv-text-white hover:mv-bg-primary-200 focus-within:mv-text-white focus-within:mv-bg-primary-200 mv-rounded focus-within:mv-rounded-none"
+                  className="mv-border-2 mv-border-transparent hover:mv-bg-neutral-100 focus-within:mv-border-primary-200 last:mv-rounded-b-lg"
                 >
                   {button}
                 </li>
@@ -224,9 +224,17 @@ function ConformSelect(props: ConformSelectProps) {
   );
 }
 
+function getListItemChildrenStyles() {
+  return {
+    className:
+      "mv-w-full mv-appearance-none mv-px-3.5 mv-py-2.5 mv-text-start mv-text-neutral-700 mv-leading-5 focus:mv-outline-none",
+  };
+}
+
 ConformSelect.Label = Input.Label;
 ConformSelect.HelperText = Input.HelperText;
 ConformSelect.Error = Input.Error;
 ConformSelect.Controls = ConformSelectControls;
+ConformSelect.getListItemChildrenStyles = getListItemChildrenStyles;
 
 export { ConformSelect };

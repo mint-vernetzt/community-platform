@@ -717,7 +717,7 @@ function Requirements() {
                           name: fields.financings.name,
                           defaultValue: filteredFinancing.id,
                         })}
-                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                        {...ConformSelect.getListItemChildrenStyles()}
                       >
                         {title}
                       </button>
