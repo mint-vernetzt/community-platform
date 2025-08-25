@@ -21,6 +21,8 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { useState } from "react";
 import { detectLanguage } from "~/i18n.server";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
+import { createAuthClient } from "~/auth.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -31,11 +33,16 @@ export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const language = await detectLanguage(request);
 
+  const { authClient } = createAuthClient(request);
+
+  const abilities = await getFeatureAbilities(authClient, "map_embed");
+
   const viewCookieHeader = {
     "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.map),
   };
+
   return data(
-    { lng: language },
+    { lng: language, abilities },
     {
       headers: viewCookieHeader,
     }
@@ -237,20 +244,24 @@ export default function ExploreOrganizationsList() {
             </Modal.Alert>
           ) : null}
         </Modal>
-        <TextButton
-          size="small"
-          as="link"
-          to={`?${modalOpenSearchParams.toString()}`}
-        >
-          {parentLoaderData.locales.route.map.embed}
-        </TextButton>
-        <Link
-          to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
-          target="_blank"
-          className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
-        >
-          <QuestionMark />
-        </Link>
+        {loaderData.abilities.map_embed.hasAccess === true ? (
+          <>
+            <TextButton
+              size="small"
+              as="link"
+              to={`?${modalOpenSearchParams.toString()}`}
+            >
+              {parentLoaderData.locales.route.map.embed}
+            </TextButton>
+            <Link
+              to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
+              target="_blank"
+              className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+            >
+              <QuestionMark />
+            </Link>
+          </>
+        ) : null}
       </div>
     </div>
   ) : null;
