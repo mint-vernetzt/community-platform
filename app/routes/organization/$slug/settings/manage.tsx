@@ -627,7 +627,7 @@ function Manage() {
                             name: manageFields.organizationTypes.name,
                             defaultValue: organizationType.id,
                           })}
-                          className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                          {...ConformSelect.getListItemChildrenStyles()}
                         >
                           {title}
                         </button>
@@ -767,7 +767,7 @@ function Manage() {
                           form={manageForm.id}
                           key={filteredNetworkType.id}
                           disabled={!hasSelectedNetwork}
-                          className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                          {...ConformSelect.getListItemChildrenStyles()}
                         >
                           {title}
                         </button>

@@ -727,7 +727,7 @@ function General() {
                           name: fields.areas.name,
                           defaultValue: filteredOption.value,
                         })}
-                        className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                        {...ConformSelect.getListItemChildrenStyles()}
                       >
                         {filteredOption.label}
                       </button>
@@ -829,7 +829,7 @@ function General() {
                         name: fields.focuses.name,
                         defaultValue: focus.id,
                       })}
-                      className="mv-text-start mv-w-full mv-py-1 mv-px-2"
+                      {...ConformSelect.getListItemChildrenStyles()}
                     >
                       {title}
                     </button>
