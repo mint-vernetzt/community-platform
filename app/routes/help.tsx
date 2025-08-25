@@ -16,6 +16,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, [
     "abuse_report",
     "provisional_organizations",
+    "map_embed",
   ]);
   return {
     abilities,

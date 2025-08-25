@@ -232,17 +232,20 @@ export const locale = {
             "Wie funktioniert das Einfügen der Karte per iFrame auf meiner eigenen Website?",
           answer:
             "<p><ol><li>Stelle die Karte so ein, wie Du sie brauchst (Suchbegriff eingeben, Filter setzen).</li><li>Klicke auf „Die aktuelle Kartenansicht auf der eigenen Website einbinden.“ unterhalb der Kartenansicht.</li><li>Kopiere den angezeigten Code zum Einbinden (iFrame-Code).</li><li>Füge diesen Code an der gewünschten Stelle in den HTML-Bereich Deiner Website ein.</li></ol></br></br>Fertig – Deine Website zeigt nun genau die Kartenansicht, die Du eingestellt hast.</p>",
+          featureFlag: "map_embed",
         },
         isTheFilterPersistentWhenEmbedding: {
           question:
             "Bleiben die Filtereinstellungen erhalten, wenn ich die Karte einbette?",
           answer:
             "<p>Ja. Die Besucher:innen Deiner Website sehen genau die Auswahl an Organisationen, die Du vor dem Kopieren des Codes durch den Filter eingestellt hast.</p>",
+          featureFlag: "map_embed",
         },
         knowledgeNeededToEmbed: {
           question: "Muss ich für die Einbettung technische Kenntnisse haben?",
           answer:
             "<p>Ein kleines bisschen: Du musst den Code zum Einbinden an der richtigen Stelle in Deine Website einfügen – so wie bei einem YouTube-Video. Wenn Du unsicher bist, hilft Dir meist die Person, die Deine Website betreut.</p>",
+          featureFlag: "map_embed",
         },
       },
     },

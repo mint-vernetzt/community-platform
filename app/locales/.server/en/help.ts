@@ -224,17 +224,20 @@ export const locale = {
             "How does embedding the map via iFrame on my own website work?",
           answer:
             "<p><ol><li>Set up the map as you need it (enter search term, set filters).</li><li>Click on “Embed current map view on my own website.” below the map view.</li><li>Copy the displayed code for embedding (iFrame code).</li><li>Paste this code in the desired location in the HTML area of your website.</li></ol></br></br>Done – your website now shows exactly the map view you have set.</p>",
+          featureFlag: "map_embed",
         },
         isTheFilterPersistentWhenEmbedding: {
           question:
             "Does the filter remain active when embedding the map on my own website?",
           answer:
             "<p>Yes. Visitors to your website will see exactly the selection of organizations that you set through the filter before copying the code.</p>",
+          featureFlag: "map_embed",
         },
         knowledgeNeededToEmbed: {
           question: "Do I need technical knowledge to embed the map?",
           answer:
             "<p>A little bit: You need to insert the embedding code in the right place on your website – just like with a YouTube video. If you're unsure, the person who manages your website can usually help you.</p>",
+          featureFlag: "map_embed",
         },
       },
     },
