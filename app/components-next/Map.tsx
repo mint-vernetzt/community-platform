@@ -520,6 +520,51 @@ export function Map(props: {
         "unclustered-point",
         unclusteredMouseLeaveHandler
       );
+      // [["south", "west"], ["north", "east"]]
+      let organizationBounds: [[number, number], [number, number]] | null =
+        null;
+      for (const organization of organizations) {
+        const { longitude, latitude } = organization;
+        if (longitude === null || latitude === null) {
+          continue;
+        }
+        const lng = parseFloat(longitude);
+        const lat = parseFloat(latitude);
+        if (organizationBounds === null) {
+          organizationBounds = [
+            [lng, lat],
+            [lng, lat],
+          ];
+          continue;
+        }
+        const westLng = Math.min(organizationBounds[0][0], lng);
+        const southLat = Math.min(organizationBounds[0][1], lat);
+        const eastLng = Math.max(organizationBounds[1][0], lng);
+        const northLat = Math.max(organizationBounds[1][1], lat);
+        organizationBounds = [
+          [westLng, southLat],
+          [eastLng, northLat],
+        ];
+      }
+      if (organizationBounds !== null) {
+        const camera = mapRef.current.cameraForBounds(organizationBounds);
+        mapRef.current.fitBounds(organizationBounds, {
+          padding: 24,
+        });
+        const sw = organizationBounds[0];
+        const ne = organizationBounds[1];
+        const center: [number, number] = [
+          (sw[0] + ne[0]) / 2,
+          (sw[1] + ne[1]) / 2,
+        ];
+        mapRef.current.setCenter(center);
+        if (
+          typeof camera !== "undefined" &&
+          typeof camera.zoom !== "undefined"
+        ) {
+          mapRef.current.setZoom(camera.zoom - 1);
+        }
+      }
     }
   }, [mapLoaded, organizations, locales, unclusteredClickHandler, embeddable]);
 
