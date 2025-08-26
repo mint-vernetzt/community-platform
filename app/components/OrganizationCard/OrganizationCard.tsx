@@ -19,7 +19,6 @@ export interface OrganizationCardProps {
 
 function OrganizationCard(props: OrganizationCardProps) {
   const { locales } = props;
-  console.log(locales);
   return (
     <div
       key={props.id}

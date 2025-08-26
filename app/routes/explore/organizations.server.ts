@@ -709,7 +709,7 @@ export async function getAllNetworks() {
 export async function getAllOrganizations(options: {
   filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];
-  take: ReturnType<typeof getTakeParam> | undefined;
+  take?: ReturnType<typeof getTakeParam>;
   search: GetSearchSchema["search"];
   isLoggedIn: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
