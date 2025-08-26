@@ -36,7 +36,6 @@ import { List } from "~/components-next/icons/List";
 import { Map as MapIcon } from "~/components-next/icons/Map";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
@@ -44,10 +43,6 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
@@ -55,12 +50,12 @@ import {
   getAllFocuses,
   getAllNetworks,
   getAllNetworkTypes,
-  getAllOrganizations,
   getAllOrganizationTypes,
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
   getOrganizationIds,
-  getTakeParam,
+  viewCookie,
+  viewCookieSchema,
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
@@ -73,10 +68,33 @@ export const links: LinksFunction = () => [
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
   const url = new URL(request.url);
-  const searchParams = url.searchParams;
 
-  const currentView =
-    url.pathname === "/explore/organizations/list" ? "list" : "map";
+  let currentView = "parent";
+
+  if (url.pathname === "/explore/organizations/list") {
+    currentView = "list";
+  } else if (url.pathname === "/explore/organizations/map") {
+    currentView = "map";
+  }
+
+  if (currentView === "parent") {
+    const cookieHeader = request.headers.get("Cookie");
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+    if (cookie === null) {
+      return redirect(`./map?${url.searchParams.toString()}`);
+    }
+    let view;
+    try {
+      view = viewCookieSchema.parse(cookie);
+    } catch {
+      return redirect(`./map?${url.searchParams.toString()}`);
+    }
+    return redirect(`./${view}?${url.searchParams.toString()}`);
+  }
+
+  const searchParams = url.searchParams;
 
   const showFiltersValue = searchParams.getAll("showFilters");
 
@@ -99,16 +117,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["explore/organizations"];
 
-  const take =
-    currentView === "list" ? getTakeParam(submission.value.orgPage) : undefined;
   const { authClient } = createAuthClient(request);
 
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
+  let organizationIdsFilteredByVisibility;
   if (!isLoggedIn) {
-    const organizationIdsFilteredByVisibility = await getOrganizationIds({
+    organizationIdsFilteredByVisibility = await getOrganizationIds({
       filter: submission.value.orgFilter,
       search: submission.value.search,
       isLoggedIn,
@@ -126,153 +143,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organizationCount = organizationIds.length;
 
-  const organizations = await getAllOrganizations({
-    filter: submission.value.orgFilter,
-    sortBy: submission.value.orgSortBy,
-    search: submission.value.search,
-    isLoggedIn,
-    take,
-    language,
-  });
-
-  const enhancedOrganizations = [];
-  for (const organization of organizations) {
-    let enhancedOrganization = {
-      ...organization,
-    };
-
-    if (!isLoggedIn) {
-      // Filter organization
-      type EnhancedOrganization = typeof enhancedOrganization;
-      enhancedOrganization =
-        filterOrganizationByVisibility<EnhancedOrganization>(
-          enhancedOrganization
-        );
-      // Filter team members
-      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-        (relation) => {
-          type ProfileRelation = typeof relation.profile;
-          const filteredProfile = filterProfileByVisibility<ProfileRelation>(
-            relation.profile
-          );
-          return { ...relation, profile: { ...filteredProfile } };
-        }
-      );
-    }
-
-    // Add images from image proxy
-    let logo = enhancedOrganization.logo;
-    let blurredLogo;
-    if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo);
-      if (publicURL !== null) {
-        logo = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.Logo.width,
-            height: ImageSizes.Organization.Card.Logo.height,
-          },
-        });
-        blurredLogo = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.BlurredLogo.width,
-            height: ImageSizes.Organization.Card.BlurredLogo.height,
-          },
-          blur: BlurFactor,
-        });
-      }
-    }
-
-    let background = enhancedOrganization.background;
-    let blurredBackground;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL !== null) {
-        background = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.Background.width,
-            height: ImageSizes.Organization.Card.Background.height,
-          },
-        });
-        blurredBackground = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.BlurredBackground.width,
-            height: ImageSizes.Organization.Card.BlurredBackground.height,
-          },
-          blur: BlurFactor,
-        });
-      }
-    } else {
-      background = DefaultImages.Organization.Background;
-      blurredBackground = DefaultImages.Organization.BlurredBackground;
-    }
-
-    const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
-      let avatar = relation.profile.avatar;
-      let blurredAvatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        avatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.CardFooter.Avatar.width,
-            height: ImageSizes.Profile.CardFooter.Avatar.height,
-          },
-        });
-        blurredAvatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
-            height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
-          },
-          blur: BlurFactor,
-        });
-      }
-      return {
-        ...relation,
-        profile: { ...relation.profile, avatar, blurredAvatar },
-      };
-    });
-
-    const imageEnhancedOrganization = {
-      ...enhancedOrganization,
-      logo,
-      blurredLogo,
-      background,
-      blurredBackground,
-      teamMembers,
-    };
-
-    const transformedOrganization = {
-      ...imageEnhancedOrganization,
-      teamMembers: imageEnhancedOrganization.teamMembers.map((relation) => {
-        return relation.profile;
-      }),
-      types: imageEnhancedOrganization.types.map((relation) => {
-        return relation.organizationType.slug;
-      }),
-      networkTypes: imageEnhancedOrganization.networkTypes.map((relation) => {
-        return relation.networkType.slug;
-      }),
-      focuses: imageEnhancedOrganization.focuses.map((relation) => {
-        return relation.focus.slug;
-      }),
-      areas: imageEnhancedOrganization.areas.map((relation) => {
-        return relation.area.name;
-      }),
-    };
-
-    enhancedOrganizations.push(transformedOrganization);
-  }
-
   const networks = await getAllNetworks();
 
-  const networkOrganizationIds = enhancedOrganizations.map((organization) => {
-    return organization.id;
-  });
+  const networkOrganizationIds =
+    typeof organizationIdsFilteredByVisibility !== "undefined"
+      ? organizationIdsFilteredByVisibility
+      : organizationIds;
 
   const enhancedNetworks = [];
   for (const network of networks) {
@@ -462,8 +338,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   return {
-    isLoggedIn,
-    organizations: enhancedOrganizations,
     areas: enhancedAreas,
     selectedAreas,
     focuses: enhancedFocuses,
@@ -476,7 +350,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     filteredByVisibilityCount,
     organizationsCount: organizationCount,
     locales,
-    language,
     networks: enhancedNetworks,
     selectedNetworks,
     currentView,
@@ -1556,7 +1429,7 @@ export default function ExploreOrganizations() {
               {locales.route.empty}
             </p>
           ) : null}
-          {loaderData.organizations.length > 0 ? <Outlet /> : null}
+          {loaderData.organizationsCount > 0 ? <Outlet /> : null}
         </section>
       </div>
     </>
