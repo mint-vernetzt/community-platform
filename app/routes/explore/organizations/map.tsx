@@ -1,28 +1,41 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
+import { useState } from "react";
 import {
   data,
   Link,
   type LinksFunction,
   type LoaderFunctionArgs,
   useLoaderData,
-  useRouteLoaderData,
   useSearchParams,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { QuestionMark } from "~/components-next/icons/QuestionMark";
 import { Map } from "~/components-next/Map";
 import { Modal } from "~/components-next/Modal";
+import { detectLanguage } from "~/i18n.server";
+import { copyToClipboard } from "~/lib/utils/clipboard";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { extendSearchParams } from "~/lib/utils/searchParams";
-import customMapStyles from "~/styles/map.css?url";
-import { type loader as parentLoader } from "../organizations";
-import { VIEW_COOKIE_VALUES, viewCookie } from "../organizations.server";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { copyToClipboard } from "~/lib/utils/clipboard";
-import { useState } from "react";
-import { detectLanguage } from "~/i18n.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { createAuthClient } from "~/auth.server";
+import customMapStyles from "~/styles/map.css?url";
+import {
+  getAllOrganizations,
+  VIEW_COOKIE_VALUES,
+  viewCookie,
+} from "../organizations.server";
+import { invariantResponse } from "~/lib/utils/response";
+import { getFilterSchemes } from "../all.shared";
+import { parseWithZod } from "@conform-to/zod-v1";
+import {
+  filterOrganizationByVisibility,
+  filterProfileByVisibility,
+} from "~/next-public-fields-filtering.server";
+import { getPublicURL } from "~/storage.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
+import { languageModuleMap } from "~/locales/.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -31,18 +44,174 @@ export const links: LinksFunction = () => [
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
   const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["explore/organizations"];
 
   const { authClient } = createAuthClient(request);
 
   const abilities = await getFeatureAbilities(authClient, "map_embed");
+
+  const submission = parseWithZod(searchParams, {
+    schema: getFilterSchemes,
+  });
+  invariantResponse(
+    submission.status === "success",
+    "Validation failed for get request",
+    { status: 400 }
+  );
+
+  const sessionUser = await getSessionUser(authClient);
+  const isLoggedIn = sessionUser !== null;
+
+  const organizations = await getAllOrganizations({
+    filter: submission.value.orgFilter,
+    sortBy: submission.value.orgSortBy,
+    search: submission.value.search,
+    isLoggedIn,
+    language,
+  });
+
+  const enhancedOrganizations = [];
+  for (const organization of organizations) {
+    let enhancedOrganization = {
+      ...organization,
+    };
+
+    if (!isLoggedIn) {
+      // Filter organization
+      type EnhancedOrganization = typeof enhancedOrganization;
+      enhancedOrganization =
+        filterOrganizationByVisibility<EnhancedOrganization>(
+          enhancedOrganization
+        );
+      // Filter team members
+      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
+        (relation) => {
+          type ProfileRelation = typeof relation.profile;
+          const filteredProfile = filterProfileByVisibility<ProfileRelation>(
+            relation.profile
+          );
+          return { ...relation, profile: { ...filteredProfile } };
+        }
+      );
+    }
+
+    // Add images from image proxy
+    let logo = enhancedOrganization.logo;
+    let blurredLogo;
+    if (logo !== null) {
+      const publicURL = getPublicURL(authClient, logo);
+      if (publicURL !== null) {
+        logo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Logo.width,
+            height: ImageSizes.Organization.Card.Logo.height,
+          },
+        });
+        blurredLogo = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredLogo.width,
+            height: ImageSizes.Organization.Card.BlurredLogo.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+
+    let background = enhancedOrganization.background;
+    let blurredBackground;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL !== null) {
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.Background.width,
+            height: ImageSizes.Organization.Card.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Organization.Card.BlurredBackground.width,
+            height: ImageSizes.Organization.Card.BlurredBackground.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    } else {
+      background = DefaultImages.Organization.Background;
+      blurredBackground = DefaultImages.Organization.BlurredBackground;
+    }
+
+    const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
+      let avatar = relation.profile.avatar;
+      let blurredAvatar;
+      if (avatar !== null) {
+        const publicURL = getPublicURL(authClient, avatar);
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.CardFooter.Avatar.width,
+            height: ImageSizes.Profile.CardFooter.Avatar.height,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
+            height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+      return {
+        ...relation,
+        profile: { ...relation.profile, avatar, blurredAvatar },
+      };
+    });
+
+    const imageEnhancedOrganization = {
+      ...enhancedOrganization,
+      logo,
+      blurredLogo,
+      background,
+      blurredBackground,
+      teamMembers,
+    };
+
+    const transformedOrganization = {
+      ...imageEnhancedOrganization,
+      teamMembers: imageEnhancedOrganization.teamMembers.map((relation) => {
+        return relation.profile;
+      }),
+      types: imageEnhancedOrganization.types.map((relation) => {
+        return relation.organizationType.slug;
+      }),
+      networkTypes: imageEnhancedOrganization.networkTypes.map((relation) => {
+        return relation.networkType.slug;
+      }),
+      focuses: imageEnhancedOrganization.focuses.map((relation) => {
+        return relation.focus.slug;
+      }),
+      areas: imageEnhancedOrganization.areas.map((relation) => {
+        return relation.area.name;
+      }),
+    };
+
+    enhancedOrganizations.push(transformedOrganization);
+  }
 
   const viewCookieHeader = {
     "Set-Cookie": await viewCookie.serialize(VIEW_COOKIE_VALUES.map),
   };
 
   return data(
-    { lng: language, abilities },
+    { lng: language, abilities, organizations: enhancedOrganizations, locales },
     {
       headers: viewCookieHeader,
     }
@@ -50,9 +219,6 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 export default function ExploreOrganizationsList() {
-  const parentLoaderData = useRouteLoaderData<typeof parentLoader>(
-    "routes/explore/organizations"
-  );
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const isHydrated = useHydrated();
@@ -116,11 +282,11 @@ export default function ExploreOrganizationsList() {
     ENV.COMMUNITY_BASE_URL
   }/map?${embedLinkSearchParams.toString()}" title="MINTvernetzt-Community-Karte" referrerpolicy="no-referrer" allowfullscreen />`;
 
-  return typeof parentLoaderData !== "undefined" ? (
+  return (
     <div className="mv-w-full mv-px-4">
       <div className="mv-w-full mv-relative mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-min-h-[284px] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
         <Map
-          organizations={parentLoaderData.organizations
+          organizations={loaderData.organizations
             .filter((organization) => {
               return (
                 organization.longitude !== null &&
@@ -142,19 +308,19 @@ export default function ExploreOrganizationsList() {
                 }),
               };
             })}
-          locales={parentLoaderData.locales}
-          language={parentLoaderData.language}
+          locales={loaderData.locales}
+          language={loaderData.lng}
         />
       </div>
       <div className="mv-hidden @lg:mv-flex mv-w-full mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
         <Modal searchParam="modal-embed">
           <Modal.Title>
-            {parentLoaderData.locales.route.map.embedModal.title}
+            {loaderData.locales.route.map.embedModal.title}
           </Modal.Title>
           <Modal.Section>
             <p>
               {insertComponentsIntoLocale(
-                parentLoaderData.locales.route.map.embedModal.subline,
+                loaderData.locales.route.map.embedModal.subline,
                 [
                   <Link
                     key="help-link-in-modal"
@@ -170,7 +336,7 @@ export default function ExploreOrganizationsList() {
           </Modal.Section>
           <Modal.Section>
             <p className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm">
-              {parentLoaderData.locales.route.map.embedModal.description.title}
+              {loaderData.locales.route.map.embedModal.description.title}
             </p>
             <ul className="mv-flex mv-flex-col mv-gap-5 mv-text-sm">
               <li className="mv-flex mv-gap-2">
@@ -178,10 +344,7 @@ export default function ExploreOrganizationsList() {
                   1
                 </span>
                 <span className="mv-text-primary mv-font-semibold mv-leading-5">
-                  {
-                    parentLoaderData.locales.route.map.embedModal.description
-                      .step1
-                  }
+                  {loaderData.locales.route.map.embedModal.description.step1}
                 </span>
               </li>
               <li className="mv-flex mv-gap-2">
@@ -189,10 +352,7 @@ export default function ExploreOrganizationsList() {
                   2
                 </span>
                 <span className="mv-text-primary mv-font-semibold mv-leading-5">
-                  {
-                    parentLoaderData.locales.route.map.embedModal.description
-                      .step2
-                  }
+                  {loaderData.locales.route.map.embedModal.description.step2}
                 </span>
               </li>
               <li className="mv-flex mv-gap-2">
@@ -200,10 +360,7 @@ export default function ExploreOrganizationsList() {
                   3
                 </span>
                 <span className="mv-text-primary mv-font-semibold mv-leading-5">
-                  {
-                    parentLoaderData.locales.route.map.embedModal.description
-                      .step3
-                  }
+                  {loaderData.locales.route.map.embedModal.description.step3}
                 </span>
               </li>
             </ul>
@@ -212,7 +369,7 @@ export default function ExploreOrganizationsList() {
                 htmlFor="embed-code"
                 className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm"
               >
-                {parentLoaderData.locales.route.map.embedModal.textarea.label}
+                {loaderData.locales.route.map.embedModal.textarea.label}
               </label>
               <textarea
                 id="embed-code"
@@ -232,15 +389,15 @@ export default function ExploreOrganizationsList() {
                 }, 2000);
               }}
             >
-              {parentLoaderData.locales.route.map.embedModal.copy}
+              {loaderData.locales.route.map.embedModal.copy}
             </Modal.SubmitButton>
           ) : null}
           <Modal.CloseButton>
-            {parentLoaderData.locales.route.map.embedModal.cancel}
+            {loaderData.locales.route.map.embedModal.cancel}
           </Modal.CloseButton>
           {hasCopied ? (
             <Modal.Alert position="relative">
-              {parentLoaderData.locales.route.map.embedModal.copySuccess}
+              {loaderData.locales.route.map.embedModal.copySuccess}
             </Modal.Alert>
           ) : null}
         </Modal>
@@ -251,7 +408,7 @@ export default function ExploreOrganizationsList() {
               as="link"
               to={`?${modalOpenSearchParams.toString()}`}
             >
-              {parentLoaderData.locales.route.map.embed}
+              {loaderData.locales.route.map.embed}
             </TextButton>
             <Link
               to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
@@ -264,5 +421,5 @@ export default function ExploreOrganizationsList() {
         ) : null}
       </div>
     </div>
-  ) : null;
+  );
 }
