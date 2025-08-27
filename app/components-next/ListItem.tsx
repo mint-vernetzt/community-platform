@@ -128,7 +128,7 @@ export function ListItem(
               ? `/profile/${entity.username}`
               : "responsibleOrganizations" in entity
               ? `/project/${entity.slug}`
-              : `/organization/${entity.slug}`
+              : `/organization/${entity.slug}/detail/about`
           }
           className={`mv-flex mv-gap-2 @sm:mv-gap-4 focus:mv-outline-none mv-items-center mv-rounded-2xl mv-w-full mv-grow ${
             validChildren.length > 0

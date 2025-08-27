@@ -843,7 +843,7 @@ export async function getOrganizationsBySearchQuery(searchQuery: string) {
 
   const normalizedOrganizations = organizations.map((organization) => {
     const name = organization.name;
-    const url = `/organization/${organization.slug}`;
+    const url = `/organization/${organization.slug}/detail/about`;
     const logo = organization.logo;
 
     return {

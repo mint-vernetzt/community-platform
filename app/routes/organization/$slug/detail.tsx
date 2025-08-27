@@ -429,7 +429,7 @@ function OrganizationDetail() {
                     return (
                       <Avatar
                         key={`network-member-logo-${relation.networkMember.slug}`}
-                        to={`/organization/${relation.networkMember.slug}`}
+                        to={`/organization/${relation.networkMember.slug}/detail/about`}
                         size="md"
                         name={relation.networkMember.name}
                         logo={relation.networkMember.logo}
@@ -450,7 +450,7 @@ function OrganizationDetail() {
             <div className="mv-w-full @lg:mv-w-fit mv-grid @lg:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
               <Button
                 as="link"
-                to={`/organization/${organization.slug}/settings`}
+                to={`/organization/${organization.slug}/settings/general`}
                 fullSize
               >
                 <svg

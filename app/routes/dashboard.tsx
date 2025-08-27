@@ -1043,7 +1043,7 @@ function Dashboard() {
                         className="mv-w-[72px] mv-h-[72px]"
                       >
                         <Avatar
-                          to={`/organization/${organization.slug}`}
+                          to={`/organization/${organization.slug}/detail/about`}
                           size="full"
                           {...organization}
                         />
@@ -1167,7 +1167,7 @@ function Dashboard() {
                         className="mv-w-[72px] mv-h-[72px]"
                       >
                         <Avatar
-                          to={`/organization/${organization.slug}`}
+                          to={`/organization/${organization.slug}/detail/about`}
                           size="full"
                           {...organization}
                         />
@@ -1231,7 +1231,7 @@ function Dashboard() {
                         className="mv-w-[72px] mv-h-[72px]"
                       >
                         <Avatar
-                          to={`/organization/${organization.slug}`}
+                          to={`/organization/${organization.slug}/detail/about`}
                           size="full"
                           {...organization}
                         />

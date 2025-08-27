@@ -283,7 +283,9 @@ function Organizations() {
                       )}
                     </div>
                     <div className="mv-pl-4">
-                      <Link to={`/organization/${organization.slug}`}>
+                      <Link
+                        to={`/organization/${organization.slug}/detail/about`}
+                      >
                         <H3
                           like="h4"
                           className="mv-text-xl mv-mb-1 mv-no-underline hover:mv-underline"
@@ -379,7 +381,7 @@ function Organizations() {
                   )}
                 </div>
                 <div className="mv-pl-4">
-                  <Link to={`/organization/${organization.slug}`}>
+                  <Link to={`/organization/${organization.slug}/detail/about`}>
                     <H3
                       like="h4"
                       className="mv-text-xl mv-mb-1 mv-no-underline hover:mv-underline"

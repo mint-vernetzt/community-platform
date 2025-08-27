@@ -940,7 +940,7 @@ export default function Index() {
                       <OrganizationCard
                         key={`${relation.organization.slug}`}
                         id={`${relation.organization.slug}`}
-                        link={`/organization/${relation.organization.slug}`}
+                        link={`/organization/${relation.organization.slug}/detail/about`}
                         name={relation.organization.name}
                         types={relation.organization.types}
                         image={relation.organization.logo}

@@ -94,7 +94,7 @@ export async function exportPossibleOrganizationDuplicates() {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
               name: possibleDuplicate.name,
-              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}`,
+              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}/detail/about`,
               reason: `Similar ${typedKey}`,
             });
           }
@@ -139,7 +139,7 @@ export async function exportPossibleOrganizationDuplicates() {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
               name: possibleDuplicate.name,
-              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}`,
+              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}/detail/about`,
               reason: "Similar address",
             });
           }
@@ -174,7 +174,7 @@ export async function exportPossibleOrganizationDuplicates() {
             enhancedPossibleDuplicates.push({
               id: possibleDuplicate.id,
               name: possibleDuplicate.name,
-              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}`,
+              url: `${process.env.COMMUNITY_BASE_URL}/organization/${possibleDuplicate.slug}/detail/about`,
               reason: `Similar ${typedKey}`,
             });
           }
@@ -186,7 +186,7 @@ export async function exportPossibleOrganizationDuplicates() {
         sample: {
           id: sample.id,
           name: sample.name,
-          url: `${process.env.COMMUNITY_BASE_URL}/organization/${sample.slug}`,
+          url: `${process.env.COMMUNITY_BASE_URL}/organization/${sample.slug}/detail/about`,
         },
         possibleDuplicates: enhancedPossibleDuplicates,
       });

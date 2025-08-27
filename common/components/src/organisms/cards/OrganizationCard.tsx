@@ -64,7 +64,7 @@ function OrganizationCard(
 
   return (
     <div className="mv-relative mv-w-full mv-h-full">
-      <Card to={`/organization/${organization.slug}`}>
+      <Card to={`/organization/${organization.slug}/detail/about`}>
         <CardHeader>
           <Avatar {...organization} size="xl" />
           {organization.background && (

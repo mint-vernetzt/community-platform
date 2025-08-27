@@ -61,7 +61,7 @@ export async function getRedirectPathOnProtectedOrganizationRoute(args: {
   // check if admin of project and redirect to project details if not
   const mode = await deriveOrganizationMode(sessionUser, slug);
   if (mode !== "admin") {
-    return `/organization/${slug}`;
+    return `/organization/${slug}/detail/about`;
   }
 
   return null;

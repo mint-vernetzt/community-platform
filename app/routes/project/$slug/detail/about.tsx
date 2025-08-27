@@ -661,7 +661,7 @@ function About() {
                   as={{
                     type: "link",
                     props: {
-                      to: `/organization/${relation.organization.slug}`,
+                      to: `/organization/${relation.organization.slug}/detail/about`,
                     },
                   }}
                 >

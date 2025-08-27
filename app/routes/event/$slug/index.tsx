@@ -1791,7 +1791,7 @@ function Index() {
                       <div key={`organizer-${item.organization.id}`}>
                         <Link
                           className="mv-flex mv-flex-row"
-                          to={`/organization/${item.organization.slug}`}
+                          to={`/organization/${item.organization.slug}/detail/about`}
                         >
                           {item.organization.logo !== null &&
                           item.organization.logo !== "" ? (
