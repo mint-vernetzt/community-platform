@@ -106,6 +106,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
             {...otherProps}
             to={`${pathname}${search}`}
             preventScrollReset
+            prefetch="intent"
           >
             {children}
           </NavLink>

@@ -623,6 +623,7 @@ export default function ExploreAll() {
                     ? "/explore/profiles"
                     : `/explore/profiles?${searchParams.toString()}`
                 }
+                prefetch="intent"
               >
                 {loaderData.locales.index.links.profiles}
               </LinkButton>
@@ -660,6 +661,7 @@ export default function ExploreAll() {
                         loaderData.preferredExploreOrganizationsView
                       }?${searchParams.toString()}`
                 }
+                prefetch="intent"
               >
                 {loaderData.locales.index.links.organizations}
               </LinkButton>
@@ -695,6 +697,7 @@ export default function ExploreAll() {
                     ? "/explore/events"
                     : `/explore/events?${searchParams.toString()}`
                 }
+                prefetch="intent"
               >
                 {loaderData.locales.index.links.events}
               </LinkButton>
@@ -749,6 +752,7 @@ export default function ExploreAll() {
                     ? "/explore/projects"
                     : `/explore/projects?${searchParams.toString()}`
                 }
+                prefetch="intent"
               >
                 {loaderData.locales.index.links.projects}
               </LinkButton>
@@ -784,6 +788,7 @@ export default function ExploreAll() {
                     ? "/explore/fundings"
                     : `/explore/fundings?${searchParams.toString()}`
                 }
+                prefetch="intent"
               >
                 {loaderData.locales.index.links.fundings}
               </LinkButton>

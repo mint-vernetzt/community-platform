@@ -4,6 +4,7 @@ import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import { useEffect } from "react";
 import type {
+  HeadersArgs,
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
@@ -101,6 +102,10 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 };
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+
+export const headers = ({ loaderHeaders }: HeadersArgs) => {
+  return loaderHeaders;
+};
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -215,6 +220,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  // Make prefetching work with a short lived cache header only on requests that have a prefetch purpose
+  // see https://sergiodxa.com/tutorials/fix-double-data-request-when-prefetching-in-remix
+  const combinedHeaders = combineHeaders(
+    headers,
+    alertHeaders,
+    toastHeaders,
+    languageCookieHeaders
+  );
+  const isGet = request.method.toLowerCase() === "get";
+  const purpose =
+    request.headers.get("Purpose") ||
+    request.headers.get("X-Purpose") ||
+    request.headers.get("Sec-Purpose") ||
+    request.headers.get("Sec-Fetch-Purpose") ||
+    request.headers.get("Moz-Purpose");
+  const isPrefetch = purpose === "prefetch";
+
+  // If it's a GET request and it's a prefetch request and it doesn't have a Cache-Control header
+  if (isGet && isPrefetch && !combinedHeaders.has("Cache-Control")) {
+    // we will cache for 10 seconds only on the browser
+    combinedHeaders.set("Cache-Control", "private, max-age=10");
+  }
+
   return data(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -235,12 +263,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       preferredExploreOrganizationsView,
     },
     {
-      headers: combineHeaders(
-        headers,
-        alertHeaders,
-        toastHeaders,
-        languageCookieHeaders
-      ),
+      headers: combinedHeaders,
     }
   );
 };

@@ -423,7 +423,7 @@ function ProjectDetail() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BackButton to="/explore/projects">
+        <BackButton to="/explore/projects" prefetch="intent">
           {locales.route.content.back}
         </BackButton>
       </section>

@@ -9,9 +9,8 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import { useEffect, useState } from "react";
-import type { LinksFunction, LoaderFunctionArgs } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   NavLink,
@@ -44,7 +43,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
-import customMapStyles from "~/styles/map.css?url";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
   getAllFocuses,
@@ -57,11 +55,6 @@ import {
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: mapStyles },
-  { rel: "stylesheet", href: customMapStyles },
-];
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -1040,6 +1033,7 @@ export default function ExploreOrganizations() {
                     }`
                   }
                   preventScrollReset
+                  prefetch="intent"
                 >
                   <List aria-hidden="true" />
                   <span>{locales.route.view.list}</span>
@@ -1056,6 +1050,7 @@ export default function ExploreOrganizations() {
                     }`
                   }
                   preventScrollReset
+                  prefetch="intent"
                 >
                   <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>

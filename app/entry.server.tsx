@@ -53,7 +53,7 @@ export default async function handleRequest(
   }
 
   const cspHeaderOptions = createCSPHeaderOptions({
-    "default-src": "'none'",
+    "default-src": "'self'",
     "style-src": "'self'",
     "style-src-attr": "'self'",
     "style-src-elem": "'self'",

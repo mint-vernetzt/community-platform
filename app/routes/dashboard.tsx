@@ -1583,7 +1583,7 @@ function Dashboard() {
             {loaderData.locales.route.content.projects}
           </h2>
           <div className="mv-text-right">
-            <MVLink as="link" to="/explore/projects">
+            <MVLink as="link" to="/explore/projects" prefetch="intent">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allProjects}
               </span>
@@ -1612,7 +1612,7 @@ function Dashboard() {
             {loaderData.locales.route.content.profiles}
           </h2>
           <div className="mv-text-right">
-            <MVLink as="link" to="/explore/profiles">
+            <MVLink as="link" to="/explore/profiles" prefetch="intent">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allProfiles}
               </span>
@@ -1644,6 +1644,7 @@ function Dashboard() {
             <MVLink
               as="link"
               to={`/explore/organizations/${loaderData.preferredExploreOrganizationsView}`}
+              prefetch="intent"
             >
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allOrganizations}
@@ -1673,7 +1674,7 @@ function Dashboard() {
             {loaderData.locales.route.content.events}
           </h2>
           <div className="mv-text-right">
-            <MVLink as="link" to="/explore/events">
+            <MVLink as="link" to="/explore/events" prefetch="intent">
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allEvents}
               </span>
