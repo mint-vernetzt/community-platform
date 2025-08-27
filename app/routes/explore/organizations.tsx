@@ -1029,6 +1029,7 @@ export default function ExploreOrganizations() {
                     }`
                   }
                   preventScrollReset
+                  prefetch="intent"
                 >
                   <List aria-hidden="true" />
                   <span>{locales.route.view.list}</span>
@@ -1045,6 +1046,7 @@ export default function ExploreOrganizations() {
                     }`
                   }
                   preventScrollReset
+                  prefetch="intent"
                 >
                   <MapIcon aria-hidden="true" />
                   <span>{locales.route.view.map}</span>
