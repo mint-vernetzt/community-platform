@@ -4,7 +4,6 @@ import {
   type Profile,
   type Project,
 } from "@prisma/client";
-import { type User } from "@supabase/supabase-js";
 import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
@@ -488,40 +487,10 @@ export async function getProfileIds(options: {
 }
 
 export async function getAllProfiles(options: {
-  filter: GetProfilesSchema["prfFilter"];
   sortBy: GetProfilesSchema["prfSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  sessionUser: User | null;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  profileIds: string[];
 }) {
-  const whereClauses = getProfilesFilterWhereClause(options.filter);
-
-  const isLoggedIn = options.sessionUser !== null;
-
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-    if (filterValues.length === 0) {
-      continue;
-    }
-    if (isLoggedIn === false) {
-      const visibilityWhereStatement: ProfileVisibility = {
-        profileVisibility: {
-          [`${typedFilterKey}s`]: true,
-        },
-      };
-      whereClauses.AND.push(visibilityWhereStatement);
-    }
-  }
-
-  const searchWhereClauses = getProfilesSearchWhereClauses(
-    options.search,
-    isLoggedIn,
-    options.language
-  );
-  whereClauses.AND.push(...searchWhereClauses);
-
   const profiles = await prismaClient.profile.findMany({
     select: {
       id: true,
@@ -587,7 +556,7 @@ export async function getAllProfiles(options: {
       },
     },
     where: {
-      AND: whereClauses,
+      id: { in: options.profileIds },
     },
     orderBy: [
       {

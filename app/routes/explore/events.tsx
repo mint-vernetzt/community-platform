@@ -93,8 +93,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
+  let eventIdsFilteredByVisibility;
   if (!isLoggedIn) {
-    const eventIdsFilteredByVisibility = await getEventIds({
+    eventIdsFilteredByVisibility = await getEventIds({
       filter: submission.value.evtFilter,
       search: submission.value.search,
       isLoggedIn,
@@ -115,10 +116,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const events = await getAllEvents({
     filter: submission.value.evtFilter,
     sortBy: submission.value.evtSortBy,
-    search: submission.value.search,
-    sessionUser,
     take,
-    language,
+    eventIds:
+      typeof eventIdsFilteredByVisibility !== "undefined"
+        ? eventIdsFilteredByVisibility
+        : eventIds,
   });
 
   const enhancedEvents = [];

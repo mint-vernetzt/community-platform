@@ -94,8 +94,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
+  let projectIdsFilteredByVisibility;
   if (!isLoggedIn) {
-    const projectIdsFilteredByVisibility = await getProjectIds({
+    projectIdsFilteredByVisibility = await getProjectIds({
       filter: submission.value.prjFilter,
       search: submission.value.search,
       isLoggedIn,
@@ -114,12 +115,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const projectCount = projectIds.length;
 
   const projects = await getAllProjects({
-    filter: submission.value.prjFilter,
     sortBy: submission.value.prjSortBy,
-    search: submission.value.search,
-    sessionUser,
     take,
-    language,
+    projectIds:
+      typeof projectIdsFilteredByVisibility !== "undefined"
+        ? projectIdsFilteredByVisibility
+        : projectIds,
   });
 
   const enhancedProjects = [];
