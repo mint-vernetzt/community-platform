@@ -4,7 +4,9 @@ import classNames from "classnames";
 import { Children, isValidElement, useState } from "react";
 import {
   Form,
+  type FormProps,
   Link,
+  type LinkProps,
   NavLink,
   useLocation,
   useSearchParams,
@@ -85,6 +87,7 @@ export function MainMenu(
               : "To the dashboard"
             : ""
         }
+        prefetch="intent"
       >
         <HeaderLogo />
       </Link>
@@ -95,6 +98,7 @@ export function MainMenu(
               <Button
                 as="link"
                 to={`/login?login_redirect=${location.pathname}`}
+                prefetch="intent"
               >
                 {locales !== undefined
                   ? locales.route.root.login
@@ -115,6 +119,7 @@ export function MainMenu(
                 as="link"
                 to={`/register?login_redirect=${location.pathname}`}
                 variant="outline"
+                prefetch="intent"
               >
                 {locales !== undefined
                   ? locales.route.root.register
@@ -136,8 +141,8 @@ export function MainMenu(
               <>
                 <Item
                   to="/dashboard"
-                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
+                  prefetch="intent"
                 >
                   <IconWrapper>
                     {location.pathname === "/dashboard" ? (
@@ -183,10 +188,7 @@ export function MainMenu(
                     </div>
                   </Label>
 
-                  <TopicItem
-                    to={`/profile/${username}`}
-                    openMainMenuKey={openMainMenuKey}
-                  >
+                  <TopicItem to={`/profile/${username}`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myProfile
                       : DEFAULT_LANGUAGE === "de"
@@ -194,10 +196,7 @@ export function MainMenu(
                       : "My profile"}
                   </TopicItem>
 
-                  <TopicItem
-                    to={`/my/organizations`}
-                    openMainMenuKey={openMainMenuKey}
-                  >
+                  <TopicItem to={`/my/organizations`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myOrganizations
                       : DEFAULT_LANGUAGE === "de"
@@ -205,10 +204,7 @@ export function MainMenu(
                       : "My organizations"}
                   </TopicItem>
 
-                  <TopicItem
-                    to={`/my/events`}
-                    openMainMenuKey={openMainMenuKey}
-                  >
+                  <TopicItem to={`/my/events`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myEvents
                       : DEFAULT_LANGUAGE === "de"
@@ -216,10 +212,7 @@ export function MainMenu(
                       : "My events"}
                   </TopicItem>
 
-                  <TopicItem
-                    to={`/my/projects`}
-                    openMainMenuKey={openMainMenuKey}
-                  >
+                  <TopicItem to={`/my/projects`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myProjects
                       : DEFAULT_LANGUAGE === "de"
@@ -248,7 +241,7 @@ export function MainMenu(
                 </div>
               </Label>
 
-              <TopicItem to="/explore/all" openMainMenuKey={openMainMenuKey}>
+              <TopicItem to="/explore/all" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.index
                   : DEFAULT_LANGUAGE === "de"
@@ -256,10 +249,7 @@ export function MainMenu(
                   : "All content"}
               </TopicItem>
 
-              <TopicItem
-                to="/explore/profiles"
-                openMainMenuKey={openMainMenuKey}
-              >
+              <TopicItem to="/explore/profiles" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.profiles
                   : DEFAULT_LANGUAGE === "de"
@@ -269,7 +259,7 @@ export function MainMenu(
 
               <TopicItem
                 to={`/explore/organizations/${preferredExploreOrganizationsView}`}
-                openMainMenuKey={openMainMenuKey}
+                prefetch="intent"
               >
                 {locales !== undefined
                   ? locales.route.root.menu.explore.organizations
@@ -278,10 +268,7 @@ export function MainMenu(
                   : "Organizations"}
               </TopicItem>
 
-              <TopicItem
-                to="/explore/projects"
-                openMainMenuKey={openMainMenuKey}
-              >
+              <TopicItem to="/explore/projects" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.projects
                   : DEFAULT_LANGUAGE === "de"
@@ -289,7 +276,7 @@ export function MainMenu(
                   : "Projects"}
               </TopicItem>
 
-              <TopicItem to="/explore/events" openMainMenuKey={openMainMenuKey}>
+              <TopicItem to="/explore/events" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.events
                   : DEFAULT_LANGUAGE === "de"
@@ -297,10 +284,7 @@ export function MainMenu(
                   : "Events"}
               </TopicItem>
 
-              <TopicItem
-                to="/explore/fundings"
-                openMainMenuKey={openMainMenuKey}
-              >
+              <TopicItem to="/explore/fundings" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.fundings
                   : DEFAULT_LANGUAGE === "de"
@@ -311,8 +295,8 @@ export function MainMenu(
 
             <Item
               to="/resources"
-              openMainMenuKey={openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
+              prefetch="intent"
             >
               <IconWrapper>
                 {location.pathname === "/resources" ? (
@@ -343,8 +327,8 @@ export function MainMenu(
 
             <Item
               to="/help"
-              openMainMenuKey={openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
+              prefetch="intent"
             >
               <IconWrapper>
                 {location.pathname === "/help" ? (
@@ -366,8 +350,8 @@ export function MainMenu(
               <>
                 <Item
                   to={`/profile/${username}/settings/general`}
-                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
+                  prefetch="intent"
                 >
                   <IconWrapper>
                     {location.pathname.startsWith(
@@ -388,9 +372,8 @@ export function MainMenu(
                 </Item>
 
                 <Item
-                  to="/logout"
+                  action="/logout"
                   method="post"
-                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <IconWrapper>
@@ -415,6 +398,7 @@ export function MainMenu(
                 isActive ? "mv-underline" : "hover:mv-underline"
               }
               to="/imprint"
+              prefetch="intent"
             >
               {locales !== undefined
                 ? locales.route.root.menu.imprint
@@ -451,6 +435,7 @@ export function MainMenu(
                 isActive ? "mv-underline" : "hover:mv-underline"
               }
               to="/accessibility-statement"
+              prefetch="intent"
             >
               {locales !== undefined
                 ? locales.route.root.menu.accessibilityStatement
@@ -532,36 +517,44 @@ function FooterMenu(props: React.PropsWithChildren) {
 
 function Item(
   props: React.PropsWithChildren & {
-    to: string;
-    openMainMenuKey: string;
     setActiveTopicId: (id: string | null) => void;
-    method?: "get" | "post";
-  }
+  } & (
+      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+      | (FormProps & React.RefAttributes<HTMLFormElement>)
+    )
 ) {
-  const children = Children.toArray(props.children);
-  const isSubmitting = useIsSubmitting(props.to);
+  const { children, setActiveTopicId, ...linkOrFormProps } = props;
+  const childs = Children.toArray(children);
+  const isSubmitting = useIsSubmitting(
+    "action" in linkOrFormProps ? linkOrFormProps.action : undefined
+  );
 
-  return props.method === "post" ? (
+  return "method" in linkOrFormProps && linkOrFormProps.method === "post" ? (
     <>
-      <Form id={props.to} method="post" action={props.to} hidden />
+      <Form
+        id={linkOrFormProps.action}
+        method="post"
+        action={linkOrFormProps.action}
+        hidden
+        {...linkOrFormProps}
+      />
       <button
         onClick={() => {
-          props.setActiveTopicId(null);
+          setActiveTopicId(null);
         }}
-        form={props.to}
+        form={linkOrFormProps.action}
         type="submit"
         className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
         disabled={isSubmitting}
       >
-        {children}
+        {childs}
       </button>
     </>
-  ) : (
+  ) : "to" in linkOrFormProps ? (
     <NavLink
       onClick={() => {
-        props.setActiveTopicId(null);
+        setActiveTopicId(null);
       }}
-      to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-flex mv-items-center mv-gap-2.5 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
@@ -570,10 +563,11 @@ function Item(
         }
         return `${baseClasses} hover:mv-bg-blue-50 hover:mv-text-primary-500`;
       }}
+      {...linkOrFormProps}
     >
-      {children}
+      {childs}
     </NavLink>
-  );
+  ) : null;
 }
 
 function Topic(
@@ -642,13 +636,14 @@ function Label(props: React.PropsWithChildren) {
 }
 
 function TopicItem(
-  props: React.PropsWithChildren & {
-    to: string;
-    openMainMenuKey: string;
-  }
+  props: React.PropsWithChildren &
+    LinkProps &
+    React.RefAttributes<HTMLAnchorElement>
 ) {
-  const external = props.to.startsWith("http");
-  const children = Children.toArray(props.children);
+  const { children, ...linkProps } = props;
+  const external =
+    typeof linkProps.to === "string" ? linkProps.to.startsWith("http") : false;
+  const childs = Children.toArray(children);
 
   const classes = classNames(
     "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
@@ -656,17 +651,16 @@ function TopicItem(
 
   return external ? (
     <Link
-      to={`${props.to}`}
       target="_blank"
       rel="noopener noreferrer"
       className={classes}
+      {...linkProps}
     >
-      {children}
+      {childs}
     </Link>
   ) : (
     <NavLink
       end
-      to={`${props.to}`}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
           "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-[38px] mv-pr-2 mv-py-4";
@@ -675,8 +669,9 @@ function TopicItem(
         }
         return `${baseClasses} hover:mv-bg-blue-50 hover:mv-text-primary-500`;
       }}
+      {...linkProps}
     >
-      {children}
+      {childs}
     </NavLink>
   );
 }
