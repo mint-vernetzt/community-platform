@@ -1023,7 +1023,7 @@ function Index() {
               <p className="mv-font-bold mv-text-right">
                 <Link
                   className="mv-ml-4 mv-mb-2 @md:mv-mb-0 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
-                  to={`/event/${loaderData.event.slug}/settings`}
+                  to={`/event/${loaderData.event.slug}/settings/general`}
                 >
                   {locales.route.content.event.edit}
                 </Link>
