@@ -1,5 +1,4 @@
 import type { Organization, Prisma, Profile, Project } from "@prisma/client";
-import { type User } from "@supabase/supabase-js";
 import { getAllSlugsFromLocaleThatContainsWord } from "~/i18n.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
@@ -568,55 +567,10 @@ export async function getProjectIds(options: {
 }
 
 export async function getAllProjects(options: {
-  filter: GetProjectsSchema["prjFilter"];
   sortBy: GetProjectsSchema["prjSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  sessionUser: User | null;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  projectIds: string[];
 }) {
-  const whereClauses = getProjectsFilterWhereClause(options.filter);
-
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-    if (filterValues.length === 0) {
-      continue;
-    }
-    if (options.sessionUser === null) {
-      const visibilityWhereStatement = {
-        projectVisibility: {
-          [`${typedFilterKey}s`]: true,
-        },
-      };
-      whereClauses.AND.push(visibilityWhereStatement);
-    }
-
-    const filterKeyWhereStatement: FilterKeyWhereStatement = { OR: [] };
-
-    for (const slug of filterValues) {
-      const filterWhereStatement = {
-        [`${typedFilterKey}s`]: {
-          some: {
-            [typedFilterKey]: {
-              slug,
-            },
-          },
-        },
-      };
-      filterKeyWhereStatement.OR.push(filterWhereStatement);
-    }
-
-    whereClauses.AND.push(filterKeyWhereStatement);
-  }
-
-  const searchWhereClauses = getProjectsSearchWhereClauses(
-    options.search,
-    options.sessionUser !== null,
-    options.language
-  );
-  whereClauses.AND.push(...searchWhereClauses);
-
   const projects = await prismaClient.project.findMany({
     select: {
       id: true,
@@ -660,7 +614,9 @@ export async function getAllProjects(options: {
       },
     },
     where: {
-      AND: [...whereClauses.AND, { published: true }],
+      id: {
+        in: options.projectIds,
+      },
     },
     orderBy: [
       {

@@ -704,40 +704,8 @@ export async function getAllEvents(options: {
   filter: GetEventsSchema["evtFilter"];
   sortBy: GetEventsSchema["evtSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  sessionUser: User | null;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  eventIds: string[];
 }) {
-  const whereClauses = getEventsFilterWhereClause(options.filter);
-  for (const filterKey in options.filter) {
-    const typedFilterKey = filterKey as keyof typeof options.filter;
-    const filterValues = options.filter[typedFilterKey];
-    if (filterValues.length === 0) {
-      continue;
-    }
-    if (options.sessionUser === null) {
-      const visibilityWhereStatement = {
-        eventVisibility: {
-          [`${
-            typedFilterKey === "periodOfTime"
-              ? "startTime"
-              : typedFilterKey === "stage"
-              ? "stage"
-              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
-          }`]: true,
-        },
-      };
-      whereClauses.AND.push(visibilityWhereStatement);
-    }
-  }
-
-  const searchWhereClauses = getEventsSearchWhereClause(
-    options.search,
-    options.sessionUser !== null,
-    options.language
-  );
-  whereClauses.AND.push(...searchWhereClauses);
-
   const events = await prismaClient.event.findMany({
     select: {
       id: true,
@@ -809,7 +777,9 @@ export async function getAllEvents(options: {
       },
     },
     where: {
-      AND: [...whereClauses.AND, { published: true }],
+      id: {
+        in: options.eventIds,
+      },
     },
     orderBy: [
       options.filter.periodOfTime === "past" &&

@@ -22,6 +22,7 @@ import { getFeatureAbilities } from "~/routes/feature-access.server";
 import customMapStyles from "~/styles/map.css?url";
 import {
   getAllOrganizations,
+  getOrganizationIds,
   VIEW_COOKIE_VALUES,
   viewCookie,
 } from "../organizations.server";
@@ -65,12 +66,29 @@ export async function loader(args: LoaderFunctionArgs) {
   const sessionUser = await getSessionUser(authClient);
   const isLoggedIn = sessionUser !== null;
 
-  const organizations = await getAllOrganizations({
+  let organizationIdsFilteredByVisibility;
+  if (!isLoggedIn) {
+    organizationIdsFilteredByVisibility = await getOrganizationIds({
+      filter: submission.value.orgFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
+    });
+  }
+
+  const organizationIds = await getOrganizationIds({
     filter: submission.value.orgFilter,
-    sortBy: submission.value.orgSortBy,
     search: submission.value.search,
-    isLoggedIn,
+    isLoggedIn: true,
     language,
+  });
+
+  const organizations = await getAllOrganizations({
+    sortBy: submission.value.orgSortBy,
+    organizationIds:
+      typeof organizationIdsFilteredByVisibility !== "undefined"
+        ? organizationIdsFilteredByVisibility
+        : organizationIds,
   });
 
   const enhancedOrganizations = [];

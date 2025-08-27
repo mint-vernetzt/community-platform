@@ -707,21 +707,11 @@ export async function getAllNetworks() {
 }
 
 export async function getAllOrganizations(options: {
-  filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];
   take?: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  isLoggedIn: boolean;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  organizationIds: string[];
 }) {
-  const { filter, sortBy, take, search, isLoggedIn, language } = options;
-
-  const whereClauses = getOrganizationWhereClauses({
-    filter,
-    search,
-    isLoggedIn,
-    language,
-  });
+  const { sortBy, take, organizationIds } = options;
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -817,7 +807,9 @@ export async function getAllOrganizations(options: {
       },
     },
     where: {
-      AND: whereClauses,
+      id: {
+        in: organizationIds,
+      },
     },
     orderBy: [
       {

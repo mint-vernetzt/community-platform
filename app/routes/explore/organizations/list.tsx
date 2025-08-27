@@ -52,8 +52,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locales = languageModuleMap[language]["explore/organizations"];
 
   let filteredByVisibilityCount;
+  let organizationIdsFilteredByVisibility;
   if (!isLoggedIn) {
-    const organizationIdsFilteredByVisibility = await getOrganizationIds({
+    organizationIdsFilteredByVisibility = await getOrganizationIds({
       filter: submission.value.orgFilter,
       search: submission.value.search,
       isLoggedIn,
@@ -72,12 +73,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const organizationCount = organizationIds.length;
 
   const organizations = await getAllOrganizations({
-    filter: submission.value.orgFilter,
     sortBy: submission.value.orgSortBy,
-    search: submission.value.search,
-    isLoggedIn,
     take,
-    language,
+    organizationIds:
+      typeof organizationIdsFilteredByVisibility !== "undefined"
+        ? organizationIdsFilteredByVisibility
+        : organizationIds,
   });
 
   const enhancedOrganizations = [];

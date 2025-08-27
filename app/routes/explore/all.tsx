@@ -22,15 +22,16 @@ import { languageModuleMap } from "~/locales/.server";
 import { getPublicURL } from "~/storage.server";
 import { enhanceEventsWithParticipationStatus } from "../dashboard.server";
 import { getFilterSchemes } from "./all.shared";
-import { getAllEvents } from "./events.server";
-import { getAllFundings } from "./fundings.server";
+import { getAllEvents, getEventIds } from "./events.server";
+import { getAllFundings, getFundingIds } from "./fundings.server";
 import {
   getAllOrganizations,
+  getOrganizationIds,
   viewCookie,
   viewCookieSchema,
 } from "./organizations.server";
-import { getAllProfiles } from "./profiles.server";
-import { getAllProjects } from "./projects.server";
+import { getAllProfiles, getProfileIds } from "./profiles.server";
+import { getAllProjects, getProjectIds } from "./projects.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -57,17 +58,35 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+  const isLoggedIn = sessionUser !== null;
 
   const numberOfEntities = 4;
   const numberOfFundings = 2;
 
-  const rawProfiles = await getAllProfiles({
+  let profileIdsFilteredByVisibility;
+  if (!isLoggedIn) {
+    profileIdsFilteredByVisibility = await getProfileIds({
+      filter: submission.value.prfFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
+    });
+  }
+
+  const profileIds = await getProfileIds({
     filter: submission.value.prfFilter,
-    sortBy: submission.value.prfSortBy,
     search: submission.value.search,
-    sessionUser,
-    take: numberOfEntities,
+    isLoggedIn: true,
     language,
+  });
+
+  const rawProfiles = await getAllProfiles({
+    sortBy: submission.value.prfSortBy,
+    take: numberOfEntities,
+    profileIds:
+      typeof profileIdsFilteredByVisibility !== "undefined"
+        ? profileIdsFilteredByVisibility
+        : profileIds,
   });
 
   const profiles = rawProfiles.map((profile) => {
@@ -171,13 +190,30 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
-  const rawOrganizations = await getAllOrganizations({
+  let organizationIdsFilteredByVisibility;
+  if (!isLoggedIn) {
+    organizationIdsFilteredByVisibility = await getOrganizationIds({
+      filter: submission.value.orgFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
+    });
+  }
+
+  const organizationIds = await getOrganizationIds({
     filter: submission.value.orgFilter,
-    sortBy: submission.value.orgSortBy,
     search: submission.value.search,
-    isLoggedIn: sessionUser !== null,
-    take: numberOfEntities,
+    isLoggedIn: true,
     language,
+  });
+
+  const rawOrganizations = await getAllOrganizations({
+    sortBy: submission.value.orgSortBy,
+    take: numberOfEntities,
+    organizationIds:
+      typeof organizationIdsFilteredByVisibility !== "undefined"
+        ? organizationIdsFilteredByVisibility
+        : organizationIds,
   });
 
   const organizations = rawOrganizations.map((organization) => {
@@ -300,13 +336,31 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
+  let eventIdsFilteredByVisibility;
+  if (!isLoggedIn) {
+    eventIdsFilteredByVisibility = await getEventIds({
+      filter: submission.value.evtFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
+    });
+  }
+
+  const eventIds = await getEventIds({
+    filter: submission.value.evtFilter,
+    search: submission.value.search,
+    isLoggedIn: true,
+    language,
+  });
+
   const rawEvents = await getAllEvents({
     filter: submission.value.evtFilter,
     sortBy: submission.value.evtSortBy,
-    search: submission.value.search,
-    sessionUser,
     take: numberOfEntities,
-    language,
+    eventIds:
+      typeof eventIdsFilteredByVisibility !== "undefined"
+        ? eventIdsFilteredByVisibility
+        : eventIds,
   });
 
   const rawEventsWithParticipationStatus =
@@ -378,13 +432,30 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
-  const rawProjects = await getAllProjects({
+  let projectIdsFilteredByVisibility;
+  if (!isLoggedIn) {
+    projectIdsFilteredByVisibility = await getProjectIds({
+      filter: submission.value.prjFilter,
+      search: submission.value.search,
+      isLoggedIn,
+      language,
+    });
+  }
+
+  const projectIds = await getProjectIds({
     filter: submission.value.prjFilter,
-    sortBy: submission.value.prjSortBy,
     search: submission.value.search,
-    sessionUser,
-    take: numberOfEntities,
+    isLoggedIn: true,
     language,
+  });
+
+  const rawProjects = await getAllProjects({
+    sortBy: submission.value.prjSortBy,
+    take: numberOfEntities,
+    projectIds:
+      typeof projectIdsFilteredByVisibility !== "undefined"
+        ? projectIdsFilteredByVisibility
+        : projectIds,
   });
 
   const projects = rawProjects.map((project) => {
@@ -491,13 +562,17 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
-  const fundings = await getAllFundings({
+  const fundingIds = await getFundingIds({
     filter: submission.value.fndFilter,
-    sortBy: submission.value.fndSortBy,
     search: submission.value.search,
     sessionUser,
-    take: numberOfFundings,
     language,
+  });
+
+  const fundings = await getAllFundings({
+    sortBy: submission.value.fndSortBy,
+    take: numberOfFundings,
+    fundingIds,
   });
 
   let preferredExploreOrganizationsView: "map" | "list" = "map";

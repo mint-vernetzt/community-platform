@@ -76,23 +76,19 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const sessionUser = await getSessionUser(authClient);
 
-  const fundings = await getAllFundings({
-    filter: submission.value.fndFilter,
-    sortBy: submission.value.fndSortBy,
-    search: submission.value.search,
-    sessionUser,
-    take,
-    language,
-  });
-
   const fundingIds = await getFundingIds({
     filter: submission.value.fndFilter,
     search: submission.value.search,
     sessionUser,
     language,
   });
-
   const count = fundingIds.length;
+
+  const fundings = await getAllFundings({
+    sortBy: submission.value.fndSortBy,
+    take,
+    fundingIds,
+  });
 
   const fundingTypes = await prismaClient.fundingType.findMany({
     where: {

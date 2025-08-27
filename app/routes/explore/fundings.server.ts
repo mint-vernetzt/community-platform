@@ -342,17 +342,10 @@ export async function updateFilterVectorOfFunding(fundingId: string) {
 }
 
 export async function getAllFundings(options: {
-  filter: GetFundingsSchema["fndFilter"];
   sortBy: GetFundingsSchema["fndSortBy"];
   take: ReturnType<typeof getTakeParam>;
-  search: GetSearchSchema["search"];
-  sessionUser: User | null;
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  fundingIds: string[];
 }) {
-  const whereClauses = getFundingsFilterWhereClause(options.filter);
-  const searchWhereClauses = getFundingsSearchWhereClause(options.search);
-  whereClauses.AND.push(...searchWhereClauses);
-
   const fundings = await prismaClient.funding.findMany({
     select: {
       title: true,
@@ -411,7 +404,9 @@ export async function getAllFundings(options: {
       sourceAreas: true,
     },
     where: {
-      AND: whereClauses,
+      id: {
+        in: options.fundingIds,
+      },
     },
     take: options.take,
     orderBy: [

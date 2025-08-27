@@ -9,7 +9,7 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -125,6 +125,13 @@ export const loader = async (args: LoaderFunctionArgs) => {
       : organizationIds;
 
   const enhancedNetworks = [];
+  const networkFilterVector = await getOrganizationFilterVectorForAttribute({
+    attribute: "network",
+    filter: { ...submission.value.orgFilter },
+    search: submission.value.search,
+    ids: networkOrganizationIds,
+  });
+
   for (const network of networks) {
     const enhancedNetwork = { ...network };
 
@@ -150,13 +157,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
         });
       }
     }
-
-    const networkFilterVector = await getOrganizationFilterVectorForAttribute({
-      attribute: "network",
-      filter: { ...submission.value.orgFilter },
-      search: submission.value.search,
-      ids: networkOrganizationIds,
-    });
 
     const vectorCount = getFilterCountForSlug(
       network.slug,
@@ -392,6 +392,10 @@ export default function ExploreOrganizations() {
       setVisibleNetworks(loaderData.networks);
     }
   };
+
+  useEffect(() => {
+    setVisibleNetworks(loaderData.networks);
+  }, [loaderData.networks]);
 
   return (
     <>

@@ -90,8 +90,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const isLoggedIn = sessionUser !== null;
 
   let filteredByVisibilityCount;
+  let profileIdsFilteredByVisibility;
   if (!isLoggedIn) {
-    const profileIdsFilteredByVisibility = await getProfileIds({
+    profileIdsFilteredByVisibility = await getProfileIds({
       filter: submission.value.prfFilter,
       search: submission.value.search,
       isLoggedIn,
@@ -110,12 +111,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const profileCount = profileIds.length;
 
   const profiles = await getAllProfiles({
-    filter: submission.value.prfFilter,
     sortBy: submission.value.prfSortBy,
-    search: submission.value.search,
     take,
-    sessionUser,
-    language,
+    profileIds:
+      typeof profileIdsFilteredByVisibility !== "undefined"
+        ? profileIdsFilteredByVisibility
+        : profileIds,
   });
 
   const enhancedProfiles = [];
