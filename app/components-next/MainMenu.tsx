@@ -365,7 +365,7 @@ export function MainMenu(
             {mode === "authenticated" ? (
               <>
                 <Item
-                  to={`/profile/${username}/settings`}
+                  to={`/profile/${username}/settings/general`}
                   openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
