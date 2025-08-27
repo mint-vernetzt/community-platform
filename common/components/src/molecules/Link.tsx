@@ -1,6 +1,9 @@
 import classNames from "classnames";
 import { createElement } from "react";
-import { Link as ReactRouterLink } from "react-router";
+import {
+  Link as ReactRouterLink,
+  type LinkProps as ReactRouterLinkProps,
+} from "react-router";
 interface LinkProps {
   to: string;
   children?: string | React.ReactNode;
@@ -9,6 +12,7 @@ interface LinkProps {
   className?: string;
   as?: string | React.ElementType;
   isExternal?: boolean;
+  prefetch?: ReactRouterLinkProps["prefetch"];
 }
 
 function Link(props: LinkProps) {
