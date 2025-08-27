@@ -29,11 +29,21 @@ export function MainMenu(
     abilities?: Awaited<ReturnType<typeof getFeatureAbilities>>;
     currentLanguage: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
     locales?: RootLocales;
+    preferredExploreOrganizationsView?: "list" | "map";
   }
 ) {
+  const {
+    mode,
+    openMainMenuKey,
+    username,
+    currentLanguage,
+    locales,
+    preferredExploreOrganizationsView,
+  } = props;
+
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isOpen = searchParams.get(props.openMainMenuKey);
+  const isOpen = searchParams.get(openMainMenuKey);
 
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
@@ -51,26 +61,26 @@ export function MainMenu(
         href="#main-menu-end"
         className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
       >
-        {props.locales !== undefined
-          ? props.locales.route.root.skipMainMenu.start
+        {locales !== undefined
+          ? locales.route.root.skipMainMenu.start
           : DEFAULT_LANGUAGE === "de"
           ? "Hauptmenü überspringen"
           : "Skip main menu"}
       </a>
       <Link
-        to={props.mode !== "anon" ? "/dashboard" : "/"}
+        to={mode !== "anon" ? "/dashboard" : "/"}
         className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
         aria-label={
-          props.locales !== undefined
-            ? props.mode === "anon"
-              ? props.locales.route.root.toLandingPage
-              : props.mode === "authenticated"
-              ? props.locales.route.root.toDashboard
-              : DEFAULT_LANGUAGE === "de" && props.mode === "anon"
+          locales !== undefined
+            ? mode === "anon"
+              ? locales.route.root.toLandingPage
+              : mode === "authenticated"
+              ? locales.route.root.toDashboard
+              : DEFAULT_LANGUAGE === "de" && mode === "anon"
               ? "Zur Startseite"
-              : DEFAULT_LANGUAGE === "de" && props.mode !== "anon"
+              : DEFAULT_LANGUAGE === "de" && mode !== "anon"
               ? "Zum Dashboard"
-              : props.mode === "anon"
+              : mode === "anon"
               ? "To the start page"
               : "To the dashboard"
             : ""
@@ -79,23 +89,23 @@ export function MainMenu(
         <HeaderLogo />
       </Link>
       <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
-        {props.mode === "anon" ? (
+        {mode === "anon" ? (
           <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
               <Button
                 as="link"
                 to={`/login?login_redirect=${location.pathname}`}
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.login
+                {locales !== undefined
+                  ? locales.route.root.login
                   : DEFAULT_LANGUAGE === "de"
                   ? "Anmelden"
                   : "Login"}
               </Button>
             </div>
             <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
-              {props.locales !== undefined
-                ? props.locales.route.root.or
+              {locales !== undefined
+                ? locales.route.root.or
                 : DEFAULT_LANGUAGE === "de"
                 ? "oder"
                 : "or"}
@@ -106,8 +116,8 @@ export function MainMenu(
                 to={`/register?login_redirect=${location.pathname}`}
                 variant="outline"
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.register
+                {locales !== undefined
+                  ? locales.route.root.register
                   : DEFAULT_LANGUAGE === "de"
                   ? "Registrieren"
                   : "Register"}
@@ -117,19 +127,16 @@ export function MainMenu(
         ) : (
           <div className="mv-flex-grow"> </div>
         )}
-        <Closer
-          openMainMenuKey={props.openMainMenuKey}
-          locales={props.locales}
-        />
+        <Closer openMainMenuKey={openMainMenuKey} locales={locales} />
       </div>
       <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
         <div className="mv-flex-grow">
           <TopMenu>
-            {props.mode === "authenticated" && props.username !== undefined ? (
+            {mode === "authenticated" && username !== undefined ? (
               <>
                 <Item
                   to="/dashboard"
-                  openMainMenuKey={props.openMainMenuKey}
+                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <IconWrapper>
@@ -140,8 +147,8 @@ export function MainMenu(
                     )}
                   </IconWrapper>
                   <div className="mv-font-semibold">
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.overview
+                    {locales !== undefined
+                      ? locales.route.root.menu.overview
                       : DEFAULT_LANGUAGE === "de"
                       ? "Überblick"
                       : "Overview"}
@@ -155,7 +162,7 @@ export function MainMenu(
                 >
                   <Label>
                     <IconWrapper orientation="left">
-                      {location.pathname === `/profile/${props.username}` ||
+                      {location.pathname === `/profile/${username}` ||
                       location.pathname === "/my/organizations" ||
                       location.pathname === "/organization/create" ||
                       location.pathname === "/my/events" ||
@@ -168,8 +175,8 @@ export function MainMenu(
                       )}
                     </IconWrapper>
                     <div className="mv-font-semibold">
-                      {props.locales !== undefined
-                        ? props.locales.route.root.menu.personalSpace.label
+                      {locales !== undefined
+                        ? locales.route.root.menu.personalSpace.label
                         : DEFAULT_LANGUAGE === "de"
                         ? "Mein MINT-Bereich"
                         : "My space"}
@@ -177,11 +184,11 @@ export function MainMenu(
                   </Label>
 
                   <TopicItem
-                    to={`/profile/${props.username}`}
-                    openMainMenuKey={props.openMainMenuKey}
+                    to={`/profile/${username}`}
+                    openMainMenuKey={openMainMenuKey}
                   >
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.personalSpace.myProfile
+                    {locales !== undefined
+                      ? locales.route.root.menu.personalSpace.myProfile
                       : DEFAULT_LANGUAGE === "de"
                       ? "Mein Profil"
                       : "My profile"}
@@ -189,11 +196,10 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/organizations`}
-                    openMainMenuKey={props.openMainMenuKey}
+                    openMainMenuKey={openMainMenuKey}
                   >
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.personalSpace
-                          .myOrganizations
+                    {locales !== undefined
+                      ? locales.route.root.menu.personalSpace.myOrganizations
                       : DEFAULT_LANGUAGE === "de"
                       ? "Meine Organisationen"
                       : "My organizations"}
@@ -201,10 +207,10 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/events`}
-                    openMainMenuKey={props.openMainMenuKey}
+                    openMainMenuKey={openMainMenuKey}
                   >
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.personalSpace.myEvents
+                    {locales !== undefined
+                      ? locales.route.root.menu.personalSpace.myEvents
                       : DEFAULT_LANGUAGE === "de"
                       ? "Meine Veranstaltungen"
                       : "My events"}
@@ -212,10 +218,10 @@ export function MainMenu(
 
                   <TopicItem
                     to={`/my/projects`}
-                    openMainMenuKey={props.openMainMenuKey}
+                    openMainMenuKey={openMainMenuKey}
                   >
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.personalSpace.myProjects
+                    {locales !== undefined
+                      ? locales.route.root.menu.personalSpace.myProjects
                       : DEFAULT_LANGUAGE === "de"
                       ? "Meine Projekte"
                       : "My projects"}
@@ -234,20 +240,17 @@ export function MainMenu(
                   <Icon type="search" aria-hidden="true" />
                 </IconWrapper>
                 <div className="mv-font-semibold mv-ml-1">
-                  {props.locales !== undefined
-                    ? props.locales.route.root.menu.explore.label
+                  {locales !== undefined
+                    ? locales.route.root.menu.explore.label
                     : DEFAULT_LANGUAGE === "de"
                     ? "Entdecken"
                     : "Explore"}
                 </div>
               </Label>
 
-              <TopicItem
-                to="/explore/all"
-                openMainMenuKey={props.openMainMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.index
+              <TopicItem to="/explore/all" openMainMenuKey={openMainMenuKey}>
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.index
                   : DEFAULT_LANGUAGE === "de"
                   ? "Alle Inhalte"
                   : "All content"}
@@ -255,21 +258,21 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/profiles"
-                openMainMenuKey={props.openMainMenuKey}
+                openMainMenuKey={openMainMenuKey}
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.profiles
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.profiles
                   : DEFAULT_LANGUAGE === "de"
                   ? "Personen"
                   : "Persons"}
               </TopicItem>
 
               <TopicItem
-                to="/explore/organizations"
-                openMainMenuKey={props.openMainMenuKey}
+                to={`/explore/organizations/${preferredExploreOrganizationsView}`}
+                openMainMenuKey={openMainMenuKey}
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.organizations
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.organizations
                   : DEFAULT_LANGUAGE === "de"
                   ? "Organisationen"
                   : "Organizations"}
@@ -277,21 +280,18 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/projects"
-                openMainMenuKey={props.openMainMenuKey}
+                openMainMenuKey={openMainMenuKey}
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.projects
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.projects
                   : DEFAULT_LANGUAGE === "de"
                   ? "Projekte"
                   : "Projects"}
               </TopicItem>
 
-              <TopicItem
-                to="/explore/events"
-                openMainMenuKey={props.openMainMenuKey}
-              >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.events
+              <TopicItem to="/explore/events" openMainMenuKey={openMainMenuKey}>
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.events
                   : DEFAULT_LANGUAGE === "de"
                   ? "Veranstaltungen"
                   : "Events"}
@@ -299,10 +299,10 @@ export function MainMenu(
 
               <TopicItem
                 to="/explore/fundings"
-                openMainMenuKey={props.openMainMenuKey}
+                openMainMenuKey={openMainMenuKey}
               >
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.explore.fundings
+                {locales !== undefined
+                  ? locales.route.root.menu.explore.fundings
                   : DEFAULT_LANGUAGE === "de"
                   ? "Förderungen"
                   : "Fundings"}
@@ -311,7 +311,7 @@ export function MainMenu(
 
             <Item
               to="/resources"
-              openMainMenuKey={props.openMainMenuKey}
+              openMainMenuKey={openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               <IconWrapper>
@@ -322,8 +322,8 @@ export function MainMenu(
                 )}
               </IconWrapper>
               <div className="mv-font-semibold">
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.resources.label
+                {locales !== undefined
+                  ? locales.route.root.menu.resources.label
                   : DEFAULT_LANGUAGE === "de"
                   ? "Ressourcen"
                   : "Resources"}
@@ -336,14 +336,14 @@ export function MainMenu(
             <div className="mv-pl-2 mv-py-4">
               <LocaleSwitch
                 variant="dark"
-                currentLanguage={props.currentLanguage}
-                locales={props.locales}
+                currentLanguage={currentLanguage}
+                locales={locales}
               />
             </div>
 
             <Item
               to="/help"
-              openMainMenuKey={props.openMainMenuKey}
+              openMainMenuKey={openMainMenuKey}
               setActiveTopicId={setActiveTopicId}
             >
               <IconWrapper>
@@ -354,24 +354,24 @@ export function MainMenu(
                 )}
               </IconWrapper>
               <div className="mv-font-semibold">
-                {props.locales !== undefined
-                  ? props.locales.route.root.menu.help
+                {locales !== undefined
+                  ? locales.route.root.menu.help
                   : DEFAULT_LANGUAGE === "de"
                   ? "Hilfe"
                   : "Help"}
               </div>
             </Item>
 
-            {props.mode === "authenticated" ? (
+            {mode === "authenticated" ? (
               <>
                 <Item
-                  to={`/profile/${props.username}/settings`}
-                  openMainMenuKey={props.openMainMenuKey}
+                  to={`/profile/${username}/settings`}
+                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <IconWrapper>
                     {location.pathname.startsWith(
-                      `/profile/${props.username}/settings`
+                      `/profile/${username}/settings`
                     ) ? (
                       <Icon type="gear" aria-hidden="true" />
                     ) : (
@@ -379,8 +379,8 @@ export function MainMenu(
                     )}
                   </IconWrapper>
                   <div className="mv-font-semibold">
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.settings
+                    {locales !== undefined
+                      ? locales.route.root.menu.settings
                       : DEFAULT_LANGUAGE === "de"
                       ? "Einstellungen"
                       : "Settings"}
@@ -390,15 +390,15 @@ export function MainMenu(
                 <Item
                   to="/logout"
                   method="post"
-                  openMainMenuKey={props.openMainMenuKey}
+                  openMainMenuKey={openMainMenuKey}
                   setActiveTopicId={setActiveTopicId}
                 >
                   <IconWrapper>
                     <Icon type="door-closed-outline" aria-hidden="true" />
                   </IconWrapper>
                   <div className="mv-font-semibold">
-                    {props.locales !== undefined
-                      ? props.locales.route.root.menu.logout
+                    {locales !== undefined
+                      ? locales.route.root.menu.logout
                       : DEFAULT_LANGUAGE === "de"
                       ? "Ausloggen"
                       : "Logout"}
@@ -416,8 +416,8 @@ export function MainMenu(
               }
               to="/imprint"
             >
-              {props.locales !== undefined
-                ? props.locales.route.root.menu.imprint
+              {locales !== undefined
+                ? locales.route.root.menu.imprint
                 : DEFAULT_LANGUAGE === "de"
                 ? "Impressum"
                 : "Imprint"}
@@ -428,8 +428,8 @@ export function MainMenu(
               rel="noopener noreferrer"
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
             >
-              {props.locales !== undefined
-                ? props.locales.route.root.menu.privacy
+              {locales !== undefined
+                ? locales.route.root.menu.privacy
                 : DEFAULT_LANGUAGE === "de"
                 ? "Datenschutz"
                 : "Privacy policy"}
@@ -440,8 +440,8 @@ export function MainMenu(
               rel="noopener noreferrer"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
             >
-              {props.locales !== undefined
-                ? props.locales.route.root.menu.terms
+              {locales !== undefined
+                ? locales.route.root.menu.terms
                 : DEFAULT_LANGUAGE === "de"
                 ? "Nutzungsbedingungen"
                 : "Terms of use"}
@@ -452,8 +452,8 @@ export function MainMenu(
               }
               to="/accessibility-statement"
             >
-              {props.locales !== undefined
-                ? props.locales.route.root.menu.accessibilityStatement
+              {locales !== undefined
+                ? locales.route.root.menu.accessibilityStatement
                 : DEFAULT_LANGUAGE === "de"
                 ? "Barrierefreiheit"
                 : "Accessibility"}
@@ -466,8 +466,8 @@ export function MainMenu(
         href="#main-menu-start"
         className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
       >
-        {props.locales !== undefined
-          ? props.locales.route.root.skipMainMenu.end
+        {locales !== undefined
+          ? locales.route.root.skipMainMenu.end
           : DEFAULT_LANGUAGE === "de"
           ? "Zurück zum Anfang des Hauptmenüs"
           : "Back to the start of the main menu"}

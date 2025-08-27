@@ -24,7 +24,11 @@ import { enhanceEventsWithParticipationStatus } from "../dashboard.server";
 import { getFilterSchemes } from "./all.shared";
 import { getAllEvents } from "./events.server";
 import { getAllFundings } from "./fundings.server";
-import { getAllOrganizations } from "./organizations.server";
+import {
+  getAllOrganizations,
+  viewCookie,
+  viewCookieSchema,
+} from "./organizations.server";
 import { getAllProfiles } from "./profiles.server";
 import { getAllProjects } from "./projects.server";
 
@@ -496,6 +500,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
   });
 
+  let preferredExploreOrganizationsView: "map" | "list" = "map";
+
+  const cookieHeader = request.headers.get("Cookie");
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  if (cookie !== null) {
+    try {
+      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
   return {
     profiles,
     organizations,
@@ -504,6 +522,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     fundings,
     locales,
     language,
+    preferredExploreOrganizationsView,
   };
 };
 
@@ -561,8 +580,10 @@ export default function ExploreAll() {
               <LinkButton
                 to={
                   searchParamsString === ""
-                    ? "/explore/organizations"
-                    : `/explore/organizations?${searchParams.toString()}`
+                    ? `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
+                    : `/explore/organizations/${
+                        loaderData.preferredExploreOrganizationsView
+                      }?${searchParams.toString()}`
                 }
               >
                 {loaderData.locales.index.links.organizations}

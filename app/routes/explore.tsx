@@ -17,7 +17,11 @@ import { getProfileIds } from "./explore/profiles.server";
 
 import { invariantResponse } from "~/lib/utils/response";
 
-import { getOrganizationIds } from "./explore/organizations.server";
+import {
+  getOrganizationIds,
+  viewCookie,
+  viewCookieSchema,
+} from "./explore/organizations.server";
 
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { EntitiesSelect } from "~/components-next/EntitiesSelect";
@@ -133,6 +137,20 @@ export async function loader(args: LoaderFunctionArgs) {
     };
   });
 
+  let preferredExploreOrganizationsView: "map" | "list" = "map";
+
+  const cookieHeader = request.headers.get("Cookie");
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  if (cookie !== null) {
+    try {
+      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
   return {
     locales,
     url: {
@@ -149,6 +167,7 @@ export async function loader(args: LoaderFunctionArgs) {
     },
     tags,
     entities: enhancedEntities,
+    preferredExploreOrganizationsView,
   };
 }
 
@@ -169,7 +188,7 @@ export default function Explore() {
       label: loaderData.locales.route.content.menu.profiles,
     },
     {
-      pathname: "/explore/organizations",
+      pathname: `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`,
       search: loaderData.url.search,
       value: loaderData.counts.organizations,
       label: loaderData.locales.route.content.menu.organizations,
@@ -201,7 +220,8 @@ export default function Explore() {
         ? loaderData.locales.route.content.menu.allContent
         : loaderData.url.pathname === "/explore/profiles"
         ? loaderData.locales.route.content.menu.profiles
-        : loaderData.url.pathname === "/explore/organizations"
+        : loaderData.url.pathname ===
+          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
         ? loaderData.locales.route.content.menu.organizations
         : loaderData.url.pathname === "/explore/events"
         ? loaderData.locales.route.content.menu.events
@@ -215,7 +235,8 @@ export default function Explore() {
         ? loaderData.counts.allContent
         : loaderData.url.pathname === "/explore/profiles"
         ? loaderData.counts.profiles
-        : loaderData.url.pathname === "/explore/organizations"
+        : loaderData.url.pathname ===
+          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
         ? loaderData.counts.organizations
         : loaderData.url.pathname === "/explore/events"
         ? loaderData.counts.events

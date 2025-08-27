@@ -51,6 +51,10 @@ import { getPublicURL } from "./storage.server";
 import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
+import {
+  viewCookie,
+  viewCookieSchema,
+} from "./routes/explore/organizations.server";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -197,6 +201,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
+  let preferredExploreOrganizationsView: "map" | "list" = "map";
+
+  const cookieHeader = request.headers.get("Cookie");
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  if (cookie !== null) {
+    try {
+      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
   return data(
     {
       matomoUrl: process.env.MATOMO_URL,
@@ -214,6 +232,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       },
       tags,
       entities: enhancedEntities,
+      preferredExploreOrganizationsView,
     },
     {
       headers: combineHeaders(
@@ -315,6 +334,11 @@ export const ErrorBoundary = () => {
               : DEFAULT_LANGUAGE
           }
           locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+          preferredExploreOrganizationsView={
+            hasRootLoaderData
+              ? rootLoaderData.preferredExploreOrganizationsView
+              : "map"
+          }
         />
         <div
           className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
@@ -383,6 +407,7 @@ export default function App() {
     toast,
     currentLanguage,
     locales,
+    preferredExploreOrganizationsView,
     mode,
     ENV,
   } = useLoaderData<typeof loader>();
@@ -538,6 +563,9 @@ export default function App() {
                 username={sessionUserInfo?.username}
                 currentLanguage={currentLanguage}
                 locales={locales}
+                preferredExploreOrganizationsView={
+                  preferredExploreOrganizationsView
+                }
               />
             </div>
             <div

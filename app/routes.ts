@@ -201,6 +201,7 @@ export default [
     route("/explore/all", "./routes/explore/all.tsx"),
     route("/explore/profiles", "./routes/explore/profiles.tsx"),
     route("/explore/organizations", "./routes/explore/organizations.tsx", [
+      index("./routes/explore/organizations/index.tsx"),
       route(
         "/explore/organizations/map",
         "./routes/explore/organizations/map.tsx"

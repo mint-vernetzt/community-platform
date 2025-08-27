@@ -83,6 +83,7 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
+import { viewCookie, viewCookieSchema } from "./explore/organizations.server";
 
 export function links() {
   return [
@@ -589,6 +590,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, "news_section");
 
+  let preferredExploreOrganizationsView: "map" | "list" = "map";
+
+  const cookieHeader = request.headers.get("Cookie");
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  if (cookie !== null) {
+    try {
+      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
   return {
     communityCounter,
     profiles,
@@ -608,6 +623,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     currentTimestamp: Date.now(),
     tags,
     entities: enhancedEntities,
+    preferredExploreOrganizationsView,
   };
 };
 
@@ -1625,7 +1641,10 @@ function Dashboard() {
             {loaderData.locales.route.content.organizations}
           </h2>
           <div className="mv-text-right">
-            <MVLink as="link" to="/explore/organizations">
+            <MVLink
+              as="link"
+              to={`/explore/organizations/${loaderData.preferredExploreOrganizationsView}`}
+            >
               <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
                 {loaderData.locales.route.content.allOrganizations}
               </span>
