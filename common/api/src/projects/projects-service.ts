@@ -185,7 +185,7 @@ async function getProjects(request: Request, skip: number, take: number) {
 
       const url =
         baseURL !== undefined
-          ? decorate(request, `${baseURL}/project/${slug}`)
+          ? decorate(request, `${baseURL}/project/${slug}/detail/about`)
           : null;
 
       const enhancedProject = {

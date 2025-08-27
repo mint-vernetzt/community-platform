@@ -45,7 +45,7 @@ function ProjectCard(
 
   return (
     <div className="mv-relative mv-w-full mv-h-full">
-      <Card to={`/project/${project.slug}`}>
+      <Card to={`/project/${project.slug}/detail/about`}>
         <Card.Header cardType="project">
           {typeof project.published !== "undefined" &&
             project.published === false && (

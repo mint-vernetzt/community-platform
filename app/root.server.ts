@@ -921,7 +921,7 @@ export async function getProjectsBySearchQuery(searchQuery: string) {
 
   const normalizedProjects = projects.map((project) => {
     const name = project.name;
-    const url = `/project/${project.slug}`;
+    const url = `/project/${project.slug}/detail/about`;
     const logo = project.logo;
 
     return {

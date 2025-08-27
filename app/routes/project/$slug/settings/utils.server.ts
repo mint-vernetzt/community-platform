@@ -20,7 +20,7 @@ export async function getRedirectPathOnProtectedProjectRoute(args: {
   // check if admin of project and redirect to project details if not
   const mode = await deriveProjectMode(sessionUser, slug);
   if (mode !== "admin") {
-    return `/project/${slug}`;
+    return `/project/${slug}/detail/about`;
   }
 
   return null;

@@ -157,7 +157,7 @@ export const action = async (args: ActionFunctionArgs) => {
     };
   }
 
-  return redirect(`/project/${submission.value.slug}/settings`);
+  return redirect(`/project/${submission.value.slug}/settings/general`);
 };
 
 function Create() {

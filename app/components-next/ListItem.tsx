@@ -127,7 +127,7 @@ export function ListItem(
             "academicTitle" in entity
               ? `/profile/${entity.username}`
               : "responsibleOrganizations" in entity
-              ? `/project/${entity.slug}`
+              ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
           className={`mv-flex mv-gap-2 @sm:mv-gap-4 focus:mv-outline-none mv-items-center mv-rounded-2xl mv-w-full mv-grow ${

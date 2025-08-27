@@ -985,7 +985,7 @@ export default function Index() {
                         className="mv-w-full mv-px-3 mv-mb-4"
                       >
                         <Link
-                          to={`/project/${relation.project.slug}`}
+                          to={`/project/${relation.project.slug}/detail/about`}
                           className="mv-flex mv-flex-wrap mv-content-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
                         >
                           <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
