@@ -332,6 +332,7 @@ function OrganizationDetail() {
       {/* Back Button Section */}
       <BackButton
         to={`/explore/organizations/${preferredExploreOrganizationsView}`}
+        prefetch="intent"
       >
         {locales.route.back}
       </BackButton>

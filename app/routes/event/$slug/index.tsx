@@ -553,7 +553,7 @@ function Index() {
               <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
             </BreadCrump>
           ) : (
-            <BackButton to="/explore/events">
+            <BackButton to="/explore/events" prefetch="intent">
               {locales.route.content.back}
             </BackButton>
           )}
