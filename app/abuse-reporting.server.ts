@@ -78,7 +78,7 @@ export async function createOrganizationAbuseReport(options: {
   });
   return {
     title,
-    entityUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${options.slug}`,
+    entityUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${options.slug}/detail/about`,
     reporter: {
       email: reporter.email,
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
@@ -158,7 +158,7 @@ export async function createProjectAbuseReport(options: {
   });
   return {
     title,
-    entityUrl: `${process.env.COMMUNITY_BASE_URL}/project/${options.slug}`,
+    entityUrl: `${process.env.COMMUNITY_BASE_URL}/project/${options.slug}/detail/about`,
     reporter: {
       email: reporter.email,
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,

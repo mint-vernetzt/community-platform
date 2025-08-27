@@ -282,7 +282,7 @@ function MyProjects() {
                               <Link
                                 {...OverlayMenu.getListChildrenStyles()}
                                 {...OverlayMenu.getIdToFocusWhenOpening()}
-                                to={`/project/${project.slug}/settings`}
+                                to={`/project/${project.slug}/settings/general`}
                               >
                                 <svg
                                   width="20"

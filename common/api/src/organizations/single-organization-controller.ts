@@ -159,7 +159,10 @@ export class OrganizationController extends Controller {
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/organization/${organizationSlug}`)
+        ? decorate(
+            request,
+            `${baseURL}/organization/${organizationSlug}/detail/about`
+          )
         : null;
 
     const enhancedOrganization = {

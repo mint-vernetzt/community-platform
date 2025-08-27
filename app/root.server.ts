@@ -843,7 +843,7 @@ export async function getOrganizationsBySearchQuery(searchQuery: string) {
 
   const normalizedOrganizations = organizations.map((organization) => {
     const name = organization.name;
-    const url = `/organization/${organization.slug}`;
+    const url = `/organization/${organization.slug}/detail/about`;
     const logo = organization.logo;
 
     return {
@@ -921,7 +921,7 @@ export async function getProjectsBySearchQuery(searchQuery: string) {
 
   const normalizedProjects = projects.map((project) => {
     const name = project.name;
-    const url = `/project/${project.slug}`;
+    const url = `/project/${project.slug}/detail/about`;
     const logo = project.logo;
 
     return {

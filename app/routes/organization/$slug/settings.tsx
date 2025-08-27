@@ -103,7 +103,9 @@ function Settings() {
     <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
       <div className="mv-hidden @md:mv-block mv-mb-8">
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
-          <BackButton to={`/organization/${loaderData.organization.slug}`}>
+          <BackButton
+            to={`/organization/${loaderData.organization.slug}/detail/about`}
+          >
             {locales.route.content.back}
           </BackButton>
           <h3 className="mv-mb-0 mv-font-bold">{locales.route.content.edit}</h3>
@@ -123,7 +125,7 @@ function Settings() {
               </h1>
             </span>
             <Link
-              to={`/organization/${loaderData.organization.slug}`}
+              to={`/organization/${loaderData.organization.slug}/detail/about`}
               className="mv-px-4"
             >
               <svg

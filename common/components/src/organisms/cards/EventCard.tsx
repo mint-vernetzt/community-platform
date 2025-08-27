@@ -271,7 +271,7 @@ function EventCard(
                 key={organization.slug}
                 {...organization}
                 size="sm"
-                to={`/organization/${organization.slug}`}
+                to={`/organization/${organization.slug}/detail/about`}
               />
             );
           })}

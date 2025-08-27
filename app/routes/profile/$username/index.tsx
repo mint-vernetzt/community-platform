@@ -802,7 +802,7 @@ export default function Index() {
                 <div className="mv-flex-initial @lg:mv-pl-4 mv-pt-3 mv-mb-6">
                   <Link
                     className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
-                    to={`/profile/${loaderData.data.username}/settings`}
+                    to={`/profile/${loaderData.data.username}/settings/general`}
                   >
                     {locales.route.profile.editProfile}
                   </Link>
@@ -940,7 +940,7 @@ export default function Index() {
                       <OrganizationCard
                         key={`${relation.organization.slug}`}
                         id={`${relation.organization.slug}`}
-                        link={`/organization/${relation.organization.slug}`}
+                        link={`/organization/${relation.organization.slug}/detail/about`}
                         name={relation.organization.name}
                         types={relation.organization.types}
                         image={relation.organization.logo}
@@ -985,7 +985,7 @@ export default function Index() {
                         className="mv-w-full mv-px-3 mv-mb-4"
                       >
                         <Link
-                          to={`/project/${relation.project.slug}`}
+                          to={`/project/${relation.project.slug}/detail/about`}
                           className="mv-flex mv-flex-wrap mv-content-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
                         >
                           <div className="mv-w-full mv-flex mv-items-center mv-flex-row">

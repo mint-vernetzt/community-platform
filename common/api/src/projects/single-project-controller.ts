@@ -223,7 +223,7 @@ export class ProjectController extends Controller {
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/project/${projectSlug}`)
+        ? decorate(request, `${baseURL}/project/${projectSlug}/detail/about`)
         : null;
 
     const enhancedProject = {

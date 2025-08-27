@@ -53,6 +53,10 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
+import {
+  viewCookie,
+  viewCookieSchema,
+} from "~/routes/explore/organizations.server";
 
 export function links() {
   return [
@@ -205,6 +209,20 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const enhancedOrganization = addImgUrls(authClient, filteredOrganization);
 
+  let preferredExploreOrganizationsView: "map" | "list" = "map";
+
+  const cookieHeader = request.headers.get("Cookie");
+  // TODO: fix type issue
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+  if (cookie !== null) {
+    try {
+      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+    } catch {
+      // ignore invalid cookie
+    }
+  }
+
   return {
     organization: enhancedOrganization,
     mode,
@@ -214,6 +232,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     currentTimestamp: Date.now(),
+    preferredExploreOrganizationsView,
   };
 };
 
@@ -299,7 +318,8 @@ export const action = async (args: ActionFunctionArgs) => {
 function OrganizationDetail() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { organization, mode, locales } = loaderData;
+  const { organization, mode, locales, preferredExploreOrganizationsView } =
+    loaderData;
   const location = useLocation();
   const pathname = location.pathname;
   const isSubmitting = useIsSubmitting();
@@ -310,7 +330,11 @@ function OrganizationDetail() {
       innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 xl:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-14 @sm:mv-mb-20 @lg:mv-mb-16 mv-max-w-screen-2xl"
     >
       {/* Back Button Section */}
-      <BackButton to="/explore/organizations">{locales.route.back}</BackButton>
+      <BackButton
+        to={`/explore/organizations/${preferredExploreOrganizationsView}`}
+      >
+        {locales.route.back}
+      </BackButton>
       {/* Header Section */}
       <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
         <div className="mv-w-full mv-h-[196px] @lg:mv-h-[168px]">
@@ -405,7 +429,7 @@ function OrganizationDetail() {
                     return (
                       <Avatar
                         key={`network-member-logo-${relation.networkMember.slug}`}
-                        to={`/organization/${relation.networkMember.slug}`}
+                        to={`/organization/${relation.networkMember.slug}/detail/about`}
                         size="md"
                         name={relation.networkMember.name}
                         logo={relation.networkMember.logo}
@@ -426,7 +450,7 @@ function OrganizationDetail() {
             <div className="mv-w-full @lg:mv-w-fit mv-grid @lg:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
               <Button
                 as="link"
-                to={`/organization/${organization.slug}/settings`}
+                to={`/organization/${organization.slug}/settings/general`}
                 fullSize
               >
                 <svg

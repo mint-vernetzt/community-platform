@@ -54,8 +54,6 @@ import {
   getFilterCountForSlug,
   getOrganizationFilterVectorForAttribute,
   getOrganizationIds,
-  viewCookie,
-  viewCookieSchema,
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
@@ -75,23 +73,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     currentView = "list";
   } else if (url.pathname === "/explore/organizations/map") {
     currentView = "map";
-  }
-
-  if (currentView === "parent") {
-    const cookieHeader = request.headers.get("Cookie");
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-    if (cookie === null) {
-      return redirect(`./map?${url.searchParams.toString()}`);
-    }
-    let view;
-    try {
-      view = viewCookieSchema.parse(cookie);
-    } catch {
-      return redirect(`./map?${url.searchParams.toString()}`);
-    }
-    return redirect(`./${view}?${url.searchParams.toString()}`);
   }
 
   const searchParams = url.searchParams;

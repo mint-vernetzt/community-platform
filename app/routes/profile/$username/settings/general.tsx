@@ -720,7 +720,7 @@ export default function Index() {
 
                   {isFormChanged ? (
                     <Link
-                      to={`/profile/${username}/settings`}
+                      to={`/profile/${username}/settings/general`}
                       reloadDocument
                       className="mv-text-primary mv-underline mv-text-sm mv-font-semibold"
                     >

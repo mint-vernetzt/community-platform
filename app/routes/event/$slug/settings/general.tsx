@@ -1084,7 +1084,7 @@ function General() {
 
             {/* {isFormChanged ? ( */}
             <Link
-              to={`/event/${slug}/settings`}
+              to={`/event/${slug}/settings/general`}
               reloadDocument
               className="mv-text-primary mv-underline mv-text-sm mv-font-semibold"
             >

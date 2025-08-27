@@ -826,7 +826,7 @@ function Popup(props: {
         </div>
       </div>
       <a
-        href={`/organization/${organization.slug}`}
+        href={`/organization/${organization.slug}/detail/about`}
         className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200 mv-pointer-events-auto"
         rel={embeddable === true ? "noreferrer noopener" : undefined}
         target={embeddable === true ? "_blank" : undefined}

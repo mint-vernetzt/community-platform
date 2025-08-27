@@ -118,7 +118,7 @@ async function getOrganizations(request: Request, skip: number, take: number) {
 
       const url =
         baseURL !== undefined
-          ? decorate(request, `${baseURL}/organization/${slug}`)
+          ? decorate(request, `${baseURL}/organization/${slug}/detail/about`)
           : null;
 
       const enhancedOrganization = {
