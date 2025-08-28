@@ -512,7 +512,7 @@ function ProjectDetail() {
           {mode === "admin" && (
             <Header.Footer>
               <Controls>
-                <Button as="link" to="./../settings" fullSize>
+                <Button as="link" to="./../settings" fullSize prefetch="intent">
                   {locales.route.content.edit}
                 </Button>
                 <Button
@@ -627,7 +627,7 @@ function ProjectDetail() {
           <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>
-                <Link to="./about" preventScrollReset>
+                <Link to="./about" preventScrollReset prefetch="intent">
                   {locales.route.content.about}
                 </Link>
               </TabBar.Item>
@@ -642,14 +642,18 @@ function ProjectDetail() {
                 project.roomSituation !== null ||
                 project.furtherRoomSituation !== null) && (
                 <TabBar.Item active={pathname.endsWith("/requirements")}>
-                  <Link to="./requirements" preventScrollReset>
+                  <Link
+                    to="./requirements"
+                    preventScrollReset
+                    prefetch="intent"
+                  >
                     {locales.route.content.conditions}
                   </Link>
                 </TabBar.Item>
               )}
               {(project.documents.length > 0 || project.images.length > 0) && (
                 <TabBar.Item active={pathname.endsWith("/attachments")}>
-                  <Link to="./attachments" preventScrollReset>
+                  <Link to="./attachments" preventScrollReset prefetch="intent">
                     {locales.route.content.material}
                   </Link>
                 </TabBar.Item>

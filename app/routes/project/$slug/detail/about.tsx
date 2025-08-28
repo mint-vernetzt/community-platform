@@ -614,7 +614,10 @@ function About() {
                   interactive
                   as={{
                     type: "link",
-                    props: { to: `/profile/${relation.profile.username}` },
+                    props: {
+                      to: `/profile/${relation.profile.username}`,
+                      prefetch: "intent",
+                    },
                   }}
                 >
                   <List.Item.Info>
@@ -662,6 +665,7 @@ function About() {
                     type: "link",
                     props: {
                       to: `/organization/${relation.organization.slug}/detail/about`,
+                      prefetch: "intent",
                     },
                   }}
                 >
@@ -741,7 +745,7 @@ function About() {
               <Globe />
               <Link
                 to={loaderData.project.website}
-                target="__blank"
+                target="_blank"
                 rel="noopener noreferrer"
               >
                 {loaderData.project.website}
@@ -776,7 +780,7 @@ function About() {
               {loaderData.project.facebook !== null && (
                 <Link
                   to={loaderData.project.facebook}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -786,7 +790,7 @@ function About() {
               {loaderData.project.linkedin !== null && (
                 <Link
                   to={loaderData.project.linkedin}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -796,7 +800,7 @@ function About() {
               {loaderData.project.twitter !== null && (
                 <Link
                   to={loaderData.project.twitter}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -806,7 +810,7 @@ function About() {
               {loaderData.project.youtube !== null && (
                 <Link
                   to={loaderData.project.youtube}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -816,7 +820,7 @@ function About() {
               {loaderData.project.instagram !== null && (
                 <Link
                   to={loaderData.project.instagram}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -826,7 +830,7 @@ function About() {
               {loaderData.project.xing !== null && (
                 <Link
                   to={loaderData.project.xing}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -836,7 +840,7 @@ function About() {
               {loaderData.project.mastodon !== null && (
                 <Link
                   to={loaderData.project.mastodon}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >
@@ -846,7 +850,7 @@ function About() {
               {loaderData.project.tiktok !== null && (
                 <Link
                   to={loaderData.project.tiktok}
-                  target="__blank"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
                 >

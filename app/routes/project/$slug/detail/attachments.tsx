@@ -166,6 +166,7 @@ function Attachments() {
                   to={`./download?type=documents`}
                   variant="outline"
                   fullSize
+                  reloadDocument
                 >
                   {locales.content.documents.downloadAll}
                 </Button>
@@ -227,6 +228,7 @@ function Attachments() {
                 to={`./download?type=images`}
                 variant="outline"
                 fullSize
+                reloadDocument
               >
                 {locales.content.images.downloadAll}
               </Button>
