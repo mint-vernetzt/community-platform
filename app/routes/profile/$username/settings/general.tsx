@@ -464,6 +464,7 @@ export default function Index() {
                         key="link-to-security-settings"
                         to={`/profile/${username}/settings/security`}
                         className="mv-text-primary hover:mv-underline"
+                        prefetch="intent"
                       />,
                     ]
                   )}
