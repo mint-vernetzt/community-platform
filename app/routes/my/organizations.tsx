@@ -595,7 +595,7 @@ export default function MyOrganizations() {
             <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
               {locales.route.headline}
             </h1>
-            <Button as="link" to={"/organization/create"}>
+            <Button as="link" to={"/organization/create"} prefetch="intent">
               <svg
                 width="20"
                 height="20"
@@ -718,8 +718,9 @@ export default function MyOrganizations() {
               <Link
                 to={"/help#organizations"}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="mv-text-neutral-700 mv-font-semibold mv-underline hover:mv-no-underline"
+                prefetch="intent"
               >
                 {locales.route.networkInfo.faq.link}
               </Link>
@@ -853,6 +854,7 @@ export default function MyOrganizations() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         {organizations.teamMember.organizations.some(
                           (organization) => {
@@ -957,6 +959,7 @@ export default function MyOrganizations() {
                             entity={organization}
                             hideAfter={3}
                             locales={locales}
+                            prefetch="intent"
                           >
                             <Button
                               name="intent"
@@ -1082,6 +1085,7 @@ export default function MyOrganizations() {
                             entity={invite.organization}
                             hideAfter={3}
                             locales={locales}
+                            prefetch="intent"
                           >
                             <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
                               <Button
@@ -1209,6 +1213,7 @@ export default function MyOrganizations() {
                               entity={invite.network}
                               hideAfter={3}
                               locales={locales}
+                              prefetch="intent"
                             >
                               <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
                                 <Button
@@ -1334,6 +1339,7 @@ export default function MyOrganizations() {
                                 entity={request.profile}
                                 hideAfter={3}
                                 locales={locales}
+                                prefetch="intent"
                               >
                                 <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
                                   <Button
@@ -1457,6 +1463,7 @@ export default function MyOrganizations() {
                               entity={request.organization}
                               hideAfter={3}
                               locales={locales}
+                              prefetch="intent"
                             >
                               <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
                                 <Button
@@ -1591,6 +1598,7 @@ export default function MyOrganizations() {
                                 key={`${key}-organization-${organization.id}`}
                                 organization={organization}
                                 locales={locales}
+                                prefetch="intent"
                               >
                                 <OrganizationCard.Controls>
                                   <OverlayMenu
@@ -1604,6 +1612,7 @@ export default function MyOrganizations() {
                                           {...OverlayMenu.getListChildrenStyles()}
                                           {...OverlayMenu.getIdToFocusWhenOpening()}
                                           to={`/organization/${organization.slug}/settings/general`}
+                                          prefetch="intent"
                                         >
                                           <svg
                                             width="20"
@@ -1633,6 +1642,7 @@ export default function MyOrganizations() {
                                         {...OverlayMenu.getListChildrenStyles()}
                                         to={`?${doubleCheckModalSearchParams.toString()}`}
                                         preventScrollReset
+                                        prefetch="intent"
                                       >
                                         <svg
                                           width="20"

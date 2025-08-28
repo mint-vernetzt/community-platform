@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 import classNames from "classnames";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
@@ -189,6 +189,7 @@ export function EventListItem(
     to: string;
     listIndex: number;
     hideAfter?: number;
+    prefetch?: LinkProps["prefetch"];
   }>
 ) {
   const classes = classNames(
@@ -200,7 +201,11 @@ export function EventListItem(
 
   return (
     <li className={classes}>
-      <Link to={props.to} className="mv-flex mv-items-stretch">
+      <Link
+        to={props.to}
+        className="mv-flex mv-items-stretch"
+        prefetch={props.prefetch}
+      >
         {props.children}
       </Link>
     </li>

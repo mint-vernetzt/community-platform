@@ -141,7 +141,7 @@ function MyEvents() {
       <Container.Header>
         <Container.Title>{locales.route.title}</Container.Title>
         {loaderData.abilities["events"].hasAccess ? (
-          <Button as="link" to="/event/create">
+          <Button as="link" to="/event/create" prefetch="intent">
             <Add />
             {locales.route.create}
           </Button>
@@ -155,7 +155,12 @@ function MyEvents() {
           <Placeholder.Text>
             {locales.route.placeholder.description}
           </Placeholder.Text>
-          <Button as="link" to="/explore/events" variant="outline">
+          <Button
+            as="link"
+            to="/explore/events"
+            variant="outline"
+            prefetch="intent"
+          >
             {locales.route.placeholder.cta}
           </Button>
         </Placeholder>
@@ -188,6 +193,7 @@ function MyEvents() {
                   key={`canceled-${event.slug}`}
                   to={`/event/${event.slug}`}
                   listIndex={index}
+                  prefetch="intent"
                 >
                   <EventListItem.Image
                     src={event.background}
@@ -272,6 +278,7 @@ function MyEvents() {
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
+                    prefetch="intent"
                   >
                     <EventListItem.Image
                       src={event.background}
@@ -351,6 +358,7 @@ function MyEvents() {
                     to={`/event/${event.slug}`}
                     listIndex={index}
                     hideAfter={3}
+                    prefetch="intent"
                   >
                     <EventListItem.Image
                       src={event.background}
