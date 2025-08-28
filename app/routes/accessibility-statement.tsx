@@ -37,6 +37,7 @@ export default function Imprint() {
                 as="link"
                 to="/"
                 className="mv-inline-flex"
+                prefetch="intent"
               />,
             ]
           )}
@@ -193,6 +194,7 @@ export default function Imprint() {
                 as="link"
                 to="/profile/ingaleffers"
                 className="mv-inline-flex"
+                prefetch="intent"
               />,
             ])}
           </li>
