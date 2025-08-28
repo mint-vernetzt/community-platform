@@ -118,6 +118,7 @@ export default function Index() {
                 loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
               }`}
               className="mv-text-primary mv-font-bold"
+              prefetch="intent"
             >
               {locales.login}
             </Link>
