@@ -1915,6 +1915,7 @@ export default function ExploreProjects() {
                       key={`project-${project.id}`}
                       project={project}
                       as="h2"
+                      prefetch="intent"
                     />
                   );
                 })}

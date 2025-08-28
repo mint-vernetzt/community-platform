@@ -951,6 +951,7 @@ export default function ExploreProfiles() {
                       publicAccess={!loaderData.isLoggedIn}
                       profile={profile}
                       as="h2"
+                      prefetch="intent"
                     />
                   );
                 })}

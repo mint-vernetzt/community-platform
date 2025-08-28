@@ -1260,6 +1260,7 @@ export default function ExploreEvents() {
                           ),
                       }}
                       as="h2"
+                      prefetch="intent"
                     />
                   );
                 })}

@@ -638,6 +638,7 @@ export default function ExploreAll() {
                     profile={profile}
                     locales={loaderData.locales.dashboard}
                     as="h3"
+                    prefetch="intent"
                   />
                 );
               })}
@@ -676,6 +677,7 @@ export default function ExploreAll() {
                     organization={organization}
                     locales={loaderData.locales.dashboard}
                     as="h3"
+                    prefetch="intent"
                   />
                 );
               })}
@@ -731,6 +733,7 @@ export default function ExploreAll() {
                         ),
                     }}
                     as="h3"
+                    prefetch="intent"
                   />
                 );
               })}
@@ -767,6 +770,7 @@ export default function ExploreAll() {
                     project={project}
                     locales={loaderData.locales.dashboard}
                     as="h3"
+                    prefetch="intent"
                   />
                 );
               })}

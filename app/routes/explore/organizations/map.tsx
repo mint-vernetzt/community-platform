@@ -345,6 +345,7 @@ export default function ExploreOrganizationsList() {
                     to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
                     target="_blank"
                     className="mv-text-primary hover:mv-underline mv-w-fit mv-inline-flex"
+                    prefetch="intent"
                   >
                     {" "}
                   </Link>,
@@ -425,6 +426,7 @@ export default function ExploreOrganizationsList() {
               size="small"
               as="link"
               to={`?${modalOpenSearchParams.toString()}`}
+              prefetch="intent"
             >
               {loaderData.locales.route.map.embed}
             </TextButton>
@@ -432,6 +434,7 @@ export default function ExploreOrganizationsList() {
               to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
               target="_blank"
               className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+              prefetch="intent"
             >
               <QuestionMark />
             </Link>
