@@ -969,6 +969,38 @@ export async function getFundingsBySearchQuery(searchQuery: string) {
   return normalizedFundings;
 }
 
+function getElementsSortedByPerfectAndPartialMatch<T extends { name: string }>(
+  elements: Array<T>,
+  searchQuery: string
+) {
+  const words = searchQuery
+    .split(" ")
+    .filter((word) => {
+      return word.length > 0 && word !== "";
+    })
+    .map((word) => word.toLowerCase());
+
+  const perfectMatches = [];
+  const partialMatches = [];
+
+  for (const element of elements) {
+    const isPerfectMatch = words.every((word) => {
+      return element.name.toLowerCase().includes(word);
+    });
+    const isPartialMatch = words.some((word) => {
+      return element.name.toLowerCase().includes(word);
+    });
+
+    if (isPerfectMatch) {
+      perfectMatches.push(element);
+    } else if (isPartialMatch) {
+      partialMatches.push(element);
+    }
+  }
+
+  return { perfectMatches, partialMatches };
+}
+
 export async function getEntitiesBySearchQuery(searchQuery: string) {
   const profiles = await getProfilesBySearchQuery(searchQuery);
   const organizations = await getOrganizationsBySearchQuery(searchQuery);
@@ -983,72 +1015,167 @@ export async function getEntitiesBySearchQuery(searchQuery: string) {
   }[] = [];
 
   const maxEntities = 7;
-  let profileIndex = 0;
-  let organizationIndex = 0;
-  let eventIndex = 0;
-  let projectIndex = 0;
-  let fundingIndex = 0;
+
+  const profileMatches = getElementsSortedByPerfectAndPartialMatch(
+    profiles,
+    searchQuery
+  );
+  const organizationMatches = getElementsSortedByPerfectAndPartialMatch(
+    organizations,
+    searchQuery
+  );
+  const eventMatches = getElementsSortedByPerfectAndPartialMatch(
+    events,
+    searchQuery
+  );
+  const projectMatches = getElementsSortedByPerfectAndPartialMatch(
+    projects,
+    searchQuery
+  );
+  const fundingMatches = getElementsSortedByPerfectAndPartialMatch(
+    fundings,
+    searchQuery
+  );
+
+  let profilePerfectIndex = 0;
+  let organizationPerfectIndex = 0;
+  let eventPerfectIndex = 0;
+  let projectPerfectIndex = 0;
+  let fundingPerfectIndex = 0;
 
   while (entities.length < maxEntities) {
-    if (profileIndex < profiles.length) {
+    if (profilePerfectIndex < profileMatches.perfectMatches.length) {
       entities.push({
         type: "profile",
-        ...profiles[profileIndex],
+        ...profileMatches.perfectMatches[profilePerfectIndex],
       });
-      profileIndex++;
+      profilePerfectIndex++;
       if (entities.length >= maxEntities) {
         break;
       }
     }
-    if (organizationIndex < organizations.length) {
+    if (organizationPerfectIndex < organizationMatches.perfectMatches.length) {
       entities.push({
         type: "organization",
-        ...organizations[organizationIndex],
+        ...organizationMatches.perfectMatches[organizationPerfectIndex],
       });
-      organizationIndex++;
+      organizationPerfectIndex++;
       if (entities.length >= maxEntities) {
         break;
       }
     }
-    if (eventIndex < events.length) {
+    if (eventPerfectIndex < eventMatches.perfectMatches.length) {
       entities.push({
         type: "event",
-        ...events[eventIndex],
+        ...eventMatches.perfectMatches[eventPerfectIndex],
       });
-      eventIndex++;
+      eventPerfectIndex++;
       if (entities.length >= maxEntities) {
         break;
       }
     }
 
-    if (projectIndex < projects.length) {
+    if (projectPerfectIndex < projectMatches.perfectMatches.length) {
       entities.push({
         type: "project",
-        ...projects[projectIndex],
+        ...projectMatches.perfectMatches[projectPerfectIndex],
       });
-      projectIndex++;
+      projectPerfectIndex++;
       if (entities.length >= maxEntities) {
         break;
       }
     }
 
-    if (fundingIndex < fundings.length) {
+    if (fundingPerfectIndex < fundingMatches.perfectMatches.length) {
       entities.push({
         type: "funding",
-        ...fundings[fundingIndex],
+        ...fundingMatches.perfectMatches[fundingPerfectIndex],
       });
-      fundingIndex++;
+      fundingPerfectIndex++;
       if (entities.length >= maxEntities) {
         break;
       }
     }
 
     if (
-      profileIndex >= profiles.length &&
-      organizationIndex >= organizations.length &&
-      eventIndex >= events.length &&
-      projectIndex >= projects.length &&
-      fundingIndex >= fundings.length
+      profilePerfectIndex >= profileMatches.perfectMatches.length &&
+      organizationPerfectIndex >= organizationMatches.perfectMatches.length &&
+      eventPerfectIndex >= eventMatches.perfectMatches.length &&
+      projectPerfectIndex >= projectMatches.perfectMatches.length &&
+      fundingPerfectIndex >= fundingMatches.perfectMatches.length
+    ) {
+      break;
+    }
+  }
+
+  let profilePartialIndex = 0;
+  let organizationPartialIndex = 0;
+  let eventPartialIndex = 0;
+  let projectPartialIndex = 0;
+  let fundingPartialIndex = 0;
+
+  while (entities.length < maxEntities) {
+    if (profilePartialIndex < profileMatches.partialMatches.length) {
+      entities.push({
+        type: "profile",
+        ...profileMatches.partialMatches[profilePartialIndex],
+      });
+      profilePartialIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (organizationPartialIndex < organizationMatches.partialMatches.length) {
+      entities.push({
+        type: "organization",
+        ...organizationMatches.partialMatches[organizationPartialIndex],
+      });
+      organizationPartialIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (eventPartialIndex < eventMatches.partialMatches.length) {
+      entities.push({
+        type: "event",
+        ...eventMatches.partialMatches[eventPartialIndex],
+      });
+      eventPartialIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (projectPartialIndex < projectMatches.partialMatches.length) {
+      entities.push({
+        type: "project",
+        ...projectMatches.partialMatches[projectPartialIndex],
+      });
+      projectPartialIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (fundingPartialIndex < fundingMatches.partialMatches.length) {
+      entities.push({
+        type: "funding",
+        ...fundingMatches.partialMatches[fundingPartialIndex],
+      });
+      fundingPartialIndex++;
+      if (entities.length >= maxEntities) {
+        break;
+      }
+    }
+
+    if (
+      profilePartialIndex >= profileMatches.partialMatches.length &&
+      organizationPartialIndex >= organizationMatches.partialMatches.length &&
+      eventPartialIndex >= eventMatches.partialMatches.length &&
+      projectPartialIndex >= projectMatches.partialMatches.length &&
+      fundingPartialIndex >= fundingMatches.partialMatches.length
     ) {
       break;
     }
