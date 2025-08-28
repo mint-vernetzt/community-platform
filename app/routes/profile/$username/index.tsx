@@ -732,7 +732,7 @@ export default function Index() {
                           >
                             <Link
                               to={loaderData.data[service] as string}
-                              target="__blank"
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="mv-flex-1 mv-flex mv-bg-neutral-100 mv-items-center mv-justify-center mv-px-4 mv-py-2.5 mv-rounded-lg mv-text-neutral-700"
                             >
@@ -805,6 +805,7 @@ export default function Index() {
                   <Link
                     className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                     to={`/profile/${loaderData.data.username}/settings/general`}
+                    prefetch="intent"
                   >
                     {locales.route.profile.editProfile}
                   </Link>
@@ -930,6 +931,7 @@ export default function Index() {
                       <Link
                         to="/organization/create"
                         className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        prefetch="intent"
                       >
                         {locales.route.section.organizations.create}
                       </Link>
@@ -948,6 +950,7 @@ export default function Index() {
                         image={relation.organization.logo}
                         blurredImage={relation.organization.blurredLogo}
                         locales={locales}
+                        prefetch="intent"
                       />
                     ))}
                   </div>
@@ -971,6 +974,7 @@ export default function Index() {
                       <Link
                         to="/project/create"
                         className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        prefetch="intent"
                       >
                         {locales.route.section.projects.create}
                       </Link>
@@ -989,6 +993,7 @@ export default function Index() {
                         <Link
                           to={`/project/${relation.project.slug}/detail/about`}
                           className="mv-flex mv-flex-wrap mv-content-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
+                          prefetch="intent"
                         >
                           <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
                             {relation.project.logo !== "" &&
@@ -1051,6 +1056,7 @@ export default function Index() {
                       <Link
                         to="/event/create"
                         className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        prefetch="intent"
                       >
                         {locales.route.section.comingEvents.create}
                       </Link>
@@ -1084,6 +1090,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1233,6 +1240,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -1272,6 +1280,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1405,6 +1414,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -1445,6 +1455,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1573,6 +1584,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -1612,6 +1624,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1735,6 +1748,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -1782,6 +1796,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1873,6 +1888,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -1913,6 +1929,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -1989,6 +2006,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -2029,6 +2047,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -2102,6 +2121,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
@@ -2141,6 +2161,7 @@ export default function Index() {
                               <Link
                                 className="mv-flex"
                                 to={`/event/${event.slug}`}
+                                prefetch="intent"
                               >
                                 <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                                   <div className="mv-w-36 mv-h-full mv-relative">
@@ -2212,6 +2233,7 @@ export default function Index() {
                                   <Link
                                     to={`/event/${event.slug}`}
                                     className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
                                   </Link>
