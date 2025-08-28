@@ -26,7 +26,7 @@ export const locale = {
           question:
             "What added value does the MINTvernetzt community platform offer?",
           answer:
-            "<p>The nationwide STEM community thrives on exchanging ideas, sharing knowledge, and learning from and with each other. A variety of functions, tools, and opportunities await you on the platform:</p><ul><li>The STEM world in one place. <b>Find stakeholders</b> with specific skills, <b>organizations</b> in your region, inspiring <b>projects</b>, and relevant <b>events</b> using our filter and search functions.</li><li><b>Continue your education</b> and <b>network</b> with other stakeholders. Register for exciting events. Find other event attendees and download presentations.</li><li>Discover current <b>funding opportunities</b> for your projects in our <b>funding search</b>.</li><li>Find support for your work through access to the <b>MINT media database</b> and, soon, our <b>MINT sharepic generator</b>.</li></ul>",
+            "<p>The nationwide STEM community thrives on exchanging ideas, sharing knowledge, and learning from and with each other. A variety of functions, tools, and opportunities await you on the platform:</p><ul><li>The STEM world in one place. <b>Find stakeholders</b> with specific skills, <b>organizations</b> in your region, inspiring <b>projects</b>, and relevant <b>events</b> using our filter and search functions.</li><li><b>Continue your education</b> and <b>network</b> with other stakeholders. Register for exciting events. Find other event attendees and download presentations.</li><li>Discover current <b>funding opportunities</b> for your projects in our <b>funding search</b>.</li><li>Find support for your work through access to the <b>MINT media database</b> and our <b>MINT sharepic generator</b>.</li></ul>",
         },
         isItFree: {
           question: "Is the platform free to use?",
@@ -35,7 +35,7 @@ export const locale = {
         whoOperatesThePlatform: {
           question: "Who operates the platform?",
           answer:
-            "<p>The MINT-Vernetzungsstelle Deutschland, or <b>MINTvernetzt</b> for short, is the central service and contact point for (extracurricular) MINT stakeholders in german-speaking countries. We create networking spaces and offer various free, practice-oriented workshop formats, including topics on target group-specific and cliché-free communication, innovative design, as well as financing and sustaining STEM offerings.</br></br><b>MINTvernetzt</b> is funded by the <b>Federal Ministry of Education and Research</b> and is jointly implemented by employees of the <b>Körber Stiftung</b>, <b>matrix gGmbH</b>, the <b>Nationales MINT Forum e. V.</b>, the <b>Stifterverband</b>, and the <b>University of Regensburg</b>.</br></br><b>matrix gGmbH</b> is responsible for the development and implementation of the community platform. The <b>MINTvernetzt community platform</b> has been live since fall 2022. Our co-creative approach with participatory processes enables continuous development based on the wishes and needs of the MINT community. This is how we continuously develop the platform. You can find out which features are planned next on the platform's homepage under <b<“Roadmap“</b>.",
+            "<p>The MINT-Vernetzungsstelle Deutschland, or <b>MINTvernetzt</b> for short, is the central service and contact point for (extracurricular) MINT stakeholders in german-speaking countries. We create networking spaces and offer various free, practice-oriented workshop formats, including topics on target group-specific and cliché-free communication, innovative design, as well as financing and sustaining STEM offerings.</br></br><b>MINTvernetzt</b> is funded by the <b>Federal Ministry of Education and Research</b> and is jointly implemented by employees of the <b>Körber Stiftung</b>, <b>matrix gGmbH</b>, the <b>Nationales MINT Forum e. V.</b>, the <b>Stifterverband</b>, and the <b>University of Regensburg</b>.</br></br><b>matrix gGmbH</b> is responsible for the development and implementation of the community platform. The <b>MINTvernetzt community platform</b> has been live since fall 2022. Our co-creative approach with participatory processes enables continuous development based on the wishes and needs of the MINT community. This is how we continuously develop the platform. You can find out which features are planned next on the platform's homepage under <b<“Roadmap”</b>.",
         },
       },
     },
@@ -50,7 +50,7 @@ export const locale = {
         mintId: {
           question: "What is the MINT-ID?",
           answer:
-            '<p>With the MINT ID, you can register for the <b>MINTvernetzt community platform</b> and the <b>MINT Campus</b> simultaneously. You only log in once and can then use all the features and offerings of both platforms. The <b>MINT Campus</b> is the digital learning platform for the STEM community with freely accessible materials and learning opportunities for educational and project work.</br></br>With the MINT ID, you save time during registration and then have the option to easily switch between the two platforms. You can continue to use your MINTvernetzt account even without a MINT ID.</br></br>You also need a MINT ID to use the <b>MINT Media Database</b>. The <b>MINT Media Database</b> is a constantly growing database of free STEM images and graphics that you can use to make your public relations work appealing and targeted.</br></br>Soon, you will also be able to access the <b>MINT Sharepic Generator</b> with the MINT ID. With the help of the Sharepic Generator, you can easily create graphics for your public relations work for free.</br></br>👉 You can find more information about the MINT ID here: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer noopener">https://mintcampus.org/mint-id/</a></p>',
+            '<p>With the MINT ID, you can register for the <b>MINTvernetzt community platform</b> and the <b>MINT Campus</b> simultaneously. You only log in once and can then use all the features and offerings of both platforms. The <b>MINT Campus</b> is the digital learning platform for the STEM community with freely accessible materials and learning opportunities for educational and project work.</br></br>With the MINT ID, you save time during registration and then have the option to easily switch between the two platforms. You can continue to use your MINTvernetzt account even without a MINT ID.</br></br>You also need a MINT ID to use the <b>MINT Media Database</b>. The <b>MINT-Media Database</b> is a constantly growing database of free STEM images and graphics that you can use to make your public relations work appealing and targeted.</br></br>You will also be able to access the <b>MINT-Sharepic Generator</b> with the MINT ID. With the help of the Sharepic Generator, you can easily create graphics for your public relations work for free.</br></br>👉 You can find more information about the MINT ID here: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer noopener">https://mintcampus.org/mint-id/</a></p>',
         },
         registrationProblems: {
           question:
@@ -72,12 +72,12 @@ export const locale = {
         addToOrganization: {
           question: "How can I add myself as a team member to my organization?",
           answer:
-            "<p>Go to <b>My space > My organizations</b>. Under <b>“Add me to an organization“</b>, you can search for your organization or network on the platform and add yourself. If your organization/network hasn't been created yet, you can create it in the next step. To do so, click the <b>Create organization</b> button.</p>",
+            "<p>Go to <b>My space > My organizations</b>. Under <b>“Add me to an organization”</b>, you can search for your organization or network on the platform and add yourself. If your organization or your network hasn't been created yet, you can create it in the next step. To do so, click the <b>Create organization</b> button.</p>",
         },
         removeFromOrganization: {
-          question: "I am no longer active in the organization/as an actor.",
+          question: "I am no longer active in the organization or as an actor.",
           answer:
-            '<p>You can remove yourself from your organization as a <b>team member or admin</b> on the platform. Go to <b>My space > My organizations</b>. Via the three-dot menu on the organization card <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> you can remove yourself from the organization. If you are <b>the only admin or sole team member</b> of the organization, you must first invite another person to assume your admin or team member role before you can remove yourself as an admin or team member of the organization.</br></br>If you remain active within the STEM field, feel free to add yourself to your new organization as a team member. Go to <b>My space > My organizations</b>. Under <b>“Add me to an organization”</b> you can search for your organization or network on the platform and add yourself. If your organization/network hasn\'t been created yet, you can create it in the next step. To do so, click the <b>Create new organization</b> button.</br></br>If you leave the STEM field, you can also delete your profile. To do so, click <b>Settings</b>. There, under <b>Edit profile</b>, in the <b>“Delete profile“</b> tab, you can remove your profile from the platform.</p>',
+            '<p>You can remove yourself from your organization as a <b>team member or admin</b> on the platform. Go to <b>My space > My organizations</b>. Via the three-dot menu on the organization card <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> you can remove yourself from the organization. If you are <b>the only admin or sole team member</b> of the organization, you must first invite another person to assume your admin or team member role before you can remove yourself as an admin or team member of the organization.</br></br>If you remain active within the STEM field, feel free to add yourself to your new organization as a team member. Go to <b>My space > My organizations</b>. Under <b>“Add me to an organization”</b> you can search for your organization or network on the platform and add yourself. If your organization or network hasn\'t been created yet, you can create it in the next step. To do so, click the <b>Create new organization</b> button.</br></br>If you leave the STEM field, you can also delete your profile. To do so, click <b>Settings</b>. There, under <b>Edit profile</b>, in the <b>“Delete profile”</b> tab, you can remove your profile from the platform.</p>',
         },
         emailChanged: {
           question:
@@ -94,7 +94,7 @@ export const locale = {
           question:
             "Organization, network or project – what is the difference?",
           answer:
-            "<p><b>Networks</b> on the MINTvernetzt community platform are organizations that have specified “Network“ as the organizational form in their organizational settings. It is possible to select multiple organizational forms, making them, for example, an association and a network. Furthermore, networks can also have different network forms. Options include alliance, MINT cluster, MINT region, state initiative, and other network. These can be specified by selecting multiple options under “Edit organization.“</br></br><b>Organizations</b> are associations, foundations, educational institutions, non-profit organizations, companies, initiatives, or networks. An organization is an independent entity that carries out projects. It has its own structures, processes, and resources. An organization can carry out multiple projects and generally has a long-term existence.</br></br><b>Projects</b> are specific activities or initiatives carried out by one or more organizations or individuals. They often have a specific duration and budget. A project can be, for example, a hackathon, a student lab, a project week, a mobile STEM format, a lending system, an online format, an all-day program, and much more.</p>",
+            "<p><b>Networks</b> on the MINTvernetzt community platform are organizations that have specified “Network” as the organizational form in their organizational settings. It is possible to select multiple organizational forms, making them, for example, an association and a network. Furthermore, networks can also have different network forms. Options include alliance, MINT cluster, MINT region, state initiative, and other network. These can be specified by selecting multiple options under “Edit organization.”</br></br><b>Organizations</b> are associations, foundations, educational institutions, non-profit organizations, companies, initiatives, or networks. An organization is an independent entity that carries out projects. It has its own structures, processes, and resources. An organization can carry out multiple projects and generally has a long-term existence.</br></br><b>Projects</b> are specific activities or initiatives carried out by one or more organizations or individuals. They often have a specific duration and budget. A project can be, for example, a hackathon, a student lab, a project week, a mobile STEM format, a lending system, an online format, an all-day program, and much more.</p>",
         },
         networkVsNetworkMember: {
           question:
@@ -105,25 +105,25 @@ export const locale = {
         transformOrganizationToNetwork: {
           question: "How can I make my organization a network organization?",
           answer:
-            '<p>If you are an admin of your organization on the community platform, you can go to your organization and edit it.</br></br>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>. This will take you to your <b>organization settings</b>.</br></br>Alternatively, you can click on your organization\'s card (the box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here. Under <b>“Manage organization“</b> you can then select “Network“ as the <b>organizational form</b> and in the next step select the network forms, such as alliance, MINT cluster, MINT region, state initiative, other network.</br></br>This information will then appear on your organization card and on your organization details page.</br></br>In the next step, you can add your <b>network members</b> by sending them <b>an invitation to join your network.</b> Once they have confirmed the invitation, your member organizations will be listed under “Network“ on your organization details page. Network members must have a profile on the community platform for you to invite them as network members.</p>',
+            '<p>If you are an admin of your organization on the community platform, you can go to your organization and edit it.</br></br>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>. This will take you to your <b>organization settings</b>.</br></br>Alternatively, you can click on your organization\'s card (the box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here. Under <b>“Manage organization”</b> you can then select “Network” as the <b>organizational form</b> and in the next step select the network forms, such as alliance, MINT cluster, MINT region, state initiative, other network.</br></br>In the next step, you can add your <b>network members</b> by sending them <b>an invitation to join your network.</b> Once they have confirmed the invitation, your member organizations will be listed under “Network” on your organization details page. Network members must have a profile on the community platform for you to invite them as network members.</p>',
         },
         automaticNetworkMembers: {
           question:
             "If I create my organization as a network organization, will the network members be automatically assigned to me?",
           answer:
-            "<p>No, you can <b>add network members</b> to your organization by sending them an <b>invitation to join your network</b>. Once they confirm the invitation, your member organizations will be listed under “Network“ on your organization details page. Network members must have a profile on the community platform before you can invite them as a network member.</p>",
+            "<p>No, you can <b>add network members</b> to your organization by sending them an <b>invitation to join your network</b>. Once they confirm the invitation, your member organizations will be listed under “Network” on your organization details page. Network members must have a profile on the community platform before you can invite them as a network member.</p>",
         },
         whyNetwork: {
           question:
             "Why should I make it visible on the community platform that my organization is a network?",
           answer:
-            "<p>As the MINTvernetzt community platform, our goal is to make networks visible and thus support the community. STEM practitioners can use the platform to learn about organizations and see which networks they are part of. Soon they can also search and filter for different network types using the search and filter functions.</p>",
+            "<p>As the MINTvernetzt community platform, our goal is to make networks visible and thus support the community. STEM practitioners can use the platform to learn about organizations and see which networks they are part of. You can also search and filter for different network types using the search and filter functions.</p>",
         },
         organizationIsNetworkMember: {
           question:
             "My organization is not a network, but is part of a network. How do I indicate this?",
           answer:
-            '<p>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>.</br></br>Alternatively, you can click on your organization\'s card (box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here. This will take you to your <b>organization settings</b>. Under <b>“Manage organization“</b>, under the query <b>“Is your organization part of a network?“</b>, you can select organizations that are already created on the platform and request to <b>join the network</b>. As soon as the admins of these organizations confirm your request to join, your organization will be listed as a network member. This is visible on the organization\'s details page under “Network“, and your organization will also be listed as a network member on the network organization\'s details page.</p>',
+            '<p>You can access your organizations via the navigation point <b>My space > My Organizations</b>. A table displays the organizations for which you are an admin. Click on the three dots icon <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> and select <b>Edit</b>.</br></br>Alternatively, you can click on your organization\'s card (box with information about your organization). You will then be taken to your organization\'s details page. Click on the Edit button here. This will take you to your <b>organization settings</b>. Under <b>“Manage organization”</b>, under the query <b>“Is your organization part of a network?”</b>, you can select organizations that are already created on the platform and request to <b>join the network</b>. As soon as the admins of these organizations confirm your request to join, your organization will be listed as a network member. This is visible on the organization\'s details page under “Network”, and your organization will also be listed as a network member on the network organization\'s details page.</p>',
         },
         exploreOrganizations: {
           question: "Where can I find an overview of all organizations?",
@@ -131,9 +131,10 @@ export const locale = {
             '<p>Under <b>Explore > Organizations</b>, you can view all organizations that have been created on the platform. You can choose whether to display the organizations in list or map view.</br></br>Here you will find <a href="/help#organizationMapView">information about the map view of organizations</a>.</p>',
         },
         filterOrganizationsByArea: {
-          question: "How can I filter organizations by federal state or city?",
+          question:
+            "How can I find organizations that are active in a specific area?",
           answer:
-            "<p>Use the filters „Location / Area“. There you can enter, for example, „Saxony“ or „Leipzig“.</p>",
+            "<p>Use the filter “Areas of activity”. There you can select “Nationwide” or “International” or filter by a specific location, such as “Saxony” or “Leipzig”. There may be organizations active in the area that are not from the region. Use the map view if you want to see which organizations are based locally. In the map view, organizations are located according to their address.</p>",
         },
         filterOrganizationsByNetworkType: {
           question: "How can I filter organizations by network type?",
@@ -142,32 +143,32 @@ export const locale = {
         },
         filterOrganizationsByFocus: {
           question:
-            "What does „Focus of work“ mean and what options are available?",
+            "What does “Focus of work” mean and what options are available?",
           answer:
-            "<p>„Focus of work“ describes the topics an organization works on – e.g. diversity, early childhood education, education for sustainable development, career orientation, and many more.</p>",
+            "<p>“Focus of work” describes the topics an organization works on – e.g. diversity, early childhood education, education for sustainable development, career orientation, and many more.</p>",
         },
         filterOrganizationsByMultipleCriteria: {
           question:
-            "Can I filter by multiple criteria at the same time (e.g. location and focus of work)?",
+            "Can I filter by multiple criteria at the same time (e.g. organizational form and focus of work)?",
           answer:
             "<p>Yes. The list or map will only show you organizations that meet <i>all</i> selected criteria.</p>",
         },
         filterOrganizationsByNetwork: {
           question: "Can I filter by a specific network?",
           answer:
-            "<p>Yes. Select a network in the filter, e.g. „Schülerforschungszentren/SFZ-Netzwerk“, and all associated organizations will be displayed.</p>",
+            "<p>Yes. Select a network in the filter, e.g. “zdi.NRW”, and all associated organizations will be displayed.</p>",
         },
         whatAreProvisionalOrganizations: {
-          question: "What are „organizations created by us“?",
+          question: "What are “organizations created by MINTvernetzt”?",
           answer:
             '<p>Organizations created by us are profiles of organizations that we have compiled using data from external overview pages. The data origins from following Websites:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>These organizational profiles do not yet have administrators or team members on the platform. These profiles created by us can be claimed by the respective stakeholders as their organization. There are various ways to request the management of these organizational profiles. How this is possible will be answered in the next question and answer.</p>',
           featureFlag: "provisional_organizations",
         },
         howToClaimProvisionalOrganizations: {
           question:
-            "How can I claim the organizational profile of an organization created by the MINTvernetzt community platform?",
+            "How can I claim the organizational profile of an organization created by MINTvernetzt?",
           answer:
-            '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>„Claim“</b> button on the organizational detail page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>„Claim Organization“</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > „Add Me to an Organization“</b> and click on <b>„Claim Organization“</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
+            '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>“Claim”</b> button on the organizational detail page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>“Claim Organization”</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > “Add Me to an Organization”</b> and click on <b>“Claim Organization”</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
           featureFlag: "provisional_organizations",
         },
       },
@@ -183,12 +184,12 @@ export const locale = {
         whatIsShown: {
           question: "What does the map show me?",
           answer:
-            "<p>The map shows you STEM organizations from all over Germany and beyond, <b>whose addresses are stored on the platform</b>. Within the „Location / Area“ filter, you can specifically filter for certain locations or areas.</p>",
+            "<p>The map shows you STEM organizations from all over Germany and beyond, <b>whose addresses are stored on the platform</b>.</p>",
         },
         showOrganizationsNearBy: {
-          question: "Can I also display only organizations in my vicinity?",
+          question: "Can I also display only organizations in my area?",
           answer:
-            "<p>Yes. Just enter your location or federal state in the filter.</p>",
+            "<p>You can display which organizations are <b>active</b> in your region. To do this, you can apply the filter <b>“Areas of activity”</b>, e.g. “Saxony” or “Leipzig”.</br></br>Use the map view to see which organizations are <b>located</b> in a specific region by zooming into the corresponding area. The organizations are located on the map according to their address. Therefore, only organizations that have provided their address are listed in the map view.</p>",
         },
         isLoginRequired: {
           question: "Is login required to use the map?",
@@ -205,7 +206,7 @@ export const locale = {
         showOwnOrganizationOnMap: {
           question: "How can I make my own organization visible on the map?",
           answer:
-            "<p>To make your organization visible on the map, create an organization profile on the platform or edit your existing profile. Provide the address, organization type, network type(s), and focus of work. Once the information is saved, your organization will automatically appear on the map.</p>",
+            "<p>To make your organization visible on the map, create an organization profile on the platform or edit your existing profile. Provide the address, areas of activity, organization type, network type(s), and focus of work. Once the information is saved, your organization will automatically appear on the map. The most important information is the address, which will appear on the map view.</p>",
         },
         currentnessOfData: {
           question: "How current is the data on the map?",
@@ -217,13 +218,13 @@ export const locale = {
           question:
             "My organization cannot be found on the map - what can I do?",
           answer:
-            '<p>This is usually because your organization profile does not exist on the platform or is not fully completed. Check your profile under <b>My space > My Organizations</b> and complete any missing address information. After that, your organization should appear on the map.</br></br>Please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> if you need further assistance.</p>',
+            '<p>This is usually because your organization profile does not exist on the platform or is not fully completed. Check your profile under <b>My space > My Organizations</b> and complete any missing address information. After that, your organization should appear on the map. Fill in additional details about your organization so that it will also be displayed when the map is used with filters activated.</br></br>Please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> if you need further assistance.</p>',
         },
         howToEmbedMapOnMyWebsite: {
           question:
             "How does embedding the map via iFrame on my own website work?",
           answer:
-            "<p><ol><li>Set up the map as you need it (enter search term, set filters).</li><li>Click on “Embed current map view on my own website.” below the map view.</li><li>Copy the displayed code for embedding (iFrame code).</li><li>Paste this code in the desired location in the HTML area of your website.</li></ol></br></br>Done – your website now shows exactly the map view you have set.</p>",
+            "<p><ol><li>Set up the map as you need it (enter search term, set filters).</li><li>Click on <b>“Embed current map view on my own website.”</b> below the map view.</li><li>Copy the displayed code for embedding (iFrame code).</li><li>Paste this code in the desired location in the HTML area of your website.</li></ol></br></br>Done – your website now shows exactly the map view you have set.</p>",
           featureFlag: "map_embed",
         },
         isTheFilterPersistentWhenEmbedding: {
@@ -244,10 +245,52 @@ export const locale = {
     projects: {
       headline: "Questions about projects",
       qAndAs: {
+        whatIsAProject: {
+          question: "What is a project?",
+          answer:
+            "<p>On the platform, you can showcase what works for you, inspire others, and become more visible with your work. Your experience doesn't have to be perfect – it just needs to be practical and helpful to others – because good practice can evolve.</br></br><b>This is what this opportunity brings you:</b></br></br><ul><li>You make your work and impact visible – for funders, cooperation partners, and interested STEM actors.</li><li>Your projects are easily discoverable through filters (e.g., target groups, formats, STEM disciplines).</li><li>You help others develop or rethink their own formats.</li></ul></p>",
+        },
+        whereToFind: {
+          question: "Where can I find an overview of all projects?",
+          answer:
+            "<p>Under <b>Explore > Projects</b> you can view all projects that have been created on the platform.</br></br>You can also access projects <b>through the search bar</b> by entering your search term and navigating through the displayed suggestions or by clicking on <b>Projects</b> on the overview page of the results.</p>",
+        },
+        howToCreateAProject: {
+          question: "How can I create my own project on the platform?",
+          answer:
+            "<p>Go to <b>My space > My Projects</b> and click on <b>“Create Project”</b>. First, a draft will be created. So you don't have to have all the information ready right away, but can gradually add it before publishing your project. To edit your draft, go to your project and click on <b>“Edit”</b>. You will then be guided step by step through the form. Describe your project as vividly as possible – this way others will immediately understand what it's about. On your project detail page, you will find the button to <b>Publish</b>.</p>",
+        },
         projectWithoutOrganization: {
           question: "Can I create projects without a responsible organization?",
           answer:
             "<p>Yes, since projects are also carried out by individuals, you can create a project even without an organization behind it.</p>",
+        },
+        showProjectCooperation: {
+          question:
+            "I want to show that my project is being carried out in cooperation with others. How can I do that?",
+          answer:
+            "<p>When creating the project, you can also add other project participants with profiles on the platform in the <b>“Team”</b> tab. This way, the project will also be displayed on their profiles. This creates visibility and shows collaboration. In addition, you can add organizations involved in the project in the <b>“Responsible Organizations”</b> tab.</p>",
+        },
+        editProjectAfterwards: {
+          question: "Can I edit my project afterwards?",
+          answer:
+            '<p>Yes. Under <b>My space > My Projects</b> you will find all your created projects. Just click on the three-dot menu <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span> next to your project and select <b>“Edit”</b>.</p>',
+        },
+        contactProject: {
+          question: "I saw a great project – how can I get in touch?",
+          answer:
+            "<p>On each project page, you will find the contact person or the contact details of the initiators of the project.</p>",
+        },
+        shortTermProject: {
+          question:
+            "My project is only short-term – is it still worth registering?",
+          answer:
+            "<p>Yes, definitely! Even small or one-time projects can provide inspiration or demonstrate what is possible in a short time. Perhaps an idea for continuation will emerge – or new partners for the future. Please feel free to specify the duration of your project in the <b>“Framework conditions”</b> tab about the timeframe.</p>",
+        },
+        hideProject: {
+          question: "I want my project to be no longer publicly visible.",
+          answer:
+            "<p>On your project detail page, you will find the button <b>“Hide”</b> after publishing your project. This allows you to turn your project back into a draft that is no longer visible to everyone. If you want to completely delete your project, you can find this option in the project settings under the tab <b>Danger zone”</b>. Select the tab <b>“Delete Project”</b> and follow the instructions.</p>",
         },
       },
     },

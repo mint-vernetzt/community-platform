@@ -22,12 +22,6 @@ export const locale = {
         past: "Past events",
       },
     },
-    areas: "Location / Area",
-    searchAreaPlaceholder: "Enter area or location",
-    searchAreaHelper: "At least 3 letters.",
-    searchAreaButton: "Search",
-    stateLabel: "Suggestions by area",
-    districtLabel: "Suggestions by location",
     apply: "Apply filter",
     reset: "Reset filter",
     sortBy: {

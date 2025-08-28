@@ -61,7 +61,7 @@ export const locale = {
           "Describe yourself and your field of activity in more detail.",
       },
       activityAreas: {
-        label: "Activity areas",
+        label: "Areas of activity",
         placeholder: "Add regions where you are active.",
       },
       skills: {

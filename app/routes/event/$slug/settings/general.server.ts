@@ -49,11 +49,6 @@ export async function getEventBySlug(slug: string) {
           eventTypeId: true,
         },
       },
-      areas: {
-        select: {
-          areaId: true,
-        },
-      },
       experienceLevel: {
         select: {
           id: true,

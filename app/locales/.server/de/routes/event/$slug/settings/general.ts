@@ -139,10 +139,6 @@ export const locale = {
       label: "MINT-Schwerpunkte",
       placeholder: "Füge die MINT-Schwerpunkte hinzu.",
     },
-    areas: {
-      label: "Aktivitätsgebiete",
-      placeholder: "Füge die Aktivitätsgebiete hinzu.",
-    },
     reset: {
       label: "Änderungen verwerfen",
     },

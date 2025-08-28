@@ -53,7 +53,7 @@ export const locale = {
       label: "Short description",
     },
     areas: {
-      label: "Activity areas",
+      label: "Areas of activity",
       helper: "Multiple selection possible",
       option: "Please select",
     },

@@ -16,7 +16,7 @@ export const locale = {
     disciplines: "STEM discipline",
     additionalDisciplines: "STEM in connection with other disciplines",
     targetGroups: "Target group",
-    areas: "Location / Area",
+    areas: "Area of activity",
     searchAreaPlaceholder: "Enter area or location",
     searchAreaHelper: "At least 3 letters.",
     searchAreaButton: "Search",

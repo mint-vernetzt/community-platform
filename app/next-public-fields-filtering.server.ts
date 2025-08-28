@@ -351,7 +351,6 @@ export function filterEventByVisibility<
       }
       // Fields in Event with type []
       else if (
-        key === "areas" ||
         key === "documents" ||
         key === "types" ||
         key === "childEvents" ||

@@ -25,10 +25,7 @@ import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/FormElements/SelectField/SelectField";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
-import {
-  createAreaOptionFromData,
-  objectListOperationResolver,
-} from "~/lib/utils/components";
+import { objectListOperationResolver } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { FormError } from "~/lib/utils/yup";
@@ -43,7 +40,6 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
-  getAreas,
   getEventTargetGroups,
   getExperienceLevels,
   getFocuses,
@@ -149,7 +145,6 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     tags: array(string().required()).required(),
     conferenceLink: nullOrString(website()),
     conferenceCode: nullOrString(string()),
-    areas: array(string().required()).required(),
     venueName: nullOrString(string()),
     venueStreet: nullOrString(string()),
     venueStreetNumber: nullOrString(string()),
@@ -192,7 +187,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventTargetGroups = await getEventTargetGroups();
   const experienceLevels = await getExperienceLevels();
   const stages = await getStages();
-  const areas = await getAreas();
 
   const transformedEvent = transformEventToForm(event);
 
@@ -205,7 +199,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     eventTargetGroups,
     experienceLevels,
     stages,
-    areas,
     locales,
   };
 };
@@ -263,7 +256,6 @@ export const action = async (args: ActionFunctionArgs) => {
       "types",
       "eventTargetGroups",
       "tags",
-      "areas",
     ];
     listData.forEach((key) => {
       data = objectListOperationResolver<FormType>(data, key, formData);
@@ -290,7 +282,6 @@ function General() {
     tags,
     experienceLevels,
     stages,
-    areas,
     locales,
   } = loaderData;
 
@@ -300,22 +291,6 @@ function General() {
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   const event = actionData?.data ?? originalEvent;
-
-  // if (actionData !== undefined) {
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   const { focuses, types, eventTargetGroups, tags, areas, ...rest } =
-  //     originalEvent;
-  //   event = {
-  //     ...originalEvent,
-  //     focuses: actionData.data.focuses,
-  //     types: actionData.data.types,
-  //     eventTargetGroups: actionData.data.eventTargetGroups,
-  //     tags: actionData.data.tags,
-  //     areas: actionData.data.areas,
-  //   };
-  // } else {
-  //   event = originalEvent;
-  // }
 
   const formRef = createRef<HTMLFormElement>();
   const isSubmitting = navigation.state === "submitting";
@@ -557,15 +532,6 @@ function General() {
             }
             return currentTagTitle.localeCompare(nextTagTitle);
           })
-      : [];
-
-  const areaOptions = createAreaOptionFromData(areas);
-
-  const selectedAreas =
-    event.areas && areas
-      ? areas
-          .filter((area) => event.areas.includes(area.id))
-          .sort((a, b) => a.name.localeCompare(b.name))
       : [];
 
   useEffect(() => {
@@ -1053,20 +1019,6 @@ function General() {
               options={focusOptions}
               withPublicPrivateToggle={false}
               isPublic={eventVisibilities.focuses}
-            />
-          </div>
-          <div className="mv-mb-4">
-            <SelectAdd
-              name="areas"
-              label={locales.route.form.areas.label}
-              placeholder={locales.route.form.areas.placeholder}
-              entries={selectedAreas.map((area) => ({
-                label: area.name,
-                value: area.id,
-              }))}
-              options={areaOptions}
-              withPublicPrivateToggle={false}
-              isPublic={eventVisibilities.areas}
             />
           </div>
         </Form>

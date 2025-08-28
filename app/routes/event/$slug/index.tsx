@@ -1403,26 +1403,6 @@ function Index() {
                   </div>
                 </>
               ) : null}
-
-              {loaderData.event.areas.length > 0 ? (
-                <>
-                  <div className="mv-text-xs mv-leading-5 mv-pt-[7px]">
-                    {locales.route.content.event.areas}
-                  </div>
-                  <div className="mv-flex mv-flex-wrap mv--m-1 mv-pb-3 @md:mv-pb-0">
-                    {loaderData.event.areas.map((item, index) => {
-                      return (
-                        <div
-                          key={`areas-${index}`}
-                          className="mv-m-1 mv-px-3 mv-py-1.5 mv-h-auto mv-rounded-lg mv-border mv-border-secondary mv-text-sm mv-font-semibold mv-whitespace-nowrap mv-text-secondary mv-bg-white mv-w-fit"
-                        >
-                          {item.area.name}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : null}
             </div>
 
             {loaderData.event.speakers !== null &&

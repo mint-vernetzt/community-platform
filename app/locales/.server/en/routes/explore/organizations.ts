@@ -13,7 +13,7 @@ export const locale = {
     networkTypes: "Network type",
     types: "Organizational form",
     focuses: "Focus of work",
-    areas: "Location / Area",
+    areas: "Area of activity",
     network: "Network",
     networkSearchPlaceholder: "Search by network...",
     searchAreaPlaceholder: "Enter area or location",

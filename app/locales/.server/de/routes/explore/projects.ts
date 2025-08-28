@@ -16,7 +16,7 @@ export const locale = {
     disciplines: "MINT-Disziplin",
     additionalDisciplines: "MINT in Verbindung mit weiteren Disziplinen",
     targetGroups: "Zielgruppe",
-    areas: "Ort / Gebiet",
+    areas: "Aktivitätsgebiet",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
     searchAreaHelper: "Mindestens 3 Buchstaben.",
     searchAreaButton: "Suchen",

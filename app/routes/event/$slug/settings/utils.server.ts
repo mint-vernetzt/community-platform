@@ -165,7 +165,6 @@ export function transformEventToForm(
         (eventTargetGroup) => eventTargetGroup.eventTargetGroupId
       ) ?? [],
     types: event.types.map((type) => type.eventTypeId) ?? [],
-    areas: event.areas.map((area) => area.areaId) ?? [],
     experienceLevel: event.experienceLevel?.id || "",
     stage: event.stage?.id || "",
   };
@@ -331,22 +330,6 @@ export async function updateEventById(
             }
           ),
         },
-        areas: {
-          deleteMany: {},
-          connectOrCreate: eventData.areas.map((areaId: string) => {
-            return {
-              where: {
-                eventId_areaId: {
-                  areaId,
-                  eventId: id,
-                },
-              },
-              create: {
-                areaId,
-              },
-            };
-          }),
-        },
         experienceLevel:
           eventData.experienceLevel !== null
             ? { connect: { id: eventData.experienceLevel } }
@@ -392,15 +375,6 @@ export async function updateFilterVectorOfEvent(eventId: string) {
           },
         },
       },
-      areas: {
-        select: {
-          area: {
-            select: {
-              slug: true,
-            },
-          },
-        },
-      },
       stage: {
         select: {
           slug: true,
@@ -413,7 +387,6 @@ export async function updateFilterVectorOfEvent(eventId: string) {
     if (
       event.focuses.length === 0 &&
       event.eventTargetGroups.length === 0 &&
-      event.areas.length === 0 &&
       event.stage === null
     ) {
       await prismaClient.$queryRawUnsafe(
@@ -426,14 +399,9 @@ export async function updateFilterVectorOfEvent(eventId: string) {
       const targetGroupVectors = event.eventTargetGroups.map(
         (relation) => `eventTargetGroup:${relation.eventTargetGroup.slug}`
       );
-      const areaVectors = event.areas.map(
-        (relation) => `area:${relation.area.slug}`
+      const vectors = [...focusVectors, ...targetGroupVectors].concat(
+        event.stage ? [`stage:${event.stage.slug}`] : []
       );
-      const vectors = [
-        ...focusVectors,
-        ...targetGroupVectors,
-        ...areaVectors,
-      ].concat(event.stage ? [`stage:${event.stage.slug}`] : []);
       const vectorString = `{"${vectors.join(`","`)}"}`;
       const query = `update events set filter_vector = array_to_tsvector('${vectorString}') where id = '${event.id}'`;
 

@@ -15,7 +15,7 @@ export const locale = {
     specialTargetGroups: "Spezifische Zielgruppe(n)",
     targetGroupAdditions: "Weitere",
     participantLimit: "Teilnehmer:innenzahl",
-    areas: "Aktivitätsgebiet(e)",
+    areas: "Aktivitätsgebiete",
     furtherDescription: "Projektbeschreibung",
     idea: "Idee",
     goals: "Ziele",

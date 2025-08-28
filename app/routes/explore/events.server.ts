@@ -150,18 +150,6 @@ type SearchWhereStatement = {
           };
         }
       | {
-          areas: {
-            some: {
-              area: {
-                name: {
-                  contains: string;
-                  mode: Prisma.QueryMode;
-                };
-              };
-            };
-          };
-        }
-      | {
           [K in "types" | "focuses" | "tags" | "eventTargetGroups"]?: {
             some: {
               [K in "eventType" | "focus" | "tag" | "eventTargetGroup"]?: {
@@ -289,18 +277,6 @@ function getEventsSearchWhereClause(
               [K in Event as string]: {
                 contains: string;
                 mode: Prisma.QueryMode;
-              };
-            }
-          | {
-              areas: {
-                some: {
-                  area: {
-                    name: {
-                      contains: string;
-                      mode: Prisma.QueryMode;
-                    };
-                  };
-                };
               };
             }
           | {
@@ -463,29 +439,6 @@ function getEventsSearchWhereClause(
               ? {
                   eventVisibility: {
                     subline: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
-              areas: {
-                some: {
-                  area: {
-                    name: {
-                      contains: word,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              },
-            },
-            isLoggedIn === false
-              ? {
-                  eventVisibility: {
-                    areas: true,
                   },
                 }
               : {},
