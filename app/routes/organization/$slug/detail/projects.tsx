@@ -69,6 +69,7 @@ function Projects() {
                   listIndex={index}
                   entity={relation.project}
                   locales={locales}
+                  prefetch="intent"
                 />
               );
             })}

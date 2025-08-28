@@ -218,7 +218,7 @@ function Team() {
 
   return (
     <Section>
-      <SettingsMenuBackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
@@ -251,6 +251,7 @@ function Team() {
                     locales={locales}
                     listIndex={index}
                     hideAfter={3}
+                    prefetch="intent"
                   >
                     {organization.teamMembers.length > 1 && (
                       <Button
@@ -386,6 +387,7 @@ function Team() {
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
+                      prefetch="intent"
                     >
                       {organization.teamMembers.some((teamMember) => {
                         return teamMember.profile.id === searchedProfile.id;
@@ -458,6 +460,7 @@ function Team() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         <Button
                           name="intent"

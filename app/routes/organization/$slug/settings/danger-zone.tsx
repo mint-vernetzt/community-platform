@@ -25,18 +25,26 @@ function DangerZone() {
 
   return (
     <Section>
-      <SettingsMenuBackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.content.back}
       </SettingsMenuBackButton>
       <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
-            <Link to={`./change-url?${Deep}=true`} preventScrollReset>
+            <Link
+              to={`./change-url?${Deep}=true`}
+              preventScrollReset
+              prefetch="intent"
+            >
               {locales.content.changeUrl}
             </Link>
           </TabBar.Item>
           <TabBar.Item active={location.pathname.endsWith("/delete")}>
-            <Link to={`./delete?${Deep}=true`} preventScrollReset>
+            <Link
+              to={`./delete?${Deep}=true`}
+              preventScrollReset
+              prefetch="intent"
+            >
               {locales.content.organizationDelete}
             </Link>
           </TabBar.Item>

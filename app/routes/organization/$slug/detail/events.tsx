@@ -69,6 +69,7 @@ function Network() {
                   key={`future-event-${relation.event.slug}`}
                   to={`/event/${relation.event.slug}`}
                   listIndex={index}
+                  prefetch="intent"
                 >
                   <EventListItem.Image
                     src={relation.event.background}
@@ -99,6 +100,7 @@ function Network() {
                   to={`/event/${relation.event.slug}`}
                   listIndex={index}
                   hideAfter={3}
+                  prefetch="intent"
                 >
                   <EventListItem.Image
                     src={relation.event.background}

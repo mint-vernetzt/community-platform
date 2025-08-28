@@ -105,6 +105,7 @@ function Settings() {
         <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
           <BackButton
             to={`/organization/${loaderData.organization.slug}/detail/about`}
+            prefetch="intent"
           >
             {locales.route.content.back}
           </BackButton>
@@ -126,6 +127,7 @@ function Settings() {
             </span>
             <Link
               to={`/organization/${loaderData.organization.slug}/detail/about`}
+              prefetch="intent"
               className="mv-px-4"
             >
               <svg
@@ -175,6 +177,7 @@ function Settings() {
                     to={`${navLink.to}?${Deep}=true`}
                     className={linkClasses}
                     preventScrollReset
+                    prefetch="intent"
                   >
                     <span className="mv-text-wrap">{navLink.label}</span>
                   </Link>

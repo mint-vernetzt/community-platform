@@ -549,7 +549,7 @@ function Manage() {
     <>
       <Section>
         {UnsavedChangesBlockerModal}
-        <SettingsMenuBackButton to={location.pathname}>
+        <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.headline}
         </SettingsMenuBackButton>
         <Form
@@ -571,6 +571,7 @@ function Manage() {
                     to="/help#organizations-networkVsOrganizationVsProject"
                     target="_blank"
                     className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                    prefetch="intent"
                   >
                     <QuestionMark />
                   </Link>
@@ -699,6 +700,7 @@ function Manage() {
                     to="/help#organizations-transformOrganizationToNetwork"
                     target="_blank"
                     className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                    prefetch="intent"
                   >
                     <QuestionMark />
                   </Link>
@@ -881,7 +883,8 @@ function Manage() {
                         <Link
                           to={`?${doubleCheckModalSearchParams.toString()}`}
                           className="mv-w-full mv-h-full mv-flex mv-justify-center mv-items-center"
-                          // preventScrollReset
+                          preventScrollReset
+                          prefetch="intent"
                         >
                           <span>{locales.route.form.submit}</span>
                         </Link>
@@ -980,6 +983,7 @@ function Manage() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         <Button
                           name="intent"
@@ -1164,6 +1168,7 @@ function Manage() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         {networkMembers.some((relation) => {
                           return (
@@ -1247,6 +1252,7 @@ function Manage() {
                           locales={locales}
                           listIndex={index}
                           hideAfter={3}
+                          prefetch="intent"
                         >
                           <Button
                             name="intent"
@@ -1315,6 +1321,7 @@ function Manage() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         <Button
                           name="intent"
@@ -1463,6 +1470,7 @@ function Manage() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         {memberOf.some((relation) => {
                           return (
@@ -1553,6 +1561,7 @@ function Manage() {
                           locales={locales}
                           listIndex={index}
                           hideAfter={3}
+                          prefetch="intent"
                         >
                           <Button
                             name="intent"

@@ -64,6 +64,7 @@ function Team() {
                   listIndex={index}
                   entity={relation.profile}
                   locales={locales}
+                  prefetch="intent"
                 />
               );
             })}

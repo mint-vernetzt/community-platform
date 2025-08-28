@@ -245,7 +245,7 @@ function About() {
                               <Link
                                 // Even if typescript claims that organization[typedKey] has the correct type i needed to add the below assertion to make the compiler happy when running npm run typecheck
                                 to={organization[typedKey] as string}
-                                target="__blank"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="mv-w-full mv-py-3 mv-px-4 mv-bg-neutral-100 mv-rounded-lg mv-flex mv-justify-center"
                               >
@@ -288,6 +288,7 @@ function About() {
                   <Button
                     as="link"
                     to={`/organization/${organization.slug}/settings/general`}
+                    prefetch="intent"
                   >
                     {locales.route.blankState.owner.cta}
                   </Button>

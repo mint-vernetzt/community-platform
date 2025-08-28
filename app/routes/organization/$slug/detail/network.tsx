@@ -141,6 +141,7 @@ function Network() {
                     listIndex={index}
                     entity={relation.network}
                     locales={locales}
+                    prefetch="intent"
                   />
                 );
               })}
@@ -168,6 +169,7 @@ function Network() {
                   listIndex={index}
                   entity={relation.networkMember}
                   locales={locales}
+                  prefetch="intent"
                 />
               );
             })}
