@@ -77,6 +77,7 @@ export function LoginOrRegisterCTA(props: {
             to={`/login?login_redirect=${location.pathname}`}
             variant="outline"
             fullSize
+            prefetch="intent"
           >
             {locales.route.root.loginOrRegisterCTA.login}
           </Button>
@@ -89,6 +90,7 @@ export function LoginOrRegisterCTA(props: {
             as="link"
             to={`/register?login_redirect=${location.pathname}`}
             fullSize
+            prefetch="intent"
           >
             {locales.route.root.loginOrRegisterCTA.register}
           </Button>
