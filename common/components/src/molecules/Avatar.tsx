@@ -94,6 +94,7 @@ function Avatar(props: AvatarProps) {
 type MoreIndicatorProps = {
   amount: number;
   to?: string;
+  prefetch?: LinkProps["prefetch"];
 };
 
 function MoreIndicator(props: MoreIndicatorProps) {

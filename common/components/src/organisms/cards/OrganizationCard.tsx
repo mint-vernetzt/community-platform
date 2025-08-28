@@ -15,6 +15,7 @@ import {
   CardStatus,
   CardControls,
 } from "./Card";
+import { type LinkProps } from "react-router";
 
 type OrganizationCardProps = {
   match?: number;
@@ -42,6 +43,7 @@ type OrganizationCardProps = {
     }[];
   };
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  prefetch?: LinkProps["prefetch"];
 };
 
 function OrganizationCard(
@@ -160,6 +162,7 @@ function OrganizationCard(
             visibleAvatars={2}
             moreIndicatorProps={{
               to: `/organization/${organization.slug}/detail/team`,
+              prefetch: props.prefetch,
             }}
           >
             {organization.teamMembers.map((profile) => {
@@ -169,6 +172,7 @@ function OrganizationCard(
                   {...profile}
                   size="sm"
                   to={`/profile/${profile.username}`}
+                  prefetch={props.prefetch}
                 />
               );
             })}

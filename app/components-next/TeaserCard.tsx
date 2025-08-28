@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 
 export function TeaserCard(props: {
   to: string;
@@ -8,6 +8,7 @@ export function TeaserCard(props: {
   iconType: TeaserIconType;
   external?: boolean;
   type?: "primary" | "secondary";
+  prefetch?: LinkProps["prefetch"];
 }) {
   const {
     to,
@@ -17,6 +18,7 @@ export function TeaserCard(props: {
     iconType,
     external,
     type = "primary",
+    prefetch,
   } = props;
   return (
     <li>
@@ -25,6 +27,7 @@ export function TeaserCard(props: {
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
         className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
+        prefetch={external ? "none" : prefetch}
       >
         <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-flex-grow @xl:mv-h-full">
           <h3 className="mv-appearance-none mv-text-neutral-700 mv-text-xs mv-font-bold mv-leading-[15.6px] mv-tracking-[-0.24px]">

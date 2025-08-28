@@ -3,11 +3,12 @@ import { Avatar } from "../../molecules/Avatar";
 import { ChipContainer } from "../../molecules/Chip";
 import { Image } from "../../molecules/Image";
 import { Children, isValidElement } from "react";
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 
 type CardProps = {
   children?: React.ReactNode;
   to?: string;
+  prefetch?: LinkProps["prefetch"];
 };
 
 function Card(props: CardProps) {
@@ -34,7 +35,11 @@ function Card(props: CardProps) {
       {props.to !== undefined && props.to !== "" ? (
         <>
           <div className="mv-h-full hover:mv-bg-neutral-100 active:mv-bg-neutral-100 focus:mv-bg-neutral-100">
-            <Link to={props.to} className="focus:mv-outline-none">
+            <Link
+              to={props.to}
+              className="focus:mv-outline-none"
+              prefetch={props.prefetch}
+            >
               {header || null}
               {body || null}
             </Link>

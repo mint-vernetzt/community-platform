@@ -1018,6 +1018,7 @@ function Dashboard() {
                 variant="outline"
                 as="link"
                 to={`/profile/${loaderData.username}`}
+                prefetch="intent"
               >
                 {loaderData.locales.route.content.header.cta}
               </Button>
@@ -1045,6 +1046,7 @@ function Dashboard() {
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
                           size="full"
+                          prefetch="intent"
                           {...organization}
                         />
                       </div>
@@ -1084,6 +1086,7 @@ function Dashboard() {
               as="link"
               to="/my/organizations"
               className="mv-w-full @lg:mv-w-fit"
+              prefetch="intent"
             >
               {loaderData.locales.route.content.invites.linkDescription}
             </Button>
@@ -1107,6 +1110,7 @@ function Dashboard() {
                         <Avatar
                           to={`/profile/${profile.username}`}
                           size="full"
+                          prefetch="intent"
                           {...profile}
                         />
                       </div>
@@ -1146,6 +1150,7 @@ function Dashboard() {
               as="link"
               to="/my/organizations"
               className="mv-w-full @lg:mv-w-fit"
+              prefetch="intent"
             >
               {loaderData.locales.route.content.requests.linkDescription}
             </Button>
@@ -1169,6 +1174,7 @@ function Dashboard() {
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
                           size="full"
+                          prefetch="intent"
                           {...organization}
                         />
                       </div>
@@ -1210,6 +1216,7 @@ function Dashboard() {
               as="link"
               to="/my/organizations"
               className="mv-w-full @lg:mv-w-fit"
+              prefetch="intent"
             >
               {loaderData.locales.route.content.networkInvites.linkDescription}
             </Button>
@@ -1233,6 +1240,7 @@ function Dashboard() {
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
                           size="full"
+                          prefetch="intent"
                           {...organization}
                         />
                       </div>
@@ -1274,6 +1282,7 @@ function Dashboard() {
               as="link"
               to="/my/organizations"
               className="mv-w-full @lg:mv-w-fit"
+              prefetch="intent"
             >
               {loaderData.locales.route.content.networkRequests.linkDescription}
             </Button>
@@ -1354,6 +1363,7 @@ function Dashboard() {
                         as="link"
                         to="/my/events"
                         variant="outline"
+                        prefetch="intent"
                       >
                         {loaderData.locales.route.content.notifications.cta}
                       </Button>
@@ -1457,6 +1467,7 @@ function Dashboard() {
                     ].linkDescription
                   }
                   iconType={value.icon}
+                  prefetch="intent"
                 />
               );
             })}
@@ -1530,6 +1541,7 @@ function Dashboard() {
                     }
                     iconType={value.icon}
                     type="secondary"
+                    prefetch="intent"
                   />
                 );
               })}
@@ -1599,6 +1611,7 @@ function Dashboard() {
                   project={project}
                   locales={loaderData.locales}
                   as="h3"
+                  prefetch="intent"
                 />
               );
             })}
@@ -1628,6 +1641,7 @@ function Dashboard() {
                   profile={profile}
                   locales={loaderData.locales}
                   as="h3"
+                  prefetch="intent"
                 />
               );
             })}
@@ -1661,6 +1675,7 @@ function Dashboard() {
                   organization={organization}
                   locales={loaderData.locales}
                   as="h3"
+                  prefetch="intent"
                 />
               );
             })}
@@ -1709,6 +1724,7 @@ function Dashboard() {
                       ),
                   }}
                   as="h3"
+                  prefetch="intent"
                 />
               );
             })}

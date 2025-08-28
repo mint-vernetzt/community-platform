@@ -18,6 +18,7 @@ import {
   CardInfoOverlay,
   CardStatus,
 } from "./Card";
+import { type LinkProps } from "react-router";
 
 type EventCardProps = {
   match?: number;
@@ -56,6 +57,7 @@ type EventCardProps = {
   participateControl?: React.ReactElement;
   waitingListControl?: React.ReactElement;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  prefetch?: LinkProps["prefetch"];
 };
 
 function IconOnSite() {
@@ -263,6 +265,7 @@ function EventCard(
           visibleAvatars={2}
           moreIndicatorProps={{
             to: `/event/${event.slug}/#responsible-organizations`,
+            prefetch: props.prefetch,
           }}
         >
           {event.responsibleOrganizations.map((organization) => {
@@ -272,6 +275,7 @@ function EventCard(
                 {...organization}
                 size="sm"
                 to={`/organization/${organization.slug}/detail/about`}
+                prefetch={props.prefetch}
               />
             );
           })}

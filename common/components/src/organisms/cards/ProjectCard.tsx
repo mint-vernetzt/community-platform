@@ -6,6 +6,7 @@ import { type MyProjectsLocales } from "~/routes/my/projects.server";
 import { Avatar } from "./../../molecules/Avatar";
 import { Image } from "./../../molecules/Image";
 import { Card, CardControls } from "./Card";
+import { type LinkProps } from "react-router";
 
 type ProjectCardProps = {
   project: {
@@ -28,6 +29,7 @@ type ProjectCardProps = {
   };
   locales: DashboardLocales | ExploreProjectsLocales | MyProjectsLocales;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  prefetch?: LinkProps["prefetch"];
 };
 
 function ProjectCard(
@@ -35,7 +37,7 @@ function ProjectCard(
     children?: React.ReactNode;
   }
 ) {
-  const { project, locales, as = "h4" } = props;
+  const { project, locales, as = "h4", prefetch } = props;
 
   const children = Children.toArray(props.children);
 
@@ -45,7 +47,7 @@ function ProjectCard(
 
   return (
     <div className="mv-relative mv-w-full mv-h-full">
-      <Card to={`/project/${project.slug}/detail/about`}>
+      <Card to={`/project/${project.slug}/detail/about`} prefetch={prefetch}>
         <Card.Header cardType="project">
           {typeof project.published !== "undefined" &&
             project.published === false && (
@@ -87,6 +89,7 @@ function ProjectCard(
             visibleAvatars={2}
             moreIndicatorProps={{
               to: `/project/${project.slug}/detail/about#responsible-organizations`,
+              prefetch: prefetch,
             }}
           >
             {project.responsibleOrganizations.map((item) => {
@@ -97,6 +100,7 @@ function ProjectCard(
                   {...organization}
                   size="sm"
                   to={`/organization/${organization.slug}/detail/about`}
+                  prefetch={prefetch}
                 />
               );
             })}
