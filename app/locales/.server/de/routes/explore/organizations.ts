@@ -11,7 +11,7 @@ export const locale = {
     showLess: "Weniger anzeigen",
     types: "Organisationsform",
     focuses: "Arbeitsschwerpunkte",
-    areas: "Ort / Gebiet",
+    areas: "Aktivitätsgebiet",
     networkTypes: "Netzwerkform",
     network: "Netzwerk",
     networkSearchPlaceholder: "Nach Netzwerk suchen...",

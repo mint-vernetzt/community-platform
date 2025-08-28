@@ -13,7 +13,7 @@ export const locale = {
       label: "Sortieren nach",
     },
 
-    areas: "Ort / Gebiet",
+    areas: "Aktivitätsgebiet",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
     searchAreaHelper: "Mindestens 3 Buchstaben.",
     searchAreaButton: "Suchen",
