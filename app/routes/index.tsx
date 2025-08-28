@@ -334,6 +334,7 @@ export default function Index() {
                             : ""
                         }`}
                         className="mv-text-primary mv-font-bold mv-underline"
+                        prefetch="intent"
                       >
                         {locales.route.login.passwordForgotten}
                       </Link>
@@ -349,6 +350,7 @@ export default function Index() {
                             : ""
                         }`}
                         className="mv-text-primary mv-font-semibold mv-underline"
+                        prefetch="intent"
                       >
                         {locales.route.login.registerByEmail}
                       </Link>
@@ -434,6 +436,7 @@ export default function Index() {
                   to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
+                  prefetch="intent"
                 >
                   {locales.route.content.education.action}
                 </Button>
@@ -669,7 +672,7 @@ export default function Index() {
             </Accordion.Item>
           </Accordion>
         </div>
-        <Button as="link" to="/help" variant="outline">
+        <Button as="link" to="/help" variant="outline" prefetch="intent">
           {locales.route.content.faq.cta}
         </Button>
         <div className="mv-flex mv-flex-col mv-items-center mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
