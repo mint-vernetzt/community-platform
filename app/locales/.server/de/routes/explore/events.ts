@@ -20,12 +20,6 @@ export const locale = {
         past: "Vergangene Veranstaltungen",
       },
     },
-    areas: "Ort / Gebiet",
-    searchAreaPlaceholder: "Ort oder Gebiet eingeben",
-    searchAreaHelper: "Mindestens 3 Buchstaben.",
-    searchAreaButton: "Suchen",
-    stateLabel: "Vorschläge nach Gebiet",
-    districtLabel: "Vorschläge nach Ort",
     apply: "Filter anwenden",
     reset: "Filter zurücksetzen",
     sortBy: {

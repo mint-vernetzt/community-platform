@@ -139,10 +139,6 @@ export const locale = {
       label: "STEM focuses",
       placeholder: "Add STEM focuses.",
     },
-    areas: {
-      label: "Areas of Activity",
-      placeholder: "Select areas of activity.",
-    },
     reset: {
       label: "Discard changes",
     },

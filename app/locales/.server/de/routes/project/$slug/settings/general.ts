@@ -49,7 +49,7 @@ export const locale = {
       add: "Hinzufügen",
     },
     areas: {
-      headline: "Aktivitätsgebiet",
+      headline: "Aktivitätsgebiete",
       label: "Wo wird das Projekt/Bildungsangebot durchgeführt?",
       helper: "Mehrfachnennungen sind möglich.",
       option: "Bitte auswählen",

@@ -7,7 +7,6 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { utcToZonedTime } from "date-fns-tz";
@@ -38,7 +37,6 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { type ArrayElement } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
 import {
   filterEventByVisibility,
@@ -58,7 +56,6 @@ import {
   getTakeParam,
 } from "./events.server";
 import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
-import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -217,62 +214,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const enhancedEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, enhancedEvents);
 
-  const areas = await getAreasBySearchQuery(submission.value.evtAreaSearch);
-  type EnhancedAreas = Array<
-    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
-      vectorCount: ReturnType<typeof getFilterCountForSlug>;
-    }
-  >;
-  const enhancedAreas = {
-    global: [] as EnhancedAreas,
-    country: [] as EnhancedAreas,
-    state: [] as EnhancedAreas,
-    district: [] as EnhancedAreas,
-  };
-
-  const areaEventIds =
-    submission.value.search.length > 0
-      ? await getEventIds({
-          filter: { ...submission.value.evtFilter, area: [] },
-          search: submission.value.search,
-          isLoggedIn: true,
-          language,
-        })
-      : eventIds;
-  const areaFilterVector = await getEventFilterVectorForAttribute({
-    attribute: "area",
-    filter: submission.value.evtFilter,
-    search: submission.value.search,
-    ids: areaEventIds,
-  });
-
-  for (const area of areas) {
-    const vectorCount = getFilterCountForSlug(
-      area.slug,
-      areaFilterVector,
-      "area"
-    );
-    const enhancedArea = {
-      ...area,
-      vectorCount,
-    };
-    enhancedAreas[area.type].push(enhancedArea);
-  }
-  const selectedAreas = await Promise.all(
-    submission.value.evtFilter.area.map(async (slug) => {
-      const vectorCount = getFilterCountForSlug(slug, areaFilterVector, "area");
-      const isInSearchResultsList = areas.some((area) => {
-        return area.slug === slug;
-      });
-      return {
-        slug,
-        name: (await getAreaNameBySlug(slug)) || null,
-        vectorCount,
-        isInSearchResultsList,
-      };
-    })
-  );
-
   const focuses = await getAllFocuses();
   const focusEventIds =
     submission.value.search.length > 0
@@ -339,8 +280,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     isLoggedIn,
     events: enhancedEventsWithParticipationStatus,
-    areas: enhancedAreas,
-    selectedAreas,
     focuses: enhancedFocuses,
     selectedFocuses: submission.value.evtFilter.focus,
     targetGroups: enhancedTargetGroups,
@@ -392,7 +331,6 @@ export default function ExploreEvents() {
     defaultValue: {
       ...loaderData.submission.value,
       evtFilter: {
-        area: [],
         eventTargetGroup: [],
         focus: [],
         periodOfTime: PERIOD_OF_TIME_VALUES[0],
@@ -400,7 +338,6 @@ export default function ExploreEvents() {
       },
       evtPage: 1,
       evtSortBy: EVENT_SORT_VALUES[0],
-      evtAreaSearch: "",
       search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
@@ -746,182 +683,6 @@ export default function ExploreEvents() {
                   })}
                 </Dropdown.List>
               </Dropdown>
-
-              <Dropdown>
-                <Dropdown.Label>
-                  {locales.route.filter.areas}
-                  <span className="mv-font-normal @lg:mv-hidden">
-                    <br />
-                    {loaderData.selectedAreas
-                      .map((area) => {
-                        return area.name;
-                      })
-                      .join(", ")}
-                  </span>
-                </Dropdown.Label>
-                <Dropdown.List>
-                  {loaderData.areas.global.map((area) => {
-                    const isChecked =
-                      evtFilterFieldset.area.initialValue &&
-                      Array.isArray(evtFilterFieldset.area.initialValue)
-                        ? evtFilterFieldset.area.initialValue.includes(
-                            area.slug
-                          )
-                        : evtFilterFieldset.area.initialValue === area.slug;
-                    return (
-                      <FormControl
-                        {...getInputProps(evtFilterFieldset.area, {
-                          type: "checkbox",
-                          value: area.slug,
-                        })}
-                        key={area.slug}
-                        defaultChecked={isChecked}
-                        disabled={area.vectorCount === 0 && !isChecked}
-                      >
-                        <FormControl.Label>{area.name}</FormControl.Label>
-                        <FormControl.Counter>
-                          {area.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                  {loaderData.areas.country.map((area) => {
-                    const isChecked =
-                      evtFilterFieldset.area.initialValue &&
-                      Array.isArray(evtFilterFieldset.area.initialValue)
-                        ? evtFilterFieldset.area.initialValue.includes(
-                            area.slug
-                          )
-                        : evtFilterFieldset.area.initialValue === area.slug;
-                    return (
-                      <FormControl
-                        {...getInputProps(evtFilterFieldset.area, {
-                          type: "checkbox",
-                          value: area.slug,
-                        })}
-                        key={area.slug}
-                        defaultChecked={isChecked}
-                        disabled={area.vectorCount === 0 && !isChecked}
-                      >
-                        <FormControl.Label>{area.name}</FormControl.Label>
-                        <FormControl.Counter>
-                          {area.vectorCount}
-                        </FormControl.Counter>
-                      </FormControl>
-                    );
-                  })}
-                  {loaderData.selectedAreas.length > 0 &&
-                    loaderData.selectedAreas.map((selectedArea) => {
-                      return selectedArea.name !== null &&
-                        selectedArea.isInSearchResultsList === false ? (
-                        <FormControl
-                          {...getInputProps(evtFilterFieldset.area, {
-                            type: "checkbox",
-                            value: selectedArea.slug,
-                          })}
-                          key={selectedArea.slug}
-                          defaultChecked={true}
-                        >
-                          <FormControl.Label>
-                            {selectedArea.name}
-                          </FormControl.Label>
-                          <FormControl.Counter>
-                            {selectedArea.vectorCount}
-                          </FormControl.Counter>
-                        </FormControl>
-                      ) : null;
-                    })}
-                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
-                    <Input
-                      {...getInputProps(fields.evtAreaSearch, {
-                        type: "search",
-                      })}
-                      key="event-area-search"
-                      placeholder={locales.route.filter.searchAreaPlaceholder}
-                    >
-                      <Input.Label htmlFor={fields.evtAreaSearch.id} hidden>
-                        {locales.route.filter.searchAreaPlaceholder}
-                      </Input.Label>
-                      <Input.HelperText>
-                        {locales.route.filter.searchAreaHelper}
-                      </Input.HelperText>
-                      <Input.Controls>
-                        <noscript>
-                          <Button>
-                            {locales.route.filter.searchAreaButton}
-                          </Button>
-                        </noscript>
-                      </Input.Controls>
-                    </Input>
-                  </div>
-                  {loaderData.areas.state.length > 0 && (
-                    <Dropdown.Legend>
-                      {locales.route.filter.stateLabel}
-                    </Dropdown.Legend>
-                  )}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.state.map((area) => {
-                      const isChecked =
-                        evtFilterFieldset.area.initialValue &&
-                        Array.isArray(evtFilterFieldset.area.initialValue)
-                          ? evtFilterFieldset.area.initialValue.includes(
-                              area.slug
-                            )
-                          : evtFilterFieldset.area.initialValue === area.slug;
-                      return (
-                        <FormControl
-                          {...getInputProps(evtFilterFieldset.area, {
-                            type: "checkbox",
-                            value: area.slug,
-                          })}
-                          key={area.slug}
-                          defaultChecked={isChecked}
-                          disabled={area.vectorCount === 0 && !isChecked}
-                        >
-                          <FormControl.Label>{area.name}</FormControl.Label>
-                          <FormControl.Counter>
-                            {area.vectorCount}
-                          </FormControl.Counter>
-                        </FormControl>
-                      );
-                    })}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.district.length > 0 && (
-                      <Dropdown.Divider />
-                    )}
-                  {loaderData.areas.district.length > 0 && (
-                    <Dropdown.Legend>
-                      {locales.route.filter.districtLabel}
-                    </Dropdown.Legend>
-                  )}
-                  {loaderData.areas.district.length > 0 &&
-                    loaderData.areas.district.map((area) => {
-                      const isChecked =
-                        evtFilterFieldset.area.initialValue &&
-                        Array.isArray(evtFilterFieldset.area.initialValue)
-                          ? evtFilterFieldset.area.initialValue.includes(
-                              area.slug
-                            )
-                          : evtFilterFieldset.area.initialValue === area.slug;
-                      return (
-                        <FormControl
-                          {...getInputProps(evtFilterFieldset.area, {
-                            type: "checkbox",
-                            value: area.slug,
-                          })}
-                          key={area.slug}
-                          defaultChecked={isChecked}
-                          disabled={area.vectorCount === 0 && !isChecked}
-                        >
-                          <FormControl.Label>{area.name}</FormControl.Label>
-                          <FormControl.Counter>
-                            {area.vectorCount}
-                          </FormControl.Counter>
-                        </FormControl>
-                      );
-                    })}
-                </Dropdown.List>
-              </Dropdown>
             </Filters.Fieldset>
             <Filters.Fieldset {...getFieldsetProps(fields.evtSortBy)}>
               <Dropdown orientation="right">
@@ -1000,8 +761,7 @@ export default function ExploreEvents() {
         </div>
         <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
           {(loaderData.selectedFocuses.length > 0 ||
-            loaderData.selectedTargetGroups.length > 0 ||
-            loaderData.selectedAreas.length > 0) && (
+            loaderData.selectedTargetGroups.length > 0) && (
             <div className="mv-flex mv-flex-col mv-gap-2">
               <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
                 {loaderData.selectedFocuses.map((selectedFocus) => {
@@ -1129,56 +889,6 @@ export default function ExploreEvents() {
                       </Chip>
                     </ConformForm>
                   );
-                })}
-                {loaderData.selectedAreas.map((selectedArea) => {
-                  const deleteSearchParams = new URLSearchParams(searchParams);
-                  deleteSearchParams.delete(
-                    evtFilterFieldset.area.name,
-                    selectedArea.slug
-                  );
-                  return selectedArea.name !== null ? (
-                    <ConformForm
-                      key={selectedArea.slug}
-                      useFormOptions={{
-                        id: `delete-filter-${selectedArea.slug}`,
-                        defaultValue: {
-                          ...loaderData.submission.value,
-                          evtFilter: {
-                            ...loaderData.submission.value.evtFilter,
-                            area: loaderData.submission.value.evtFilter.area.filter(
-                              (area) => area !== selectedArea.slug
-                            ),
-                          },
-                          search: [
-                            loaderData.submission.value.search.join(" "),
-                          ],
-                          showFilters: "",
-                        },
-                        constraint: getZodConstraint(getFilterSchemes),
-                        lastResult:
-                          navigation.state === "idle"
-                            ? loaderData.submission
-                            : null,
-                      }}
-                      formProps={{
-                        method: "get",
-                        preventScrollReset: true,
-                      }}
-                    >
-                      <HiddenFilterInputsInContext />
-                      <Chip size="medium">
-                        {selectedArea.name}
-                        <Chip.Delete>
-                          <button
-                            type="submit"
-                            disabled={navigation.state === "loading"}
-                          >
-                            X
-                          </button>
-                        </Chip.Delete>
-                      </Chip>
-                    </ConformForm>
-                  ) : null;
                 })}
               </div>
               <Form

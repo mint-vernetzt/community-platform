@@ -505,7 +505,6 @@ export async function getEventTagsBySearchQuery(
     eventTargetGroups,
     experienceLevels,
     stages,
-    areas,
   ] = await prismaClient.$transaction([
     prismaClient.eventType.findMany({
       where: {
@@ -585,20 +584,6 @@ export async function getEventTagsBySearchQuery(
         slug: true,
       },
     }),
-    prismaClient.area.findMany({
-      where: {
-        name: {
-          contains: searchQuery,
-          mode: "insensitive",
-        },
-        AreasOnProfiles: {
-          some: {},
-        },
-      },
-      select: {
-        name: true,
-      },
-    }),
   ]);
 
   const normalizedEventTypes = eventTypes.map((eventType) => {
@@ -651,11 +636,6 @@ export async function getEventTagsBySearchQuery(
         ].title,
     };
   });
-  const normalizedAreas = areas.map((area) => {
-    return {
-      title: area.name,
-    };
-  });
   return [
     ...normalizedEventTypes,
     ...normalizedFocuses,
@@ -663,7 +643,6 @@ export async function getEventTagsBySearchQuery(
     ...normalizedEventTargetGroups,
     ...normalizedExperienceLevels,
     ...normalizedStages,
-    ...normalizedAreas,
   ];
 }
 

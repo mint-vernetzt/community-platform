@@ -20,7 +20,6 @@ function HiddenFilterInputs(props: {
     orgFilterFieldset.networkType.getFieldList();
   const orgFilterNetworkFieldList = orgFilterFieldset.network.getFieldList();
   const evtFilterFieldset = fields.evtFilter.getFieldset();
-  const evtFilterAreaFieldList = evtFilterFieldset.area.getFieldList();
   const evtFilterTargetGroupFieldList =
     evtFilterFieldset.eventTargetGroup.getFieldList();
   const evtFilterFocusFieldList = evtFilterFieldset.focus.getFieldList();
@@ -144,15 +143,6 @@ function HiddenFilterInputs(props: {
               {...getInputProps(evtFilterFieldset.stage, { type: "hidden" })}
             />
             <ul>
-              {evtFilterAreaFieldList.map((usedFields) => {
-                return (
-                  <li key={usedFields.key}>
-                    <input {...getInputProps(usedFields, { type: "hidden" })} />
-                  </li>
-                );
-              })}
-            </ul>
-            <ul>
               {evtFilterFocusFieldList.map((usedFields) => {
                 return (
                   <li key={usedFields.key}>
@@ -171,7 +161,6 @@ function HiddenFilterInputs(props: {
               })}
             </ul>
           </fieldset>
-          <input {...getInputProps(fields.evtAreaSearch, { type: "hidden" })} />
           <input {...getInputProps(fields.evtPage, { type: "hidden" })} />
           <input {...getInputProps(fields.evtSortBy, { type: "hidden" })} />
         </>

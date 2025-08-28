@@ -194,15 +194,6 @@ export async function getEvent(slug: string) {
           },
         },
       },
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
       types: {
         select: {
           eventType: {
@@ -403,7 +394,6 @@ export async function getEvent(slug: string) {
           canceled: true,
           stage: true,
           parentEvent: true,
-          areas: true,
           types: true,
           tags: true,
           focuses: true,

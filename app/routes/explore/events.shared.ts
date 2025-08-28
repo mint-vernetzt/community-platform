@@ -32,7 +32,6 @@ export const getEventsSchema = z.object({
           }
           return periodOfTime;
         }),
-      area: z.array(z.string()),
     })
     .optional()
     .transform((filter) => {
@@ -42,7 +41,6 @@ export const getEventsSchema = z.object({
           focus: [],
           eventTargetGroup: [],
           periodOfTime: PERIOD_OF_TIME_VALUES[0],
-          area: [],
         };
       }
       return filter;
@@ -64,15 +62,6 @@ export const getEventsSchema = z.object({
         return 1;
       }
       return page;
-    }),
-  evtAreaSearch: z
-    .string()
-    .optional()
-    .transform((searchQuery) => {
-      if (searchQuery === undefined) {
-        return "";
-      }
-      return searchQuery;
     }),
   showFilters: z.boolean().optional(),
 });

@@ -14,7 +14,7 @@ export const locale = {
       label: "Sort by",
     },
 
-    areas: "Location / Area",
+    areas: "Area of activity",
     searchAreaPlaceholder: "Enter area or location",
     searchAreaHelper: "At least 3 letters.",
     searchAreaButton: "Search",

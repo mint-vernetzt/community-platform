@@ -6,7 +6,7 @@ export const locale = {
   },
   headlines: {
     bio: "About us",
-    areas: "Activity areas",
+    areas: "Areas of activity",
     focuses: "Focuses",
     supportedBy: "Supported and funded by",
     contact: "Contact",

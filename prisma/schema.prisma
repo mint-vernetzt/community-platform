@@ -478,7 +478,7 @@ model Event {
   stageId                  String?                          @map("stage_id")
   subline                  String?
   participationFrom        DateTime                         @default(now()) @map("participation_from")
-  areas                    AreaOfEvent[]
+  areas                    AreaOfEvent[] // legacy
   documents                DocumentOfEvent[]
   types                    TypeOfEvent[]
   experienceLevel          ExperienceLevel?                 @relation("experience_level_of_event", fields: [experienceLevelId], references: [id])

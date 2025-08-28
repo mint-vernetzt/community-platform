@@ -62,7 +62,6 @@ export const locale = {
       targetGroups: "Target groups",
       experienceLevel: "Experience level",
       tags: "Tags",
-      areas: "Areas",
       speakers: "Speakers",
       speaker: "Speaker",
       skipSpeakers: "Skip speakers section",
