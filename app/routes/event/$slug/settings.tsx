@@ -45,7 +45,9 @@ function Settings() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BackButton to={`/event/${loaderData.slug}`}>{locales.back}</BackButton>
+        <BackButton to={`/event/${loaderData.slug}`} prefetch="intent">
+          {locales.back}
+        </BackButton>
       </section>
       <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
         <div className="mv-flex mv-flex-col mv-items-stretch @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0 mv-mb-8">
@@ -59,6 +61,7 @@ function Settings() {
                   to="general#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.general}
                 </NavLink>
@@ -66,6 +69,7 @@ function Settings() {
                   to="events#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.linkedEvents}
                 </NavLink>
@@ -73,6 +77,7 @@ function Settings() {
                   to="admins#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.administrators}
                 </NavLink>
@@ -80,6 +85,7 @@ function Settings() {
                   to="team#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.team}
                 </NavLink>
@@ -87,6 +93,7 @@ function Settings() {
                   to="speakers#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.speakers}
                 </NavLink>
@@ -94,6 +101,7 @@ function Settings() {
                   to="participants#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.participants}
                 </NavLink>
@@ -101,6 +109,7 @@ function Settings() {
                   to="waiting-list#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.waitingList}
                 </NavLink>
@@ -108,6 +117,7 @@ function Settings() {
                   to="organizations#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.organizations}
                 </NavLink>
@@ -115,6 +125,7 @@ function Settings() {
                   to="documents#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.documents}
                 </NavLink>
@@ -123,6 +134,7 @@ function Settings() {
                   to="delete#settings"
                   className={({ isActive }) => getClassName(isActive)}
                   preventScrollReset
+                  prefetch="intent"
                 >
                   {locales.content.delete}
                 </NavLink>

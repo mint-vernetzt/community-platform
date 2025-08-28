@@ -241,7 +241,7 @@ function Admins() {
                 )}
               </div>
               <div className="mv-pl-4">
-                <Link to={`/profile/${admin.username}`}>
+                <Link to={`/profile/${admin.username}`} prefetch="intent">
                   <H3
                     like="h4"
                     className="mv-text-xl mv-mb-1 mv-no-underline hover:mv-underline"

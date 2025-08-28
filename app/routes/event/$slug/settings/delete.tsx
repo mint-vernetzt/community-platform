@@ -150,6 +150,7 @@ function Delete() {
                   <Link
                     className="mv-underline hover:mv-no-underline"
                     to={`/event/${childEvent.slug}`}
+                    prefetch="intent"
                   >
                     {childEvent.name}
                   </Link>

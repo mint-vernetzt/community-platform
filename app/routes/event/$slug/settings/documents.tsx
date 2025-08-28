@@ -516,6 +516,7 @@ function Documents() {
                             <Link
                               to={`?${editSearchParams.toString()}`}
                               preventScrollReset
+                              prefetch="intent"
                             >
                               <MaterialList.Item.Controls.Edit />
                             </Link>
@@ -543,6 +544,7 @@ function Documents() {
                   <Button
                     as="link"
                     to={`/event/${loaderData.event.slug}/documents-download`}
+                    reloadDocument
                     variant="outline"
                     fullSize
                   >
