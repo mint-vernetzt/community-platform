@@ -104,6 +104,7 @@ export function NavBar(props: NavBarProps) {
                 : "To the dashboard"
               : ""
           }
+          prefetch="intent"
         >
           <HeaderLogo locales={props.locales} aria-hidden="true" />
         </Link>
@@ -126,6 +127,7 @@ export function NavBar(props: NavBarProps) {
                   ? `/profile/${props.sessionUserInfo.username}`
                   : "/"
               }
+              prefetch="intent"
             />
           </div>
         )}
@@ -198,6 +200,7 @@ export function NavBar(props: NavBarProps) {
                     ? `/profile/${props.sessionUserInfo.username}`
                     : "/"
                 }
+                prefetch="intent"
               />
             </div>
           ) : (
@@ -207,6 +210,7 @@ export function NavBar(props: NavBarProps) {
                   to={`/login?login_redirect=${location.pathname}`}
                   as="link"
                   variant="outline"
+                  prefetch="intent"
                 >
                   {props.locales !== undefined
                     ? props.locales.route.root.login
@@ -219,6 +223,7 @@ export function NavBar(props: NavBarProps) {
                 <Button
                   to={`/register?login_redirect=${location.pathname}`}
                   as="link"
+                  prefetch="intent"
                 >
                   {props.locales !== undefined
                     ? props.locales.route.root.register
@@ -264,6 +269,7 @@ function Opener(props: { openMainMenuKey: string; locales?: RootLocales }) {
           ? "Hauptmenü öffnen"
           : "Open main menu"
       }
+      prefetch="intent"
     >
       <Icon type="menu" />
     </Link>

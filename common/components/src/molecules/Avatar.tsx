@@ -5,7 +5,7 @@ import {
   type ImageProps,
 } from "@mint-vernetzt/components/src/molecules/Image";
 import { Children, isValidElement } from "react";
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 
 function Avatar(props: AvatarProps) {
   const { size = "md", textSize = "md" } = props;
@@ -80,6 +80,7 @@ function Avatar(props: AvatarProps) {
         <Link
           to={props.to}
           className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+          prefetch={props.prefetch}
         >
           {child}
         </Link>
@@ -168,6 +169,7 @@ type AvatarProps = {
   textSize?: TextSize;
   to?: string;
   altSuffix?: string;
+  prefetch?: LinkProps["prefetch"];
 } & (
   | {
       name: string;
