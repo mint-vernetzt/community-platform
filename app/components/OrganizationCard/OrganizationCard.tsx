@@ -1,5 +1,5 @@
 import type { OrganizationType } from "@prisma/client";
-import { Link } from "react-router";
+import { Link, type LinkProps } from "react-router";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { H3 } from "../Heading/Heading";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
@@ -15,6 +15,7 @@ export interface OrganizationCardProps {
     organizationType: Pick<OrganizationType, "slug">;
   }[];
   locales: ProfileDetailLocales;
+  prefetch?: LinkProps["prefetch"];
 }
 
 function OrganizationCard(props: OrganizationCardProps) {
@@ -28,6 +29,7 @@ function OrganizationCard(props: OrganizationCardProps) {
       <Link
         to={props.link}
         className="mv-w-full mv-flex mv-flex-wrap mv-content-start mv-items-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
+        prefetch={props.prefetch}
       >
         <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
           {props.image !== "" && props.image !== null ? (

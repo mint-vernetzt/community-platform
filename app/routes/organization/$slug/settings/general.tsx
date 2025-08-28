@@ -458,7 +458,7 @@ function General() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <SettingsMenuBackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
       <Form

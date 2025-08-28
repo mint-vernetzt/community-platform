@@ -649,6 +649,7 @@ function Index() {
                         size="x-small"
                         variant="outline"
                         aria-label={locales.route.content.reportFaq}
+                        prefetch="intent"
                       >
                         <div
                           aria-hidden="true"
@@ -921,7 +922,7 @@ function Index() {
                                   key={loaderData.event.parentEvent.slug}
                                   className="mv-underline hover:mv-no-underline"
                                   to={`/event/${loaderData.event.parentEvent.slug}`}
-                                  reloadDocument
+                                  prefetch="intent"
                                 >
                                   {" "}
                                 </Link>,
@@ -937,6 +938,7 @@ function Index() {
                                 <Link
                                   className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                                  prefetch="intent"
                                 >
                                   {locales.route.content.event.loginToRegister}
                                 </Link>
@@ -979,6 +981,7 @@ function Index() {
                                 <Link
                                   className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                                   to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                                  prefetch="intent"
                                 >
                                   {locales.route.content.event.loginToRegister}
                                 </Link>
@@ -1000,6 +1003,7 @@ function Index() {
                           <Link
                             className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                             to={`/login?login_redirect=/event/${loaderData.event.slug}`}
+                            prefetch="intent"
                           >
                             {locales.route.content.event.loginToRegister}
                           </Link>
@@ -1024,12 +1028,14 @@ function Index() {
                 <Link
                   className="mv-ml-4 mv-mb-2 @md:mv-mb-0 mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
                   to={`/event/${loaderData.event.slug}/settings/general`}
+                  prefetch="intent"
                 >
                   {locales.route.content.event.edit}
                 </Link>
                 <Link
                   className="mv-ml-4 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                   to={`/event/create/?parent=${loaderData.event.id}`}
+                  prefetch="intent"
                 >
                   {locales.route.content.event.createRelated}
                 </Link>
@@ -1440,6 +1446,7 @@ function Index() {
                         <Link
                           className="mv-flex mv-flex-row"
                           to={`/profile/${profile.username}`}
+                          prefetch="intent"
                         >
                           <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {profile.avatar !== null &&
@@ -1523,7 +1530,7 @@ function Index() {
                         <Link
                           className="mv-flex focus:mv-outline-none"
                           to={`/event/${event.slug}`}
-                          reloadDocument
+                          prefetch="intent"
                         >
                           <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
                             <div className="mv-w-36 mv-h-full mv-relative">
@@ -1677,6 +1684,7 @@ function Index() {
                             <Link
                               to={`/event/${event.slug}`}
                               className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                              prefetch="intent"
                             >
                               {locales.route.content.event.more}
                             </Link>
@@ -1688,6 +1696,7 @@ function Index() {
                             <Link
                               className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
                               to={`/login?login_redirect=/event/${event.slug}`}
+                              prefetch="intent"
                             >
                               {locales.route.content.event.register}
                             </Link>
@@ -1726,6 +1735,7 @@ function Index() {
                         <Link
                           className="mv-flex mv-flex-row"
                           to={`/profile/${member.profile.username}`}
+                          prefetch="intent"
                         >
                           <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {member.profile.avatar !== null &&
@@ -1792,6 +1802,7 @@ function Index() {
                         <Link
                           className="mv-flex mv-flex-row"
                           to={`/organization/${item.organization.slug}/detail/about`}
+                          prefetch="intent"
                         >
                           {item.organization.logo !== null &&
                           item.organization.logo !== "" ? (
@@ -1878,6 +1889,7 @@ function Index() {
                         <Link
                           className="mv-flex mv-flex-row"
                           to={`/profile/${profile.username}`}
+                          prefetch="intent"
                         >
                           <div className="mv-h-11 mv-w-11 mv-bg-primary mv-text-white mv-text-xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
                             {profile.avatar !== null &&

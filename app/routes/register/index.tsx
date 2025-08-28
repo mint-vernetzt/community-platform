@@ -159,6 +159,7 @@ export default function Register() {
                 loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
               }`}
               className="mv-text-primary mv-font-bold"
+              prefetch="intent"
             >
               {locales.content.login}
             </Link>
@@ -180,6 +181,7 @@ export default function Register() {
                       key="support-mail-link"
                       to={`mailto:${actionData.supportMail}`}
                       className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      prefetch="intent"
                     >
                       {" "}
                     </Link>,
@@ -192,6 +194,7 @@ export default function Register() {
                       : ""
                   }`}
                   className="mv-text-primary mv-font-bold hover:mv-underline"
+                  prefetch="intent"
                 >
                   {locales.content.reset}
                 </Link>

@@ -227,7 +227,7 @@ function Admins() {
 
   return (
     <Section>
-      <SettingsMenuBackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
@@ -256,6 +256,7 @@ function Admins() {
                     locales={locales}
                     listIndex={index}
                     hideAfter={3}
+                    prefetch="intent"
                   >
                     {project.admins.length > 1 && (
                       <Button
@@ -392,6 +393,7 @@ function Admins() {
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
+                      prefetch="intent"
                     >
                       {project.admins.some((admin) => {
                         return admin.profile.id === searchedProfile.id;
@@ -535,6 +537,7 @@ function Admins() {
                       locales={locales}
                       listIndex={index}
                       hideAfter={3}
+                      prefetch="intent"
                     >
                       <Button
                         name="intent"
@@ -593,6 +596,7 @@ function Admins() {
                         locales={locales}
                         listIndex={index}
                         hideAfter={3}
+                        prefetch="intent"
                       >
                         <Button
                           name="intent"

@@ -183,7 +183,7 @@ function MyProjects() {
     <Container>
       <Container.Header>
         <Container.Title>{locales.route.title}</Container.Title>
-        <Button as="link" to="/project/create">
+        <Button as="link" to="/project/create" prefetch="intent">
           <Add />
           {locales.route.create}
         </Button>
@@ -196,7 +196,12 @@ function MyProjects() {
           <Placeholder.Text>
             {locales.route.placeholder.description}
           </Placeholder.Text>
-          <Button as="link" to="/project/create" variant="outline">
+          <Button
+            as="link"
+            to="/project/create"
+            variant="outline"
+            prefetch="intent"
+          >
             {locales.route.placeholder.cta}
           </Button>
         </Placeholder>
@@ -270,6 +275,7 @@ function MyProjects() {
                       key={project.slug}
                       project={project}
                       locales={locales}
+                      prefetch="intent"
                     >
                       <ProjectCard.Controls>
                         <OverlayMenu
@@ -283,6 +289,7 @@ function MyProjects() {
                                 {...OverlayMenu.getListChildrenStyles()}
                                 {...OverlayMenu.getIdToFocusWhenOpening()}
                                 to={`/project/${project.slug}/settings/general`}
+                                prefetch="intent"
                               >
                                 <svg
                                   width="20"
@@ -310,6 +317,7 @@ function MyProjects() {
                               {...OverlayMenu.getListChildrenStyles()}
                               to={`?${doubleCheckModalSearchParams.toString()}`}
                               preventScrollReset
+                              prefetch="intent"
                             >
                               <svg
                                 width="20"

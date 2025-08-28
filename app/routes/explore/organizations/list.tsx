@@ -257,6 +257,7 @@ export default function ExploreOrganizationsList() {
               publicAccess={!loaderData.isLoggedIn}
               organization={organization}
               as="h2"
+              prefetch="intent"
             />
           );
         })}

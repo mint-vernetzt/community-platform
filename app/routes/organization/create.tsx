@@ -293,6 +293,7 @@ function CreateOrganization() {
         weight="thin"
         variant="neutral"
         arrowLeft
+        prefetch="intent"
       >
         {locales.route.back}
       </TextButton>
@@ -791,7 +792,12 @@ function CreateOrganization() {
           {locales.route.form.helperText}
         </p>
         <div className="mv-flex mv-gap-2">
-          <Button as="link" to="/my/organizations" variant="outline">
+          <Button
+            as="link"
+            to="/my/organizations"
+            variant="outline"
+            prefetch="intent"
+          >
             {locales.route.form.cancel}
           </Button>
           <Button

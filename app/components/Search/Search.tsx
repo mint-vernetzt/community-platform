@@ -60,9 +60,7 @@ function Search(props: SearchProps) {
   };
 
   useEffect(() => {
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handler = (evt: any) => {
+    const handler = (evt: KeyboardEvent) => {
       if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
         if (inputRef.current !== null) {
           inputRef.current.focus();
@@ -340,10 +338,10 @@ function ResultItem(props: {
     <li>
       <Link
         to={to}
-        className="mv-inline-block mv-w-full mv-h-12 mv-px-2 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base hover:mv-bg-neutral-100 mv-rounded focus:mv-ring-2 focus:mv-ring-primary-200"
+        className="mv-w-full mv-h-12 mv-px-2 mv-flex mv-items-center mv-gap-2 mv-text-sm lg:mv-text-base hover:mv-bg-neutral-100 mv-rounded focus:mv-ring-2 focus:mv-ring-primary-200"
         {...(typeof props.url !== "undefined" && props.url.startsWith("http")
           ? { target: "_blank", rel: "noopener noreferrer" }
-          : {})}
+          : { prefetch: "intent" })}
       >
         <div className="mv-w-8 mv-h-8 mv-flex mv-items-center mv-justify-center">
           {props.entity === "profile" ||

@@ -47,7 +47,7 @@ function Index() {
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
-        <BackButton to={`/profile/${loaderData.username}`}>
+        <BackButton to={`/profile/${loaderData.username}`} prefetch="intent">
           {locales.back}
         </BackButton>
       </section>
@@ -63,6 +63,7 @@ function Index() {
                       to="general#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
+                      prefetch="intent"
                     >
                       {locales.context.general}
                     </NavLink>
@@ -72,6 +73,7 @@ function Index() {
                       to="notifications#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
+                      prefetch="intent"
                     >
                       {locales.context.notifications}
                     </NavLink>
@@ -81,6 +83,7 @@ function Index() {
                       to="security#settings"
                       className={({ isActive }) => getClassName(isActive)}
                       preventScrollReset
+                      prefetch="intent"
                     >
                       {locales.context.security}
                     </NavLink>
@@ -92,6 +95,7 @@ function Index() {
                     to="delete#settings"
                     className={({ isActive }) => getClassName(isActive)}
                     preventScrollReset
+                    prefetch="intent"
                   >
                     {locales.context.delete}
                   </NavLink>

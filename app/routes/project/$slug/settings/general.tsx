@@ -406,7 +406,7 @@ function General() {
   return (
     <Section>
       {UnsavedChangesBlockerModal}
-      <SettingsMenuBackButton to={location.pathname}>
+      <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>
       <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>

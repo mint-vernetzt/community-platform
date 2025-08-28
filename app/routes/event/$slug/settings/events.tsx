@@ -321,6 +321,7 @@ function Events() {
                     <Link
                       className="mv-flex"
                       to={`/event/${loaderData.parentEvent.slug}`}
+                      prefetch="intent"
                     >
                       <div className="mv-hidden @xl:mv-block mv-w-40 mv-shrink-0">
                         <Image
@@ -538,6 +539,7 @@ function Events() {
                         <Link
                           className="mv-flex"
                           to={`/event/${childEvent.slug}`}
+                          prefetch="intent"
                         >
                           <div className="mv-hidden @xl:mv-block mv-w-40 mv-shrink-0">
                             <Image

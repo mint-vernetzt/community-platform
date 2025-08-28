@@ -435,6 +435,7 @@ function OrganizationDetail() {
                         name={relation.networkMember.name}
                         logo={relation.networkMember.logo}
                         blurredLogo={relation.networkMember.blurredLogo}
+                        prefetch="intent"
                       />
                     );
                   })}
@@ -453,6 +454,7 @@ function OrganizationDetail() {
                 as="link"
                 to={`/organization/${organization.slug}/settings/general`}
                 fullSize
+                prefetch="intent"
               >
                 <svg
                   width="16"
@@ -659,34 +661,34 @@ function OrganizationDetail() {
       <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border-x @sm:mv-border-t @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
-            <Link to="./about" preventScrollReset>
+            <Link to="./about" preventScrollReset prefetch="intent">
               {locales.route.tabbar.about}
             </Link>
           </TabBar.Item>
           {hasNetworkData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/network")}>
-              <Link to="./network" preventScrollReset>
+              <Link to="./network" preventScrollReset prefetch="intent">
                 {locales.route.tabbar.network}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasTeamData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/team")}>
-              <Link to="./team" preventScrollReset>
+              <Link to="./team" preventScrollReset prefetch="intent">
                 {locales.route.tabbar.team}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasEventsData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/events")}>
-              <Link to="./events" preventScrollReset>
+              <Link to="./events" preventScrollReset prefetch="intent">
                 {locales.route.tabbar.events}
               </Link>
             </TabBar.Item>
           ) : null}
           {hasProjectsData(organization) ? (
             <TabBar.Item active={pathname.endsWith("/projects")}>
-              <Link to="./projects" preventScrollReset>
+              <Link to="./projects" preventScrollReset prefetch="intent">
                 {locales.route.tabbar.projects}
               </Link>
             </TabBar.Item>

@@ -464,6 +464,7 @@ export default function Index() {
                         key="link-to-security-settings"
                         to={`/profile/${username}/settings/security`}
                         className="mv-text-primary hover:mv-underline"
+                        prefetch="intent"
                       />,
                     ]
                   )}
@@ -695,6 +696,7 @@ export default function Index() {
               <Link
                 to="/organization/create"
                 className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                prefetch="intent"
               >
                 {locales.route.network.action}
               </Link>

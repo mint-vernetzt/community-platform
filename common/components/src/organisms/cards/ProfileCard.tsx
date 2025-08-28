@@ -14,6 +14,7 @@ import { Image } from "./../../molecules/Image";
 import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { Heading } from "~/components/Heading/Heading";
+import { type LinkProps } from "react-router";
 
 type ProfileCardProps = {
   match?: number;
@@ -38,12 +39,13 @@ type ProfileCardProps = {
     offers: string[];
   };
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  prefetch?: LinkProps["prefetch"];
 };
 
 function ProfileCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & ProfileCardProps
 ) {
-  const { profile, publicAccess = false, locales, as = "h4" } = props;
+  const { profile, publicAccess = false, locales, as = "h4", prefetch } = props;
 
   const fullName = getFullName(profile);
 
@@ -52,7 +54,7 @@ function ProfileCard(
     : locales.profileCard.nonStated;
 
   return (
-    <Card to={`/profile/${profile.username}`}>
+    <Card to={`/profile/${profile.username}`} prefetch={prefetch}>
       <CardHeader>
         <Avatar {...profile} size="xl" />
         {profile.background && (
@@ -129,6 +131,7 @@ function ProfileCard(
           visibleAvatars={2}
           moreIndicatorProps={{
             to: `/profile/${profile.username}/#organizations`,
+            prefetch: prefetch,
           }}
         >
           {profile.memberOf.map((organization) => {
@@ -138,6 +141,7 @@ function ProfileCard(
                 {...organization}
                 size="sm"
                 to={`/organization/${organization.slug}/detail/about`}
+                prefetch={prefetch}
               />
             );
           })}

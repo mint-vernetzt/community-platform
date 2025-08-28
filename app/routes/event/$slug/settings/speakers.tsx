@@ -228,7 +228,7 @@ function Speakers() {
                 )}
               </div>
               <div className="mv-pl-4">
-                <Link to={`/profile/${profile.username}`}>
+                <Link to={`/profile/${profile.username}`} prefetch="intent">
                   <H3
                     like="h4"
                     className="mv-text-xl mv-mb-1 mv-no-underline hover:mv-underline"

@@ -222,6 +222,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         : undefined
                     }
                     className="mv-w-full @lg:mv-w-fit"
+                    prefetch={
+                      typedResourceValue.external === true ? "none" : "intent"
+                    }
                   >
                     {typedResourceValue.external ? (
                       <span>
@@ -289,6 +292,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         : undefined
                     }
                     className="mv-w-full @lg:mv-w-fit"
+                    prefetch={
+                      typedResourceValue.external === true ? "none" : "intent"
+                    }
                   >
                     <span>
                       <External />
@@ -361,6 +367,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         : undefined
                     }
                     className="mv-w-full @lg:mv-w-fit"
+                    prefetch={
+                      typedResourceValue.external === true ? "none" : "intent"
+                    }
                   >
                     <span>
                       <External />
@@ -422,6 +431,9 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         : undefined
                     }
                     className="mv-w-full @lg:mv-w-fit"
+                    prefetch={
+                      typedResourceValue.external === true ? "none" : "intent"
+                    }
                   >
                     <span>
                       <External />

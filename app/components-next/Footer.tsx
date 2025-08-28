@@ -31,6 +31,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
                   : "To the dashboard"
                 : ""
             }
+            prefetch="intent"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
