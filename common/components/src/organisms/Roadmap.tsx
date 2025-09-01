@@ -136,8 +136,8 @@ function Roadmap(props: { locales: LandingPageLocales }) {
             id="2"
           >
             <RoadmapCard
-              title={locales.roadmap.inDevelopment.map.title}
-              text={locales.roadmap.inDevelopment.map.description}
+              title={locales.roadmap.inDevelopment.oeb.title}
+              text={locales.roadmap.inDevelopment.oeb.description}
             />
             <RoadmapCard
               title={locales.roadmap.inDevelopment.createOwnEvents.title}
@@ -151,12 +151,20 @@ function Roadmap(props: { locales: LandingPageLocales }) {
             id="3"
           >
             <RoadmapCard
+              title={locales.roadmap.done.map.title}
+              text={locales.roadmap.done.map.description}
+            />
+            <RoadmapCard
               title={locales.roadmap.done.accessibility.title}
               text={locales.roadmap.done.accessibility.description}
             />
             <RoadmapCard
-              title={locales.roadmap.done.sharepicAndMediaDatabase.title}
-              text={locales.roadmap.done.sharepicAndMediaDatabase.description}
+              title={locales.roadmap.done.sharepic.title}
+              text={locales.roadmap.done.sharepic.description}
+            />
+            <RoadmapCard
+              title={locales.roadmap.done.mediaDatabase.title}
+              text={locales.roadmap.done.mediaDatabase.description}
             />
             <RoadmapCard
               title={locales.roadmap.done.visualizeNetworks.title}
