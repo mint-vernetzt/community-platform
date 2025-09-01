@@ -8,7 +8,7 @@ import { Children, isValidElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
 function Avatar(props: AvatarProps) {
-  const { size = "md", textSize = "md" } = props;
+  const { size = "md", textSize = "md", as = "link" } = props;
 
   let displayName = "";
   const initials = getInitials(props);
@@ -77,13 +77,22 @@ function Avatar(props: AvatarProps) {
   return (
     <div className={classes}>
       {props.to ? (
-        <Link
-          to={props.to}
-          className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
-          prefetch={props.prefetch}
-        >
-          {child}
-        </Link>
+        as === "link" ? (
+          <Link
+            to={props.to}
+            className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+            prefetch={props.prefetch}
+          >
+            {child}
+          </Link>
+        ) : (
+          <a
+            href={props.to}
+            className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+          >
+            {child}
+          </a>
+        )
       ) : (
         <>{child}</>
       )}
@@ -95,9 +104,11 @@ type MoreIndicatorProps = {
   amount: number;
   to?: string;
   prefetch?: LinkProps["prefetch"];
+  as?: "a" | "link";
 };
 
 function MoreIndicator(props: MoreIndicatorProps) {
+  const { as = "link" } = props;
   const amount = props.amount < 1000 ? `+${props.amount}` : ">999";
 
   const classes = classNames(
@@ -109,9 +120,15 @@ function MoreIndicator(props: MoreIndicatorProps) {
     props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
   );
   return props.to ? (
-    <Link to={props.to} className="mv-rounded-full">
-      <div className={classes}>{amount}</div>
-    </Link>
+    as === "link" ? (
+      <Link to={props.to} className="mv-rounded-full">
+        <div className={classes}>{amount}</div>
+      </Link>
+    ) : (
+      <a href={props.to} className="mv-rounded-full">
+        <div className={classes}>{amount}</div>
+      </a>
+    )
   ) : (
     <div className={classes}>{amount}</div>
   );
@@ -171,6 +188,7 @@ type AvatarProps = {
   to?: string;
   altSuffix?: string;
   prefetch?: LinkProps["prefetch"];
+  as?: "a" | "link";
 } & (
   | {
       name: string;

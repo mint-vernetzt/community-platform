@@ -12,7 +12,6 @@ import { HiddenFilterInputsInContext } from "~/components-next/HiddenFilterInput
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { getFilterSchemes } from "../all.shared";
 import {
-  getAllOrganizations,
   getOrganizationIds,
   getTakeParam,
   VIEW_COOKIE_VALUES,
@@ -29,6 +28,7 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import { getAllOrganizations } from "./list.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

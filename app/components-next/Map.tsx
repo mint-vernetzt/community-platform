@@ -1,5 +1,8 @@
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import {
+  Avatar,
+  AvatarList,
+} from "@mint-vernetzt/components/src/molecules/Avatar";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -20,7 +23,14 @@ type MapOrganization = ListOrganization &
   Pick<
     Organization,
     "longitude" | "latitude" | "street" | "streetNumber" | "zipCode" | "city"
-  >;
+  > & {
+    networkMembers: {
+      slug: string;
+      name: string;
+      logo?: string | null;
+      blurredLogo?: string;
+    }[];
+  };
 
 export function Map(props: {
   organizations: Array<MapOrganization>;
@@ -781,7 +791,7 @@ function Popup(props: {
   const { organization, locales, embeddable } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
+    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-lg mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
       <div className="mv-relative mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-2">
         <div className="mv-pointer-events-auto">
           <Avatar size="lg" {...organization} disableFadeIn={true} />
@@ -825,6 +835,30 @@ function Popup(props: {
           <MapPopupClose />
         </div>
       </div>
+      {organization.networkMembers.length > 0 ? (
+        <div className="mv-pointer-events-auto">
+          <AvatarList
+            visibleAvatars={2}
+            moreIndicatorProps={{
+              to: `/organization/${organization.slug}/detail/network`,
+              as: "a",
+            }}
+          >
+            {organization.networkMembers.map((networkMember) => {
+              return (
+                <Avatar
+                  key={networkMember.slug}
+                  {...networkMember}
+                  as="a"
+                  size="sm"
+                  to={`/organization/${networkMember.slug}/detail/about`}
+                  disableFadeIn={true}
+                />
+              );
+            })}
+          </AvatarList>
+        </div>
+      ) : null}
       <a
         href={`/organization/${organization.slug}/detail/about`}
         className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200 mv-pointer-events-auto"

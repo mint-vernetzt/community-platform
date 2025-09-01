@@ -58,6 +58,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     type EnhancedOrganization = typeof organization;
     const enhancedOrganization =
       filterOrganizationByVisibility<EnhancedOrganization>(organization);
+    // Filter network members
+    enhancedOrganization.networkMembers =
+      enhancedOrganization.networkMembers.map((relation) => {
+        type NetworkMemberRelation = typeof relation.networkMember;
+        const filteredNetworkMember =
+          filterOrganizationByVisibility<NetworkMemberRelation>(
+            relation.networkMember
+          );
+        return { ...relation, networkMember: { ...filteredNetworkMember } };
+      });
 
     // Add images from image proxy
 
@@ -85,22 +95,68 @@ export const loader = async (args: LoaderFunctionArgs) => {
         });
       }
     }
-    const types = enhancedOrganization.types.map((item) => {
-      return item.organizationType;
-    });
-    const networkTypes = enhancedOrganization.networkTypes.map((item) => {
-      return item.networkType;
-    });
+
+    const networkMembers = enhancedOrganization.networkMembers.map(
+      (relation) => {
+        let logo = relation.networkMember.logo;
+        let blurredLogo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.MapPopupNetworkMembers.Logo.width,
+              height:
+                ImageSizes.Organization.MapPopupNetworkMembers.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.MapPopupNetworkMembers.BlurredLogo
+                  .width,
+              height:
+                ImageSizes.Organization.MapPopupNetworkMembers.BlurredLogo
+                  .height,
+            },
+            blur: BlurFactor,
+          });
+        }
+        return {
+          ...relation,
+          networkMember: {
+            ...relation.networkMember,
+            logo: logo,
+            blurredLogo: blurredLogo,
+          },
+        };
+      }
+    );
 
     const imageEnhancedOrganization = {
       ...enhancedOrganization,
       logo,
       blurredLogo,
-      types,
-      networkTypes,
+      networkMembers,
     };
 
-    enhancedOrganizations.push(imageEnhancedOrganization);
+    const transformedOrganization = {
+      ...imageEnhancedOrganization,
+      networkMembers: imageEnhancedOrganization.networkMembers.map(
+        (relation) => {
+          return relation.networkMember;
+        }
+      ),
+      types: imageEnhancedOrganization.types.map((relation) => {
+        return relation.organizationType;
+      }),
+      networkTypes: imageEnhancedOrganization.networkTypes.map((relation) => {
+        return relation.networkType;
+      }),
+    };
+
+    enhancedOrganizations.push(transformedOrganization);
   }
 
   return {

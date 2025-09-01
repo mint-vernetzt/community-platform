@@ -127,6 +127,10 @@ export const ImageSizes = {
       Logo: { width: 36, height: 36 },
       BlurredLogo: { width: 4, height: 4 },
     },
+    MapPopupNetworkMembers: {
+      Logo: { width: 36, height: 36 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
     ListItem: {
       Logo: { width: 72, height: 72 },
       BlurredLogo: { width: 4, height: 4 },
