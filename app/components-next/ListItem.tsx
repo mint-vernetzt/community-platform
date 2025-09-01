@@ -118,7 +118,7 @@ export function ListItem(
       }
     >
       <div
-        className={`mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-rounded-2xl mv-justify-between mv-items-center mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
+        className={`mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 mv-rounded-lg mv-justify-between mv-items-center mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
           highlighted ? "mv-bg-primary-50" : "mv-bg-white"
         }`}
       >
@@ -130,7 +130,7 @@ export function ListItem(
               ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
-          className={`mv-flex mv-gap-2 @sm:mv-gap-4 focus:mv-outline-none mv-items-center mv-rounded-2xl mv-w-full mv-grow ${
+          className={`mv-flex mv-gap-2 @sm:mv-gap-4 focus:mv-outline-none mv-items-center mv-rounded-lg mv-w-full mv-grow ${
             validChildren.length > 0
               ? "mv-pb-0 mv-pt-4 mv-px-4 @sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
               : "mv-p-4"
