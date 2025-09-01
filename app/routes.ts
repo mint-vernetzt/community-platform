@@ -362,4 +362,5 @@ export default [
   route("/auth/verify", "./routes/auth/verify.tsx"),
   route("/map", "./routes/map.tsx"),
   route("/map-proxy", "./routes/map-proxy.ts"),
+  route("/map-style", "./routes/map-style.ts"),
 ] satisfies RouteConfig;

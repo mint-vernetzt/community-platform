@@ -14,7 +14,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
-import customMapStyles from "~/styles/map.css?url";
+import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";
 import { getAllOrganizations } from "./map.server";
 import { getFeatureAbilities } from "./feature-access.server";

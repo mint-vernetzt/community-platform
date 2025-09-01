@@ -91,18 +91,18 @@ export function Map(props: {
       // eslint-disable-next-line import/no-named-as-default-member
       mapRef.current = new maplibreGL.Map({
         container: mapContainer.current,
-        style: "https://tiles.openfreemap.org/styles/liberty",
+        style: `${ENV.COMMUNITY_BASE_URL}/map-style`,
         center,
         zoom,
         minZoom,
         maxZoom,
         transformRequest: (url) => {
-          if (url.startsWith("https://tiles.openfreemap.org/")) {
+          if (url.startsWith("https://tiles.versatiles.org/")) {
             return {
               url: `${
                 ENV.COMMUNITY_BASE_URL
               }/map-proxy?path=${encodeURIComponent(
-                url.replace("https://tiles.openfreemap.org", "")
+                url.replace("https://tiles.versatiles.org", "")
               )}`,
             };
           }
@@ -585,31 +585,38 @@ export function Map(props: {
       lastLanguageRef.current !== language
     ) {
       lastLanguageRef.current = language;
+      const labels = [
+        "label-address-housenumber",
+        "label-motorway-shield",
+        "label-street-pedestrian",
+        "label-street-livingstreet",
+        "label-street-residential",
+        "label-street-unclassified",
+        "label-street-tertiary",
+        "label-street-secondary",
+        "label-street-primary",
+        "label-street-trunk",
+        "label-place-neighbourhood",
+        "label-place-quarter",
+        "label-place-suburb",
+        "label-place-hamlet",
+        "label-place-village",
+        "label-place-town",
+        "label-boundary-state",
+        "label-place-city",
+        "label-place-statecapital",
+        "label-place-capital",
+        "label-boundary-country-small",
+        "label-boundary-country-medium",
+        "label-boundary-country-large",
+      ];
 
-      mapRef.current.setLayoutProperty("label_country_1", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
-      mapRef.current.setLayoutProperty("label_country_2", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
-      mapRef.current.setLayoutProperty("label_country_3", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
-      mapRef.current.setLayoutProperty("label_state", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
-      mapRef.current.setLayoutProperty("label_city", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
-      mapRef.current.setLayoutProperty("label_city_capital", "text-field", [
-        "get",
-        `name:${language}`,
-      ]);
+      for (const label of labels) {
+        mapRef.current.setLayoutProperty(label, "text-field", [
+          "get",
+          `name_${language}`,
+        ]);
+      }
     }
   }, [mapLoaded, language]);
 
