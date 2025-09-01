@@ -58,6 +58,11 @@ export const locale = {
       show: "Show updates",
 
       entries: {
+        actionDays: {
+          headline: "Submit actions now",
+          description: "Help shape the program of the digital STEM action days",
+          linkDescription: "More info",
+        },
         networks: {
           headline: "New network feature",
           description:
