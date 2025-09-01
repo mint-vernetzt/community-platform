@@ -669,7 +669,12 @@ export async function getOrganizationIds(options: {
     select: {
       id: true,
     },
-    where: whereClauses,
+    where: {
+      ...whereClauses,
+      name: {
+        not: "",
+      },
+    },
   });
 
   const ids = organizations.map((organization) => {
