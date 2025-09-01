@@ -781,7 +781,7 @@ function Popup(props: {
   const { organization, locales, embeddable } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-2xl mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
+    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-lg mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
       <div className="mv-relative mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-2">
         <div className="mv-pointer-events-auto">
           <Avatar size="lg" {...organization} disableFadeIn={true} />
