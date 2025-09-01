@@ -1,29 +1,13 @@
-import { type ArrayElement } from "~/lib/utils/types";
-import { type GetSearchSchema } from "./explore/all.shared";
-import { type GetOrganizationsSchema } from "./explore/organizations.shared";
-import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { getOrganizationWhereClauses } from "./explore/organizations.server";
 import { prismaClient } from "~/prisma.server";
-import { type languageModuleMap } from "~/locales/.server";
-
-export type MapLocales = (typeof languageModuleMap)[ArrayElement<
-  typeof SUPPORTED_COOKIE_LANGUAGES
->]["map"];
+import { type getTakeParam } from "../organizations.server";
+import { type GetOrganizationsSchema } from "../organizations.shared";
 
 export async function getAllOrganizations(options: {
-  filter: GetOrganizationsSchema["orgFilter"];
   sortBy: GetOrganizationsSchema["orgSortBy"];
-  search: GetSearchSchema["search"];
-  language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  take?: ReturnType<typeof getTakeParam>;
+  organizationIds: string[];
 }) {
-  const { filter, sortBy, search, language } = options;
-
-  const whereClauses = getOrganizationWhereClauses({
-    filter,
-    search,
-    isLoggedIn: false,
-    language,
-  });
+  const { sortBy, take, organizationIds } = options;
 
   const organizations = await prismaClient.organization.findMany({
     select: {
@@ -94,17 +78,15 @@ export async function getAllOrganizations(options: {
       },
     },
     where: {
-      AND: [
-        whereClauses,
-        {
-          longitude: {
-            not: null,
-          },
-          latitude: {
-            not: null,
-          },
-        },
-      ],
+      id: {
+        in: organizationIds,
+      },
+      longitude: {
+        not: null,
+      },
+      latitude: {
+        not: null,
+      },
     },
     orderBy: [
       {
@@ -114,6 +96,7 @@ export async function getAllOrganizations(options: {
         id: "asc",
       },
     ],
+    take,
   });
 
   return organizations;

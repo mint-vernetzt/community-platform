@@ -25,13 +25,13 @@ import { getFilterSchemes } from "./all.shared";
 import { getAllEvents, getEventIds } from "./events.server";
 import { getAllFundings, getFundingIds } from "./fundings.server";
 import {
-  getAllOrganizations,
   getOrganizationIds,
   viewCookie,
   viewCookieSchema,
 } from "./organizations.server";
 import { getAllProfiles, getProfileIds } from "./profiles.server";
 import { getAllProjects, getProjectIds } from "./projects.server";
+import { getAllOrganizations } from "./organizations/list.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

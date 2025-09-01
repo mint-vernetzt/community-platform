@@ -21,7 +21,6 @@ import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import customMapStyles from "~/styles/map.css?url";
 import {
-  getAllOrganizations,
   getOrganizationIds,
   VIEW_COOKIE_VALUES,
   viewCookie,
@@ -29,14 +28,11 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { getFilterSchemes } from "../all.shared";
 import { parseWithZod } from "@conform-to/zod-v1";
-import {
-  filterOrganizationByVisibility,
-  filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
 import { languageModuleMap } from "~/locales/.server";
+import { getAllOrganizations } from "./map.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -104,16 +100,16 @@ export async function loader(args: LoaderFunctionArgs) {
         filterOrganizationByVisibility<EnhancedOrganization>(
           enhancedOrganization
         );
-      // Filter team members
-      enhancedOrganization.teamMembers = enhancedOrganization.teamMembers.map(
-        (relation) => {
-          type ProfileRelation = typeof relation.profile;
-          const filteredProfile = filterProfileByVisibility<ProfileRelation>(
-            relation.profile
-          );
-          return { ...relation, profile: { ...filteredProfile } };
-        }
-      );
+      // Filter network members
+      enhancedOrganization.networkMembers =
+        enhancedOrganization.networkMembers.map((relation) => {
+          type NetworkMemberRelation = typeof relation.networkMember;
+          const filteredNetworkMember =
+            filterOrganizationByVisibility<NetworkMemberRelation>(
+              relation.networkMember
+            );
+          return { ...relation, networkMember: { ...filteredNetworkMember } };
+        });
     }
 
     // Add images from image proxy
@@ -125,99 +121,78 @@ export async function loader(args: LoaderFunctionArgs) {
         logo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.Card.Logo.width,
-            height: ImageSizes.Organization.Card.Logo.height,
+            width: ImageSizes.Organization.MapPopup.Logo.width,
+            height: ImageSizes.Organization.MapPopup.Logo.height,
           },
         });
         blurredLogo = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Organization.Card.BlurredLogo.width,
-            height: ImageSizes.Organization.Card.BlurredLogo.height,
+            width: ImageSizes.Organization.MapPopup.BlurredLogo.width,
+            height: ImageSizes.Organization.MapPopup.BlurredLogo.height,
           },
           blur: BlurFactor,
         });
       }
     }
 
-    let background = enhancedOrganization.background;
-    let blurredBackground;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL !== null) {
-        background = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.Background.width,
-            height: ImageSizes.Organization.Card.Background.height,
+    const networkMembers = enhancedOrganization.networkMembers.map(
+      (relation) => {
+        let logo = relation.networkMember.logo;
+        let blurredLogo;
+        if (logo !== null) {
+          const publicURL = getPublicURL(authClient, logo);
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Organization.MapPopupNetworkMembers.Logo.width,
+              height:
+                ImageSizes.Organization.MapPopupNetworkMembers.Logo.height,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width:
+                ImageSizes.Organization.MapPopupNetworkMembers.BlurredLogo
+                  .width,
+              height:
+                ImageSizes.Organization.MapPopupNetworkMembers.BlurredLogo
+                  .height,
+            },
+            blur: BlurFactor,
+          });
+        }
+        return {
+          ...relation,
+          networkMember: {
+            ...relation.networkMember,
+            logo: logo,
+            blurredLogo: blurredLogo,
           },
-        });
-        blurredBackground = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Organization.Card.BlurredBackground.width,
-            height: ImageSizes.Organization.Card.BlurredBackground.height,
-          },
-          blur: BlurFactor,
-        });
+        };
       }
-    } else {
-      background = DefaultImages.Organization.Background;
-      blurredBackground = DefaultImages.Organization.BlurredBackground;
-    }
-
-    const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
-      let avatar = relation.profile.avatar;
-      let blurredAvatar;
-      if (avatar !== null) {
-        const publicURL = getPublicURL(authClient, avatar);
-        avatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.CardFooter.Avatar.width,
-            height: ImageSizes.Profile.CardFooter.Avatar.height,
-          },
-        });
-        blurredAvatar = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            width: ImageSizes.Profile.CardFooter.BlurredAvatar.width,
-            height: ImageSizes.Profile.CardFooter.BlurredAvatar.height,
-          },
-          blur: BlurFactor,
-        });
-      }
-      return {
-        ...relation,
-        profile: { ...relation.profile, avatar, blurredAvatar },
-      };
-    });
+    );
 
     const imageEnhancedOrganization = {
       ...enhancedOrganization,
       logo,
       blurredLogo,
-      background,
-      blurredBackground,
-      teamMembers,
+      networkMembers,
     };
 
     const transformedOrganization = {
       ...imageEnhancedOrganization,
-      teamMembers: imageEnhancedOrganization.teamMembers.map((relation) => {
-        return relation.profile;
-      }),
+      networkMembers: imageEnhancedOrganization.networkMembers.map(
+        (relation) => {
+          return relation.networkMember;
+        }
+      ),
       types: imageEnhancedOrganization.types.map((relation) => {
-        return relation.organizationType.slug;
+        return relation.organizationType;
       }),
       networkTypes: imageEnhancedOrganization.networkTypes.map((relation) => {
-        return relation.networkType.slug;
-      }),
-      focuses: imageEnhancedOrganization.focuses.map((relation) => {
-        return relation.focus.slug;
-      }),
-      areas: imageEnhancedOrganization.areas.map((relation) => {
-        return relation.area.name;
+        return relation.networkType;
       }),
     };
 
@@ -304,28 +279,11 @@ export default function ExploreOrganizationsList() {
     <div className="mv-w-full mv-px-4">
       <div className="mv-w-full mv-relative mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-min-h-[284px] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
         <Map
-          organizations={loaderData.organizations
-            .filter((organization) => {
-              return (
-                organization.longitude !== null &&
-                organization.latitude !== null
-              );
-            })
-            .map((organization) => {
-              return {
-                ...organization,
-                types: organization.types.map((type) => {
-                  return {
-                    slug: type,
-                  };
-                }),
-                networkTypes: organization.networkTypes.map((type) => {
-                  return {
-                    slug: type,
-                  };
-                }),
-              };
-            })}
+          organizations={loaderData.organizations.filter((organization) => {
+            return (
+              organization.longitude !== null && organization.latitude !== null
+            );
+          })}
           locales={loaderData.locales}
           language={loaderData.lng}
         />
