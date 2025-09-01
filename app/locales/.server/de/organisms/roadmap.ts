@@ -35,10 +35,10 @@ export const locale = {
   },
   inDevelopment: {
     title: "In der Entwicklung",
-    map: {
-      title: "Map",
+    oeb: {
+      title: "Einbindung Open Educational Badges",
       description:
-        "Mit der neuen Karten-Darstellung findest Du schnell Organisationen in Deiner Nähe oder mit ähnlichem Fokus. Filtere nach Themen, Region oder Netzwerkform – und entdecke neue Anknüpfungspunkte für Austausch und Zusammenarbeit.",
+        "Mit der Einbindung ermöglichen wird das Anzeigen und Vergeben von Badges als digitale Nachweise, um Lernerfolge und Kompetenzerwerb sichtbar zu machen​.",
     },
     createOwnEvents: {
       title: "Eigene Events anlegen",
@@ -48,15 +48,25 @@ export const locale = {
   },
   done: {
     title: "Bereits umgesetzt",
+    map: {
+      title: "MINT-Community Karte",
+      description:
+        "Die MINT-Community Karte zeigt Dir auf einen Blick, welche Organisationen im MINT-Bereich aktiv sind. Du kannst gezielt nach Region, Organisationsform, Netzwerkzugehörigkeit und Arbeitsschwerpunkt filtern.",
+    },
     accessibility: {
       title: "Barrierefreiheit",
       description:
         "Du sollst die Plattform möglichst einfach und barrierefrei nutzen können. Viele Bereiche sind bereits gut zugänglich – und wir arbeiten weiter daran, Dir eine noch inklusivere Nutzung zu ermöglichen.",
     },
-    sharepicAndMediaDatabase: {
-      title: "MINT-Sharepic und -Bilddatenbank",
+    sharepic: {
+      title: "MINT-Sharepic-Generator",
       description:
-        "Der Sharepic Generator hilft Euch schnell und einfach Grafiken für z.B. Eure Social Media Posts zu erstellen. MINT-Bilder findet Ihr in der Bilddatenbank.",
+        "Der Sharepic-Generator hilft Dir dabei schnell, einfach und datenschutzkonform Grafiken für die MINT-Öffentlichkeitsarbeit zu erstellen.",
+    },
+    mediaDatabase: {
+      title: "MINT-Mediendatenbank",
+      description:
+        "Du findest hier kostenlose, klischeefreie MINT-Fotos und Grafiken für Deine Öffentlichkeitsarbeit.",
     },
     visualizeNetworks: {
       title: "Netzwerke darstellen",
@@ -111,7 +121,7 @@ export const locale = {
     search: {
       title: "Suche",
       description:
-        "Über die Suchfunktion kannst Du nach Personen, Organisationen, Events, Projekten und nach Stichwörtern suchen.",
+        "Über die Suchfunktion kannst Du nach Personen, Organisationen, Events, Projekten, Förderungen und nach Stichwörtern suchen. Mit Hilfe von Suchvorschlägen und integrierter Filter- und Sortierfunktion gelangst Du nun schneller zum Ergebnis.",
     },
     mintId: {
       title: "MINT-ID",

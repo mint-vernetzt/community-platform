@@ -34,10 +34,10 @@ export const locale = {
   },
   inDevelopment: {
     title: "In development",
-    map: {
-      title: "Map",
+    oeb: {
+      title: "Integration of Open Educational Badges",
       description:
-        "With the new map view, you can quickly find organizations near you or with a similar focus. Filter by topics, region, or network type – and discover new points of contact for exchange and collaboration.",
+        "With the integration, we enable the display and awarding of badges as digital evidence to make learning successes and skills acquisition visible.",
     },
     createOwnEvents: {
       title: "Create your own events",
@@ -47,15 +47,25 @@ export const locale = {
   },
   done: {
     title: "Already implemented",
+    map: {
+      title: "MINT-Community Map",
+      description:
+        "The MINT-Community Map provides an overview of organizations active in the STEM field. You can filter by region, organizational form, network affiliation, and area of focus.",
+    },
     accessibility: {
       title: "Accessibility",
       description:
         "You should be able to use the platform as easily and accessibly as possible. Many areas are already well accessible – and we continue to work on enabling you to use it even more inclusively.",
     },
-    sharepicAndMediaDatabase: {
-      title: "STEM sharepic and image database",
+    sharepic: {
+      title: "MINT-Sharepic-Generator",
       description:
-        "The Sharepic Generator helps you quickly and easily create graphics for e.g. your social media posts. You can find STEM images in the image database.",
+        "The Sharepic Generator helps you quickly and easily create graphics for your STEM public relations work.",
+    },
+    mediaDatabase: {
+      title: "MINT-Media Database",
+      description:
+        "You can find free, stereotype-free STEM photos and graphics for your public relations work here.",
     },
     visualizeNetworks: {
       title: "Visualize Networks",
@@ -110,7 +120,7 @@ export const locale = {
     search: {
       title: "Search",
       description:
-        "You can use the search function to search for persons, organizations, events, projects and keywords.",
+        "With the search function, you can search for persons, organizations, events, projects, funding opportunities, and keywords. With the help of search suggestions and an integrated filter and sorting function, you can now reach your results faster.",
     },
     mintId: {
       title: "MINT-ID",
