@@ -57,6 +57,11 @@ export const locale = {
       hide: "Updates ausblenden",
       show: "Updates einblenden",
       entries: {
+        actionDays: {
+          headline: "Jetzt Aktionen einreichen",
+          description: "Programm der digitalen MINT-Aktionstage mitgestalten",
+          linkDescription: "Mehr Infos",
+        },
         networks: {
           headline: "Neue Netzwerk-Funktion",
           description:

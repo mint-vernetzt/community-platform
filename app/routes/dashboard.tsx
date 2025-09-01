@@ -639,14 +639,14 @@ function getDataForUpdateTeasers() {
     };
   };
   const teaserData: AtLeastOne<UpdateTeaser> = {
+    actionDays: {
+      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
+      icon: "megaphone",
+      external: false,
+    },
     networks: {
       link: "/my/organizations",
       icon: "globe",
-      external: false,
-    },
-    crawler: {
-      link: "/explore/fundings",
-      icon: "piggy-bank",
       external: false,
     },
   };
