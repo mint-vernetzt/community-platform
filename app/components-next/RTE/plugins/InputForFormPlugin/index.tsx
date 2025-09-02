@@ -1,10 +1,10 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
 import { type UseFormRegisterReturn } from "react-hook-form";
+import { type InputForFormProps } from "../../RTE";
 
 function InputForFormPlugin(
-  props: Omit<InputForFormProps, "defaultValue"> & {
+  props: InputForFormProps & {
     legacyFormRegister?: UseFormRegisterReturn<
       "bioRTEState" | "descriptionRTEState"
     >;
@@ -13,7 +13,9 @@ function InputForFormPlugin(
   const { contentEditableRef, legacyFormRegister, ...rest } = props;
   const [editor] = useLexicalComposerContext();
   const [htmlValue, setHtmlValue] = useState("");
-  const [editorStateValue, setEditorStateValue] = useState("");
+  const [editorStateValue, setEditorStateValue] = useState<string>(
+    String(rest.defaultValue)
+  );
 
   // Synchronize the values of the inputs with the editor content
   useEffect(() => {
@@ -22,17 +24,21 @@ function InputForFormPlugin(
         editor.read(() => {
           if (contentEditableRef.current !== null) {
             const htmlString = contentEditableRef.current.innerHTML;
+            console.log("HTML string from editor: ", htmlString);
+
             if (htmlString === "<p><br></p>") {
               setHtmlValue("");
             } else {
               setHtmlValue(htmlString);
             }
-            const editorState = editor.getEditorState();
-            const editorStateJSON = JSON.stringify(editorState);
-            setEditorStateValue(editorStateJSON);
           }
         });
       }
+      editor.read(() => {
+        const editorState = editor.getEditorState();
+        const editorStateJSON = JSON.stringify(editorState.toJSON());
+        setEditorStateValue(String(editorStateJSON));
+      });
     });
   }, [editor, contentEditableRef]);
 

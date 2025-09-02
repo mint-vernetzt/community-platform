@@ -455,6 +455,8 @@ function General() {
     setSupportedBy(event.currentTarget.value);
   };
 
+  console.log("HTML string from loader", organization.bio);
+
   return (
     <Section>
       {UnsavedChangesBlockerModal}

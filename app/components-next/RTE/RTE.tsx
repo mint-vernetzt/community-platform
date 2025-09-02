@@ -28,7 +28,6 @@ import {
   type LexicalEditor,
 } from "lexical";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
 import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
 import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
@@ -90,6 +89,16 @@ function RTE(
   };
 
   const initialConfig: InitialConfigType = {
+    editorState: (editor) => {
+      editor.update(() => {
+        if (typeof defaultValue === "string") {
+          const editorState = editor.parseEditorState(defaultValue);
+          if (editorState.isEmpty() === false) {
+            editor.setEditorState(editorState);
+          }
+        }
+      });
+    },
     namespace: rest.id || "RTE",
     theme,
     nodes: [
@@ -161,7 +170,6 @@ function RTE(
               }
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <DefaultValuePlugin defaultValue={defaultValue} />
             <InputForFormPlugin
               {...rest}
               contentEditableRef={contentEditableRef}
