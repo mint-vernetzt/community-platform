@@ -6,7 +6,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const path = url.searchParams.get("path");
   invariantResponse(path !== null, "Missing path parameter", { status: 400 });
 
-  const response = await fetch(`https://tiles.openfreemap.org${path}`);
+  const response = await fetch(`https://tiles.versatiles.org${path}`);
   invariantResponse(response.status === 200, "Failed to fetch resource", {
     status: 404,
   });

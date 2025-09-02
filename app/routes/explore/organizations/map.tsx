@@ -19,7 +19,7 @@ import { copyToClipboard } from "~/lib/utils/clipboard";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
-import customMapStyles from "~/styles/map.css?url";
+import customMapStyles from "~/styles/map/map.css?url";
 import {
   getOrganizationIds,
   VIEW_COOKIE_VALUES,
