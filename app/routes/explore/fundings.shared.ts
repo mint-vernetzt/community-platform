@@ -9,10 +9,10 @@ export const FUNDING_SORT_VALUES = [
 export const getFundingsSchema = z.object({
   fndFilter: z
     .object({
-      types: z.array(z.string()),
-      areas: z.array(z.string()),
-      regions: z.array(z.string()),
-      eligibleEntities: z.array(z.string()),
+      types: z.array(z.string().trim()),
+      areas: z.array(z.string().trim()),
+      regions: z.array(z.string().trim()),
+      eligibleEntities: z.array(z.string().trim()),
     })
     .optional()
     .transform((filter) => {
@@ -39,7 +39,7 @@ export const getFundingsSchema = z.object({
     .number()
     .optional()
     .transform((page) => {
-      if (page === undefined) {
+      if (typeof page === "undefined") {
         return 1;
       }
       return page;

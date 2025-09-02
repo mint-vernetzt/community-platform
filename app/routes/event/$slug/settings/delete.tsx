@@ -33,7 +33,7 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
-  eventName: z.string().optional(),
+  eventName: z.string().trim().optional(),
 });
 
 const environmentSchema = z.object({

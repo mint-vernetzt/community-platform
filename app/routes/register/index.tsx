@@ -51,16 +51,21 @@ export const createRegisterSchema = (locales: RegisterLocales) => {
         }
         return value;
       }),
-    firstName: z.string({
-      message: locales.validation.firstName,
-    }),
-    lastName: z.string({
-      message: locales.validation.lastName,
-    }),
+    firstName: z
+      .string({
+        message: locales.validation.firstName,
+      })
+      .trim(),
+    lastName: z
+      .string({
+        message: locales.validation.lastName,
+      })
+      .trim(),
     email: z
       .string({
         message: locales.validation.email,
       })
+      .trim()
       .email(locales.validation.email),
     password: z
       .string({

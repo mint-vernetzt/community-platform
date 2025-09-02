@@ -26,7 +26,7 @@ import {
 } from "./utils.server";
 
 const schema = z.object({
-  profileId: z.string(),
+  profileId: z.string().trim().uuid(),
 });
 
 export const moveToParticipantsSchema = schema;

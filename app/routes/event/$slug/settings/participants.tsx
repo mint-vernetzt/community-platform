@@ -56,17 +56,14 @@ const createParticipantLimitSchema = (locales: EventParticipantsLocales) => {
       .string({
         invalid_type_error: locales.route.validation.participantLimit.type,
       })
+      .trim()
       .regex(/^\d+$/)
       .optional()
       .transform((value) => {
-        if (value === undefined) {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        const trimmedValue = value.trim();
-        if (trimmedValue === "") {
-          return null;
-        }
-        const parsedValue = parseInt(trimmedValue, 10);
+        const parsedValue = parseInt(value, 10);
         if (parsedValue === 0) {
           return null;
         }

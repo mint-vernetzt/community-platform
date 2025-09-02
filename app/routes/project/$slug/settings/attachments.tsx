@@ -72,15 +72,17 @@ export const createEditDocumentSchema = (
   locales: ProjectAttachmentSettingsLocales
 ) =>
   z.object({
-    id: z.string(),
+    id: z.string().trim().uuid(),
     title: z
       .string()
+      .trim()
       .optional()
       .transform((value) =>
         typeof value === "undefined" || value === "" ? null : value
       ),
     description: z
       .string()
+      .trim()
       .max(
         DOCUMENT_DESCRIPTION_MAX_LENGTH,
         insertParametersIntoLocale(
@@ -103,15 +105,17 @@ export const createEditImageSchema = (
   locales: ProjectAttachmentSettingsLocales
 ) =>
   z.object({
-    id: z.string(),
+    id: z.string().trim().uuid(),
     title: z
       .string()
+      .trim()
       .optional()
       .transform((value) =>
         typeof value === "undefined" || value === "" ? null : value
       ),
     description: z
       .string()
+      .trim()
       .max(
         IMAGE_DESCRIPTION_MAX_LENGTH,
         insertParametersIntoLocale(
@@ -127,6 +131,7 @@ export const createEditImageSchema = (
       ),
     credits: z
       .string()
+      .trim()
       .max(
         IMAGE_CREDITS_MAX_LENGTH,
         insertParametersIntoLocale(locales.route.validation.image.credits.max, {
@@ -140,7 +145,7 @@ export const createEditImageSchema = (
   });
 
 export const disconnectAttachmentSchema = z.object({
-  id: z.string(),
+  id: z.string().trim().uuid(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {

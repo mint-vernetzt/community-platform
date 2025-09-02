@@ -43,16 +43,16 @@ export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
       .string({
         message: locales.validation.email.required,
       })
+      .trim()
       .min(1, locales.validation.email.min)
-      .email(locales.validation.email.required)
-      .transform((value) => value.trim()),
+      .email(locales.validation.email.required),
     confirmEmail: z
       .string({
         message: locales.validation.confirmEmail.required,
       })
+      .trim()
       .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.required)
-      .transform((value) => value.trim()),
+      .email(locales.validation.confirmEmail.required),
   });
 };
 

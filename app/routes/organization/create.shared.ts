@@ -6,7 +6,7 @@ export const NAME_MIN_LENGTH = 3;
 export const NAME_MAX_LENGTH = 80;
 
 export const createOrganizationMemberRequestSchema = z.object({
-  organizationId: z.string(),
+  organizationId: z.string().trim().uuid(),
 });
 
 export const createOrganizationSchema = (
@@ -17,6 +17,7 @@ export const createOrganizationSchema = (
       .string({
         required_error: locales.route.validation.organizationName.required,
       })
+      .trim()
       .min(
         NAME_MIN_LENGTH,
         insertParametersIntoLocale(
@@ -35,7 +36,7 @@ export const createOrganizationSchema = (
           }
         )
       ),
-    organizationTypes: z.array(z.string().uuid()),
-    networkTypes: z.array(z.string().uuid()),
+    organizationTypes: z.array(z.string().trim().uuid()),
+    networkTypes: z.array(z.string().trim().uuid()),
   });
 };

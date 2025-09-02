@@ -18,7 +18,7 @@ import {
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
-  profileId: z.string(),
+  profileId: z.string().trim().uuid(),
 });
 
 export const removeAdminSchema = schema;

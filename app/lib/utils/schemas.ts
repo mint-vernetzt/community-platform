@@ -13,7 +13,7 @@ export const checkboxSchema = z
   .boolean()
   .optional()
   .transform((value) => {
-    if (value === undefined) {
+    if (typeof value === "undefined") {
       return false;
     }
     return value;
@@ -25,12 +25,15 @@ export const createPhoneSchema = (
     | GeneralProjectSettingsLocales
     | GeneralOrganizationSettingsLocales
 ) =>
-  z.string().regex(
-    // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-    // eslint-disable-next-line no-useless-escape
-    /^$|^(\+?[0-9 \-\(\)]{3,}\/?[0-9 \-\(\)]{4,})$/,
-    locales.schemas.validation.phone.regex
-  );
+  z
+    .string()
+    .trim()
+    .regex(
+      // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
+      // eslint-disable-next-line no-useless-escape
+      /^$|^(\+?[0-9 \-\(\)]{3,}\/?[0-9 \-\(\)]{4,})$/,
+      locales.schemas.validation.phone.regex
+    );
 
 function addProtocolToUrl(url: string) {
   if (url.search(/^https?:\/\//) === -1) {
@@ -42,6 +45,7 @@ function addProtocolToUrl(url: string) {
 export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
       // eslint-disable-next-line no-useless-escape
@@ -52,86 +56,70 @@ export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
     )
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createFacebookSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?facebook.com\/.+$|^$/, {
       message: locales.schemas.validation.facebook.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createLinkedinSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?linkedin.com\/.+$|^$/, {
       message: locales.schemas.validation.linkedin.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createXingSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?xing.com\/.+$|^$/, {
       message: locales.schemas.validation.xing.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createTwitterSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?(twitter|x).com\/.+$|^$/, {
       message: locales.schemas.validation.twitter.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createMastodonSchema = (locales: WebAndSocialLocales) =>
@@ -140,73 +128,61 @@ export const createMastodonSchema = (locales: WebAndSocialLocales) =>
 export const createBlueskySchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
       message: locales.schemas.validation.bluesky.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createTiktokSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?tiktok.com\/.+$|^$/, {
       message: locales.schemas.validation.tiktok.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createInstagramSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?instagram.com\/.+$|^$/, {
       message: locales.schemas.validation.instagram.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createYoutubeSchema = (locales: WebAndSocialLocales) =>
   z
     .string()
+    .trim()
     .regex(/^(https:\/\/)([a-z0-9]+\.)?youtube.com\/.+$|^$/, {
       message: locales.schemas.validation.youtube.regex,
     })
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 
 export const createYoutubeEmbedSchema = (
@@ -214,23 +190,20 @@ export const createYoutubeEmbedSchema = (
 ) =>
   z
     .string()
+    .trim()
     .optional()
     .transform((value) => {
-      if (value === undefined) {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      let embedLink = trimmedValue;
+      let embedLink = value;
       // IFrame: <iframe ... src="https://www.youtube.com/embed/<videoCode>?si=k6KomOnFdKtnSGGP" ... </iframe>
-      if (trimmedValue.startsWith("<iframe")) {
-        embedLink = trimmedValue.split('src="')[1].split('" ')[0];
+      if (value.startsWith("<iframe")) {
+        embedLink = value.split('src="')[1].split('" ')[0];
       } else {
         let url;
         let videoCodeParam;
-        const enhancedValue = addProtocolToUrl(trimmedValue);
+        const enhancedValue = addProtocolToUrl(value);
         try {
           url = new URL(enhancedValue);
         } catch (e: unknown) {
@@ -242,17 +215,14 @@ export const createYoutubeEmbedSchema = (
           }
         }
         // Watch Link: https://www.youtube.com/watch?v=<videoCode>
-        if (trimmedValue.includes("youtube.com/watch")) {
+        if (value.includes("youtube.com/watch")) {
           videoCodeParam = url.searchParams.get("v");
           url.searchParams.delete("v");
           embedLink = `https://www.youtube.com/embed/${videoCodeParam}${url.search}`;
         }
         // Share Link: https://www.youtu.be/<videoCode> || https://www.youtube.com/live/<videoCode>
-        if (
-          trimmedValue.includes("youtu.be") ||
-          trimmedValue.includes("youtube.com/live")
-        ) {
-          if (trimmedValue.includes("youtu.be")) {
+        if (value.includes("youtu.be") || value.includes("youtube.com/live")) {
+          if (value.includes("youtu.be")) {
             videoCodeParam = url.pathname;
           } else {
             videoCodeParam = url.pathname.split("/live")[1];
@@ -266,8 +236,8 @@ export const createYoutubeEmbedSchema = (
         }
         // Embed Link: https://www.youtube.com/embed/<videoCode> || https://www.youtube-nocookie.com/embed/<videoCode>
         if (
-          trimmedValue.includes("youtube.com/embed") ||
-          trimmedValue.includes("youtube-nocookie.com/embed")
+          value.includes("youtube.com/embed") ||
+          value.includes("youtube-nocookie.com/embed")
         ) {
           embedLink = enhancedValue;
         }

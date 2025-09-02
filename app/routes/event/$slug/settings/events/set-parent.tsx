@@ -16,7 +16,7 @@ import {
 } from "./utils.server";
 
 const schema = z.object({
-  parentEventId: z.string().optional(),
+  parentEventId: z.string().trim().optional(),
 });
 
 export const setParentSchema = schema;

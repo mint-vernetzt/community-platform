@@ -53,6 +53,7 @@ const createRequirementsSchema = (
   z.object({
     timeframe: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -69,22 +70,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     timeframeRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     jobFillings: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -101,22 +104,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     jobFillingsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     furtherJobFillings: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -133,22 +138,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     furtherJobFillingsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     yearlyBudget: z
       .string()
+      .trim()
       .max(
         YEARLY_BUDGET_MAX_LENGTH,
         insertParametersIntoLocale(locales.route.validation.yearlyBudget.max, {
@@ -157,14 +164,15 @@ const createRequirementsSchema = (
       )
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
-    financings: z.array(z.string().uuid()),
+    financings: z.array(z.string().trim().uuid()),
     furtherFinancings: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -181,22 +189,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     furtherFinancingsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     technicalRequirements: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -213,22 +223,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     technicalRequirementsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     furtherTechnicalRequirements: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -245,22 +257,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     furtherTechnicalRequirementsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     roomSituation: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -277,22 +291,24 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     roomSituationRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     furtherRoomSituation: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -309,16 +325,17 @@ const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     furtherRoomSituationRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;

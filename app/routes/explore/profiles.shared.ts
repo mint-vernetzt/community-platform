@@ -13,12 +13,12 @@ export type GetProfilesSchema = z.infer<typeof getProfilesSchema>;
 export const getProfilesSchema = z.object({
   prfFilter: z
     .object({
-      offer: z.array(z.string()),
-      area: z.array(z.string()),
+      offer: z.array(z.string().trim()),
+      area: z.array(z.string().trim()),
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
           offer: [],
           area: [],
@@ -39,16 +39,17 @@ export const getProfilesSchema = z.object({
     .number()
     .optional()
     .transform((page) => {
-      if (page === undefined) {
+      if (typeof page === "undefined") {
         return 1;
       }
       return page;
     }),
   prfAreaSearch: z
     .string()
+    .trim()
     .optional()
     .transform((searchQuery) => {
-      if (searchQuery === undefined) {
+      if (typeof searchQuery === "undefined") {
         return "";
       }
       return searchQuery;

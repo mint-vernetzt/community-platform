@@ -11,15 +11,15 @@ export type GetOrganizationsSchema = z.infer<typeof getOrganizationsSchema>;
 export const getOrganizationsSchema = z.object({
   orgFilter: z
     .object({
-      type: z.array(z.string()),
-      networkType: z.array(z.string()),
-      network: z.array(z.string()),
-      focus: z.array(z.string()),
-      area: z.array(z.string()),
+      type: z.array(z.string().trim()),
+      networkType: z.array(z.string().trim()),
+      network: z.array(z.string().trim()),
+      focus: z.array(z.string().trim()),
+      area: z.array(z.string().trim()),
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
           type: [],
           focus: [],
@@ -43,16 +43,17 @@ export const getOrganizationsSchema = z.object({
     .number()
     .optional()
     .transform((page) => {
-      if (page === undefined) {
+      if (typeof page === "undefined") {
         return 1;
       }
       return page;
     }),
   orgAreaSearch: z
     .string()
+    .trim()
     .optional()
     .transform((searchQuery) => {
-      if (searchQuery === undefined) {
+      if (typeof searchQuery === "undefined") {
         return "";
       }
       return searchQuery;
