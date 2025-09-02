@@ -15,7 +15,7 @@ import { type AddResponsibleOrganizationToEventLocales } from "./add-organizatio
 import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
-  organizationId: z.string(),
+  organizationId: z.string().trim().uuid(),
 });
 
 export const addOrganizationSchema = schema;

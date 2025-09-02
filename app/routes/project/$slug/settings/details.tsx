@@ -51,22 +51,24 @@ const VIDEO_SUBLINE_MAX_LENGTH = 80;
 
 const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
   z.object({
-    disciplines: z.array(z.string().uuid()),
-    additionalDisciplines: z.array(z.string().uuid()),
-    furtherDisciplines: z.array(z.string().transform((value) => value.trim())),
+    disciplines: z.array(z.string().trim().uuid()),
+    additionalDisciplines: z.array(z.string().trim().uuid()),
+    furtherDisciplines: z.array(z.string().trim()),
     participantLimit: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
-    projectTargetGroups: z.array(z.string().uuid()),
-    specialTargetGroups: z.array(z.string().uuid()),
+    projectTargetGroups: z.array(z.string().trim().uuid()),
+    specialTargetGroups: z.array(z.string().trim().uuid()),
     targetGroupAdditions: z
       .string()
+      .trim()
       .max(
         TARGET_GROUP_ADDITIONS_MAX_LENGTH,
         insertParametersIntoLocale(
@@ -76,13 +78,14 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       )
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     excerpt: z
       .string()
+      .trim()
       .max(
         EXCERPT_MAX_LENGTH,
         insertParametersIntoLocale(
@@ -94,13 +97,14 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       )
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     idea: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -117,22 +121,24 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     ideaRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     goals: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -149,22 +155,24 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     goalsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     implementation: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -181,22 +189,24 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     implementationRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     furtherDescription: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -213,22 +223,24 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     furtherDescriptionRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     targeting: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -245,22 +257,24 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     targetingRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
       }),
     hints: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -277,16 +291,17 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     hintsRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -294,6 +309,7 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
     video: createYoutubeEmbedSchema(locales),
     videoSubline: z
       .string()
+      .trim()
       .max(
         VIDEO_SUBLINE_MAX_LENGTH,
         insertParametersIntoLocale(locales.route.validation.videoSubline.max, {
@@ -302,10 +318,10 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       )
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
   });
 

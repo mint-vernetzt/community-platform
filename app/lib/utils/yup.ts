@@ -87,26 +87,23 @@ const socialValidation = {
 export const nullOrString = (schema: StringSchema) =>
   schema
     .transform((value: string | undefined) => {
-      if (typeof value !== "string") {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      return trimmedValue === "" || trimmedValue === "<p></p>"
-        ? null
-        : trimmedValue;
+      return value;
     })
     .nullable()
     .defined();
 
 export function phone() {
-  return string().matches(phoneValidation.match, phoneValidation.error);
+  return string().trim().matches(phoneValidation.match, phoneValidation.error);
 }
 
 function addUrlPrefix(url: string | undefined) {
-  if (typeof url !== "string") {
+  if (typeof url === "undefined" || url === "") {
     return null;
   }
-  let validUrl = url.trim();
+  let validUrl = url;
   if (validUrl !== "" && validUrl.search(/^https?:\/\//) === -1) {
     validUrl = "https://" + validUrl;
   }
@@ -115,18 +112,21 @@ function addUrlPrefix(url: string | undefined) {
 
 export function website() {
   return string()
+    .trim()
     .transform(addUrlPrefix)
     .matches(websiteValidation.match, websiteValidation.error);
 }
 
 export function social(service: keyof typeof socialValidation) {
   return string()
+    .trim()
     .transform(addUrlPrefix)
     .matches(socialValidation[service].match, socialValidation[service].error);
 }
 
 export function multiline(maxLength: number) {
   return string()
+    .trim()
     .test((value) => {
       return (
         replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
@@ -134,14 +134,10 @@ export function multiline(maxLength: number) {
       );
     })
     .transform((value: string | undefined) => {
-      if (typeof value !== "string") {
+      if (typeof value === "undefined" || value === "") {
         return null;
       }
-      const trimmedValue = value.trim();
-      if (trimmedValue === "") {
-        return null;
-      }
-      return trimmedValue;
+      return value;
     });
 }
 
@@ -154,6 +150,7 @@ export function greaterThanTimeOnSameDate(
   greaterThanReferenceTimeMessage: string
 ) {
   return string()
+    .trim()
     .transform((value) => {
       if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
         return value;
@@ -214,6 +211,7 @@ export function greaterThanDate(
   greaterThanReferenceDateMessage: string
 ) {
   return string()
+    .trim()
     .transform((value: string | undefined) => {
       if (typeof value !== "string") {
         return undefined;

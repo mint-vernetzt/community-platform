@@ -56,6 +56,7 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
       .string({
         required_error: locales.route.validation.name.required,
       })
+      .trim()
       .min(
         NAME_MIN_LENGTH,
         insertParametersIntoLocale(locales.route.validation.name.min, {
@@ -70,60 +71,67 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
       ),
     email: z
       .string()
+      .trim()
       .email(locales.route.validation.email)
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     phone: createPhoneSchema(locales)
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     street: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     streetNumber: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     zipCode: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     city: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     bio: z
       .string()
+      .trim()
       .optional()
       .refine(
         (value) => {
@@ -143,10 +151,11 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     bioRTEState: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
         if (value === undefined || value === "") {
@@ -154,11 +163,9 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         }
         return value;
       }),
-    supportedBy: z
-      .array(z.string().transform((value) => value.trim()))
-      .optional(),
-    areas: z.array(z.string().uuid()),
-    focuses: z.array(z.string().uuid()),
+    supportedBy: z.array(z.string().trim()).optional(),
+    areas: z.array(z.string().trim().uuid()),
+    focuses: z.array(z.string().trim().uuid()),
     visibilities: z.object({
       email: checkboxSchema,
       phone: checkboxSchema,

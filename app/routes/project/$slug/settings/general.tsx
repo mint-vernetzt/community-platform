@@ -47,6 +47,7 @@ const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
       .string({
         required_error: locales.route.validation.name.required,
       })
+      .trim()
       .min(
         NAME_MIN_LENGTH,
         insertParametersIntoLocale(locales.route.validation.name.min, {
@@ -61,6 +62,7 @@ const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
       ),
     subline: z
       .string()
+      .trim()
       .max(
         90,
         insertParametersIntoLocale(locales.route.validation.subline.max, {
@@ -72,82 +74,89 @@ const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
         if (value === undefined || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
-    formats: z.array(z.string().uuid()),
-    furtherFormats: z.array(z.string().transform((value) => value.trim())),
-    areas: z.array(z.string().uuid()),
+    formats: z.array(z.string().trim().uuid()),
+    furtherFormats: z.array(z.string().trim()),
+    areas: z.array(z.string().trim().uuid()),
     email: z
       .string()
+      .trim()
       .email(locales.route.validation.email.email)
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     phone: createPhoneSchema(locales)
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     contactName: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     street: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     streetNumber: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     streetNumberAddition: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     zipCode: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
     city: z
       .string()
+      .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
-        return value.trim();
+        return value;
       }),
   });
 

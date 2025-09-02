@@ -15,7 +15,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
-  childEventId: z.string().min(1),
+  childEventId: z.string().trim().uuid(),
 });
 
 export const addChildSchema = schema;

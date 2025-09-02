@@ -49,6 +49,7 @@ export const createLoginSchema = (
       .string({
         message: locales.validation.email,
       })
+      .trim()
       .email(locales.validation.email),
     password: z
       .string({

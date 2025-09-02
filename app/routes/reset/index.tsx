@@ -35,6 +35,7 @@ export const createRequestPasswordChangeSchema = (
       .string({
         message: locales.validation.email,
       })
+      .trim()
       .email(locales.validation.email),
     loginRedirect: z.string().optional(),
   });

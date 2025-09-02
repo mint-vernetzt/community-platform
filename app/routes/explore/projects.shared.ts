@@ -11,17 +11,17 @@ export type GetProjectsSchema = z.infer<typeof getProjectsSchema>;
 export const getProjectsSchema = z.object({
   prjFilter: z
     .object({
-      discipline: z.array(z.string()),
-      additionalDiscipline: z.array(z.string()),
-      projectTargetGroup: z.array(z.string()),
-      area: z.array(z.string()),
-      format: z.array(z.string()),
-      specialTargetGroup: z.array(z.string()),
-      financing: z.array(z.string()),
+      discipline: z.array(z.string().trim()),
+      additionalDiscipline: z.array(z.string().trim()),
+      projectTargetGroup: z.array(z.string().trim()),
+      area: z.array(z.string().trim()),
+      format: z.array(z.string().trim()),
+      specialTargetGroup: z.array(z.string().trim()),
+      financing: z.array(z.string().trim()),
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
           discipline: [],
           additionalDiscipline: [],
@@ -47,16 +47,17 @@ export const getProjectsSchema = z.object({
     .number()
     .optional()
     .transform((page) => {
-      if (page === undefined) {
+      if (typeof page === "undefined") {
         return 1;
       }
       return page;
     }),
   prjAreaSearch: z
     .string()
+    .trim()
     .optional()
     .transform((searchQuery) => {
-      if (searchQuery === undefined) {
+      if (typeof searchQuery === "undefined") {
         return "";
       }
       return searchQuery;
