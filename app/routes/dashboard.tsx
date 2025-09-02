@@ -640,7 +640,7 @@ function getDataForUpdateTeasers() {
   };
   const teaserData: AtLeastOne<UpdateTeaser> = {
     actionDays: {
-      link: "/event/mintvernetztaktionstage2024-lxt2bw2l",
+      link: "/event/5mintvernetztaktionstage-mcac3igi",
       icon: "megaphone",
       external: false,
     },
