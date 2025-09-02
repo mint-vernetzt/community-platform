@@ -491,7 +491,7 @@ export function Map(props: {
         filter: ["has", "point_count"],
         layout: {
           "text-field": "{point_count_abbreviated}",
-          "text-font": ["Noto Sans Bold"],
+          "text-font": ["noto_sans_bold"],
           "text-size": 14,
         },
         paint: {
