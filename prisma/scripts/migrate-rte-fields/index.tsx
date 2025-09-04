@@ -23,17 +23,17 @@ import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
-import { $generateNodesFromDOM } from "@lexical/html";
-import { $insertNodes } from "lexical";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { prismaClient } from "~/prisma.server";
 import fs from "fs-extra";
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
+import { type InputForFormProps } from "~/components-next/RTE/RTE";
+import { type UseFormRegisterReturn } from "react-hook-form";
 
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
@@ -75,70 +75,92 @@ async function getNewValueFromRTE(options: {
         },
       };
       const RTEComponent = () => {
-        const DefaultValuePlugin = () => {
+        const InputForFormPlugin = (
+          props: InputForFormProps & {
+            legacyFormRegister?: UseFormRegisterReturn<
+              "bioRTEState" | "descriptionRTEState"
+            >;
+          }
+        ) => {
+          const { rteStateDefaultValue, contentEditableRef } = props;
           const [editor] = useLexicalComposerContext();
+          const [editorStateInitialized, setEditorStateInitialized] =
+            useState(false);
+
           useEffect(() => {
-            return editor.update(() => {
-              if (oldRTEStateValue !== null && oldRTEStateValue !== "") {
-                console.log("DefaultValuePlugin - Old RTE State Value", {
-                  oldRTEStateValue,
-                });
-                const editorState = editor.parseEditorState(oldRTEStateValue);
-                editor.setEditorState(editorState);
-              } else {
-                if (
-                  oldHtmlValue !== null &&
-                  oldHtmlValue !== "" &&
-                  oldHtmlValue !== "<p><br></p>"
-                ) {
-                  const parser = new DOMParser();
-                  const dom = parser.parseFromString(
-                    String(oldHtmlValue),
-                    "text/html"
-                  );
-                  const nodes = $generateNodesFromDOM(editor, dom);
-                  $insertNodes(nodes);
-                } else {
-                  $insertNodes([]);
+            // First init the editor state
+            editor.update(
+              () => {
+                if (typeof rteStateDefaultValue === "string") {
+                  const editorState =
+                    editor.parseEditorState(rteStateDefaultValue);
+                  if (editorState.isEmpty() === false) {
+                    editor.setEditorState(editorState);
+                  }
                 }
+                setEditorStateInitialized(true);
+              },
+              {
+                discrete: true,
               }
-            });
-          }, [editor]);
-          return null;
-        };
-        const InputForFormPlugin = (props: {
-          oldHtmlInputValue: string | null;
-          oldRTEStateInputValue: string | null;
-          contentRef: React.RefObject<HTMLDivElement | null>;
-        }) => {
-          const { contentRef } = props;
-          const [editor] = useLexicalComposerContext();
+            );
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+          }, []);
+
           useEffect(() => {
-            return editor.registerUpdateListener(() => {
-              if (contentRef.current !== null) {
+            if (editorStateInitialized === false) {
+              return;
+            }
+
+            // Second, synchronize the values of the inputs with the editor content on update
+            // Dont ignore firstUpdate in the script
+            // -> Different behaviour than in the app
+            // let isFirstUpdate = true;
+            const onEditorUpdate = () => {
+              // if (isFirstUpdate) {
+              //   isFirstUpdate = false;
+              //   return; // Ignore the first update event
+              // }
+              let submissionHTMLValue = "";
+              let submissionEditorStateJSON = "";
+              if (contentEditableRef.current !== null) {
                 editor.read(() => {
-                  if (contentRef.current !== null) {
-                    const htmlString =
-                      contentRef.current.innerHTML === "<p><br></p>" ||
-                      contentRef.current.innerHTML === ""
-                        ? null
-                        : contentRef.current.innerHTML;
-                    const editorState = editor.getEditorState();
-                    const editorStateJSON = JSON.stringify(editorState);
-                    const event = new CustomEvent(EDITOR_VALUE_SET_EVENT, {
-                      detail: {
-                        htmlValue: htmlString,
-                        editorStateValue: editorStateJSON,
-                      },
-                      bubbles: true,
-                      cancelable: false,
-                    });
-                    document.body.dispatchEvent(event);
+                  if (contentEditableRef.current !== null) {
+                    const htmlString = contentEditableRef.current.innerHTML;
+                    if (htmlString === "<p><br></p>") {
+                      submissionHTMLValue = "";
+                    } else {
+                      submissionHTMLValue = htmlString.replaceAll(
+                        /^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g,
+                        ""
+                      );
+                    }
                   }
                 });
               }
+              editor.read(() => {
+                const editorState = editor.getEditorState();
+                const editorStateJSON = JSON.stringify(editorState.toJSON());
+                submissionEditorStateJSON = editorStateJSON;
+              });
+              const event = new CustomEvent(EDITOR_VALUE_SET_EVENT, {
+                detail: {
+                  htmlValue: submissionHTMLValue,
+                  editorStateValue: submissionEditorStateJSON,
+                },
+                bubbles: true,
+                cancelable: false,
+              });
+              document.body.dispatchEvent(event);
+            };
+            // Trigger an editor update event for the script
+            // -> Different behaviour than in the app
+            editor.update(() => {
+              const editorState = editor.getEditorState();
+              editor.setEditorState(editorState);
             });
-          }, [editor, contentRef]);
+            return editor.registerUpdateListener(onEditorUpdate);
+          }, [editorStateInitialized, contentEditableRef, editor]);
 
           return null;
         };
@@ -156,11 +178,10 @@ async function getNewValueFromRTE(options: {
               contentEditable={<ContentEditable ref={contentEditableRef} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <DefaultValuePlugin />
             <InputForFormPlugin
-              oldHtmlInputValue={oldHtmlValue}
-              oldRTEStateInputValue={oldRTEStateValue}
-              contentRef={contentEditableRef}
+              htmlDefaultValue={oldHtmlValue || undefined}
+              rteStateDefaultValue={oldRTEStateValue || undefined}
+              contentEditableRef={contentEditableRef}
             />
             <HistoryPlugin />
             <LinkPlugin
