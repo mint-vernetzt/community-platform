@@ -52,7 +52,7 @@ export const locale = {
         mintId: {
           question: "Was ist die MINT-ID?",
           answer:
-            '<p>Mit der MINT-ID kannst Du Dich gleichzeitig für die <b>MINTvernetzt Community-Plattform</b> und den <b>MINT-Campus</b> registrieren. Du meldest Dich nur einmal an und kannst damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der <b>MINT-Campus</b> ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</br></br>Mit der MINT-ID sparst Du also Zeit bei der Registrierung und hast anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Du kannst auch ohne eine MINT-ID weiterhin Deinen MINTvernetzt-Account nutzen.</br></br>Eine MINT-ID brauchst Du auch um die <b>MINT-Mediendatenbank</b> zu nutzen. Die <b>MINT-Mediendatenbank</b> ist eine stetig wachsende Datenbank mit freien MINT-Bildern und Grafiken, die Du nutzen kannst, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>Du kannst mit der MINT-ID auch auf den <b>MINT-Sharepic-Generator</b> zugreifen. Mit Hilfe des Sharepic-Generators erstellst Du ganz einfach und kostenlos Grafiken für Deine Öffentlichkeitsarbeit.</br></br>👉 Weitere Informationen zur MINT-ID findest Du hier: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer noopener">https://mintcampus.org/mint-id/</a></p>',
+            '<p>Mit der MINT-ID kannst Du Dich gleichzeitig für die <b>MINTvernetzt Community-Plattform</b> und den <b>MINT-Campus</b> registrieren. Du meldest Dich nur einmal an und kannst damit alle Funktionen und Angebote von beiden Plattformen nutzen. Der <b>MINT-Campus</b> ist die digitale Lernplattform für die MINT-Community mit frei zugänglichen Materialien und Lernangeboten für die Bildungs- und Projektarbeit.</br></br>Mit der MINT-ID sparst Du also Zeit bei der Registrierung und hast anschließend die Möglichkeit, bequem zwischen den beiden Plattformen zu wechseln. Du kannst auch ohne eine MINT-ID weiterhin Deinen MINTvernetzt-Account nutzen.</br></br>Eine MINT-ID brauchst Du auch um die <b>MINT-Mediendatenbank</b> zu nutzen. Die <b>MINT-Mediendatenbank</b> ist eine stetig wachsende Datenbank mit freien MINT-Bildern und Grafiken, die Du nutzen kannst, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>Du kannst mit der MINT-ID auch auf den <b>MINT-Sharepic-Generator</b> zugreifen. Mit Hilfe des MINT-Sharepic-Generators erstellst Du ganz einfach und kostenlos Grafiken für Deine Öffentlichkeitsarbeit.</br></br>👉 Weitere Informationen zur MINT-ID findest Du hier: <a href="https://mintcampus.org/mint-id/" target="_blank" rel="noreferrer noopener">https://mintcampus.org/mint-id/</a></p>',
         },
         registrationProblems: {
           question:
@@ -150,18 +150,18 @@ export const locale = {
           question:
             "Was bedeutet “Arbeitsschwerpunkte” und welche Auswahlmöglichkeiten gibt es?",
           answer:
-            "<p>“Arbeitsschwerpunkte” beschreibt, zu welchen Themen eine Organisation arbeitet – z. B. Diversität, frühkindliche Bildung, Bildung für nachhaltige Entwicklung, Berufsorientierung und viele weitere.</p>",
+            "<p>“Arbeitsschwerpunkte” beschreibt, zu welchen Themen eine Organisation arbeitet – z.B. Diversität, frühkindliche Bildung, Bildung für nachhaltige Entwicklung, Berufsorientierung und viele weitere.</p>",
         },
         filterOrganizationsByMultipleCriteria: {
           question:
-            "Kann ich nach mehreren Kriterien gleichzeitig filtern (z. B. Organisationsform und Arbeitsschwerpunkt)?",
+            "Kann ich nach mehreren Kriterien gleichzeitig filtern (z.B. Organisationsform und Arbeitsschwerpunkt)?",
           answer:
             "<p>Ja. Die Liste bzw. Karte zeigt Dir dann nur Organisationen an, die <i>alle</i> ausgewählten Kriterien erfüllen.</p>",
         },
         filterOrganizationsByNetwork: {
           question: "Kann ich gezielt nach einem bestimmten Netzwerk filtern?",
           answer:
-            "<p>Ja. Wähle im Filter “Netzwerk” z. B. “zdi.NRW” aus, und Dir werden alle dazugehörigen Organisationen angezeigt.</p>",
+            "<p>Ja. Wähle im Filter “Netzwerk” z.B. “zdi.NRW” aus, und Dir werden alle dazugehörigen Organisationen angezeigt.</p>",
         },
         whatAreProvisionalOrganizations: {
           question:
@@ -196,7 +196,7 @@ export const locale = {
           question:
             "Kann ich mir auch nur Organisationen in meiner Nähe anzeigen lassen?",
           answer:
-            "<p>Du kannst Dir anzeigen lassen, welche Organisationen in Deiner Region <b>aktiv</b> sind. Dafür kannst Du den Filter <b>“Aktivitätsgebiet”</b> z.b. “Sachsen” oder “Leipzig” eingeben.</br></br>Nutze die Kartenansicht, um zu sehen, welche Organisationen in einer bestimmten Region <b>ansässig</b> sind, zoome dafür in den entsprechenden Bereich. Die Organisationen sind auf der Karte entsprechend ihrer Adresse verortet. In der Kartenansicht werden daher nur Organisationen aufgeführt, die ihre Adresse angegeben haben.</p>",
+            "<p>Du kannst Dir anzeigen lassen, welche Organisationen in Deiner Region <b>aktiv</b> sind. Dafür kannst Du den Filter <b>“Aktivitätsgebiet”</b> z.B. “Sachsen” oder “Leipzig” eingeben.</br></br>Nutze die Kartenansicht, um zu sehen, welche Organisationen in einer bestimmten Region <b>ansässig</b> sind, zoome dafür in den entsprechenden Bereich. Die Organisationen sind auf der Karte entsprechend ihrer Adresse verortet. In der Kartenansicht werden daher nur Organisationen aufgeführt, die ihre Adresse angegeben haben.</p>",
         },
         isLoginRequired: {
           question: "Muss ich für die Nutzung der Karte eingeloggt sein?",
@@ -256,7 +256,7 @@ export const locale = {
         whatIsAProject: {
           question: "Was ist ein Projekt?",
           answer:
-            "<p>Auf der Plattform kannst Du zeigen, was bei Dir funktioniert, andere inspirieren und selbst sichtbarer werden. Deine Erfahrung muss nicht perfekt sein – es reicht, dass sie praxisnah ist und anderen weiterhilft – denn gute Praxis darf sich weiterentwickeln.</br></br><b>Das bringt Dir diese Möglichkeit:</b></br></br><ul><li>Du machst Deine Arbeit und Wirkung sichtbar – für Fördernde, Kooperationspartner:innen und Interessierte.</li><li>Deine Projekte sind über Filter (z. B. Zielgruppen, Formate, MINT-Disziplinen) leicht auffindbar.</li><li>Du hilfst anderen, eigene Formate zu entwickeln oder weiterzudenken.</li></ul></p>",
+            "<p>Auf der Plattform kannst Du zeigen, was bei Dir funktioniert, andere inspirieren und selbst sichtbarer werden. Deine Erfahrung muss nicht perfekt sein – es reicht, dass sie praxisnah ist und anderen weiterhilft – denn gute Praxis darf sich weiterentwickeln.</br></br><b>Das bringt Dir diese Möglichkeit:</b></br></br><ul><li>Du machst Deine Arbeit und Wirkung sichtbar – für Fördernde, Kooperationspartner:innen und Interessierte.</li><li>Deine Projekte sind über Filter (z.B. Zielgruppen, Formate, MINT-Disziplinen) leicht auffindbar.</li><li>Du hilfst anderen, eigene Formate zu entwickeln oder weiterzudenken.</li></ul></p>",
         },
         whereToFind: {
           question: "Wo finde ich eine Übersicht aller Projekte?",
@@ -329,7 +329,7 @@ export const locale = {
         whoCanCreateEvents: {
           question: "Wer darf Events erstellen?",
           answer:
-            '<p>Einige Beta-Nutzer:innen der Plattform können eigene kostenlose und nicht kommerzielle Events erstellen. Möchtest Du auch die Eventerstellung testen, kontaktiere uns unter <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor hier nicht hin.</p>',
+            '<p>Einige BETA-Nutzer:innen der Plattform können eigene kostenlose und nicht kommerzielle Events erstellen. Möchtest Du auch die Eventerstellung testen, kontaktiere uns unter <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor hier nicht hin.</p>',
         },
         eventCreationConsiderations: {
           question: "Was muss ich beim Erstellen eines Events beachten?",
@@ -430,30 +430,24 @@ export const locale = {
         },
       },
     },
-    sharepicAndMediaDatabase: {
-      headline:
-        "Fragen zum MINT Sharepic-Generator und zur MINT-Mediendatenbank",
+    sharepic: {
+      headline: "Fragen zum MINT-Sharepic-Generator",
       qAndAs: {
         whatsASharepic: {
           question: "Was ist ein Sharepic?",
           answer:
-            "<p>Ein Sharepic ist eine Grafik, die Du für Deine Öffentlichkeitsarbeit nutzen kannst – zum Beispiel für Social Media, Deine Website oder Newsletter.</br></br>Sharepics sollen informieren, auffallen und emotional berühren und eine Reaktion bei den Betrachtenden auslösen. Durch die Kombination von Text- und Bildelementen lassen sich Fakten, Zitate, Aussagen und Veranstaltungsankündigungen ansprechend vermitteln.</p>",
+            "<p>Ein Sharepic ist eine Grafik, die Du für Deine Öffentlichkeitsarbeit nutzen kannst – zum Beispiel für Social Media, Deine Website oder Newsletter.</br></br>Sharepics sollen informieren, auffallen und emotional berühren und eine Reaktion bei den Betrachtenden auslösen. Durch die Kombination von Text- und Bildelementen werden Fakten, Zitate, Aussagen und Veranstaltungsankündigungen ansprechend vermittelt.</p>",
         },
         forWhomIsIt: {
-          question: "Für wen ist der Sharepic-Generator?",
+          question: "Für wen ist der MINT-Sharepic-Generator?",
           answer:
-            "<p>Der MINT Sharepic-Generator richtet sich an die Akteur:innen der MINT-Community, die ihre Angebote über Social Media, Newsletter und andere Kanäle sichtbar machen möchten.</br></br>Der Generator bietet eine einfache, benutzerfreundliche Oberfläche – ideal für Menschen mit wenig oder keiner Erfahrung in Design oder Social Media. So kannst Du schnell Grafiken in den passenden Formaten erstellen und herunterladen.</p>",
+            "<p>Der MINT-Sharepic-Generator richtet sich an die Akteur:innen der MINT-Community, die ihre Angebote über Social Media, Newsletter und andere Kanäle sichtbar machen möchten.</br></br>Der Generator bietet eine einfache, benutzerfreundliche Oberfläche – ideal für Menschen mit wenig oder keiner Erfahrung in Design oder Social Media. So kannst Du schnell Grafiken in den passenden Formaten erstellen und herunterladen.</p>",
         },
         whatKnowledgeIsNeeded: {
           question:
-            "Welche Kenntnisse benötige ich, um den MINT Sharepic-Generator nutzen zu können?",
+            "Welche Kenntnisse benötige ich, um den MINT-Sharepic-Generator nutzen zu können?",
           answer:
-            "<p>Du brauchst keinerlei Vorkenntnisse. Der Sharepic-Generator ist so aufgebaut, dass Du nach der Anmeldung direkt loslegen kannst.</p>",
-        },
-        whatsTheMediaDatabase: {
-          question: "Was ist die MINT-Mediendatenbank?",
-          answer:
-            '<p>Die MINT-Mediendatenbank ist eine ständig wachsende Sammlung von kostenlosen MINT-Bildern und Grafiken. Du kannst diese nutzen, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>Innerhalb des MINT-Sharepic-Generators kannst Du direkt auf die MINT-Mediendatenbank zugreifen und die Bilder in Deine Sharepics einfügen – ohne Dich separat anmelden zu müssen.</br></br>Du kannst die MINT-Mediendatenbank auch direkt aufrufen:</br>👉 <a href="https://mediendatenbank.mint-vernetzt.de/" target="_blank" rel="noreferrer noopener">https://mediendatenbank.mint-vernetzt.de/</a></br></br>Hierfür ist eine Anmeldung mit Deiner MINT-ID erforderlich.</p>',
+            "<p>Du brauchst keinerlei Vorkenntnisse. Der MINT-Sharepic-Generator ist so aufgebaut, dass Du nach der Anmeldung direkt loslegen kannst.</p>",
         },
         canIUploadOwnImagesAndLogos: {
           question: "Kann ich eigene Bilder und Logos hochladen?",
@@ -463,29 +457,23 @@ export const locale = {
         dataProtectionCompliantUploading: {
           question: "Was bedeutet datenschutzkonformes Hochladen von Bildern?",
           answer:
-            "<p>Datenschutzkonformes Hochladen bedeutet, dass Deine Bilder sicher verarbeitet, gespeichert und geschützt werden – im Einklang mit der Datenschutz-Grundverordnung (DSGVO).</br></br>✔️ <b>Serverstandort in Deutschland</b></br>Deine Bilder werden ausschließlich auf Servern in Deutschland gespeichert – entsprechend den strengen deutschen und europäischen Datenschutzbestimmungen.</br></br>✔️ <b>Verschlüsselte Datenübertragung</b></br>Alle Dateien werden sicher über moderne Verschlüsselungstechnologien (z. B. TLS) übertragen.</br></br>✔️ <b>Keine Weitergabe an Dritte</b></br>Deine Bilder werden nicht an Dritte weitergegeben oder für Werbezwecke genutzt. Die Verarbeitung erfolgt ausschließlich zur Bereitstellung unseres Services.</br></br>✔️ <b>Recht auf Löschung und Auskunft</b></br>Du kannst jederzeit Auskunft über Deine Daten verlangen und sie dauerhaft löschen lassen – gemäß den Vorgaben der DSGVO.</p>",
+            "<p>Datenschutzkonformes Hochladen bedeutet, dass Deine Bilder sicher verarbeitet, gespeichert und geschützt werden – im Einklang mit der Datenschutz-Grundverordnung (DSGVO).</br></br>✔️ <b>Serverstandort in Deutschland</b></br>Deine Bilder werden ausschließlich auf Servern in Deutschland gespeichert – entsprechend den strengen deutschen und europäischen Datenschutzbestimmungen.</br></br>✔️ <b>Verschlüsselte Datenübertragung</b></br>Alle Dateien werden sicher über moderne Verschlüsselungstechnologien (z.B. TLS) übertragen.</br></br>✔️ <b>Keine Weitergabe an Dritte</b></br>Deine Bilder werden nicht an Dritte weitergegeben oder für Werbezwecke genutzt. Die Verarbeitung erfolgt ausschließlich zur Bereitstellung unseres Services.</br></br>✔️ <b>Recht auf Löschung und Auskunft</b></br>Du kannst jederzeit Auskunft über Deine Daten verlangen und sie dauerhaft löschen lassen – gemäß den Vorgaben der DSGVO.</p>",
         },
-        whatMeansBeta: {
+        whatMeansBETA: {
           question: "Was bedeutet “BETA”?",
           answer:
             '<p>Der Status “BETA” bedeutet, dass der MINT-Sharepic-Generator noch weiterentwickelt wird. Wir freuen uns über Dein Feedback zu neuen Funktionen oder Verbesserungsvorschläge.</br></br>👉 Sende uns eine Mail an: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a></p>',
         },
         mobileSupport: {
-          question: "Ist der MINT Sharepic-Generator auch mobil nutzbar?",
+          question: "Ist der MINT-Sharepic-Generator auch mobil nutzbar?",
           answer:
-            "<p>Nein, der Sharepic-Generator ist nur als Desktop-Anwendung verfügbar.</p>",
+            "<p>Nein, der MINT-Sharepic-Generator ist nur als Desktop-Anwendung verfügbar.</p>",
         },
         sharepicUsage: {
           question:
             "Darf ich die Sharepics für Veranstaltungen, Websites oder Flyer verwenden?",
           answer:
-            "<p>Ja, Du darfst die Sharepics für alles nutzen – mit einer Ausnahme:</br>Wenn Du Bilder aus der MINT-Mediendatenbank verwendest, dürfen diese nur im MINT-Kontext und unter Angabe des Urheberrechtshinweises veröffentlicht werden.</br></br>Keine Sorge: Der richtige Hinweis wird automatisch in die Grafik eingefügt, wenn Du ein Bild aus der MINT-Mediendatenbank als Hintergundbild im Sharepic-Generator nutzt. Wenn Du Bilder der MINT-Mediendatenbank als Vordergrundbilder benutzt, dann füge bitte in der Caption Deines Social Media Posts die Infos zum Urheberrecht ein. Wenn Du Bilder aus der MINT-Mediendatenbank auf Websites in Newslettern oder Flyern verwendest, dann füge bitte dort auch an entsprechender Stelle Urheberrechtshinweise ein.</p>",
-        },
-        sharepicGeneratorNotWorking: {
-          question:
-            "Was mache ich, wenn der Sharepic-Generator nicht richtig funktioniert?",
-          answer:
-            '<p>Schick uns gerne eine Nachricht an: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a>.</br></br>Der MINT-Sharepic-Generator befindet sich noch im Beta-Status. Fehler können vorkommen – wir sind auf Dein Feedback angewiesen, um den Sharepic-Generator weiter zu verbessern.</p>',
+            '<p>Ja, Du darfst die Sharepics für alles nutzen – mit einer Ausnahme:</br>Wenn Du Bilder aus der <a href="/help#mediaDatabase">MINT-Mediendatenbank</a> verwendest, dürfen diese nur im MINT-Kontext und unter Angabe des Urheberrechtshinweises veröffentlicht werden.</br></br>Keine Sorge: Der richtige Hinweis wird automatisch in die Grafik eingefügt, wenn Du ein Bild aus der MINT-Medien&shy;daten&shy;bank als Hintergundbild im MINT-Sharepic-Generator nutzt. Wenn Du Bilder der MINT-Medien&shy;daten&shy;bank als Vordergrundbilder benutzt, dann füge bitte in der Caption Deines Social Media Posts die Infos zum Urheberrecht ein. Wenn Du Bilder aus der MINT-Medien&shy;daten&shy;bank auf Websites, in Newslettern oder Flyern verwendest, dann füge bitte dort auch an entsprechender Stelle Urheberrechtshinweise ein.</p>',
         },
         supportedFormatsAndAspects: {
           question: "Welche Bildgrößen und -formate unterstützt das Tool?",
@@ -504,6 +492,34 @@ export const locale = {
           answer:
             "<p>Du kannst verschiedene Schriften und grafische Elemente auswählen und farblich anpassen.</br>Selbst hochgeladene Grafiken (Logos, Sticker, Formen) können allerdings <b>nicht</b> umgefärbt werden.</p>",
         },
+        shareSharepics: {
+          question:
+            "Kann ich meine Sharepics aus dem MINT-Sharepic-Generator mit anderen teilen?",
+          answer:
+            "<p>Ja, Du kannst Dein Sharepic als .spg-Datei herunterladen. Stelle dafür beim Herunterladen-Button das Format von .png auf .spg und lade Dir die Sharepic-Datei herunter. Diese kannst Du mit Teammitgliedern teilen, die damit weiterarbeiten können, sobald sie die Datei in den MINT-Sharepic-Generator hochgeladen haben. Das funktioniert über das Menü <b>Datei > Hochladen</b>.</p>",
+        },
+        uploadSharepics: {
+          question:
+            "Wie kann ich MINT-Sharepic-Grafiken (.spg-Dateien) von Teammitgliedern zur Weiterarbeit in meinen MINT-Sharepic-Generator laden?",
+          answer:
+            "<p>Du kannst ganz einfach eine spg.-Datei über das Menü <b>Datei > Hochladen</b> in den MINT-Sharepic-Generator hochladen und weiter bearbeiten.</p>",
+        },
+        sharepicGeneratorNotWorking: {
+          question:
+            "Was mache ich, wenn der MINT-Sharepic-Generator nicht richtig funktioniert?",
+          answer:
+            '<p>Schick uns gerne eine Nachricht an: <a href="mailto:sharepic@mint-vernetzt.de">sharepic@mint-vernetzt.de</a>.</br></br>Der MINT-Sharepic-Generator befindet sich noch im BETA-Status. Fehler können vorkommen – wir sind auf Dein Feedback angewiesen, um den MINT-Sharepic-Generator weiter zu verbessern.</p>',
+        },
+      },
+    },
+    mediaDatabase: {
+      headline: "Fragen zur MINT-Mediendatenbank",
+      qAndAs: {
+        whatsTheMediaDatabase: {
+          question: "Was ist die MINT-Mediendatenbank?",
+          answer:
+            '<p>Die MINT-Mediendatenbank ist eine ständig wachsende Sammlung von kostenlosen MINT-Bildern und -Grafiken. Du kannst diese nutzen, um Deine Öffentlichkeitsarbeit ansprechend und zielgruppengerecht zu gestalten.</br></br>Innerhalb des <a href="/help#sharepic">MINT-Sharepic-Generators</a> kannst Du direkt auf die MINT-Mediendatenbank zugreifen und die Bilder in Deine Sharepics einfügen – ohne Dich separat anmelden zu müssen.</br></br>Du kannst die MINT-Mediendatenbank auch direkt aufrufen:</br>👉 <a href="https://mediendatenbank.mint-vernetzt.de/" target="_blank" rel="noreferrer noopener">https://mediendatenbank.mint-vernetzt.de/</a></br></br>Hierfür ist eine Anmeldung mit Deiner <a href="/help#registration-mintId">MINT-ID</a> erforderlich.</p>',
+        },
       },
     },
     furtherQuestions: {
@@ -513,7 +529,7 @@ export const locale = {
           question:
             "Ich möchte mich gerne bei der Weiterentwicklung der MINTvernetzt Community-Plattform einbringen.",
           answer:
-            '<p>Du bist MINT-Akteur:in, Designer:in oder Programmierer:in und möchtest die Plattform aktiv mitgestalten? Wir sind immer wieder auf der Suche nach Tester:innen für neue Funktionen. Melde Dich bei uns über <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>. Wir entwickeln die Plattform mit Open-Source-Software – <a href="https://github.com/mint-vernetzt/community-platform" target="_blank" rel="noreferrer noopener">hier</a> geht\'s zu unserem GitHub Repository.</p>',
+            '<p>Du bist MINT-Akteur:in, Designer:in oder Programmierer:in und möchtest die Plattform aktiv mitgestalten? Wir sind immer wieder auf der Suche nach Tester:innen und Input für neue Funktionen. Melde Dich bei uns über <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>. Wir entwickeln die Plattform als Open-Source-Software – <a href="https://github.com/mint-vernetzt/community-platform" target="_blank" rel="noreferrer noopener">hier</a> geht\'s zu unserem GitHub Repository.</p>',
         },
         questionsSuggestionsWishes: {
           question: "Ich habe Fragen, Anregungen, Wünsche.",
