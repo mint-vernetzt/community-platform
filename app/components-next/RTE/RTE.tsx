@@ -45,6 +45,8 @@ export type InputForFormProps = Omit<
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
 > & {
   contentEditableRef: React.RefObject<HTMLDivElement | null>;
+  htmlDefaultValue?: string | number | readonly string[];
+  rteStateDefaultValue?: string;
 };
 
 export type RTELocales =
@@ -63,7 +65,8 @@ function RTE(
   }
 ) {
   const {
-    defaultValue,
+    htmlDefaultValue,
+    rteStateDefaultValue,
     placeholder,
     maxLength,
     locales,
@@ -89,16 +92,6 @@ function RTE(
   };
 
   const initialConfig: InitialConfigType = {
-    editorState: (editor) => {
-      editor.update(() => {
-        if (typeof defaultValue === "string") {
-          const editorState = editor.parseEditorState(defaultValue);
-          if (editorState.isEmpty() === false) {
-            editor.setEditorState(editorState);
-          }
-        }
-      });
-    },
     namespace: rest.id || "RTE",
     theme,
     nodes: [
@@ -172,8 +165,10 @@ function RTE(
             />
             <InputForFormPlugin
               {...rest}
-              contentEditableRef={contentEditableRef}
               legacyFormRegister={legacyFormRegister}
+              htmlDefaultValue={htmlDefaultValue}
+              rteStateDefaultValue={rteStateDefaultValue}
+              contentEditableRef={contentEditableRef}
             />
             <HistoryPlugin />
             <LinkPlugin
