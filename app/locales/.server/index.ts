@@ -152,8 +152,6 @@ import { locale as deLanding } from "./de/routes/index";
 import { locale as deMap } from "./de/routes/map";
 // resources route
 import { locale as deResources } from "./de/routes/resources";
-// search route
-import { locale as deSearch } from "./de/routes/search";
 // verification route
 import { locale as deVerification } from "./de/routes/verification";
 // splat routes
@@ -326,8 +324,6 @@ import { locale as enLanding } from "./en/routes/index";
 import { locale as enMap } from "./en/routes/map";
 // resources route
 import { locale as enResources } from "./en/routes/resources";
-// search route
-import { locale as enSearch } from "./en/routes/search";
 // verification route
 import { locale as enVerification } from "./en/routes/verification";
 // splat routes
@@ -759,8 +755,6 @@ const de = {
   },
   // resources route
   resources: deResources,
-  // search route
-  search: deSearch,
   // verification route
   verification: deVerification,
   // splat routes
@@ -1178,8 +1172,6 @@ const en = {
   },
   // resources route
   resources: enResources,
-  // search route
-  search: enSearch,
   // verification route
   verification: enVerification,
   // splat routes

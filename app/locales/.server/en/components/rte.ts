@@ -1,6 +1,5 @@
 export const locale = {
   title: "Rich Text Editor",
-  loading: "Editor is loading...",
   placeholder: "Enter your text here.",
   remainingCharacters: "Remaining characters",
   toolbar: {

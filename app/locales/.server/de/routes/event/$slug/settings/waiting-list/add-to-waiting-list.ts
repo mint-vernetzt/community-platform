@@ -5,9 +5,9 @@ export const locale = {
     inputError: {
       doesNotExist: "Unter diesem Namen wurde keine Person gefunden.",
       alreadyOn:
-        "Eine Person mit diesem Namen ist bereits auf der Warteliste Eurer Veranstaltung.",
+        "Eine Person mit diesem Namen ist bereits auf der Warteliste Deines Events.",
       alreadyParticipant:
-        "Eine Person mit diesem Namen nimmt bereits bei Eurer Veranstaltung teil. Bitte entferne die Person erst von der Teilnehmer:innenliste.",
+        "Eine Person mit diesem Namen nimmt bereits bei Deinem Event teil. Bitte entferne die Person erst von der Teilnehmer:innenliste.",
     },
   },
   feedback:

@@ -36,11 +36,11 @@ export const locale = {
       to: "Zum Projekt",
     },
     comingEvents: {
-      title: "Bevorstehende Veranstaltungen",
-      create: "Veranstaltung anlegen",
+      title: "Bevorstehende Events",
+      create: "Event anlegen",
     },
     pastEvents: {
-      title: "Vergangene Veranstaltungen",
+      title: "Vergangene Events",
     },
     event: {
       admin: "Administrator:in",

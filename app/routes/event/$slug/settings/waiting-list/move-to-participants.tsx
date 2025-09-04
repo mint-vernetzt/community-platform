@@ -61,7 +61,7 @@ export const action = async (args: ActionFunctionArgs) => {
     await connectParticipantToEvent(event.id, result.data.profileId);
     await disconnectFromWaitingListOfEvent(event.id, result.data.profileId);
     // Send info mail
-    // -> mail of person which was moved to waitinglist
+    // -> mail to person which was moved to participants
     const sender = process.env.SYSTEM_MAIL_SENDER;
     const recipient = profile.email;
     const subject = insertParametersIntoLocale(locales.email.subject, {

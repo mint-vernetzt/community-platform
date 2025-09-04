@@ -208,7 +208,7 @@ export function MainMenu(
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myEvents
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Meine Veranstaltungen"
+                      ? "Meine Events"
                       : "My events"}
                   </TopicItem>
 
@@ -280,7 +280,7 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.menu.explore.events
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Veranstaltungen"
+                  ? "Events"
                   : "Events"}
               </TopicItem>
 

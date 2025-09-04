@@ -19,6 +19,7 @@ import {
   type RefAttributes,
 } from "react";
 import { type MapLocales } from "~/routes/map.server";
+import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 
 export type ListOrganization = {
   logo: string | null;
@@ -70,7 +71,8 @@ type Locales =
   | ProjectAdminSettingsLocales
   | ProjectTeamSettingsLocales
   | ProjectResponsibleOrganizationsSettingsLocales
-  | MapLocales;
+  | MapLocales
+  | ExploreOrganizationsLocales;
 
 export function ListItem(
   props: PropsWithChildren<{

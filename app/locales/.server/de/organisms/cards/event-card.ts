@@ -6,12 +6,10 @@ export const locale = {
   published: "Veröffentlicht",
   seats: {
     unlimited: "Unbegrenzte Plätze",
-    default: "Plätze frei",
     free_one: "Platz frei",
     free_other: "Plätze frei",
   },
   waitingList: {
-    default: "Wartelistenplätze",
     places_one: "Wartelistenplatz",
     places_other: "Wartelistenplätze",
   },

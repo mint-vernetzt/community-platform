@@ -1,8 +1,6 @@
 export const locale = {
   error: {
-    invalidRoute: "No valid route",
     eventNotFound: "Event not found",
-    invalidSubmission: "No valid submission",
     invalidAction: "No valid action",
     onStoring:
       "Datei konnte nicht gespeichert werden. Versuche es erneut oder wende dich an den Support.",

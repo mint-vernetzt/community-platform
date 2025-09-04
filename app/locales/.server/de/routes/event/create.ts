@@ -1,22 +1,22 @@
 export const locale = {
   validation: {
     name: {
-      required: "Bitte einen Veranstaltungsnamen angeben",
+      required: "Bitte einen Eventnamen angeben",
     },
     startDate: {
-      required: "Bitte gib den Beginn der Veranstaltung an",
+      required: "Bitte gib den Beginn des Events an",
     },
     startTime: {
       required: "Bitte eine Startzeit angeben",
     },
     endDate: {
-      required: "Bitte gib das Ende der Veranstaltung an",
+      required: "Bitte gib das Ende des Events an",
       greaterThan: "Das Enddatum darf nicht vor dem Startdatum liegen",
     },
     endTime: {
-      required: "Bitte gib das Ende der Veranstaltung an",
+      required: "Bitte gib das Ende des Events an",
       greaterThan:
-        "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
+        "Das Event findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
     },
   },
   error: {
@@ -24,11 +24,11 @@ export const locale = {
   },
   content: {
     back: "Zurück",
-    headline: "Veranstaltung anlegen",
+    headline: "Event anlegen",
   },
   form: {
     name: {
-      label: "Name der Veranstaltung",
+      label: "Name des Events",
     },
     startDate: {
       label: "Startdatum",

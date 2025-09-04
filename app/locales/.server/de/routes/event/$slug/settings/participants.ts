@@ -13,7 +13,7 @@ export const locale = {
   content: {
     headline: "Teilnehmende",
     intro:
-      "Wer nimmt an der Veranstaltung teil? Füge hier weitere Teilnehmende hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der Teilnehmenden festlegen.",
+      "Wer nimmt an dem Event teil? Füge hier weitere Teilnehmende hinzu oder entferne sie. Außerdem kannst Du eine Begrenzung der Teilnehmenden festlegen.",
     limit: {
       headline: "Begrenzung der Teilnehmenden",
       intro:
@@ -24,8 +24,7 @@ export const locale = {
     },
     add: {
       headline: "Teilnehmende hinzufügen",
-      intro:
-        "Füge hier Eurer Veranstaltung eine Person als Teilnehmende hinzu.",
+      intro: "Füge hier Deinem Event eine Person als Teilnehmende hinzu.",
       label: "Name oder Email der Teilnehmer:in",
     },
     current: {

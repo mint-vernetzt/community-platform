@@ -1,7 +1,4 @@
 export const locale = {
-  inputFile: {
-    select: "Select image",
-  },
   imageCropper: {
     error: "An error has occurred.",
     disconnect: "Remove image",

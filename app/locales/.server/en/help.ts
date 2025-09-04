@@ -161,7 +161,7 @@ export const locale = {
         whatAreProvisionalOrganizations: {
           question: "What are “organizations created by MINTvernetzt”?",
           answer:
-            '<p>Organizations created by us are profiles of organizations that we have compiled using data from external overview pages. The data origins from following Websites:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>These organizational profiles do not yet have administrators or team members on the platform. These profiles created by us can be claimed by the respective stakeholders as their organization. There are various ways to request the management of these organizational profiles. How this is possible will be answered in the next question and answer.</p>',
+            '<p>In order to increase the visibility of the diverse range of STEM stakeholders in Germany, we have created organizational profiles on our platform based on publicly available information. The aim is to represent the community as comprehensively as possible – including organizations that have not yet created a profile themselves.</br></br>The information used comes exclusively from freely accessible online sources, including:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>These profiles are clearly marked on the platform as having been created by MINTvernetzt. They usually contain information such as name, location, web address, and, if applicable, a brief description. No personal data has been transferred.</br></br>The organization profiles also do not yet have any administrators or team members. The relevant actors can take over their profile at any time and manage it themselves. We explain how this works in the next section.</p>',
           featureFlag: "provisional_organizations",
         },
         howToClaimProvisionalOrganizations: {
@@ -301,7 +301,7 @@ export const locale = {
           question:
             "Where can I find events on the MINTvernetzt community platform?",
           answer:
-            '<p>Under <b>Explore > Events</b> you will find an overview of all upcoming events. Use the filters for topics, target groups or locations.</br>Past events can be found by changing the filter from "Until now" to "Past events".</p>',
+            "<p>Under <b>Explore > Events</b> you will find an overview of all events. Use the filters to specifically search by type of event (On-Site, Online, Hybrid), field of focus, and target groups. Past events can be found by changing the filter from “Until now” to “Past events”.</p>",
         },
         participate: {
           question: "I want to participate in an event. How can I register?",
@@ -312,13 +312,43 @@ export const locale = {
           question:
             "I have registered for an event, but I can no longer attend. How can I cancel my participation?",
           answer:
-            "<p>If you accidentally registered or find that you can no longer attend, please withdraw your participation on the event detail page using the <b>“Cancel Participation”</b> button. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event detail page.</p>",
+            "<p>On the event detail page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event detail page.</p>",
+        },
+        whoCanCreateEvents: {
+          question: "Who can create events?",
+          answer:
+            '<p>Some beta users of the platform can create their own free and non-commercial events. If you would like to test event creation as well, please contact us at <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Important:</b> Our platform is NOT aimed at children and young people, but exclusively at MINT actors, educational providers, network coordinators, etc., therefore events such as MINT holiday courses or weekly offerings in a student laboratory do not belong here.</p>',
+        },
+        eventCreationConsiderations: {
+          question: "What do I need to consider when creating an event?",
+          answer:
+            '<p>On our platform, you can create events that serve the networking, exchange, or further education of adults and professionals in STEM education. These events must always be free of charge and must not be aimed at making a profit.</br></br>Events must also not violate our <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/" rel="noreferrer noopener" target="_blank">terms of use</a>.</br></br><b>Not allowed are:</b><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>e.g.: MINT holiday camps for students or courses in schools or student laboratories</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/" rel="noreferrer noopener" target="_blank">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></p>',
+          featureFlag: "events",
         },
         eventCreation: {
-          question:
-            "How can I create events on the MINTvernetzt community platform?",
+          question: "How can I create an event?",
           answer:
-            "<p>Currently, we only provide event creation on the community platform for MINTvernetzt, MINT-Campus, and interested beta testers. In the next step, we will open up the possibility for the entire community to create their own events.</br></br><b>Important:</b> Our platform is <b>NOT</b> aimed at children and young people, but <b>exclusively at MINT actors, educational providers, network coordinators, etc</b>. Events such as MINT holiday courses or weekly offerings in a student laboratory do not belong here.</p>",
+            "<p>Go to the menu <b>My space > My Events</b> and click on <b>“Create Event”</b>. In just a few steps, you can create a <b>draft</b> of your event.</br></br><b>To create an event, you will need the following information, which can be edited later:</b></br></br><ul><li>Title of the event</li><li>Date, start time, and end time of the event</li></ul></p>",
+          featureFlag: "events",
+        },
+        editEventDraft: {
+          question: "How can I edit my event draft?",
+          answer:
+            "<p>If you have created an event draft, you will be redirected to the event view (event detail page). To edit your draft, click on <b>“Edit Event”</b>.</br></br>You can find your event at any time under <b>My Space > My Events</b>. Clicking on your event will take you to the event detail page, where you will find the <b>“Edit Event”</b> button.</br></br>By clicking on <b>“Edit Event”</b>, you will enter the event settings. Here you can make changes, such as publishing, canceling, deleting, and in the future also copying your event.</br></br>You can also edit your event after it has been published.</p>",
+          featureFlag: "events",
+        },
+        editEventAfterPublishing: {
+          question: "Can I edit my event after it has been published?",
+          answer:
+            "<p>Yes. You can find your created events under <b>My Space > My Events</b>. Clicking on your event will take you to the event detail page. From there, you can access the event settings by clicking on <b>“Edit Event”</b>. Here, you can make changes or also cancel and delete the event.</p>",
+          featureFlag: "events",
+        },
+        provideEventMaterial: {
+          question:
+            "Can I provide materials such as presentations or participation certificates?",
+          answer:
+            "<p>Yes, you can upload or add files directly in the event settings under <b>“Manage Documents”</b>. Participants can find these on the event detail page.</p>",
+          featureFlag: "events",
         },
         reportEvent: {
           question: "How can I report an event?",
@@ -346,7 +376,7 @@ export const locale = {
           question:
             "Where can I find fundings on the MINTvernetzt Community Platform?",
           answer:
-            '<p>You can access the MINTvernetzt funding search via the navigation <b><a href="/explore/fundings">Discover > Funding</a></b> or via <b><a href="/resources">Resources</a></b>. Or you can use this link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
+            '<p>You can access the MINTvernetzt funding search via the navigation <b>Explore > Funding</b> or via <b>Resources</b>. Or you can use this link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
         },
         whatIs: {
           question: "What is the funding search?",
@@ -356,7 +386,7 @@ export const locale = {
         howTo: {
           question: "How can I find specific funding?",
           answer:
-            "<p>Use the filters to specifically search for funding available in your region or that matches the eligibility criteria, e.g., for associations.</p><p>Example: Imagine you filter for funding and select two options:</p><ul><li>Funding area: Education / Training</li><li>Region Bavaria</li></ul><p>With an AND connection, only the funding that is available in both the education area and Bavaria will be displayed. Therefore, it is useful to test different filter options.</p>",
+            "<p>Use the filters to specifically search for funding available in your region or that matches the eligibility criteria, e.g., for associations.</p><p>Example: Imagine you filter for funding and select two options:</p><ul><li>Funding area: Education / Training</li><li>Region: Bavaria</li></ul><p>With an AND connection, only the funding that is available in both the education area and Bavaria will be displayed. Therefore, it is useful to test different filter options.</p>",
         },
         availableTypes: {
           question: "What types of funding are available?",
@@ -378,7 +408,7 @@ export const locale = {
           question:
             "The funding search is not working. / I receive an error message. What can I do?",
           answer:
-            "<p>You can help us fix this error by creating a screenshot and sending it by email with the subject: 'Funding search' to <a href=\"mailto:community@mint-vernetzt.de\">community@mint-vernetzt.de</a>. Ideally, also let us know your browser. Try reloading the page, often the problem is then already solved.</p>",
+            "<p>You can help us fix this error by creating a screenshot and sending it by email with the subject: 'Funding search' to <a href=\"mailto:support@mint-vernetzt.de\">support@mint-vernetzt.de</a>. Ideally, also let us know your browser. Try reloading the page, often the problem is then already solved.</p>",
         },
         feedback: {
           question: "Can I give feedback on the funding search?",

@@ -18,6 +18,7 @@ import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
+import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -34,7 +35,7 @@ type MapOrganization = ListOrganization &
 
 export function Map(props: {
   organizations: Array<MapOrganization>;
-  locales: MapLocales;
+  locales: MapLocales | ExploreOrganizationsLocales;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   embeddable?: boolean;
 }) {
@@ -792,7 +793,7 @@ export function Map(props: {
 
 function Popup(props: {
   organization: MapOrganization;
-  locales: MapLocales;
+  locales: MapLocales | ExploreOrganizationsLocales;
   embeddable: boolean;
 }) {
   const { organization, locales, embeddable } = props;

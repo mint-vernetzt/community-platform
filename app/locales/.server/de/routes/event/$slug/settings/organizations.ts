@@ -5,12 +5,10 @@ export const locale = {
   },
   content: {
     headline: "Verantwortliche Organisationen",
-    intro:
-      "Welche Organisation ist verantwortlich für Eure Veransatltung? Füge hier weitere Organisationen hinzu oder entferne sie.",
     add: {
       headline: "Organisation hinzufügen",
       intro:
-        "Füge hier Deiner Veranstaltung eine bereits bestehende Organisation hinzu.",
+        "Füge hier Deinem Event eine bereits bestehende Organisation hinzu.",
       label: "Name der Organisation",
     },
     own: {
@@ -22,7 +20,7 @@ export const locale = {
     current: {
       headline: "Organisationen",
       intro:
-        "Hier siehst Du alle für die Veranstaltung verantwortlichen Organisationen auf einen Blick.",
+        "Hier siehst Du alle für das Event verantwortlichen Organisationen auf einen Blick.",
       remove: "entfernen",
     },
     publish: "Veröffentlichen",

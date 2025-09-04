@@ -164,9 +164,10 @@ export const locale = {
             "<p>Ja. Wähle im Filter “Netzwerk” z. B. “zdi.NRW” aus, und Dir werden alle dazugehörigen Organisationen angezeigt.</p>",
         },
         whatAreProvisionalOrganizations: {
-          question: "Was sind “von MINTvernetzt Organisationsprofile”?",
+          question:
+            "Was sind “von MINTvernetzt angelegte Organisationsprofile”?",
           answer:
-            '<p>Von uns angelegte Organisationsprofile sind Profile von Organisationen, die wir anhand von Daten von externen Übersichtsseiten zusammengetragen haben. Die Daten stammen von folgenden Seiten:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>Diese Organisationsprofile haben noch keine Administrator:innen und keine Teammitglieder auf der Plattform. Diese von uns angelegten Organisationsprofile können von den entsprechenden Akteur:innen als ihre Organisation übernommen werden. Es gibt verschiedene Wege, die Verwaltung dieser Organisationsprofile anzufragen. Wie das möglich ist, wird innerhalb der nächsten Frage und Antwort beantwortet.</p>',
+            '<p>Um die Sichtbarkeit der vielfältigen MINT-Akteur:innen in Deutschland zu erhöhen, haben wir auf Basis öffentlich zugänglicher Informationen Organisationsprofile auf unserer Plattform angelegt. Ziel ist es, die Community möglichst vollständig abzubilden – auch mit Organisationen, die bisher noch nicht selbst ein Profil erstellt haben.</br></br>Die verwendeten Informationen stammen ausschließlich aus frei zugänglichen Online-Quellen, darunter:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>Diese Profile sind auf der Plattform klar als von MINTvernetzt angelegt gekennzeichnet. Sie enthalten in der Regel Informationen wie Name, Ort, Webadresse und ggf. eine Kurzbeschreibung. Dabei wurden keine personenbezogenen Daten übernommen.</br></br>Die Organisationsprofile haben zudem noch keine Administrator:innen und keine Teammitglieder. Die betreffenden Akteur:innen können ihr Profil jederzeit übernehmen und selbst verwalten. Wie das funktioniert, erklären wir im nächsten Abschnitt.</p>',
           featureFlag: "provisional_organizations",
         },
         howToClaimProvisionalOrganizations: {
@@ -311,30 +312,61 @@ export const locale = {
         findEvents: {
           question: "Wo finde ich passende Veranstaltungen?",
           answer:
-            "<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Übersicht aller zukünftiger Events. Nutze die Filter für Themen, Zielgruppen oder Orte.</br>Vergangene Events lassen sich finden, wenn Du den Filter von “Ab heute” auf “Vergangene Veranstaltungen” setzt. </p>",
+            "<p>Unter <b>Entdecken > Events</b> findest Du eine Übersicht aller Events. Nutze die Filter, um gezielt nach Art des Events (Vor Ort, Online, Hybrid), Schwerpunkten und Zielgruppen zu filtern. Vergangene Events lassen sich finden, wenn Du den Filter von “Ab heute” auf “Vergangene Events” setzt.</p>",
         },
         participate: {
           question:
-            "Ich möchte an einer Veranstaltung teilnehmen. Wie kann ich mich anmelden?",
+            "Ich möchte an einem Event teilnehmen. Wie kann ich mich anmelden?",
           answer:
-            '<p>Unter <b>Entdecken > Veranstaltungen</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf “Teilnehmen”. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <b><a href="/register">registrieren</a></b>.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>',
+            '<p>Unter <b>Entdecken > Events</b> findest Du eine Liste mit aktuellen Veranstaltungen. Wähle dort das gewünschte Event aus und klicke auf „Teilnehmen“. Bitte beachte, dass Du auf der Plattform angemeldet sein musst, um Dich für ein Event anmelden zu können.</br></br>Hast Du noch kein Profil auf der MINTvernetzt Community-Plattform? Hier kannst Du Dich <a href="/register">registrieren</a>.</br></br>Für Events mit externer Registrierung wirst Du auf externe Anmeldeseiten weitergeleitet.</p>',
         },
         cancelParticipation: {
           question:
             "Ich habe mich zu einem Event angemeldet und kann doch nicht teilnehmen – muss ich mich abmelden?",
           answer:
-            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Event-Detailseite über den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Du findest die Events für die Du Dich angemeldet hast unter <b>Mein MINT-Bereich > Meine Veranstaltungen</b>. Klickst Du Dein Event an, gelangst Du auf die Event-Detailseite.</p>",
+            "<p>Wenn Du Dich versehentlich angemeldet hast, oder Du feststellst, dass Du doch nicht teilnehmen kannst, dann ziehe bitte Deine Teilnahme auf der Eventdetailseite per Klick auf den Button <b>“Nicht mehr teilnehmen”</b> wieder zurück. So gibst Du ggf. Plätze für andere frei.</br></br>Du findest die Events für die Du Dich angemeldet hast unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du das Event an, gelangst Du auf die Eventdetailseite.</p>",
+        },
+        whoCanCreateEvents: {
+          question: "Wer darf Events erstellen?",
+          answer:
+            '<p>Einige Beta-Nutzer:innen der Plattform können eigene kostenlose und nicht kommerzielle Events erstellen. Möchtest Du auch die Eventerstellung testen, kontaktiere uns unter <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a>.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich NICHT an Kinder und Jugendliche, sondern ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc., daher gehören Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schüler:innenlabor hier nicht hin.</p>',
+        },
+        eventCreationConsiderations: {
+          question: "Was muss ich beim Erstellen eines Events beachten?",
+          answer:
+            '<p>Auf unserer Plattform kannst Du Events anlegen, die der Vernetzung, dem Austausch oder der Weiterbildung von Erwachsenen und Fachkräften in der MINT-Bildung dienen. Diese Events müssen immer kostenfrei sein und dürfen nicht auf Gewinnerzielung ausgerichtet sein.</br></br>Events dürfen des Weiteren nicht gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen.</br></br><b>Nicht erlaubt sind:</b><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>z.B.: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/" rel="noreferrer noopener" target="_blank">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></p>',
+          featureFlag: "events",
         },
         eventCreation: {
-          question:
-            "Ich möchte eine Veranstaltung erstellen. Was muss ich beachten?",
+          question: "Wie kann ich ein Event erstellen?",
           answer:
-            "<p>Aktuell stellen wir ausschließlich MINTvernetzt, MINT-Campus und interessierten Beta-Tester:innen die Veranstaltungserstellung auf der Community-Plattform zur Verfügung. Im nächsten Schritt öffnen wir für die gesamte Community die Möglichkeit, eigene Events zu erstellen.</br></br><b>Wichtig:</b> Unsere Plattform richtet sich <b>NICHT</b> an Kinder und Jugendliche, sondern <b>ausschließlich an MINT-Akteur:innen, Bildungsanbieter:innen, Netzwerkkoordinator:innen, etc</b>. Veranstaltungen wie MINT-Ferienkurse oder wöchentliche Angebote in einem Schülerlabor gehören hier nicht hin.</p>",
+            "<p>Gehe im Menü auf <b>Mein MINT-Bereich > Meine Events</b> und klicke auf <b>“Event anlegen”</b>. In wenigen Schritten erstellst Du dann einen <b>Entwurf</b> Deines Events.</br></br><b>Zum Erstellen benötigst Du folgende Angaben, die im Nachhinein bearbeitet werden können:</b></br></br><ul><li>Titel des Events</li><li>Datum, Startzeit und Ende des Events</li></ul></p>",
+          featureFlag: "events",
+        },
+        editEventDraft: {
+          question: "Wie kann ich den Entwurf meines Events bearbeiten?",
+          answer:
+            "<p>Wenn Du einen Evententwurf erstellt hast, wirst Du danach auf die Ansicht des Events (Eventdetailseite) geleitet. Um Deinen Entwurf zu bearbeiten, klicke auf <b>“Event bearbeiten”</b>.</br></br>Du findest Dein Event jederzeit unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventdetailseite, auf der Du den Button <b>“Event bearbeiten“</b> findest.</br></br>Über <b>“Event bearbeiten”</b> gelangst Du in die Event-Settings. Hier kannst Du Änderungen vornehmen, z.B. Dein Event veröffentlichen, absagen, löschen und zukünftig auch kopieren.</br></br>Du kannst auch nach der Veröffentlichung Dein Event noch bearbeiten.</p>",
+          featureFlag: "events",
+        },
+        editEventAfterPublishing: {
+          question:
+            "Kann ich mein Event nach der Veröffentlichung noch bearbeiten?",
+          answer:
+            "<p>Ja. Du findest Deine angelegten Events unter <b>Mein MINT-Bereich > Meine Events</b>. Klickst Du Dein Event an, gelangst Du auf die Eventdetailseite. Über <b>„Event bearbeiten“</b> gelangst Du von der Deiner Eventdetailseite in die Event-Settings. Dort kannst Du Änderungen vornehmen oder das Event auch absagen und löschen.</p>",
+          featureFlag: "events",
+        },
+        provideEventMaterial: {
+          question:
+            "Kann ich Materialien wie Präsentationen oder Teilnahmebestätigungen bereitstellen?",
+          answer:
+            "<p>Ja, Du kannst Dateien direkt im Event in den Event-Settings unter <b>“Dokumente verwalten”</b> hochladen oder nachträglich ergänzen. Teilnehmende finden diese dann auf der Eventdetailseite.</p>",
+          featureFlag: "events",
         },
         reportEvent: {
           question: "Wie kann ich Events melden?",
           answer:
-            '<p>Nutzer:innen haben die Möglichkeit, Events zu melden. Der Melden-Button befindet sich auf der Event-Detailseite im oberen Bereich hinter dem 3-Punkte-Menü-Button <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In der folgenden Abfrage, muss mindestens ein Grund für die Meldung angeben sein.</br></br><b>Folgende Gründe sprechen dafür ein Event zu melden:</b></br></br><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>Zum Beispiel: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren.</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen.</p>',
+            '<p>Nutzer:innen haben die Möglichkeit, Events zu melden. Der Melden-Button befindet sich auf der Eventdetailseite im oberen Bereich hinter dem 3-Punkte-Menü-Button <span class="mv-w-5 mv-h-5 mv-inline-flex mv-place-items-center mv-justify-center mv-rounded-md mv-border mv-border-primary mv-bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In der folgenden Abfrage, muss mindestens ein Grund für die Meldung angeben sein.</br></br><b>Folgende Gründe sprechen dafür ein Event zu melden:</b></br></br><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>Zum Beispiel: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren.</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen.</p>',
           featureFlag: "abuse_report",
         },
         iReportedAnEvent: {
@@ -346,7 +378,7 @@ export const locale = {
         feedback: {
           question: "Feedback zu den Events",
           answer:
-            '<p><b>Noch Fragen oder Ideen für neue Funktionen?</b> Dann schreib uns jederzeit an <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b> – wir freuen uns auf Dein Feedback!</p>',
+            '<p><b>Noch Fragen oder Ideen für neue Funktionen?</b> Dann schreib uns jederzeit an <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> – wir freuen uns auf Dein Feedback!</p>',
         },
       },
     },
@@ -357,17 +389,17 @@ export const locale = {
           question:
             "Wo finde ich Förderungen auf der MINTvernetzt Community Plattform?",
           answer:
-            '<p>Über die Navigation <b><a href="/explore/fundings">Entdecken > Förderungen</a></b> oder über <b><a href="/resources">Ressourcen</a></b> gelangst Du auf die MINTvernetzt Fördermittelsuche. Oder Du nutzt diesen Link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
+            '<p>Über die Navigation <b>Entdecken > Förderungen</b> oder über <b>Ressourcen</b> gelangst Du auf die MINTvernetzt Fördermittelsuche. Oder Du nutzt diesen Link: <a href="/explore/fundings">https://community.mint-vernetzt.de/explore/fundings</a></p>',
         },
         whatIs: {
           question: "Was ist die Fördermittelsuche?",
           answer:
-            "<p>Die Fördermittelsuche listet MINT-relevante Förderungen, die jeden Montag neu von vier Fördermitteldatenbanken eingespeist werden. Die zusammengestellten Förderungen lassen sich filtern, so kannst Du passendere Ergebnisse zu erhalten.</p>",
+            "<p>Die Fördermittelsuche listet MINT-relevante Förderungen, die jeden Montag neu von vier Fördermitteldatenbanken eingespeist werden. Die zusammengestellten Förderungen lassen sich filtern, so kannst Du passendere Ergebnisse erhalten.</p>",
         },
         howTo: {
           question: "Wie kann ich eine spezifische Förderung finden?",
           answer:
-            "<p>Nutze die Filter, um gezielt nach Förderungen zu suchen, die speziell für Deine Region verfügbar sind oder die der Förderungsberechtigung z.B. von Vereinen entsprechen.</p><p>Beispiel: Stell Dir vor, Du filterst nach Förderungen und wählst zwei Optionen:</p><ul><li>Förderbereich: Bildung / Aus- und Weiterbildung</li><li>Region Bayern</li></ul><p>Mit einer UND-Verknüpfung werden dann nur die Förderungen angezeigt, die sowohl im Bereich Bildung als auch in Bayern verfügbar sind. Es ist daher sinnvoll verschiedene Filteroptionen zu testen.</p>",
+            "<p>Nutze die Filter, um gezielt nach Förderungen zu suchen, die speziell für Deine Region verfügbar sind oder die der Förderungsberechtigung z.B. von Vereinen entsprechen.</p><p>Beispiel: Stell Dir vor, Du filterst nach Förderungen und wählst zwei Optionen:</p><ul><li>Förderbereich: Bildung / Aus- und Weiterbildung</li><li>Region: Bayern</li></ul><p>Mit einer UND-Verknüpfung werden dann nur die Förderungen angezeigt, die sowohl im Bereich Bildung als auch in Bayern verfügbar sind. Es ist daher sinnvoll verschiedene Filteroptionen zu testen.</p>",
         },
         availableTypes: {
           question: "Welche Fördertypen sind verfügbar?",
@@ -389,7 +421,7 @@ export const locale = {
           question:
             "Die Fördermittelsuche funktioniert nicht. / Ich erhalte eine Error-Mitteilung. Was kann ich tun?",
           answer:
-            '<p>Du kannst uns helfen diesen Fehler zu beheben, indem Du uns einen Screenshot erstellst und diesen per Mail mit dem Betreff: “Fördermittelsuche” an <a href="mailto:community@mint-vernetzt.de">community@mint-vernetzt.de</a> sendest. Im besten Fall teilst Du uns auch Deinen Browser mit. Probiere auch die Seite neu zu laden, oft ist das Problem dann auch schon behoben.</p>',
+            '<p>Du kannst uns helfen diesen Fehler zu beheben, indem Du uns einen Screenshot erstellst und diesen per Mail mit dem Betreff: “Fördermittelsuche” an <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> sendest. Im besten Fall teilst Du uns auch Deinen Browser mit. Probiere auch die Seite neu zu laden, oft ist das Problem dann auch schon behoben.</p>',
         },
         feedback: {
           question: "Kann ich Feedback zur Fördermittelsuche geben?",

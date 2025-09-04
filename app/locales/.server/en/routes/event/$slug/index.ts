@@ -16,8 +16,6 @@ export const locale = {
     copy: "Copy URL",
     copied: "URL copied!",
     clock: "{{date}}, {{time}} o'clock",
-    backgroundImage: "Current background image",
-    borderOfImage: "Frame of the background image",
     back: "Explore events",
     change: "Change background",
     headline: "Background image",
