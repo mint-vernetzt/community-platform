@@ -14,7 +14,6 @@ export const locale = {
       required: "Please enter your last name.",
     },
   },
-  headline: "Personal information",
   general: {
     headline: "General",
     intro:

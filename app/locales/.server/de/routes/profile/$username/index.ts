@@ -23,7 +23,6 @@ export const locale = {
   },
   images: {
     currentBackground: "Aktuelles Hintergrundbild",
-    blurredBackground: "Rahmen des Hintergrundbildes",
   },
   section: {
     organizations: {

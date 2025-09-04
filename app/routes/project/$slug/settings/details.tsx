@@ -88,12 +88,9 @@ const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
       .trim()
       .max(
         EXCERPT_MAX_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.targetGroupAdditions.max,
-          {
-            max: EXCERPT_MAX_LENGTH,
-          }
-        )
+        insertParametersIntoLocale(locales.route.validation.excerpt.max, {
+          max: EXCERPT_MAX_LENGTH,
+        })
       )
       .optional()
       .transform((value) => {

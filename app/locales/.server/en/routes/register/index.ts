@@ -18,7 +18,6 @@ export const locale = {
         prof: "Prof.",
         profdr: "Prof. Dr.",
       },
-      cta: "Select title",
     },
     firstName: "First name *",
     lastName: "Last name *",

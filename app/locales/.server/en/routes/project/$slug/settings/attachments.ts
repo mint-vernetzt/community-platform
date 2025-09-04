@@ -46,7 +46,6 @@ export const locale = {
     document: {
       upload: "Upload documents",
       type: "File types: PDF. Max {{max}}MB.",
-
       action: "Upload file",
       added: "Added {{name}}",
       current: "Currently uploaded documents",

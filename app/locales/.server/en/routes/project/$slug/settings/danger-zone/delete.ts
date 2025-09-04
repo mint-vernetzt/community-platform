@@ -12,7 +12,6 @@ export const locale = {
       "The project could not be deleted. Please try again or contact support.",
   },
   content: {
-    deleted: 'Project "{{name}}" deleted.',
     confirmation:
       "Please enter the name of the project <0>{{name}}</0> to confirm deletion.",
     explanation:

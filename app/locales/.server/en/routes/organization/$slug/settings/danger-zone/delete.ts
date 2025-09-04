@@ -12,7 +12,6 @@ export const locale = {
       "The organization could not be deleted. Please try again or contact support.",
   },
   content: {
-    deleted: 'Organization "{{name}}" deleted.',
     confirmation:
       "Please enter the name of the organization <0>{{name}}</0> to confirm deletion.",
     explanation:

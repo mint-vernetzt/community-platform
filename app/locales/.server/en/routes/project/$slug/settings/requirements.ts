@@ -38,7 +38,6 @@ export const locale = {
   },
   error: {
     invalidRoute: "No valid route",
-    notLoggedIn: "Not logged in",
     projectNotFound: "Project not found",
     custom:
       "The data could not be saved. Please try again or contact the support team.",
@@ -46,8 +45,6 @@ export const locale = {
   content: {
     notFound: "Not found",
     success: "Data saved!",
-    prompt:
-      "You have unsaved changes. These will be lost if you go one step further now.",
     back: "Framework conditions",
     intro:
       "The information provided on the financial and personnel framework refers to the specified project, not to the organization in general. The information is intended to be a suggestion for those interested who want to use the project as inspiration.",

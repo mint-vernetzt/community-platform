@@ -56,7 +56,6 @@ export const locale = {
         subline:
           "Search for network organizations and add your organization as a network member.",
         label: "Name of network organization",
-        placeholder: "Search...",
         helper: "At least 3 characters.",
         searchCta: "Search",
         cta: "Request membership",
@@ -82,8 +81,6 @@ export const locale = {
         headline: "Pending membership requests",
         cancel: {
           cta: "Withdraw request",
-          success:
-            "You have successfully withdrawn the membership request for the network {{organization}}.",
         },
       },
     },
@@ -107,7 +104,6 @@ export const locale = {
         subline:
           "Search for organizations and add them to your network organization.",
         label: "Name of organization",
-        placeholder: "Search...",
         helper: "At least 3 characters.",
         helperWithoutNetwork: 'Requires organizational form "Network"',
         searchCta: "Search",
@@ -132,8 +128,6 @@ export const locale = {
         headline: "Organizations invited as members",
         cancel: {
           cta: "Withdraw invitation",
-          success:
-            "You have successfully withdrawn the invitation for the organization {{organization}}.",
         },
       },
     },

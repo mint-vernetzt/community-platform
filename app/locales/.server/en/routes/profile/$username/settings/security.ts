@@ -24,9 +24,6 @@ export const locale = {
     notAllowed: "Not allowed.",
     noStringIntent: "Intent must be a string.",
     wrongIntent: "Wrong intent.",
-    updatePasswordFailed: "Failed to update password.",
-    emailChangeFailed: "Failed to change email.",
-    sendEmailNoticeFailed: "Failed to send email notice.",
     emailAlreadyUsed: "This email address is already in use by another user.",
   },
   content: {

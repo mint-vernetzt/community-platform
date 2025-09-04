@@ -2,7 +2,6 @@ export const locale = {
   error: {
     notAccepted:
       "Bitte akzeptiere unsere Nutzungsbedingungen und bestätige, dass Du die Datenschutzerklärung gelesen hast.",
-    unauthorized: "Nicht autorisiert.",
   },
   content: {
     headline: "Nutzungsbedingungen akzeptieren",

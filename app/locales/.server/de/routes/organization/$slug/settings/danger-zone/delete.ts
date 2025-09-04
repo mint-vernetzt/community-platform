@@ -12,7 +12,6 @@ export const locale = {
       "Die Organisation konnte nicht gelöscht werden. Bitte versuche es erneut oder kontaktiere den Support.",
   },
   content: {
-    deleted: 'Organisation "{{name}}" gelöscht.',
     confirmation:
       "Bitte gib den Namen der Organisation <0>{{name}}</0> ein, um das Löschen zu bestätigen.",
     explanation:

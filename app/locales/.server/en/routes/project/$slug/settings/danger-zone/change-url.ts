@@ -1,6 +1,5 @@
 export const locale = {
   error: {
-    missingParameterSlug: 'Route parameter "slug" not found',
     invalidRoute: "No valid route",
   },
   validation: {
@@ -14,8 +13,6 @@ export const locale = {
   content: {
     label: "Project URL",
     feedback: "URL changed successfully.",
-    prompt:
-      "You have unsaved changes. These will be lost if you go one step further now.",
     reach:
       "Your project can currently be accessed via the following URL <0>{{url}}<1>{{slug}}</1></0>.",
     note: "If you change the URL of your project and have already shared the previous link, the project will no longer be accessible via the old link.",

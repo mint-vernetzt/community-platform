@@ -2,9 +2,6 @@ export const locale = {
   error: {
     invariant: {
       undefinedSlug: 'Route parameter "slug" not found',
-      adminsOnly: "Only admins can publish a project",
-      missingConfirmation: "Did not provide an conform.INTENT",
-      invalidIntent: "The intent value you provided is not a string",
       projectNotFound: "Project not found",
       projectNotPublished: "This project isn't published yet.",
     },

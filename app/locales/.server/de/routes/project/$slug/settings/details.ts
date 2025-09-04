@@ -47,8 +47,6 @@ export const locale = {
   },
   content: {
     feedback: "Daten gespeichert!",
-    nonPersistent:
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     back: "Projekt-Details",
     description:
       "Teile der Community mehr über Dein Projekt oder Bildungsangebot mit.",
@@ -144,14 +142,5 @@ export const locale = {
     },
     reset: "Änderungen verwerfen",
     submit: "Speichern",
-    error: {
-      additionalDisciplines: "Zusätzliche Disziplinen: {{list}}",
-      idea: "Ausführliche Beschreibung - Idee: {{list}}",
-      goals: "Ausführliche Beschreibung - Ziele: {{list}}",
-      implementation: "Ausführliche Beschreibung - Durchführung: {{list}}",
-      furtherDescription: "Ausführliche Beschreibung - Sonstiges: {{list}}",
-      targeting: "Ausführliche Beschreibung - Zielgruppenansprache: {{list}}",
-      hints: "Ausführliche Beschreibung - Tipps: {{list}}",
-    },
   },
 } as const;

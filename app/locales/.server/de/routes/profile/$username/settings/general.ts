@@ -14,7 +14,6 @@ export const locale = {
       required: "Bitte gib Deinen Nachnamen ein.",
     },
   },
-  headline: "Persönliche Daten",
   general: {
     headline: "Allgemein",
     intro:
@@ -89,8 +88,8 @@ export const locale = {
     intro: "Wonach suchst Du? Wie können Dich andere Mitglieder unterstützen?",
     form: {
       seeking: {
-        label: "",
-        placeholder: "",
+        label: "Angebot",
+        placeholder: "Füge Dein gewünschtes Angebot hinzu.",
       },
     },
   },

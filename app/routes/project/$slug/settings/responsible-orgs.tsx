@@ -438,7 +438,7 @@ function Team() {
               standalone
             >
               <Input.Label htmlFor={searchFields[SearchOrganizations].id}>
-                {locales.route.content.addOwn.search}
+                {locales.route.content.addOther.search.label}
               </Input.Label>
               <Input.SearchIcon />
 
@@ -455,7 +455,7 @@ function Team() {
                 ))
               ) : (
                 <Input.HelperText>
-                  {locales.route.content.addOwn.criteria}
+                  {locales.route.content.addOther.search.helper}
                 </Input.HelperText>
               )}
               <Input.ClearIcon

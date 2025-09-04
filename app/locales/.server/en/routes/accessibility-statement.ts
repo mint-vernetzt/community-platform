@@ -16,7 +16,6 @@ export const locale = {
     disclaimer:
       "The MINTvernetzt community platform is committed to making its digital infrastructure accessible. Currently, the platform is not yet fully accessible. We are continuously working to improve accessibility.",
     restrictions: {
-      title: "In particular, there are restrictions in the following areas:",
       userGeneratedContent: {
         title: "User-generated content",
         subline:

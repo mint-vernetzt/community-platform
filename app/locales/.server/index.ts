@@ -124,18 +124,10 @@ import { locale as deProjectDetail } from "./de/routes/project/$slug/detail";
 import { locale as deProjectSettings } from "./de/routes/project/$slug/settings";
 import { locale as deCreateProject } from "./de/routes/project/create";
 // register routes
-import { locale as deConfirmRegistration } from "./de/routes/register/confirm";
 import { locale as deRegister } from "./de/routes/register/index";
-import { locale as deVerifyRegistration } from "./de/routes/register/verify";
 // reset credentials routes
-import { locale as deConfirmEmailChange } from "./de/routes/reset/confirm-email";
-import { locale as deConfirmPasswordChange } from "./de/routes/reset/confirm-password";
 import { locale as deResetPassword } from "./de/routes/reset/index";
-import { locale as deSetNewEmail } from "./de/routes/reset/set-email";
 import { locale as deSetNewPassword } from "./de/routes/reset/set-password";
-// upload routes
-import { locale as deDeleteImage } from "./de/routes/upload/delete";
-import { locale as deUploadImage } from "./de/routes/upload/image";
 // accept terms route
 import { locale as deAcceptTerms } from "./de/routes/accept-terms";
 // accessibility-statement route
@@ -152,8 +144,6 @@ import { locale as deLanding } from "./de/routes/index";
 import { locale as deMap } from "./de/routes/map";
 // resources route
 import { locale as deResources } from "./de/routes/resources";
-// verification route
-import { locale as deVerification } from "./de/routes/verification";
 // splat routes
 import { locale as deSplat } from "./de/routes/$";
 // schemas
@@ -296,18 +286,10 @@ import { locale as enProjectDetail } from "./en/routes/project/$slug/detail";
 import { locale as enProjectSettings } from "./en/routes/project/$slug/settings";
 import { locale as enCreateProject } from "./en/routes/project/create";
 // register routes
-import { locale as enConfirmRegistration } from "./en/routes/register/confirm";
 import { locale as enRegister } from "./en/routes/register/index";
-import { locale as enVerifyRegistration } from "./en/routes/register/verify";
 // reset credentials routes
-import { locale as enConfirmEmailChange } from "./en/routes/reset/confirm-email";
-import { locale as enConfirmPasswordChange } from "./en/routes/reset/confirm-password";
 import { locale as enResetPassword } from "./en/routes/reset/index";
-import { locale as enSetNewEmail } from "./en/routes/reset/set-email";
 import { locale as enSetNewPassword } from "./en/routes/reset/set-password";
-// upload routes
-import { locale as enDeleteImage } from "./en/routes/upload/delete";
-import { locale as enUploadImage } from "./en/routes/upload/image";
 // accept terms route
 import { locale as enAcceptTerms } from "./en/routes/accept-terms";
 // accessibility-statement route
@@ -324,8 +306,6 @@ import { locale as enLanding } from "./en/routes/index";
 import { locale as enMap } from "./en/routes/map";
 // resources route
 import { locale as enResources } from "./en/routes/resources";
-// verification route
-import { locale as enVerification } from "./en/routes/verification";
 // splat routes
 import { locale as enSplat } from "./en/routes/$";
 // schemas
@@ -709,18 +689,10 @@ const de = {
   "project/$slug/settings": deProjectSettings,
   "project/create": deCreateProject,
   // register routes
-  "register/confirm": deConfirmRegistration,
   "register/index": deRegister,
-  "register/verify": deVerifyRegistration,
   // reset credentials routes
-  "reset/confirm-email": deConfirmEmailChange,
-  "reset/confirm-password": deConfirmPasswordChange,
   "reset/index": deResetPassword,
-  "reset/set-email": deSetNewEmail,
   "reset/set-password": deSetNewPassword,
-  // upload routes
-  "upload/delete": deDeleteImage,
-  "upload/image": deUploadImage,
   // accept terms route
   "accept-terms": deAcceptTerms,
   // accessibility-statement route
@@ -755,8 +727,6 @@ const de = {
   },
   // resources route
   resources: deResources,
-  // verification route
-  verification: deVerification,
   // splat routes
   $: deSplat,
   // datasets
@@ -1126,18 +1096,10 @@ const en = {
   "project/$slug/settings": enProjectSettings,
   "project/create": enCreateProject,
   // register routes
-  "register/confirm": enConfirmRegistration,
   "register/index": enRegister,
-  "register/verify": enVerifyRegistration,
   // reset credentials routes
-  "reset/confirm-email": enConfirmEmailChange,
-  "reset/confirm-password": enConfirmPasswordChange,
   "reset/index": enResetPassword,
-  "reset/set-email": enSetNewEmail,
   "reset/set-password": enSetNewPassword,
-  // upload routes
-  "upload/delete": enDeleteImage,
-  "upload/image": enUploadImage,
   // accept terms route
   "accept-terms": enAcceptTerms,
   // accessibility-statement route
@@ -1172,8 +1134,6 @@ const en = {
   },
   // resources route
   resources: enResources,
-  // verification route
-  verification: enVerification,
   // splat routes
   $: enSplat,
   // datasets
