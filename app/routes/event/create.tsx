@@ -35,15 +35,15 @@ import { invariantResponse } from "~/lib/utils/response";
 
 const createSchema = (locales: CreateEventLocales) => {
   return object({
-    name: string().required(locales.validation.name.required),
+    name: string().trim().required(locales.validation.name.required),
     startDate: string()
+      .trim()
       .transform((value) => {
-        value = value.trim();
         const date = new Date(value);
         return format(date, "yyyy-MM-dd");
       })
       .required(locales.validation.startDate.required),
-    startTime: string().required(locales.validation.startTime.required),
+    startTime: string().trim().required(locales.validation.startTime.required),
     endDate: greaterThanDate(
       "endDate",
       "startDate",
@@ -58,8 +58,8 @@ const createSchema = (locales: CreateEventLocales) => {
       locales.validation.endTime.required,
       locales.validation.endTime.greaterThan
     ),
-    child: nullOrString(string()),
-    parent: nullOrString(string()),
+    child: nullOrString(string().trim()),
+    parent: nullOrString(string().trim()),
   });
 };
 

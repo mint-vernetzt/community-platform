@@ -2,6 +2,8 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -27,6 +29,7 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import {
   BUCKET_FIELD_NAME,
@@ -47,9 +50,6 @@ import {
 } from "./documents.server";
 import { publishSchema, type action as publishAction } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { useEffect, useState } from "react";
-import { captureException } from "@sentry/node";
 
 export const createDocumentUploadSchema = (
   locales: EventDocumentsSettingsLocales
@@ -61,15 +61,17 @@ export const createEditDocumentSchema = (
   locales: EventDocumentsSettingsLocales
 ) =>
   z.object({
-    id: z.string(),
+    id: z.string().trim().uuid(),
     title: z
       .string()
+      .trim()
       .optional()
       .transform((value) =>
         typeof value === "undefined" || value === "" ? null : value
       ),
     description: z
       .string()
+      .trim()
       .max(
         DOCUMENT_DESCRIPTION_MAX_LENGTH,
         insertParametersIntoLocale(
@@ -86,7 +88,7 @@ export const createEditDocumentSchema = (
   });
 
 export const disconnectAttachmentSchema = z.object({
-  id: z.string(),
+  id: z.string().trim().uuid(),
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {

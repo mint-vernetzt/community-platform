@@ -24,9 +24,6 @@ export const locale = {
     notAllowed: "Not allowed.",
     noStringIntent: "Intent must be a string.",
     wrongIntent: "Wrong intent.",
-    updatePasswordFailed: "Passwortaktualisierung fehlgeschlagen.",
-    emailChangeFailed: "E-Mail-Änderung fehlgeschlagen.",
-    sendEmailNoticeFailed: "Fehler beim Senden der E-Mail-Benachrichtigung.",
     emailAlreadyUsed:
       "Diese E-Mail-Adresse wird bereits von einer anderen Person verwendet.",
   },

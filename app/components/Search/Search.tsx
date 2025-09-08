@@ -15,9 +15,16 @@ type DashboardSearchLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["dashboard"]["route"]["content"]["search"];
 
+type ExploreSearchLocales = (typeof languageModuleMap)[ArrayElement<
+  typeof SUPPORTED_COOKIE_LANGUAGES
+>]["explore"]["route"]["content"]["search"];
+
 export interface SearchProps {
   query?: string | null;
-  locales?: RootLocales["route"]["root"]["search"] | DashboardSearchLocales;
+  locales?:
+    | RootLocales["route"]["root"]["search"]
+    | DashboardSearchLocales
+    | ExploreSearchLocales;
   inputProps: React.HTMLProps<HTMLInputElement>;
   children?: React.ReactNode;
 }
@@ -271,7 +278,10 @@ function Search(props: SearchProps) {
 
 function ResultItem(props: {
   title: string;
-  locales?: RootLocales["route"]["root"]["search"] | DashboardSearchLocales;
+  locales?:
+    | RootLocales["route"]["root"]["search"]
+    | DashboardSearchLocales
+    | ExploreSearchLocales;
   entity?: keyof (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["root"]["route"]["root"]["search"]["entities"];

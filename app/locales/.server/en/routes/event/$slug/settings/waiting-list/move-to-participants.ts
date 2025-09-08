@@ -9,11 +9,6 @@ export const locale = {
   },
   error: {
     mailer: "Mailer issue",
-    env: {
-      url: "No community base url provided. Please add one inside the .env.",
-      sender:
-        "No system mail sender address provided. Please add one inside the .env.",
-    },
     notFound: {
       event: "Event not found",
       profile: "Profile not found",

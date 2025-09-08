@@ -47,8 +47,6 @@ export const locale = {
   },
   content: {
     feedback: "Data saved!",
-    nonPersistent:
-      "You have unsaved changes. These will be lost if you go one step further now.",
     back: "Project details",
     description:
       "Tell the community more about your project or educational offering.",
@@ -143,14 +141,5 @@ export const locale = {
     },
     reset: "Discard changes",
     submit: "Save",
-    error: {
-      additionalDisciplines: "Additional disciplines: {{list}}",
-      idea: "Detailed description - Idea: {{list}}",
-      goals: "Detailed description - Goals: {{list}}",
-      implementation: "Detailed description - Implementation: {{list}}",
-      furtherDescription: "Detailed description - Other: {{list}}",
-      targeting: "Detailed description - Targeting: {{list}}",
-      hints: "Detailed description - Tips for imitation: {{list}}",
-    },
   },
 } as const;

@@ -5,8 +5,6 @@ export const locale = {
   },
   content: {
     headline: "Responsible organizations",
-    intro:
-      "Which organization is responsible for your event? Add more organizations here or remove them.",
     add: {
       headline: "Add organization",
       intro: "Add an already existing organization to your event here.",

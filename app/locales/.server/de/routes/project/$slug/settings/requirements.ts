@@ -38,7 +38,6 @@ export const locale = {
   },
   error: {
     invalidRoute: "No valid route",
-    notLoggedIn: "Not logged in",
     projectNotFound: "Project not found",
     custom:
       "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
@@ -46,8 +45,6 @@ export const locale = {
   content: {
     notFound: "Not found",
     success: "Daten gespeichert!",
-    prompt:
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     back: "Rahmenbedingungen",
     intro:
       "Die genannten Informationen zu Finanziellem und personellem Rahmen beziehen sich auf das angegebene Projekt, nicht allgemein auf die Organisation. Die Infos sollen eine Anregung sein für Interessierte, die das Projekt als Inspiration nehmen wollen.",

@@ -1,22 +1,22 @@
 export const locale = {
   validation: {
     name: {
-      required: "Bitte gib den Namen der Veranstaltung an",
+      required: "Bitte gib den Namen des Events an",
     },
     startDate: {
-      required: "Bitte gib den Beginn der Veranstaltung an",
+      required: "Bitte gib den Beginn des Events an",
     },
     startTime: {
-      required: "Bitte gib den Beginn der Veranstaltung an",
+      required: "Bitte gib den Beginn des Events an",
     },
     endDate: {
-      required: "Bitte gib das Ende der Veranstaltung an",
+      required: "Bitte gib das Ende des Events an",
       greaterThan: "Das Enddatum darf nicht vor dem Startdatum liegen",
     },
     endTime: {
-      required: "Bitte gib das Ende der Veranstaltung an",
+      required: "Bitte gib das Ende des Events an",
       greaterThan:
-        "Die Veranstaltung findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
+        "Das Event findet an einem Tag statt. Dabei darf die Startzeit nicht nach der Endzeit liegen",
     },
     participationUntilDate: {
       required: "Bitte gib das Ende für die Registrierung an",
@@ -36,7 +36,7 @@ export const locale = {
     participationFromTime: {
       required: "Bitte gib den Beginn für die Registrierung an",
       greaterThan:
-        "Die Registrierungsphase startet am selben Tag wie die Veranstaltung. Dabei darf der Registrierungsstart nicht nach dem Veranstaltungsstart liegen",
+        "Die Registrierungsphase startet am selben Tag wie das Event. Dabei darf der Registrierungsstart nicht nach dem Eventstart liegen.",
     },
   },
   error: {
@@ -44,11 +44,11 @@ export const locale = {
     notPrivileged: "Not privileged",
   },
   content: {
-    headline: "Deine Veranstaltung",
+    headline: "Dein Event",
     start: {
       headline: "Start und Registrierung",
       intro:
-        "Wann startet deine Veranstaltung, wie lange dauert sie und wie viele Personen können teilnehmen? Hier kannst Du Einstellungen rund um das Thema Start und Registrierung vornehmen. Außerdem kannst Du die Veranstaltung veröffentlichen oder verstecken und gegebenenfalls absagen.",
+        "Wann startet Dein Event, wie lange dauert es und wie viele Personen können teilnehmen? Hier kannst Du Einstellungen rund um das Thema Start und Registrierung vornehmen. Außerdem kannst Du das Event veröffentlichen oder verstecken und gegebenenfalls absagen.",
     },
     cancel: "Absagen",
     revert: "Absage rückgängig machen",
@@ -56,7 +56,7 @@ export const locale = {
     generic: {
       headline: "Allgemein",
       intro:
-        "Wie heißt deine Veranstaltung? Was können potentiell Teilnehmende erwarten und wen möchtest Du damit abholen? Nehme hier allgemeine Einstellungen vor, wie beispielsweise der Name, die Beschreibung oder Zielgruppen und Inhalte deiner Veranstaltung. Hier kannst Du außerdem Schlagworte und die Veranstaltungstypen festlegen.",
+        "Wie heißt Dein Event? Was können potentiell Teilnehmende erwarten und wen möchtest Du damit abholen? Nehme hier allgemeine Einstellungen vor, wie beispielsweise der Name, die Beschreibung oder Zielgruppen und Inhalte Deines Events. Hier kannst Du außerdem Schlagworte und die Veranstaltungstypen festlegen.",
     },
     feedback: "Informationen wurden aktualisiert.",
   },

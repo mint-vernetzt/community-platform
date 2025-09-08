@@ -1,7 +1,6 @@
 export const locale = {
   error: {
     notFound: "Database entry not found",
-
     lastAdmin:
       "You cannot leave the project because you are the last admin. Press edit to appoint another admin or delete the project.",
     lastTeamMember:

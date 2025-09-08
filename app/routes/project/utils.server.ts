@@ -2,7 +2,7 @@ import { type User } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { type Mode, deriveMode } from "~/utils.server";
 
-export type ProjectMode = Mode | "admin" | "teamMember";
+type ProjectMode = Mode | "admin" | "teamMember";
 
 export async function deriveProjectMode(
   sessionUser: User | null,

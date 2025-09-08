@@ -7,7 +7,7 @@ export const locale = {
       headline: "Notifications",
       hide: "Hide notifications",
       show: "Show notifications",
-      canceled: "Event canceled",
+      cancelled: "Event cancelled",
       cta: "To my events",
       showMore: "Show more",
       showLess: "Show less",
@@ -56,7 +56,6 @@ export const locale = {
       headline: "Updates",
       hide: "Hide updates",
       show: "Show updates",
-
       entries: {
         actionDays: {
           headline: "Submit actions now",
@@ -132,26 +131,6 @@ export const locale = {
     allEvents: "All events",
     projects: "Projects",
     allProjects: "All projects",
-    externalTeasers: {
-      headline: "More about MINTvernetzt",
-      entries: {
-        website: {
-          headline: "Your networking office",
-          description: "Learn more about MINTvernetzt",
-          linkDescription: "To the MINTvernetzt website",
-        },
-        dataLab: {
-          headline: "MINT-DataLab",
-          description: "Find analyses, graphics and statistics about STEM",
-          linkDescription: "To the MINT-DataLab",
-        },
-        meshMint: {
-          headline: "MesH_MINT",
-          description: "Highlights from educational research",
-          linkDescription: "To MesH_MINT",
-        },
-      },
-    },
     invites: {
       headline_one: "You have {{count}} open invitation from an organization.",
       headline_other: "You have {{count}} open invitations from organizations.",

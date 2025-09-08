@@ -5,7 +5,7 @@ export const locale = {
     inputError: {
       doesNotExist: "Unter diesem Namen wurde keine Person gefunden.",
       alreadyIn:
-        "Eine Person mit diesem Namen ist bereits Speaker:in Eurer Veranstaltung.",
+        "Eine Person mit diesem Namen ist bereits Speaker:in Deines Events.",
     },
   },
   feedback:

@@ -23,7 +23,6 @@ export const locale = {
   },
   images: {
     currentBackground: "Aktuelles Hintergrundbild",
-    blurredBackground: "Rahmen des Hintergrundbildes",
   },
   section: {
     organizations: {
@@ -36,11 +35,11 @@ export const locale = {
       to: "Zum Projekt",
     },
     comingEvents: {
-      title: "Bevorstehende Veranstaltungen",
-      create: "Veranstaltung anlegen",
+      title: "Bevorstehende Events",
+      create: "Event anlegen",
     },
     pastEvents: {
-      title: "Vergangene Veranstaltungen",
+      title: "Vergangene Events",
     },
     event: {
       admin: "Administrator:in",

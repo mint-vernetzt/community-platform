@@ -19,7 +19,7 @@ import { type EventDetailLocales } from "../../index.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
-  profileId: z.string(),
+  profileId: z.string().trim().uuid(),
 });
 
 export const addToWaitingListSchema = schema;

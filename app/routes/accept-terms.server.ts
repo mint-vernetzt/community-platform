@@ -8,7 +8,7 @@ import { prismaClient } from "~/prisma.server";
 import { type User } from "@supabase/supabase-js";
 import { invariantResponse } from "~/lib/utils/response";
 
-export type AcceptTermsLocales = (typeof languageModuleMap)[ArrayElement<
+type AcceptTermsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["accept-terms"];
 

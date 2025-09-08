@@ -10,11 +10,6 @@ export const locale = {
     },
     passwordMismatch: "Die Passwörter stimmen nicht überein.",
   },
-  error: {
-    badRequest:
-      "Did not provide access or refresh token to reset the password.",
-    confirmation: "Deine Passwörter stimmen nicht überein.",
-  },
   content: {
     headline: "Neues Passwort vergeben",
     description:

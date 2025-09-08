@@ -64,12 +64,12 @@ import { QuestionMark } from "~/components-next/icons/QuestionMark";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const manageSchema = z.object({
-  organizationTypes: z.array(z.string().uuid()),
-  networkTypes: z.array(z.string().uuid()),
+  organizationTypes: z.array(z.string().trim().uuid()),
+  networkTypes: z.array(z.string().trim().uuid()),
 });
 
 export const updateNetworkSchema = z.object({
-  organizationId: z.string(),
+  organizationId: z.string().trim().uuid(),
 });
 
 export async function loader(args: LoaderFunctionArgs) {

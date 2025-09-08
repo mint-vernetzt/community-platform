@@ -16,7 +16,7 @@ import {
 } from "./remove-member.server";
 
 const schema = z.object({
-  profileId: z.string(),
+  profileId: z.string().trim().uuid(),
 });
 
 export const removeMemberSchema = schema;

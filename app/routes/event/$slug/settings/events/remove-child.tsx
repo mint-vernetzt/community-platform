@@ -12,7 +12,7 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { removeChildEventRelationOrThrow } from "./utils.server";
 
 const schema = z.object({
-  childEventId: z.string(),
+  childEventId: z.string().trim().uuid(),
 });
 
 export const removeChildSchema = schema;

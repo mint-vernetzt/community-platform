@@ -59,7 +59,6 @@ export const locale = {
         subline:
           "Suche die Netzwerk-Organisationen und füge Deine Organisation als Netzwerkmitglied hinzu.",
         label: "Name der Netzwerk-Organisation",
-        placeholder: "Suche...",
         helper: "Mindestens 3 Buchstaben.",
         searchCta: "Suchen",
         cta: "Beitritt anfragen",
@@ -85,8 +84,6 @@ export const locale = {
         headline: "Angefragte Netzwerkmitgliedschaften",
         cancel: {
           cta: "Beitrittsanfrage zurückziehen",
-          success:
-            "Du hast die Beitrittsanfrage zur Netzwerkmitgliedschaft bei {{organization}} erfolgreich zurückgezogen.",
         },
       },
     },
@@ -111,7 +108,6 @@ export const locale = {
         subline:
           "Suche die Organisationen, die zu Deiner Netzwerk-Organisation gehören und füge sie hinzu.",
         label: "Organisationsname",
-        placeholder: "Suche...",
         helper: "Mindestens 3 Buchstaben.",
         helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
         searchCta: "Suchen",
@@ -136,8 +132,6 @@ export const locale = {
         headline: "Als Mitglied eingeladene Organisationen",
         cancel: {
           cta: "Einladung zurückziehen",
-          success:
-            "Du hast die Einladung an die Organisation {{organization}} erfolgreich zurückgezogen.",
         },
       },
     },

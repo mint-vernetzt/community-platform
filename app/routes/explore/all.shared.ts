@@ -8,9 +8,10 @@ import { getFundingsSchema } from "./fundings.shared";
 const getSearchSchema = z.object({
   search: z
     .string()
+    .trim()
     .optional()
     .transform((value) => {
-      if (typeof value === "undefined") {
+      if (typeof value === "undefined" || value === "") {
         return [];
       }
       const words = value.split(" ").filter((word) => {

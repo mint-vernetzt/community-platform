@@ -9,8 +9,6 @@ export const locale = {
     notAdmin: "You are not an admin of the organization",
     acceptRequestFailed: "Membership request could not be accepted",
     rejectRequestFailed: "Membership request could not be rejected",
-    notAdminOrTeamMember:
-      "You are neither an admin nor a team member of the organization",
     lastAdmin:
       "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
     lastTeamMember:
@@ -58,10 +56,6 @@ export const locale = {
     subline:
       "Search for organizations, add yourself as a team member or create an organization.",
     create: "Create new organization",
-    toasts: {
-      organizationsFound:
-        "Organizations with this name already exist. Ask if you can join an organization.",
-    },
     createOrganizationMemberRequestCta: "Request to join",
     cancelOrganizationMemberRequestCta: "Cancel request to join",
     createOrganizationMemberRequest:
@@ -69,10 +63,8 @@ export const locale = {
     cancelOrganizationMemberRequest:
       "You have withdrawn your membership request to {{name}}.",
     label: "Organization name",
-    placeholder: "Search for organization...",
     helperText: "At least 3 letters.",
     searchCta: "Search",
-    alreadyAdmin: "already admin",
     alreadyMember: "already team member",
     alreadyRequested: "already requested",
     email: {
@@ -101,15 +93,10 @@ export const locale = {
     memberAccepted:
       "You have successfully joined the organization {{name}} as a team member.",
     rejected: "You have declined to join the organization {{name}}.",
-    more: "Show {{count}} more",
-    less: "Show {{count}} less",
     email: {
       subject: {
         accepted: "Your invitation has been accepted.",
         rejected: "Your invitation has been declined.",
-      },
-      button: {
-        text: "Zur Community Plattform",
       },
     },
   },
@@ -128,9 +115,6 @@ export const locale = {
         accepted: "Your invitation has been accepted.",
         rejected: "Your invitation has been declined.",
       },
-      button: {
-        text: "Zur Community Plattform",
-      },
     },
   },
   organizationMemberRequests: {
@@ -148,9 +132,6 @@ export const locale = {
         accepted: "Your membership request has been accepted.",
         rejected: "Your membership request has been declined.",
       },
-      button: {
-        text: "Zur Community Plattform",
-      },
     },
   },
   networkRequests: {
@@ -167,9 +148,6 @@ export const locale = {
       subject: {
         accepted: "Your membership request has been accepted.",
         rejected: "Your membership request has been declined.",
-      },
-      button: {
-        text: "Zur Community Plattform",
       },
     },
   },

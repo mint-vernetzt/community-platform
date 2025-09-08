@@ -51,23 +51,3 @@ export async function getAreaNameBySlug(slug: string) {
   }
   return area.name;
 }
-
-export function getPaginationValues(
-  request: Request,
-  options?: { itemsPerPage?: number; param?: string }
-) {
-  const { itemsPerPage = 12, param = "page" } = options || {};
-
-  const url = new URL(request.url);
-  const pageParam = url.searchParams.get(param) || "1";
-
-  let page = parseInt(pageParam);
-  if (Number.isNaN(page) || page < 1) {
-    page = 1;
-  }
-
-  const skip = itemsPerPage * (page - 1);
-  const take = itemsPerPage;
-
-  return { skip, take, page, itemsPerPage };
-}

@@ -10,11 +10,6 @@ export const locale = {
     },
     passwordMismatch: "Your passwords do not match. Please try again.",
   },
-  error: {
-    badRequest:
-      "Did not provide access or refresh token to reset the password.",
-    confirmation: "Your passwords do not match.",
-  },
   content: {
     headline: "Set new password",
     description:

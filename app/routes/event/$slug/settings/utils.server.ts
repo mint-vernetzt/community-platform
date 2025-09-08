@@ -52,11 +52,11 @@ export function validateTimePeriods(
     ) {
       const error = {
         endDate: {
-          message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+          message: `Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Events" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für Dein Event.`,
           errors: [
             {
               type: "notInParentPeriodOfTime",
-              message: `Deine Veranstaltung liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für deine Veranstaltung.`,
+              message: `Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung. Entferne entweder die Verknüpfung zur Rahmenveranstaltung unter "Verknüpfte Events" oder bestimme einen Zeitraum zwischen ${parentEvent.startTime} und ${parentEvent.endTime} für Dein Event.`,
             },
           ],
         },
@@ -103,11 +103,11 @@ export function validateTimePeriods(
     ) {
       const error = {
         endDate: {
-          message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+          message: `Die zugehörigen Events Deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Events unter "Verknüpfte Events" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für Dein Event.`,
           errors: [
             {
               type: "notInChildPeriodOfTime",
-              message: `Die zugehörigen Veranstaltungen deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Veranstaltungen unter "Verknüpfte Veranstaltungen" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für deine Veranstaltung.`,
+              message: `Die zugehörigen Events Deiner Veranstaltung liegen nicht im gewählten Zeitraum. Entferne entweder die Verknüpfung zu den zugehörigen Events unter "Verknüpfte Events" oder bestimme einen Zeitraum zwischen ${earliestStartTime} und ${latestEndTime} für Dein Event.`,
             },
           ],
         },

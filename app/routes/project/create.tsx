@@ -39,6 +39,7 @@ const createSchema = (locales: CreateProjectLocales) =>
       .string({
         required_error: locales.validation.projectName.required,
       })
+      .trim()
       .min(
         NAME_MIN_LENGTH,
         insertParametersIntoLocale(locales.validation.projectName.min, {

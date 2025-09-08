@@ -68,17 +68,17 @@ const DESCRIPTION_MAX_LENGTH = 2000;
 
 const createSchema = (locales: GeneralEventSettingsLocales) => {
   return object({
-    name: string().required(locales.route.validation.name.required),
+    name: string().trim().required(locales.route.validation.name.required),
     startDate: string()
+      .trim()
       .transform((value) => {
-        value = value.trim();
         const date = new Date(value);
         return format(date, "yyyy-MM-dd");
       })
       .required(locales.route.validation.startDate.required),
     startTime: string()
+      .trim()
       .transform((value: string) => {
-        value = value.trim();
         if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
           return value;
         }
@@ -130,28 +130,30 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
     description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
     descriptionRTEState: nullOrString(
-      string().transform((value: string | null | undefined) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      })
+      string()
+        .trim()
+        .transform((value: string | null | undefined) => {
+          if (typeof value === "undefined" || value === "") {
+            return null;
+          }
+          return value;
+        })
     ),
-    focuses: array(string().required()).required(),
-    eventTargetGroups: array(string().required()).required(),
-    experienceLevel: nullOrString(string()),
-    stage: nullOrString(string()),
-    types: array(string().required()).required(),
-    tags: array(string().required()).required(),
+    focuses: array(string().trim().uuid()).required(),
+    eventTargetGroups: array(string().trim().uuid()).required(),
+    experienceLevel: nullOrString(string().trim().uuid()),
+    stage: nullOrString(string().trim().uuid()),
+    types: array(string().trim().uuid()).required(),
+    tags: array(string().trim().uuid()).required(),
     conferenceLink: nullOrString(website()),
-    conferenceCode: nullOrString(string()),
-    venueName: nullOrString(string()),
-    venueStreet: nullOrString(string()),
-    venueStreetNumber: nullOrString(string()),
-    venueCity: nullOrString(string()),
-    venueZipCode: nullOrString(string()),
-    submit: string().required(),
-    privateFields: array(string().required()).required(),
+    conferenceCode: nullOrString(string().trim()),
+    venueName: nullOrString(string().trim()),
+    venueStreet: nullOrString(string().trim()),
+    venueStreetNumber: nullOrString(string().trim()),
+    venueCity: nullOrString(string().trim()),
+    venueZipCode: nullOrString(string().trim()),
+    submit: string().trim().required(),
+    privateFields: array(string().trim().required()).required(),
   });
 };
 

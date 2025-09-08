@@ -18,7 +18,7 @@ import {
 } from "./add-member.server";
 
 const schema = z.object({
-  profileId: z.string(),
+  profileId: z.string().trim().uuid(),
 });
 
 const environmentSchema = z.object({

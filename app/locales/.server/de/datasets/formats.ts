@@ -26,7 +26,7 @@ export const locale = assertFormatLocales({
     description: null,
   },
   event: {
-    title: "Veranstaltung",
+    title: "Event",
     description: null,
   },
   loan_system: {

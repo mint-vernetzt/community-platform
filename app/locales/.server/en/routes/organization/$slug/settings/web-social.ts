@@ -6,8 +6,6 @@ export const locale = {
   },
   content: {
     success: "Data saved!",
-    prompt:
-      "You have unsaved changes. These will be lost if you go one step further now.",
     back: "Website and social networks",
     intro: "Where can the community find out more about your organization?",
   },

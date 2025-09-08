@@ -1,9 +1,9 @@
 export const locale = {
-  back: "Zur Veranstaltung",
+  back: "Zum Event",
   content: {
-    headline: "Veranstaltung bearbeiten",
+    headline: "Event bearbeiten",
     general: "Allgemein",
-    linkedEvents: "Verknüpfte Veranstaltungen",
+    linkedEvents: "Verknüpfte Events",
     administrators: "Administrator:innen",
     team: "Team",
     speakers: "Vortragende",
@@ -11,6 +11,6 @@ export const locale = {
     waitingList: "Warteliste",
     organizations: "Verantwortliche Organisationen",
     documents: "Dokumente verwalten",
-    delete: "Veranstaltung löschen",
+    delete: "Event löschen",
   },
 } as const;

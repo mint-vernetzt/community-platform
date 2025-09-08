@@ -7,17 +7,17 @@ export const locale = {
       headline: "Tools",
       mediaDatabase: {
         imgAlt: "Four images arranged as tiles with a STEM reference.",
-        headline: "MINT-Mediendatenbank",
+        headline: "MINT Media Database",
         content:
           "Find free STEM images and graphics in our constantly expanding database to make your public relations work appealing and target group-oriented.",
-        action: "To the MINT-Mediendatenbank",
+        action: "To the MINT Media Database",
       },
       sharepic: {
         imgAlt: "An image of a young girl with VR glasses.",
-        headline: "MINT-Sharepic-Generator",
+        headline: "MINT Sharepic Generator",
         content:
-          "Create graphics for your public relations work easily and use your own images in compliance with data protection regulations or access images and graphics from the integrated MINT-Mediendatenbank.",
-        action: "To the Sharepic-Generator",
+          "Create graphics for your public relations work easily and use your own images in compliance with data protection regulations or access images and graphics from the integrated MINT Media Database.",
+        action: "To the MINT Sharepic Generator",
       },
       fundingSearch: {
         imgAlt: "A piggy bank.",

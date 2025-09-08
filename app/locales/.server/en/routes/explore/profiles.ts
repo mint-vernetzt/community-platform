@@ -1,19 +1,8 @@
 export const locale = {
-  headline: "Discover the community",
-  intro:
-    "Discover profiles from diverse individuals within the STEM community here.",
   filter: {
     title: "Filter",
     showFiltersLabel: "Filter profiles",
-
-    activityAreas: "Field of activity",
-    lookingFor: "I'm looking for",
-    support: "I want to support with",
     offers: "Competencies offered",
-    sort: {
-      label: "Sort by",
-    },
-
     areas: "Area of activity",
     searchAreaPlaceholder: "Enter area or location",
     searchAreaHelper: "At least 3 letters.",

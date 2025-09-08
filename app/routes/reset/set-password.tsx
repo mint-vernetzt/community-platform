@@ -36,7 +36,7 @@ export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
       .min(8, locales.validation.password.min),
     confirmPassword: z
       .string({
-        message: locales.validation.password.required,
+        message: locales.validation.confirmPassword.required,
       })
       .min(8, locales.validation.confirmPassword.min),
     loginRedirect: z.string().optional(),

@@ -20,14 +20,14 @@ export type GetEventsSchema = z.infer<typeof getEventsSchema>;
 export const getEventsSchema = z.object({
   evtFilter: z
     .object({
-      stage: z.string(),
-      focus: z.array(z.string()),
-      eventTargetGroup: z.array(z.string()),
+      stage: z.string().trim(),
+      focus: z.array(z.string().trim()),
+      eventTargetGroup: z.array(z.string().trim()),
       periodOfTime: z
         .enum(PERIOD_OF_TIME_VALUES)
         .optional()
         .transform((periodOfTime) => {
-          if (periodOfTime === undefined) {
+          if (typeof periodOfTime === "undefined") {
             return PERIOD_OF_TIME_VALUES[0];
           }
           return periodOfTime;
@@ -35,7 +35,7 @@ export const getEventsSchema = z.object({
     })
     .optional()
     .transform((filter) => {
-      if (filter === undefined) {
+      if (typeof filter === "undefined") {
         return {
           stage: "all",
           focus: [],
@@ -58,7 +58,7 @@ export const getEventsSchema = z.object({
     .number()
     .optional()
     .transform((page) => {
-      if (page === undefined) {
+      if (typeof page === "undefined") {
         return 1;
       }
       return page;

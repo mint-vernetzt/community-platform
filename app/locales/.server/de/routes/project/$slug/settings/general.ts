@@ -21,8 +21,6 @@ export const locale = {
   content: {
     notFound: "Not Found",
     feedback: "Daten gespeichert!",
-    prompt:
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     back: "Eckdaten anlegen",
     intro:
       "Teile der Community Grundlegendes über Dein Projekt oder Bildungsangebot mit.",

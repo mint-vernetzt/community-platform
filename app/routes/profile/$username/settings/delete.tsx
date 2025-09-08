@@ -184,7 +184,7 @@ export default function Index() {
 
       <h4 className="mv-mb-4 mv-font-semibold">{locales.content.subline}</h4>
 
-      <p className="mv-mb-8">{locales.content.headline}</p>
+      <p className="mv-mb-8">{locales.content.intro}</p>
 
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (

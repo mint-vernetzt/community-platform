@@ -1,6 +1,6 @@
 export const locale = {
   email: {
-    subject: "Deine Teilnahme an der Veranstaltung {{title}}",
+    subject: "Deine Teilnahme an dem Event {{title}}",
     supportContact: {
       firstName: "Kein zuständiges Teammitglied gefunden",
       lastName: "Kein zuständiges Teammitglied gefunden",
@@ -9,11 +9,6 @@ export const locale = {
   },
   error: {
     mailer: "Mailer Issue",
-    env: {
-      url: "No community base url provided. Please add one inside the .env.",
-      sender:
-        "No system mail sender address provided. Please add one inside the .env.",
-    },
     notFound: {
       event: "Event not found",
       profile: "Profile not found",

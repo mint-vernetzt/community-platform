@@ -3,8 +3,7 @@ export const locale = {
   create: "Event anlegen",
   placeholder: {
     title: "Du hast bislang an keinem Event teilgenommen.",
-    description:
-      "Erkunde Veranstaltungen und lerne die Community besser kennen.",
+    description: "Erkunde Events und lerne die Community besser kennen.",
     cta: "Events erkunden",
   },
   canceled: {

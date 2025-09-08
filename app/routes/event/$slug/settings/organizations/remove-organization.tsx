@@ -15,7 +15,7 @@ import {
 } from "./utils.server";
 
 const schema = z.object({
-  organizationId: z.string(),
+  organizationId: z.string().trim().uuid(),
 });
 
 export const removeOrganizationSchema = schema;
