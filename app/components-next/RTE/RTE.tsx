@@ -28,7 +28,6 @@ import {
   type LexicalEditor,
 } from "lexical";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { DefaultValuePlugin } from "./plugins/DefaultValuePlugin";
 import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
 import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
 import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
@@ -46,6 +45,8 @@ export type InputForFormProps = Omit<
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
 > & {
   contentEditableRef: React.RefObject<HTMLDivElement | null>;
+  htmlDefaultValue?: string | number | readonly string[];
+  rteStateDefaultValue?: string;
 };
 
 export type RTELocales =
@@ -64,7 +65,8 @@ function RTE(
   }
 ) {
   const {
-    defaultValue,
+    htmlDefaultValue,
+    rteStateDefaultValue,
     placeholder,
     maxLength,
     locales,
@@ -161,11 +163,12 @@ function RTE(
               }
               ErrorBoundary={LexicalErrorBoundary}
             />
-            <DefaultValuePlugin defaultValue={defaultValue} />
             <InputForFormPlugin
               {...rest}
-              contentEditableRef={contentEditableRef}
               legacyFormRegister={legacyFormRegister}
+              htmlDefaultValue={htmlDefaultValue}
+              rteStateDefaultValue={rteStateDefaultValue}
+              contentEditableRef={contentEditableRef}
             />
             <HistoryPlugin />
             <LinkPlugin

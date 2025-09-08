@@ -112,7 +112,9 @@ const TextArea = (
                     {...rteInputProps}
                     id={inputProps.id || label}
                     maxLength={inputProps.maxLength}
-                    defaultValue={rte.defaultValue}
+                    defaultValue={undefined}
+                    rteStateDefaultValue={rte.defaultValue}
+                    htmlDefaultValue={props.defaultValue}
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                     legacyFormRegister={rte.legacyFormRegister}

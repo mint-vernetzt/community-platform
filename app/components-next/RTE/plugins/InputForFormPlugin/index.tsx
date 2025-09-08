@@ -1,23 +1,61 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { type UseFormRegisterReturn } from "react-hook-form";
 import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
-import { type UseFormRegisterReturn } from "react-hook-form";
 
 function InputForFormPlugin(
-  props: Omit<InputForFormProps, "defaultValue"> & {
+  props: InputForFormProps & {
     legacyFormRegister?: UseFormRegisterReturn<
       "bioRTEState" | "descriptionRTEState"
     >;
   }
 ) {
-  const { contentEditableRef, legacyFormRegister, ...rest } = props;
+  const {
+    legacyFormRegister,
+    htmlDefaultValue,
+    rteStateDefaultValue,
+    contentEditableRef,
+    ...rest
+  } = props;
   const [editor] = useLexicalComposerContext();
-  const [htmlValue, setHtmlValue] = useState("");
-  const [editorStateValue, setEditorStateValue] = useState("");
+  const [htmlValue, setHtmlValue] = useState(
+    typeof htmlDefaultValue === "string" ? htmlDefaultValue : ""
+  );
+  const [editorStateValue, setEditorStateValue] = useState(
+    typeof rteStateDefaultValue === "string" ? rteStateDefaultValue : ""
+  );
+  const [editorStateInitialized, setEditorStateInitialized] = useState(false);
 
-  // Synchronize the values of the inputs with the editor content
   useEffect(() => {
-    return editor.registerUpdateListener(() => {
+    // First init the editor state
+    editor.update(
+      () => {
+        if (typeof rteStateDefaultValue === "string") {
+          const editorState = editor.parseEditorState(rteStateDefaultValue);
+          if (editorState.isEmpty() === false) {
+            editor.setEditorState(editorState);
+          }
+        }
+        setEditorStateInitialized(true);
+      },
+      {
+        discrete: true,
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (editorStateInitialized === false) {
+      return;
+    }
+    // Second, synchronize the values of the inputs with the editor content on update
+    let isFirstUpdate = true;
+    const onEditorUpdate = () => {
+      if (isFirstUpdate) {
+        isFirstUpdate = false;
+        return; // Ignore the first update event
+      }
       if (contentEditableRef.current !== null) {
         editor.read(() => {
           if (contentEditableRef.current !== null) {
@@ -25,16 +63,24 @@ function InputForFormPlugin(
             if (htmlString === "<p><br></p>") {
               setHtmlValue("");
             } else {
-              setHtmlValue(htmlString);
+              setHtmlValue(
+                htmlString.replaceAll(
+                  /^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g,
+                  ""
+                )
+              );
             }
-            const editorState = editor.getEditorState();
-            const editorStateJSON = JSON.stringify(editorState);
-            setEditorStateValue(editorStateJSON);
           }
         });
       }
-    });
-  }, [editor, contentEditableRef]);
+      editor.read(() => {
+        const editorState = editor.getEditorState();
+        const editorStateJSON = JSON.stringify(editorState.toJSON());
+        setEditorStateValue(String(editorStateJSON));
+      });
+    };
+    return editor.registerUpdateListener(onEditorUpdate);
+  }, [editorStateInitialized, contentEditableRef, editor]);
 
   return (
     <>
