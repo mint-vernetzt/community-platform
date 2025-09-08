@@ -7,7 +7,7 @@ export const locale = {
       headline: "Mitteilungen",
       hide: "Mitteilungen ausblenden",
       show: "Mitteilungen einblenden",
-      canceled: "Veranstaltung abgesagt",
+      cancelled: "Event abgesagt",
       cta: "Zu meinen Events",
       showMore: "Weitere anzeigen",
       showLess: "Weniger anzeigen",
@@ -128,30 +128,10 @@ export const locale = {
     allProfiles: "Alle Personen",
     organizations: "Organisationen",
     allOrganizations: "Alle Organisationen",
-    events: "Veranstaltungen",
-    allEvents: "Alle Veranstaltungen",
+    events: "Events",
+    allEvents: "Alle Events",
     projects: "Projekte",
     allProjects: "Alle Projekte",
-    externalTeasers: {
-      headline: "Mehr zu MINTvernetzt",
-      entries: {
-        website: {
-          headline: "Eure Vernetzungsstelle",
-          description: "Erfahre mehr über MINTvernetzt",
-          linkDescription: "Zur MINTvernetzt Website",
-        },
-        dataLab: {
-          headline: "MINT-DataLab",
-          description: "Finde Analysen, Grafiken und Statistiken rund um MINT",
-          linkDescription: "Zum MINT-DataLab",
-        },
-        meshMint: {
-          headline: "MesH_MINT",
-          description: "Highlights aus der Bildungsforschung",
-          linkDescription: "Zu MesH_MINT",
-        },
-      },
-    },
     invites: {
       headline_one:
         "Du hast {{count}} offene Einladung von einer Organisation.",

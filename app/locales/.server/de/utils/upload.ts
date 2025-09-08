@@ -12,7 +12,6 @@ export const locale = {
   selection: {
     select: "Datei auswählen",
     empty: "Du hast keine Datei ausgewählt.",
-    selected: "{{name}} ausgewählt.",
   },
   success: {
     imageAdded: "{{imageType}} hinzugefügt",

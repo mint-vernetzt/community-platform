@@ -21,8 +21,6 @@ export const locale = {
   content: {
     notFound: "Not Found",
     feedback: "Data saved!",
-    prompt:
-      "You have unsaved changes. These will be lost if you go one step further now.",
     back: "Create key data",
     intro:
       "Share basic information about your project or educational offering with the community.",

@@ -1,5 +1,4 @@
 export const locale = {
-  contextMenu: "Context menu",
   nonPublic: "-not public-",
   nonStated: "-not specified-",
   match: "Match",

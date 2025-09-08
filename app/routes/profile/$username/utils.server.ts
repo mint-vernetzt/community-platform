@@ -19,7 +19,7 @@ import {
 } from "~/utils.server";
 import { type ProfileQuery } from "./index.server";
 
-export type ProfileMode = Mode | "owner";
+type ProfileMode = Mode | "owner";
 
 export async function deriveProfileMode(
   sessionUser: User | null,

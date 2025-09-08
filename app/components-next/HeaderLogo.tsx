@@ -1,10 +1,11 @@
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
+import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MapLocales } from "~/routes/map.server";
 
 export function HeaderLogo(
   props: {
-    locales?: RootLocales | MapLocales;
+    locales?: RootLocales | MapLocales | ExploreOrganizationsLocales;
     showLabel?: boolean;
   } & React.SVGProps<SVGSVGElement>
 ) {

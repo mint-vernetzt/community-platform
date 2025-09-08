@@ -1351,7 +1351,10 @@ export default function MyOrganizations() {
                                     className="mv-text-wrap @sm:mv-text-nowrap"
                                     disabled={isSubmitting}
                                   >
-                                    {locales.route.networkInvites.decline}
+                                    {
+                                      locales.route.organizationMemberRequests
+                                        .decline
+                                    }
                                   </Button>
                                   <Button
                                     fullSize
@@ -1361,7 +1364,10 @@ export default function MyOrganizations() {
                                     className="mv-text-wrap @sm:mv-text-nowrap"
                                     disabled={isSubmitting}
                                   >
-                                    {locales.route.networkInvites.accept}
+                                    {
+                                      locales.route.organizationMemberRequests
+                                        .accept
+                                    }
                                   </Button>
                                 </div>
                               </ListItem>
@@ -1475,7 +1481,7 @@ export default function MyOrganizations() {
                                   className="mv-text-wrap @sm:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
-                                  {locales.route.networkInvites.decline}
+                                  {locales.route.networkRequests.decline}
                                 </Button>
                                 <Button
                                   fullSize
@@ -1485,7 +1491,7 @@ export default function MyOrganizations() {
                                   className="mv-text-wrap @sm:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
-                                  {locales.route.networkInvites.accept}
+                                  {locales.route.networkRequests.accept}
                                 </Button>
                               </div>
                             </ListItem>

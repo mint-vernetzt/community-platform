@@ -9,8 +9,6 @@ export const locale = {
     notAdmin: "Du bist kein Admin der Organisation",
     acceptRequestFailed: "Beitrittsanfrage konnte nicht angenommen werden",
     rejectRequestFailed: "Beitrittsanfrage konnte nicht abgelehnt werden",
-    notAdminOrTeamMember:
-      "Du bist kein Admin oder Teammitglied der Organisation",
     lastAdmin:
       "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
     lastTeamMember:
@@ -58,10 +56,6 @@ export const locale = {
     subline:
       "Suche Organisationen, füge Dich als Teammitglied hinzu oder lege eine Organisation an.",
     create: "Neue Organisation anlegen",
-    toasts: {
-      organizationsFound:
-        "Es existieren bereits Organisationen mit diesem Namen. Frage an, ob Du einer Organisation beitreten kannst.",
-    },
     createOrganizationMemberRequestCta: "Beitritt anfragen",
     cancelOrganizationMemberRequestCta: "Beitrittsanfrage zurückziehen",
     createOrganizationMemberRequest:
@@ -69,10 +63,8 @@ export const locale = {
     cancelOrganizationMemberRequest:
       "Du hast die Beitrittsanfrage zur Organisation {{name}} zurückgezogen.",
     label: "Organisationsname",
-    placeholder: "Organisation suchen...",
     helperText: "Mindestens 3 Buchstaben.",
     searchCta: "Suchen",
-    alreadyAdmin: "bereits Administrator:in",
     alreadyMember: "bereits Teammitglied",
     alreadyRequested: "bereits angefragt",
     email: {
@@ -101,15 +93,10 @@ export const locale = {
     memberAccepted:
       "Du bist erfolgreich der Organisation {{name}} als Teammitglied beigetreten.",
     rejected: "Du hast den Beitritt zur Organisation {{name}} abgelehnt.",
-    more: "{{count}} weitere anzeigen",
-    less: "{{count}} weniger anzeigen",
     email: {
       subject: {
         accepted: "Deine Einladung wurde angenommen.",
         rejected: "Deine Einladung wurde abgelehnt.",
-      },
-      button: {
-        text: "Zur Community Plattform",
       },
     },
   },
@@ -128,9 +115,6 @@ export const locale = {
         accepted: "Deine Einladung wurde angenommen.",
         rejected: "Deine Einladung wurde abgelehnt.",
       },
-      button: {
-        text: "Zur Community Plattform",
-      },
     },
   },
   organizationMemberRequests: {
@@ -148,9 +132,6 @@ export const locale = {
         accepted: "Deine Beitrittsanfrage wurde bestätigt.",
         rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
       },
-      button: {
-        text: "Zur Community Plattform",
-      },
     },
   },
   networkRequests: {
@@ -167,9 +148,6 @@ export const locale = {
       subject: {
         accepted: "Deine Beitrittsanfrage wurde bestätigt.",
         rejected: "Deine Beitrittsanfrage wurde abgelehnt.",
-      },
-      button: {
-        text: "Zur Community Plattform",
       },
     },
   },

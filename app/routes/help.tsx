@@ -17,6 +17,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     "abuse_report",
     "provisional_organizations",
     "map_embed",
+    "events",
   ]);
   return {
     abilities,

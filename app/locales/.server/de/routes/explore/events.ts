@@ -1,12 +1,9 @@
 export const locale = {
-  title: "Entdecke Veranstaltungen",
-  intro: "Finde aktuelle Veranstaltungen der MINT-Community.",
   filter: {
     title: "Filter",
-    showFiltersLabel: "Veranstaltungen filtern",
+    showFiltersLabel: "Events filtern",
     showMore: "Mehr anzeigen",
     showLess: "Weniger anzeigen",
-    types: "Veranstaltungsart",
     focuses: "Schwerpunkte",
     targetGroups: "Zielgruppe",
     periodOfTime: {
@@ -17,7 +14,7 @@ export const locale = {
         nextWeek: "Nächste Woche",
         thisMonth: "Diesen Monat",
         nextMonth: "Nächsten Monat",
-        past: "Vergangene Veranstaltungen",
+        past: "Vergangene Events",
       },
     },
     apply: "Filter anwenden",
@@ -33,15 +30,12 @@ export const locale = {
     stage: "Veranstaltungsart",
     close: "Filter schliepen",
   },
-
-  empty: "Es konnten leider keine Veranstaltungen gefunden werden.",
+  empty: "Es konnten leider keine Events gefunden werden.",
   more: "Weitere laden",
-
   notShown_one:
-    "{{count}} Veranstaltung kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
+    "{{count}} Event kann nicht angezeigt werden, da es die angegebenen Filterkriterien als private Information gekennzeichnet hat. Private Informationen sind nur für angemeldete Personen sichtbar.",
   notShown_other:
-    "{{count}} Veranstaltungen können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
-
-  showNumberOfItems_one: "{{count}} Veranstaltung anzeigen",
-  showNumberOfItems_other: "{{count}} Veranstaltungen anzeigen",
+    "{{count}} Events können nicht angezeigt werden, da sie die angegebenen Filterkriterien als private Information gekennzeichnet haben. Private Informationen sind nur für angemeldete Personen sichtbar.",
+  showNumberOfItems_one: "{{count}} Event anzeigen",
+  showNumberOfItems_other: "{{count}} Events anzeigen",
 } as const;

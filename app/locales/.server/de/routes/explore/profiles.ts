@@ -1,18 +1,8 @@
 export const locale = {
-  headline: "Entdecke die Community",
-  intro: "Hier findest Du die Profile von Akteur:innen der MINT-Community.",
   filter: {
     title: "Filter",
     showFiltersLabel: "Personen filtern",
-
-    activityAreas: "Aktivitätsgebiet",
-    lookingFor: "Ich suche",
-    support: "Ich möchte unterstützen mit",
     offers: "Angebotene Kompetenzen",
-    sort: {
-      label: "Sortieren nach",
-    },
-
     areas: "Aktivitätsgebiet",
     searchAreaPlaceholder: "Ort oder Gebiet eingeben",
     searchAreaHelper: "Mindestens 3 Buchstaben.",

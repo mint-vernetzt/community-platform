@@ -3,21 +3,21 @@ export const locale = {
     eventNotFound: "Event not found",
     profileNotFound: "Profile not found",
     notPrivileged: "Not privileged",
-    input: "Der Name der Veranstaltung ist nicht korrekt",
-    delete: "Die Veranstaltung konnte nicht gelöscht werden.",
+    input: "Der Name des Events ist nicht korrekt",
+    delete: "Das Event konnte nicht gelöscht werden.",
   },
   content: {
-    headline: "Veranstaltung löschen",
+    headline: "Event löschen",
     intro:
-      'Bitte gib den Namen der Veranstaltung "{{name}}" ein, um das Löschen zu bestätigen. Wenn Du danach auf "Veranstaltung löschen" klickst, wird Eure Veranstaltung ohne erneute Abfrage gelöscht.',
-    list: "Folgende Veranstaltung und zugehörige Veranstaltung werden auch gelöscht:",
+      'Bitte gib den Namen des Events "{{name}}" ein, um das Löschen zu bestätigen. Wenn Du danach auf "Event löschen" klickst, wird Euer Event ohne erneute Abfrage gelöscht.',
+    list: "Folgende Events und zugehörige Events werden auch gelöscht:",
   },
   form: {
     eventName: {
       label: "Löschung bestätigen",
     },
     submit: {
-      label: "Veranstaltung löschen",
+      label: "Event löschen",
     },
     publish: {
       label: "Veröffentlichen",

@@ -12,7 +12,6 @@ export const locale = {
   selection: {
     select: "Choose file",
     empty: "Please choose a file.",
-    selected: "Selected {{name}}.",
   },
   success: {
     imageAdded: "{{imageType}} added",

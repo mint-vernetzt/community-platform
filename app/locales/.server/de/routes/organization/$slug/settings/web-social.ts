@@ -6,8 +6,6 @@ export const locale = {
   },
   content: {
     success: "Daten gespeichert!",
-    prompt:
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
     back: "Website und Soziale Netzwerke",
     intro: "Wo kann die Community mehr über Deine Organisation erfahren?",
   },

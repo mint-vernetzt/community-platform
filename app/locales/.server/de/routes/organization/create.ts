@@ -36,8 +36,6 @@ export const locale = {
         email: {
           subject: {
             requested: "Deine Organisation hat eine Mitgliedsanfrage erhalten.",
-            canceled:
-              "Eine Mitgliedsanfrage an Deine Organisation wurde zurückgezogen.",
           },
           button: {
             text: "Zur Community Plattform",

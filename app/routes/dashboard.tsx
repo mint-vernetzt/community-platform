@@ -1350,7 +1350,7 @@ function Dashboard() {
                       <h3 className="mv-text-negative-700 mv-text-xs mv-font-bold mv-leading-4">
                         {
                           loaderData.locales.route.content.notifications
-                            .canceled
+                            .cancelled
                         }
                       </h3>
                       <p className="mv-line-clamp-2 mv-text-neutral-700 mv-text-2xl mv-font-bold mv-leading-[26px]">

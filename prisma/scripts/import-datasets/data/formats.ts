@@ -37,7 +37,7 @@ export const formats = [
   },
   {
     id: "1226a83d-0d02-4def-be8d-202c3c36860a",
-    title: "Veranstaltung",
+    title: "Event",
     slug: "event",
     description: null,
   },

@@ -30,7 +30,7 @@ export function detectLanguage(request: Request) {
   return nextDetectLanguage(request);
 }
 
-export async function getProfileTagsBySearchQuery(
+async function getProfileTagsBySearchQuery(
   searchQuery: string,
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
@@ -113,7 +113,7 @@ export async function getProfileTagsBySearchQuery(
   return [...offersAndSeekings, ...normalizedAreas];
 }
 
-export async function getOrganizationTagsBySearchQuery(
+async function getOrganizationTagsBySearchQuery(
   searchQuery: string,
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
@@ -248,7 +248,7 @@ export async function getOrganizationTagsBySearchQuery(
   ];
 }
 
-export async function getProjectTagsBySearchQuery(
+async function getProjectTagsBySearchQuery(
   searchQuery: string,
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
@@ -442,7 +442,7 @@ export async function getProjectTagsBySearchQuery(
   ];
 }
 
-export async function getEventTagsBySearchQuery(
+async function getEventTagsBySearchQuery(
   searchQuery: string,
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>
 ) {
@@ -646,7 +646,7 @@ export async function getEventTagsBySearchQuery(
   ];
 }
 
-export async function getFundingTagsBySearchQuery(searchQuery: string) {
+async function getFundingTagsBySearchQuery(searchQuery: string) {
   // Get all tags that match the search query and have entities associated with them
   // Categories are funding areas, funders, types, regions and eligible entities
   const words = searchQuery
@@ -748,7 +748,7 @@ export async function getFundingTagsBySearchQuery(searchQuery: string) {
   ];
 }
 
-export async function getProfilesBySearchQuery(searchQuery: string) {
+async function getProfilesBySearchQuery(searchQuery: string) {
   const words = searchQuery.split(" ").filter((word) => {
     return word.length > 0 && word !== "";
   });
@@ -797,7 +797,7 @@ export async function getProfilesBySearchQuery(searchQuery: string) {
   return normalizedProfiles;
 }
 
-export async function getOrganizationsBySearchQuery(searchQuery: string) {
+async function getOrganizationsBySearchQuery(searchQuery: string) {
   const words = searchQuery.split(" ").filter((word) => {
     return word.length > 0 && word !== "";
   });
@@ -835,7 +835,7 @@ export async function getOrganizationsBySearchQuery(searchQuery: string) {
   return normalizedOrganizations;
 }
 
-export async function getEventsBySearchQuery(searchQuery: string) {
+async function getEventsBySearchQuery(searchQuery: string) {
   const words = searchQuery.split(" ").filter((word) => {
     return word.length > 0 && word !== "";
   });
@@ -874,7 +874,7 @@ export async function getEventsBySearchQuery(searchQuery: string) {
   return normalizedEvents;
 }
 
-export async function getProjectsBySearchQuery(searchQuery: string) {
+async function getProjectsBySearchQuery(searchQuery: string) {
   const words = searchQuery.split(" ").filter((word) => {
     return word.length > 0 && word !== "";
   });
@@ -913,7 +913,7 @@ export async function getProjectsBySearchQuery(searchQuery: string) {
   return normalizedProjects;
 }
 
-export async function getFundingsBySearchQuery(searchQuery: string) {
+async function getFundingsBySearchQuery(searchQuery: string) {
   const words = searchQuery.split(" ").filter((word) => {
     return word.length > 0 && word !== "";
   });

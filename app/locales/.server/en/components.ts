@@ -1,5 +1,4 @@
 export const locale = {
-  EventListItem: {},
   EventListItemContent: {
     onWaitingList: "on waiting list",
     unlimitedSeats: "Unlimited seats",

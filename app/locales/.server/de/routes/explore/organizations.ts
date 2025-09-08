@@ -1,10 +1,5 @@
 export const locale = {
-  title: "Entdecke Organisationen",
-  intro: "Hier findest Du Organisationen und Netzwerke.",
   filter: {
-    sort: {
-      label: "Sortieren nach",
-    },
     title: "Filter",
     showFiltersLabel: "Organisationen filtern",
     showMore: "Mehr anzeigen",

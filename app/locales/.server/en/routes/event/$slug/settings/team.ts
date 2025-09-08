@@ -17,7 +17,6 @@ export const locale = {
     current: {
       headline: "Current team members",
       intro: "Here you can see all members of the event team at a glance.",
-      remove: "Remove",
     },
     hide: "Hide",
     publish: "Publish",

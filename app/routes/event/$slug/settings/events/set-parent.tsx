@@ -81,7 +81,7 @@ export const action = async (args: ActionFunctionArgs) => {
       result.data.parentEventName !== undefined
     ) {
       return {
-        message: `Die Veranstaltung "${result.data.parentEventName}" ist jetzt Rahmenveranstaltung für Eure Veranstaltung.`,
+        message: `Das Event "${result.data.parentEventName}" ist jetzt Rahmenveranstaltung für Dein Event.`,
       };
     } else {
       return {

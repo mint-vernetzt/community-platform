@@ -119,7 +119,7 @@ export const createEditImageSchema = (
       .max(
         IMAGE_DESCRIPTION_MAX_LENGTH,
         insertParametersIntoLocale(
-          locales.route.validation.document.description.max,
+          locales.route.validation.image.description.max,
           {
             max: IMAGE_DESCRIPTION_MAX_LENGTH,
           }
@@ -1024,6 +1024,12 @@ function Attachments() {
                                       .label
                                   }
                                 </Input.Label>
+                                <Input.HelperText>
+                                  {
+                                    locales.route.content.editModal.description
+                                      .helper
+                                  }
+                                </Input.HelperText>
                                 {typeof editImageFields.description.errors !==
                                   "undefined" &&
                                 editImageFields.description.errors.length > 0
