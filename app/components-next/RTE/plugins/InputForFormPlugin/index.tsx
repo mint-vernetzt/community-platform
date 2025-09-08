@@ -2,6 +2,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { type UseFormRegisterReturn } from "react-hook-form";
 import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
+import { $getSelection } from "lexical";
 
 function InputForFormPlugin(
   props: InputForFormProps & {
@@ -50,11 +51,13 @@ function InputForFormPlugin(
       return;
     }
     // Second, synchronize the values of the inputs with the editor content on update
-    let isFirstUpdate = true;
     const onEditorUpdate = () => {
-      if (isFirstUpdate) {
-        isFirstUpdate = false;
-        return; // Ignore the first update event
+      let selection = null;
+      editor.read(() => {
+        selection = $getSelection();
+      });
+      if (selection === null) {
+        return; // Ignore update events that where not caused by user input
       }
       if (contentEditableRef.current !== null) {
         editor.read(() => {
