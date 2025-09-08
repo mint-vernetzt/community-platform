@@ -24,10 +24,6 @@ export const locale = {
       regex:
         "Your input does not match the format of a Twitter page (https://x.com/... or https://twitter.com/...).",
     },
-    mastodon: {
-      regex:
-        "Your input does not match the format of a Mastodon page (https://domain.tld/...).",
-    },
     bluesky: {
       regex:
         "Your input does not match the format of a Blue Sky page (https://bsky.app/...).",
