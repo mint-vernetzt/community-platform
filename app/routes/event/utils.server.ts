@@ -3,7 +3,7 @@ import { zonedTimeToUtc } from "date-fns-tz";
 import { prismaClient } from "~/prisma.server";
 import { deriveMode, type Mode } from "~/utils.server";
 
-export type EventMode = Mode | "admin";
+type EventMode = Mode | "admin";
 
 export async function deriveEventMode(
   sessionUser: User | null,

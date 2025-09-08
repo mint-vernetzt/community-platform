@@ -125,21 +125,6 @@ export const createTwitterSchema = (locales: WebAndSocialLocales) =>
 export const createMastodonSchema = (locales: WebAndSocialLocales) =>
   createWebsiteSchema(locales);
 
-export const createBlueskySchema = (locales: WebAndSocialLocales) =>
-  z
-    .string()
-    .trim()
-    .regex(/^(https:\/\/)([a-z0-9]+\.)?bsky.app\/.+$|^$/, {
-      message: locales.schemas.validation.bluesky.regex,
-    })
-    .optional()
-    .transform((value) => {
-      if (typeof value === "undefined" || value === "") {
-        return null;
-      }
-      return value;
-    });
-
 export const createTiktokSchema = (locales: WebAndSocialLocales) =>
   z
     .string()

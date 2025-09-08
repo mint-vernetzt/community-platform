@@ -5,7 +5,7 @@ import { type languageModuleMap } from "~/locales/.server";
 import { getFullDepthProfiles } from "../utils.server";
 import { invariantResponse } from "~/lib/utils/response";
 
-export type EventCsvDownloadLocales = (typeof languageModuleMap)[ArrayElement<
+type EventCsvDownloadLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["event/$slug/settings/csv-download"];
 
