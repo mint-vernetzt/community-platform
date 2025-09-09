@@ -712,7 +712,7 @@ export default function MyOrganizations() {
                 </div>
               </li>
             </ol>
-            <div className="mv-hidden group-has-[:checked]:mv-block mv-mb-2">
+            <div className="mv-hidden group-has-[:checked]:mv-block mv-mb-2 mv-ml-7">
               <p className="mv-pb-2">{locales.route.networkInfo.faq.info}</p>
               <Link
                 to={"/help#organizations"}
