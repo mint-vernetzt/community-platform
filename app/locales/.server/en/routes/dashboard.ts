@@ -57,6 +57,12 @@ export const locale = {
       hide: "Hide updates",
       show: "Show updates",
       entries: {
+        mapView: {
+          headline: "New feature",
+          description:
+            "The new STEM community map shows you who is active where!",
+          linkDescription: "Try out now",
+        },
         actionDays: {
           headline: "Submit actions now",
           description: "Help shape the program of the digital STEM action days",
