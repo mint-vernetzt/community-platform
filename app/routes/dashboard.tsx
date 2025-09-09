@@ -639,14 +639,14 @@ function getDataForUpdateTeasers() {
     };
   };
   const teaserData: AtLeastOne<UpdateTeaser> = {
+    mapView: {
+      link: "/explore/organizations/map",
+      icon: "globe",
+      external: false,
+    },
     actionDays: {
       link: "/event/5mintvernetztaktionstage-mcac3igi",
       icon: "megaphone",
-      external: false,
-    },
-    networks: {
-      link: "/my/organizations",
-      icon: "globe",
       external: false,
     },
   };

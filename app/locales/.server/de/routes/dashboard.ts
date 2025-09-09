@@ -57,6 +57,12 @@ export const locale = {
       hide: "Updates ausblenden",
       show: "Updates einblenden",
       entries: {
+        mapView: {
+          headline: "Neues Feature",
+          description:
+            "Die neue MINT-Community Karte zeigt Dir, wer wo aktiv ist!",
+          linkDescription: "Jetzt ausprobieren",
+        },
         actionDays: {
           headline: "Jetzt Aktionen einreichen",
           description: "Programm der digitalen MINT-Aktionstage mitgestalten",
