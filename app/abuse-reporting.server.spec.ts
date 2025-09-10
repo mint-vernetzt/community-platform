@@ -142,7 +142,7 @@ test("Create organization abuse report", async () => {
   expect(report).toStrictEqual({
     title:
       'Profile "some-reporter-username" reported organization "some-reported-organization-slug"',
-    entityUrl: `${testURL}/organization/some-reported-organization-slug`,
+    entityUrl: `${testURL}/organization/some-reported-organization-slug/detail/about`,
     reporter: {
       email: "reporter@mail.org",
       url: `${testURL}/profile/some-reporter-username`,
@@ -246,7 +246,7 @@ test("Create project abuse report", async () => {
   expect(report).toStrictEqual({
     title:
       'Profile "some-reporter-username" reported project "some-reported-project-slug"',
-    entityUrl: `${testURL}/project/some-reported-project-slug`,
+    entityUrl: `${testURL}/project/some-reported-project-slug/detail/about`,
     reporter: {
       email: "reporter@mail.org",
       url: `${testURL}/profile/some-reporter-username`,
@@ -261,7 +261,7 @@ test("Prepare new report mail to support", async () => {
   await sendNewReportMailToSupport({
     title:
       'Profile "some-reporter-username" reported project "some-reported-project-slug"',
-    entityUrl: `${testURL}/project/some-reported-project-slug`,
+    entityUrl: `${testURL}/project/some-reported-project-slug/detail/about`,
     reporter: {
       email: "reporter@mail.org",
       url: `${testURL}/profile/some-reporter-username`,
@@ -272,7 +272,7 @@ test("Prepare new report mail to support", async () => {
   expect(getCompiledMailTemplate).toHaveBeenCalledWith(
     "mail-templates/abuse-report-support/text.hbs",
     {
-      entityUrl: `${testURL}/project/some-reported-project-slug`,
+      entityUrl: `${testURL}/project/some-reported-project-slug/detail/about`,
       reporter: {
         email: "reporter@mail.org",
         url: `${testURL}/profile/some-reporter-username`,
@@ -284,7 +284,7 @@ test("Prepare new report mail to support", async () => {
   expect(getCompiledMailTemplate).toHaveBeenCalledWith(
     "mail-templates/abuse-report-support/html.hbs",
     {
-      entityUrl: `${testURL}/project/some-reported-project-slug`,
+      entityUrl: `${testURL}/project/some-reported-project-slug/detail/about`,
       reporter: {
         email: "reporter@mail.org",
         url: `${testURL}/profile/some-reporter-username`,

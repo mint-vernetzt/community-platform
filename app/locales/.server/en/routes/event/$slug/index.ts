@@ -101,7 +101,7 @@ export const locale = {
     submit: "Report event",
     abort: "Cancel",
     email: {
-      subject: 'Profile "{{username}}" reported organization "{{slug}}"',
+      subject: 'Profile "{{username}}" reported event "{{slug}}"',
     },
   },
 } as const;
