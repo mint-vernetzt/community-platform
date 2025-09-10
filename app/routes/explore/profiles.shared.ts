@@ -44,15 +44,5 @@ export const getProfilesSchema = z.object({
       }
       return page;
     }),
-  prfAreaSearch: z
-    .string()
-    .trim()
-    .optional()
-    .transform((searchQuery) => {
-      if (typeof searchQuery === "undefined") {
-        return "";
-      }
-      return searchQuery;
-    }),
   showFilters: z.boolean().optional(),
 });

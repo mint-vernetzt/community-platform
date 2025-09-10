@@ -54,7 +54,8 @@ import {
   getTakeParam,
 } from "./profiles.server";
 import { PROFILE_SORT_VALUES } from "./profiles.shared";
-import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { getAllAreas, getAreaNameBySlug } from "./utils.server";
+import { useEffect, useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -242,10 +243,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     enhancedProfiles.push(transformedProfile);
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.prfAreaSearch);
+  const areas = await getAllAreas();
   type EnhancedAreas = Array<
-    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
+    ArrayElement<Awaited<ReturnType<typeof getAllAreas>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
+      isVisible: boolean;
     }
   >;
   const enhancedAreas = {
@@ -281,6 +283,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const enhancedArea = {
       ...area,
       vectorCount,
+      isVisible: true,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -380,7 +383,6 @@ export default function ExploreProfiles() {
       },
       prfPage: 1,
       prfSortBy: PROFILE_SORT_VALUES[0],
-      prfAreaSearch: "",
       search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
@@ -400,6 +402,48 @@ export default function ExploreProfiles() {
     showMore = loaderData.profilesCount > loaderData.profiles.length;
   }
 
+  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
+    loaderData.areas
+  );
+  const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    const value = event.target.value;
+    if (value.length >= 3) {
+      setVisibleAreas({
+        global: loaderData.areas.global.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        country: loaderData.areas.country.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        state: loaderData.areas.state.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        district: loaderData.areas.district.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+      });
+    } else {
+      setVisibleAreas(loaderData.areas);
+    }
+  };
+
+  useEffect(() => {
+    setVisibleAreas(loaderData.areas);
+  }, [loaderData.areas]);
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -408,22 +452,14 @@ export default function ExploreProfiles() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
-            let replace = false;
             if (
               (event.target as HTMLInputElement).name ===
               fields.showFilters.name
             ) {
               preventScrollReset = false;
             }
-            if (
-              (event.target as HTMLInputElement).name ===
-              fields.prfAreaSearch.name
-            ) {
-              replace = true;
-            }
             submit(event.currentTarget, {
               preventScrollReset,
-              replace,
               method: "get",
             });
           }}
@@ -537,7 +573,29 @@ export default function ExploreProfiles() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {loaderData.areas.global.map((area) => {
+                  {isHydrated ? (
+                    <div className="mv-mx-4 mv-my-2">
+                      <Input
+                        id="prf-area-search"
+                        onChange={handleAreaSearch}
+                        placeholder={
+                          loaderData.locales.route.filter.searchAreaPlaceholder
+                        }
+                      >
+                        <Input.Label htmlFor="prf-area-search" hidden>
+                          {
+                            loaderData.locales.route.filter
+                              .searchAreaPlaceholder
+                          }
+                        </Input.Label>
+                        <Input.HelperText>
+                          {loaderData.locales.route.filter.searchAreaHelper}
+                        </Input.HelperText>
+                        <Input.SearchIcon />
+                      </Input>
+                    </div>
+                  ) : null}
+                  {visibleAreas.global.map((area) => {
                     const isChecked =
                       prfFilterFieldset.area.initialValue &&
                       Array.isArray(prfFilterFieldset.area.initialValue)
@@ -554,6 +612,7 @@ export default function ExploreProfiles() {
                         key={area.slug}
                         defaultChecked={isChecked}
                         disabled={area.vectorCount === 0 && !isChecked}
+                        hidden={!area.isVisible}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -562,7 +621,7 @@ export default function ExploreProfiles() {
                       </FormControl>
                     );
                   })}
-                  {loaderData.areas.country.map((area) => {
+                  {visibleAreas.country.map((area) => {
                     const isChecked =
                       prfFilterFieldset.area.initialValue &&
                       Array.isArray(prfFilterFieldset.area.initialValue)
@@ -579,6 +638,7 @@ export default function ExploreProfiles() {
                         key={area.slug}
                         defaultChecked={isChecked}
                         disabled={area.vectorCount === 0 && !isChecked}
+                        hidden={!area.isVisible}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -587,59 +647,18 @@ export default function ExploreProfiles() {
                       </FormControl>
                     );
                   })}
-                  {loaderData.selectedAreas.length > 0 &&
-                    loaderData.selectedAreas.map((selectedArea) => {
-                      return selectedArea.name !== null &&
-                        selectedArea.isInSearchResultsList === false ? (
-                        <FormControl
-                          {...getInputProps(prfFilterFieldset.area, {
-                            type: "checkbox",
-                            value: selectedArea.slug,
-                          })}
-                          key={selectedArea.slug}
-                          defaultChecked={true}
-                        >
-                          <FormControl.Label>
-                            {selectedArea.name}
-                          </FormControl.Label>
-                          <FormControl.Counter>
-                            {selectedArea.vectorCount}
-                          </FormControl.Counter>
-                        </FormControl>
-                      ) : null;
-                    })}
-                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
-                    <Input
-                      {...getInputProps(fields.prfAreaSearch, {
-                        type: "search",
-                      })}
-                      key="profile-area-search"
-                      placeholder={
-                        loaderData.locales.route.filter.searchAreaPlaceholder
-                      }
-                    >
-                      <Input.Label htmlFor={fields.prfAreaSearch.id} hidden>
-                        {loaderData.locales.route.filter.searchAreaPlaceholder}
-                      </Input.Label>
-                      <Input.HelperText>
-                        {loaderData.locales.route.filter.searchAreaHelper}
-                      </Input.HelperText>
-                      <Input.Controls>
-                        <noscript>
-                          <Button>
-                            {loaderData.locales.route.filter.searchAreaButton}
-                          </Button>
-                        </noscript>
-                      </Input.Controls>
-                    </Input>
-                  </div>
-                  {loaderData.areas.state.length > 0 && (
+                  {(visibleAreas.country.some((area) => area.isVisible) ||
+                    visibleAreas.global.some((area) => area.isVisible)) &&
+                    visibleAreas.state.some((area) => area.isVisible) && (
+                      <Dropdown.Divider />
+                    )}
+                  {visibleAreas.state.some((area) => area.isVisible) && (
                     <Dropdown.Legend>
                       {loaderData.locales.route.filter.stateLabel}
                     </Dropdown.Legend>
                   )}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.state.map((area) => {
+                  {visibleAreas.state.length > 0 &&
+                    visibleAreas.state.map((area) => {
                       const isChecked =
                         prfFilterFieldset.area.initialValue &&
                         Array.isArray(prfFilterFieldset.area.initialValue)
@@ -656,6 +675,7 @@ export default function ExploreProfiles() {
                           key={area.slug}
                           defaultChecked={isChecked}
                           disabled={area.vectorCount === 0 && !isChecked}
+                          hidden={!area.isVisible}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -664,17 +684,17 @@ export default function ExploreProfiles() {
                         </FormControl>
                       );
                     })}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.district.length > 0 && (
+                  {visibleAreas.state.some((area) => area.isVisible) &&
+                    visibleAreas.district.some((area) => area.isVisible) && (
                       <Dropdown.Divider />
                     )}
-                  {loaderData.areas.district.length > 0 && (
+                  {visibleAreas.district.some((area) => area.isVisible) && (
                     <Dropdown.Legend>
                       {loaderData.locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
-                  {loaderData.areas.district.length > 0 &&
-                    loaderData.areas.district.map((area) => {
+                  {visibleAreas.district.length > 0 &&
+                    visibleAreas.district.map((area) => {
                       const isChecked =
                         prfFilterFieldset.area.initialValue &&
                         Array.isArray(prfFilterFieldset.area.initialValue)
@@ -691,6 +711,7 @@ export default function ExploreProfiles() {
                           key={area.slug}
                           defaultChecked={isChecked}
                           disabled={area.vectorCount === 0 && !isChecked}
+                          hidden={!area.isVisible}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>

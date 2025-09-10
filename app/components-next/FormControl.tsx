@@ -184,7 +184,8 @@ export function FormControl(
 
   const classes = classNames(
     "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-gap-1 mv-transition",
-    props.disabled ? "mv-text-gray-400 mv-cursor-auto" : "mv-cursor-pointer"
+    props.disabled ? "mv-text-gray-400 mv-cursor-auto" : "mv-cursor-pointer",
+    props.hidden ? "mv-hidden" : ""
   );
 
   return (

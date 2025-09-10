@@ -7,8 +7,8 @@ export const locale = {
     searchAreaPlaceholder: "Enter area or location",
     searchAreaHelper: "At least 3 letters.",
     searchAreaButton: "Search",
-    stateLabel: "Suggestions by area",
-    districtLabel: "Suggestions by location",
+    stateLabel: "States",
+    districtLabel: "Districts",
     apply: "Apply filter",
     reset: "Reset filter",
     sortBy: {

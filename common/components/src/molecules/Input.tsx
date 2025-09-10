@@ -7,7 +7,6 @@ import {
   useContext,
   useState,
 } from "react";
-import { Link } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
@@ -76,7 +75,7 @@ function InputClearIcon(
   }
 ) {
   const isHydrated = useHydrated();
-  const [characterCount, setCharacterCount] = useCharacterCount();
+  const [, setCharacterCount] = useCharacterCount();
   const clearIcon = (
     <svg
       width="20"
@@ -103,13 +102,10 @@ function InputClearIcon(
         event.currentTarget.form?.reset();
       }}
       type="reset"
-      hidden={characterCount === 0}
     >
       {clearIcon}
     </button>
-  ) : (
-    <Link to=".">{clearIcon}</Link>
-  );
+  ) : null;
 }
 
 function InputHelperText(
@@ -280,12 +276,13 @@ function Input(props: InputProps) {
   });
 
   const inputClasses = classNames(
-    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-pr-12 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-border-transparent focus-visible:mv-outline-0",
+    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-border-transparent focus-visible:mv-outline-0",
     errors.length > 0 && "mv-border-negative-600",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
       "mv-text-neutral-300",
-    typeof searchIcon !== "undefined" && "mv-pl-10"
+    typeof searchIcon !== "undefined" && "mv-pl-10",
+    typeof clearIcon !== "undefined" && characterCount > 0 && "mv-pr-12"
   );
 
   const inputCounterContainerClasses = classNames(
@@ -316,7 +313,7 @@ function Input(props: InputProps) {
                   {searchIcon}
                 </div>
               )}
-              {typeof clearIcon !== "undefined" && (
+              {typeof clearIcon !== "undefined" && characterCount > 0 && (
                 <div className="mv-absolute mv-right-2 mv-top-0 mv-h-full mv-flex mv-items-center">
                   {clearIcon}
                 </div>

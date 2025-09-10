@@ -68,7 +68,6 @@ function HiddenFilterInputs(props: {
               })}
             </ul>
           </fieldset>
-          <input {...getInputProps(fields.prfAreaSearch, { type: "hidden" })} />
           <input {...getInputProps(fields.prfPage, { type: "hidden" })} />
           <input {...getInputProps(fields.prfSortBy, { type: "hidden" })} />
         </>
@@ -124,7 +123,6 @@ function HiddenFilterInputs(props: {
               })}
             </ul>
           </fieldset>
-          <input {...getInputProps(fields.orgAreaSearch, { type: "hidden" })} />
           <input {...getInputProps(fields.orgPage, { type: "hidden" })} />
           <input {...getInputProps(fields.orgSortBy, { type: "hidden" })} />
         </>
@@ -234,7 +232,6 @@ function HiddenFilterInputs(props: {
               })}
             </ul>
           </fieldset>
-          <input {...getInputProps(fields.prjAreaSearch, { type: "hidden" })} />
           <input {...getInputProps(fields.prjPage, { type: "hidden" })} />
           <input {...getInputProps(fields.prjSortBy, { type: "hidden" })} />
         </>
