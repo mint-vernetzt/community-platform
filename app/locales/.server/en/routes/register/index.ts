@@ -2,10 +2,9 @@ export const locale = {
   content: {
     question: "Already a member?",
     login: "Login",
-    create: "Create me as a person",
+    create: "Create my profile",
     success:
-      "Your profile for <0>{{email}}</0> has been created. To complete the registration, please confirm the registration link in your emails within one hour. We will send it to you via <0>{{systemMail}}</0>. Please also check your spam folder. If you haven't received the email, please contact our <1>Support</1>. If you have already registered with this email address and have forgotten your password, please reset your password here:",
-    reset: "Reset password",
+      "Your profile for <0>{{email}}</0> has been created. To complete the registration process, please confirm the registration link in your emails within one hour, which we will send you via <0>{{systemMail}}</0>. Please also check your spam folder. If you do not receive an email, it may be because your address is already registered. In this case, you can regain access to your profile via <1>“Reset password”</1> – or <2>contact our support team</2>.",
   },
   form: {
     intro:

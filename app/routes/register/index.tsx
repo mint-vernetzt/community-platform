@@ -183,27 +183,26 @@ export default function Register() {
                   [
                     <span key="email-highlight" className="mv-font-semibold" />,
                     <Link
-                      key="support-mail-link"
-                      to={`mailto:${actionData.supportMail}`}
+                      key="reset-password-link"
+                      to={`/reset${
+                        loginRedirect !== null
+                          ? `?login_redirect=${loginRedirect}`
+                          : ""
+                      }`}
                       className="mv-text-primary mv-font-semibold hover:mv-underline"
                       prefetch="intent"
                     >
                       {" "}
                     </Link>,
+                    <Link
+                      key="support-mail-link"
+                      to={`mailto:${actionData.supportMail}`}
+                      className="mv-text-primary mv-font-semibold hover:mv-underline"
+                    >
+                      {" "}
+                    </Link>,
                   ]
-                )}{" "}
-                <Link
-                  to={`/reset${
-                    loginRedirect !== null
-                      ? `?login_redirect=${loginRedirect}`
-                      : ""
-                  }`}
-                  className="mv-text-primary mv-font-bold hover:mv-underline"
-                  prefetch="intent"
-                >
-                  {locales.content.reset}
-                </Link>
-                .
+                )}
               </p>
             </>
           ) : (
