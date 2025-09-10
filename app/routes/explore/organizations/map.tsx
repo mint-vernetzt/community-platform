@@ -302,7 +302,7 @@ export default function ExploreOrganizationsList() {
                     key="help-link-in-modal"
                     to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
                     target="_blank"
-                    className="mv-text-primary hover:mv-underline mv-w-fit mv-inline-flex"
+                    className="mv-text-primary hover:mv-underline"
                     prefetch="intent"
                   >
                     {" "}
