@@ -36,6 +36,7 @@ test("Reporter profile not found", async () => {
       reporterId: "some-reporter-id",
       username: "some-reported-profile-username",
       reasons: ["Some reason", "Another reason"],
+      locales: languageModuleMap.en["profile/$username/index"],
     });
   } catch (error) {
     if (error instanceof Response) {
@@ -56,6 +57,7 @@ test("Create profile abuse report", async () => {
     reporterId: "some-reporter-id",
     username: "some-reported-profile-username",
     reasons: ["Some reason", "Another reason"],
+    locales: languageModuleMap.en["profile/$username/index"],
   });
 
   expect(prismaClient.profile.update).toHaveBeenCalledWith({
@@ -107,6 +109,7 @@ test("Create organization abuse report", async () => {
     reporterId: "some-reporter-id",
     slug: "some-reported-organization-slug",
     reasons: ["Some reason", "Another reason"],
+    locales: languageModuleMap.en["organization/$slug/detail"],
   });
 
   expect(prismaClient.organization.update).toHaveBeenCalledWith({
@@ -158,7 +161,7 @@ test("Create event abuse report", async () => {
     reporterId: "some-reporter-id",
     slug: "some-reported-event-slug",
     reasons: ["Some reason", "Another reason"],
-    locales: languageModuleMap.de["event/$slug/index"],
+    locales: languageModuleMap.en["event/$slug/index"],
   });
 
   expect(prismaClient.event.update).toHaveBeenCalledWith({
@@ -210,6 +213,7 @@ test("Create project abuse report", async () => {
     reporterId: "some-reporter-id",
     slug: "some-reported-project-slug",
     reasons: ["Some reason", "Another reason"],
+    locales: languageModuleMap.en["project/$slug/detail"],
   });
 
   expect(prismaClient.project.update).toHaveBeenCalledWith({

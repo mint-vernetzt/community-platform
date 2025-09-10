@@ -7,14 +7,24 @@ import {
 } from "./mailer.server";
 import { prismaClient } from "./prisma.server";
 import { type EventDetailLocales } from "./routes/event/$slug/index.server";
+import { type OrganizationDetailLocales } from "./routes/organization/$slug/detail.server";
+import { type ProfileDetailLocales } from "./routes/profile/$username/index.server";
+import { type ProjectDetailLocales } from "./routes/project/$slug/detail.server";
 
 export async function createProfileAbuseReport(options: {
   reporterId: string;
   username: string;
   reasons: string[];
+  locales: ProfileDetailLocales;
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = `Profile "${reporter.username}" reported profile "${options.username}"`;
+  const title = insertParametersIntoLocale(
+    options.locales.route.abuseReport.email.subject,
+    {
+      reporterUsername: reporter.username,
+      reportedUsername: options.username,
+    }
+  );
   await prismaClient.profile.update({
     data: {
       abuseReports: {
@@ -53,9 +63,16 @@ export async function createOrganizationAbuseReport(options: {
   reporterId: string;
   slug: string;
   reasons: string[];
+  locales: OrganizationDetailLocales;
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = `Profile "${reporter.username}" reported organization "${options.slug}"`;
+  const title = insertParametersIntoLocale(
+    options.locales.route.abuseReport.email.subject,
+    {
+      username: reporter.username,
+      slug: options.slug,
+    }
+  );
   await prismaClient.organization.update({
     data: {
       abuseReports: {
@@ -140,9 +157,16 @@ export async function createProjectAbuseReport(options: {
   reporterId: string;
   slug: string;
   reasons: string[];
+  locales: ProjectDetailLocales;
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = `Profile "${reporter.username}" reported project "${options.slug}"`;
+  const title = insertParametersIntoLocale(
+    options.locales.route.abuseReport.email.subject,
+    {
+      username: reporter.username,
+      slug: options.slug,
+    }
+  );
   await prismaClient.project.update({
     data: {
       abuseReports: {
