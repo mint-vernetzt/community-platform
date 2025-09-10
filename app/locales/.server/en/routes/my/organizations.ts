@@ -56,6 +56,7 @@ export const locale = {
     subline:
       "Search for organizations, add yourself as a team member or create an organization.",
     create: "Create new organization",
+    openRequestsHeadline: "Open membership requests to organizations",
     createOrganizationMemberRequestCta: "Request to join",
     cancelOrganizationMemberRequestCta: "Cancel request to join",
     createOrganizationMemberRequest:

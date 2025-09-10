@@ -939,7 +939,10 @@ export default function MyOrganizations() {
               <>
                 <hr />
                 <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
-                  {locales.route.organizationMemberRequests.headline}
+                  {
+                    locales.route.requestOrganizationMembership
+                      .openRequestsHeadline
+                  }
                 </h4>
                 <Form
                   {...getFormProps(cancelOrganizationMemberRequestForm)}
