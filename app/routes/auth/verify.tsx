@@ -4,9 +4,13 @@ import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const requestUrl = new URL(request.url);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["auth/verify"];
   const token_hash = requestUrl.searchParams.get("token_hash");
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
   invariantResponse(token_hash !== null && type !== null, "Bad request", {
@@ -54,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
-    sendWelcomeMail(profile).catch((error) => {
+    sendWelcomeMail({ profile, locales }).catch((error) => {
       captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {

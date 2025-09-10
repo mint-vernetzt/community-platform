@@ -101,5 +101,8 @@ export const locale = {
     alreadySubmitted: "Du hast dieses Event bereits gemeldet.",
     submit: "Event melden",
     abort: "Abbrechen",
+    email: {
+      subject: 'Das Profil "{{username}}" hat das Event "{{slug}}" gemeldet',
+    },
   },
 } as const;

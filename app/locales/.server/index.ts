@@ -30,6 +30,8 @@ import { locale as deVideo } from "./de/organisms/video";
 // auth routes
 import { locale as deConfirmAuthAction } from "./de/routes/auth/confirm";
 import { locale as deRequestConfirmation } from "./de/routes/auth/request-confirmation";
+import { locale as deVerify } from "./de/routes/auth/verify";
+import { locale as deKeycloakCallback } from "./de/routes/auth/keycloak.callback";
 // event routes
 import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
 import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
@@ -192,6 +194,8 @@ import { locale as enVideo } from "./en/organisms/video";
 // auth routes
 import { locale as enConfirmAuthAction } from "./en/routes/auth/confirm";
 import { locale as enRequestConfirmation } from "./en/routes/auth/request-confirmation";
+import { locale as enVerify } from "./en/routes/auth/verify";
+import { locale as enKeycloakCallback } from "./en/routes/auth/keycloak.callback";
 // event routes
 import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
 import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
@@ -346,6 +350,8 @@ const de = {
   // auth routes
   "auth/confirm": deConfirmAuthAction,
   "auth/request-confirmation": deRequestConfirmation,
+  "auth/verify": deVerify,
+  "auth/keycloak.callback": deKeycloakCallback,
   // event routes
   "event/$slug/settings/admins/add-admin": deAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": deRemoveEventAdmin,
@@ -753,6 +759,8 @@ const en = {
   // auth routes
   "auth/confirm": enConfirmAuthAction,
   "auth/request-confirmation": enRequestConfirmation,
+  "auth/verify": enVerify,
+  "auth/keycloak.callback": enKeycloakCallback,
   // event routes
   "event/$slug/settings/admins/add-admin": enAddEventAdmin,
   "event/$slug/settings/admins/remove-admin": enRemoveEventAdmin,
