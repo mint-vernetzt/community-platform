@@ -48,15 +48,5 @@ export const getOrganizationsSchema = z.object({
       }
       return page;
     }),
-  orgAreaSearch: z
-    .string()
-    .trim()
-    .optional()
-    .transform((searchQuery) => {
-      if (typeof searchQuery === "undefined") {
-        return "";
-      }
-      return searchQuery;
-    }),
   showFilters: z.boolean().optional(),
 });

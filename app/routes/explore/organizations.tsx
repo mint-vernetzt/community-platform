@@ -54,7 +54,7 @@ import {
   getOrganizationIds,
 } from "./organizations.server";
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
-import { getAreaNameBySlug, getAreasBySearchQuery } from "./utils.server";
+import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -169,13 +169,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
       logo,
       blurredLogo,
       vectorCount,
+      isVisible: true,
     });
   }
 
-  const areas = await getAreasBySearchQuery(submission.value.orgAreaSearch);
+  const areas = await getAllAreas();
   type EnhancedAreas = Array<
-    ArrayElement<Awaited<ReturnType<typeof getAreasBySearchQuery>>> & {
+    ArrayElement<Awaited<ReturnType<typeof getAllAreas>>> & {
       vectorCount: ReturnType<typeof getFilterCountForSlug>;
+      isVisible: boolean;
     }
   >;
   const enhancedAreas = {
@@ -208,6 +210,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     const enhancedArea = {
       ...area,
       vectorCount,
+      isVisible: true,
     };
     enhancedAreas[area.type].push(enhancedArea);
   }
@@ -364,7 +367,6 @@ export default function ExploreOrganizations() {
       },
       orgPage: 1,
       orgSortBy: ORGANIZATION_SORT_VALUES[0],
-      orgAreaSearch: "",
       search: [loaderData.submission.value.search.join(" ")],
       showFilters: "",
     },
@@ -384,8 +386,11 @@ export default function ExploreOrganizations() {
     const value = event.target.value;
     if (value.length >= 3) {
       setVisibleNetworks(
-        loaderData.networks.filter((network) => {
-          return network.name.toLowerCase().includes(value.toLowerCase());
+        loaderData.networks.map((network) => {
+          if (!network.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...network, isVisible: false };
+          }
+          return { ...network, isVisible: true };
         })
       );
     } else {
@@ -397,6 +402,48 @@ export default function ExploreOrganizations() {
     setVisibleNetworks(loaderData.networks);
   }, [loaderData.networks]);
 
+  const [visibleAreas, setVisibleAreas] = useState<typeof loaderData.areas>(
+    loaderData.areas
+  );
+  const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    const value = event.target.value;
+    if (value.length >= 3) {
+      setVisibleAreas({
+        global: loaderData.areas.global.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        country: loaderData.areas.country.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        state: loaderData.areas.state.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+        district: loaderData.areas.district.map((area) => {
+          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+            return { ...area, isVisible: false };
+          }
+          return { ...area, isVisible: true };
+        }),
+      });
+    } else {
+      setVisibleAreas(loaderData.areas);
+    }
+  };
+
+  useEffect(() => {
+    setVisibleAreas(loaderData.areas);
+  }, [loaderData.areas]);
+
   return (
     <>
       <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
@@ -406,25 +453,14 @@ export default function ExploreOrganizations() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
-            let replace = false;
             if (
               (event.target as HTMLInputElement).name ===
               fields.showFilters.name
             ) {
               preventScrollReset = false;
             }
-            if (
-              (event.target as HTMLInputElement).name ===
-              fields.orgAreaSearch.name
-            ) {
-              replace = true;
-            }
-            // if ((event.target as HTMLInputElement).name === fields.orgFilter.name) {
-            //   replace = true;
-            // }
             submit(event.currentTarget, {
               preventScrollReset,
-              replace,
               method: "get",
             });
           }}
@@ -628,7 +664,23 @@ export default function ExploreOrganizations() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  {loaderData.areas.global.map((area) => {
+                  {isHydrated ? (
+                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                      <Input
+                        id="org-area-search"
+                        onChange={handleAreaSearch}
+                        placeholder={locales.route.filter.searchAreaPlaceholder}
+                      >
+                        <Input.Label htmlFor="org-area-search" hidden>
+                          {locales.route.filter.searchAreaPlaceholder}
+                        </Input.Label>
+                        <Input.HelperText>
+                          {locales.route.filter.searchAreaHelper}
+                        </Input.HelperText>
+                      </Input>
+                    </div>
+                  ) : null}
+                  {visibleAreas.global.map((area) => {
                     const isChecked =
                       orgFilterFieldset.area.initialValue &&
                       Array.isArray(orgFilterFieldset.area.initialValue)
@@ -645,6 +697,7 @@ export default function ExploreOrganizations() {
                         key={area.slug}
                         defaultChecked={isChecked}
                         disabled={area.vectorCount === 0 && !isChecked}
+                        hidden={!area.isVisible}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -653,7 +706,7 @@ export default function ExploreOrganizations() {
                       </FormControl>
                     );
                   })}
-                  {loaderData.areas.country.map((area) => {
+                  {visibleAreas.country.map((area) => {
                     const isChecked =
                       orgFilterFieldset.area.initialValue &&
                       Array.isArray(orgFilterFieldset.area.initialValue)
@@ -670,6 +723,7 @@ export default function ExploreOrganizations() {
                         key={area.slug}
                         defaultChecked={isChecked}
                         disabled={area.vectorCount === 0 && !isChecked}
+                        hidden={!area.isVisible}
                       >
                         <FormControl.Label>{area.name}</FormControl.Label>
                         <FormControl.Counter>
@@ -678,57 +732,18 @@ export default function ExploreOrganizations() {
                       </FormControl>
                     );
                   })}
-                  {loaderData.selectedAreas.length > 0 &&
-                    loaderData.selectedAreas.map((selectedArea) => {
-                      return selectedArea.name !== null &&
-                        selectedArea.isInSearchResultsList === false ? (
-                        <FormControl
-                          {...getInputProps(orgFilterFieldset.area, {
-                            type: "checkbox",
-                            value: selectedArea.slug,
-                          })}
-                          key={selectedArea.slug}
-                          defaultChecked={true}
-                        >
-                          <FormControl.Label>
-                            {selectedArea.name}
-                          </FormControl.Label>
-                          <FormControl.Counter>
-                            {selectedArea.vectorCount}
-                          </FormControl.Counter>
-                        </FormControl>
-                      ) : null;
-                    })}
-                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
-                    <Input
-                      {...getInputProps(fields.orgAreaSearch, {
-                        type: "search",
-                      })}
-                      key="organization-area-search"
-                      placeholder={locales.route.filter.searchAreaPlaceholder}
-                    >
-                      <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
-                        {locales.route.filter.searchAreaPlaceholder}
-                      </Input.Label>
-                      <Input.HelperText>
-                        {locales.route.filter.searchAreaHelper}
-                      </Input.HelperText>
-                      <Input.Controls>
-                        <noscript>
-                          <Button>
-                            {locales.route.filter.searchAreaButton}
-                          </Button>
-                        </noscript>
-                      </Input.Controls>
-                    </Input>
-                  </div>
-                  {loaderData.areas.state.length > 0 && (
+                  {(visibleAreas.country.some((area) => area.isVisible) ||
+                    visibleAreas.global.some((area) => area.isVisible)) &&
+                    visibleAreas.state.some((area) => area.isVisible) && (
+                      <Dropdown.Divider />
+                    )}
+                  {visibleAreas.state.some((area) => area.isVisible) && (
                     <Dropdown.Legend>
                       {locales.route.filter.stateLabel}
                     </Dropdown.Legend>
                   )}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.state.map((area) => {
+                  {visibleAreas.state.length > 0 &&
+                    visibleAreas.state.map((area) => {
                       const isChecked =
                         orgFilterFieldset.area.initialValue &&
                         Array.isArray(orgFilterFieldset.area.initialValue)
@@ -745,6 +760,7 @@ export default function ExploreOrganizations() {
                           key={area.slug}
                           defaultChecked={isChecked}
                           disabled={area.vectorCount === 0 && !isChecked}
+                          hidden={!area.isVisible}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -753,17 +769,17 @@ export default function ExploreOrganizations() {
                         </FormControl>
                       );
                     })}
-                  {loaderData.areas.state.length > 0 &&
-                    loaderData.areas.district.length > 0 && (
+                  {visibleAreas.state.some((area) => area.isVisible) &&
+                    visibleAreas.district.some((area) => area.isVisible) && (
                       <Dropdown.Divider />
                     )}
-                  {loaderData.areas.district.length > 0 && (
+                  {visibleAreas.district.some((area) => area.isVisible) && (
                     <Dropdown.Legend>
                       {locales.route.filter.districtLabel}
                     </Dropdown.Legend>
                   )}
-                  {loaderData.areas.district.length > 0 &&
-                    loaderData.areas.district.map((area) => {
+                  {visibleAreas.district.length > 0 &&
+                    visibleAreas.district.map((area) => {
                       const isChecked =
                         orgFilterFieldset.area.initialValue &&
                         Array.isArray(orgFilterFieldset.area.initialValue)
@@ -780,6 +796,7 @@ export default function ExploreOrganizations() {
                           key={area.slug}
                           defaultChecked={isChecked}
                           disabled={area.vectorCount === 0 && !isChecked}
+                          hidden={!area.isVisible}
                         >
                           <FormControl.Label>{area.name}</FormControl.Label>
                           <FormControl.Counter>
@@ -889,28 +906,24 @@ export default function ExploreOrganizations() {
                   </span>
                 </Dropdown.Label>
                 <Dropdown.List>
-                  <div className="mv-ml-4 mv-mr-2 mv-my-2">
-                    <Input
-                      onChange={handleNetworkSearch}
-                      placeholder={
-                        locales.route.filter.networkSearchPlaceholder
-                      }
-                    >
-                      <Input.Label htmlFor={fields.orgAreaSearch.id} hidden>
-                        {locales.route.filter.searchAreaPlaceholder}
-                      </Input.Label>
-                      <Input.HelperText>
-                        {locales.route.filter.searchAreaHelper}
-                      </Input.HelperText>
-                      <Input.Controls>
-                        <noscript>
-                          <Button>
-                            {locales.route.filter.searchAreaButton}
-                          </Button>
-                        </noscript>
-                      </Input.Controls>
-                    </Input>
-                  </div>
+                  {isHydrated ? (
+                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                      <Input
+                        id="org-network-search"
+                        onChange={handleNetworkSearch}
+                        placeholder={
+                          locales.route.filter.networkSearchPlaceholder
+                        }
+                      >
+                        <Input.Label htmlFor="org-network-search" hidden>
+                          {locales.route.filter.networkSearchPlaceholder}
+                        </Input.Label>
+                        <Input.HelperText>
+                          {locales.route.filter.searchNetworkHelper}
+                        </Input.HelperText>
+                      </Input>
+                    </div>
+                  ) : null}
                   {visibleNetworks.length > 0 &&
                     visibleNetworks.map((network) => {
                       const isChecked =
@@ -930,6 +943,7 @@ export default function ExploreOrganizations() {
                           key={network.slug}
                           defaultChecked={isChecked}
                           disabled={network.vectorCount === 0 && !isChecked}
+                          hidden={!network.isVisible}
                         >
                           <FormControl.Label>
                             <div className="mv-flex mv-gap-2 mv-items-center">
