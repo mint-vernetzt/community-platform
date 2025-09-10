@@ -574,7 +574,7 @@ export default function ExploreProfiles() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <div className="mv-mx-4 mv-my-2">
                       <Input
                         id="prf-area-search"
                         onChange={handleAreaSearch}
@@ -591,6 +591,7 @@ export default function ExploreProfiles() {
                         <Input.HelperText>
                           {loaderData.locales.route.filter.searchAreaHelper}
                         </Input.HelperText>
+                        <Input.SearchIcon />
                       </Input>
                     </div>
                   ) : null}

@@ -299,7 +299,7 @@ function Admins() {
             <Input name={Deep} defaultValue="true" type="hidden" />
             <Input
               {...getInputProps(searchFields[SearchProfiles], {
-                type: "search",
+                type: "text",
               })}
               key={searchFields[SearchProfiles].id}
               standalone
@@ -308,6 +308,7 @@ function Admins() {
                 {locales.route.content.invite.search}
               </Input.Label>
               <Input.SearchIcon />
+              <Input.ClearIcon />
 
               {typeof searchFields[SearchProfiles].errors !== "undefined" &&
               searchFields[SearchProfiles].errors.length > 0 ? (

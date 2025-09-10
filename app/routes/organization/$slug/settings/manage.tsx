@@ -1064,7 +1064,7 @@ function Manage() {
                 {...getInputProps(
                   searchNetworkMembersFields[SearchNetworkMembers],
                   {
-                    type: "search",
+                    type: "text",
                   }
                 )}
                 defaultValue={
@@ -1081,6 +1081,7 @@ function Manage() {
                   {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
                 <Input.SearchIcon />
+                <Input.ClearIcon />
 
                 {typeof searchNetworkMembersFields[SearchNetworkMembers]
                   .errors !== "undefined" &&
@@ -1387,7 +1388,7 @@ function Manage() {
               />
               <Input
                 {...getInputProps(searchNetworksFields[SearchNetworks], {
-                  type: "search",
+                  type: "text",
                 })}
                 defaultValue={searchParams.get(SearchNetworks) || undefined}
                 key={searchNetworksFields[SearchNetworks].id}

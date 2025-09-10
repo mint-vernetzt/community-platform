@@ -775,7 +775,7 @@ export default function MyOrganizations() {
             >
               <Input
                 {...getInputProps(searchFields[SearchOrganizations], {
-                  type: "search",
+                  type: "text",
                 })}
                 key={searchFields[SearchOrganizations].id}
                 standalone
@@ -784,6 +784,7 @@ export default function MyOrganizations() {
                   {locales.route.requestOrganizationMembership.label}
                 </Input.Label>
                 <Input.SearchIcon />
+                <Input.ClearIcon />
 
                 {typeof searchFields[SearchOrganizations].errors !==
                   "undefined" &&

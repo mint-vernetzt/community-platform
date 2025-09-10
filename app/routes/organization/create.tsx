@@ -384,7 +384,7 @@ function CreateOrganization() {
           <noscript>
             <Input
               {...getInputProps(searchFields[SearchOrganizations], {
-                type: "search",
+                type: "text",
               })}
               placeholder={
                 locales.route.form.organizationName.noJsSearchForm.placeholder
@@ -401,6 +401,8 @@ function CreateOrganization() {
                   {locales.route.form.organizationName.noJsSearchForm.searchCta}
                 </Button>
               </Input.Controls>
+              <Input.SearchIcon />
+              <Input.ClearIcon />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&

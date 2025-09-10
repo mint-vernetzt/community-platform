@@ -665,7 +665,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <div className="mv-mx-4 mv-my-2">
                       <Input
                         id="org-area-search"
                         onChange={handleAreaSearch}
@@ -677,6 +677,8 @@ export default function ExploreOrganizations() {
                         <Input.HelperText>
                           {locales.route.filter.searchAreaHelper}
                         </Input.HelperText>
+                        <Input.SearchIcon />
+                        <Input.ClearIcon />
                       </Input>
                     </div>
                   ) : null}
@@ -907,7 +909,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-ml-4 mv-mr-2 mv-my-2">
+                    <div className="mv-mx-4 mv-my-2">
                       <Input
                         id="org-network-search"
                         onChange={handleNetworkSearch}
@@ -921,6 +923,7 @@ export default function ExploreOrganizations() {
                         <Input.HelperText>
                           {locales.route.filter.searchNetworkHelper}
                         </Input.HelperText>
+                        <Input.SearchIcon />
                       </Input>
                     </div>
                   ) : null}

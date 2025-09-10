@@ -432,7 +432,7 @@ function Team() {
             <Input name={Deep} defaultValue="true" type="hidden" />
             <Input
               {...getInputProps(searchFields[SearchOrganizations], {
-                type: "search",
+                type: "text",
               })}
               key={searchFields[SearchOrganizations].id}
               standalone
@@ -441,6 +441,7 @@ function Team() {
                 {locales.route.content.addOther.search.label}
               </Input.Label>
               <Input.SearchIcon />
+              <Input.ClearIcon />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&
@@ -589,7 +590,7 @@ function Team() {
             <Input name={Deep} defaultValue="true" type="hidden" />
             <Input
               {...getInputProps(searchFields[SearchProfiles], {
-                type: "search",
+                type: "text",
               })}
               key={searchFields[SearchProfiles].id}
               standalone
