@@ -1685,22 +1685,24 @@ export default function MyOrganizations() {
                                       }
                                     </Modal.Title>
                                     <Modal.Section>
-                                      {insertComponentsIntoLocale(
-                                        insertParametersIntoLocale(
-                                          locales.route.quit.modal[
-                                            key as keyof typeof organizations
-                                          ].subline,
-                                          {
-                                            name: organization.name,
-                                          }
-                                        ),
-                                        [
-                                          <span
-                                            key="highlighted-organization-name"
-                                            className="mv-font-semibold"
-                                          />,
-                                        ]
-                                      )}
+                                      <p>
+                                        {insertComponentsIntoLocale(
+                                          insertParametersIntoLocale(
+                                            locales.route.quit.modal[
+                                              key as keyof typeof organizations
+                                            ].subline,
+                                            {
+                                              name: organization.name,
+                                            }
+                                          ),
+                                          [
+                                            <span
+                                              key="highlighted-organization-name"
+                                              className="mv-font-semibold"
+                                            />,
+                                          ]
+                                        )}
+                                      </p>
                                     </Modal.Section>
                                     <Modal.Section>
                                       {typeof quitOrganizationForm.errors !==
