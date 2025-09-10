@@ -5,6 +5,8 @@ import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { generateValidSlug } from "~/utils.server";
 import { captureException } from "@sentry/node";
+import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -13,6 +15,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
   if (sessionUser !== null) {
     return redirect("/dashboard");
   }
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["auth/keycloak.callback"];
   const url = new URL(request.url);
   const urlSearchParams = new URLSearchParams(url.searchParams);
   const code = urlSearchParams.get("code");
@@ -51,7 +55,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "Did not provide necessary user meta data to create a corresponding profile after sign up.",
       { status: 400 }
     );
-    sendWelcomeMail(profile).catch((error) => {
+    sendWelcomeMail({ profile, locales }).catch((error) => {
       captureException(error);
     });
     return redirect(loginRedirect || `/profile/${profile.username}`, {

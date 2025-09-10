@@ -33,4 +33,10 @@ export const locale = {
     events: "Events",
     projects: "Projekte",
   },
+  abuseReport: {
+    email: {
+      subject:
+        'Das Profil "{{username}}" hat die Organisation "{{slug}}" gemeldet',
+    },
+  },
 } as const;

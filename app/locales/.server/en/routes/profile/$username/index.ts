@@ -59,4 +59,10 @@ export const locale = {
       onWaitingList: "on waiting list",
     },
   },
+  abuseReport: {
+    email: {
+      subject:
+        'Profile "{{reporterUsername}}" reported profile "{{reportedUsername}}"',
+    },
+  },
 } as const;

@@ -100,5 +100,8 @@ export const locale = {
     max: "Maximum {{max}} characters",
     submit: "Report event",
     abort: "Cancel",
+    email: {
+      subject: 'Profile "{{username}}" reported event "{{slug}}"',
+    },
   },
 } as const;

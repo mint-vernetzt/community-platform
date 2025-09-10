@@ -6,6 +6,8 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
+import { type KeycloakCallbackLocales } from "../auth/keycloak.callback.server";
+import { type VerifyLocales } from "../auth/verify.server";
 
 export async function createProfile(user: User) {
   if (
@@ -50,11 +52,12 @@ export async function createProfile(user: User) {
   return null;
 }
 
-export async function sendWelcomeMail(
-  profile: Pick<Profile, "firstName" | "email">
-) {
-  // TODO: i18n
-  const subject = "Willkommen auf der MINTvernetzt Community-Plattform";
+export async function sendWelcomeMail(options: {
+  profile: Pick<Profile, "firstName" | "email">;
+  locales: KeycloakCallbackLocales | VerifyLocales;
+}) {
+  const { profile, locales } = options;
+  const subject = locales.welcomeEmail.subject;
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = profile.email;
   const textTemplatePath = "mail-templates/welcome/text.hbs";

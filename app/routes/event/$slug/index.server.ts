@@ -230,6 +230,7 @@ export async function submitEventAbuseReport(options: {
           reporterId: sessionUser.id,
           slug: slug,
           reasons: reasonsForReport,
+          locales,
         });
         await sendNewReportMailToSupport(report);
       } catch (error) {

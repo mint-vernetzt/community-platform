@@ -34,4 +34,9 @@ export const locale = {
       headline: "Logo",
     },
   },
+  abuseReport: {
+    email: {
+      subject: 'Das Profil "{{username}}" hat das Projekt "{{slug}}" gemeldet',
+    },
+  },
 } as const;
