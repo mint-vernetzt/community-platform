@@ -17,6 +17,7 @@ import {
   mailer,
   mailerOptions,
 } from "./mailer.server";
+import { languageModuleMap } from "./locales/.server";
 
 vi.mock("~/prisma.server");
 
@@ -157,6 +158,7 @@ test("Create event abuse report", async () => {
     reporterId: "some-reporter-id",
     slug: "some-reported-event-slug",
     reasons: ["Some reason", "Another reason"],
+    locales: languageModuleMap.de["event/$slug/index"],
   });
 
   expect(prismaClient.event.update).toHaveBeenCalledWith({
