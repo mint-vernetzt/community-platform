@@ -61,7 +61,7 @@ export const locale = {
           headline: "New feature",
           description:
             "The new STEM community map shows you who is active where!",
-          linkDescription: "Try out now",
+          linkDescription: "To the STEM community map",
         },
         actionDays: {
           headline: "Submit actions now",

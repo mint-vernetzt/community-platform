@@ -61,7 +61,7 @@ export const locale = {
           headline: "Neues Feature",
           description:
             "Die neue MINT-Community Karte zeigt Dir, wer wo aktiv ist!",
-          linkDescription: "Jetzt ausprobieren",
+          linkDescription: "Zur MINT-Community-Karte",
         },
         actionDays: {
           headline: "Jetzt Aktionen einreichen",
