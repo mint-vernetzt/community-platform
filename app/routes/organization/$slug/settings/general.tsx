@@ -237,6 +237,28 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(organization !== null, locales.route.error.notFound, {
     status: 404,
   });
+
+  const hasClaimedOrganization = new URL(request.url).searchParams.has(
+    "organizationClaimed"
+  );
+  if (hasClaimedOrganization) {
+    const { authClient } = createAuthClient(request);
+    const sessionUser = await getSessionUser(authClient);
+    if (sessionUser !== null) {
+      await prismaClient.organizationClaimRequest.update({
+        where: {
+          claimerId_organizationId: {
+            claimerId: sessionUser.id,
+            organizationId: organization.id,
+          },
+        },
+        data: {
+          status: "acceptedAndSeen",
+        },
+      });
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id, ...rest } = organization;
   const filteredOrganization = rest;
