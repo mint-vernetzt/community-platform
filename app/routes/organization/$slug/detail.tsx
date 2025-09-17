@@ -650,7 +650,7 @@ function OrganizationDetail() {
                         />,
                         <Link
                           key="help-link"
-                          to="/help#TODO"
+                          to="/help#organizations-whatAreProvisionalOrganizations"
                           target="_blank"
                           className="mv-text-primary mv-font-semibold hover:mv-underline"
                           prefetch="intent"
