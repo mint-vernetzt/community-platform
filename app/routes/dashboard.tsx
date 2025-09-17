@@ -619,7 +619,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     imageCropperLocales,
     language,
     abilities,
-    ...profile,
+    profile,
     currentTimestamp: Date.now(),
     tags,
     entities: enhancedEntities,
@@ -953,14 +953,14 @@ function Dashboard() {
               <div className="mv-w-[136px] mv-h-[136px] mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
                 <div className="mv-relative">
                   <Avatar
-                    avatar={loaderData.avatar}
+                    avatar={loaderData.profile.avatar}
                     blurredAvatar={
-                      loaderData.blurredAvatar === null
+                      loaderData.profile.blurredAvatar === null
                         ? undefined
-                        : loaderData.blurredAvatar
+                        : loaderData.profile.blurredAvatar
                     }
-                    firstName={loaderData.firstName}
-                    lastName={loaderData.lastName}
+                    firstName={loaderData.profile.firstName}
+                    lastName={loaderData.profile.lastName}
                     size="full"
                     textSize="xl"
                   />
@@ -1005,8 +1005,8 @@ function Dashboard() {
                   {insertParametersIntoLocale(
                     loaderData.locales.route.content.header.welcome,
                     {
-                      firstName: loaderData.firstName,
-                      lastName: loaderData.lastName,
+                      firstName: loaderData.profile.firstName,
+                      lastName: loaderData.profile.lastName,
                     }
                   )}
                 </h1>
@@ -1017,7 +1017,7 @@ function Dashboard() {
               <Button
                 variant="outline"
                 as="link"
-                to={`/profile/${loaderData.username}`}
+                to={`/profile/${loaderData.profile.username}`}
                 prefetch="intent"
               >
                 {loaderData.locales.route.content.header.cta}
@@ -1290,7 +1290,8 @@ function Dashboard() {
         </section>
       )}
       {/* Notifications Section */}
-      {loaderData.upcomingCanceledEvents.length > 0 ? (
+      {loaderData.upcomingCanceledEvents.length > 0 ||
+      loaderData.profile.claimOrganizationRequests.length > 0 ? (
         <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
           <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end mv-group">
             <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
@@ -1350,7 +1351,7 @@ function Dashboard() {
                       <h3 className="mv-text-negative-700 mv-text-xs mv-font-bold mv-leading-4">
                         {
                           loaderData.locales.route.content.notifications
-                            .cancelled
+                            .cancelledEvents.cancelled
                         }
                       </h3>
                       <p className="mv-line-clamp-2 mv-text-neutral-700 mv-text-2xl mv-font-bold mv-leading-[26px]">
@@ -1365,19 +1366,81 @@ function Dashboard() {
                         variant="outline"
                         prefetch="intent"
                       >
-                        {loaderData.locales.route.content.notifications.cta}
+                        {
+                          loaderData.locales.route.content.notifications
+                            .cancelledEvents.cta
+                        }
                       </Button>
                     </div>
                   </li>
                 );
               })}
-              {loaderData.upcomingCanceledEvents.length > 2 ? (
+              {loaderData.profile.claimOrganizationRequests.map((request) => {
+                return (
+                  <li
+                    key={`accepted-claim-request-for-${request.organization.slug}`}
+                    className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center"
+                  >
+                    <div className="mv-flex mv-items-center mv-gap-2">
+                      <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+                        <div className="mv-w-[72px] mv-h-[72px]">
+                          <Avatar
+                            to={`/organization/${request.organization.slug}/detail/about`}
+                            size="full"
+                            prefetch="intent"
+                            {...request.organization}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mv-flex-1 mv-text-neutral-700">
+                      <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] @lg:mv-text-left mv-text-center @lg:mv-max-w-fit">
+                        {
+                          loaderData.locales.route.content.notifications
+                            .acceptedClaimRequests.headline
+                        }
+                      </h3>
+                      <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+                        {insertComponentsIntoLocale(
+                          insertParametersIntoLocale(
+                            loaderData.locales.route.content.notifications
+                              .acceptedClaimRequests.description,
+                            {
+                              name: request.organization.name,
+                            }
+                          ),
+                          [
+                            <span
+                              key="higlighted-text-claim-request"
+                              className="mv-font-semibold"
+                            />,
+                          ]
+                        )}
+                      </p>
+                    </div>
+                    <Button
+                      as="link"
+                      to={`/organization/${request.organization.slug}/settings/general?organizationClaimed`}
+                      className="mv-w-full @lg:mv-w-fit"
+                      prefetch="intent"
+                    >
+                      {
+                        loaderData.locales.route.content.notifications
+                          .acceptedClaimRequests.cta
+                      }
+                    </Button>
+                  </li>
+                );
+              })}
+              {loaderData.upcomingCanceledEvents.length +
+                loaderData.profile.claimOrganizationRequests.length >
+              2 ? (
                 <div
-                  key="show-more-canceled-events-container"
+                  key="show-more-notifications-container"
                   className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
                 >
                   <label
-                    htmlFor="show-more-canceled-events"
+                    htmlFor="show-more-notifications"
                     className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
                   >
                     <div className="group-has-[:checked]:mv-hidden">
@@ -1391,7 +1454,7 @@ function Dashboard() {
                     </div>
                   </label>
                   <input
-                    id="show-more-canceled-events"
+                    id="show-more-notifications"
                     type="checkbox"
                     className="mv-w-0 mv-h-0 mv-opacity-0"
                   />
@@ -1751,7 +1814,7 @@ function Dashboard() {
           <ImageCropper
             uploadKey="avatar"
             circularCrop
-            image={loaderData.avatar || undefined}
+            image={loaderData.profile.avatar || undefined}
             aspect={ImageAspects.AvatarAndLogo}
             minCropWidth={MinCropSizes.AvatarAndLogo.width}
             minCropHeight={MinCropSizes.AvatarAndLogo.height}
@@ -1766,13 +1829,13 @@ function Dashboard() {
             }
           >
             <Avatar
-              firstName={loaderData.firstName}
-              lastName={loaderData.lastName}
-              avatar={loaderData.avatar}
+              firstName={loaderData.profile.firstName}
+              lastName={loaderData.profile.lastName}
+              avatar={loaderData.profile.avatar}
               blurredAvatar={
-                loaderData.blurredAvatar === null
+                loaderData.profile.blurredAvatar === null
                   ? undefined
-                  : loaderData.blurredAvatar
+                  : loaderData.profile.blurredAvatar
               }
               size="xl"
               textSize="xl"

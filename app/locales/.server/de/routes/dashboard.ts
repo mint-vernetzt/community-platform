@@ -7,10 +7,19 @@ export const locale = {
       headline: "Mitteilungen",
       hide: "Mitteilungen ausblenden",
       show: "Mitteilungen einblenden",
-      cancelled: "Event abgesagt",
-      cta: "Zu meinen Events",
       showMore: "Weitere anzeigen",
       showLess: "Weniger anzeigen",
+      cancelledEvents: {
+        cancelled: "Event abgesagt",
+        cta: "Zu meinen Events",
+      },
+      acceptedClaimRequests: {
+        headline:
+          "Deine Anfrage zum Übernehmen der Organisation wurde bestätigt.",
+        description:
+          "Du bist nun <0>Administrator:in</0> der Organisation <0>{{name}}</0>.",
+        cta: "Zur Organisation",
+      },
     },
     header: {
       controls: {

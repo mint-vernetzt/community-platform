@@ -1545,6 +1545,7 @@ enum ClaimStatus {
   open
   withdrawn
   accepted
+  acceptedAndSeen
   rejected
 
   @@map("claim_status")

@@ -139,6 +139,7 @@ export async function getOrganization(slug: string) {
           mastodon: true,
           tiktok: true,
           supportedBy: true,
+          shadow: true,
           types: true,
           networkTypes: true,
           networkMembers: true,
@@ -437,7 +438,8 @@ export async function handleClaimRequest(options: {
             (claimRequest) =>
               claimRequest.status === "accepted" ||
               claimRequest.status === "open" ||
-              claimRequest.status === "rejected"
+              claimRequest.status === "rejected" ||
+              claimRequest.status === "acceptedAndSeen"
           )
         ) {
           ctx.addIssue({
@@ -550,13 +552,14 @@ export async function handleClaimRequest(options: {
             }
           }
           claimRequestTimeouts.delete(timeoutKey);
-        }, 60000);
+        }, 0);
         claimRequestTimeouts.set(timeoutKey, timeoutId);
       } else {
         if (
           organization.claimRequests.some(
             (claimRequest) =>
               claimRequest.status === "accepted" ||
+              claimRequest.status === "acceptedAndSeen" ||
               claimRequest.status === "withdrawn" ||
               claimRequest.status === "rejected"
           )

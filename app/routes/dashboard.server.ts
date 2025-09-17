@@ -16,7 +16,7 @@ export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["dashboard"];
 
-export async function getProfileById(id: string, authClient?: SupabaseClient) {
+export async function getProfileById(id: string, authClient: SupabaseClient) {
   const profile = await prismaClient.profile.findUnique({
     where: { id },
     select: {
@@ -24,6 +24,20 @@ export async function getProfileById(id: string, authClient?: SupabaseClient) {
       lastName: true,
       username: true,
       avatar: true,
+      claimOrganizationRequests: {
+        select: {
+          organization: {
+            select: {
+              name: true,
+              slug: true,
+              logo: true,
+            },
+          },
+        },
+        where: {
+          status: "accepted",
+        },
+      },
     },
   });
 
@@ -31,14 +45,12 @@ export async function getProfileById(id: string, authClient?: SupabaseClient) {
     return null;
   }
 
-  if (
-    typeof authClient !== "undefined" &&
-    profile !== null &&
-    profile.avatar !== null
-  ) {
-    const publicURL = getPublicURL(authClient, profile.avatar);
+  let avatar = profile.avatar;
+  let blurredAvatar;
+  if (avatar !== null) {
+    const publicURL = getPublicURL(authClient, avatar);
     if (publicURL !== null) {
-      const avatar = getImageURL(publicURL, {
+      avatar = getImageURL(publicURL, {
         resize: {
           type: "fill",
           width: ImageSizes.Profile.Dashboard.Avatar.width,
@@ -46,7 +58,7 @@ export async function getProfileById(id: string, authClient?: SupabaseClient) {
         },
         gravity: GravityType.center,
       });
-      const blurredAvatar = getImageURL(publicURL, {
+      blurredAvatar = getImageURL(publicURL, {
         resize: {
           type: "fill",
           width: ImageSizes.Profile.Dashboard.BlurredAvatar.width,
@@ -54,15 +66,46 @@ export async function getProfileById(id: string, authClient?: SupabaseClient) {
         },
         blur: BlurFactor,
       });
-      return {
-        ...profile,
-        avatar,
-        blurredAvatar,
-      };
     }
   }
+  const claimOrganizationRequests = profile.claimOrganizationRequests.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItem.Avatar.width,
+              height: ImageSizes.Profile.ListItem.Avatar.height,
+            },
+            gravity: GravityType.center,
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              width: ImageSizes.Profile.ListItem.BlurredAvatar.width,
+              height: ImageSizes.Profile.ListItem.BlurredAvatar.height,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return {
+        ...relation,
+        organization: { ...relation.organization, logo, blurredLogo },
+      };
+    }
+  );
 
-  return { ...profile, blurredAvatar: null, avatar: null };
+  return {
+    ...profile,
+    blurredAvatar,
+    avatar,
+    claimOrganizationRequests,
+  };
 }
 
 export async function getProfilesForCards(take: number) {
