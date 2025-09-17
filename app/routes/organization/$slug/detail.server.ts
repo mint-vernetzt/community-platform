@@ -17,6 +17,8 @@ import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { DefaultImages } from "~/images.shared";
 import { triggerEntityScore } from "~/utils.server";
+import { CLAIM_REQUEST_INTENTS, claimRequestSchema } from "./detail.shared";
+import { invariantResponse } from "~/lib/utils/response";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -390,5 +392,122 @@ export async function disconnectImage(options: {
       }),
     },
     redirectUrl: redirectUrl.toString(),
+  };
+}
+
+export async function handleClaimRequest(options: {
+  formData: FormData;
+  sessionUserId: string;
+  slug: string;
+  locales: OrganizationDetailLocales;
+}) {
+  const { formData, sessionUserId, slug, locales } = options;
+  const organization = await prismaClient.organization.findUnique({
+    where: { slug, shadow: true },
+    select: {
+      id: true,
+      claimRequests: {
+        select: {
+          status: true,
+        },
+        where: {
+          claimerId: sessionUserId,
+        },
+      },
+    },
+  });
+  invariantResponse(organization !== null, locales.route.error.notShadow, {
+    status: 400,
+  });
+
+  const submission = await parseWithZod(formData, {
+    schema: claimRequestSchema.transform(async (data, ctx) => {
+      if (data.intent === CLAIM_REQUEST_INTENTS.create) {
+        if (
+          organization.claimRequests.some(
+            (claimRequest) =>
+              claimRequest.status === "accepted" ||
+              claimRequest.status === "open" ||
+              claimRequest.status === "rejected"
+          )
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.alreadyClaimed,
+          });
+        }
+        await prismaClient.organizationClaimRequest.upsert({
+          where: {
+            claimerId_organizationId: {
+              claimerId: sessionUserId,
+              organizationId: organization.id,
+            },
+          },
+          create: {
+            claimerId: sessionUserId,
+            organizationId: organization.id,
+            status: "open",
+          },
+          update: {
+            status: "open",
+          },
+        });
+        // TODO: send mail to support with delay (to avoid spamming emails)
+      } else {
+        if (
+          organization.claimRequests.some(
+            (claimRequest) =>
+              claimRequest.status === "accepted" ||
+              claimRequest.status === "withdrawn" ||
+              claimRequest.status === "rejected"
+          )
+        ) {
+          ctx.addIssue({
+            code: "custom",
+            message: locales.route.error.alreadyWithdrawn,
+          });
+        }
+        await prismaClient.organizationClaimRequest.upsert({
+          where: {
+            claimerId_organizationId: {
+              claimerId: sessionUserId,
+              organizationId: organization.id,
+            },
+          },
+          create: {
+            claimerId: sessionUserId,
+            organizationId: organization.id,
+            status: "withdrawn",
+          },
+          update: {
+            status: "withdrawn",
+          },
+        });
+        // TODO: send mail to support if delay is over (so email was sent)
+      }
+      return { ...data };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+
+  return {
+    submission: null,
+    toast: {
+      id: "claim-request",
+      key: `${new Date().getTime()}`,
+      message:
+        submission.value.intent === CLAIM_REQUEST_INTENTS.create
+          ? locales.route.claimRequest.notRequested.success
+          : locales.route.claimRequest.alreadyRequested.success,
+      level:
+        submission.value.intent === CLAIM_REQUEST_INTENTS.create
+          ? "positive"
+          : "neutral",
+    },
+    redirectUrl: null,
   };
 }

@@ -336,7 +336,6 @@ model OrganizationVisibility {
 }
 
 model OrganizationClaimRequest {
-  id             String       @id @default(uuid())
   status         ClaimStatus  @default(open)
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
@@ -345,6 +344,7 @@ model OrganizationClaimRequest {
   organization   Organization @relation("organization_of_organization_claim_request", fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
 
+  @@id([claimerId, organizationId])
   @@map("organization_claim_requests")
 }
 

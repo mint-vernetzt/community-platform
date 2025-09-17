@@ -14,6 +14,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -51,14 +52,17 @@ import {
   disconnectImage,
   filterOrganization,
   getOrganization,
+  handleClaimRequest,
   uploadImage,
 } from "./detail.server";
 import {
+  CLAIM_REQUEST_INTENTS,
   hasEventsData,
   hasNetworkData,
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
+import { getFormProps, useForm } from "@conform-to/react-v1";
 
 export function links() {
   return [
@@ -226,23 +230,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   let alreadyRequestedToClaim = false;
+  let allowedToClaimOrganization = false;
   if (sessionUser !== null) {
     const openClaimRequest =
       await prismaClient.organizationClaimRequest.findFirst({
         select: {
-          id: true,
+          status: true,
         },
         where: {
-          organizationId: enhancedOrganization.id,
-          OR: [
-            { status: "open" },
-            { status: "accepted" },
-            { status: "rejected" },
-          ],
+          organizationId: organization.id,
           claimerId: sessionUser.id,
         },
       });
-    alreadyRequestedToClaim = openClaimRequest !== null;
+    alreadyRequestedToClaim =
+      openClaimRequest !== null ? openClaimRequest.status === "open" : false;
+    allowedToClaimOrganization =
+      organization.shadow === false
+        ? false
+        : openClaimRequest !== null
+        ? openClaimRequest.status === "open" ||
+          openClaimRequest.status === "withdrawn"
+        : true;
   }
 
   return {
@@ -256,6 +264,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     currentTimestamp: Date.now(),
     preferredExploreOrganizationsView,
     alreadyRequestedToClaim,
+    allowedToClaimOrganization,
   };
 };
 
@@ -295,6 +304,8 @@ export const action = async (args: ActionFunctionArgs) => {
   let toast;
   let redirectUrl: string | null = request.url;
 
+  console.log("action intent", intent);
+
   if (intent === UPLOAD_INTENT_VALUE) {
     const result = await uploadImage({
       request,
@@ -310,6 +321,19 @@ export const action = async (args: ActionFunctionArgs) => {
     const result = await disconnectImage({
       request,
       formData,
+      slug,
+      locales,
+    });
+    submission = result.submission;
+    toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
+  } else if (
+    intent === CLAIM_REQUEST_INTENTS.create ||
+    intent === CLAIM_REQUEST_INTENTS.withdraw
+  ) {
+    const result = await handleClaimRequest({
+      formData,
+      sessionUserId: sessionUser.id,
       slug,
       locales,
     });
@@ -347,10 +371,19 @@ function OrganizationDetail() {
     locales,
     preferredExploreOrganizationsView,
     alreadyRequestedToClaim,
+    allowedToClaimOrganization,
   } = loaderData;
   const location = useLocation();
   const pathname = location.pathname;
   const isSubmitting = useIsSubmitting();
+  const navigation = useNavigation();
+
+  const [claimRequestForm] = useForm({
+    id: `claim-request-${
+      actionData?.currentTimestamp || loaderData.currentTimestamp
+    }`,
+    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  });
 
   return (
     <Container
@@ -603,66 +636,88 @@ function OrganizationDetail() {
             ) : null}
           </div>
         </div>
-        {/* {organization.shadow ? ( */}
-        <div className="mv-w-full mv-px-4 mv-pb-6">
-          <div className="mv-w-full mv-p-4 mv-flex mv-flex-col @md:mv-flex-row @md:mv-justify-between mv-items-center mv-gap-4 mv-rounded-[4px] mv-bg-primary-50">
-            <p className="mv-text-primary-700 @md:mv-max-w-[800px]">
-              {alreadyRequestedToClaim
-                ? locales.route.claimRequest.alreadyRequested.description
-                : insertComponentsIntoLocale(
-                    locales.route.claimRequest.notRequested.description,
-                    [
-                      <span
-                        key="highlighted-text"
-                        className="mv-font-semibold"
-                      />,
-                      <Link
-                        key="help-link"
-                        to="/help#TODO"
-                        target="_blank"
-                        className="mv-text-primary mv-font-semibold hover:mv-underline"
-                        prefetch="intent"
-                      >
-                        {" "}
-                      </Link>,
-                    ]
-                  )}
-            </p>
-            <div className="mv-w-full @md:mv-w-fit">
-              {mode === "anon" ? (
-                <Button
-                  as="link"
-                  to={`/login?login_redirect=/organization/${organization.slug}/detail/about`}
-                  variant="outline"
-                  size="small"
-                  fullSize
-                  prefetch="intent"
-                >
-                  {locales.route.claimRequest.anon.cta}
-                </Button>
-              ) : alreadyRequestedToClaim ? (
-                <Button
-                  variant="outline"
-                  size="small"
-                  fullSize
-                  disabled={isSubmitting}
-                >
-                  {locales.route.claimRequest.alreadyRequested.cta}
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="small"
-                  fullSize
-                  disabled={isSubmitting}
-                >
-                  {locales.route.claimRequest.notRequested.cta}
-                </Button>
-              )}
+        {allowedToClaimOrganization ? (
+          <div className="mv-w-full mv-px-4 mv-pb-6">
+            <div className="mv-w-full mv-p-4 mv-flex mv-flex-col @md:mv-flex-row @md:mv-justify-between mv-items-center mv-gap-4 mv-rounded-[4px] mv-bg-primary-50">
+              <p className="mv-text-primary-700 @md:mv-max-w-[800px]">
+                {alreadyRequestedToClaim
+                  ? locales.route.claimRequest.alreadyRequested.description
+                  : insertComponentsIntoLocale(
+                      locales.route.claimRequest.notRequested.description,
+                      [
+                        <span
+                          key="highlighted-text"
+                          className="mv-font-semibold"
+                        />,
+                        <Link
+                          key="help-link"
+                          to="/help#TODO"
+                          target="_blank"
+                          className="mv-text-primary mv-font-semibold hover:mv-underline"
+                          prefetch="intent"
+                        >
+                          {" "}
+                        </Link>,
+                      ]
+                    )}
+              </p>
+              <div className="mv-w-full @md:mv-w-fit">
+                {mode === "anon" ? (
+                  <Button
+                    as="link"
+                    to={`/login?login_redirect=/organization/${organization.slug}/detail/about`}
+                    variant="outline"
+                    size="small"
+                    fullSize
+                    prefetch="intent"
+                  >
+                    {locales.route.claimRequest.anon.cta}
+                  </Button>
+                ) : alreadyRequestedToClaim ? (
+                  <>
+                    <Form
+                      {...getFormProps(claimRequestForm)}
+                      method="post"
+                      hidden
+                    />
+                    <Button
+                      name={INTENT_FIELD_NAME}
+                      value={CLAIM_REQUEST_INTENTS.withdraw}
+                      form={claimRequestForm.id}
+                      type="submit"
+                      variant="outline"
+                      size="small"
+                      fullSize
+                      disabled={isSubmitting}
+                    >
+                      {locales.route.claimRequest.alreadyRequested.cta}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Form
+                      {...getFormProps(claimRequestForm)}
+                      method="post"
+                      hidden
+                    />
+                    <Button
+                      name={INTENT_FIELD_NAME}
+                      value={CLAIM_REQUEST_INTENTS.create}
+                      form={claimRequestForm.id}
+                      type="submit"
+                      variant="outline"
+                      size="small"
+                      fullSize
+                      disabled={isSubmitting}
+                    >
+                      {locales.route.claimRequest.notRequested.cta}
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        {/* ) : null} */}
+        ) : null}
       </Container.Section>
       {mode === "admin" && (
         <>
