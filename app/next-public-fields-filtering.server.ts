@@ -230,6 +230,13 @@ export function filterOrganizationByVisibility<
             ? organization[key]
             : [];
       }
+      // Fields in Organization with type Boolean
+      else if (key === "shadow") {
+        filteredFields[key] =
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : true;
+      }
       // Fields in Organization with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
         filteredFields[key] =
@@ -262,6 +269,7 @@ export function filterOrganizationByVisibility<
         key === "quote" ||
         key === "quoteAuthor" ||
         key === "quoteAuthorInformation" ||
+        key === "shadowSource" ||
         key === "streetNumber" ||
         key === "zipCode" ||
         key === "longitude" ||

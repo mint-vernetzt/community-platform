@@ -1,7 +1,6 @@
 generator client {
-  provider        = "prisma-client-js"
-  engineType      = "binary"
-  previewFeatures = ["fullTextSearch"]
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
@@ -250,6 +249,8 @@ model Organization {
   mastodon               String?
   tiktok                 String?
   score                  Int                                  @default(0)
+  shadow                 Boolean                              @default(false)
+  shadowSource           String?                              @map("shadow_source")
   areas                  AreasOnOrganizations[]
   focuses                FocusesOnOrganizations[]
   networkMembers         MemberOfNetwork[]                    @relation("network")
@@ -309,6 +310,8 @@ model OrganizationVisibility {
   mastodon               Boolean      @default(true)
   tiktok                 Boolean      @default(true)
   score                  Boolean      @default(true)
+  shadow                 Boolean      @default(false)
+  shadowSource           Boolean      @default(false) @map("shadow_source")
   areas                  Boolean      @default(true)
   focuses                Boolean      @default(false)
   networkMembers         Boolean      @default(true)
