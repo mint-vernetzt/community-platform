@@ -206,7 +206,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     };
   });
 
-  let preferredExploreOrganizationsView: "map" | "list" = "map";
+  let preferredExploreOrganizationsView: "map" | "list" = "list";
 
   const cookieHeader = request.headers.get("Cookie");
   // TODO: fix type issue
