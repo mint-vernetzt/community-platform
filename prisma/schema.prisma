@@ -63,6 +63,7 @@ model Profile {
   abuseReports              ProfileAbuseReport[]                 @relation("profile_of_profile_abuse_report")
   joinOrganizationRequests  RequestToOrganizationToAddProfile[]
   joinOrganizationInvites   InviteForProfileToJoinOrganization[]
+  claimOrganizationRequests OrganizationClaimRequest[]           @relation("claimer_of_organization_claim_request")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -124,6 +125,7 @@ model ProfileVisibility {
   abuseReports              Boolean @default(false)
   joinOrganizationRequests  Boolean @default(false)
   joinOrganizationInvites   Boolean @default(false)
+  claimOrganizationRequests Boolean @default(false)
 
   @@map("profile_visibilities")
 }
@@ -251,6 +253,7 @@ model Organization {
   score                  Int                                  @default(0)
   shadow                 Boolean                              @default(false)
   shadowSource           String?                              @map("shadow_source")
+  claimRequests          OrganizationClaimRequest[]           @relation("organization_of_organization_claim_request")
   areas                  AreasOnOrganizations[]
   focuses                FocusesOnOrganizations[]
   networkMembers         MemberOfNetwork[]                    @relation("network")
@@ -312,6 +315,7 @@ model OrganizationVisibility {
   score                  Boolean      @default(true)
   shadow                 Boolean      @default(false)
   shadowSource           Boolean      @default(false) @map("shadow_source")
+  claimRequests          Boolean      @default(false)
   areas                  Boolean      @default(true)
   focuses                Boolean      @default(false)
   networkMembers         Boolean      @default(true)
@@ -329,6 +333,19 @@ model OrganizationVisibility {
   organizationId         String       @unique
 
   @@map("organization_visibilities")
+}
+
+model OrganizationClaimRequest {
+  id             String       @id @default(uuid())
+  status         ClaimStatus  @default(open)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  claimer        Profile      @relation("claimer_of_organization_claim_request", fields: [claimerId], references: [id])
+  claimerId      String       @map("claimer_id")
+  organization   Organization @relation("organization_of_organization_claim_request", fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  @@map("organization_claim_requests")
 }
 
 model OrganizationAbuseReport {
@@ -1522,6 +1539,15 @@ enum AbuseReportStatus {
   rejected
 
   @@map("abuse_report_status")
+}
+
+enum ClaimStatus {
+  open
+  withdrawn
+  accepted
+  rejected
+
+  @@map("claim_status")
 }
 
 enum OrganizationRole {

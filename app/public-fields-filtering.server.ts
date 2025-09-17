@@ -50,6 +50,8 @@ type ProfileWithRelations = Profile & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   joinOrganizationInvites: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  claimOrganizationRequests: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _count: any;
 };
 
@@ -114,6 +116,7 @@ export async function filterProfileByVisibility<
         key === "abuseReports" ||
         key === "joinOrganizationRequests" ||
         key === "joinOrganizationInvites" ||
+        key === "claimOrganizationRequests" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
