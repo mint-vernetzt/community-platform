@@ -57,6 +57,35 @@ type StandardMessageContent = {
   buttonUrl: string;
 };
 
+type ClaimOrganizationRequestCreatedContent = {
+  headline: string;
+  claimer: {
+    firstName: string;
+    lastName: string;
+  };
+  organization: {
+    name: string;
+  };
+  supportMail: string;
+  profileButtonText: string;
+  profileButtonUrl: string;
+  organizationButtonText: string;
+  organizationButtonUrl: string;
+};
+
+type ClaimOrganizationRequestWithdrawnContent = {
+  headline: string;
+  claimer: {
+    firstName: string;
+    lastName: string;
+  };
+  organization: {
+    name: string;
+  };
+  profileButtonUrl: string;
+  organizationButtonUrl: string;
+};
+
 type MoveToParticipantsContent = {
   recipient: {
     firstName: string;
@@ -180,6 +209,10 @@ type InviteCanceledNetworkContent = {
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
+  | "mail-templates/claim-organization/created-html.hbs"
+  | "mail-templates/claim-organization/created-text.hbs"
+  | "mail-templates/claim-organization/withdrawn-html.hbs"
+  | "mail-templates/claim-organization/withdrawn-text.hbs"
   | "mail-templates/welcome/html.hbs"
   | "mail-templates/welcome/text.hbs"
   | "mail-templates/abuse-report-support/html.hbs"
@@ -227,6 +260,14 @@ type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
   ? StandardMessageContent
+  : TemplatePath extends
+      | "mail-templates/claim-organization/created-html.hbs"
+      | "mail-templates/claim-organization/created-text.hbs"
+  ? ClaimOrganizationRequestCreatedContent
+  : TemplatePath extends
+      | "mail-templates/claim-organization/withdrawn-html.hbs"
+      | "mail-templates/claim-organization/withdrawn-text.hbs"
+  ? ClaimOrganizationRequestWithdrawnContent
   : TemplatePath extends
       | "mail-templates/move-to-participants/html.hbs"
       | "mail-templates/move-to-participants/text.hbs"

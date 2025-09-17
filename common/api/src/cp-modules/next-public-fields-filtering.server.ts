@@ -48,6 +48,8 @@ type ProfileWithRelations = Profile & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   joinOrganizationInvites: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  claimOrganizationRequests: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _count: any;
 };
 
@@ -92,6 +94,7 @@ export function filterProfileByVisibility<
         key === "abuseReports" ||
         key === "joinOrganizationRequests" ||
         key === "joinOrganizationInvites" ||
+        key === "claimOrganizationRequests" ||
         key === "waitingForEvents"
       ) {
         filteredFields[key] =
@@ -189,6 +192,8 @@ type OrganizationWithRelations = Organization & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileJoinInvites: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  claimRequests: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _count: any;
 };
 
@@ -223,12 +228,20 @@ export function filterOrganizationByVisibility<
         key === "abuseReports" ||
         key === "profileJoinRequests" ||
         key === "profileJoinInvites" ||
+        key === "claimRequests" ||
         key === "responsibleForProject"
       ) {
         filteredFields[key] =
           organization.organizationVisibility[key] === true
             ? organization[key]
             : [];
+      }
+      // Fields in Organization with type Boolean
+      else if (key === "shadow") {
+        filteredFields[key] =
+          organization.organizationVisibility[key] === true
+            ? organization[key]
+            : true;
       }
       // Fields in Organization with type DateTime
       else if (key === "createdAt" || key === "updatedAt") {
@@ -262,6 +275,7 @@ export function filterOrganizationByVisibility<
         key === "quote" ||
         key === "quoteAuthor" ||
         key === "quoteAuthorInformation" ||
+        key === "shadowSource" ||
         key === "streetNumber" ||
         key === "zipCode" ||
         key === "longitude" ||
@@ -351,7 +365,6 @@ export function filterEventByVisibility<
       }
       // Fields in Event with type []
       else if (
-        key === "areas" ||
         key === "documents" ||
         key === "types" ||
         key === "childEvents" ||
