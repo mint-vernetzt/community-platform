@@ -9,13 +9,13 @@ export async function loader(args: LoaderFunctionArgs) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
   if (cookie === null) {
-    return redirect(`./map?${url.searchParams.toString()}`);
+    return redirect(`./list?${url.searchParams.toString()}`);
   }
   let view;
   try {
     view = viewCookieSchema.parse(cookie);
   } catch {
-    return redirect(`./map?${url.searchParams.toString()}`);
+    return redirect(`./list?${url.searchParams.toString()}`);
   }
   return redirect(`./${view}?${url.searchParams.toString()}`);
 }
