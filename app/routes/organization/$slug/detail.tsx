@@ -63,6 +63,10 @@ import {
   hasTeamData,
 } from "./detail.shared";
 import { getFormProps, useForm } from "@conform-to/react-v1";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/routes/feature-access.server";
 
 export function links() {
   return [
@@ -231,26 +235,35 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let alreadyRequestedToClaim = false;
   let allowedToClaimOrganization = false;
-  if (sessionUser !== null) {
-    const openClaimRequest =
-      await prismaClient.organizationClaimRequest.findFirst({
-        select: {
-          status: true,
-        },
-        where: {
-          organizationId: organization.id,
-          claimerId: sessionUser.id,
-        },
-      });
-    alreadyRequestedToClaim =
-      openClaimRequest !== null ? openClaimRequest.status === "open" : false;
-    allowedToClaimOrganization =
-      organization.shadow === false
-        ? false
-        : openClaimRequest !== null
-        ? openClaimRequest.status === "open" ||
-          openClaimRequest.status === "withdrawn"
-        : true;
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "provisional_organizations"
+  );
+  if (abilities["provisional_organizations"].hasAccess === true) {
+    if (sessionUser !== null) {
+      const openClaimRequest =
+        await prismaClient.organizationClaimRequest.findFirst({
+          select: {
+            status: true,
+          },
+          where: {
+            organizationId: organization.id,
+            claimerId: sessionUser.id,
+          },
+        });
+      alreadyRequestedToClaim =
+        openClaimRequest !== null ? openClaimRequest.status === "open" : false;
+      allowedToClaimOrganization =
+        organization.shadow === false
+          ? false
+          : openClaimRequest !== null
+          ? openClaimRequest.status === "open" ||
+            openClaimRequest.status === "withdrawn"
+          : true;
+    } else {
+      alreadyRequestedToClaim = false;
+      allowedToClaimOrganization = organization.shadow === true;
+    }
   }
 
   return {
@@ -329,6 +342,7 @@ export const action = async (args: ActionFunctionArgs) => {
     intent === CLAIM_REQUEST_INTENTS.create ||
     intent === CLAIM_REQUEST_INTENTS.withdraw
   ) {
+    await checkFeatureAbilitiesOrThrow(authClient, "provisional_organizations");
     const result = await handleClaimRequest({
       formData,
       sessionUserId: sessionUser.id,
