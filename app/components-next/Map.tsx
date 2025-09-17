@@ -51,9 +51,8 @@ export function Map(props: {
     remove: ["openMapMenu"],
   });
 
-  const [mapMenuIsOpen, setMapMenuIsOpen] = useState(
-    searchParams.get("openMapMenu") === "true"
-  );
+  // Default to open on desktop, closed on mobile
+  const [mapMenuIsOpen, setMapMenuIsOpen] = useState(true);
 
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibreGL.Map | null>(null);
@@ -82,6 +81,15 @@ export function Map(props: {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    // Default to open on desktop, closed on mobile
+    if (isMobile === true) {
+      setMapMenuIsOpen(false);
+    } else {
+      setMapMenuIsOpen(true);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (mapRef.current === null && mapContainer.current !== null) {
