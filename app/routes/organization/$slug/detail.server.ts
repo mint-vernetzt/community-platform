@@ -47,6 +47,7 @@ export async function getOrganization(slug: string) {
       mastodon: true,
       tiktok: true,
       supportedBy: true,
+      shadow: true,
       types: {
         select: {
           organizationType: {

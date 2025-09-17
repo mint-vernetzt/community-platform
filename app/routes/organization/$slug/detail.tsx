@@ -29,10 +29,16 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import {
+  viewCookie,
+  viewCookieSchema,
+} from "~/routes/explore/organizations.server";
 import {
   deriveOrganizationMode,
   getRedirectPathOnProtectedOrganizationRoute,
@@ -53,10 +59,6 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
-import {
-  viewCookie,
-  viewCookieSchema,
-} from "~/routes/explore/organizations.server";
 
 export function links() {
   return [
@@ -223,6 +225,26 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  let alreadyRequestedToClaim = false;
+  if (sessionUser !== null) {
+    const openClaimRequest =
+      await prismaClient.organizationClaimRequest.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          organizationId: enhancedOrganization.id,
+          OR: [
+            { status: "open" },
+            { status: "accepted" },
+            { status: "rejected" },
+          ],
+          claimerId: sessionUser.id,
+        },
+      });
+    alreadyRequestedToClaim = openClaimRequest !== null;
+  }
+
   return {
     organization: enhancedOrganization,
     mode,
@@ -233,6 +255,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     currentTimestamp: Date.now(),
     preferredExploreOrganizationsView,
+    alreadyRequestedToClaim,
   };
 };
 
@@ -318,8 +341,13 @@ export const action = async (args: ActionFunctionArgs) => {
 function OrganizationDetail() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { organization, mode, locales, preferredExploreOrganizationsView } =
-    loaderData;
+  const {
+    organization,
+    mode,
+    locales,
+    preferredExploreOrganizationsView,
+    alreadyRequestedToClaim,
+  } = loaderData;
   const location = useLocation();
   const pathname = location.pathname;
   const isSubmitting = useIsSubmitting();
@@ -575,6 +603,66 @@ function OrganizationDetail() {
             ) : null}
           </div>
         </div>
+        {/* {organization.shadow ? ( */}
+        <div className="mv-w-full mv-px-4 mv-pb-6">
+          <div className="mv-w-full mv-p-4 mv-flex mv-flex-col @md:mv-flex-row @md:mv-justify-between mv-items-center mv-gap-4 mv-rounded-[4px] mv-bg-primary-50">
+            <p className="mv-text-primary-700 @md:mv-max-w-[800px]">
+              {alreadyRequestedToClaim
+                ? locales.route.claimRequest.alreadyRequested.description
+                : insertComponentsIntoLocale(
+                    locales.route.claimRequest.notRequested.description,
+                    [
+                      <span
+                        key="highlighted-text"
+                        className="mv-font-semibold"
+                      />,
+                      <Link
+                        key="help-link"
+                        to="/help#TODO"
+                        target="_blank"
+                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                        prefetch="intent"
+                      >
+                        {" "}
+                      </Link>,
+                    ]
+                  )}
+            </p>
+            <div className="mv-w-full @md:mv-w-fit">
+              {mode === "anon" ? (
+                <Button
+                  as="link"
+                  to={`/login?login_redirect=/organization/${organization.slug}/detail/about`}
+                  variant="outline"
+                  size="small"
+                  fullSize
+                  prefetch="intent"
+                >
+                  {locales.route.claimRequest.anon.cta}
+                </Button>
+              ) : alreadyRequestedToClaim ? (
+                <Button
+                  variant="outline"
+                  size="small"
+                  fullSize
+                  disabled={isSubmitting}
+                >
+                  {locales.route.claimRequest.alreadyRequested.cta}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="small"
+                  fullSize
+                  disabled={isSubmitting}
+                >
+                  {locales.route.claimRequest.notRequested.cta}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* ) : null} */}
       </Container.Section>
       {mode === "admin" && (
         <>
