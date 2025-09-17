@@ -1,0 +1,19 @@
+{{headline}}
+
+{{claimer.firstName}} {{claimer.lastName}} ({{profileButtonUrl}}) hat angefragt, die Organisation {{organization.name}}
+({{organizationButtonUrl}}) zu übernehmen.
+
+Was ist zu tun:
+- Prüfe, ob die Person zu der Organisation zugehörig ist.
+- Wenn ja, mache die Person zur Administrator:in der Organisation und setze den Status der Anfrage auf "accepted"
+(organization_claim_requests) sowie die Organisation auf shadow=false.
+- Sende der Person eine E-Mail mit dem Hinweis, dass sie jetzt Administrator:in bei der angefragten Organisation ist
+(Mail Vorlage im {{supportMail}} Postfach).
+- Wenn nein, sende der Person eine E-Mail um sie um weitere Informationen zu bitten (Mail Vorlage im
+{{supportMail}} Postfach).
+- Wenn keine Antwort kommt oder der Nachweis nicht erbracht werden kann, setze den Status der Anfrage auf "rejected"
+(organization_claim_requests) und informiere die Person per E-Mail.
+
+{{profileButtonText}}: {{profileButtonUrl}}
+
+{{organizationButtonText}}: {{organizationButtonUrl}}

@@ -304,8 +304,6 @@ export const action = async (args: ActionFunctionArgs) => {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  console.log("action intent", intent);
-
   if (intent === UPLOAD_INTENT_VALUE) {
     const result = await uploadImage({
       request,
@@ -342,6 +340,7 @@ export const action = async (args: ActionFunctionArgs) => {
     redirectUrl = result.redirectUrl || request.url;
   } else {
     // TODO: How can we add this to the zod ctx?
+    // When this happens somebody is messing arround so we can throw here
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,

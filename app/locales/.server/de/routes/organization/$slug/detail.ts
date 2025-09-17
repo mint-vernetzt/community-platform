@@ -49,16 +49,26 @@ export const locale = {
       description:
         "Du hast angefragt, dieses Organisationsprofil zu übernehmen. Wir prüfen Deine Anfrage und melden uns per E-Mail bei Dir.",
       cta: "Anfrage zurückziehen",
-      success: "Anfrage zurückgezogen",
     },
     notRequested: {
       description:
         "Dieses Organisationsprofil hat MINTvernetzt angelegt. Wenn Du Teil dieser Organisation bist, kannst Du dieses <0>Profil übernehmen</0>. Nach unserer Prüfung wirst Du Administrator:in. Du kannst auch eine <0>Löschung beantragen</0>. Mehr Infos findest Du im <1>Hilfebereich</1>.",
       cta: "Übernehmen",
-      success: "Anfrage erfolgreich versendet",
     },
     anon: {
       cta: "Anmelden zum Übernehmen",
+    },
+    created: {
+      success: "Anfrage erfolgreich versendet",
+      email: {
+        subject: "TODO",
+      },
+    },
+    withdrawn: {
+      success: "Anfrage zurückgezogen",
+      email: {
+        subject: "TODO",
+      },
     },
   },
 } as const;

@@ -19,6 +19,11 @@ import { DefaultImages } from "~/images.shared";
 import { triggerEntityScore } from "~/utils.server";
 import { CLAIM_REQUEST_INTENTS, claimRequestSchema } from "./detail.shared";
 import { invariantResponse } from "~/lib/utils/response";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export type OrganizationDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -395,6 +400,8 @@ export async function disconnectImage(options: {
   };
 }
 
+const claimRequestTimeouts = new Map<string, NodeJS.Timeout>();
+
 export async function handleClaimRequest(options: {
   formData: FormData;
   sessionUserId: string;
@@ -406,6 +413,8 @@ export async function handleClaimRequest(options: {
     where: { slug, shadow: true },
     select: {
       id: true,
+      name: true,
+      slug: true,
       claimRequests: {
         select: {
           status: true,
@@ -452,7 +461,97 @@ export async function handleClaimRequest(options: {
             status: "open",
           },
         });
-        // TODO: send mail to support with delay (to avoid spamming emails)
+        // Send mail to support after delay
+        const timeoutKey = `${sessionUserId}:${organization.id}`;
+        const existingTimeout = claimRequestTimeouts.get(timeoutKey);
+        if (typeof existingTimeout !== "undefined") {
+          clearTimeout(existingTimeout);
+        }
+        const timeoutId = setTimeout(async () => {
+          const openClaimRequest =
+            await prismaClient.organizationClaimRequest.findFirst({
+              where: {
+                claimerId: sessionUserId,
+                organizationId: organization.id,
+                status: "open",
+              },
+            });
+          if (openClaimRequest !== null) {
+            const claimer = await prismaClient.profile.findUnique({
+              where: { id: sessionUserId },
+              select: {
+                firstName: true,
+                lastName: true,
+                username: true,
+              },
+            });
+            if (claimer === null) {
+              console.error(
+                `Claimer with id ${sessionUserId} not found when sending claim request mail`
+              );
+              captureException(
+                new Error(
+                  `Claimer with id ${sessionUserId} not found when sending claim request mail`
+                )
+              );
+            } else {
+              const sender = process.env.SYSTEM_MAIL_SENDER;
+              const recipient = process.env.SUPPORT_MAIL;
+              const subject = "Anfrage zur Übernahme einer Organisation";
+              const textTemplatePath =
+                "mail-templates/claim-organization/created-text.hbs";
+              const htmlTemplatePath =
+                "mail-templates/claim-organization/created-html.hbs";
+              const content = {
+                headline: "Anfrage zur Übernahme einer Organisation",
+                claimer: {
+                  firstName: claimer.firstName,
+                  lastName: claimer.lastName,
+                },
+                organization: {
+                  name: organization.name,
+                },
+                supportMail: process.env.SUPPORT_MAIL,
+                profileButtonText: "Zum Personenprofil",
+                profileButtonUrl: `${process.env.COMMUNITY_BASE_URL}/profile/${claimer.username}`,
+                organizationButtonText: "Zum Organisationsprofil",
+                organizationButtonUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${organization.slug}/detail/about`,
+              };
+
+              const text = getCompiledMailTemplate<typeof textTemplatePath>(
+                textTemplatePath,
+                content,
+                "text"
+              );
+              const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+                htmlTemplatePath,
+                content,
+                "html"
+              );
+
+              try {
+                await mailer(
+                  mailerOptions,
+                  sender,
+                  recipient,
+                  subject,
+                  text,
+                  html
+                );
+              } catch (error) {
+                console.error(
+                  "Error sending mail: Create organization claim request",
+                  error
+                );
+                captureException(error, {
+                  data: "Error sending mail: Create organization claim request",
+                });
+              }
+            }
+          }
+          claimRequestTimeouts.delete(timeoutKey);
+        }, 60000);
+        claimRequestTimeouts.set(timeoutKey, timeoutId);
       } else {
         if (
           organization.claimRequests.some(
@@ -483,7 +582,80 @@ export async function handleClaimRequest(options: {
             status: "withdrawn",
           },
         });
-        // TODO: send mail to support if delay is over (so email was sent)
+        const timeoutKey = `${sessionUserId}:${organization.id}`;
+        const existingTimeout = claimRequestTimeouts.get(timeoutKey);
+        if (typeof existingTimeout === "undefined") {
+          const claimer = await prismaClient.profile.findUnique({
+            where: { id: sessionUserId },
+            select: {
+              firstName: true,
+              lastName: true,
+              username: true,
+            },
+          });
+          if (claimer === null) {
+            console.error(
+              `Claimer with id ${sessionUserId} not found when sending claim request mail`
+            );
+            captureException(
+              new Error(
+                `Claimer with id ${sessionUserId} not found when sending claim request mail`
+              )
+            );
+          } else {
+            const sender = process.env.SYSTEM_MAIL_SENDER;
+            const recipient = process.env.SUPPORT_MAIL;
+            const subject =
+              "Anfrage zur Übernahme einer Organisation zurückgezogen";
+            const textTemplatePath =
+              "mail-templates/claim-organization/withdrawn-text.hbs";
+            const htmlTemplatePath =
+              "mail-templates/claim-organization/withdrawn-html.hbs";
+            const content = {
+              headline:
+                "Anfrage zur Übernahme einer Organisation zurückgezogen",
+              claimer: {
+                firstName: claimer.firstName,
+                lastName: claimer.lastName,
+              },
+              organization: {
+                name: organization.name,
+              },
+              profileButtonUrl: `${process.env.COMMUNITY_BASE_URL}/profile/${claimer.username}`,
+              organizationButtonUrl: `${process.env.COMMUNITY_BASE_URL}/organization/${organization.slug}/detail/about`,
+            };
+
+            const text = getCompiledMailTemplate<typeof textTemplatePath>(
+              textTemplatePath,
+              content,
+              "text"
+            );
+            const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+              htmlTemplatePath,
+              content,
+              "html"
+            );
+
+            try {
+              await mailer(
+                mailerOptions,
+                sender,
+                recipient,
+                subject,
+                text,
+                html
+              );
+            } catch (error) {
+              console.error(
+                "Error sending mail: Create organization claim request",
+                error
+              );
+              captureException(error, {
+                data: "Error sending mail: Create organization claim request",
+              });
+            }
+          }
+        }
       }
       return { ...data };
     }),
@@ -501,8 +673,8 @@ export async function handleClaimRequest(options: {
       key: `${new Date().getTime()}`,
       message:
         submission.value.intent === CLAIM_REQUEST_INTENTS.create
-          ? locales.route.claimRequest.notRequested.success
-          : locales.route.claimRequest.alreadyRequested.success,
+          ? locales.route.claimRequest.created.success
+          : locales.route.claimRequest.withdrawn.success,
       level:
         submission.value.intent === CLAIM_REQUEST_INTENTS.create
           ? "positive"
