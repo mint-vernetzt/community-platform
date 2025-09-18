@@ -1,8 +1,7 @@
 export const locale = {
   error: {
     organizationNotFound: "Organization not found",
-    onStoring:
-      "The image could not be saved. Please try again or contact support.",
+    onStoring: "Error on parsing the form data.",
     invalidAction: "Invalid action",
     notShadow: "Organization cannot be claimed",
     alreadyClaimed:
