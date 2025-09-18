@@ -40,10 +40,7 @@ import {
   viewCookie,
   viewCookieSchema,
 } from "~/routes/explore/organizations.server";
-import {
-  deriveOrganizationMode,
-  getRedirectPathOnProtectedOrganizationRoute,
-} from "~/routes/organization/$slug/utils.server";
+import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
@@ -286,15 +283,7 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
-    request,
-    slug,
-    sessionUser,
-    authClient,
-  });
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
+  const mode = await deriveOrganizationMode(sessionUser, slug);
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["organization/$slug/detail"];
@@ -303,9 +292,8 @@ export const action = async (args: ActionFunctionArgs) => {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
-      id: "upload-failed",
+      id: "parsing-failed",
       key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
       level: "negative",
@@ -317,7 +305,7 @@ export const action = async (args: ActionFunctionArgs) => {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  if (intent === UPLOAD_INTENT_VALUE) {
+  if (intent === UPLOAD_INTENT_VALUE && mode === "admin") {
     const result = await uploadImage({
       request,
       formData,
@@ -328,7 +316,10 @@ export const action = async (args: ActionFunctionArgs) => {
     submission = result.submission;
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
-  } else if (intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE) {
+  } else if (
+    intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE &&
+    mode === "admin"
+  ) {
     const result = await disconnectImage({
       request,
       formData,
