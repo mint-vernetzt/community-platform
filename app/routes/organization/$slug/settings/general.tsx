@@ -50,7 +50,16 @@ import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 
 const BIO_MAX_LENGTH = 2000;
 
-const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
+const createGeneralSchema = (
+  locales: GeneralOrganizationSettingsLocales,
+  organization: {
+    street: string | null;
+    streetNumber: string | null;
+    zipCode: string | null;
+    city: string | null;
+  }
+) => {
+  const { street, streetNumber, zipCode, city } = organization;
   return z.object({
     name: z
       .string({
@@ -89,37 +98,75 @@ const createGeneralSchema = (locales: GeneralOrganizationSettingsLocales) => {
         }
         return value;
       }),
-    street: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (value === undefined || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    streetNumber: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (value === undefined || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    zipCode: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (value === undefined || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    city: z
+    street:
+      street === null
+        ? z
+            .string()
+            .trim()
+            .optional()
+            .transform((value) => {
+              if (value === undefined || value === "") {
+                return null;
+              }
+              return value;
+            })
+        : z
+            .string({
+              required_error: locales.route.validation.street.required,
+            })
+            .trim(),
+    streetNumber:
+      streetNumber === null
+        ? z
+            .string()
+            .trim()
+            .optional()
+            .transform((value) => {
+              if (value === undefined || value === "") {
+                return null;
+              }
+              return value;
+            })
+        : z
+            .string({
+              required_error: locales.route.validation.streetNumber.required,
+            })
+            .trim(),
+    zipCode:
+      zipCode === null
+        ? z
+            .string()
+            .trim()
+            .optional()
+            .transform((value) => {
+              if (value === undefined || value === "") {
+                return null;
+              }
+              return value;
+            })
+        : z
+            .string({
+              required_error: locales.route.validation.zipCode.required,
+            })
+            .trim(),
+    city:
+      city === null
+        ? z
+            .string()
+            .trim()
+            .optional()
+            .transform((value) => {
+              if (value === undefined || value === "") {
+                return null;
+              }
+              return value;
+            })
+        : z
+            .string({
+              required_error: locales.route.validation.city.required,
+            })
+            .trim(),
+    addressSupplement: z
       .string()
       .trim()
       .optional()
@@ -198,6 +245,7 @@ export async function loader(args: LoaderFunctionArgs) {
       name: true,
       email: true,
       phone: true,
+      addressSupplement: true,
       street: true,
       streetNumber: true,
       zipCode: true,
@@ -312,7 +360,13 @@ export async function action(args: ActionFunctionArgs) {
 
   const organization = await prismaClient.organization.findFirst({
     where: { slug },
-    select: { id: true },
+    select: {
+      id: true,
+      street: true,
+      streetNumber: true,
+      zipCode: true,
+      city: true,
+    },
   });
 
   invariantResponse(organization !== null, locales.route.error.notFound, {
@@ -323,7 +377,7 @@ export async function action(args: ActionFunctionArgs) {
   const conformIntent = formData.get("__intent__");
   if (conformIntent !== null) {
     const submission = await parseWithZod(formData, {
-      schema: createGeneralSchema(locales),
+      schema: createGeneralSchema(locales, organization),
     });
     return {
       submission: submission.reply(),
@@ -331,87 +385,90 @@ export async function action(args: ActionFunctionArgs) {
   }
   const submission = await parseWithZod(formData, {
     schema: () =>
-      createGeneralSchema(locales).transform(async (data, ctx) => {
-        const { visibilities, areas, focuses, ...organizationData } = data;
-        const { longitude, latitude, error } = await getCoordinatesFromAddress({
-          id: organization.id,
-          street: organizationData.street,
-          streetNumber: organizationData.streetNumber,
-          city: organizationData.city,
-          zipCode: organizationData.zipCode,
-        });
-        if (error !== null) {
-          console.error(error);
-        }
-        try {
-          await prismaClient.organization.update({
-            where: {
-              slug,
-            },
-            data: {
-              ...organizationData,
-              longitude,
-              latitude,
-              bio: sanitizeUserHtml(organizationData.bio),
-              areas: {
-                deleteMany: {},
-                connectOrCreate: areas.map((areaId: string) => {
-                  return {
-                    where: {
-                      organizationId_areaId: {
+      createGeneralSchema(locales, organization).transform(
+        async (data, ctx) => {
+          const { visibilities, areas, focuses, ...organizationData } = data;
+          const { longitude, latitude, error } =
+            await getCoordinatesFromAddress({
+              id: organization.id,
+              street: organizationData.street,
+              streetNumber: organizationData.streetNumber,
+              city: organizationData.city,
+              zipCode: organizationData.zipCode,
+            });
+          if (error !== null) {
+            console.error(error);
+          }
+          try {
+            await prismaClient.organization.update({
+              where: {
+                slug,
+              },
+              data: {
+                ...organizationData,
+                longitude,
+                latitude,
+                bio: sanitizeUserHtml(organizationData.bio),
+                areas: {
+                  deleteMany: {},
+                  connectOrCreate: areas.map((areaId: string) => {
+                    return {
+                      where: {
+                        organizationId_areaId: {
+                          areaId,
+                          organizationId: organization.id,
+                        },
+                      },
+                      create: {
                         areaId,
-                        organizationId: organization.id,
                       },
-                    },
-                    create: {
-                      areaId,
-                    },
-                  };
-                }),
-              },
-              focuses: {
-                deleteMany: {},
-                connectOrCreate: focuses.map((focusId: string) => {
-                  return {
-                    where: {
-                      organizationId_focusId: {
+                    };
+                  }),
+                },
+                focuses: {
+                  deleteMany: {},
+                  connectOrCreate: focuses.map((focusId: string) => {
+                    return {
+                      where: {
+                        organizationId_focusId: {
+                          focusId,
+                          organizationId: organization.id,
+                        },
+                      },
+                      create: {
                         focusId,
-                        organizationId: organization.id,
                       },
-                    },
-                    create: {
-                      focusId,
-                    },
-                  };
-                }),
+                    };
+                  }),
+                },
               },
-            },
-          });
+            });
 
-          await prismaClient.organizationVisibility.update({
-            where: {
-              organizationId: organization.id,
-            },
-            data: {
-              ...visibilities,
-            },
-          });
-          updateFilterVectorOfOrganization(organization.id);
-          triggerEntityScore({
-            entity: "organization",
-            where: { id: organization.id },
-          });
-        } catch (error) {
-          captureException(error);
-          ctx.addIssue({
-            code: "custom",
-            message: locales.route.error.updateFailed,
-          });
-          return z.NEVER;
+            await prismaClient.organizationVisibility.update({
+              where: {
+                organizationId: organization.id,
+              },
+              data: {
+                ...visibilities,
+              },
+            });
+            updateFilterVectorOfOrganization(organization.id);
+            triggerEntityScore({
+              entity: "organization",
+              where: { id: organization.id },
+            });
+          } catch (error) {
+            captureException(error);
+            ctx.addIssue({
+              code: "custom",
+              message: locales.route.error.updateFailed,
+            });
+            return z.NEVER;
+          }
+
+          return { ...data };
         }
-
-        return { ...data };
-      }),
+      ),
     async: true,
   });
 
@@ -451,15 +508,15 @@ function General() {
     id: `general-form-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
-    constraint: getZodConstraint(createGeneralSchema(locales)),
+    constraint: getZodConstraint(createGeneralSchema(locales, organization)),
     defaultValue: defaultValues,
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
-        schema: createGeneralSchema(locales),
+        schema: createGeneralSchema(locales, organization),
       });
       setSupportedBy("");
       return submission;
@@ -591,6 +648,28 @@ function General() {
                     : null}
                 </Input>
               </div>
+            </div>
+
+            <div className="@lg:mv-flex @lg:mv-gap-4">
+              <Input
+                {...getInputProps(fields.addressSupplement, { type: "text" })}
+                key="addressSupplement"
+              >
+                <Input.Label htmlFor={fields.addressSupplement.id}>
+                  {locales.route.content.contact.addressSupplement.label}
+                </Input.Label>
+                {typeof fields.addressSupplement.errors !== "undefined" &&
+                fields.addressSupplement.errors.length > 0
+                  ? fields.addressSupplement.errors.map((error) => (
+                      <Input.Error
+                        id={fields.addressSupplement.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
             </div>
 
             <div className="@lg:mv-flex @lg:mv-gap-4">

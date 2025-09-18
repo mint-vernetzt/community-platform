@@ -19,6 +19,18 @@ export const locale = {
     notANetwork:
       "Your organization must have the organizational form network to add network forms",
     networkTypesRequired: "Please select at least one network form.",
+    street: {
+      required: "Please enter the street of your organization.",
+    },
+    streetNumber: {
+      required: "Please enter the street number of your organization.",
+    },
+    zipCode: {
+      required: "Please enter the ZIP code of your organization.",
+    },
+    city: {
+      required: "Please enter the city of your organization.",
+    },
   },
   back: "My organizations",
   headline: "Create organization",
@@ -67,6 +79,26 @@ export const locale = {
       helperWithoutNetwork: 'Requires organizational form "Network"',
       notFound:
         "The type of network could not be found. Please contact support.",
+    },
+    address: {
+      headline: "Where is your organization located?",
+      subline:
+        "By providing the address of your organization, it will be displayed on the STEM community map.",
+      addressSupplement: {
+        label: "Address supplement",
+      },
+      street: {
+        label: "Street*",
+      },
+      streetNumber: {
+        label: "Street number*",
+      },
+      zipCode: {
+        label: "ZIP code*",
+      },
+      city: {
+        label: "City*",
+      },
     },
     helperText: "*Required information",
     cancel: "Cancel",

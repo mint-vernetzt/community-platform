@@ -23,7 +23,13 @@ import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations
 type MapOrganization = ListOrganization &
   Pick<
     Organization,
-    "longitude" | "latitude" | "street" | "streetNumber" | "zipCode" | "city"
+    | "longitude"
+    | "latitude"
+    | "street"
+    | "streetNumber"
+    | "zipCode"
+    | "city"
+    | "addressSupplement"
   > & {
     networkMembers: {
       slug: string;
@@ -840,12 +846,15 @@ function Popup(props: {
           </p>
         </div>
         <address className="mv-not-italic mv-text-center mv-text-neutral-700 mv-pointer-events-auto">
-          {organization.street !== null ? `${organization.street} ` : ""}
-          {organization.streetNumber !== null
-            ? `${organization.streetNumber}, `
-            : ""}
-          {organization.zipCode !== null ? `${organization.zipCode} ` : ""}
-          {organization.city !== null ? `${organization.city}` : ""}
+          {[
+            organization.street,
+            organization.streetNumber,
+            organization.addressSupplement,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          ,{" "}
+          {[organization.zipCode, organization.city].filter(Boolean).join(" ")}
         </address>
         <div className="mv-absolute mv-right-0 mv-top-0 mv-pointer-events-auto">
           <MapPopupClose />

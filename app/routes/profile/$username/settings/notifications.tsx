@@ -110,7 +110,7 @@ function Notifications() {
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [form, fields] = useForm({
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     defaultValue: {
       updates: loaderData.profile.notificationSettings.updates ? "on" : "off",
     },

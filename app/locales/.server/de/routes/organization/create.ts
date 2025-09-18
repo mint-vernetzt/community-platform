@@ -20,6 +20,18 @@ export const locale = {
     notANetwork:
       "Deine Organisation muss die Organisationsform Netzwerk haben um Netzwerkformen hinzuzufügen",
     networkTypesRequired: "Bitte wähle mindestens eine Netzwerkform aus.",
+    street: {
+      required: "Bitte gib die Straße Deiner Organisation ein.",
+    },
+    streetNumber: {
+      required: "Bitte gib die Hausnummer Deiner Organisation ein.",
+    },
+    zipCode: {
+      required: "Bitte gib die Postleitzahl Deiner Organisation ein.",
+    },
+    city: {
+      required: "Bitte gib die Stadt Deiner Organisation ein.",
+    },
   },
   back: "Meine Organisationen",
   headline: "Organisation anlegen",
@@ -68,6 +80,26 @@ export const locale = {
       helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
       notFound:
         "Die Netzwerkform konnte nicht gefunden werden. Bitte kontaktiere den Support.",
+    },
+    address: {
+      headline: "Wo sitzt Deine Organisation?",
+      subline:
+        "Durch das Angeben der Adresse Deiner Organisation wird diese auf der MINT-Community Karte angezeigt.",
+      addressSupplement: {
+        label: "Adresszusatz",
+      },
+      street: {
+        label: "Straße*",
+      },
+      streetNumber: {
+        label: "Hausnummer*",
+      },
+      zipCode: {
+        label: "Postleitzahl*",
+      },
+      city: {
+        label: "Stadt*",
+      },
     },
     helperText: "*Erforderliche Angaben",
     cancel: "Abbrechen",

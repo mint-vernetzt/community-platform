@@ -159,8 +159,7 @@ function WebSocial() {
       visibilities: organizationVisibility,
     },
     constraint: getZodConstraint(createWebSocialSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: createWebSocialSchema(locales),

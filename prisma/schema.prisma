@@ -222,8 +222,8 @@ model Organization {
   slug                   String                               @unique
   email                  String?
   phone                  String?
-  street                 String?
-  city                   String?
+  street                 String? // is now required -> String? is legacy
+  city                   String? // is now required -> String? is legacy
   website                String?
   logo                   String?
   background             String? // legacy
@@ -240,10 +240,11 @@ model Organization {
   publicFields           String[]                             @map("public_fields") // legacy
   quoteAuthor            String?                              @map("quote_author")
   quoteAuthorInformation String?                              @map("quote_author_information")
-  streetNumber           String?                              @map("street_number")
+  streetNumber           String?                              @map("street_number") // is now required -> String? is legacy
+  addressSupplement      String?                              @map("address_supplement")
   supportedBy            String[]                             @map("supported_by")
   updatedAt              DateTime                             @default(now()) @updatedAt @map("updated_at")
-  zipCode                String?                              @map("zip_code")
+  zipCode                String?                              @map("zip_code") // is now required -> String? is legacy
   longitude              String?
   latitude               String?
   instagram              String?
@@ -283,11 +284,11 @@ model OrganizationVisibility {
   id                     String       @id @default(uuid())
   name                   Boolean      @default(true)
   slug                   Boolean      @default(true)
-  email                  Boolean      @default(false)
-  phone                  Boolean      @default(false)
+  email                  Boolean      @default(true)
+  phone                  Boolean      @default(true)
   street                 Boolean      @default(true)
   city                   Boolean      @default(true)
-  website                Boolean      @default(false)
+  website                Boolean      @default(true)
   logo                   Boolean      @default(true)
   background             Boolean      @default(true) // legacy
   backgroundImage        Boolean      @default(true) @map("background_image")
@@ -296,13 +297,14 @@ model OrganizationVisibility {
   linkedin               Boolean      @default(true)
   twitter                Boolean      @default(true)
   xing                   Boolean      @default(true)
-  bio                    Boolean      @default(false)
+  bio                    Boolean      @default(true)
   bioRTEState            Boolean      @default(false) @map("bio_rte_state")
   quote                  Boolean      @default(true)
   createdAt              Boolean      @default(true) @map("created_at")
   quoteAuthor            Boolean      @default(true) @map("quote_author")
   quoteAuthorInformation Boolean      @default(true) @map("quote_author_information")
   streetNumber           Boolean      @default(true) @map("street_number")
+  addressSupplement      Boolean      @default(true) @map("address_supplement")
   supportedBy            Boolean      @default(true) @map("supported_by")
   updatedAt              Boolean      @default(true) @map("updated_at")
   zipCode                Boolean      @default(true) @map("zip_code")
@@ -317,7 +319,7 @@ model OrganizationVisibility {
   shadowSource           Boolean      @default(false) @map("shadow_source")
   claimRequests          Boolean      @default(false)
   areas                  Boolean      @default(true)
-  focuses                Boolean      @default(false)
+  focuses                Boolean      @default(true)
   networkMembers         Boolean      @default(true)
   memberOf               Boolean      @default(true)
   teamMembers            Boolean      @default(true)

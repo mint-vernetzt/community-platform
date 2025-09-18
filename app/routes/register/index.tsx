@@ -132,7 +132,7 @@ export default function Register() {
     defaultValue: {
       loginRedirect: loginRedirect,
     },
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {
