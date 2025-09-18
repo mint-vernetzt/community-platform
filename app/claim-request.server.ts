@@ -13,6 +13,8 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { captureException } from "@sentry/node";
+import { type MyOrganizationsLocales } from "./routes/my/organizations.server";
+import { type ToastLevel } from "@mint-vernetzt/components/src/molecules/Toast";
 
 const claimRequestTimeouts = new Map<string, NodeJS.Timeout>();
 
@@ -20,7 +22,10 @@ export async function handleClaimRequest(options: {
   formData: FormData;
   sessionUserId: string;
   slug: string;
-  locales: OrganizationDetailLocales | CreateOrganizationLocales;
+  locales:
+    | OrganizationDetailLocales
+    | CreateOrganizationLocales
+    | MyOrganizationsLocales;
 }) {
   const { formData, sessionUserId, slug, locales } = options;
   const organization = await prismaClient.organization.findUnique({
@@ -283,7 +288,7 @@ export async function handleClaimRequest(options: {
   }
 
   return {
-    submission: null,
+    submission,
     toast: {
       id: "claim-request",
       key: `${new Date().getTime()}`,
@@ -294,7 +299,7 @@ export async function handleClaimRequest(options: {
       level:
         submission.value.intent === CLAIM_REQUEST_INTENTS.create
           ? "positive"
-          : "neutral",
+          : ("neutral" as ToastLevel),
     },
     redirectUrl: null,
     alert: null,

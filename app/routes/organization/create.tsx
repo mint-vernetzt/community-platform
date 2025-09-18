@@ -156,7 +156,7 @@ export async function action(args: ActionFunctionArgs) {
   let result;
   let redirectUrl = request.url;
   const formData = await request.formData();
-  const intent = formData.get("intent");
+  const intent = formData.get(INTENT_FIELD_NAME);
   invariantResponse(typeof intent === "string", "Intent is not a string.", {
     status: 400,
   });
@@ -219,7 +219,6 @@ export async function action(args: ActionFunctionArgs) {
 
   if (
     typeof result.submission !== "undefined" &&
-    result.submission !== null &&
     result.submission.status === "success" &&
     typeof result.toast !== "undefined" &&
     result.toast !== null
@@ -235,10 +234,17 @@ export async function action(args: ActionFunctionArgs) {
   ) {
     return redirectWithAlert(redirectUrl, result.alert);
   }
+  if (
+    typeof result.submission !== "undefined" &&
+    result.submission !== null &&
+    result.submission.status === "success"
+  ) {
+    return redirect(redirectUrl);
+  }
   return {
     submission: {
       ...result.submission,
-      error: result.submission?.error || undefined,
+      error: result.submission.error || undefined,
     },
     currentTimestamp: Date.now(),
   };

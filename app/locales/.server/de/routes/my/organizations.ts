@@ -13,6 +13,11 @@ export const locale = {
       "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
     lastTeamMember:
       "Du kannst die Organisation nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder die Organisation zu löschen.",
+    notShadow: "Organization cannot be claimed",
+    alreadyClaimed:
+      "Die Übernahme der Organisation wurde bereits angefragt oder von uns geprüft",
+    alreadyWithdrawn:
+      "Die Übernahme der Organisation wurde bereits zurückgezogen oder von uns geprüft",
   },
   headline: "Meine Organisationen",
   cta: "Organisation anlegen",
@@ -181,6 +186,24 @@ export const locale = {
     subline: {
       teamMember: "Diesen Organisationen bist Du als Teammitglied zugeordnet.",
       admin: "Diesen Organisationen bist Du als Administrator:in zugeordnet.",
+    },
+  },
+  claimRequest: {
+    alreadyRequested: {
+      description:
+        "Du hast angefragt, dieses Organisationsprofil zu übernehmen. Wir prüfen Deine Anfrage und melden uns per E-Mail bei Dir.",
+      cta: "Übernahme zurückziehen",
+    },
+    notRequested: {
+      description:
+        "Dieses Organisationsprofil hat MINTvernetzt angelegt. Wenn Du Teil dieser Organisation bist, kannst Du dieses <0>Profil übernehmen</0>. Nach unserer Prüfung wirst Du Administrator:in. Du kannst auch eine <0>Löschung beantragen</0>. Mehr Infos findest Du im <1>Hilfebereich</1>.",
+      cta: "Übernehmen",
+    },
+    created: {
+      success: "Anfrage erfolgreich versendet",
+    },
+    withdrawn: {
+      success: "Anfrage zurückgezogen",
     },
   },
 } as const;
