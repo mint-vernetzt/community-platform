@@ -59,15 +59,9 @@ export const locale = {
     },
     created: {
       success: "Anfrage erfolgreich versendet",
-      email: {
-        subject: "TODO",
-      },
     },
     withdrawn: {
       success: "Anfrage zurückgezogen",
-      email: {
-        subject: "TODO",
-      },
     },
   },
 } as const;

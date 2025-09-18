@@ -49,11 +49,9 @@ import {
   disconnectImage,
   filterOrganization,
   getOrganization,
-  handleClaimRequest,
   uploadImage,
 } from "./detail.server";
 import {
-  CLAIM_REQUEST_INTENTS,
   hasEventsData,
   hasNetworkData,
   hasProjectsData,
@@ -64,6 +62,8 @@ import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/routes/feature-access.server";
+import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
+import { handleClaimRequest } from "~/claim-request.server";
 
 export function links() {
   return [
