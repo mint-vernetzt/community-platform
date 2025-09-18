@@ -15,6 +15,18 @@ export const locale = {
     bio: {
       max: "Description must be at most {{max}} characters long",
     },
+    street: {
+      required: "Please enter the street of your organization.",
+    },
+    streetNumber: {
+      required: "Please enter the street number of your organization.",
+    },
+    zipCode: {
+      required: "Please enter the ZIP code of your organization.",
+    },
+    city: {
+      required: "Please enter the city of your organization.",
+    },
   },
   content: {
     notFound: "Not found",
@@ -31,17 +43,20 @@ export const locale = {
       phone: {
         label: "Phone number",
       },
+      addressSupplement: {
+        label: "Address supplement",
+      },
       street: {
-        label: "Street",
+        label: "Street*",
       },
       streetNumber: {
-        label: "House number",
+        label: "House number*",
       },
       zipCode: {
-        label: "Zip code",
+        label: "Zip code*",
       },
       city: {
-        label: "City",
+        label: "City*",
       },
     },
     about: {
