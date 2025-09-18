@@ -8,6 +8,7 @@ import { useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  Link,
   redirect,
   useActionData,
   useFetcher,
@@ -28,7 +29,7 @@ import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Section } from "~/components-next/MyOrganizationsSection";
 import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
-import { searchOrganizationsSchema } from "~/form-helpers";
+import { INTENT_FIELD_NAME, searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariant, invariantResponse } from "~/lib/utils/response";
@@ -49,8 +50,13 @@ import {
 import { createOrganizationSchema } from "./create.shared";
 import {
   decideBetweenSingularOrPlural,
+  insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { getFeatureAbilities } from "../feature-access.server";
+import { prismaClient } from "~/prisma.server";
+import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
+import { handleClaimRequest } from "~/claim-request.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -87,10 +93,49 @@ export async function loader(args: LoaderFunctionArgs) {
     mode: "authenticated",
   });
 
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "provisional_organizations"
+  );
+  const enhancedSearchedOrganizations = await Promise.all(
+    searchedOrganizations.map(async (organization) => {
+      let alreadyRequestedToClaim = false;
+      let allowedToClaimOrganization = false;
+      if (abilities["provisional_organizations"].hasAccess === true) {
+        const openClaimRequest =
+          await prismaClient.organizationClaimRequest.findFirst({
+            select: {
+              status: true,
+            },
+            where: {
+              organizationId: organization.id,
+              claimerId: sessionUser.id,
+            },
+          });
+        alreadyRequestedToClaim =
+          openClaimRequest !== null
+            ? openClaimRequest.status === "open"
+            : false;
+        allowedToClaimOrganization =
+          organization.shadow === false
+            ? false
+            : openClaimRequest !== null
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
+      }
+      return {
+        ...organization,
+        alreadyRequestedToClaim,
+        allowedToClaimOrganization,
+      };
+    })
+  );
+
   return {
     organizations: flattenedOrganizations,
     pendingRequestsToOrganizations,
-    searchedOrganizations,
+    searchedOrganizations: enhancedSearchedOrganizations,
     submission,
     allOrganizationTypes,
     allNetworkTypes,
@@ -127,6 +172,37 @@ export async function action(args: ActionFunctionArgs) {
       locales,
       sessionUser,
     });
+  } else if (
+    intent.startsWith(CLAIM_REQUEST_INTENTS.create) ||
+    intent.startsWith(CLAIM_REQUEST_INTENTS.withdraw)
+  ) {
+    const requestToClaimOrganizationFormData = new FormData();
+    requestToClaimOrganizationFormData.set(
+      "intent",
+      intent.startsWith(CLAIM_REQUEST_INTENTS.create)
+        ? CLAIM_REQUEST_INTENTS.create
+        : CLAIM_REQUEST_INTENTS.withdraw
+    );
+    const organizationId = intent.startsWith(CLAIM_REQUEST_INTENTS.create)
+      ? intent.replace(`${CLAIM_REQUEST_INTENTS.create}-`, "")
+      : intent.replace(`${CLAIM_REQUEST_INTENTS.withdraw}-`, "");
+    const organization = await prismaClient.organization.findUnique({
+      select: {
+        slug: true,
+      },
+      where: {
+        id: organizationId,
+      },
+    });
+    invariantResponse(organization !== null, "Organization not found", {
+      status: 404,
+    });
+    result = await handleClaimRequest({
+      formData: requestToClaimOrganizationFormData,
+      sessionUserId: sessionUser.id,
+      slug: organization.slug,
+      locales,
+    });
   } else if (intent === "create-organization") {
     // TODO: Same returns as above only with alert
     result = await createOrganization({
@@ -142,20 +218,30 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (
-    result.submission !== undefined &&
+    typeof result.submission !== "undefined" &&
+    result.submission !== null &&
     result.submission.status === "success" &&
-    typeof result.toast !== "undefined"
+    typeof result.toast !== "undefined" &&
+    result.toast !== null
   ) {
     return redirectWithToast(redirectUrl, result.toast);
   }
   if (
-    result.submission !== undefined &&
+    typeof result.submission !== "undefined" &&
+    result.submission !== null &&
     result.submission.status === "success" &&
-    typeof result.alert !== "undefined"
+    typeof result.alert !== "undefined" &&
+    result.alert !== null
   ) {
     return redirectWithAlert(redirectUrl, result.alert);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return {
+    submission: {
+      ...result.submission,
+      error: result.submission?.error || undefined,
+    },
+    currentTimestamp: Date.now(),
+  };
 }
 
 function CreateOrganization() {
@@ -200,8 +286,8 @@ function CreateOrganization() {
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
-  const [createOrganizationMemberRequestForm] = useForm({
-    id: `create-organization-member-request-${
+  const [createOrganizationMemberOrClaimRequestForm] = useForm({
+    id: `create-organization-member-or-claim-request-${
       actionData?.currentTimestamp || currentTimestamp
     }`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
@@ -436,23 +522,28 @@ function CreateOrganization() {
                 </p>
               </div>
               <Form
-                {...getFormProps(createOrganizationMemberRequestForm)}
+                {...getFormProps(createOrganizationMemberOrClaimRequestForm)}
                 method="post"
                 preventScrollReset
               >
                 <ListContainer
                   locales={locales}
-                  listKey="organizations-to-request-membership-search-results"
+                  listKey="organizations-to-request-membership-or-claim-search-results"
                   // hideAfter={3}
                 >
                   {searchedOrganizations.map((searchedOrganization, index) => {
                     return (
                       <ListItem
-                        key={`organizations-to-request-membership-search-result-${searchedOrganization.slug}`}
+                        key={`organizations-to-request-membership-or-claim-search-result-${searchedOrganization.slug}`}
                         entity={searchedOrganization}
                         locales={locales}
                         listIndex={index}
-                        // hideAfter={3}
+                        breakAt={
+                          searchedOrganization.allowedToClaimOrganization ===
+                          true
+                            ? "@lg"
+                            : "@sm"
+                        }
                       >
                         {organizations.some((organization) => {
                           return organization.id === searchedOrganization.id;
@@ -476,9 +567,56 @@ function CreateOrganization() {
                                 .requestOrganizationMembership.alreadyRequested
                             }
                           </div>
-                        ) : (
+                        ) : searchedOrganization.allowedToClaimOrganization ? (
+                          <div className="mv-flex mv-w-full mv-flex-col @lg:mv-flex-row mv-items-center mv-gap-4 mv-p-4 mv-bg-primary-50 mv-rounded-[4px]">
+                            <p>
+                              {searchedOrganization.alreadyRequestedToClaim
+                                ? locales.route.claimRequest.alreadyRequested
+                                    .description
+                                : insertComponentsIntoLocale(
+                                    locales.route.claimRequest.notRequested
+                                      .description,
+                                    [
+                                      <span
+                                        key="highlighted-text"
+                                        className="mv-font-semibold"
+                                      />,
+                                      <Link
+                                        key="help-link"
+                                        to="/help#organizations-whatAreProvisionalOrganizations"
+                                        target="_blank"
+                                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                                        prefetch="intent"
+                                      >
+                                        {" "}
+                                      </Link>,
+                                    ]
+                                  )}
+                            </p>
+                            <div className="mv-w-full @lg:mv-w-fit">
+                              <Button
+                                name={INTENT_FIELD_NAME}
+                                value={`${
+                                  searchedOrganization.alreadyRequestedToClaim
+                                    ? CLAIM_REQUEST_INTENTS.withdraw
+                                    : CLAIM_REQUEST_INTENTS.create
+                                }-${searchedOrganization.id}`}
+                                type="submit"
+                                variant="outline"
+                                size="small"
+                                fullSize
+                                disabled={isSubmitting}
+                              >
+                                {searchedOrganization.alreadyRequestedToClaim
+                                  ? locales.route.claimRequest.alreadyRequested
+                                      .cta
+                                  : locales.route.claimRequest.notRequested.cta}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : searchedOrganization.shadow === false ? (
                           <Button
-                            name="intent"
+                            name={INTENT_FIELD_NAME}
                             variant="outline"
                             value={`create-organization-member-request-${searchedOrganization.id}`}
                             type="submit"
@@ -491,20 +629,22 @@ function CreateOrganization() {
                                 .createOrganizationMemberRequestCta
                             }
                           </Button>
-                        )}
+                        ) : null}
                       </ListItem>
                     );
                   })}
                 </ListContainer>
-                {typeof createOrganizationMemberRequestForm.errors !==
+                {typeof createOrganizationMemberOrClaimRequestForm.errors !==
                   "undefined" &&
-                createOrganizationMemberRequestForm.errors.length > 0 ? (
+                createOrganizationMemberOrClaimRequestForm.errors.length > 0 ? (
                   <div>
-                    {createOrganizationMemberRequestForm.errors.map(
+                    {createOrganizationMemberOrClaimRequestForm.errors.map(
                       (error, index) => {
                         return (
                           <div
-                            id={createOrganizationMemberRequestForm.errorId}
+                            id={
+                              createOrganizationMemberOrClaimRequestForm.errorId
+                            }
                             key={index}
                             className="mv-text-sm mv-font-semibold mv-text-negative-600"
                           >

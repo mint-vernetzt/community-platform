@@ -3,6 +3,11 @@ export const locale = {
     notFound: "Database entry not found",
     alreadyMember: "You are already a member of the organization",
     requestFailed: "Membership request could not be sent",
+    notShadow: "Organization cannot be claimed",
+    alreadyClaimed:
+      "You have already requested to claim this organization or we already reviewed it",
+    alreadyWithdrawn:
+      "You have already withdrawn the request to claim this organization or we already reviewed it",
   },
   validation: {
     organizationName: {
@@ -69,4 +74,22 @@ export const locale = {
   },
   successAlert:
     '<p>You have successfully created your organization {{name}}. You are a team member and admin of your organization. Now edit your organization and make it more visible to the community. <a href="/organization/{{slug}}/settings" class="hover:mv-underline mv-text-primary">Edit now</a></p>',
+  claimRequest: {
+    alreadyRequested: {
+      description:
+        "You have requested to take over this organization profile. We are reviewing your request and will get back to you via email.",
+      cta: "Withdraw request",
+    },
+    notRequested: {
+      description:
+        "This organization profile was created by MINTvernetzt. If you are part of this organization, you can <0>take over this profile</0>. After our review, you will become an administrator. You can also <0>request a deletion</0>. More information can be found in the <1>help section</1>.",
+      cta: "Take over",
+    },
+    created: {
+      success: "Request sent successfully",
+    },
+    withdrawn: {
+      success: "Request withdrawn",
+    },
+  },
 } as const;

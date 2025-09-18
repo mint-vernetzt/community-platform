@@ -3,6 +3,11 @@ export const locale = {
     notFound: "Datenbankeintrag nicht gefunden",
     alreadyMember: "Du bist bereits Mitglied der Organisation",
     requestFailed: "Anfrage konnte nicht gesendet werden",
+    notShadow: "Organization cannot be claimed",
+    alreadyClaimed:
+      "Die Übernahme der Organisation wurde bereits angefragt oder von uns geprüft",
+    alreadyWithdrawn:
+      "Die Übernahme der Organisation wurde bereits zurückgezogen oder von uns geprüft",
   },
   validation: {
     organizationName: {
@@ -70,4 +75,22 @@ export const locale = {
   },
   successAlert:
     '<p>Du hast Deine Organisation {{name}} erfolgreich angelegt. Du bist Teammitglied und Admin Deiner Organisation. Bearbeite nun Deine Organisation und mache sie damit sichtbarer für die Community. <a href="/organization/{{slug}}/settings" class="hover:mv-underline mv-text-primary">Jetzt bearbeiten</a></p>',
+  claimRequest: {
+    alreadyRequested: {
+      description:
+        "Du hast angefragt, dieses Organisationsprofil zu übernehmen. Wir prüfen Deine Anfrage und melden uns per E-Mail bei Dir.",
+      cta: "Übernahme zurückziehen",
+    },
+    notRequested: {
+      description:
+        "Dieses Organisationsprofil hat MINTvernetzt angelegt. Wenn Du Teil dieser Organisation bist, kannst Du dieses <0>Profil übernehmen</0>. Nach unserer Prüfung wirst Du Administrator:in. Du kannst auch eine <0>Löschung beantragen</0>. Mehr Infos findest Du im <1>Hilfebereich</1>.",
+      cta: "Übernehmen",
+    },
+    created: {
+      success: "Anfrage erfolgreich versendet",
+    },
+    withdrawn: {
+      success: "Anfrage zurückgezogen",
+    },
+  },
 } as const;

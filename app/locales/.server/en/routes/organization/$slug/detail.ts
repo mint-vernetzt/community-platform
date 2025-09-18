@@ -57,16 +57,10 @@ export const locale = {
       cta: "Log in to take over",
     },
     created: {
-      success: "Anfrage erfolgreich versendet",
-      email: {
-        subject: "TODO",
-      },
+      success: "Request sent successfully",
     },
     withdrawn: {
-      success: "Anfrage zurückgezogen",
-      email: {
-        subject: "TODO",
-      },
+      success: "Request withdrawn",
     },
   },
 } as const;

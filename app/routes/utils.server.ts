@@ -410,6 +410,7 @@ export async function searchOrganizations(options: {
         slug: true,
         logo: true,
         name: true,
+        shadow: true,
         types: {
           select: {
             organizationType: {
