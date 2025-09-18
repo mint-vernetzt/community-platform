@@ -13,6 +13,11 @@ export const locale = {
       "You cannot leave the organization because you are the last admin. Press edit to appoint another admin or delete the organization.",
     lastTeamMember:
       "You cannot leave the organization because you are the last team member. Contact the admins to appoint another team member or delete the organization.",
+    notShadow: "Organization cannot be claimed",
+    alreadyClaimed:
+      "You have already requested to claim this organization or we already reviewed it",
+    alreadyWithdrawn:
+      "You have already withdrawn the request to claim this organization or we already reviewed it",
   },
   headline: "My Organizations",
   cta: "Create Organization",
@@ -180,6 +185,24 @@ export const locale = {
     subline: {
       teamMember: "You are assigned to these organizations as a team member.",
       admin: "You are assigned to these organizations as an administrator.",
+    },
+  },
+  claimRequest: {
+    alreadyRequested: {
+      description:
+        "You have requested to take over this organization profile. We are reviewing your request and will get back to you via email.",
+      cta: "Withdraw request",
+    },
+    notRequested: {
+      description:
+        "This organization profile was created by MINTvernetzt. If you are part of this organization, you can <0>take over this profile</0>. After our review, you will become an administrator. You can also <0>request a deletion</0>. More information can be found in the <1>help section</1>.",
+      cta: "Take over",
+    },
+    created: {
+      success: "Request sent successfully",
+    },
+    withdrawn: {
+      success: "Request withdrawn",
     },
   },
 } as const;

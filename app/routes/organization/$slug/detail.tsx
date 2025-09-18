@@ -354,7 +354,7 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  if (submission !== null) {
+  if (submission !== null && submission.status !== "success") {
     return {
       submission: submission.reply(),
       currentTimestamp: Date.now(),
