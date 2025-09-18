@@ -206,6 +206,11 @@ function About() {
                               ) : (
                                 ""
                               )}
+                              {organization.addressSupplement !== null ? (
+                                <span>{organization.addressSupplement}</span>
+                              ) : (
+                                ""
+                              )}
                             </p>
                           ) : null}
                           <p className="mv-flex mv-gap-1">

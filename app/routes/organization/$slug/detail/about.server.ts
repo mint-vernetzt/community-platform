@@ -15,6 +15,7 @@ export async function getOrganization(slug: string) {
       street: true,
       streetNumber: true,
       zipCode: true,
+      addressSupplement: true,
       facebook: true,
       linkedin: true,
       twitter: true,
