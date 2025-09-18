@@ -153,7 +153,7 @@ function ChangeURL() {
       slug: loaderData.slug,
     },
     constraint: getZodConstraint(createSchema(locales)),
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: createSchema(locales),

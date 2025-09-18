@@ -174,7 +174,7 @@ function Create() {
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
     constraint: getZodConstraint(createSchema(locales)),
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {

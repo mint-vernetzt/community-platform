@@ -38,5 +38,35 @@ export const createOrganizationSchema = (
       ),
     organizationTypes: z.array(z.string().trim().uuid()),
     networkTypes: z.array(z.string().trim().uuid()),
+    street: z
+      .string({
+        required_error: locales.route.validation.street.required,
+      })
+      .trim(),
+    streetNumber: z
+      .string({
+        required_error: locales.route.validation.streetNumber.required,
+      })
+      .trim(),
+    zipCode: z
+      .string({
+        required_error: locales.route.validation.zipCode.required,
+      })
+      .trim(),
+    city: z
+      .string({
+        required_error: locales.route.validation.city.required,
+      })
+      .trim(),
+    addressSupplement: z
+      .string()
+      .trim()
+      .optional()
+      .transform((value) => {
+        if (value === undefined || value === "") {
+          return null;
+        }
+        return value;
+      }),
   });
 };

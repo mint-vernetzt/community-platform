@@ -165,8 +165,7 @@ export default function Security() {
       actionData?.currentTimestamp || currentTimestamp
     }`,
     constraint: getZodConstraint(changePasswordSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       const submission = parseWithZod(values.formData, {
         schema: changePasswordSchema(locales).transform((data, ctx) => {
@@ -191,8 +190,7 @@ export default function Security() {
   const [changeEmailForm, changeEmailFields] = useForm({
     id: `change-email-form-${actionData?.currentTimestamp || currentTimestamp}`,
     constraint: getZodConstraint(changeEmailSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       const submission = parseWithZod(values.formData, {
         schema: changeEmailSchema(locales).transform((data, ctx) => {

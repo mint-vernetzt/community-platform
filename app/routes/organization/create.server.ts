@@ -18,7 +18,11 @@ import {
 } from "~/mailer.server";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { generateOrganizationSlug, triggerEntityScore } from "~/utils.server";
+import {
+  generateOrganizationSlug,
+  getCoordinatesFromAddress,
+  triggerEntityScore,
+} from "~/utils.server";
 import { captureException } from "@sentry/node";
 import { updateFilterVectorOfOrganization } from "./$slug/settings/utils.server";
 
@@ -32,10 +36,17 @@ async function createOrganizationOnProfile(
     organizationName: string;
     networkTypes: string[];
     organizationTypes: string[];
+    addressSupplement: string | null;
+    street: string;
+    zipCode: string;
+    city: string;
+    streetNumber: string;
+    latitude: string | null;
+    longitude: string | null;
   },
   organizationSlug: string
 ) {
-  const { organizationName, networkTypes, organizationTypes } =
+  const { organizationName, networkTypes, organizationTypes, ...rest } =
     submissionValues;
   const [profile, organization] = await prismaClient.$transaction([
     prismaClient.profile.update({
@@ -47,6 +58,7 @@ async function createOrganizationOnProfile(
           create: {
             organization: {
               create: {
+                ...rest,
                 name: organizationName,
                 slug: organizationSlug,
                 types: {
@@ -493,9 +505,13 @@ export async function createOrganization(options: {
         }
         const slug = generateOrganizationSlug(data.organizationName);
         try {
+          const { longitude, latitude } = await getCoordinatesFromAddress({
+            id: slug,
+            ...data,
+          });
           const { organization } = await createOrganizationOnProfile(
             sessionUser.id,
-            data,
+            { ...data, latitude, longitude },
             slug
           );
           updateFilterVectorOfOrganization(organization.id);

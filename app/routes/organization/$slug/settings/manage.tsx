@@ -407,7 +407,7 @@ function Manage() {
     id: `manage-form-${actionData?.currentTimestamp || loaderData.currentHash}`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {
@@ -443,8 +443,7 @@ function Manage() {
   const [searchNetworksForm, searchNetworksFields] = useForm({
     id: "search-networks",
     constraint: getZodConstraint(searchNetworksSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: searchNetworksSchema(locales),
@@ -480,8 +479,7 @@ function Manage() {
   const [searchNetworkMembersForm, searchNetworkMembersFields] = useForm({
     id: "search-network-members",
     constraint: getZodConstraint(searchNetworkMembersSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: searchNetworkMembersSchema(locales),

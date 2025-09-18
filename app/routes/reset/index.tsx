@@ -98,7 +98,7 @@ export default function Index() {
     defaultValue: {
       loginRedirect: loginRedirect,
     },
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate({ formData }) {

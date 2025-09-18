@@ -505,8 +505,7 @@ export default function MyOrganizations() {
       [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
     constraint: getZodConstraint(searchOrganizationsSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: searchOrganizationsSchema(locales),

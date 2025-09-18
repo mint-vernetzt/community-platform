@@ -453,7 +453,7 @@ function General() {
     }`,
     constraint: getZodConstraint(createGeneralSchema(locales)),
     defaultValue: defaultValues,
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {

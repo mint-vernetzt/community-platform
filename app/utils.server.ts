@@ -297,7 +297,7 @@ export async function getCoordinatesFromAddress(options: {
     return {
       longitude: null,
       latitude: null,
-      error: `Error fetching location for entity with id ${id}: ${response.statusText}`,
+      error: `Error fetching location for entity ${id}: ${response.statusText}`,
     };
   }
 
@@ -307,14 +307,14 @@ export async function getCoordinatesFromAddress(options: {
     return {
       longitude: null,
       latitude: null,
-      error: `Unexpected response format for entity with id ${id}: JSON object is not an array`,
+      error: `Unexpected response format for entity ${id}: JSON object is not an array`,
     };
   }
   if (locationJSON.length === 0) {
     return {
       longitude: null,
       latitude: null,
-      error: `No location found for entity with id ${id}`,
+      error: `No location found for entity ${id}`,
     };
   }
   if (
@@ -324,12 +324,12 @@ export async function getCoordinatesFromAddress(options: {
     return {
       longitude: null,
       latitude: null,
-      error: `Location JSON does not contain latitude and longitude for entity with id ${id}`,
+      error: `Location JSON does not contain latitude and longitude for entity ${id}`,
     };
   }
   if (locationJSON.length > 1) {
     console.warn(
-      `Multiple locations found for entity with id ${id}. The first was taken:`,
+      `Multiple locations found for entity ${id}. The first was taken:`,
       locationJSON[0]
     );
   }
@@ -338,7 +338,7 @@ export async function getCoordinatesFromAddress(options: {
     return {
       longitude: null,
       latitude: null,
-      error: `Latitude and longitude are not strings for entity with id ${id}`,
+      error: `Latitude and longitude are not strings for entity ${id}`,
     };
   }
   return {

@@ -184,8 +184,7 @@ function Team() {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
     constraint: getZodConstraint(searchProfilesSchema(locales)),
-    // Client side validation onInput, server side validation on submit
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: searchProfilesSchema(locales),

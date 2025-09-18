@@ -158,7 +158,7 @@ function Delete() {
     constraint: getZodConstraint(
       createSchema(locales, loaderData.project.name)
     ),
-    shouldValidate: "onInput",
+    shouldValidate: "onBlur",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
         schema: createSchema(locales, loaderData.project.name),
