@@ -37,6 +37,7 @@ export async function getAllOrganizations(options: {
       streetNumber: true,
       city: true,
       zipCode: true,
+      addressSupplement: true,
       types: {
         select: {
           organizationType: {
