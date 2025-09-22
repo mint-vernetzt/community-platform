@@ -84,8 +84,6 @@
     "@fontsource/source-sans-pro": "^5.0.8",
     "@react-router/dev": "^7.6.0",
     "@sentry/vite-plugin": "^3.4.0",
-    "@tailwindcss/container-queries": "^0.1.1",
-    "@tailwindcss/line-clamp": "^0.4.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.1.0",
     "@types/fs-extra": "^11.0.4",

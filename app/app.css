@@ -1,5 +1,132 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-sm: 600px;
+  --breakpoint-container-sm: 600px;
+  --breakpoint-md: 768px;
+  --breakpoint-container-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-container-lg: 965px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-container-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  --breakpoint-container-2xl: 1536px;
+
+  --container-sm: 600px;
+  --container-md: 768px;
+  --container-lg: 965px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  --color-neutral: #70809d;
+  --color-neutral-50: #fcfcfd;
+  --color-neutral-100: #f4f5f6;
+  --color-neutral-200: #e6e8ec;
+  --color-neutral-300: #bfc6d3;
+  --color-neutral-400: #8893a7;
+  --color-neutral-500: #70809d;
+  --color-neutral-600: #4d5970;
+  --color-neutral-700: #3c4658;
+  --color-neutral-800: #262d38;
+  --color-neutral-900: #0b0d10;
+
+  --color-primary: #154194;
+  --color-primary-50: #edf3ff;
+  --color-primary-100: #bbd1fc;
+  --color-primary-200: #5f94f9;
+  --color-primary-300: #2d6be1;
+  --color-primary-400: #1b54c0;
+  --color-primary-500: #154194;
+  --color-primary-600: #113476;
+  --color-primary-700: #112c5f;
+  --color-primary-800: #091d43;
+  --color-primary-900: #040d1e;
+
+  --color-secondary: #b16fab;
+  --color-secondary-50: #f7f1f7;
+  --color-secondary-100: #ecdbea;
+  --color-secondary-200: #dcbed9;
+  --color-secondary-300: #d0a9cd;
+  --color-secondary-400: #be88ba;
+  --color-secondary-500: #b16fab;
+  --color-secondary-600: #703d6b;
+  --color-secondary-700: #5d335a;
+  --color-secondary-800: #4b2848;
+  --color-secondary-900: #2f192d;
+
+  --color-accent: #efe8e6;
+  --color-accent-50: #fdfdfc;
+  --color-accent-100: #fcfafa;
+  --color-accent-200: #f9f6f5;
+  --color-accent-300: #f4efee;
+  --color-accent-400: #f1ebea;
+  --color-accent-500: #efe8e6;
+  --color-accent-600: #d4c1bb;
+  --color-accent-700: #9d7265;
+  --color-accent-800: #725249;
+  --color-accent-900: #392925;
+
+  --color-positive: #00a87a;
+  --color-positive-50: #effff7;
+  --color-positive-100: #ddfff6;
+  --color-positive-200: #aff3e0;
+  --color-positive-300: #66cbaf;
+  --color-positive-400: #35bd97;
+  --color-positive-500: #00a87a;
+  --color-positive-600: #008f68;
+  --color-positive-700: #007655;
+  --color-positive-800: #005c43;
+  --color-positive-900: #004331;
+
+  --color-attention: #f59e0b;
+  --color-attention-50: #fffbeb;
+  --color-attention-100: #fef3c7;
+  --color-attention-200: #fde68a;
+  --color-attention-300: #fcd34d;
+  --color-attention-400: #fbbf24;
+  --color-attention-500: #f59e0b;
+  --color-attention-600: #d97706;
+  --color-attention-700: #b45309;
+  --color-attention-800: #92400e;
+  --color-attention-900: #78350f;
+
+  --color-negative: #f35f5f;
+  --color-negative-50: #fef2f2;
+  --color-negative-100: #fee2e2;
+  --color-negative-200: #fecaca;
+  --color-negative-300: #fca5a5;
+  --color-negative-400: #ee7775;
+  --color-negative-500: #f35f5f;
+  --color-negative-600: #ef4444;
+  --color-negative-700: #dc2626;
+  --color-negative-800: #b91c1c;
+  --color-negative-900: #991b1b;
+
+  --font-sans: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --text-xxs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.375rem;
+  --text-3xl: 1.5rem;
+  --text-4xl: 1.625rem;
+  --text-5xl: 2rem;
+  --text-6xl: 2.5rem;
+  --text-7xl: 3rem;
+  --text-8xl: 4.5rem;
+
+  --gap-18: 4.5rem;
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
 @layer base {
   @font-face {
     font-family: "Source Sans Pro";
