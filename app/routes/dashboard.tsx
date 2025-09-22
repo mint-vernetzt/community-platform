@@ -27,7 +27,6 @@ import {
   getTagsBySearchQuery,
 } from "~/root.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
-// import styles from "../../common/design/styles/styles.css?url";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
