@@ -71,7 +71,7 @@ export function LoginOrRegisterCTA(props: {
         </Form>
       </div>
       <div className="mv-flex mv-w-full mv-gap-4 mv-items-baseline">
-        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-grow @sm:mv-grow-0">
           <Button
             as="link"
             to={`/login?login_redirect=${location.pathname}`}
@@ -82,10 +82,10 @@ export function LoginOrRegisterCTA(props: {
             {locales.route.root.loginOrRegisterCTA.login}
           </Button>
         </div>
-        <p className="mv-text-xs mv-flex-grow-0">
+        <p className="mv-text-xs mv-grow-0">
           {locales.route.root.loginOrRegisterCTA.or}
         </p>
-        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-grow @sm:mv-grow-0">
           <Button
             as="link"
             to={`/register?login_redirect=${location.pathname}`}

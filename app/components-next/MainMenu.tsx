@@ -71,7 +71,7 @@ export function MainMenu(
       </a>
       <Link
         to={mode !== "anon" ? "/dashboard" : "/"}
-        className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
+        className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-shrink"
         aria-label={
           locales !== undefined
             ? mode === "anon"
@@ -91,9 +91,9 @@ export function MainMenu(
       >
         <HeaderLogo />
       </Link>
-      <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
+      <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-shrink">
         {mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
+          <div className="mv-gap-x-4 mv-grow mv-items-center mv-flex xl:mv-hidden">
             <div>
               <Button
                 as="link"
@@ -130,12 +130,12 @@ export function MainMenu(
             </div>
           </div>
         ) : (
-          <div className="mv-flex-grow"> </div>
+          <div className="mv-grow"> </div>
         )}
         <Closer openMainMenuKey={openMainMenuKey} locales={locales} />
       </div>
-      <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
-        <div className="mv-flex-grow">
+      <div className="mv-flex mv-flex-col mv-w-full mv-grow mv-pb-2 mv-overflow-y-auto">
+        <div className="mv-grow">
           <TopMenu>
             {mode === "authenticated" && username !== undefined ? (
               <>
@@ -315,7 +315,7 @@ export function MainMenu(
             </Item>
           </TopMenu>
         </div>
-        <div className="mv-flex-shrink">
+        <div className="mv-shrink">
           <BottomMenu>
             <div className="mv-pl-2 mv-py-4">
               <LocaleSwitch
@@ -391,7 +391,7 @@ export function MainMenu(
             ) : null}
           </BottomMenu>
         </div>
-        <div className="mv-flex-shrink">
+        <div className="mv-shrink">
           <FooterMenu>
             <NavLink
               className={({ isActive }) =>
@@ -625,10 +625,10 @@ function Label(props: React.PropsWithChildren) {
 
   return (
     <div className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
-      <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
+      <div className="mv-flex mv-items-center mv-gap-2 mv-grow group-has-[:checked]:mv-text-primary-500">
         {children}
       </div>
-      <div className="mv-flex-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+      <div className="mv-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
         <Icon type="chevron-right" aria-hidden="true" />
       </div>
     </div>

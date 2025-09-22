@@ -412,7 +412,7 @@ function OrganizationDetail() {
           />
         </div>
         <div className="mv-w-full mv-px-4 @sm:mv-px-6 @md:mv-px-8 mv-pt-9 @lg:mv-pt-8 mv-pb-6 @sm:mv-pb-7 @md:mv-pb-8 mv-flex mv-flex-col @lg:mv-flex-row mv-items-center @lg:mv-items-start mv-gap-10 @lg:mv-gap-3 @lg:mv-justify-between">
-          <div className="mv-flex mv-flex-col mv-items-center @lg:mv-items-start mv-gap-6 @lg:mv-flex-grow @lg:mv-w-full">
+          <div className="mv-flex mv-flex-col mv-items-center @lg:mv-items-start mv-gap-6 @lg:mv-grow @lg:mv-w-full">
             <div className="mv-flex mv-flex-col mv-items-center @lg:mv-items-start mv-gap-2">
               {mode === "admin" ? (
                 <div className="@lg:mv-hidden">

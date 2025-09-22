@@ -392,7 +392,7 @@ function ResultItem(props: {
               height="20"
               viewBox="0 0 20 20"
               fill="none"
-              className="mv-flex-shrink-0"
+              className="mv-shrink-0"
               aria-hidden="true"
             >
               <path

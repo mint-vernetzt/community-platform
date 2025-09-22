@@ -133,7 +133,7 @@ export function NavBar(props: NavBarProps) {
         )}
 
         <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-w-full mv-items-center">
-          <div className="mv-flex-grow">
+          <div className="mv-grow">
             <Form
               className={
                 hideSearchBar === true &&
@@ -183,7 +183,7 @@ export function NavBar(props: NavBarProps) {
             </Form>
           </div>
 
-          <div className="mv-flex-shrink mv-block xl:mv-hidden">
+          <div className="mv-shrink mv-block xl:mv-hidden">
             <Opener openMainMenuKey="mainMenu" locales={props.locales} />
           </div>
 

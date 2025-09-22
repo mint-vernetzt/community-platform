@@ -29,11 +29,11 @@ export function TeaserCard(props: {
         className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
         prefetch={external ? "none" : prefetch}
       >
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-flex-grow @xl:mv-h-full">
+        <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-grow @xl:mv-h-full">
           <h3 className="mv-appearance-none mv-text-neutral-700 mv-text-xs mv-font-bold mv-leading-[15.6px] mv-tracking-[-0.24px]">
             {headline}
           </h3>
-          <div className="mv-text-primary mv-text-2xl mv-font-semibold mv-leading-[26px] mv-tracking-[-0.44px] @xl:mv-flex-grow">
+          <div className="mv-text-primary mv-text-2xl mv-font-semibold mv-leading-[26px] mv-tracking-[-0.44px] @xl:mv-grow">
             {description}
           </div>
           <div className="mv-flex mv-items-end mv-gap-1 mv-text-primary mv-text-sm mv-font-semibold mv-leading-5 mv-tracking-[0.14px] mv-underline mv-underline-offset-1">
@@ -68,7 +68,7 @@ export function TeaserCard(props: {
           </div>
         </div>
         <div
-          className={`mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-[76px] mv-w-[85px] mv-min-h-[76px] mv-min-w-[85px] mv-flex-shrink mv-rounded-lg ${
+          className={`mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-[76px] mv-w-[85px] mv-min-h-[76px] mv-min-w-[85px] mv-shrink mv-rounded-lg ${
             type === "primary" ? "mv-bg-primary-200" : "mv-bg-secondary"
           }`}
         >

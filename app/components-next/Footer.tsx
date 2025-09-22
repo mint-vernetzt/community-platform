@@ -69,7 +69,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
           </p>
         </div>
         {/* BMBF Logo */}
-        <div className="mv-flex-grow mv-flex mv-justify-end mv-items-center">
+        <div className="mv-grow mv-flex mv-justify-end mv-items-center">
           <MVLink
             as="link"
             to="https://www.bmbf.de/"
