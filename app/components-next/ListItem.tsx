@@ -81,7 +81,6 @@ export function ListItem(
     listIndex?: number;
     hideAfter?: number;
     highlighted?: boolean;
-    breakAt?: "@sm" | "@lg";
   }> &
     Partial<LinkProps & RefAttributes<HTMLAnchorElement>>
 ) {
@@ -92,7 +91,6 @@ export function ListItem(
     hideAfter,
     locales,
     highlighted = false,
-    breakAt = "@sm",
     ...linkProps
   } = props;
 
@@ -122,11 +120,7 @@ export function ListItem(
       }
     >
       <div
-        className={`mv-flex mv-flex-col ${
-          breakAt === "@lg"
-            ? "@lg:mv-flex-row @lg:mv-items-center"
-            : "@sm:mv-flex-row @sm:mv-items-center"
-        } mv-gap-4 mv-rounded-lg mv-justify-between mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
+        className={`mv-flex mv-flex-col @lg:mv-flex-row @lg:mv-items-center mv-gap-4 mv-rounded-lg mv-justify-between mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
           highlighted ? "mv-bg-primary-50" : "mv-bg-white"
         }`}
       >
@@ -138,15 +132,9 @@ export function ListItem(
               ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
-          className={`mv-flex mv-gap-2 ${
-            breakAt === "@lg" ? "@lg:mv-gap-4" : "@sm:mv-gap-4"
-          } focus:mv-outline-none mv-items-center mv-grow mv-rounded-lg ${
+          className={`mv-w-full mv-flex mv-gap-2 @lg:mv-gap-4focus:mv-outline-none mv-items-center mv-grow mv-rounded-lg ${
             validChildren.length > 0
-              ? `mv-pb-0 mv-pt-4 ${
-                  breakAt === "@lg"
-                    ? "@lg:mv-pr-0 @lg:mv-pl-4 @lg:mv-py-4"
-                    : "@sm:mv-pr-0 @sm:mv-pl-4 @sm:mv-py-4"
-                } mv-px-4`
+              ? `mv-pb-0 mv-pt-4 @lg:mv-pr-0 @lg:mv-pl-4 @lg:mv-py-4 mv-px-4`
               : "mv-p-4"
           }`}
           {...linkProps}
@@ -154,8 +142,10 @@ export function ListItem(
           <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
             <Avatar size="full" {...entity} />
           </div>
-          <div>
-            <p className="mv-text-primary mv-text-sm mv-font-bold mv-w-[220px] mv-line-clamp-2">
+          <div className={validChildren.length > 0 ? "mv-w-[220px]" : ""}>
+            <p
+              className={`mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2`}
+            >
               {"academicTitle" in entity
                 ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
                     entity.firstName
@@ -195,13 +185,7 @@ export function ListItem(
           </div>
         </Link>
         {validChildren.length > 0 ? (
-          <div
-            className={`mv-px-4 mv-pb-4 ${
-              breakAt === "@lg"
-                ? "@lg:mv-py-4 @lg:mv-pr-4 @lg:mv-pl-0"
-                : "@sm:mv-py-4 @sm:mv-pr-4 @sm:mv-pl-0"
-            } mv-pt-0`}
-          >
+          <div className="mv-px-4 mv-pb-4 @lg:mv-py-4 @lg:mv-pr-4 @lg:mv-pl-0 mv-pt-0">
             {validChildren}
           </div>
         ) : null}

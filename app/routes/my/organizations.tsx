@@ -945,12 +945,6 @@ export default function MyOrganizations() {
                         listIndex={index}
                         hideAfter={3}
                         prefetch="intent"
-                        breakAt={
-                          searchedOrganization.allowedToClaimOrganization ===
-                          true
-                            ? "@lg"
-                            : "@sm"
-                        }
                       >
                         {organizations.teamMember.organizations.some(
                           (organization) => {
