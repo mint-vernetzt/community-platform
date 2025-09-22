@@ -142,7 +142,7 @@ export function ListItem(
           <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
             <Avatar size="full" {...entity} />
           </div>
-          <div className={validChildren.length > 0 ? "mv-w-[220px]" : ""}>
+          <div className={validChildren.length > 0 ? "mv-min-w-[220px]" : ""}>
             <p
               className={`mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2`}
             >
