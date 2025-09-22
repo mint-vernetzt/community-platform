@@ -132,7 +132,7 @@ export function ListItem(
               ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
-          className={`mv-w-full mv-flex mv-gap-2 @lg:mv-gap-4focus:mv-outline-none mv-items-center mv-grow mv-rounded-lg ${
+          className={`mv-w-full mv-flex mv-gap-2 @lg:mv-gap-4 focus:mv-outline-none mv-items-center mv-grow mv-rounded-lg ${
             validChildren.length > 0
               ? `mv-pb-0 mv-pt-4 @lg:mv-pr-0 @lg:mv-pl-4 @lg:mv-py-4 mv-px-4`
               : "mv-p-4"
@@ -185,7 +185,7 @@ export function ListItem(
           </div>
         </Link>
         {validChildren.length > 0 ? (
-          <div className="mv-px-4 mv-pb-4 @lg:mv-py-4 @lg:mv-pr-4 @lg:mv-pl-0 mv-pt-0">
+          <div className="mv-px-4 mv-pb-4 @lg:mv-py-4 @lg:mv-pr-4 @lg:mv-pl-0 mv-pt-0 mv-shrink">
             {validChildren}
           </div>
         ) : null}

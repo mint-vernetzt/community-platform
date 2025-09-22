@@ -1229,14 +1229,14 @@ export default function MyOrganizations() {
                             locales={locales}
                             prefetch="intent"
                           >
-                            <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                            <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
                               <Button
                                 variant="outline"
                                 fullSize
                                 type="submit"
                                 name="intent"
                                 value={`reject-organization-invite-${key}-${invite.organizationId}`}
-                                className="mv-text-wrap @sm:mv-text-nowrap"
+                                className="mv-text-wrap @lg:mv-text-nowrap"
                                 disabled={isSubmitting}
                               >
                                 {
@@ -1249,7 +1249,7 @@ export default function MyOrganizations() {
                                 type="submit"
                                 name="intent"
                                 value={`accept-organization-invite-${key}-${invite.organizationId}`}
-                                className="mv-text-wrap @sm:mv-text-nowrap"
+                                className="mv-text-wrap @lg:mv-text-nowrap"
                                 disabled={isSubmitting}
                               >
                                 {locales.route.organizationMemberInvites.accept}
@@ -1357,14 +1357,14 @@ export default function MyOrganizations() {
                               locales={locales}
                               prefetch="intent"
                             >
-                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
                                 <Button
                                   variant="outline"
                                   fullSize
                                   type="submit"
                                   name="intent"
                                   value={`reject-network-invite-${invite.network.id}-${value.organization.id}`}
-                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                  className="mv-text-wrap @lg:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.decline}
@@ -1374,7 +1374,7 @@ export default function MyOrganizations() {
                                   type="submit"
                                   name="intent"
                                   value={`accept-network-invite-${invite.network.id}-${value.organization.id}`}
-                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                  className="mv-text-wrap @lg:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.accept}
@@ -1483,14 +1483,14 @@ export default function MyOrganizations() {
                                 locales={locales}
                                 prefetch="intent"
                               >
-                                <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                                <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
                                   <Button
                                     variant="outline"
                                     fullSize
                                     type="submit"
                                     name="intent"
                                     value={`reject-organization-member-request-${request.profile.id}-${value.organization.id}`}
-                                    className="mv-text-wrap @sm:mv-text-nowrap"
+                                    className="mv-text-wrap @lg:mv-text-nowrap"
                                     disabled={isSubmitting}
                                   >
                                     {
@@ -1503,7 +1503,7 @@ export default function MyOrganizations() {
                                     type="submit"
                                     name="intent"
                                     value={`accept-organization-member-request-${request.profile.id}-${value.organization.id}`}
-                                    className="mv-text-wrap @sm:mv-text-nowrap"
+                                    className="mv-text-wrap @lg:mv-text-nowrap"
                                     disabled={isSubmitting}
                                   >
                                     {
@@ -1613,14 +1613,14 @@ export default function MyOrganizations() {
                               locales={locales}
                               prefetch="intent"
                             >
-                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @sm:mv-w-fit @sm:mv-min-w-fit">
+                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
                                 <Button
                                   variant="outline"
                                   fullSize
                                   type="submit"
                                   name="intent"
                                   value={`reject-network-request-${request.organization.id}-${value.network.id}`}
-                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                  className="mv-text-wrap @lg:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkRequests.decline}
@@ -1630,7 +1630,7 @@ export default function MyOrganizations() {
                                   type="submit"
                                   name="intent"
                                   value={`accept-network-request-${request.organization.id}-${value.network.id}`}
-                                  className="mv-text-wrap @sm:mv-text-nowrap"
+                                  className="mv-text-wrap @lg:mv-text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkRequests.accept}
