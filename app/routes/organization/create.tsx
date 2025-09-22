@@ -544,12 +544,6 @@ function CreateOrganization() {
                         entity={searchedOrganization}
                         locales={locales}
                         listIndex={index}
-                        breakAt={
-                          searchedOrganization.allowedToClaimOrganization ===
-                          true
-                            ? "@lg"
-                            : "@sm"
-                        }
                       >
                         {organizations.some((organization) => {
                           return organization.id === searchedOrganization.id;
