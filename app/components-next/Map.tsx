@@ -233,6 +233,7 @@ export function Map(props: {
             behavior: "smooth",
           });
         }
+        popup.getElement().querySelector("a")?.blur();
       });
       popup.on("close", () => {
         setHighlightedOrganization(null);
@@ -402,6 +403,7 @@ export function Map(props: {
                 behavior: "smooth",
               });
             }
+            popup.getElement().querySelector("a")?.blur();
           });
           popup.on("close", () => {
             setHighlightedOrganization(null);
