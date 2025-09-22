@@ -5,7 +5,6 @@ import classNames from "classnames";
 import { useEffect } from "react";
 import type {
   HeadersArgs,
-  LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
@@ -49,13 +48,13 @@ import {
   getTagsBySearchQuery,
 } from "./root.server";
 import { getPublicURL } from "./storage.server";
-import styles from "./styles/styles.css?url";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
 import {
   viewCookie,
   viewCookieSchema,
 } from "./routes/explore/organizations.server";
+import "./app.css";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -100,8 +99,6 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     },
   ];
 };
-
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export const headers = ({ loaderHeaders }: HeadersArgs) => {
   return loaderHeaders;
