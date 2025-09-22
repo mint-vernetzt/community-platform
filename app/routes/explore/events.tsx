@@ -358,7 +358,7 @@ export default function ExploreEvents() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -390,18 +390,18 @@ export default function ExploreEvents() {
           >
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              className="flex flex-wrap @lg:gap-4"
               {...getFieldsetProps(fields.evtFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
               <Dropdown>
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {locales.route.filter.stage}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {(() => {
                       let title;
                       if (
@@ -464,7 +464,7 @@ export default function ExploreEvents() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -478,7 +478,7 @@ export default function ExploreEvents() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.focuses}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
@@ -537,7 +537,7 @@ export default function ExploreEvents() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -553,11 +553,11 @@ export default function ExploreEvents() {
               </Dropdown>
               <Dropdown>
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {locales.route.filter.periodOfTime.label}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {
                       locales.route.filter.periodOfTime.values[
                         loaderData.submission.value.evtFilter.periodOfTime
@@ -599,7 +599,7 @@ export default function ExploreEvents() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.targetGroups}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
@@ -669,7 +669,7 @@ export default function ExploreEvents() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -687,11 +687,11 @@ export default function ExploreEvents() {
             <Filters.Fieldset {...getFieldsetProps(fields.evtSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {locales.route.filter.sortBy.label}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {
                       loaderData.locales.route.filter.sortBy.values[
                         currentSortValue || EVENT_SORT_VALUES[0]
@@ -744,7 +744,7 @@ export default function ExploreEvents() {
                 : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
+          <noscript className="hidden @lg:block mt-2">
             <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
@@ -752,18 +752,18 @@ export default function ExploreEvents() {
       <div
         className={
           loaderData.submission.value.showFilters === true
-            ? "mv-hidden @lg:mv-block"
+            ? "hidden @lg:block"
             : undefined
         }
       >
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+          <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6">
           {(loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedTargetGroups.length > 0) && (
-            <div className="mv-flex mv-flex-col mv-gap-2">
-              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+            <div className="flex flex-col gap-2">
+              <div className="overflow-auto flex flex-nowrap @lg:flex-wrap w-full gap-2 pb-2">
                 {loaderData.selectedFocuses.map((selectedFocus) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
@@ -895,7 +895,7 @@ export default function ExploreEvents() {
                 {...getFormProps(resetForm)}
                 method="get"
                 preventScrollReset
-                className="mv-w-fit"
+                className="w-fit"
               >
                 <HiddenFilterInputs
                   fields={resetFields}
@@ -914,10 +914,10 @@ export default function ExploreEvents() {
           )}
         </section>
 
-        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <section className="mx-auto @sm:px-4 @md:px-0 @xl:px-2 w-full @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+            <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">
               {insertParametersIntoLocale(
                 decideBetweenSingularOrPlural(
                   locales.route.notShown_one,
@@ -932,7 +932,7 @@ export default function ExploreEvents() {
               )}
             </p>
           ) : loaderData.eventsCount === 0 ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+            <p className="text-center text-gray-700 mb-4">
               {locales.route.empty}
             </p>
           ) : null}
@@ -976,7 +976,7 @@ export default function ExploreEvents() {
                 })}
               </CardContainer>
               {showMore && (
-                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+                <div className="w-full flex justify-center mb-10 mt-4 @lg:mb-12 @lg:mt-6 @xl:mb-14 @xl:mt-8">
                   <Form
                     {...getFormProps(loadMoreForm)}
                     method="get"

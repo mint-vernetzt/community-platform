@@ -17,7 +17,7 @@ export function LocaleSwitch(props: {
   const location = useLocation();
 
   return (
-    <ul className="mv-flex mv-items-center">
+    <ul className="flex items-center">
       {SUPPORTED_COOKIE_LANGUAGES.map((language: string, index: number) => {
         const newSearchParams = extendSearchParams(
           new URLSearchParams(location.search),
@@ -31,8 +31,8 @@ export function LocaleSwitch(props: {
           typeof SUPPORTED_COOKIE_LANGUAGES
         >;
         return (
-          <li key={typedLanguage} className="mv-flex mv-items-center">
-            {index > 0 ? <span className="mv-px-2">|</span> : ""}
+          <li key={typedLanguage} className="flex items-center">
+            {index > 0 ? <span className="px-2">|</span> : ""}
             <span>
               <TextButton
                 as="link"

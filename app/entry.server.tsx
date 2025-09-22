@@ -52,28 +52,28 @@ export default async function handleRequest(
     }
   }
 
-  const cspHeaderOptions = createCSPHeaderOptions({
-    "default-src": "'self'",
-    "style-src": "'self'",
-    "style-src-attr": "'self'",
-    "style-src-elem": "'self'",
-    "font-src": "'self'",
-    "form-action": "'self'",
-    "script-src": `'self' ${process.env.MATOMO_URL} 'nonce-${nonce}'`,
-    "img-src": `'self' ${
-      process.env.MATOMO_URL
-    } data: ${process.env.IMGPROXY_URL.replace(/https?:\/\//, "")}`,
-    "worker-src": "blob:",
-    "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
-    "base-uri": "'self'",
-    "frame-ancestors": isMap ? false : "'none'",
-    "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
-    "report-to": "csp-endpoint",
-    "upgrade-insecure-requests": process.env.NODE_ENV === "production",
-    "connect-src": connectSrc.join(" "),
-  });
+  // const cspHeaderOptions = createCSPHeaderOptions({
+  //   "default-src": "'self'",
+  //   "style-src": "'self'",
+  //   "style-src-attr": "'self'",
+  //   "style-src-elem": "'self'",
+  //   "font-src": "'self'",
+  //   "form-action": "'self'",
+  //   "script-src": `'self' ${process.env.MATOMO_URL} 'nonce-${nonce}'`,
+  //   "img-src": `'self' ${
+  //     process.env.MATOMO_URL
+  //   } data: ${process.env.IMGPROXY_URL.replace(/https?:\/\//, "")}`,
+  //   "worker-src": "blob:",
+  //   "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
+  //   "base-uri": "'self'",
+  //   "frame-ancestors": isMap ? false : "'none'",
+  //   "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
+  //   "report-to": "csp-endpoint",
+  //   "upgrade-insecure-requests": process.env.NODE_ENV === "production",
+  //   "connect-src": connectSrc.join(" "),
+  // });
 
-  responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
+  // responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
   if (isMap === false) {
     responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
   }

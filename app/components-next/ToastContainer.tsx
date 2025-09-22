@@ -5,7 +5,7 @@ export function ToastContainer(props: { toast: ToastType }) {
   const { toast } = props;
 
   return (
-    <div className="mv-sticky mv-max-h-fit mv-w-full mv-bottom-0 mv-px-4 @lg:mv-px-32 mv-py-4 mv-z-50 mv-shadow-xl">
+    <div className="sticky max-h-fit w-full bottom-0 px-4 @lg:px-32 py-4 z-50 shadow-xl">
       <Toast key={toast.key} level={toast.level} delay={5_000}>
         {toast.message}
       </Toast>

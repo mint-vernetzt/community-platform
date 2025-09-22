@@ -21,12 +21,12 @@ function Status(props: StatusProps) {
   });
 
   const classes = classNames(
-    "mv-py-2 mv-px-4 mv-text-center mv-font-semibold mv-leading-5",
-    variant === "primary" && inverted && "mv-text-primary mv-bg-primary-100",
-    variant === "primary" && !inverted && "mv-text-white mv-bg-primary-300",
-    variant === "neutral" && "mv-text-white mv-bg-neutral",
-    variant === "positive" && "mv-text-white mv-bg-positive",
-    variant === "negative" && "mv-text-white mv-bg-negative"
+    "py-2 px-4 text-center font-semibold leading-5",
+    variant === "primary" && inverted && "text-primary bg-primary-100",
+    variant === "primary" && !inverted && "text-white bg-primary-300",
+    variant === "neutral" && "text-white bg-neutral",
+    variant === "positive" && "text-white bg-positive",
+    variant === "negative" && "text-white bg-negative"
   );
 
   return <div className={classes}>{children}</div>;

@@ -18,14 +18,14 @@ export function Container(props: {
       className={`${
         outerContainerClassName !== undefined
           ? outerContainerClassName
-          : "mv-w-full mv-h-full mv-flex mv-justify-center"
+          : "w-full h-full flex justify-center"
       }`}
     >
       <div
         className={`${
           innerContainerClassName !== undefined
             ? innerContainerClassName
-            : "mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl"
+            : "w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-[72px] @lg:mb-16 max-w-screen-2xl"
         }`}
       >
         {props.children}
@@ -36,7 +36,7 @@ export function Container(props: {
 
 function ContainerHeader(props: { children: React.ReactNode }) {
   return (
-    <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-items-center mv-justify-between">
+    <div className="flex flex-col @sm:flex-row gap-4 @md:gap-6 @lg:gap-8 items-center justify-between">
       {props.children}
     </div>
   );
@@ -44,7 +44,7 @@ function ContainerHeader(props: { children: React.ReactNode }) {
 
 function ContainerTitle(props: { children: React.ReactNode }) {
   return (
-    <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
+    <h1 className="mb-0 text-5xl text-primary font-bold leading-9">
       {props.children}
     </h1>
   );

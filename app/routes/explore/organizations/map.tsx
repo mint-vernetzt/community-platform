@@ -272,8 +272,8 @@ export default function ExploreOrganizationsList() {
   }/map?${embedLinkSearchParams.toString()}" title="MINTvernetzt-Community-Karte" referrerpolicy="no-referrer" allowfullscreen />`;
 
   return (
-    <div className="mv-w-full mv-px-4">
-      <div className="mv-w-full mv-relative mv-rounded-2xl mv-overflow-hidden mv-h-[calc(100dvh-292px)] mv-min-h-[284px] mv-mb-3 mv-ring-1 mv-ring-neutral-200">
+    <div className="w-full px-4">
+      <div className="w-full relative rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
         <Map
           organizations={loaderData.organizations.filter((organization) => {
             return (
@@ -284,7 +284,7 @@ export default function ExploreOrganizationsList() {
           language={loaderData.lng}
         />
       </div>
-      <div className="mv-hidden @lg:mv-flex mv-w-full mv-justify-end mv-mb-4 mv-gap-2 mv-px-2 @sm:mv-px-0">
+      <div className="hidden @lg:flex w-full justify-end mb-4 gap-2 px-2 @sm:px-0">
         <Modal searchParam="modal-embed">
           <Modal.Title>
             {loaderData.locales.route.map.embedModal.title}
@@ -298,7 +298,7 @@ export default function ExploreOrganizationsList() {
                     key="help-link-in-modal"
                     to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
                     target="_blank"
-                    className="mv-text-primary hover:mv-underline"
+                    className="text-primary hover:underline"
                     prefetch="intent"
                   >
                     {" "}
@@ -308,45 +308,45 @@ export default function ExploreOrganizationsList() {
             </p>
           </Modal.Section>
           <Modal.Section>
-            <p className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm">
+            <p className="text-neutral-700 font-semibold leading-5 text-sm">
               {loaderData.locales.route.map.embedModal.description.title}
             </p>
-            <ul className="mv-flex mv-flex-col mv-gap-5 mv-text-sm">
-              <li className="mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+            <ul className="flex flex-col gap-5 text-sm">
+              <li className="flex gap-2">
+                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
                   1
                 </span>
-                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                <span className="text-primary font-semibold leading-5">
                   {loaderData.locales.route.map.embedModal.description.step1}
                 </span>
               </li>
-              <li className="mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+              <li className="flex gap-2">
+                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
                   2
                 </span>
-                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                <span className="text-primary font-semibold leading-5">
                   {loaderData.locales.route.map.embedModal.description.step2}
                 </span>
               </li>
-              <li className="mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-h-[18px] mv-aspect-square mv-rounded-full mv-bg-primary-50 mv-text-xs mv-text-primary mv-font-semibold mv-leading-[16px] mv-mt-[2px]">
+              <li className="flex gap-2">
+                <span className="text-center align-middle h-[18px] aspect-square rounded-full bg-primary-50 text-xs text-primary font-semibold leading-[16px] mt-[2px]">
                   3
                 </span>
-                <span className="mv-text-primary mv-font-semibold mv-leading-5">
+                <span className="text-primary font-semibold leading-5">
                   {loaderData.locales.route.map.embedModal.description.step3}
                 </span>
               </li>
             </ul>
-            <div className="mv-flex mv-flex-col mv-gap-1">
+            <div className="flex flex-col gap-1">
               <label
                 htmlFor="embed-code"
-                className="mv-text-neutral-700 mv-font-semibold mv-leading-5 mv-text-sm"
+                className="text-neutral-700 font-semibold leading-5 text-sm"
               >
                 {loaderData.locales.route.map.embedModal.textarea.label}
               </label>
               <textarea
                 id="embed-code"
-                className="mv-w-full mv-h-[162px] mv-py-1 mv-px-2 mv-rounded-lg mv-border mv-border-neutral-300 mv-text-neutral-800 mv-font-semibold mv-leading-5 mv-text-base"
+                className="w-full h-[162px] py-1 px-2 rounded-lg border border-neutral-300 text-neutral-800 font-semibold leading-5 text-base"
                 value={iframeString}
                 readOnly
               />
@@ -387,7 +387,7 @@ export default function ExploreOrganizationsList() {
             <Link
               to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
               target="_blank"
-              className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+              className="grid grid-cols-1 grid-rows-1 place-items-center rounded-full text-primary w-5 h-5 border border-primary bg-neutral-50 hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
               prefetch="intent"
             >
               <QuestionMark />

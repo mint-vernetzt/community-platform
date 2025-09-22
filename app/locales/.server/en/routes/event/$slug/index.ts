@@ -93,7 +93,7 @@ export const locale = {
     title: "Why do you want to report this event?",
     description:
       "In order to follow up on your report, we need the reason why you want to report this event.",
-    faq: 'Further information about the reporting process can be found in our <a href="/help#events-reportEvent" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">help section</a>.',
+    faq: 'Further information about the reporting process can be found in our <a href="/help#events-reportEvent" target="_blank" class="text-primary underline hover:no-underline">help section</a>.',
     otherReason: "Other reason",
     noReasons: "Please give at least one reason.",
     alreadySubmitted: "You have already reported this event.",

@@ -284,17 +284,17 @@ function About() {
 
   return (
     <>
-      <h1 className="mv-text-primary @md:mv-font-bold @lg:mv-font-black mv-text-5xl @lg:mv-text-7xl mv-mb-0">
+      <h1 className="text-primary @md:font-bold @lg:font-black text-5xl @lg:text-7xl mb-0">
         {loaderData.project.name}
       </h1>
       {loaderData.project.excerpt !== null && (
-        <p className="mv-font-semibold mv-text-lg @lg:mv-text-2xl mv-text-neutral-700 mv-text-wrap">
+        <p className="font-semibold text-lg @lg:text-2xl text-neutral-700 text-wrap">
           {loaderData.project.excerpt}
         </p>
       )}
       {loaderData.project.formats.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.formats}
           </h3>
           <Chip.Container>
@@ -320,8 +320,8 @@ function About() {
         </div>
       )}
       {loaderData.project.furtherFormats.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.furtherFormats}
           </h3>
           <Chip.Container>
@@ -337,8 +337,8 @@ function About() {
       )}
       {(loaderData.project.disciplines.length > 0 ||
         loaderData.project.additionalDisciplines.length > 0) && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.disciplines}
           </h3>
           <Chip.Container>
@@ -393,12 +393,12 @@ function About() {
         </div>
       )}
       {loaderData.project.furtherDisciplines.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.furtherDisciplines}
           </h3>
-          <div className="mv-flex mv-flex-wrap mv-gap-2">
-            <ul className="mv-list-disc mv-list-inside mv-font-normal mv-text-neutral-800 mv-px-2">
+          <div className="flex flex-wrap gap-2">
+            <ul className="list-disc list-inside font-normal text-neutral-800 px-2">
               {loaderData.project.furtherDisciplines.map((format, index) => {
                 return <li key={index}>{format}</li>;
               })}
@@ -407,8 +407,8 @@ function About() {
         </div>
       )}
       {loaderData.project.projectTargetGroups.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.projectTargetGroups}
           </h3>
           <Chip.Container>
@@ -438,8 +438,8 @@ function About() {
         </div>
       )}
       {loaderData.project.specialTargetGroups.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.specialTargetGroups}
           </h3>
           <Chip.Container>
@@ -469,31 +469,31 @@ function About() {
         </div>
       )}
       {loaderData.project.targetGroupAdditions !== null && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.targetGroupAdditions}
           </h3>
-          <p className="mv-font-normal mv-text-neutral-800">
+          <p className="font-normal text-neutral-800">
             {loaderData.project.targetGroupAdditions}
           </p>
         </div>
       )}
       {loaderData.project.participantLimit !== null && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.participantLimit}
           </h3>
-          <p className="mv-font-normal mv-text-neutral-800">
+          <p className="font-normal text-neutral-800">
             {loaderData.project.participantLimit}
           </p>
         </div>
       )}
       {loaderData.project.areas.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.areas}
           </h3>
-          <p className="mv-font-normal mv-text-neutral-800">
+          <p className="font-normal text-neutral-800">
             {loaderData.project.areas
               .map((relation) => relation.area.name)
               .join(" / ")}
@@ -507,7 +507,7 @@ function About() {
         loaderData.project.targeting !== null ||
         loaderData.project.hints !== null) && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.furtherDescription}
           </h2>
           {/* only further description */}
@@ -520,56 +520,56 @@ function About() {
               <RichText html={loaderData.project.furtherDescription} />
             )}
           {loaderData.project.idea !== null && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.idea}
               </h3>
               <RichText
-                additionalClassNames="mv-text-lg mv-mb-0"
+                additionalClassNames="text-lg mb-0"
                 html={loaderData.project.idea}
               />
             </div>
           )}
           {loaderData.project.goals !== null && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.goals}
               </h3>
               <RichText
-                additionalClassNames="mv-text-lg mv-mb-0"
+                additionalClassNames="text-lg mb-0"
                 html={loaderData.project.goals}
               />
             </div>
           )}
           {loaderData.project.implementation !== null && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.implementation}
               </h3>
               <RichText
-                additionalClassNames="mv-text-lg mv-mb-0"
+                additionalClassNames="text-lg mb-0"
                 html={loaderData.project.implementation}
               />
             </div>
           )}
           {loaderData.project.targeting !== null && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.targeting}
               </h3>
               <RichText
-                additionalClassNames="mv-text-lg mv-mb-0"
+                additionalClassNames="text-lg mb-0"
                 html={loaderData.project.targeting}
               />
             </div>
           )}
           {loaderData.project.hints !== null && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.hints}
               </h3>
               <RichText
-                additionalClassNames="mv-text-lg mv-mb-0"
+                additionalClassNames="text-lg mb-0"
                 html={loaderData.project.hints}
               />
             </div>
@@ -581,12 +581,12 @@ function About() {
               loaderData.project.implementation !== null ||
               loaderData.project.targeting !== null ||
               loaderData.project.hints !== null) && (
-              <div className="mv-flex mv-flex-col mv-gap-4">
-                <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <div className="flex flex-col gap-4">
+                <h3 className="text-neutral-700 text-lg font-bold mb-0">
                   {locales.route.content.furtherDescription2}
                 </h3>
                 <RichText
-                  additionalClassNames="mv-text-lg"
+                  additionalClassNames="text-lg"
                   html={loaderData.project.furtherDescription}
                 />
               </div>
@@ -601,8 +601,8 @@ function About() {
         </Video>
       )}
       {loaderData.project.teamMembers.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-2">
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.team}
           </h2>
           <List maxColumns={2}>
@@ -642,12 +642,12 @@ function About() {
         </div>
       )}
       {loaderData.project.responsibleOrganizations.length > 0 && (
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-relative">
+        <div className="flex flex-col gap-2 relative">
           <div
             id="responsible-organizations"
-            className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+            className="absolute -top-[76px] xl:-top-20"
           />
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {decideBetweenSingularOrPlural(
               locales.route.content.responsibleOrganizations_one,
               locales.route.content.responsibleOrganizations_many,
@@ -710,22 +710,22 @@ function About() {
           </List>
         </div>
       )}
-      <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @md:mv-gap-4 mv-items-center mv-bg-primary-50 mv-p-4 @md:mv-p-8 mv-rounded-xl">
-        <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
-          <div className="mv-w-64 mv-aspect-[1]">
+      <div className="flex flex-col @md:flex-row gap-8 @md:gap-4 items-center bg-primary-50 p-4 @md:p-8 rounded-xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-64 aspect-[1]">
             <AvatarIcon
               logo={loaderData.project.logo}
               blurredLogo={loaderData.project.blurredLogo}
               name={loaderData.project.name}
             />
           </div>
-          <h4 className="mv-text-neutral-700 mv-text-lg mv-text-center mv-font-bold mv-mb-0">
+          <h4 className="text-neutral-700 text-lg text-center font-bold mb-0">
             {loaderData.project.name}
           </h4>
         </div>
-        <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
+        <div className="w-full flex flex-col gap-2">
           {loaderData.project.email !== null && (
-            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+            <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Envelope />
               <Link to={`mailto:${loaderData.project.email}`}>
                 {loaderData.project.email}
@@ -733,7 +733,7 @@ function About() {
             </div>
           )}
           {loaderData.project.phone !== null && (
-            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+            <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Phone />
               <Link to={`tel:${loaderData.project.phone}`}>
                 {loaderData.project.phone}
@@ -741,7 +741,7 @@ function About() {
             </div>
           )}
           {loaderData.project.website !== null && (
-            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+            <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Globe />
               <Link
                 to={loaderData.project.website}
@@ -757,9 +757,9 @@ function About() {
             loaderData.project.streetNumber !== null ||
             loaderData.project.zipCode !== null ||
             loaderData.project.city !== null) && (
-            <div className="mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-flex mv-gap-4 mv-no-wrap">
+            <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <House />
-              <address className="mv-flex mv-flex-col mv-not-italic">
+              <address className="flex flex-col not-italic">
                 {loaderData.project.contactName !== null && (
                   <span>{loaderData.project.contactName}</span>
                 )}
@@ -776,13 +776,13 @@ function About() {
             loaderData.project.xing !== null ||
             loaderData.project.mastodon !== null ||
             loaderData.project.tiktok !== null) && (
-            <div className="mv-flex mv-flex-row mv-flex-wrap mv-gap-2">
+            <div className="flex flex-row flex-wrap gap-2">
               {loaderData.project.facebook !== null && (
                 <Link
                   to={loaderData.project.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <Facebook />
                 </Link>
@@ -792,7 +792,7 @@ function About() {
                   to={loaderData.project.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <LinkedIn />
                 </Link>
@@ -802,7 +802,7 @@ function About() {
                   to={loaderData.project.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <Twitter />
                 </Link>
@@ -812,7 +812,7 @@ function About() {
                   to={loaderData.project.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <YouTube />
                 </Link>
@@ -822,7 +822,7 @@ function About() {
                   to={loaderData.project.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <Instagram />
                 </Link>
@@ -832,7 +832,7 @@ function About() {
                   to={loaderData.project.xing}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <Xing />
                 </Link>
@@ -842,7 +842,7 @@ function About() {
                   to={loaderData.project.mastodon}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <Mastodon />
                 </Link>
@@ -852,7 +852,7 @@ function About() {
                   to={loaderData.project.tiktok}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mv-flex-1 mv-flex mv-items-center mv-justify-center mv-px-4 mv-py-3 mv-bg-white mv-rounded-lg mv-text-neutral-700"
+                  className="flex-1 flex items-center justify-center px-4 py-3 bg-white rounded-lg text-neutral-700"
                 >
                   <TikTok />
                 </Link>

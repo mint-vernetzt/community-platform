@@ -21,10 +21,10 @@ export default function Imprint() {
   const { locales, baseUrl, supportMail } = useLoaderData<typeof loader>();
 
   return (
-    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 @md:mv-my-10 @lg:mv-my-20">
+    <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 @md:my-10 @lg:my-20">
       <h1>{locales.title}</h1>
       <p>{locales.date}</p>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.scope.title}</h2>
         <p>
           {insertComponentsIntoLocale(
@@ -36,35 +36,35 @@ export default function Imprint() {
                 key="baseUrl"
                 as="link"
                 to="/"
-                className="mv-inline-flex"
+                className="inline-flex"
                 prefetch="intent"
               />,
             ]
           )}
         </p>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.legalBasis.title}</h2>
         <p>{locales.legalBasis.content}</p>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.complianceStatus.title}</h2>
         <p>{locales.complianceStatus.disclaimer}</p>
-        <h3 className="mv-mt-4">
+        <h3 className="mt-4">
           {locales.complianceStatus.restrictions.userGeneratedContent.title}
         </h3>
-        <p className="mv-mb-4">
+        <p className="mb-4">
           {insertComponentsIntoLocale(
             locales.complianceStatus.restrictions.userGeneratedContent.subline,
             [
               <span
                 key="highlight-user-generated-content"
-                className="mv-font-semibold"
+                className="font-semibold"
               />,
             ]
           )}
         </p>
-        <ul className="mv-list-disc mv-list-inside">
+        <ul className="list-disc list-inside">
           <li>
             {
               locales.complianceStatus.restrictions.userGeneratedContent.list
@@ -84,16 +84,16 @@ export default function Imprint() {
             }
           </li>
         </ul>
-        <h3 className="mv-mt-4">
+        <h3 className="mt-4">
           {locales.complianceStatus.restrictions.ownContent.title}
         </h3>
-        <p className="mv-mb-4">
+        <p className="mb-4">
           {insertComponentsIntoLocale(
             locales.complianceStatus.restrictions.ownContent.subline,
-            [<span key="highlight own content" className="mv-font-semibold" />]
+            [<span key="highlight own content" className="font-semibold" />]
           )}
         </p>
-        <ul className="mv-list-disc mv-list-inside">
+        <ul className="list-disc list-inside">
           <li>
             {locales.complianceStatus.restrictions.ownContent.list.altTexts}
           </li>
@@ -127,73 +127,68 @@ export default function Imprint() {
           </li>
         </ul>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.measuresToImprove.title}</h2>
-        <p className="mv-mb-4">{locales.measuresToImprove.subline}</p>
-        <ul className="mv-list-disc mv-list-inside">
+        <p className="mb-4">{locales.measuresToImprove.subline}</p>
+        <ul className="list-disc list-inside">
           <li>
             {insertComponentsIntoLocale(
               locales.measuresToImprove.regularChecks,
               [
                 <span
                   key="highlight-regular-checks"
-                  className="mv-font-semibold"
+                  className="font-semibold"
                 />,
               ]
             )}
           </li>
           <li>
             {insertComponentsIntoLocale(locales.measuresToImprove.training, [
-              <span key="highlight-training" className="mv-font-semibold" />,
+              <span key="highlight-training" className="font-semibold" />,
             ])}
           </li>
           <li>
             {insertComponentsIntoLocale(
               locales.measuresToImprove.userFeedback,
-              [
-                <span
-                  key="highlight-user-feedback"
-                  className="mv-font-semibold"
-                />,
-              ]
+              [<span key="highlight-user-feedback" className="font-semibold" />]
             )}
           </li>
         </ul>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.reportBarriers.title}</h2>
-        <p className="mv-mb-4">{locales.reportBarriers.subline}</p>
-        <ul className="mv-list-disc mv-list-inside mv-mb-4">
+        <p className="mb-4">{locales.reportBarriers.subline}</p>
+        <ul className="list-disc list-inside mb-4">
           <li>
             {insertComponentsIntoLocale(
               insertParametersIntoLocale(locales.reportBarriers.email, {
                 supportMail: supportMail,
               }),
               [
-                <span key="highlight-email" className="mv-font-semibold" />,
+                <span key="highlight-email" className="font-semibold" />,
                 <TextButton
                   key="email-link"
                   as="link"
                   to={`mailto:${supportMail}`}
-                  className="mv-inline-flex"
+                  className="inline-flex"
                 />,
               ]
             )}
           </li>
           <li>
             {insertComponentsIntoLocale(locales.reportBarriers.phone, [
-              <span key="highlight-phone" className="mv-font-semibold" />,
+              <span key="highlight-phone" className="font-semibold" />,
               <TextButton
                 key="phone-link"
                 as="link"
                 to="tel:+491621696019"
-                className="mv-inline-flex"
+                className="inline-flex"
               />,
               <TextButton
                 key="contact-person"
                 as="link"
                 to="/profile/ingaleffers"
-                className="mv-inline-flex"
+                className="inline-flex"
                 prefetch="intent"
               />,
             ])}
@@ -201,7 +196,7 @@ export default function Imprint() {
         </ul>
         <p>{locales.reportBarriers.disclaimer}</p>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <h2>{locales.moreInformation.title}</h2>
         <p>
           {insertComponentsIntoLocale(locales.moreInformation.content, [
@@ -209,14 +204,14 @@ export default function Imprint() {
               key="more-info-link"
               as="link"
               to="https://www.mint-vernetzt.de"
-              className="mv-inline-flex"
+              className="inline-flex"
               rel="noreferrer noopener"
               target="_blank"
             />,
           ])}
         </p>
       </section>
-      <section className="mv-mt-6">
+      <section className="mt-6">
         <p>{locales.notice}</p>
       </section>
     </section>

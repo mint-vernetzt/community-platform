@@ -446,7 +446,7 @@ export default function ExploreOrganizations() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           action={`/explore/organizations/${loaderData.currentView}`}
@@ -484,7 +484,7 @@ export default function ExploreOrganizations() {
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
               {...getFieldsetProps(fields.orgFilter)}
-              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              className="flex flex-wrap @lg:gap-4"
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
             >
@@ -492,7 +492,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.types}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedTypes
                       .map((type) => {
@@ -558,7 +558,7 @@ export default function ExploreOrganizations() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -577,7 +577,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.focuses}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFocuses
                       .map((focus) => {
@@ -635,7 +635,7 @@ export default function ExploreOrganizations() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -654,7 +654,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.areas}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -665,7 +665,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-mx-4 mv-my-2">
+                    <div className="mx-4 my-2">
                       <Input
                         id="org-area-search"
                         onChange={handleAreaSearch}
@@ -814,7 +814,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.networkTypes}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedNetworkTypes
                       .map((type) => {
@@ -879,7 +879,7 @@ export default function ExploreOrganizations() {
                               <>
                                 {title}
                                 {description !== null ? (
-                                  <p className="mv-text-sm">{description}</p>
+                                  <p className="text-sm">{description}</p>
                                 ) : null}
                               </>
                             );
@@ -898,7 +898,7 @@ export default function ExploreOrganizations() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.network}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.networks
                       .map((network) => {
@@ -909,7 +909,7 @@ export default function ExploreOrganizations() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-mx-4 mv-my-2">
+                    <div className="mx-4 my-2">
                       <Input
                         id="org-network-search"
                         onChange={handleNetworkSearch}
@@ -949,11 +949,9 @@ export default function ExploreOrganizations() {
                           hidden={!network.isVisible}
                         >
                           <FormControl.Label>
-                            <div className="mv-flex mv-gap-2 mv-items-center">
+                            <div className="flex gap-2 items-center">
                               <Avatar size="xs" {...network} />
-                              <div className="mv-line-clamp-2">
-                                {network.name}
-                              </div>
+                              <div className="line-clamp-2">{network.name}</div>
                             </div>
                           </FormControl.Label>
                           <FormControl.Counter>
@@ -968,11 +966,11 @@ export default function ExploreOrganizations() {
             <Filters.Fieldset {...getFieldsetProps(fields.orgSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {locales.route.filter.sortBy.label}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {
                       loaderData.locales.route.filter.sortBy.values[
                         currentSortValue || ORGANIZATION_SORT_VALUES[0]
@@ -1021,7 +1019,7 @@ export default function ExploreOrganizations() {
                 : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
+          <noscript className="hidden @lg:block mt-2">
             <Button type="submit">{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
@@ -1029,24 +1027,24 @@ export default function ExploreOrganizations() {
       <div
         className={
           loaderData.submission.value.showFilters === true
-            ? "mv-hidden @lg:mv-block"
+            ? "hidden @lg:block"
             : undefined
         }
       >
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+          <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-          <div className="mv-w-full mv-flex mv-justify-center">
-            <ul className="mv-grid mv-grid-flow-col mv-auto-cols-fr mv-gap-2 mv-p-1 mv-rounded-lg mv-bg-white mv-border mv-border-neutral-300">
+        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+          <div className="w-full flex justify-center">
+            <ul className="grid grid-flow-col auto-cols-fr gap-2 p-1 rounded-lg bg-white border border-neutral-300">
               <li>
                 <NavLink
                   to={`/explore/organizations/list?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    `px-4 py-2 flex gap-2 rounded-[4px] hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
                       isActive
-                        ? "mv-bg-primary-50 mv-text-primary"
-                        : "mv-bg-white mv-text-neutral-700"
+                        ? "bg-primary-50 text-primary"
+                        : "bg-white text-neutral-700"
                     }`
                   }
                   preventScrollReset
@@ -1060,10 +1058,10 @@ export default function ExploreOrganizations() {
                 <NavLink
                   to={`/explore/organizations/map?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `mv-px-4 mv-py-2 mv-flex mv-gap-2 mv-rounded-[4px] hover:mv-bg-neutral-100 hover:mv-text-neutral-700 focus:mv-ring-2 focus:mv-ring-primary-200 active:mv-bg-primary-100 active:mv-text-primary mv-text-xs mv-font-semibold mv-leading-4 mv-text-center ${
+                    `px-4 py-2 flex gap-2 rounded-[4px] hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
                       isActive
-                        ? "mv-bg-primary-50 mv-text-primary"
-                        : "mv-bg-white mv-text-neutral-700"
+                        ? "bg-primary-50 text-primary"
+                        : "bg-white text-neutral-700"
                     }`
                   }
                   preventScrollReset
@@ -1076,14 +1074,14 @@ export default function ExploreOrganizations() {
             </ul>
           </div>
         </section>
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6">
           {(loaderData.selectedTypes.length > 0 ||
             loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedAreas.length > 0 ||
             loaderData.selectedNetworkTypes.length > 0 ||
             loaderData.selectedNetworks.length > 0) && (
-            <div className="mv-flex mv-flex-col mv-gap-2">
-              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+            <div className="flex flex-col gap-2">
+              <div className="overflow-auto flex flex-nowrap @lg:flex-wrap w-full gap-2 pb-2">
                 {loaderData.selectedTypes.map((selectedType) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
@@ -1383,7 +1381,7 @@ export default function ExploreOrganizations() {
                 action={`/explore/organizations/${loaderData.currentView}`}
                 method="get"
                 preventScrollReset
-                className="mv-w-fit"
+                className="w-fit"
               >
                 <HiddenFilterInputs
                   fields={resetFields}
@@ -1402,11 +1400,11 @@ export default function ExploreOrganizations() {
           )}
         </section>
 
-        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <section className="mx-auto @sm:px-4 @md:px-0 @xl:px-2 w-full @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !==
             loaderData.organizationsCount ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+            <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">
               {insertParametersIntoLocale(
                 decideBetweenSingularOrPlural(
                   locales.route.notShown_one,
@@ -1422,7 +1420,7 @@ export default function ExploreOrganizations() {
               )}
             </p>
           ) : loaderData.organizationsCount === 0 ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+            <p className="text-center text-gray-700 mb-4">
               {locales.route.empty}
             </p>
           ) : null}

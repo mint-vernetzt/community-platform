@@ -557,18 +557,18 @@ function Manage() {
           autoComplete="off"
           hidden
         />
-        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <div className="mv-flex mv-flex-col mv-gap-6">
-              <div className="mv-flex mv-flex-col mv-gap-4">
-                <div className="mv-flex mv-items-center mv-justify-between">
-                  <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-6 @md:gap-4">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-primary text-lg font-semibold mb-0">
                     {locales.route.content.types.headline}
                   </h2>
                   <Link
                     to="/help#organizations-networkVsOrganizationVsProject"
                     target="_blank"
-                    className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                    className="grid grid-cols-1 grid-rows-1 place-items-center rounded-full text-primary w-5 h-5 border border-primary bg-neutral-50 hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
                     prefetch="intent"
                   >
                     <QuestionMark />
@@ -683,13 +683,13 @@ function Manage() {
                   </Chip.Container>
                 )}
               </div>
-              <div className="mv-flex mv-flex-col mv-gap-4">
-                <div className="mv-flex mv-items-center mv-justify-between">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
                   <h2
-                    className={`mv-text-lg mv-font-semibold mv-mb-0 ${
+                    className={`text-lg font-semibold mb-0 ${
                       hasSelectedNetwork === false
-                        ? "mv-text-neutral-300"
-                        : "mv-text-primary"
+                        ? "text-neutral-300"
+                        : "text-primary"
                     }`}
                   >
                     {locales.route.content.networkTypes.headline}
@@ -697,7 +697,7 @@ function Manage() {
                   <Link
                     to="/help#organizations-transformOrganizationToNetwork"
                     target="_blank"
-                    className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-rounded-full mv-text-primary mv-w-5 mv-h-5 mv-border mv-border-primary mv-bg-neutral-50 hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+                    className="grid grid-cols-1 grid-rows-1 place-items-center rounded-full text-primary w-5 h-5 border border-primary bg-neutral-50 hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
                     prefetch="intent"
                   >
                     <QuestionMark />
@@ -711,9 +711,7 @@ function Manage() {
                   <ConformSelect.Label htmlFor={manageFields.networkTypes.id}>
                     <span
                       className={
-                        hasSelectedNetwork === false
-                          ? "mv-text-neutral-300"
-                          : ""
+                        hasSelectedNetwork === false ? "text-neutral-300" : ""
                       }
                     >
                       {locales.route.content.networkTypes.label}
@@ -831,7 +829,7 @@ function Manage() {
                         <div
                           id={manageForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -841,10 +839,10 @@ function Manage() {
                 ) : null}
               </div>
             </div>
-            <div className="mv-flex mv-w-full mv-items-center mv-justify-center @xl:mv-justify-end">
-              <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
+            <div className="flex w-full items-center justify-center @xl:justify-end">
+              <div className="flex flex-col w-full @xl:w-fit gap-2">
                 <Controls>
-                  <div className="mv-relative mv-w-full">
+                  <div className="relative w-full">
                     <Button
                       form={manageForm.id}
                       type="reset"
@@ -857,7 +855,7 @@ function Manage() {
                     >
                       {locales.route.form.reset}
                     </Button>
-                    <noscript className="mv-absolute mv-top-0">
+                    <noscript className="absolute top-0">
                       <Button as="link" to="." variant="outline" fullSize>
                         {locales.route.form.reset}
                       </Button>
@@ -869,7 +867,7 @@ function Manage() {
                     <>
                       <Button
                         fullSize
-                        className="mv-pb-0 mv-pt-0 mv-pl-0 mv-pr-0"
+                        className="pb-0 pt-0 pl-0 pr-0"
                         // Don't disable button when js is disabled
                         disabled={
                           isHydrated
@@ -880,7 +878,7 @@ function Manage() {
                       >
                         <Link
                           to={`?${doubleCheckModalSearchParams.toString()}`}
-                          className="mv-w-full mv-h-full mv-flex mv-justify-center mv-items-center"
+                          className="w-full h-full flex justify-center items-center"
                           preventScrollReset
                           prefetch="intent"
                         >
@@ -939,10 +937,10 @@ function Manage() {
             </div>
           </div>
           {/* Current Network Members and Remove Network Member Section */}
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
             <h2
-              className={`mv-text-lg mv-font-semibold mv-mb-0 ${
-                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              className={`text-lg font-semibold mb-0 ${
+                isNetwork === false ? "text-neutral-300" : "text-primary"
               }`}
             >
               {decideBetweenSingularOrPlural(
@@ -951,11 +949,7 @@ function Manage() {
                 networkMembers.length
               )}
             </h2>
-            <p
-              className={
-                isNetwork === false ? "mv-text-neutral-300" : undefined
-              }
-            >
+            <p className={isNetwork === false ? "text-neutral-300" : undefined}>
               {decideBetweenSingularOrPlural(
                 locales.route.content.networkMembers.current.subline_one,
                 locales.route.content.networkMembers.current.subline_other,
@@ -1008,7 +1002,7 @@ function Manage() {
                         <div
                           id={removeNetworkMemberForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -1019,10 +1013,8 @@ function Manage() {
               </Form>
             ) : (
               <div
-                className={`mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-base mv-leading-5 mv-font-normal ${
-                  isNetwork === false
-                    ? "mv-text-neutral-300"
-                    : "mv-text-neutral-700"
+                className={`w-full p-4 text-center bg-neutral-100 border border-neutral-200 rounded-lg text-base leading-5 font-normal ${
+                  isNetwork === false ? "text-neutral-300" : "text-neutral-700"
                 }`}
               >
                 {locales.route.content.networkMembers.current.blankState}
@@ -1030,13 +1022,13 @@ function Manage() {
             )}
             {/* Search Network Members To Invite Section */}
             <h2
-              className={`mv-text-lg mv-font-semibold mv-mb-0 ${
-                isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+              className={`text-lg font-semibold mb-0 ${
+                isNetwork === false ? "text-neutral-300" : "text-primary"
               }`}
             >
               {locales.route.content.networkMembers.invite.headline}
             </h2>
-            <p className={isNetwork === false ? "mv-text-neutral-300" : ""}>
+            <p className={isNetwork === false ? "text-neutral-300" : ""}>
               {locales.route.content.networkMembers.invite.subline}
             </p>
             <searchNetworkMembersFetcher.Form
@@ -1139,7 +1131,7 @@ function Manage() {
                       <div
                         id={searchNetworksForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -1175,7 +1167,7 @@ function Manage() {
                             searchedOrganization.id
                           );
                         }) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                             {
                               locales.route.content.networkMembers.invite
                                 .alreadyMember
@@ -1187,7 +1179,7 @@ function Manage() {
                               searchedOrganization.id
                             );
                           }) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                             {
                               locales.route.content.networkMembers.invite
                                 .alreadyInvited
@@ -1217,7 +1209,7 @@ function Manage() {
                         <div
                           id={inviteNetworkMemberForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -1230,7 +1222,7 @@ function Manage() {
             {/* Pending invited network members section */}
             {sentNetworkJoinInvites.length > 0 ? (
               <>
-                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                <h2 className="text-primary text-lg font-semibold mb-0">
                   {locales.route.content.networkMembers.pendingInvites.headline}
                 </h2>
                 <Form
@@ -1279,7 +1271,7 @@ function Manage() {
                             <div
                               id={cancelNetworkJoinInviteForm.errorId}
                               key={index}
-                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              className="text-sm font-semibold text-negative-600"
                             >
                               {error}
                             </div>
@@ -1293,8 +1285,8 @@ function Manage() {
             ) : null}
           </div>
           {/* Current Networks and Leave Network Section */}
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {decideBetweenSingularOrPlural(
                 locales.route.content.networks.current.headline_one,
                 locales.route.content.networks.current.headline_other,
@@ -1344,7 +1336,7 @@ function Manage() {
                         <div
                           id={leaveNetworkForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -1354,12 +1346,12 @@ function Manage() {
                 ) : null}
               </Form>
             ) : (
-              <div className="mv-w-full mv-p-4 mv-text-center mv-bg-neutral-100 mv-border mv-border-neutral-200 mv-rounded-lg mv-text-neutral-700 mv-text-base mv-leading-5 mv-font-normal">
+              <div className="w-full p-4 text-center bg-neutral-100 border border-neutral-200 rounded-lg text-neutral-700 text-base leading-5 font-normal">
                 {locales.route.content.networks.current.blankState}
               </div>
             )}
             {/* Search Networks To Join Section */}
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.networks.requestToJoin.headline}
             </h2>
             <p>{locales.route.content.networks.requestToJoin.subline}</p>
@@ -1441,7 +1433,7 @@ function Manage() {
                       <div
                         id={searchNetworksForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -1476,7 +1468,7 @@ function Manage() {
                             relation.network.id === searchedOrganization.id
                           );
                         }) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                             {
                               locales.route.content.networks.requestToJoin
                                 .alreadyMemberOf
@@ -1487,7 +1479,7 @@ function Manage() {
                               relation.network.id === searchedOrganization.id
                             );
                           }) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                             {
                               locales.route.content.networks.requestToJoin
                                 .alreadyRequested
@@ -1496,7 +1488,7 @@ function Manage() {
                         ) : searchedOrganization.types.some((relation) => {
                             return relation.slug === "network";
                           }) === false ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                             {
                               locales.route.content.networks.requestToJoin
                                 .noNetwork
@@ -1526,7 +1518,7 @@ function Manage() {
                         <div
                           id={requestToJoinNetworkForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -1539,7 +1531,7 @@ function Manage() {
             {/* Pending requests to be member of network section */}
             {sentNetworkJoinRequests.length > 0 ? (
               <>
-                <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+                <h2 className="text-primary text-lg font-semibold mb-0">
                   {locales.route.content.networks.pendingRequests.headline}
                 </h2>
                 <Form
@@ -1588,7 +1580,7 @@ function Manage() {
                             <div
                               id={cancelNetworkJoinRequestForm.errorId}
                               key={index}
-                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              className="text-sm font-semibold text-negative-600"
                             >
                               {error}
                             </div>

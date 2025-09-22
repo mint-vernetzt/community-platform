@@ -110,37 +110,37 @@ export default function Index() {
   });
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-      <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-        <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-          <div className="mv-mb-6 mv-mt-12">
+    <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="flex flex-col w-full items-center">
+        <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+          <div className="mb-6 mt-12">
             <Link
               to={`/login${
                 loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
               }`}
-              className="mv-text-primary mv-font-bold"
+              className="text-primary font-bold"
               prefetch="intent"
             >
               {locales.login}
             </Link>
           </div>
-          <h1 className="mv-mb-8">{locales.response.headline}</h1>
+          <h1 className="mb-8">{locales.response.headline}</h1>
           {typeof actionData !== "undefined" &&
           typeof actionData.submission.status !== "undefined" &&
           actionData.submission.status === "success" ? (
             <>
-              <p className="mv-mb-4">
+              <p className="mb-4">
                 {insertComponentsIntoLocale(
                   insertParametersIntoLocale(locales.response.success, {
                     email: actionData.email,
                     systemMail: actionData.systemMail,
                   }),
                   [
-                    <span key="email-highlight" className="mv-font-semibold" />,
+                    <span key="email-highlight" className="font-semibold" />,
                     <Link
                       key="support-mail-link"
                       to={`mailto:${actionData.supportMail}`}
-                      className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      className="text-primary font-semibold hover:underline"
                     >
                       {" "}
                     </Link>,
@@ -149,13 +149,13 @@ export default function Index() {
               </p>
               <p>
                 {insertComponentsIntoLocale(locales.response.notice, [
-                  <span key="mint-id-highlight" className="mv-font-semibold" />,
+                  <span key="mint-id-highlight" className="font-semibold" />,
                   <Link
                     key="support-mail-link"
                     to="https://mint-id.org/"
                     rel="noopener noreferrer"
                     target="_blank"
-                    className="mv-text-primary mv-font-semibold hover:mv-underline"
+                    className="text-primary font-semibold hover:underline"
                   >
                     {" "}
                   </Link>,
@@ -169,8 +169,8 @@ export default function Index() {
               preventScrollReset
               autoComplete="off"
             >
-              <p className="mv-mb-4">{locales.form.intro}</p>
-              <div className="mv-mb-10">
+              <p className="mb-4">{locales.form.intro}</p>
+              <div className="mb-10">
                 <Input
                   {...getInputProps(requestPasswordChangeFields.email, {
                     type: "text",
@@ -196,13 +196,13 @@ export default function Index() {
               </div>
               {typeof requestPasswordChangeForm.errors !== "undefined" &&
               requestPasswordChangeForm.errors.length > 0 ? (
-                <div className="mv-mb-10">
+                <div className="mb-10">
                   {requestPasswordChangeForm.errors.map((error, index) => {
                     return (
                       <div
                         id={requestPasswordChangeForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -217,7 +217,7 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+              <div className="flex flex-row mb-8 items-center justify-end">
                 <Button
                   type="submit"
                   // Don't disable button when js is disabled

@@ -19,26 +19,24 @@ export type InputLabelProps = {
 
 function InputLabel(props: React.PropsWithChildren<InputLabelProps>) {
   const classes = classNames(
-    "mv-text-sm mv-font-semibold mv-mb-1 mv-flex mv-items-center mv-justify-between",
-    typeof props.hidden !== "undefined" &&
-      props.hidden !== false &&
-      "mv-hidden",
+    "text-sm font-semibold mb-1 flex items-center justify-between",
+    typeof props.hidden !== "undefined" && props.hidden !== false && "hidden",
     typeof props.disabled !== "undefined" && props.disabled !== false
-      ? "mv-text-neutral-300"
-      : "mv-text-gray-700"
+      ? "text-neutral-300"
+      : "text-gray-700"
   );
 
   return (
     <label htmlFor={props.htmlFor} className={classes}>
       {props.children}
       {typeof props.hasError !== "undefined" && props.hasError !== false && (
-        <div className="mv-text-negative-600">
+        <div className="text-negative-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="15"
             height="16"
             viewBox="0 0 15 16"
-            className="mv-ml-auto"
+            className="ml-auto"
           >
             <path
               fill="currentColor"
@@ -115,10 +113,10 @@ function InputHelperText(
 ) {
   return (
     <div
-      className={`mv-text-sm mv-mt-2 ${
+      className={`text-sm mt-2 ${
         typeof props.disabled !== "undefined" && props.disabled !== false
-          ? "mv-text-neutral-300"
-          : "mv-text-neutral-700"
+          ? "text-neutral-300"
+          : "text-neutral-700"
       }`}
     >
       {props.children}
@@ -133,7 +131,7 @@ function InputError(
   return (
     <div
       {...rest}
-      className={`mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2${
+      className={`text-sm font-semibold text-negative-600 mt-2${
         additionalClassName !== undefined ? ` ${additionalClassName}` : ""
       }`}
     >
@@ -145,11 +143,11 @@ function InputError(
 function InputCounter(props: { currentCount: number; maxCount: number }) {
   return (
     <div
-      className={`mv-text-sm ${
+      className={`text-sm ${
         props.currentCount < props.maxCount
-          ? "mv-text-neutral-700"
-          : "mv-text-negative-600"
-      } mv-mt-2`}
+          ? "text-neutral-700"
+          : "text-negative-600"
+      } mt-2`}
     >
       {props.currentCount}/{props.maxCount}
     </div>
@@ -158,7 +156,7 @@ function InputCounter(props: { currentCount: number; maxCount: number }) {
 
 function InputControls(props: React.PropsWithChildren) {
   return (
-    <div className="mv-flex mv-items-center mv-self-end mv-gap-2 mv-shrink">
+    <div className="flex items-center self-end gap-2 shrink">
       {props.children}
     </div>
   );
@@ -212,7 +210,7 @@ function Input(props: InputProps) {
   };
 
   if (inputProps.type === "hidden") {
-    return <input {...inputProps} className="mv-hidden" name={name} />;
+    return <input {...inputProps} className="hidden" name={name} />;
   }
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -276,31 +274,31 @@ function Input(props: InputProps) {
   });
 
   const inputClasses = classNames(
-    "mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-p-2 mv-text-gray-800 mv-text-base mv-leading-snug mv-font-semibold mv-outline-none placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-border-transparent focus-visible:mv-outline-0",
-    errors.length > 0 && "mv-border-negative-600",
+    "rounded-lg border border-gray-300 w-full p-2 text-gray-800 text-base leading-snug font-semibold outline-none placeholder:font-normal placeholder:gray-400 focus:ring-2 focus:ring-primary-200 focus:border-transparent focus-visible:outline-0",
+    errors.length > 0 && "border-negative-600",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
-      "mv-text-neutral-300",
-    typeof searchIcon !== "undefined" && "mv-pl-10",
-    typeof clearIcon !== "undefined" && characterCount > 0 && "mv-pr-12"
+      "text-neutral-300",
+    typeof searchIcon !== "undefined" && "pl-10",
+    typeof clearIcon !== "undefined" && characterCount > 0 && "pr-12"
   );
 
   const inputCounterContainerClasses = classNames(
-    "mv-flex mv-w-full",
+    "flex w-full",
     helperText !== undefined || errors.length > 0
-      ? "mv-justify-between"
-      : "mv-justify-end"
+      ? "justify-between"
+      : "justify-end"
   );
 
   return (
     <CharacterCountContext.Provider
       value={[characterCount, updateCharacterCount]}
     >
-      <div className="mv-w-full">
-        <div className="mv-flex mv-gap-2">
-          <div className="mv-relative mv-flex mv-flex-col mv-gap-2 mv-flex-nowrap mv-grow">
+      <div className="w-full">
+        <div className="flex gap-2">
+          <div className="relative flex flex-col gap-2 flex-nowrap grow">
             {label}
-            <div className="mv-relative">
+            <div className="relative">
               <input
                 className={inputClasses}
                 type={inputProps.type || "text"}
@@ -309,12 +307,12 @@ function Input(props: InputProps) {
                 onChange={handleInputChange}
               />
               {typeof searchIcon !== "undefined" && (
-                <div className="mv-absolute mv-left-2 mv-top-0 mv-h-full mv-flex mv-items-center">
+                <div className="absolute left-2 top-0 h-full flex items-center">
                   {searchIcon}
                 </div>
               )}
               {typeof clearIcon !== "undefined" && characterCount > 0 && (
-                <div className="mv-absolute mv-right-2 mv-top-0 mv-h-full mv-flex mv-items-center">
+                <div className="absolute right-2 top-0 h-full flex items-center">
                   {clearIcon}
                 </div>
               )}
@@ -325,9 +323,9 @@ function Input(props: InputProps) {
         {inputProps.maxLength !== undefined ? (
           <div className={inputCounterContainerClasses}>
             {helperText !== undefined || errors.length > 0 ? (
-              <div className="mv-flex mv-flex-col">
+              <div className="flex flex-col">
                 {helperText !== undefined ? (
-                  <div className="mv-pr-8">{helperText}</div>
+                  <div className="pr-8">{helperText}</div>
                 ) : null}
                 {errors.length > 0 ? (
                   <ul>
@@ -346,7 +344,7 @@ function Input(props: InputProps) {
         ) : null}
 
         {inputProps.maxLength === undefined && helperText !== undefined ? (
-          <div className="mv-pr-8">{helperText}</div>
+          <div className="pr-8">{helperText}</div>
         ) : null}
 
         {inputProps.maxLength === undefined && errors.length > 0 ? (
@@ -359,7 +357,7 @@ function Input(props: InputProps) {
         {typeof standalone !== "undefined" && standalone !== false && (
           <input
             type="submit"
-            className="mv-hidden"
+            className="hidden"
             disabled={inputProps.disabled || isSubmitting}
           />
         )}

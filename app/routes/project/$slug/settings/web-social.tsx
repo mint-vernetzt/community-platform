@@ -163,7 +163,7 @@ function WebSocial() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+      <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
       <Form
         {...getFormProps(form)}
         method="post"
@@ -171,9 +171,9 @@ function WebSocial() {
         autoComplete="off"
       >
         <button type="submit" hidden disabled={isSubmitting} />
-        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-6 @md:gap-4">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.form.website.headline}
             </h2>
             <Input
@@ -194,8 +194,8 @@ function WebSocial() {
                 : null}
             </Input>
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.form.socialNetworks.headline}
             </h2>
             {Object.entries(project).map(([key]) => {
@@ -233,7 +233,7 @@ function WebSocial() {
                   <div
                     id={form.errorId}
                     key={index}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -241,10 +241,10 @@ function WebSocial() {
               })}
             </div>
           ) : null}
-          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start @xl:mv-items-center mv-gap-4">
-            <div className="mv-flex mv-flex-col mv-gap-1">
-              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
-                <span className="mv-w-4 mv-h-4">
+          <div className="flex flex-col @xl:flex-row w-full justify-end @xl:justify-between items-start @xl:items-center gap-4">
+            <div className="flex flex-col gap-1">
+              <p className="text-xs flex items-center gap-1">
+                <span className="w-4 h-4">
                   <svg
                     viewBox="0 0 20 20"
                     fill="none"
@@ -262,8 +262,8 @@ function WebSocial() {
                 </span>
                 <span>{locales.route.form.hint.public}</span>
               </p>
-              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
-                <span className="mv-w-4 mv-h-4">
+              <p className="text-xs flex items-center gap-1">
+                <span className="w-4 h-4">
                   <svg
                     viewBox="0 0 20 20"
                     fill="none"
@@ -286,9 +286,9 @@ function WebSocial() {
                 <span>{locales.route.form.hint.private}</span>
               </p>
             </div>
-            <div className="mv-flex mv-shrink mv-w-full @xl:mv-max-w-fit @xl:mv-w-auto mv-items-center mv-justify-center @xl:mv-justify-end">
+            <div className="flex shrink w-full @xl:max-w-fit @xl:w-auto items-center justify-center @xl:justify-end">
               <Controls>
-                <div className="mv-relative mv-w-full">
+                <div className="relative w-full">
                   <Button
                     type="reset"
                     onClick={() => {
@@ -301,7 +301,7 @@ function WebSocial() {
                   >
                     {locales.route.form.reset}
                   </Button>
-                  <noscript className="mv-absolute mv-top-0">
+                  <noscript className="absolute top-0">
                     <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.form.reset}
                     </Button>

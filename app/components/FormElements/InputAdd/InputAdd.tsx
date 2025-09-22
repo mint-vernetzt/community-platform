@@ -25,14 +25,11 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
 
   return (
     <>
-      <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
-        <div className="mv-flex mv-flex-row mv-items-center">
-          <div className="mv-flex-auto">
+      <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-row items-center">
+          <div className="flex-auto">
             {label && (
-              <label
-                htmlFor={inputProps.id || label}
-                className="mv-font-semibold"
-              >
+              <label htmlFor={inputProps.id || label} className="font-semibold">
                 {label}
                 {inputProps.required !== undefined ? " *" : ""}
               </label>
@@ -49,13 +46,13 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
           )}
         </div>
 
-        <div className="mv-flex mv-flex-row mv-items-center">
-          <div className="mv-flex-auto">
+        <div className="flex flex-row items-center">
+          <div className="flex-auto">
             <input
               {...inputProps}
               name={`add${uppercaseSingularName}`}
               type="text"
-              className={`clear-after-submit mv-w-full mv-outline-none mv-bg-white mv-h-auto mv-border-2 mv-border-neutral-300 mv-px-4 mv-text-base mv-font-semibold mv-leading-8 mv-appearance-none mv-rounded-lg focus:mv-border-neutral-200 ${
+              className={`clear-after-submit w-full outline-none bg-white h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200 ${
                 inputProps.className ?? ""
               }`}
               onKeyDown={(e) => {
@@ -67,12 +64,12 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
             />
           </div>
 
-          <div className="mv-ml-2">
+          <div className="ml-2">
             <button
               ref={buttonRef}
               name="submit"
               type="submit"
-              className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border-2 mv-border-neutral-300 mv-text-neutral-600 hover:mv-bg-neutral-100"
+              className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border-2 border-neutral-300 text-neutral-600 hover:bg-neutral-100"
               value={`add${uppercaseSingularName}`}
               disabled={isSubmitting}
             >
@@ -81,10 +78,10 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
           </div>
         </div>
       </div>
-      <ul className="mv-pt-2">
+      <ul className="pt-2">
         {entries.map((entry) => (
-          <li key={`${inputProps.name || label}-${entry}`} className="mv-flex">
-            <div className="mv-font-bold  mv-py-2">
+          <li key={`${inputProps.name || label}-${entry}`} className="flex">
+            <div className="font-bold  py-2">
               {entry}
               <input
                 name={inputProps.name || label}
@@ -97,7 +94,7 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
               type="submit"
               name={`remove${uppercaseSingularName}`}
               value={entry}
-              className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
+              className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
               title="entfernen"
               disabled={isSubmitting}
             >

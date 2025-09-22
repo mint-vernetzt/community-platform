@@ -68,18 +68,18 @@ export default function Confirm() {
 
   return (
     <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-        <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-          <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-            <div className="mv-mb-6 mv-mt-12"> </div>
+      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+        <div className="flex flex-col w-full items-center">
+          <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+            <div className="mb-6 mt-12"> </div>
             {type === "signup" && (
               <>
-                <h1 className="mv-mb-4">{locales.signup.title}</h1>
+                <h1 className="mb-4">{locales.signup.title}</h1>
 
-                <p className="mv-mb-6">{locales.signup.description}</p>
+                <p className="mb-6">{locales.signup.description}</p>
                 <Link
                   to={confirmationLink}
-                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                 >
                   {locales.signup.action}
                 </Link>
@@ -87,12 +87,12 @@ export default function Confirm() {
             )}
             {type === "recovery" && (
               <>
-                <h1 className="mv-mb-4">{locales.recovery.title}</h1>
+                <h1 className="mb-4">{locales.recovery.title}</h1>
 
-                <p className="mv-mb-6">{locales.recovery.description}</p>
+                <p className="mb-6">{locales.recovery.description}</p>
                 <Link
                   to={confirmationLink}
-                  className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                  className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                 >
                   {locales.recovery.action}
                 </Link>

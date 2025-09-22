@@ -14,30 +14,30 @@ function RoadmapColumn(props: RoadmapColumnProps) {
   const countRoadmapCards = Children.count(props.children);
   return (
     <div>
-      <h3 className="mv-text-center mv-mb-4 mv-text-2xl mv-text-primary-600 mv-font-bold mv-leading-[26px]">
+      <h3 className="text-center mb-4 text-2xl text-primary-600 font-bold leading-[26px]">
         {props.title}
       </h3>
-      <div className="mv-bg-blue-50 mv-rounded-lg mv-p-4 @xl:mv-p-6 mv-flex mv-flex-col mv-group">
+      <div className="bg-blue-50 rounded-lg p-4 @xl:p-6 flex flex-col group">
         <input
           type="checkbox"
           id={`collapse-col-${props.id}`}
-          className="mv-peer mv-order-2 mv-h-0 mv-w-0 mv-opacity-0"
+          className="peer order-2 h-0 w-0 opacity-0"
           disabled={countRoadmapCards <= 3}
         />
         <div
-          className={`mv-bg-blue-50 mv-rounded-lg mv-grid mv-overflow-hidden mv-transition-all mv-grid-rows-[repeat(2,_1fr)_repeat(99,_0fr)] @md:mv-grid-rows-[repeat(3,_1fr)_repeat(99,_0fr)] peer-checked:mv-auto-rows-fr peer-checked:mv-grid-rows-none mv-order-1`}
+          className={`bg-blue-50 rounded-lg grid overflow-hidden transition-all grid-rows-[repeat(2,_1fr)_repeat(99,_0fr)] @md:grid-rows-[repeat(3,_1fr)_repeat(99,_0fr)] peer-checked:auto-rows-fr peer-checked:grid-rows-none order-1`}
         >
           {props.children}
         </div>
         {countRoadmapCards > 3 ? (
           <label
             htmlFor={`collapse-col-${props.id}`}
-            className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-text-nowrap mv-text-sm mv-font-semibold mv-h-5 mv-text-primary-700 mv-cursor-pointer"
+            className="order-3 mt-4 @lg:mt-6 relative block text-nowrap text-sm font-semibold h-5 text-primary-700 cursor-pointer"
           >
-            <span className="group-has-[:checked]:mv-hidden mv-block mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
+            <span className="group-has-[:checked]:hidden block absolute inset-0 text-center hover:underline decoration-inherit decoration-auto group-has-[:focus]:underline underline-offset-4">
               {locales.roadmap.controls.showMore}
             </span>
-            <span className="group-has-[:checked]:mv-block mv-hidden mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
+            <span className="group-has-[:checked]:block hidden absolute inset-0 text-center hover:underline decoration-inherit decoration-auto group-has-[:focus]:underline underline-offset-4">
               {locales.roadmap.controls.showLess}
             </span>
           </label>
@@ -45,32 +45,32 @@ function RoadmapColumn(props: RoadmapColumnProps) {
           <>
             <label
               htmlFor={`collapse-col-${props.id}`}
-              className="mv-order-3 mv-mt-4 @lg:mv-mt-6 mv-relative mv-block mv-w-full mv-text-sm mv-font-semibold mv-h-5 mv-text-primary-700 mv-cursor-pointer @md:mv-hidden mv-underline mv-decoration-inherit mv-decoration-auto"
+              className="order-3 mt-4 @lg:mt-6 relative block w-full text-sm font-semibold h-5 text-primary-700 cursor-pointer @md:hidden underline decoration-inherit decoration-auto"
             >
-              <span className="group-has-[:checked]:mv-hidden mv-inset-0 mv-text-center mv-absolute group-hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
+              <span className="group-has-[:checked]:hidden inset-0 text-center absolute group-hover:underline decoration-inherit decoration-auto group-has-[:focus]:underline underline-offset-4">
                 {locales.roadmap.controls.showMore}
               </span>
-              <span className="group-has-[:checked]:mv-block mv-hidden mv-absolute mv-inset-0 mv-text-center group-hover:mv-underline mv-decoration-inherit mv-decoration-auto group-has-[:focus]:mv-underline mv-underline-offset-4">
+              <span className="group-has-[:checked]:block hidden absolute inset-0 text-center group-hover:underline decoration-inherit decoration-auto group-has-[:focus]:underline underline-offset-4">
                 {locales.roadmap.controls.showLess}
               </span>
             </label>
-            <div className="mv-hidden @md:mv-block mv-mt-4 @lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+            <div className="hidden @md:block mt-4 @lg:mt-6 h-5 order-3"></div>
           </>
         ) : (
           <>
             <label
               htmlFor={`collapse-col-${props.id}`}
-              className="mv-order-3 mv-absolute mv-w-0 mv-h-0 mv-opacity-0"
+              className="order-3 absolute w-0 h-0 opacity-0"
               aria-disabled="true"
             >
-              <span className="group-has-[:checked]:mv-hidden mv-block mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+              <span className="group-has-[:checked]:hidden block absolute inset-0 text-center hover:underline decoration-inherit decoration-auto">
                 {locales.roadmap.controls.showMore}
               </span>
-              <span className="group-has-[:checked]:mv-block mv-hidden mv-absolute mv-inset-0 mv-text-center hover:mv-underline mv-decoration-inherit mv-decoration-auto">
+              <span className="group-has-[:checked]:block hidden absolute inset-0 text-center hover:underline decoration-inherit decoration-auto">
                 {locales.roadmap.controls.showLess}
               </span>
             </label>
-            <div className="mv-hidden @md:mv-block mv-mt-4 @lg:mv-mt-6 mv-h-5 mv-order-3"></div>
+            <div className="hidden @md:block mt-4 @lg:mt-6 h-5 order-3"></div>
           </>
         )}
       </div>
@@ -85,8 +85,8 @@ type RoadmapCardProps = {
 
 function RoadmapCard(props: RoadmapCardProps) {
   return (
-    <div className="mv-card mv-bg-white mv-rounded-lg mv-text-primary mv-w-full mv-px-4 @xl:mv-px-6">
-      <h4 className="mv-font-bold mv-text-lg mv-mb-3">{props.title}</h4>
+    <div className="card bg-white rounded-lg text-primary w-full px-4 @xl:px-6">
+      <h4 className="font-bold text-lg mb-3">{props.title}</h4>
       <p>{props.text}</p>
     </div>
   );
@@ -97,16 +97,16 @@ function Roadmap(props: { locales: LandingPageLocales }) {
   return (
     <section
       id="roadmap"
-      className="mv-bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] mv-py-16"
+      className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] py-16"
     >
-      <h2 className="mv-text-center mv-mb-4 mv-text-5xl mv-text-primary-600 mv-font-bold mv-all-small-caps mv-subpixel-antialiased mv-leading-9">
+      <h2 className="text-center mb-4 text-5xl text-primary-600 font-bold all-small-caps subpixel-antialiased leading-9">
         {locales.roadmap.headline}
       </h2>
-      <p className="mv-text-center mv-mb-16 mv-text-2xl mv-font-semibold mv-leading-[26px] mv-text-primary-600">
+      <p className="text-center mb-16 text-2xl font-semibold leading-[26px] text-primary-600">
         {locales.roadmap.subline}
       </p>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @xl:mv-grid-cols-3 mv-gap-y-8 @md:mv-gap-y-12 @md:mv-gap-x-4 @xl:mv-gap-x-4">
+      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+        <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3 gap-y-8 @md:gap-y-12 @md:gap-x-4 @xl:gap-x-4">
           <RoadmapColumn
             locales={locales}
             title={locales.roadmap.ideas.title}
@@ -216,7 +216,7 @@ function Roadmap(props: { locales: LandingPageLocales }) {
             />
           </RoadmapColumn>
         </div>
-        <div className="mv-flex mv-flex-col mv-items-center mv-mt-12 mv-gap-4">
+        <div className="flex flex-col items-center mt-12 gap-4">
           <Button
             as="link"
             variant="outline"
@@ -224,11 +224,11 @@ function Roadmap(props: { locales: LandingPageLocales }) {
           >
             {locales.roadmap.controls.submitIdeas}
           </Button>
-          <div className="mv-flex mv-flex-col mv-gap-1">
-            <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
+          <div className="flex flex-col gap-1">
+            <p className="text-center leading-[22px] text-primary-600">
               {locales.roadmap.controls.ctaQuestion}
             </p>
-            <p className="mv-text-center mv-leading-[22px] mv-text-primary-600">
+            <p className="text-center leading-[22px] text-primary-600">
               {locales.roadmap.controls.cta}
             </p>
           </div>

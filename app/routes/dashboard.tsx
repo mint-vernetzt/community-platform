@@ -765,8 +765,7 @@ function DashboardSearchPlaceholderRotation(props: {
   locales: DashboardLocales["route"]["content"]["search"]["placeholder"]["rotation"];
 }) {
   const [count, setCount] = useState(0);
-  const defaultClasses =
-    "mv-text-neutral-700 mv-flex mv-flex-col mv-gap-3 mv-line-clamp-1";
+  const defaultClasses = "text-neutral-700 flex flex-col gap-3 line-clamp-1";
 
   useEffect(() => {
     const interval = setInterval(
@@ -790,13 +789,13 @@ function DashboardSearchPlaceholderRotation(props: {
   useEffect(() => {
     const newClasses = classNames(
       defaultClasses,
-      count === 0 && "mv-mt-0",
-      count === 1 && "mv-mt-[-2.25rem]",
-      count === 2 && "mv-mt-[-4.5rem]",
-      count === 3 && "mv-mt-[-6.75rem]",
-      count === 4 && "mv-mt-[-9rem]",
-      count === 5 && "mv-mt-[-11.25rem]",
-      count <= 5 && count > 0 && "mv-transition-margin mv-duration-1000"
+      count === 0 && "mt-0",
+      count === 1 && "mt-[-2.25rem]",
+      count === 2 && "mt-[-4.5rem]",
+      count === 3 && "mt-[-6.75rem]",
+      count === 4 && "mt-[-9rem]",
+      count === 5 && "mt-[-11.25rem]",
+      count <= 5 && count > 0 && "transition-margin duration-1000"
     );
     setClasses(newClasses);
 
@@ -829,9 +828,9 @@ function DashboardSearch(props: {
   locales: DashboardLocales["route"]["content"]["search"];
 }) {
   return (
-    <div className="mv-hidden @md:mv-block mv-px-8 mv-mt-12 mv-w-full mv-z-10">
-      <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-p-6 mv-bg-white mv-rounded-xl mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-        <h2 className="mv-text-2xl mv-font-bold mv-text-primary-500 mv-mb-0">
+    <div className="hidden @md:block px-8 mt-12 w-full z-10">
+      <div className="w-full flex flex-col gap-4 p-6 bg-white rounded-xl shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+        <h2 className="text-2xl font-bold text-primary-500 mb-0">
           {props.locales.headline}
         </h2>
         <Form method="get" action="/explore/all">
@@ -857,10 +856,10 @@ function DashboardSearch(props: {
                 )
               ) : (
                 <>
-                  <div className="xl:mv-hidden mv-mt-3">
+                  <div className="xl:hidden mt-3">
                     {props.locales.placeholder.default}
                   </div>
-                  <div className="mv-hidden xl:mv-flex mv-gap-1 mv-mt-[0.75rem]">
+                  <div className="hidden xl:flex gap-1 mt-[0.75rem]">
                     <div>{props.locales.placeholder.xl}</div>
                     <DashboardSearchPlaceholderRotation
                       locales={props.locales.placeholder.rotation}
@@ -908,9 +907,9 @@ function Dashboard() {
     <>
       {/* Welcome Section */}
       {
-        <section className="mv-w-full mv-bg-gradient-to-b mv-from-neutral-50 mv-to-white mv-h-[480px] @md:mv-h-[571px] mv-mb-10 mv-relative">
+        <section className="w-full bg-gradient-to-b from-neutral-50 to-white h-[480px] @md:h-[571px] mb-10 relative">
           {/* svg top */}
-          <div className="mv-absolute mv-top-0 mv-w-[304px] @md:mv-w-[607px] mv-h-[169px] @md:mv-h-[339px]">
+          <div className="absolute top-0 w-[304px] @md:w-[607px] h-[169px] @md:h-[339px]">
             <svg
               width="100%"
               height="100%"
@@ -929,7 +928,7 @@ function Dashboard() {
             </svg>
           </div>
           {/* svg bottom */}
-          <div className="mv-absolute mv-bottom-0 mv-right-0 mv-w-[400px] @md:mv-w-[800px] mv-h-[207px] @md:mv-h-[415px]">
+          <div className="absolute bottom-0 right-0 w-[400px] @md:w-[800px] h-[207px] @md:h-[415px]">
             <svg
               width="100%"
               height="100%"
@@ -947,10 +946,10 @@ function Dashboard() {
               />
             </svg>
           </div>
-          <div className="mv-flex mv-flex-col mv-items-center">
-            <div className="mv-relative mv-mt-14 mv-flex mv-flex-col mv-items-center">
-              <div className="mv-w-[136px] mv-h-[136px] mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
-                <div className="mv-relative">
+          <div className="flex flex-col items-center">
+            <div className="relative mt-14 flex flex-col items-center">
+              <div className="w-[136px] h-[136px] rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+                <div className="relative">
                   <Avatar
                     avatar={loaderData.profile.avatar}
                     blurredAvatar={
@@ -966,11 +965,11 @@ function Dashboard() {
                   <button
                     type="submit"
                     form="modal-avatar-form"
-                    className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 hover:mv-bg-neutral-700/70 focus-within:mv-bg-neutral-700/70 mv-transition-all mv-bg-neutral-700/0 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                    className="hidden @lg:grid absolute top-0 w-full h-full rounded-full opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center cursor-pointer"
                     disabled={isSubmitting}
                   >
-                    <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
-                      <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50/100 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary">
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="w-8 h-8 rounded-full bg-neutral-50/100 flex items-center justify-center border border-primary">
                         <svg
                           width="16"
                           height="16"
@@ -992,15 +991,15 @@ function Dashboard() {
                           />
                         </svg>
                       </div>
-                      <p className="mv-text-white mv-text-sm mv-font-semibold mv-leading-4">
+                      <p className="text-white text-sm font-semibold leading-4">
                         {loaderData.locales.route.content.header.controls.edit}
                       </p>
                     </div>
                   </button>
                 </div>
               </div>
-              <div className="mv-flex mv-flex-col mv-mt-2 mv-mb-4 mv-text-center mv-gap-2">
-                <h1 className="mv-text-[2.25rem] @md:mv-text-[2.5rem] mv-font-black mv-text-primary-500 mv-leading-[3.25rem] mv-mb-0">
+              <div className="flex flex-col mt-2 mb-4 text-center gap-2">
+                <h1 className="text-[2.25rem] @md:text-[2.5rem] font-black text-primary-500 leading-[3.25rem] mb-0">
                   {insertParametersIntoLocale(
                     loaderData.locales.route.content.header.welcome,
                     {
@@ -1009,7 +1008,7 @@ function Dashboard() {
                     }
                   )}
                 </h1>
-                <p className="mv-text-base @md:mv-text-lg mv-font-normal @md:mv-font-semibold">
+                <p className="text-base @md:text-lg font-normal @md:font-semibold">
                   {loaderData.locales.route.content.header.subline}
                 </p>
               </div>
@@ -1030,17 +1029,17 @@ function Dashboard() {
       }
       {/* Organization Member Invites Section */}
       {loaderData.organizationMemberInvites.length > 0 && (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-            <div className="mv-flex mv-items-center mv-gap-2">
-              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex pl-[46px] *:-ml-[46px]">
                 {loaderData.organizationMemberInvites
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`organization-invite-${organization.slug}-${index}`}
-                        className="mv-w-[72px] mv-h-[72px]"
+                        className="w-[72px] h-[72px]"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -1053,13 +1052,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.organizationMemberInvites.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
+                <div className="text-2xl font-semibold text-neutral-700">
                   +{loaderData.organizationMemberInvites.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.invites.headline_one,
@@ -1069,13 +1068,13 @@ function Dashboard() {
                   { count: loaderData.organizationMemberInvites.length }
                 )}
               </h3>
-              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+              <p className="@lg:text-left text-sm text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.invites.description,
                   [
                     <span
                       key="highlight-invite-description"
-                      className="mv-font-semibold"
+                      className="font-semibold"
                     />,
                   ]
                 )}
@@ -1084,7 +1083,7 @@ function Dashboard() {
             <Button
               as="link"
               to="/my/organizations"
-              className="mv-w-full @lg:mv-w-fit"
+              className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {loaderData.locales.route.content.invites.linkDescription}
@@ -1094,17 +1093,17 @@ function Dashboard() {
       )}
       {/* Organization Member Requests Section */}
       {loaderData.organizationMemberRequests.length > 0 && (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-            <div className="mv-flex mv-items-center mv-gap-2">
-              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex pl-[46px] *:-ml-[46px]">
                 {loaderData.organizationMemberRequests
                   .slice(0, 3)
                   .map((profile, index) => {
                     return (
                       <div
                         key={`organization-request-${profile.username}-${index}`}
-                        className="mv-w-[72px] mv-h-[72px]"
+                        className="w-[72px] h-[72px]"
                       >
                         <Avatar
                           to={`/profile/${profile.username}`}
@@ -1117,13 +1116,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.organizationMemberRequests.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
+                <div className="text-2xl font-semibold text-neutral-700">
                   +{loaderData.organizationMemberRequests.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.requests.headline_one,
@@ -1133,13 +1132,13 @@ function Dashboard() {
                   { count: loaderData.organizationMemberRequests.length }
                 )}
               </h3>
-              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+              <p className="@lg:text-left text-sm text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.requests.description,
                   [
                     <span
                       key="highlight-request-description"
-                      className="mv-font-semibold"
+                      className="font-semibold"
                     />,
                   ]
                 )}
@@ -1148,7 +1147,7 @@ function Dashboard() {
             <Button
               as="link"
               to="/my/organizations"
-              className="mv-w-full @lg:mv-w-fit"
+              className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {loaderData.locales.route.content.requests.linkDescription}
@@ -1158,17 +1157,17 @@ function Dashboard() {
       )}
       {/* Network Invites Section */}
       {loaderData.networkInvites.length > 0 && (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-            <div className="mv-flex mv-items-center mv-gap-2">
-              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex pl-[46px] *:-ml-[46px]">
                 {loaderData.networkInvites
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`network-invite-${organization.slug}-${index}`}
-                        className="mv-w-[72px] mv-h-[72px]"
+                        className="w-[72px] h-[72px]"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -1181,13 +1180,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.networkInvites.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
+                <div className="text-2xl font-semibold text-neutral-700">
                   +{loaderData.networkInvites.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkInvites
@@ -1199,13 +1198,13 @@ function Dashboard() {
                   { count: loaderData.networkInvites.length }
                 )}
               </h3>
-              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+              <p className="@lg:text-left text-sm text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.networkInvites.description,
                   [
                     <span
                       key="highlight-invite-description"
-                      className="mv-font-semibold"
+                      className="font-semibold"
                     />,
                   ]
                 )}
@@ -1214,7 +1213,7 @@ function Dashboard() {
             <Button
               as="link"
               to="/my/organizations"
-              className="mv-w-full @lg:mv-w-fit"
+              className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {loaderData.locales.route.content.networkInvites.linkDescription}
@@ -1224,17 +1223,17 @@ function Dashboard() {
       )}
       {/* Network Requests Section */}
       {loaderData.networkRequests.length > 0 && (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center">
-            <div className="mv-flex mv-items-center mv-gap-2">
-              <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex items-center gap-2">
+              <div className="flex pl-[46px] *:-ml-[46px]">
                 {loaderData.networkRequests
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`network-request-${organization.slug}-${index}`}
-                        className="mv-w-[72px] mv-h-[72px]"
+                        className="w-[72px] h-[72px]"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -1247,13 +1246,13 @@ function Dashboard() {
                   })}
               </div>
               {loaderData.networkRequests.length > 3 && (
-                <div className="mv-text-2xl mv-font-semibold mv-text-neutral-700">
+                <div className="text-2xl font-semibold text-neutral-700">
                   +{loaderData.networkRequests.length - 3}
                 </div>
               )}
             </div>
-            <div className="mv-flex-1 mv-text-neutral-700">
-              <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] mv-text-center @lg:mv-max-w-fit">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkRequests
@@ -1265,13 +1264,13 @@ function Dashboard() {
                   { count: loaderData.networkRequests.length }
                 )}
               </h3>
-              <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+              <p className="@lg:text-left text-sm text-center">
                 {insertComponentsIntoLocale(
                   loaderData.locales.route.content.networkRequests.description,
                   [
                     <span
                       key="highlight-request-description"
-                      className="mv-font-semibold"
+                      className="font-semibold"
                     />,
                   ]
                 )}
@@ -1280,7 +1279,7 @@ function Dashboard() {
             <Button
               as="link"
               to="/my/organizations"
-              className="mv-w-full @lg:mv-w-fit"
+              className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {loaderData.locales.route.content.networkRequests.linkDescription}
@@ -1291,15 +1290,15 @@ function Dashboard() {
       {/* Notifications Section */}
       {loaderData.upcomingCanceledEvents.length > 0 ||
       loaderData.profile.claimOrganizationRequests.length > 0 ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end mv-group">
-            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="w-full flex justify-between gap-8 mb-4 items-end group">
+            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
               {loaderData.locales.route.content.notifications.headline}
             </h2>
-            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+            <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
               <label
                 htmlFor="hide-notifications"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
+                className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-[:focus]/hide-show:ring-2 group-has-[:focus]/hide-show:ring-primary-200"
               >
                 {hideNotifications === false
                   ? loaderData.locales.route.content.notifications.hide
@@ -1323,43 +1322,41 @@ function Dashboard() {
                   setHideNotifications(hideNotifications);
                 }}
                 checked={hideNotifications === true}
-                className="mv-w-0 mv-h-0 mv-opacity-0"
+                className="w-0 h-0 opacity-0"
               />
             </div>
           </div>
           {hideNotifications === false ? (
-            <ul className="mv-flex mv-flex-col mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden mv-group">
+            <ul className="flex flex-col gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden group">
               {loaderData.upcomingCanceledEvents.map((event, index) => {
                 return (
                   <li
                     key={`canceled-event-${event.slug}`}
-                    className={`mv-w-full mv-min-h-[110px] mv-overflow-hidden mv-p-4 @md:mv-p-0 @md:mv-pr-4 @lg:mv-pr-6 mv-bg-negative-50 mv-rounded-r-lg mv-rounded-l-lg @sm:mv-rounded-r-xl @md:mv-rounded-r-2xl mv-gap-4 @sm:mv-gap-6 mv-flex-col @sm:mv-flex-row @sm:mv-items-center ${
-                      index > 1
-                        ? "mv-hidden group-has-[:checked]:mv-flex"
-                        : "mv-flex"
+                    className={`w-full min-h-[110px] overflow-hidden p-4 @md:p-0 @md:pr-4 @lg:pr-6 bg-negative-50 rounded-r-lg rounded-l-lg @sm:rounded-r-xl @md:rounded-r-2xl gap-4 @sm:gap-6 flex-col @sm:flex-row @sm:items-center ${
+                      index > 1 ? "hidden group-has-[:checked]:flex" : "flex"
                     }`}
                   >
-                    <div className="mv-hidden @md:mv-block mv-w-[165px] mv-h-[110px] mv-shrink-0 mv-bg-neutral-200">
+                    <div className="hidden @md:block w-[165px] h-[110px] shrink-0 bg-neutral-200">
                       <Image
                         alt={event.name}
                         src={event.background}
                         blurredSrc={event.blurredBackground}
                       />
                     </div>
-                    <div className="mv-flex mv-flex-col mv-gap-2 @sm:mv-grow">
-                      <h3 className="mv-text-negative-700 mv-text-xs mv-font-bold mv-leading-4">
+                    <div className="flex flex-col gap-2 @sm:grow">
+                      <h3 className="text-negative-700 text-xs font-bold leading-4">
                         {
                           loaderData.locales.route.content.notifications
                             .cancelledEvents.cancelled
                         }
                       </h3>
-                      <p className="mv-line-clamp-2 mv-text-neutral-700 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                      <p className="line-clamp-2 text-neutral-700 text-2xl font-bold leading-[26px]">
                         {event.name}
                       </p>
                     </div>
                     <div>
                       <Button
-                        className="mv-w-full @sm:mv-shrink"
+                        className="w-full @sm:shrink"
                         as="link"
                         to="/my/events"
                         variant="outline"
@@ -1378,11 +1375,11 @@ function Dashboard() {
                 return (
                   <li
                     key={`accepted-claim-request-for-${request.organization.slug}`}
-                    className="mv-flex mv-flex-col @lg:mv-flex-row mv-gap-6 mv-p-6 mv-bg-primary-50 mv-rounded-lg mv-items-center"
+                    className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center"
                   >
-                    <div className="mv-flex mv-items-center mv-gap-2">
-                      <div className="mv-flex mv-pl-[46px] *:mv--ml-[46px]">
-                        <div className="mv-w-[72px] mv-h-[72px]">
+                    <div className="flex items-center gap-2">
+                      <div className="flex pl-[46px] *:-ml-[46px]">
+                        <div className="w-[72px] h-[72px]">
                           <Avatar
                             to={`/organization/${request.organization.slug}/detail/about`}
                             size="full"
@@ -1392,14 +1389,14 @@ function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="mv-flex-1 mv-text-neutral-700">
-                      <h3 className="mv-appearance-none mv-font-bold mv-text-primary mv-text-2xl mv-mb-2 mv-leading-[1.625rem] @lg:mv-text-left mv-text-center @lg:mv-max-w-fit">
+                    <div className="flex-1 text-neutral-700">
+                      <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] @lg:text-left text-center @lg:max-w-fit">
                         {
                           loaderData.locales.route.content.notifications
                             .acceptedClaimRequests.headline
                         }
                       </h3>
-                      <p className="@lg:mv-text-left mv-text-sm mv-text-center">
+                      <p className="@lg:text-left text-sm text-center">
                         {insertComponentsIntoLocale(
                           insertParametersIntoLocale(
                             loaderData.locales.route.content.notifications
@@ -1411,7 +1408,7 @@ function Dashboard() {
                           [
                             <span
                               key="higlighted-text-claim-request"
-                              className="mv-font-semibold"
+                              className="font-semibold"
                             />,
                           ]
                         )}
@@ -1420,7 +1417,7 @@ function Dashboard() {
                     <Button
                       as="link"
                       to={`/organization/${request.organization.slug}/settings/general?organizationClaimed`}
-                      className="mv-w-full @lg:mv-w-fit"
+                      className="w-full @lg:w-fit"
                       prefetch="intent"
                     >
                       {
@@ -1436,26 +1433,26 @@ function Dashboard() {
               2 ? (
                 <div
                   key="show-more-notifications-container"
-                  className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                  className="w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center"
                 >
                   <label
                     htmlFor="show-more-notifications"
-                    className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                    className="flex gap-2 cursor-pointer w-fit"
                   >
-                    <div className="group-has-[:checked]:mv-hidden">
+                    <div className="group-has-[:checked]:hidden">
                       {loaderData.locales.route.content.notifications.showMore}
                     </div>
-                    <div className="mv-hidden group-has-[:checked]:mv-block">
+                    <div className="hidden group-has-[:checked]:block">
                       {loaderData.locales.route.content.notifications.showLess}
                     </div>
-                    <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                    <div className="rotate-90 group-has-[:checked]:-rotate-90">
                       <Icon type="chevron-right" />
                     </div>
                   </label>
                   <input
                     id="show-more-notifications"
                     type="checkbox"
-                    className="mv-w-0 mv-h-0 mv-opacity-0"
+                    className="w-0 h-0 opacity-0"
                   />
                 </div>
               ) : null}
@@ -1464,15 +1461,15 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Updates Section */}
-      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-        <div className="mv-group/hide-show mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
-          <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl group">
+        <div className="group/hide-show w-full flex justify-between gap-8 mb-4 items-end">
+          <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
             {loaderData.locales.route.content.updateTeasers.headline}
           </h2>
-          <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+          <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
             <label
               htmlFor="hide-updates"
-              className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline group-has-[:focus]/hide-show:mv-ring-2 group-has-[:focus]/hide-show:mv-ring-primary-200"
+              className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-[:focus]/hide-show:ring-2 group-has-[:focus]/hide-show:ring-primary-200"
             >
               {hideUpdates === false
                 ? loaderData.locales.route.content.updateTeasers.hide
@@ -1490,12 +1487,12 @@ function Dashboard() {
                 setHideUpdates(hideUpdates);
               }}
               checked={hideUpdates === true}
-              className="mv-w-0 mv-h-0 mv-opacity-0"
+              className="w-0 h-0 opacity-0"
             />
           </div>
         </div>
         {hideUpdates === false ? (
-          <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
+          <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden">
             {Object.entries(updateTeasers).map(([key, value]) => {
               // Runtime check to safely use type assertion below
               if (
@@ -1538,15 +1535,15 @@ function Dashboard() {
       </section>
       {/* News Section */}
       {loaderData.abilities.news_section.hasAccess ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-group">
-          <div className="mv-w-full mv-flex mv-justify-between mv-gap-8 mv-mb-4 mv-items-end">
-            <h2 className="mv-appearance-none mv-w-full mv-text-neutral-700 mv-text-2xl mv-leading-[26px] mv-font-semibold mv-shrink">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl group">
+          <div className="w-full flex justify-between gap-8 mb-4 items-end">
+            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
               {loaderData.locales.route.content.newsTeaser.headline}
             </h2>
-            <div className="mv-text-nowrap mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline">
+            <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
               <label
                 htmlFor="hide-news"
-                className="mv-text-nowrap mv-cursor-pointer mv-text-primary mv-text-sm @sm:mv-text-lg @xl:mv-text-xl mv-font-semibold mv-leading-5 @xl:mv-leading-normal hover:mv-underline"
+                className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline"
               >
                 {hideNews === false
                   ? loaderData.locales.route.content.newsTeaser.hide
@@ -1563,13 +1560,13 @@ function Dashboard() {
                   });
                   setHideNews(hideNews);
                 }}
-                className="mv-w-0 mv-h-0 mv-opacity-0"
+                className="w-0 h-0 opacity-0"
                 checked={hideNews === true}
               />
             </div>
           </div>
           {hideNews === false ? (
-            <ul className="mv-flex mv-flex-col @xl:mv-grid @xl:mv-grid-cols-2 @xl:mv-grid-rows-1 mv-gap-4 @xl:mv-gap-6 mv-w-full group-has-[:checked]:mv-hidden">
+            <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden">
               {Object.entries(newsTeasers).map(([key, value]) => {
                 // Runtime check to safely use type assertion below
                 if (
@@ -1612,12 +1609,12 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Community Counter */}
-      <section className="mv-w-full mv-mb-8 mv-mx-auto mv-px-4 @xl:mv-px-6 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-flex-col mv-w-full mv-items-center mv-gap-6 mv-py-6 mv-bg-white mv-border mv-border-neutral-200 mv-rounded-lg">
-          <h2 className="mv-appearance-none mv-w-full mv-text-primary mv-text-center mv-text-3xl mv-font-semibold mv-leading-7 @lg:mv-leading-8 mv-px-11 @lg:mv-px-6">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <div className="flex flex-col w-full items-center gap-6 py-6 bg-white border border-neutral-200 rounded-lg">
+          <h2 className="appearance-none w-full text-primary text-center text-3xl font-semibold leading-7 @lg:leading-8 px-11 @lg:px-6">
             {loaderData.locales.route.content.communityCounter.headline}
           </h2>
-          <ul className="mv-grid mv-grid-cols-2 mv-grid-rows-2 mv-place-items-center mv-w-fit mv-gap-x-6 mv-gap-y-8 mv-px-6 @lg:mv-gap-x-16 @lg:mv-grid-cols-4 @lg:mv-grid-rows-1">
+          <ul className="grid grid-cols-2 grid-rows-2 place-items-center w-fit gap-x-6 gap-y-8 px-6 @lg:gap-x-16 @lg:grid-cols-4 @lg:grid-rows-1">
             {Object.entries(loaderData.communityCounter).map(([key, value]) => {
               // Runtime check to safely use type assertion below
               if (
@@ -1632,12 +1629,12 @@ function Dashboard() {
               return (
                 <li
                   key={`${key}-counter`}
-                  className="mv-grid mv-grid-cols-1 mv-grid-rows-2 mv-place-items-center mv-gap-2"
+                  className="grid grid-cols-1 grid-rows-2 place-items-center gap-2"
                 >
-                  <div className="mv-text-5xl mv-font-bold mv-leading-10 mv-text-primary">
+                  <div className="text-5xl font-bold leading-10 text-primary">
                     {value}
                   </div>
-                  <div className="mv-text-lg mv-font-bold mv-leading-6 mv-text-primary">
+                  <div className="text-lg font-bold leading-6 text-primary">
                     {
                       loaderData.locales.route.content.communityCounter[
                         key as LocaleKey
@@ -1651,20 +1648,20 @@ function Dashboard() {
         </div>
       </section>
       {/* Project Card Section */}
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
+          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.projects}
           </h2>
-          <div className="mv-text-right">
+          <div className="text-right">
             <MVLink as="link" to="/explore/projects" prefetch="intent">
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
+              <span className="text-sm font-semibold leading-4 @lg:text-2xl @lg:leading-7">
                 {loaderData.locales.route.content.allProjects}
               </span>
             </MVLink>
           </div>
         </div>
-        <div className="@xl:mv-px-2">
+        <div className="@xl:px-2">
           <CardContainer>
             {loaderData.projects.map((project) => {
               return (
@@ -1681,20 +1678,20 @@ function Dashboard() {
         </div>
       </section>
       {/* Profile Card Section */}
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
+          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.profiles}
           </h2>
-          <div className="mv-text-right">
+          <div className="text-right">
             <MVLink as="link" to="/explore/profiles" prefetch="intent">
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
+              <span className="text-sm font-semibold leading-4 @lg:text-2xl @lg:leading-7">
                 {loaderData.locales.route.content.allProfiles}
               </span>
             </MVLink>
           </div>
         </div>
-        <div className="@xl:mv-px-2">
+        <div className="@xl:px-2">
           <CardContainer>
             {loaderData.profiles.map((profile) => {
               return (
@@ -1711,24 +1708,24 @@ function Dashboard() {
         </div>
       </section>
       {/* Organization Card Section */}
-      <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
+          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.organizations}
           </h2>
-          <div className="mv-text-right">
+          <div className="text-right">
             <MVLink
               as="link"
               to={`/explore/organizations/${loaderData.preferredExploreOrganizationsView}`}
               prefetch="intent"
             >
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
+              <span className="text-sm font-semibold leading-4 @lg:text-2xl @lg:leading-7">
                 {loaderData.locales.route.content.allOrganizations}
               </span>
             </MVLink>
           </div>
         </div>
-        <div className="@xl:mv-px-2">
+        <div className="@xl:px-2">
           <CardContainer>
             {loaderData.organizations.map((organization) => {
               return (
@@ -1745,20 +1742,20 @@ function Dashboard() {
         </div>
       </section>
       {/* Event Card Section */}
-      <section className="mv-w-full mv-mb-24 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-flex mv-mb-2 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-end mv-justify-between">
-          <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 @lg:mv-text-5xl @lg:mv-leading-9">
+      <section className="w-full mb-24 mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
+          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.events}
           </h2>
-          <div className="mv-text-right">
+          <div className="text-right">
             <MVLink as="link" to="/explore/events" prefetch="intent">
-              <span className="mv-text-sm mv-font-semibold mv-leading-4 @lg:mv-text-2xl @lg:mv-leading-7">
+              <span className="text-sm font-semibold leading-4 @lg:text-2xl @lg:leading-7">
                 {loaderData.locales.route.content.allEvents}
               </span>
             </MVLink>
           </div>
         </div>
-        <div className="@xl:mv-px-2">
+        <div className="@xl:px-2">
           <CardContainer>
             {loaderData.events.map((event) => {
               const startTime = utcToZonedTime(
@@ -1800,7 +1797,7 @@ function Dashboard() {
         preventScrollReset
         hidden
       >
-        <label htmlFor="show-modal" className="mv-hidden">
+        <label htmlFor="show-modal" className="hidden">
           Show Modal
         </label>
         <input id="show-modal" hidden name="modal-avatar" defaultValue="true" />

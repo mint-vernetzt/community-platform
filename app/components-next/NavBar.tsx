@@ -33,11 +33,11 @@ export function NavBar(props: NavBarProps) {
   const navBarMenuIsOpen = searchParams.get(props.openMainMenuKey);
 
   const classes = classNames(
-    "mv-w-full mv-h-[76px] xl:mv-h-20 mv-bg-white",
-    "mv-flex mv-items-center",
+    "w-full h-[76px] xl:h-20 bg-white",
+    "flex items-center",
     navBarMenuIsOpen !== null &&
       navBarMenuIsOpen !== "false" &&
-      "mv-hidden xl:mv-block"
+      "hidden xl:block"
   );
 
   const [hideSearchBar, setHideSearchBar] = useState(
@@ -66,11 +66,11 @@ export function NavBar(props: NavBarProps) {
 
   return (
     <header id="header" className={classes}>
-      <div className="mv-w-0 mv-h-0 focus-within:mv-w-fit focus-within:mv-h-[76px] focus-within:xl:mv-h-20 focus-within:mv-px-2 mv-overflow-hidden mv-flex mv-items-center">
+      <div className="w-0 h-0 focus-within:w-fit focus-within:h-[76px] focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
         <a
           id="nav-bar-start"
           href="#nav-bar-end"
-          className="mv-pointer-events-none focus:mv-pointer-events-auto mv-text-wrap mv-w-fit mv-h-fit mv-text-xs md:mv-text-sm lg:mv-text-base"
+          className="pointer-events-none focus:pointer-events-auto text-wrap w-fit h-fit text-xs md:text-sm lg:text-base"
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
@@ -79,13 +79,11 @@ export function NavBar(props: NavBarProps) {
             : "Skip navigation bar"}
         </a>
       </div>
-      <div className="mv-flex mv-h-full mv-w-full mv-items-center mv-pr-4 xl:mv-pr-6">
+      <div className="flex h-full w-full items-center pr-4 xl:pr-6">
         <Link
           to={props.sessionUserInfo !== undefined ? "/dashboard" : "/"}
-          className={`mv-ml-4 mv-mr-2 ${
-            props.sessionUserInfo !== undefined
-              ? "mv-hidden"
-              : "mv-block xl:mv-hidden"
+          className={`ml-4 mr-2 ${
+            props.sessionUserInfo !== undefined ? "hidden" : "block xl:hidden"
           }`}
           aria-label={
             props.locales !== undefined
@@ -111,9 +109,7 @@ export function NavBar(props: NavBarProps) {
         {props.sessionUserInfo !== undefined && (
           <div
             className={`${
-              props.sessionUserInfo !== undefined
-                ? "mv-mx-4 mv-block xl:mv-hidden"
-                : ""
+              props.sessionUserInfo !== undefined ? "mx-4 block xl:hidden" : ""
             }`}
           >
             <Avatar
@@ -132,14 +128,14 @@ export function NavBar(props: NavBarProps) {
           </div>
         )}
 
-        <div className="mv-flex mv-gap-2 xl:mv-gap-4 mv-w-full mv-items-center">
-          <div className="mv-grow">
+        <div className="flex gap-2 xl:gap-4 w-full items-center">
+          <div className="grow">
             <Form
               className={
                 hideSearchBar === true &&
                 typeof props.hideSearchBar !== "undefined"
-                  ? `mv-block ${props.hideSearchBar.afterBreakpoint}:mv-hidden`
-                  : "mv-w-full"
+                  ? `block ${props.hideSearchBar.afterBreakpoint}:hidden`
+                  : "w-full"
               }
               method="get"
               action="/explore/all"
@@ -161,7 +157,7 @@ export function NavBar(props: NavBarProps) {
                     : props.locales.route.root.search
                 }
               >
-                <label className="mv-line-clamp-1">
+                <label className="line-clamp-1">
                   {typeof props.locales === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (
                       "Suche..."
@@ -169,11 +165,11 @@ export function NavBar(props: NavBarProps) {
                       "Search..."
                     )
                   ) : (
-                    <div className="mv-mt-3">
-                      <span className="xl:mv-hidden">
+                    <div className="mt-3">
+                      <span className="xl:hidden">
                         {props.locales.route.root.search.placeholder.default}
                       </span>
-                      <span className="mv-hidden xl:mv-inline">
+                      <span className="hidden xl:inline">
                         {props.locales.route.root.search.placeholder.xl}
                       </span>
                     </div>
@@ -183,12 +179,12 @@ export function NavBar(props: NavBarProps) {
             </Form>
           </div>
 
-          <div className="mv-shrink mv-block xl:mv-hidden">
+          <div className="shrink block xl:hidden">
             <Opener openMainMenuKey="mainMenu" locales={props.locales} />
           </div>
 
           {props.sessionUserInfo !== undefined ? (
-            <div className="mv-w-12 mv-h-12 mv-hidden xl:mv-block">
+            <div className="w-12 h-12 hidden xl:block">
               <Avatar
                 size="full"
                 firstName={props.sessionUserInfo.firstName}
@@ -204,7 +200,7 @@ export function NavBar(props: NavBarProps) {
               />
             </div>
           ) : (
-            <div className="mv-gap-4 mv-items-center mv-hidden xl:mv-flex">
+            <div className="gap-4 items-center hidden xl:flex">
               <div>
                 <Button
                   to={`/login?login_redirect=${location.pathname}`}
@@ -236,11 +232,11 @@ export function NavBar(props: NavBarProps) {
           )}
         </div>
       </div>
-      <div className="mv-w-0 mv-h-0 focus-within:mv-w-fit focus-within:mv-h-[76px] focus-within:xl:mv-h-20 focus-within:mv-px-2 mv-overflow-hidden mv-flex mv-items-center">
+      <div className="w-0 h-0 focus-within:w-fit focus-within:h-[76px] focus-within:xl:h-20 focus-within:px-2 overflow-hidden flex items-center">
         <a
           id="nav-bar-end"
           href="#nav-bar-start"
-          className="mv-pointer-events-none focus:mv-pointer-events-auto mv-text-wrap mv-w-fit mv-h-fit mv-text-xs md:mv-text-sm lg:mv-text-base"
+          className="pointer-events-none focus:pointer-events-auto text-wrap w-fit h-fit text-xs md:text-sm lg:text-base"
         >
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end

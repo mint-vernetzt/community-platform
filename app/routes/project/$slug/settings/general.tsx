@@ -418,7 +418,7 @@ function General() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+      <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
       <Form
         {...getFormProps(form)}
         method="post"
@@ -427,9 +427,9 @@ function General() {
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden disabled={isSubmitting} />
-        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-          <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+        <div className="flex flex-col gap-6 @md:gap-4">
+          <div className="@md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-4">
               {locales.route.content.projectTitle.headline}
             </h2>
             <Input
@@ -455,8 +455,8 @@ function General() {
             </Input>
           </div>
 
-          <div className="@md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-4">
+          <div className="@md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-4">
               {locales.route.content.subline.headline}
             </h2>
             <Input
@@ -479,8 +479,8 @@ function General() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.formats.headline}
             </h2>
             <ConformSelect
@@ -576,7 +576,7 @@ function General() {
             )}
             {isHydrated === true ? (
               <>
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                <div className="flex flex-row gap-4 items-center">
                   <Input
                     value={furtherFormat}
                     onChange={handleFurtherFormatInputChange}
@@ -648,7 +648,7 @@ function General() {
                         <input
                           {...getInputProps(listFormat, { type: "text" })}
                           key={listFormat.id}
-                          className="mv-pl-1"
+                          className="pl-1"
                         />
 
                         <Chip.Delete>
@@ -690,8 +690,8 @@ function General() {
             )}
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.areas.headline}
             </h2>
             <ConformSelect
@@ -747,7 +747,7 @@ function General() {
                     return (
                       <div
                         key={`${filteredOption.label}-${index}-divider`}
-                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-600 mv-font-semibold mv-py-1 mv-px-2"
+                        className="text-start w-full cursor-default text-neutral-600 font-semibold py-1 px-2"
                       >
                         {filteredOption.label}
                       </div>
@@ -781,8 +781,8 @@ function General() {
               </Chip.Container>
             )}
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.contact.headline}
             </h2>
             <Input
@@ -825,7 +825,7 @@ function General() {
                   <div
                     id={form.errorId}
                     key={form.errorId}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -833,8 +833,8 @@ function General() {
               })}
             </div>
           ) : null}
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.address.headline}
             </h2>
             <Input
@@ -853,8 +853,8 @@ function General() {
                   ))
                 : null}
             </Input>
-            <div className="@lg:mv-flex @lg:mv-gap-4">
-              <div className="mv-w-full @lg:mv-w-1/3">
+            <div className="@lg:flex @lg:gap-4">
+              <div className="w-full @lg:w-1/3">
                 <Input
                   {...getInputProps(fields.street, { type: "text" })}
                   key="street"
@@ -872,8 +872,8 @@ function General() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-flex mv-w-full @lg:mv-w-2/3 mv-gap-4 mv-mt-4 @lg:mv-mt-0">
-                <div className="mv-flex-1">
+              <div className="flex w-full @lg:w-2/3 gap-4 mt-4 @lg:mt-0">
+                <div className="flex-1">
                   <Input
                     {...getInputProps(fields.streetNumber, { type: "text" })}
                     key="streetNumber"
@@ -894,7 +894,7 @@ function General() {
                       : null}
                   </Input>
                 </div>
-                <div className="mv-flex-1">
+                <div className="flex-1">
                   <Input
                     {...getInputProps(fields.streetNumberAddition, {
                       type: "text",
@@ -921,8 +921,8 @@ function General() {
               </div>
             </div>
 
-            <div className="@lg:mv-flex @lg:mv-gap-4">
-              <div className="mv-flex-1">
+            <div className="@lg:flex @lg:gap-4">
+              <div className="flex-1">
                 <Input
                   {...getInputProps(fields.zipCode, { type: "text" })}
                   key="zipCode"
@@ -940,7 +940,7 @@ function General() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+              <div className="flex-1 mt-4 @lg:mt-0">
                 <Input
                   {...getInputProps(fields.city, { type: "text" })}
                   key="city"
@@ -967,7 +967,7 @@ function General() {
                   <div
                     id={form.errorId}
                     key={form.errorId}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -975,11 +975,11 @@ function General() {
               })}
             </div>
           ) : null}
-          <p className="mv-text-sm mv-mt-4">{locales.route.content.hint}</p>
-          <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+          <p className="text-sm mt-4">{locales.route.content.hint}</p>
+          <div className="flex w-full justify-end">
+            <div className="flex shrink w-full @md:max-w-fit @lg:w-auto items-center justify-center @lg:justify-end">
               <Controls>
-                <div className="mv-relative mv-w-full">
+                <div className="relative w-full">
                   <Button
                     type="reset"
                     onClick={() => {
@@ -992,7 +992,7 @@ function General() {
                   >
                     {locales.route.content.reset}
                   </Button>
-                  <noscript className="mv-absolute mv-top-0">
+                  <noscript className="absolute top-0">
                     <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.content.reset}
                     </Button>

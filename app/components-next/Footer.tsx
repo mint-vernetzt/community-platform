@@ -7,15 +7,15 @@ import { type Mode } from "~/utils.server";
 export function Footer(props: { locales?: RootLocales; mode: Mode }) {
   const currentYear = new Date().getFullYear();
   return (
-    <footer className="mv-flex mv-flex-col mv-gap-5 mv-px-8 mv-pt-6 mv-pb-2 mv-w-full">
+    <footer className="flex flex-col gap-5 px-8 pt-6 pb-2 w-full">
       {/* CP logo and description */}
-      <div className="mv-flex mv-gap-0 @sm:mv-gap-18 mv-items-center">
-        <div className="mv-w-48 mv-flex mv-flex-col mv-gap-3">
+      <div className="flex gap-0 @sm:gap-18 items-center">
+        <div className="w-48 flex flex-col gap-3">
           <MVLink
             as="link"
             to={props.mode === "anon" ? "/" : "/dashboard"}
             variant="primary"
-            className="mv-flex mv-flex-row mv-items-center hover:mv-no-underline"
+            className="flex flex-row items-center hover:no-underline"
             aria-label={
               props.locales !== undefined
                 ? props.mode === "anon"
@@ -38,7 +38,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
               width="42"
               height="42"
               viewBox="0 0 56 56"
-              className="mv-w-[42px] mv-h-[42px] @md:mv-w-auto @md:mv-h-auto"
+              className="w-[42px] h-[42px] @md:w-auto @md:h-auto"
               aria-hidden="true"
             >
               <g fill="none">
@@ -56,11 +56,11 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
                 />
               </g>
             </svg>
-            <span className="mv-block mv-text-sm mv-font-bold mv-text-primary mv-ml-2">
+            <span className="block text-sm font-bold text-primary ml-2">
               Community
             </span>
           </MVLink>
-          <p className="mv-text-sm mv-text-primary mv-font-semibold mv-hidden @sm:mv-block">
+          <p className="text-sm text-primary font-semibold hidden @sm:block">
             {props.locales !== undefined
               ? props.locales.footer.description
               : DEFAULT_LANGUAGE === "de"
@@ -69,7 +69,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
           </p>
         </div>
         {/* BMBF Logo */}
-        <div className="mv-grow mv-flex mv-justify-end mv-items-center">
+        <div className="grow flex justify-end items-center">
           <MVLink
             as="link"
             to="https://www.bmbf.de/"
@@ -111,9 +111,9 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
           </MVLink>
         </div>
       </div>
-      <div className="mv-flex mv-justify-between mv-w-full mv-pt-6 mv-pb-4">
+      <div className="flex justify-between w-full pt-6 pb-4">
         {/* Copyright */}
-        <div className="mv-font-bold mv-text-xs">
+        <div className="font-bold text-xs">
           {props.locales !== undefined
             ? insertParametersIntoLocale(props.locales.footer.meta.copyright, {
                 year: currentYear,
@@ -123,7 +123,7 @@ export function Footer(props: { locales?: RootLocales; mode: Mode }) {
             : `© 2021-${currentYear} matrix gGmbH`}
         </div>
         {/* SoMe icons */}
-        <ul className="mv-flex mv-items-center mv-gap-6">
+        <ul className="flex items-center gap-6">
           <li>
             <MVLink
               as="link"

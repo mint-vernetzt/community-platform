@@ -86,7 +86,7 @@ function OverlayMenu(
   }, [isOpen]);
 
   return (
-    <div className="mv-relative">
+    <div className="relative">
       <SquareButton
         size="small"
         variant="outline"
@@ -113,18 +113,15 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <div className="mv-fixed mv-w-screen @lg:mv-w-fit mv-min-w-40 mv-h-dvh @lg:mv-h-fit  @lg:mv-bg-black/100 mv-p-4 @lg:mv-p-0 @lg:mv-absolute mv-top-0 @lg:mv-top-10 mv-left-0 @lg:mv-left-auto mv-right-0 mv-text-nowrap mv-rounded-none @lg:mv-rounded-lg mv-shadow-none @lg:mv-shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] mv-bg-black/50 mv-backdrop-blur-sm @lg:mv-bg-white mv-flex mv-flex-col mv-gap-4 mv-justify-end @lg:mv-justify-normal mv-z-20 @lg:mv-z-10 mv-overflow-hidden">
-          <ul
-            ref={listRef}
-            className="mv-flex mv-flex-col mv-bg-white mv-rounded-lg"
-          >
+        <div className="fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit  @lg:bg-black/100 p-4 @lg:p-0 @lg:absolute top-0 @lg:top-10 left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-sm @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-10 overflow-hidden">
+          <ul ref={listRef} className="flex flex-col bg-white rounded-lg">
             {listItems}
           </ul>
-          <ul className="mv-flex @lg:mv-hidden mv-flex-col mv-bg-white mv-rounded-lg">
+          <ul className="flex @lg:hidden flex-col bg-white rounded-lg">
             <ListItem>
               <Link
                 to={`?${enhancedSearchParams.toString()}`}
-                className="mv-w-full mv-text-center mv-px-3 mv-py-2 focus:mv-outline-none"
+                className="w-full text-center px-3 py-2 focus:outline-none"
                 onClick={() => {
                   setIsOpen(false);
                 }}
@@ -150,9 +147,9 @@ function ListItem(
   const { children, disabled = false } = props;
   return (
     <li
-      className={`mv-w-full mv-flex mv-gap-2 mv-items-center mv-bg-white mv-border-2 mv-border-transparent mv-text-neutral-700 first:mv-rounded-t-lg last:mv-rounded-b-lg${
+      className={`w-full flex gap-2 items-center bg-white border-2 border-transparent text-neutral-700 first:rounded-t-lg last:rounded-b-lg${
         disabled === false
-          ? " hover:mv-bg-neutral-100 hover:mv-border-neutral-100 active:mv-bg-primary-50 active:mv-border-primary-50 focus-within:mv-bg-white focus-within:mv-border-primary-200"
+          ? " hover:bg-neutral-100 hover:border-neutral-100 active:bg-primary-50 active:border-primary-50 focus-within:bg-white focus-within:border-primary-200"
           : ""
       }`}
     >
@@ -164,7 +161,7 @@ function ListItem(
 function getListItemChildrenStyles() {
   return {
     className:
-      "mv-w-full mv-flex mv-items-center mv-justify-center @md:mv-justify-normal mv-gap-2 mv-appearance-none mv-px-3 mv-py-2 focus:mv-outline-none",
+      "w-full flex items-center justify-center @md:justify-normal gap-2 appearance-none px-3 py-2 focus:outline-none",
   };
 }
 
@@ -175,13 +172,13 @@ function getIdToFocusWhenOpening() {
 }
 
 function Divider() {
-  return <div className="mv-w-full mv-h-0 mv-border-b mv-border-neutral-200" />;
+  return <div className="w-full h-0 border-b border-neutral-200" />;
 }
 
 function HiddenItem(props: React.PropsWithChildren) {
   const { children } = props;
 
-  return <div className="mv-hidden">{children}</div>;
+  return <div className="hidden">{children}</div>;
 }
 
 OverlayMenu.ListItem = ListItem;

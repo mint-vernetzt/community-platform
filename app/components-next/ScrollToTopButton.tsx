@@ -9,10 +9,10 @@ function ScrollToTopButton(props: { locales: RootLocales }) {
 
   return (
     <>
-      <div className="mv-w-0 mv-h-[80px] xl:mv-h-[84px]"></div>
-      <div className="mv-w-0 mv-h-dvh mv-sticky mv-top-0">
-        <div className="mv-relative mv-w-0 mv-h-dvh">
-          <div className="mv-absolute mv-bottom-4 -mv-left-20">
+      <div className="w-0 h-[80px] xl:h-[84px]"></div>
+      <div className="w-0 h-dvh sticky top-0">
+        <div className="relative w-0 h-dvh">
+          <div className="absolute bottom-4 -left-20">
             <CircleButton
               as="a"
               href={`${location.pathname}${location.search}#top`}

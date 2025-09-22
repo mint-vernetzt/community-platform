@@ -39,12 +39,9 @@ function SelectField(
   const submit = useSubmit();
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
-      <div className="mv-flex mv-flex-row mv-items-center">
-        <label
-          htmlFor={selectProps.id}
-          className="mv-font-semibold mv-flex-auto"
-        >
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-row items-center">
+        <label htmlFor={selectProps.id} className="font-semibold flex-auto">
           {label}
           {selectProps.required === true ? " *" : ""}
         </label>
@@ -59,11 +56,11 @@ function SelectField(
             />
           )}
       </div>
-      <div className="mv-flex mv-flex-row mv-items-center">
-        <div className="mv-flex-auto mv-relative">
+      <div className="flex flex-row items-center">
+        <div className="flex-auto relative">
           <select
             {...selectProps}
-            className={`mv-w-full mv-outline-none mv-h-auto mv-border-2 mv-border-neutral-300 mv-px-4 mv-text-base mv-font-semibold mv-leading-8 mv-appearance-none mv-rounded-lg focus:mv-border-neutral-200 mv-bg-neutral-100 focus:mv-bg-white mv-cursor-pointer ${
+            className={`w-full outline-none h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200 bg-neutral-100 focus:bg-white cursor-pointer ${
               selectProps.className ?? ""
             }`}
           >
@@ -107,7 +104,7 @@ function SelectField(
               </Fragment>
             ))}
           </select>
-          <div className="mv-absolute mv-right-2 mv-top-2 mv-rotate-90 mv-pointer-events-none">
+          <div className="absolute right-2 top-2 rotate-90 pointer-events-none">
             <svg
               width="20"
               height="20"

@@ -110,10 +110,10 @@ export default function RequestConfirmation() {
   });
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-      <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-        <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-          <h1 className="mv-mb-8">{locales.content.headline}</h1>
+    <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="flex flex-col w-full items-center">
+        <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+          <h1 className="mb-8">{locales.content.headline}</h1>
           {typeof actionData !== "undefined" &&
           typeof actionData.submission.status !== "undefined" &&
           actionData.submission.status === "success" ? (
@@ -125,11 +125,11 @@ export default function RequestConfirmation() {
                   supportMail: actionData.supportMail,
                 }),
                 [
-                  <span key="email-highlight" className="mv-font-semibold" />,
+                  <span key="email-highlight" className="font-semibold" />,
                   <Link
                     key="support-mail-link"
                     to={`mailto:${actionData.supportMail}`}
-                    className="mv-text-primary mv-font-semibold hover:mv-underline"
+                    className="text-primary font-semibold hover:underline"
                   >
                     {" "}
                   </Link>,
@@ -143,8 +143,8 @@ export default function RequestConfirmation() {
               preventScrollReset
               autoComplete="off"
             >
-              <p className="mv-mb-4">{locales.content.description}</p>
-              <div className="mv-mb-10">
+              <p className="mb-4">{locales.content.description}</p>
+              <div className="mb-10">
                 <Input
                   {...getInputProps(requestConfirmationFields.email, {
                     type: "text",
@@ -170,13 +170,13 @@ export default function RequestConfirmation() {
               </div>
               {typeof requestConfirmationForm.errors !== "undefined" &&
               requestConfirmationForm.errors.length > 0 ? (
-                <div className="mv-mb-10">
+                <div className="mb-10">
                   {requestConfirmationForm.errors.map((error, index) => {
                     return (
                       <div
                         id={requestConfirmationForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -197,8 +197,8 @@ export default function RequestConfirmation() {
                 })}
                 key="type"
               />
-              <div className="mv-flex mv-flex-row -mv-mx-4 mv-mb-8 mv-items-center">
-                <div className="mv-basis-6/12 mv-px-4">
+              <div className="flex flex-row -mx-4 mb-8 items-center">
+                <div className="basis-6/12 px-4">
                   <Button
                     type="submit"
                     // Don't disable button when js is disabled

@@ -641,27 +641,27 @@ export function Map(props: {
     <>
       <div
         ref={mapContainer}
-        className={`mv-absolute mv-h-full mv-min-h-[284px] mv-overflow-hidden ${
+        className={`absolute h-full min-h-[284px] overflow-hidden ${
           mapLoaded === true
             ? mapMenuIsOpen === true && organizations.length > 0
-              ? "mv-left-0 mv-w-full md:mv-left-[336px] md:mv-w-[calc(100%-336px)]"
-              : "mv-w-full"
-            : "mv-w-0"
+              ? "left-0 w-full md:left-[336px] md:w-[calc(100%-336px)]"
+              : "w-full"
+            : "w-0"
         }`}
       />
       {organizations.length > 0 ? (
         <div
-          className={`mv-absolute mv-top-0 mv-bottom-0 mv-left-0 mv-w-fit md:mv-w-[336px] mv-pointer-events-none mv-z-10 ${
+          className={`absolute top-0 bottom-0 left-0 w-fit md:w-[336px] pointer-events-none z-10 ${
             mapMenuIsOpen === true
-              ? "mv-w-full md:mv-w-[336px]"
-              : "mv-w-fit md:mv-w-[336px]"
+              ? "w-full md:w-[336px]"
+              : "w-fit md:w-[336px]"
           }`}
         >
           <div
-            className={`mv-flex mv-flex-col mv-gap-2 mv-p-2 mv-bg-white mv-border-neutral-200 mv-w-full mv-pointer-events-auto ${
+            className={`flex flex-col gap-2 p-2 bg-white border-neutral-200 w-full pointer-events-auto ${
               mapMenuIsOpen
-                ? "mv-h-full mv-rounded-none mv-border-none md:mv-border-r"
-                : "mv-rounded-br-2xl mv-border-r mv-border-b"
+                ? "h-full rounded-none border-none md:border-r"
+                : "rounded-br-2xl border-r border-b"
             }`}
           >
             <Link
@@ -673,29 +673,29 @@ export function Map(props: {
               onClick={() => {
                 setMapMenuIsOpen(!mapMenuIsOpen);
               }}
-              className="mv-p-2 hover:mv-bg-neutral-100 active:mv-bg-neutral-200 mv-rounded"
+              className="p-2 hover:bg-neutral-100 active:bg-neutral-200 rounded"
               preventScrollReset
               replace
             >
-              <div className="mv-flex mv-items-center mv-gap-2.5">
+              <div className="flex items-center gap-2.5">
                 <p
                   className={`${
-                    mapMenuIsOpen ? "mv-block" : "mv-hidden md:mv-block"
-                  }  mv-w-full mv-text-neutral-700 mv-leading-5`}
+                    mapMenuIsOpen ? "block" : "hidden md:block"
+                  }  w-full text-neutral-700 leading-5`}
                 >
-                  <span className="mv-font-bold mv-text-lg mv-leading-6">
+                  <span className="font-bold text-lg leading-6">
                     {organizations.length}
                   </span>{" "}
                   {locales.components.Map.organizationCountHeadline}
                 </p>
                 {mapMenuIsOpen ? (
                   <BurgerMenuOpen
-                    className="mv-shrink-0"
+                    className="shrink-0"
                     aria-label={locales.components.Map.openMenu}
                   />
                 ) : (
                   <BurgerMenuClosed
-                    className="mv-shrink-0"
+                    className="shrink-0"
                     aria-label={locales.components.Map.closeMenu}
                   />
                 )}
@@ -704,7 +704,7 @@ export function Map(props: {
             {mapMenuIsOpen ? (
               <ul
                 id="map-menu"
-                className="mv-w-full mv-h-full mv-flex mv-flex-col mv-gap-2 mv-px-4 mv-overflow-y-auto mv-py-2"
+                className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2"
               >
                 {organizations.map((organization) => {
                   return (
@@ -754,7 +754,7 @@ export function Map(props: {
         </div>
       ) : null}
       {embeddable === true ? (
-        <div className="mv-absolute mv-top-4 mv-right-4">
+        <div className="absolute top-4 right-4">
           <Link
             to="/"
             target="_blank"
@@ -773,11 +773,11 @@ export function Map(props: {
       ) : null}
       {embeddable === false && hideAlert === false ? (
         <div
-          className={`mv-absolute ${
+          className={`absolute ${
             mapMenuIsOpen === true && organizations.length > 0
-              ? "mv-hidden md:mv-block mv-left-[344px]"
-              : "mv-left-2"
-          } mv-bottom-2 mv-right-2 mv-z-10 mv-h-fit`}
+              ? "hidden md:block left-[344px]"
+              : "left-2"
+          } bottom-2 right-2 z-10 h-fit`}
         >
           <Alert
             position="relative"
@@ -795,7 +795,7 @@ export function Map(props: {
                 key="help-link"
                 to="/help#organizationMapView"
                 target="_blank"
-                className="mv-font-bold hover:mv-underline"
+                className="font-bold hover:underline"
               >
                 {" "}
               </Link>,
@@ -815,16 +815,16 @@ function Popup(props: {
   const { organization, locales, embeddable } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-items-center mv-rounded-lg mv-p-4 mv-bg-white mv-border mv-border-neutral-200 mv-pointer-events-none">
-      <div className="mv-relative mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-2">
-        <div className="mv-pointer-events-auto">
+    <div className="flex flex-col gap-4 w-full items-center rounded-lg p-4 bg-white border border-neutral-200 pointer-events-none">
+      <div className="relative w-full flex flex-col items-center gap-2">
+        <div className="pointer-events-auto">
           <Avatar size="lg" {...organization} disableFadeIn={true} />
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-1 mv-items-center">
-          <h1 className="mv-appearance-none mv-text-base mv-text-center mv-mb-0 mv-text-primary mv-font-bold mv-leading-5 mv-pointer-events-auto">
+        <div className="flex flex-col gap-1 items-center">
+          <h1 className="appearance-none text-base text-center mb-0 text-primary font-bold leading-5 pointer-events-auto">
             {organization.name}
           </h1>
-          <p className="mv-text-neutral-700 mv-text-center mv-font-semibold mv-pointer-events-auto">
+          <p className="text-neutral-700 text-center font-semibold pointer-events-auto">
             {[...organization.types, ...organization.networkTypes]
               .map((relation) => {
                 let title;
@@ -847,7 +847,7 @@ function Popup(props: {
               .join(", ")}
           </p>
         </div>
-        <address className="mv-not-italic mv-text-center mv-text-neutral-700 mv-pointer-events-auto">
+        <address className="not-italic text-center text-neutral-700 pointer-events-auto">
           {[
             organization.street,
             organization.streetNumber,
@@ -858,12 +858,12 @@ function Popup(props: {
           ,{" "}
           {[organization.zipCode, organization.city].filter(Boolean).join(" ")}
         </address>
-        <div className="mv-absolute mv-right-0 mv-top-0 mv-pointer-events-auto">
+        <div className="absolute right-0 top-0 pointer-events-auto">
           <MapPopupClose />
         </div>
       </div>
       {organization.networkMembers.length > 0 ? (
-        <div className="mv-pointer-events-auto">
+        <div className="pointer-events-auto">
           <AvatarList
             visibleAvatars={2}
             moreIndicatorProps={{
@@ -888,7 +888,7 @@ function Popup(props: {
       ) : null}
       <a
         href={`/organization/${organization.slug}/detail/about`}
-        className="mv-appearance-none mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-w-full mv-bg-white mv-border mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200 mv-pointer-events-auto"
+        className="appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 w-full bg-white border border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-none focus:border-primary-200 pointer-events-auto"
         rel={embeddable === true ? "noreferrer noopener" : undefined}
         target={embeddable === true ? "_blank" : undefined}
       >

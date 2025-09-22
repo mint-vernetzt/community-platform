@@ -131,9 +131,9 @@ function Delete() {
 
   return (
     <>
-      <h1 className="mv-mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{locales.content.headline}</h1>
 
-      <p className="mv-mb-8">
+      <p className="mb-8">
         {insertParametersIntoLocale(locales.content.intro, {
           name: loaderData.eventName,
         })}
@@ -141,14 +141,14 @@ function Delete() {
 
       {loaderData.childEvents.length > 0 ? (
         <>
-          <p className="mv-mb-2">{locales.content.list}</p>{" "}
-          <ul className="mv-mb-8">
+          <p className="mb-2">{locales.content.list}</p>{" "}
+          <ul className="mb-8">
             {loaderData.childEvents.map((childEvent) => {
               return (
                 <li key={`child-event-${childEvent.id}`}>
                   -{" "}
                   <Link
-                    className="mv-underline hover:mv-no-underline"
+                    className="underline hover:no-underline"
                     to={`/event/${childEvent.slug}`}
                     prefetch="intent"
                   >
@@ -164,7 +164,7 @@ function Delete() {
       <RemixFormsForm method="post" schema={schema}>
         {({ Field, Errors, register }) => (
           <>
-            <Field name="eventName" className="mv-mb-4">
+            <Field name="eventName" className="mb-4">
               {({ Errors }) => (
                 <>
                   <Input
@@ -178,7 +178,7 @@ function Delete() {
             </Field>
             <button
               type="submit"
-              className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+              className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
             >
               {locales.form.submit.label}
             </button>
@@ -186,9 +186,9 @@ function Delete() {
           </>
         )}
       </RemixFormsForm>
-      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -198,10 +198,10 @@ function Delete() {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <div className="mv-hidden">
+                    <div className="hidden">
                       <Field name="publish" value={!loaderData.published} />
                     </div>
-                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                    <Button className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white">
                       {loaderData.published
                         ? locales.form.hide.label
                         : locales.form.publish.label}

@@ -32,12 +32,12 @@ export default function Help() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-pt-16 mv-pb-8 @md:mv-pb-12 @xl:mv-pb-16">
-        <h1 className="mv-w-full mv-text-center mv-text-5xl @sm:mv-text-6xl @md:mv-text-7xl @xl:mv-text-8xl mv-font-[900] mv-leading-9 @sm:mv-leading-10 @md:mv-leading-[64px] @xl:mv-leading-[80px]">
+      <section className="w-full mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl px-4 @md:px-6 @xl:px-8 pt-16 pb-8 @md:pb-12 @xl:pb-16">
+        <h1 className="w-full text-center text-5xl @sm:text-6xl @md:text-7xl @xl:text-8xl font-[900] leading-9 @sm:leading-10 @md:leading-[64px] @xl:leading-[80px]">
           {locales.headline}
         </h1>
-        <div className="mv-w-full mv-text-center mv-text-neutral-700 mv-leading-5">
-          <p className="mv-mb-1">{locales.subline}</p>
+        <div className="w-full text-center text-neutral-700 leading-5">
+          <p className="mb-1">{locales.subline}</p>
           <p>
             <span>{locales.subline2}</span>{" "}
             <StyledLink
@@ -50,7 +50,7 @@ export default function Help() {
           </p>
         </div>
       </section>
-      <section className="mv-w-full mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-py-6 mv-mb-6 @md:mv-mb-8 @xl:mv-mb-12">
+      <section className="w-full mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl px-4 @md:px-6 @xl:px-8 py-6 mb-6 @md:mb-8 @xl:mb-12">
         <Accordion>
           {Object.entries(locales.faq).map(([topicKey]) => {
             const typedTopicKey = topicKey as keyof typeof locales.faq;
@@ -96,8 +96,8 @@ export default function Help() {
           })}
         </Accordion>
       </section>
-      <section className="mv-relative mv-flex mv-flex-col mv-items-center mv-w-full mv-py-16 mv-px-4 @md:mv-px-6 @xl:mv-px-8 mv-bg-accent-200">
-        <div className="mv-absolute mv-top-0 mv-right-0 mv-hidden @md:mv-block">
+      <section className="relative flex flex-col items-center w-full py-16 px-4 @md:px-6 @xl:px-8 bg-accent-200">
+        <div className="absolute top-0 right-0 hidden @md:block">
           <svg
             width="343"
             height="171"
@@ -111,7 +111,7 @@ export default function Help() {
             />
           </svg>
         </div>
-        <div className="mv-absolute mv-top-0 mv-right-0 @md:mv-hidden">
+        <div className="absolute top-0 right-0 @md:hidden">
           <svg
             width="155"
             height="92"
@@ -125,19 +125,19 @@ export default function Help() {
             />
           </svg>
         </div>
-        <div className="mv-w-full mv-text-center mv-mb-8 @md:mv-mb-10 @xl:mv-mb-12 mv-text-primary-600 @xl:mv-text-primary-500 mv-font-semibold">
-          <h2 className="mv-mb-6 @xl:mv-mb-8 mv-text-4xl @xl:mv-text-5xl mv-leading-7 @md:mv-leading-8 @xl:mv-leading-9 mv-uppercase">
+        <div className="w-full text-center mb-8 @md:mb-10 @xl:mb-12 text-primary-600 @xl:text-primary-500 font-semibold">
+          <h2 className="mb-6 @xl:mb-8 text-4xl @xl:text-5xl leading-7 @md:leading-8 @xl:leading-9 uppercase">
             {locales.support.headline}
           </h2>
-          <div className="mv-flex mv-flex-col mv-items-center mv-text-lg @md:mv-text-xl @xl:mv-text-3xl mv-leading-6 @md:mv-leading-7 @xl:mv-leading-8">
+          <div className="flex flex-col items-center text-lg @md:text-xl @xl:text-3xl leading-6 @md:leading-7 @xl:leading-8">
             <p>{locales.support.subline}</p>
             <p>{locales.support.ctaText}</p>
-            <p className="mv-w-fit mv-bg-secondary-200 mv-px-1">
+            <p className="w-fit bg-secondary-200 px-1">
               {loaderData.supportMail}
             </p>
           </div>
         </div>
-        <div className="mv-w-fit">
+        <div className="w-fit">
           <Button
             as="link"
             to={`mailto:${loaderData.supportMail}`}

@@ -65,7 +65,7 @@ function OrganizationCard(
     : locales.organizationCard.nonStated;
 
   return (
-    <div className="mv-relative mv-w-full mv-h-full">
+    <div className="relative w-full h-full">
       <Card to={`/organization/${organization.slug}/detail/about`}>
         <CardHeader>
           <Avatar {...organization} size="xl" />
@@ -84,19 +84,19 @@ function OrganizationCard(
         </CardHeader>
         <CardBody>
           {
-            <div className="mv-mt-[30px] mv-min-h-[80px]">
-              <div className="mv-max-h-10 mv-overflow-hidden">
+            <div className="mt-[30px] min-h-[80px]">
+              <div className="max-h-10 overflow-hidden">
                 <Heading
                   as={as}
-                  className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+                  className="text-primary text-base leading-5 font-bold mb-0 text-ellipsis overflow-hidden"
                 >
                   {organization.name}
                 </Heading>
               </div>
-              <div className="mv-overflow-hidden">
+              <div className="overflow-hidden">
                 {(organization.types.length > 0 ||
                   organization.networkTypes.length > 0) && (
-                  <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate mv-line-clamp-2 mv-text-wrap">
+                  <p className="text-neutral-700 text-sm leading-5 font-bold truncate line-clamp-2 text-wrap">
                     {organization.types
                       .map((type) => {
                         if (type in locales.organizationTypes === false) {

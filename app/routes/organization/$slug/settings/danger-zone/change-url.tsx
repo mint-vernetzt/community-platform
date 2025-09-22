@@ -179,7 +179,7 @@ function ChangeURL() {
             slug: loaderData.slug,
           }),
           [
-            <span key="current-organization-url" className="mv-break-all" />,
+            <span key="current-organization-url" className="break-all" />,
             <strong key="current-organization-slug" />,
           ]
         )}
@@ -191,7 +191,7 @@ function ChangeURL() {
         autoComplete="off"
         preventScrollReset
       >
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <Input
             {...getInputProps(fields.slug, { type: "text" })}
             key={"current-slug-input"}
@@ -222,7 +222,7 @@ function ChangeURL() {
                   <div
                     id={form.errorId}
                     key={form.errorId}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -230,8 +230,8 @@ function ChangeURL() {
               })}
             </div>
           ) : null}
-          <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+          <div className="flex w-full justify-end">
+            <div className="flex shrink w-full @md:max-w-fit @lg:w-auto items-center justify-center @lg:justify-end">
               <Button
                 type="submit"
                 level="negative"

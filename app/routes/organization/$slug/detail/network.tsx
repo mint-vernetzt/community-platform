@@ -114,14 +114,14 @@ function Network() {
   >;
 
   return (
-    <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-10 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
+    <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-10 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
       {networkTypeEntries.map(([networkType, networks]) => {
         if (networks.length === 0) {
           return null;
         }
         return (
-          <div key={networkType} className="mv-flex mv-flex-col mv-gap-4">
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+          <div key={networkType} className="flex flex-col gap-4">
+            <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
               {insertParametersIntoLocale(
                 decideBetweenSingularOrPlural(
                   locales.route.headlines.memberOf[`${networkType}_one`],
@@ -150,8 +150,8 @@ function Network() {
         );
       })}
       {organization.networkMembers.length > 0 ? (
-        <div className="mv-flex mv-flex-col mv-gap-4">
-          <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+        <div className="flex flex-col gap-4">
+          <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 locales.route.headlines.networkMembers_one,

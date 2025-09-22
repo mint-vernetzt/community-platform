@@ -136,9 +136,9 @@ export default function Index() {
 
   return (
     <>
-      <section className="mv-bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
-        <div className="mv-py-16 @lg:mv-py-20 mv-relative mv-overflow-hidden mv-min-h-[calc(100dvh-76px)] lg:mv-min-h-[calc(100dvh-80px)] @md:mv-flex @md:mv-items-center">
-          <div className="mv-absolute mv-top-[50%] mv-left-0 -mv-ml-[250px] mv-mt-[200px] mv-hidden @lg:mv-block">
+      <section className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+        <div className="py-16 @lg:py-20 relative overflow-hidden min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
+          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="579"
@@ -152,7 +152,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="mv-absolute mv-top-[-80px] mv-left-1/2 mv-ml-[400px] mv-hidden @lg:mv-block">
+          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden @lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="945"
@@ -166,26 +166,26 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-            <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
-              <div className="@md:mv-col-start-1 @md:mv-col-span-7 @xl:mv-col-start-2 @xl:mv-col-span-5 @md:mv-flex @md:mv-items-center">
+          <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+            <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
+              <div className="@md:col-start-1 @md:col-span-7 @xl:col-start-2 @xl:col-span-5 @md:flex @md:items-center">
                 <div>
-                  <H1 className="mv-text-center @sm:mv-text-left mv-text-primary-600 mv-text-7xl mv-font-black mv-leading-[52px]">
+                  <H1 className="text-center @sm:text-left text-primary-600 text-7xl font-black leading-[52px]">
                     {locales.route.welcome}
                   </H1>
-                  <p className="mv-mt-8 mv-mb-8 @lg:mv-mb-0 mv-text-primary-600 mv-font-semibold mv-leading-5">
+                  <p className="mt-8 mb-8 @lg:mb-0 text-primary-600 font-semibold leading-5">
                     {locales.route.intro}
                   </p>
                 </div>
               </div>
 
-              <div className="@md:mv-col-start-8 @md:mv-col-span-5 @lg:mv-col-start-9 @lg:mv-col-span-4 @xl:mv-col-start-8 @xl:mv-col-span-4">
-                <div className="mv-py-8 mv-bg-transparent @sm:mv-bg-neutral-50 @sm:mv-rounded-3xl @sm:mv-p-8 @sm:mv-shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-                  <div className="mv-text-center">
+              <div className="@md:col-start-8 @md:col-span-5 @lg:col-start-9 @lg:col-span-4 @xl:col-start-8 @xl:col-span-4">
+                <div className="py-8 bg-transparent @sm:bg-neutral-50 @sm:rounded-3xl @sm:p-8 @sm:shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+                  <div className="text-center">
                     <a
                       id="login-start"
                       href="#login-end"
-                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
+                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
                     >
                       {locales.route.login.skip.start}
                     </a>
@@ -205,13 +205,13 @@ export default function Index() {
                       to="https://mint-id.org/faq"
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="mv-block mv-py-2 mv-text-primary mv-font-semibold mv-underline"
+                      className="block py-2 text-primary font-semibold underline"
                     >
                       {locales.route.login.moreInformation}
                     </Link>
-                    <div className="mv-mt-4 mv-mb-8">
-                      <hr className="mv-mx-5" />
-                      <span className="mv-block -mv-my-3 mv-mx-auto mv-w-fit mv-px-4 mv-text-primary mv-bg-white @sm:mv-mv-bg-neutral-50 mv-font-bold">
+                    <div className="mt-4 mb-8">
+                      <hr className="mx-5" />
+                      <span className="block -my-3 mx-auto w-fit px-4 text-primary bg-white @sm:bg-neutral-50 font-bold">
                         {locales.route.login.or}
                       </span>
                     </div>
@@ -228,7 +228,7 @@ export default function Index() {
                           return (
                             <div
                               key={index}
-                              className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md"
+                              className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
                             >
                               <RichText id={loginForm.errorId} html={error} />
                             </div>
@@ -237,7 +237,7 @@ export default function Index() {
                       </div>
                     ) : null}
 
-                    <div className="mv-mb-4">
+                    <div className="mb-4">
                       <Input
                         {...getInputProps(loginFields.email, { type: "text" })}
                         key="email"
@@ -280,7 +280,7 @@ export default function Index() {
                         : null}
                       {isHydrated === true ? (
                         <Input.Controls>
-                          <div className="mv-h-10 mv-w-10">
+                          <div className="h-10 w-10">
                             <ShowPasswordButton
                               onClick={() => {
                                 setShowPassword(!showPassword);
@@ -308,7 +308,7 @@ export default function Index() {
                       })}
                       key="loginRedirect"
                     />
-                    <div className="mv-mt-4 mv-mb-2">
+                    <div className="mt-4 mb-2">
                       <Button
                         type="submit"
                         fullSize
@@ -326,30 +326,30 @@ export default function Index() {
                     </div>
                   </Form>
                   <>
-                    <div className="mv-mb-6 mv-text-center">
+                    <div className="mb-6 text-center">
                       <Link
                         to={`/reset${
                           loginRedirect
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="mv-text-primary mv-font-bold mv-underline"
+                        className="text-primary font-bold underline"
                         prefetch="intent"
                       >
                         {locales.route.login.passwordForgotten}
                       </Link>
                     </div>
-                    <div className="mv-text-center">
+                    <div className="text-center">
                       {locales.route.login.noMember}
                     </div>
-                    <div className="mv-flex mv-justify-center mv-gap-6">
+                    <div className="flex justify-center gap-6">
                       <Link
                         to={`/register${
                           loginRedirect
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="mv-text-primary mv-font-semibold mv-underline"
+                        className="text-primary font-semibold underline"
                         prefetch="intent"
                       >
                         {locales.route.login.registerByEmail}
@@ -360,37 +360,37 @@ export default function Index() {
                             ? `?login_redirect=${loginRedirect}`
                             : ""
                         }`}
-                        className="mv-text-primary mv-font-semibold mv-underline"
+                        className="text-primary font-semibold underline"
                       >
                         {locales.route.login.createMintId}
                       </Link>
                     </div>
                   </>
-                  <div className="mv-w-full mv-flex mv-justify-center">
+                  <div className="w-full flex justify-center">
                     <a
                       id="login-end"
                       href="#login-start"
-                      className="mv-w-0 mv-h-0 mv-opacity-0 focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-px-1"
+                      className="w-0 h-0 opacity-0 focus:w-fit focus:h-fit focus:opacity-100 focus:px-1"
                     >
                       {locales.route.login.skip.end}
                     </a>
                   </div>
                 </div>
 
-                <div className="mv-text-center mv-p-4 mv-pb-0 mv-text-primary mv-text-sm">
+                <div className="text-center p-4 pb-0 text-primary text-sm">
                   <RichText html={locales.route.opportunities} />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mv-absolute mv-left-1/2 mv-bottom-8 mv-hidden @md:mv-block mv-animate-bounce">
+          <div className="absolute left-1/2 bottom-8 hidden @md:block animate-bounce">
             <Link to="#intro" aria-label={locales.route.content.intro}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="55"
                 height="37"
-                className="mv-drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
+                className="drop-shadow-[0px_5px_4px_0px_#FFEFFF]"
                 aria-hidden="true"
               >
                 <g>
@@ -407,30 +407,30 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="mv-py-16 @lg:mv-py-24 mv-relative mv-bg-accent-100">
-        <div id="intro" className="mv-absolute -mv-top-[76px] xl:-mv-top-20" />
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-          <div className="@md:mv-grid @md:mv-grid-cols-12 @md:mv-gap-6 @lg:mv-gap-8">
-            <div className="@md:mv-col-start-2 @md:mv-col-span-10 @xl:mv-col-start-3 @xl:mv-col-span-8">
-              <h2 className="mv-text-center mv-font-semibold mv-all-small-caps mv-subpixel-antialiased mv-mb-12 mv-text-primary-600 mv-text-5xl mv-leading-9">
+      <section className="py-16 @lg:py-24 relative bg-accent-100">
+        <div id="intro" className="absolute -top-[76px] xl:-top-20" />
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
+            <div className="@md:col-start-2 @md:col-span-10 @xl:col-start-3 @xl:col-span-8">
+              <h2 className="text-center font-semibold all-small-caps subpixel-antialiased mb-12 text-primary-600 text-5xl leading-9">
                 {locales.route.content.education.headline}
               </h2>
-              <p className="mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8 mv-mb-12 mv-hyphens-auto">
+              <p className="text-primary-600 text-3xl font-semibold leading-8 mb-12 hyphens-auto">
                 {insertComponentsIntoLocale(
                   locales.route.content.education.content,
                   [
                     <span
                       key="highlighted-education-content"
-                      className="mv-bg-secondary-200"
+                      className="bg-secondary-200"
                     />,
                     <span
                       key="hyphens-manual-education-content"
-                      className="mv-hyphens-manual"
+                      className="hyphens-manual"
                     />,
                   ]
                 )}
               </p>
-              <div className="mv-flex mv-justify-center">
+              <div className="flex justify-center">
                 <Button
                   as="link"
                   to={`/register${
@@ -446,15 +446,15 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="mv-pt-16 mv-pb-10 @md:mv-pt-20 @md:mv-pb-[50px] @lg:mv-pt-24 @lg:mv-pb-[60px] mv-relative mv-bg-primary-600">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-          <div className="mv-w-full mv-flex mv-flex-col mv-items-center mv-gap-12">
-            <h2 className="mv-text-center mv-mb-0 mv-text-5xl mv-font-semibold mv-leading-9 mv-text-neutral-50 mv-all-small-caps mv-subpixel-antialiased">
+      <section className="pt-16 pb-10 @md:pt-20 @md:pb-[50px] @lg:pt-24 @lg:pb-[60px] relative bg-primary-600">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="w-full flex flex-col items-center gap-12">
+            <h2 className="text-center mb-0 text-5xl font-semibold leading-9 text-neutral-50 all-small-caps subpixel-antialiased">
               {locales.route.content.growth.headline}
             </h2>
-            <div className="mv-flex mv-flex-col @md:mv-flex-row mv-gap-8 @lg:mv-gap-24 @xl:mv-gap-44">
-              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
-                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+            <div className="flex flex-col @md:flex-row gap-8 @lg:gap-24 @xl:gap-44">
+              <div className="text-center flex flex-col gap-6 items-center">
+                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
                   <CountUp
                     end={loaderData.profileCount}
                     enableScrollSpy={true}
@@ -463,12 +463,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
                   {locales.route.content.growth.profiles}
                 </p>
               </div>
-              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
-                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+              <div className="text-center flex flex-col gap-6 items-center">
+                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
                   <CountUp
                     end={loaderData.organizationCount}
                     enableScrollSpy={true}
@@ -477,12 +477,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
                   {locales.route.content.growth.organizations}
                 </p>
               </div>
-              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
-                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+              <div className="text-center flex flex-col gap-6 items-center">
+                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
                   <CountUp
                     end={loaderData.eventCount}
                     enableScrollSpy={true}
@@ -491,12 +491,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
                   {locales.route.content.growth.events}
                 </p>
               </div>
-              <div className="mv-text-center mv-flex mv-flex-col mv-gap-6 mv-items-center">
-                <p className="mv-text-neutral-50 mv-text-[54px] mv-font-bold mv-leading-[52px]">
+              <div className="text-center flex flex-col gap-6 items-center">
+                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
                   <CountUp
                     end={loaderData.projectCount}
                     enableScrollSpy={true}
@@ -505,12 +505,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="mv-text-neutral-50 mv-text-2xl mv-font-bold mv-leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
                   {locales.route.content.growth.projects}
                 </p>
               </div>
             </div>
-            <p className="mv-text-center mv-text-neutral-50 mv-text-3xl mv-font-semibold mv-leading-8">
+            <p className="text-center text-neutral-50 text-3xl font-semibold leading-8">
               {locales.route.content.growth.join}
             </p>
           </div>
@@ -519,16 +519,16 @@ export default function Index() {
 
       <Roadmap locales={locales} />
 
-      <section className="mv-flex mv-flex-col mv-items-center mv-gap-12 mv-w-full mv-py-16 @md:mv-py-24 @xl:mv-py-32 mv-px-4 @md:mv-px-20 @xl:mv-px-36 mv-bg-accent-100">
-        <div className="mv-max-w-[852px]">
-          <h2 className="mv-mb-12 mv-text-center mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
+      <section className="flex flex-col items-center gap-12 w-full py-16 @md:py-24 @xl:py-32 px-4 @md:px-20 @xl:px-36 bg-accent-100">
+        <div className="max-w-[852px]">
+          <h2 className="mb-12 text-center all-small-caps subpixel-antialiased text-primary-600 text-5xl font-semibold leading-9">
             {locales.route.content.more.headline}
           </h2>
-          <p className="mv-hyphens-auto mv-text-primary-600 mv-text-3xl mv-font-semibold mv-leading-8">
+          <p className="hyphens-auto text-primary-600 text-3xl font-semibold leading-8">
             {insertComponentsIntoLocale(locales.route.content.more.content, [
               <span
                 key="highlighted-more-content"
-                className="mv-bg-secondary-200"
+                className="bg-secondary-200"
               />,
             ])}
           </p>
@@ -544,7 +544,7 @@ export default function Index() {
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
-              className="mv-w-4 mv-h-4"
+              className="w-4 h-4"
               aria-hidden="true"
             >
               <path
@@ -571,8 +571,8 @@ export default function Index() {
           <span>{locales.route.content.more.action}</span>
         </Button>
       </section>
-      <section className="mv-w-full mv-flex mv-flex-col mv-items-center mv-bg-neutral-50 mv-py-16 mv-px-4 @md:mv-px-10 @xl:mv-px-16 mv-relative">
-        <div className="mv-absolute -mv-top-[420px] mv-right-0 mv-hidden @xl:mv-block">
+      <section className="w-full flex flex-col items-center bg-neutral-50 py-16 px-4 @md:px-10 @xl:px-16 relative">
+        <div className="absolute -top-[420px] right-0 hidden @xl:block">
           <svg
             width="174"
             height="665"
@@ -586,7 +586,7 @@ export default function Index() {
             />
           </svg>
         </div>
-        <div className="mv-absolute -mv-top-[436px] mv-right-0 mv-hidden @xl:mv-block">
+        <div className="absolute -top-[436px] right-0 hidden @xl:block">
           <svg
             width="186"
             height="722"
@@ -601,10 +601,10 @@ export default function Index() {
             />
           </svg>
         </div>
-        <h2 className="mv-mb-[42px] mv-all-small-caps mv-subpixel-antialiased mv-text-primary-600 mv-text-5xl mv-font-semibold mv-leading-9">
+        <h2 className="mb-[42px] all-small-caps subpixel-antialiased text-primary-600 text-5xl font-semibold leading-9">
           {locales.route.content.faq.headline}
         </h2>
-        <div className="mv-w-full mv-mb-8 @md:mv-mb-14 @xl:mv-mb-[88px]">
+        <div className="w-full mb-8 @md:mb-14 @xl:mb-[88px]">
           <Accordion>
             <Accordion.Item id="whatIsStem" key="whatIsStem">
               {locales.faq.stemEducation.qAndAs.whatIsStem.question}
@@ -675,7 +675,7 @@ export default function Index() {
         <Button as="link" to="/help" variant="outline" prefetch="intent">
           {locales.route.content.faq.cta}
         </Button>
-        <div className="mv-flex mv-flex-col mv-items-center mv-text-center mv-text-primary-600 mv-font-semibold mv-leading-5 mv-mt-10">
+        <div className="flex flex-col items-center text-center text-primary-600 font-semibold leading-5 mt-10">
           <p>{locales.route.content.faq.supportQuestion}</p>
           <p>{locales.route.content.faq.supportCta}</p>
           <TextButton

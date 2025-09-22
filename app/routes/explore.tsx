@@ -250,14 +250,14 @@ export default function Explore() {
   return (
     <>
       <section
-        className={`mv-mx-auto @lg:mv-px-6 mv-max-w-screen-2xl mv-mb-8 @lg:mv-mb-16${
+        className={`mx-auto @lg:px-6 max-w-screen-2xl mb-8 @lg:mb-16${
           searchParams.has("showFilters") &&
           searchParams.get("showFilters") === "on"
-            ? " mv-hidden @lg:mv-block"
+            ? " hidden @lg:block"
             : ""
         }`}
       >
-        <h1 className="mv-font-black mv-text-6xl mv-text-center mv-mt-8 mv-mb-8 mv-word-break-normal mv-px-4">
+        <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
           {searchParams.has("search") && searchParams.get("search") !== ""
             ? insertParametersIntoLocale(
                 loaderData.locales.route.content.searchHeadline,
@@ -265,7 +265,7 @@ export default function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="mv-flex mv-flex-col-reverse mv-items-center mv-justify-center mv-px-6 mv-pt-6 @lg:mv-rounded-lg @lg:mv-border mv-border-neutral-200 @lg:mv-bg-white">
+        <div className="flex flex-col-reverse items-center justify-center px-6 pt-6 @lg:rounded-lg @lg:border border-neutral-200 @lg:bg-white">
           <EntitiesSelect>
             <EntitiesSelect.Menu.Label>
               {loaderData.locales.route.content.menu.label}
@@ -305,7 +305,7 @@ export default function Explore() {
               })}
             </EntitiesSelect.Menu>
           </EntitiesSelect>
-          <div className="mv-hidden @lg:mv-block mv-w-full">
+          <div className="hidden @lg:block w-full">
             <Form method="get" action="/explore/all">
               <Search
                 inputProps={{
@@ -322,7 +322,7 @@ export default function Explore() {
                 }}
                 locales={loaderData.locales.route.content.search}
               >
-                <label className="mv-line-clamp-1">
+                <label className="line-clamp-1">
                   {typeof loaderData.locales.route.content.search
                     .placeholder === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (
@@ -331,14 +331,14 @@ export default function Explore() {
                       "Search..."
                     )
                   ) : (
-                    <div className="mv-mt-3">
-                      <span className="xl:mv-hidden">
+                    <div className="mt-3">
+                      <span className="xl:hidden">
                         {
                           loaderData.locales.route.content.search.placeholder
                             .default
                         }
                       </span>
-                      <span className="mv-hidden xl:mv-inline">
+                      <span className="hidden xl:inline">
                         {loaderData.locales.route.content.search.placeholder.xl}
                       </span>
                     </div>

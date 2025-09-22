@@ -214,20 +214,20 @@ export default function Security() {
 
   return (
     <>
-      <h1 className="mv-mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{locales.content.headline}</h1>
       {loaderData.provider === "keycloak" ? (
         <>
-          <h4 className="mv-mb-4 mv-font-semibold">
+          <h4 className="mb-4 font-semibold">
             {locales.section.changePassword1.headline}
           </h4>
-          <p className="mv-mb-8">
+          <p className="mb-8">
             {insertComponentsIntoLocale(locales.section.changePassword1.intro, [
               <Link
                 key="change-mint-id-password"
                 to="https://mint-id.org"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="mv-text-primary hover:mv-underline"
+                className="text-primary hover:underline"
               >
                 {" "}
               </Link>,
@@ -236,18 +236,18 @@ export default function Security() {
         </>
       ) : (
         <>
-          <h4 className="mv-mb-4 mv-font-semibold">
+          <h4 className="mb-4 font-semibold">
             {locales.section.changePassword2.headline}
           </h4>
 
-          <p className="mv-mb-8">{locales.section.changePassword2.intro}</p>
+          <p className="mb-8">{locales.section.changePassword2.intro}</p>
 
           <Form
             {...getFormProps(changePasswordForm)}
             method="post"
             autoComplete="off"
           >
-            <div className="mv-mb-4">
+            <div className="mb-4">
               <Input
                 {...getInputProps(changePasswordFields.password, {
                   type: showPassword ? "text" : "password",
@@ -270,7 +270,7 @@ export default function Security() {
                   : null}
                 {isHydrated === true ? (
                   <Input.Controls>
-                    <div className="mv-h-10 mv-w-10">
+                    <div className="h-10 w-10">
                       <ShowPasswordButton
                         onClick={() => {
                           setShowPassword(!showPassword);
@@ -292,7 +292,7 @@ export default function Security() {
                 ) : null}
               </Input>
             </div>
-            <div className="mv-mb-10">
+            <div className="mb-10">
               <Input
                 {...getInputProps(changePasswordFields.confirmPassword, {
                   type: showConfirmPassword ? "text" : "password",
@@ -316,7 +316,7 @@ export default function Security() {
                   : null}
                 {isHydrated === true ? (
                   <Input.Controls>
-                    <div className="mv-h-10 mv-w-10">
+                    <div className="h-10 w-10">
                       <ShowPasswordButton
                         onClick={() => {
                           setShowConfirmPassword(!showConfirmPassword);
@@ -348,13 +348,13 @@ export default function Security() {
             </Button>
           </Form>
 
-          <hr className="mv-border-neutral-400 mv-my-10 @lg:mv-my-16" />
+          <hr className="border-neutral-400 my-10 @lg:my-16" />
 
-          <h4 className="mv-mb-4 mv-font-semibold">
+          <h4 className="mb-4 font-semibold">
             {locales.section.changeEmail.headline}
           </h4>
 
-          <p className="mv-mb-8">{locales.section.changeEmail.intro}</p>
+          <p className="mb-8">{locales.section.changeEmail.intro}</p>
 
           <Form
             {...getFormProps(changeEmailForm)}
@@ -362,7 +362,7 @@ export default function Security() {
             preventScrollReset
             autoComplete="off"
           >
-            <div className="mv-mb-4">
+            <div className="mb-4">
               <Input
                 {...getInputProps(changeEmailFields.email, {
                   type: "email",
@@ -385,7 +385,7 @@ export default function Security() {
                   : null}
               </Input>
             </div>
-            <div className="mv-mb-10">
+            <div className="mb-10">
               <Input
                 {...getInputProps(changeEmailFields.confirmEmail, {
                   type: "email",

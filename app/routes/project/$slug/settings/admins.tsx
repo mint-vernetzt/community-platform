@@ -229,12 +229,12 @@ function Admins() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+      <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
 
       {/* Current Admins and Remove Section */}
-      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+      <div className="flex flex-col gap-6 @md:gap-4">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {decideBetweenSingularOrPlural(
               locales.route.content.current.headline_one,
               locales.route.content.current.headline_other,
@@ -281,7 +281,7 @@ function Admins() {
                     <div
                       id={removeAdminForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -293,8 +293,8 @@ function Admins() {
         </div>
         {/* TODO: Remove this when project admin invites are implemented */}
         {/* Search And Add Admins Section */}
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.add.headline}
           </h2>
           <searchFetcher.Form
@@ -365,7 +365,7 @@ function Admins() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -398,7 +398,7 @@ function Admins() {
                       {project.admins.some((admin) => {
                         return admin.profile.id === searchedProfile.id;
                       }) ? (
-                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                        <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                           {locales.route.content.add.alreadyAdmin}
                         </div>
                       ) : (
@@ -408,7 +408,7 @@ function Admins() {
                         //       relation.profile.id === searchedProfile.id
                         //     );
                         //   }) ? (
-                        //   <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                        //   <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                         //     {
                         //       locales.route.content.add
                         //         .alreadyInvited
@@ -438,7 +438,7 @@ function Admins() {
                       <div
                         id={addAdminForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -450,8 +450,8 @@ function Admins() {
           ) : null}
           {/* TODO: Implement this when project admin invites are implemented */}
           {/* Search Profiles To Invite As Admin Section
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.invite.headline}
           </h2>
           <Form
@@ -509,7 +509,7 @@ function Admins() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -561,7 +561,7 @@ function Admins() {
                       <div
                         id={addAdminForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -573,8 +573,8 @@ function Admins() {
           ) : null} */}
           {/* Pending Invites Section */}
           {/* {pendingAdminInvites.length > 0 ? (
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h4 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.content.invites.headline}
               </h4>
               <p>{locales.route.content.invites.intro} </p>
@@ -620,7 +620,7 @@ function Admins() {
                         <div
                           id={cancelAdminInviteForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>

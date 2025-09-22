@@ -1,10 +1,10 @@
 export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <div className="mv-group mv-w-5 mv-h-5 mv-relative focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-rounded-sm">
+      <div className="group w-5 h-5 relative focus-within:ring-2 focus-within:ring-primary-200 rounded-sm">
         <input
           type="checkbox"
-          className="mv-h-5 mv-w-5 mv-opacity-0 mv-absolute mv-cursor-pointer"
+          className="h-5 w-5 opacity-0 absolute cursor-pointer"
           {...props}
         />
         <svg
@@ -13,7 +13,7 @@ export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="mv-block group-has-[:checked]:mv-hidden"
+          className="block group-has-[:checked]:hidden"
         >
           <path
             fill="currentColor"
@@ -26,7 +26,7 @@ export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="mv-hidden group-has-[:checked]:mv-block"
+          className="hidden group-has-[:checked]:block"
         >
           <path
             fill="currentColor"

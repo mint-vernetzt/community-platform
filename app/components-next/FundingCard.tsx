@@ -39,7 +39,7 @@ export function FundingCard(props: {
     <FundingCardContext.Provider value={{ locales }}>
       <li
         key={props.url}
-        className="mv-border mv-border-neutral-200 mv-rounded-3xl mv-px-6 mv-py-8 mv-flex mv-flex-col mv-gap-4 mv-bg-white"
+        className="border border-neutral-200 rounded-3xl px-6 py-8 flex flex-col gap-4 bg-white"
       >
         {subtitle}
         {title}
@@ -54,7 +54,7 @@ export function FundingCard(props: {
 
 function FundingCardContainer(props: { children: React.ReactNode }) {
   return (
-    <ul className="mv-grid mv-gap-x-6 mv-gap-y-8 mv-grid-cols-1 @lg:mv-grid-cols-2">
+    <ul className="grid gap-x-6 gap-y-8 grid-cols-1 @lg:grid-cols-2">
       {props.children}
     </ul>
   );
@@ -64,7 +64,7 @@ function FundingCardSubtitle(props: { children?: React.ReactNode }) {
   const { locales } = useFundingCardContext();
 
   return (
-    <span className="mv-text-neutral-700 mv-text-sm mv-font-bold">
+    <span className="text-neutral-700 text-sm font-bold">
       {typeof props.children !== "undefined" &&
       props.children !== null &&
       props.children !== "" &&
@@ -83,7 +83,7 @@ function FundingCardTitle(props: {
   return (
     <Heading
       as={as}
-      className="mv-text-primary-500 @lg:mv-text-lg mv-font-bold mv-min-h-[48px] @lg:mv-min-h-[50px] mv-line-clamp-2"
+      className="text-primary-500 @lg:text-lg font-bold min-h-[48px] @lg:min-h-[50px] line-clamp-2"
     >
       {children}
     </Heading>
@@ -92,7 +92,7 @@ function FundingCardTitle(props: {
 
 function FundingCardCategoryTitle(props: { children: React.ReactNode }) {
   return (
-    <span className="mv-text-sm mv-text-neutral-700 mv-tracking-wide">
+    <span className="text-sm text-neutral-700 tracking-wide">
       {props.children}
     </span>
   );
@@ -102,12 +102,12 @@ function FundingCardLink(props: { to: string; children: React.ReactNode }) {
   return (
     <Link
       to={props.to}
-      className="hover:mv-underline mv-w-fit mv-rounded-lg"
+      className="hover:underline w-fit rounded-lg"
       target="_blank"
       rel="noreferrer nofollow noopenner"
     >
       {" "}
-      <span className="mv-flex mv-rounded-lg mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-max-w-fit mv-text-sm mv-px-4 mv-py-2 mv-gap-2 mv-items-center">
+      <span className="flex rounded-lg bg-primary text-neutral-50 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 max-w-fit text-sm px-4 py-2 gap-2 items-center">
         <svg
           width="16"
           height="16"
@@ -149,16 +149,16 @@ function FundingCardCategory(props: {
   });
 
   return (
-    <div className="mv-flex mv-flex-col mv-text-neutral-700 mv-font-semibold mv-gap-1.5">
+    <div className="flex flex-col text-neutral-700 font-semibold gap-1.5">
       {title}
-      <div className="mv-min-h-[48px] @lg:mv-min-h-[54px]">
+      <div className="min-h-[48px] @lg:min-h-[54px]">
         {props.items.length === 0 ||
         (props.items.length === 1 && props.items[0] === "ohne Kategorie") ? (
-          <span className="mv-text-neutral-400 mv-text-sm mv-tracking-wide">
+          <span className="text-neutral-400 text-sm tracking-wide">
             {locales.card.notProvided}
           </span>
         ) : (
-          <span className="@xl:mv-text-lg mv-line-clamp-2">
+          <span className="@xl:text-lg line-clamp-2">
             {props.items.join(", ")}
           </span>
         )}

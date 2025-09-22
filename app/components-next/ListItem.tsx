@@ -115,13 +115,13 @@ export function ListItem(
         hideAfter !== undefined &&
         listIndex !== undefined &&
         listIndex > hideAfter - 1
-          ? "mv-hidden group-has-[:checked]:mv-block"
-          : "mv-block"
+          ? "hidden group-has-[:checked]:block"
+          : "block"
       }
     >
       <div
-        className={`mv-flex mv-flex-col @lg:mv-flex-row @lg:mv-items-center mv-gap-4 mv-rounded-lg mv-justify-between mv-ring-1 mv-ring-neutral-200 focus-within:mv-ring-2 focus-within:mv-ring-primary-200 hover:mv-bg-neutral-100 active:mv-bg-primary-50 ${
-          highlighted ? "mv-bg-primary-50" : "mv-bg-white"
+        className={`flex flex-col @lg:flex-row @lg:items-center gap-4 rounded-lg justify-between ring-1 ring-neutral-200 focus-within:ring-2 focus-within:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 ${
+          highlighted ? "bg-primary-50" : "bg-white"
         }`}
       >
         <Link
@@ -132,27 +132,25 @@ export function ListItem(
               ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
-          className={`mv-w-full mv-flex mv-gap-2 @lg:mv-gap-4 focus:mv-outline-none mv-items-center mv-grow mv-rounded-lg ${
+          className={`w-full flex gap-2 @lg:gap-4 focus:outline-none items-center grow rounded-lg ${
             validChildren.length > 0
-              ? `mv-pb-0 mv-pt-4 @lg:mv-pr-0 @lg:mv-pl-4 @lg:mv-py-4 mv-px-4`
-              : "mv-p-4"
+              ? `pb-0 pt-4 @lg:pr-0 @lg:pl-4 @lg:py-4 px-4`
+              : "p-4"
           }`}
           {...linkProps}
         >
-          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+          <div className="h-[72px] w-[72px] min-h-[72px] min-w-[72px]">
             <Avatar size="full" {...entity} />
           </div>
-          <div className={validChildren.length > 0 ? "mv-min-w-[220px]" : ""}>
-            <p
-              className={`mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2`}
-            >
+          <div className={validChildren.length > 0 ? "min-w-[220px]" : ""}>
+            <p className={`text-primary text-sm font-bold line-clamp-2`}>
               {"academicTitle" in entity
                 ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
                     entity.firstName
                   } ${entity.lastName}`
                 : entity.name}
             </p>
-            <p className="mv-text-neutral-700 mv-text-sm mv-line-clamp-1">
+            <p className="text-neutral-700 text-sm line-clamp-1">
               {"academicTitle" in entity
                 ? entity.position
                 : "responsibleOrganizations" in entity
@@ -185,7 +183,7 @@ export function ListItem(
           </div>
         </Link>
         {validChildren.length > 0 ? (
-          <div className="mv-px-4 mv-pb-4 @lg:mv-py-4 @lg:mv-pr-4 @lg:mv-pl-0 mv-pt-0 mv-shrink">
+          <div className="px-4 pb-4 @lg:py-4 @lg:pr-4 @lg:pl-0 pt-0 shrink">
             {validChildren}
           </div>
         ) : null}

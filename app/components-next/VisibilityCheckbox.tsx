@@ -15,34 +15,34 @@ export function VisibilityCheckbox(
   const { locales, errorMessage, errorId, ...inputProps } = props;
 
   return (
-    <div hidden={inputProps.hidden} className="mv-group/visibility">
+    <div hidden={inputProps.hidden} className="group/visibility">
       <input
         {...inputProps}
-        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0"
+        className="peer fixed w-0 h-0 opacity-0"
         title={locales.components.VisibilityCheckbox.ariaLabel}
         aria-label={locales.components.VisibilityCheckbox.ariaLabel}
       />
       <label
         htmlFor={inputProps.id}
-        className="mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-py-2 mv-px-[10px] mv-rounded-lg mv-border mv-border-gray-300 hover:mv-bg-neutral-50 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 mv-cursor-pointer"
+        className="grid grid-cols-1 grid-rows-1 place-items-center py-2 px-[10px] rounded-lg border border-gray-300 hover:bg-neutral-50 focus:bg-neutral-50 active:bg-neutral-100 peer-focus:border-blue-400 peer-focus:ring-2 peer-focus:ring-blue-500 cursor-pointer"
         title={locales.components.VisibilityCheckbox.ariaLabel}
         aria-label={locales.components.VisibilityCheckbox.ariaLabel}
       >
         {/* Visibility is currently private */}
         <PrivateVisibility
-          className="group-has-[:checked]/visibility:mv-hidden"
+          className="group-has-[:checked]/visibility:hidden"
           aria-hidden="true"
         />
         {/* Visibility is currently public */}
         <PublicVisibility
-          className="mv-hidden group-has-[:checked]/visibility:mv-block"
+          className="hidden group-has-[:checked]/visibility:block"
           aria-hidden="true"
         />
       </label>
       {errorMessage !== undefined && (
         <div
           id={errorId}
-          className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2"
+          className="text-sm font-semibold text-negative-600 mt-2"
         >
           {errorMessage}
         </div>

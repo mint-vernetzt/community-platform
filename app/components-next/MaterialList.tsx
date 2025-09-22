@@ -4,7 +4,7 @@ import { Children, Fragment, isValidElement } from "react";
 
 export function MaterialList(props: React.PropsWithChildren<unknown>) {
   return (
-    <ul className="mv-list-none mv-max-w-full mv-flex mv-gap-4 mv-flex-col">
+    <ul className="list-none max-w-full flex gap-4 flex-col">
       {props.children}
     </ul>
   );
@@ -16,7 +16,7 @@ function PDFIcon() {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
       fill="none"
-      className="mv-w-9 mv-h-9"
+      className="w-9 h-9"
     >
       <path
         fillRule="evenodd"
@@ -53,7 +53,7 @@ function MaterialListItemTitle(props: React.PropsWithChildren<unknown>) {
 
 function MaterialListItemMeta(props: React.PropsWithChildren<unknown>) {
   return (
-    <span className="mv-text-primary mv-text-base mv-font-normal">
+    <span className="text-primary text-base font-normal">
       {" "}
       {props.children}
     </span>
@@ -62,7 +62,7 @@ function MaterialListItemMeta(props: React.PropsWithChildren<unknown>) {
 
 function MaterialListItemParagraph(props: React.PropsWithChildren<unknown>) {
   return (
-    <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-hidden @md:mv-line-clamp-1">
+    <p className="text-neutral-700 text-sm leading-5 hidden @md:line-clamp-1">
       {props.children}
     </p>
   );
@@ -70,9 +70,7 @@ function MaterialListItemParagraph(props: React.PropsWithChildren<unknown>) {
 
 function MaterialListItemControls(props: React.PropsWithChildren<unknown>) {
   return (
-    <div className="mv-p-4 mv-shrink-0 mv-flex mv-gap-4 mv-ml-auto">
-      {props.children}
-    </div>
+    <div className="p-4 shrink-0 flex gap-4 ml-auto">{props.children}</div>
   );
 }
 function MaterialListItemControlsDelete(
@@ -112,9 +110,9 @@ function MaterialListItemControlsDelete(
 
 function MaterialListItemControlsEdit() {
   return (
-    <div className="mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-rounded-full mv-w-12 mv-h-12 mv-flex mv-justify-center">
+    <div className="text-primary hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100 rounded-full w-12 h-12 flex justify-center">
       <svg
-        className="mv-self-center"
+        className="self-center"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -132,9 +130,9 @@ function MaterialListItemControlsEdit() {
 
 function MaterialListItemControlsDownload() {
   return (
-    <div className="mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-rounded-full mv-w-12 mv-h-12 mv-flex mv-justify-center">
+    <div className="text-primary hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100 rounded-full w-12 h-12 flex justify-center">
       <svg
-        className="mv-self-center"
+        className="self-center"
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
@@ -199,17 +197,17 @@ function MaterialListItem(
   });
 
   return (
-    // <li className="mv-flex mv-flex-row mv-w-full mv-items-center mv-rounded-lg mv-bg-white	mv-border mv-border-neutral-100 mv-overflow-hidden mv-gap-4 hover:mv-bg-neutral-100">
+    // <li className="flex flex-row w-full items-center rounded-lg bg-white	border border-neutral-100 overflow-hidden gap-4 hover:bg-neutral-100">
     <li
       key={props.id}
-      className="mv-flex mv-w-full mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-100 mv-gap-4 mv-overflow-hidden"
+      className="flex w-full items-center rounded-lg bg-white border border-neutral-100 gap-4 overflow-hidden"
     >
-      <div className="mv-shrink-0 mv-w-36 mv-aspect-[3/2] mv-self-stretch mv-bg-primary-100 mv-justify-center mv-items-center mv-text-primary mv-hidden @lg:mv-flex">
+      <div className="shrink-0 w-36 aspect-[3/2] self-stretch bg-primary-100 justify-center items-center text-primary hidden @lg:flex">
         {typeof image !== "undefined" && image}
         {typeof pdfIcon !== "undefined" && pdfIcon}
       </div>
-      <div className="mv-ml-4 @lg:mv-ml-0 mv-shrink-1 mv-flex mv-flex-col mv-py-4 mv-gap-2 mv-line-clamp-1">
-        <h4 className="mv-font-bold mv-mb-0 mv-text-primary mv-text-base mv-truncate mv-overflow-hidden mv-block mv-whitespace-nowrap">
+      <div className="ml-4 @lg:ml-0 shrink-1 flex flex-col py-4 gap-2 line-clamp-1">
+        <h4 className="font-bold mb-0 text-primary text-base truncate overflow-hidden block whitespace-nowrap">
           {typeof title !== "undefined" && title}
           {typeof meta !== "undefined" && meta}
         </h4>

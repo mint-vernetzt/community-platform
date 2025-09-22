@@ -109,11 +109,11 @@ function Attachments() {
 
   return (
     <>
-      <h1 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+      <h1 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
         {locales.content.headline}
       </h1>
-      <div className="mv-flex mv-flex-col mv-gap-6">
-        <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+      <div className="flex flex-col gap-6">
+        <h2 className="text-neutral-700 text-lg font-bold mb-0">
           {locales.content.documents.title}
         </h2>
         {loaderData.mode === "anon" ? (
@@ -146,7 +146,7 @@ function Attachments() {
                       </MaterialList.Item.Paragraph>
                     )}
                     {loaderData.mode !== "anon" ? (
-                      <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                      <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
                         <Link
                           to={`./download?type=document&id=${relation.document.id}`}
                           reloadDocument
@@ -160,7 +160,7 @@ function Attachments() {
               })}
             </MaterialList>
             {loaderData.mode !== "anon" ? (
-              <div className="mv-w-full @md:mv-max-w-fit">
+              <div className="w-full @md:max-w-fit">
                 <Button
                   as="link"
                   to={`./download?type=documents`}
@@ -177,8 +177,8 @@ function Attachments() {
           <p>{locales.content.documents.empty}</p>
         )}
       </div>
-      <div className="mv-flex mv-flex-col mv-gap-6">
-        <h2 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+      <div className="flex flex-col gap-6">
+        <h2 className="text-neutral-700 text-lg font-bold mb-0">
           {locales.content.images.title}
         </h2>
         {loaderData.project.images.length > 0 ? (
@@ -210,7 +210,7 @@ function Attachments() {
                         Foto-Credit: {relation.image.credits}
                       </MaterialList.Item.Paragraph>
                     )}
-                    <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                    <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
                       <Link
                         to={`./download?type=image&id=${relation.image.id}`}
                         reloadDocument
@@ -222,7 +222,7 @@ function Attachments() {
                 );
               })}
             </MaterialList>
-            <div className="mv-w-full @md:mv-max-w-fit">
+            <div className="w-full @md:max-w-fit">
               <Button
                 as="link"
                 to={`./download?type=images`}

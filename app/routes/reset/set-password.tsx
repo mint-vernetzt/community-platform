@@ -136,13 +136,13 @@ export default function SetPassword() {
       autoComplete="off"
     >
       <>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-              <h1 className="mv-mb-8">{locales.content.headline}</h1>
-              <p className="mv-mb-4">{locales.content.description}</p>
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="flex flex-col w-full items-center">
+            <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+              <h1 className="mb-8">{locales.content.headline}</h1>
+              <p className="mb-4">{locales.content.description}</p>
 
-              <div className="mv-mb-4">
+              <div className="mb-4">
                 <Input
                   {...getInputProps(setPasswordFields.password, {
                     type: showPassword ? "text" : "password",
@@ -165,7 +165,7 @@ export default function SetPassword() {
                     : null}
                   {isHydrated === true ? (
                     <Input.Controls>
-                      <div className="mv-h-10 mv-w-10">
+                      <div className="h-10 w-10">
                         <ShowPasswordButton
                           onClick={() => {
                             setShowPassword(!showPassword);
@@ -187,7 +187,7 @@ export default function SetPassword() {
                   ) : null}
                 </Input>
               </div>
-              <div className="mv-mb-10">
+              <div className="mb-10">
                 <Input
                   {...getInputProps(setPasswordFields.confirmPassword, {
                     type: showConfirmPassword ? "text" : "password",
@@ -211,7 +211,7 @@ export default function SetPassword() {
                     : null}
                   {isHydrated === true ? (
                     <Input.Controls>
-                      <div className="mv-h-10 mv-w-10">
+                      <div className="h-10 w-10">
                         <ShowPasswordButton
                           onClick={() => {
                             setShowConfirmPassword(!showConfirmPassword);
@@ -235,13 +235,13 @@ export default function SetPassword() {
               </div>
               {typeof setPasswordForm.errors !== "undefined" &&
               setPasswordForm.errors.length > 0 ? (
-                <div className="mv-mb-10">
+                <div className="mb-10">
                   {setPasswordForm.errors.map((error, index) => {
                     return (
                       <div
                         id={setPasswordForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -256,7 +256,7 @@ export default function SetPassword() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+              <div className="flex flex-row mb-8 items-center justify-end">
                 <Button
                   type="submit"
                   // Don't disable button when js is disabled

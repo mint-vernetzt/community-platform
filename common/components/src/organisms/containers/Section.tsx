@@ -15,10 +15,10 @@ function SectionHeader(
   const { children, variant, withBorder } = props;
 
   const classes = classNames(
-    "mv-text-6xl mv-font-bold mv-p-6 mv-rounded-t-lg",
-    variant === "primary" && "mv-bg-primary-50 mv-text-primary",
-    typeof variant === "undefined" && "mv-text-neutral",
-    withBorder && "mv-border-t mv-border-x mv-border-gray-200"
+    "text-6xl font-bold p-6 rounded-t-lg",
+    variant === "primary" && "bg-primary-50 text-primary",
+    typeof variant === "undefined" && "text-neutral",
+    withBorder && "border-t border-x border-gray-200"
   );
 
   return <div className={classes}>{children}</div>;
@@ -28,8 +28,8 @@ function SectionBody(
   props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
 ) {
   const classes = classNames(
-    "mv-p-6 mv-text-neutral",
-    props.withBorder && "mv-border-y mv-border-x mv-border-gray-200"
+    "p-6 text-neutral",
+    props.withBorder && "border-y border-x border-gray-200"
   );
   return <div className={classes}>{props.children}</div>;
 }
@@ -38,9 +38,9 @@ function SectionFooter(
   props: React.PropsWithChildren<Pick<SectionProps, "withBorder">>
 ) {
   const classes = classNames(
-    "mv-min-h-[0.5rem]",
-    "mv-rounded-b-lg",
-    props.withBorder && "mv-border-b mv-border-x mv-border-gray-200"
+    "min-h-[0.5rem]",
+    "rounded-b-lg",
+    props.withBorder && "border-b border-x border-gray-200"
   );
   return <div className={classes}>{props.children}</div>;
 }
@@ -102,9 +102,9 @@ function Section(props: React.PropsWithChildren<SectionProps>) {
     typeof footer === "undefined";
 
   const classes = classNames(
-    "mv-w-full mv-min-w-full mv-flex mv-flex-col mv-bg-white",
-    noSectionItems && "mv-p-6 mv-rounded-lg",
-    noSectionItems && props.withBorder && "mv-border mv-border-gray-200"
+    "w-full min-w-full flex flex-col bg-white",
+    noSectionItems && "p-6 rounded-lg",
+    noSectionItems && props.withBorder && "border border-gray-200"
   );
 
   const element = createElement(

@@ -12,13 +12,13 @@ export function CreateOrganization(props: {
   const { locales } = props;
   const isSubmitting = useIsSubmitting("/organization/create");
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-group">
-      <div className="mv-flex-col @sm:mv-flex-row mv-gap-4 mv-p-4 mv-border mv-border-neutral-200 mv-rounded-2xl mv-justify-between mv-items-center mv-flex">
-        <div className="mv-flex mv-gap-2 @sm:mv-gap-4 mv-items-center mv-w-full @sm:mv-w-fit">
-          <div className="mv-h-[72px] mv-w-[72px] mv-min-h-[72px] mv-min-w-[72px]">
+    <div className="flex flex-col gap-4 group">
+      <div className="flex-col @sm:flex-row gap-4 p-4 border border-neutral-200 rounded-2xl justify-between items-center flex">
+        <div className="flex gap-2 @sm:gap-4 items-center w-full @sm:w-fit">
+          <div className="h-[72px] w-[72px] min-h-[72px] min-w-[72px]">
             <Avatar size="full" name={props.name} />
           </div>
-          <p className="mv-text-primary mv-text-sm mv-font-bold mv-line-clamp-2">
+          <p className="text-primary text-sm font-bold line-clamp-2">
             {props.name}
           </p>
         </div>

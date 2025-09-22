@@ -394,7 +394,7 @@ export default function ExploreFundings() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -426,7 +426,7 @@ export default function ExploreFundings() {
           >
             <Filters.Title>Filter</Filters.Title>
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              className="flex flex-wrap @lg:gap-4"
               {...getFieldsetProps(fields.fndFilter)}
               showMore={loaderData.locales.filter.showMore}
               showLess={loaderData.locales.filter.showLess}
@@ -435,7 +435,7 @@ export default function ExploreFundings() {
               <Dropdown>
                 <Dropdown.Label>
                   {loaderData.locales.filter.type}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFundingTypes
                       .map((type) => {
@@ -475,7 +475,7 @@ export default function ExploreFundings() {
               <Dropdown>
                 <Dropdown.Label>
                   {loaderData.locales.filter.area}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFundingAreas
                       .map((area) => {
@@ -515,7 +515,7 @@ export default function ExploreFundings() {
               <Dropdown>
                 <Dropdown.Label>
                   {loaderData.locales.filter.region}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedRegions
                       .map((region) => {
@@ -557,7 +557,7 @@ export default function ExploreFundings() {
               <Dropdown>
                 <Dropdown.Label>
                   {loaderData.locales.filter.eligibleEntity}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedEligibleEntities
                       .map((entity) => {
@@ -602,11 +602,11 @@ export default function ExploreFundings() {
             <Filters.Fieldset {...getFieldsetProps(fields.fndSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {loaderData.locales.filter.sortBy.label}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {
                       loaderData.locales.filter.sortBy[
                         currentSortValue || FUNDING_SORT_VALUES[0]
@@ -659,27 +659,27 @@ export default function ExploreFundings() {
                 : loaderData.locales.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
+          <noscript className="hidden @lg:block mt-2">
             <Button>{loaderData.locales.filter.apply}</Button>
           </noscript>
         </Form>
         <div
           className={
             loaderData.submission.value.showFilters === true
-              ? "mv-hidden @lg:mv-block"
+              ? "hidden @lg:block"
               : undefined
           }
         >
-          <div className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-            <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+          <div className="w-full mx-auto @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl mb-4">
+            <hr className="border-t border-gray-200 mt-4" />
           </div>
-          <section className="mv-w-full mv-mx-auto @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6 mv-px-0">
+          <section className="w-full mx-auto @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6 px-0">
             {(loaderData.selectedFundingTypes.length > 0 ||
               loaderData.selectedFundingAreas.length > 0 ||
               loaderData.selectedRegions.length > 0 ||
               loaderData.selectedEligibleEntities.length > 0) && (
-              <div className="mv-flex mv-flex-col">
-                <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-4">
+              <div className="flex flex-col">
+                <div className="overflow-auto flex flex-nowrap @lg:flex-wrap w-full gap-2 pb-4">
                   {loaderData.selectedFundingTypes.map((type) => {
                     const deleteSearchParams = new URLSearchParams(
                       searchParams
@@ -899,7 +899,7 @@ export default function ExploreFundings() {
                   {...getFormProps(resetForm)}
                   method="get"
                   preventScrollReset
-                  className="mv-w-fit"
+                  className="w-fit"
                 >
                   <HiddenFilterInputs
                     fields={resetFields}
@@ -918,7 +918,7 @@ export default function ExploreFundings() {
             )}
           </section>
           {loaderData.count === 0 ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+            <p className="text-center text-gray-700 mb-4">
               {loaderData.locales.empty}
             </p>
           ) : null}
@@ -972,7 +972,7 @@ export default function ExploreFundings() {
           </FundingCard.Container>
 
           {loaderData.count > loaderData.fundings.length && (
-            <div className="mv-w-full mv-flex mv-justify-center mv-mb-8 @md:mv-mb-24 @lg:mv-mb-8 mv-mt-4 @lg:mv-mt-8">
+            <div className="w-full flex justify-center mb-8 @md:mb-24 @lg:mb-8 mt-4 @lg:mt-8">
               <Form
                 {...getFormProps(loadMoreForm)}
                 method="get"

@@ -31,13 +31,13 @@ function Card(props: CardProps) {
   });
 
   return (
-    <div className="mv-w-full mv-h-full mv-bg-white mv-border focus-within:mv-ring-2 mv-border-neutral-200 focus-within:mv-ring-primary-200 mv-rounded-3xl mv-relative mv-overflow-hidden mv-text-gray-700 mv-flex mv-flex-col mv-items-stretch">
+    <div className="w-full h-full bg-white border focus-within:ring-2 border-neutral-200 focus-within:ring-primary-200 rounded-3xl relative overflow-hidden text-gray-700 flex flex-col items-stretch">
       {props.to !== undefined && props.to !== "" ? (
         <>
-          <div className="mv-h-full hover:mv-bg-neutral-100 active:mv-bg-neutral-100 focus:mv-bg-neutral-100">
+          <div className="h-full hover:bg-neutral-100 active:bg-neutral-100 focus:bg-neutral-100">
             <Link
               to={props.to}
-              className="focus:mv-outline-none"
+              className="focus:outline-none"
               prefetch={props.prefetch}
             >
               {header || null}
@@ -86,16 +86,16 @@ export function CardHeader(props: CardHeaderProps) {
     return isValidElement(child) && child.type === CardInfoOverlay;
   });
 
-  const dimension = props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40";
+  const dimension = props.cardType === "event" ? "aspect-[3/2]" : "h-40";
 
   const containerClasses = classNames(
-    "mv-w-full mv-overflow-hidden",
+    "w-full overflow-hidden",
     dimension,
-    props.cardType === "project" ? "mv-bg-attention" : "mv-bg-positive"
+    props.cardType === "project" ? "bg-attention" : "bg-positive"
   );
 
   const overlayClasses = classNames(
-    "mv-absolute mv-w-full mv-overflow-hidden",
+    "absolute w-full overflow-hidden",
     dimension
   );
 
@@ -104,8 +104,8 @@ export function CardHeader(props: CardHeaderProps) {
       <div className={containerClasses}>
         {image !== undefined && (
           <div
-            className={`mv-absolute mv-w-full mv-overflow-hidden ${
-              props.cardType === "event" ? "mv-aspect-[3/2]" : "mv-h-40"
+            className={`absolute w-full overflow-hidden ${
+              props.cardType === "event" ? "aspect-[3/2]" : "h-40"
             }`}
           >
             {image}
@@ -113,7 +113,7 @@ export function CardHeader(props: CardHeaderProps) {
         )}
         {status !== undefined && <div className={overlayClasses}>{status}</div>}
         {avatar !== undefined && (
-          <div className="mv-absolute mv-w-full mv-flex mv-justify-center mv-top-14">
+          <div className="absolute w-full flex justify-center top-14">
             {avatar}
           </div>
         )}
@@ -135,7 +135,7 @@ type CardInfoOverlayProps = {
 
 export function CardInfoOverlay(props: CardInfoOverlayProps) {
   return (
-    <div className="mv-w-full mv-h-full mv-flex mv-justify-between mv-items-end mv-align-bottom mv-flex-nowrap mv-top-28 mv-px-3 mv-py-4">
+    <div className="w-full h-full flex justify-between items-end align-bottom flex-nowrap top-28 px-3 py-4">
       {props.children}
     </div>
   );
@@ -149,7 +149,7 @@ type CardInfoProps = {
 
 export function CardInfo(props: CardInfoProps) {
   return (
-    <div className="mv-w-full mv-flex mv-justify-between mv-flex-nowrap mv-gap-1 mv-px-4 mv-pt-3">
+    <div className="w-full flex justify-between flex-nowrap gap-1 px-4 pt-3">
       {props.children}
     </div>
   );
@@ -166,12 +166,12 @@ type CardStatusProps = {
 export function CardStatus(props: CardStatusProps) {
   const { variant = "primary", inverted = false } = props;
   const classes = classNames(
-    "mv-text-center mv-px-4 mv-py-3 mv-font-base mv-leading-5 mv-font-semibold",
-    variant === "primary" && !inverted && "mv-text-primary mv-bg-primary-100",
-    variant === "primary" && inverted && "mv-text-white mv-bg-primary-300",
-    variant === "neutral" && "mv-text-white mv-bg-neutral",
-    variant === "positive" && "mv-text-white mv-bg-positive",
-    variant === "negative" && "mv-text-white mv-bg-negative"
+    "text-center px-4 py-3 font-base leading-5 font-semibold",
+    variant === "primary" && !inverted && "text-primary bg-primary-100",
+    variant === "primary" && inverted && "text-white bg-primary-300",
+    variant === "neutral" && "text-white bg-neutral",
+    variant === "positive" && "text-white bg-positive",
+    variant === "negative" && "text-white bg-negative"
   );
 
   return <div className={classes}>{props.children}</div>;
@@ -188,18 +188,18 @@ function CardImage(props: {
   return (
     <>
       {props.cardType === "event" ? (
-        <div className="mv-w-full mv-h-full mv-absolute">
+        <div className="w-full h-full absolute">
           {props.blurSrc ? (
             <img
               src={props.blurSrc}
               alt=""
               aria-hidden="true"
-              className="mv-w-full mv-h-full mv-object-cover"
+              className="w-full h-full object-cover"
             />
           ) : null}
           <img
             src={props.src}
-            className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0
+            className={`w-full h-full object-cover absolute inset-0
                   ${
                     props.isHydrated === undefined
                       ? ""
@@ -216,7 +216,7 @@ function CardImage(props: {
             <noscript>
               <img
                 src={props.src}
-                className={`mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0`}
+                className={`w-full h-full object-cover absolute inset-0`}
                 // TODO: alt text for user generated images
                 alt=""
                 aria-hidden="true"
@@ -227,7 +227,7 @@ function CardImage(props: {
       ) : (
         <img
           src={props.src}
-          className="mv-inset-0 mv-w-full mv-h-full mv-object-cover"
+          className="inset-0 w-full h-full object-cover"
           // TODO: alt text for user generated images
           alt=""
           aria-hidden="true"
@@ -244,7 +244,7 @@ type CardBodyProps = {
 };
 
 export function CardBody(props: CardBodyProps) {
-  return <div className="mv-p-4">{props.children}</div>;
+  return <div className="p-4">{props.children}</div>;
 }
 
 type CardBodySectionProps = {
@@ -265,17 +265,17 @@ export function CardBodySection(props: CardBodySectionProps) {
   const firstChild = validChildren[0];
 
   return (
-    <div className="mv-mb-4 last:mv-mb-0 mv-text-neutral-700">
-      <div className="mv-text-xs mv-font-semibold mv-leading-4 mv-mb-0.5">
+    <div className="mb-4 last:mb-0 text-neutral-700">
+      <div className="text-xs font-semibold leading-4 mb-0.5">
         {props.title}
       </div>
       {typeof firstChild === "string" && (
         <p
           className={classNames(
-            "mv-min-h-6 mv-truncate",
+            "min-h-6 truncate",
             firstChild === ""
-              ? "mv-text-sm mv-font-normal mv-text-neutral-700 mv-leading-5 mv-tracking-[2%]"
-              : "mv-text-base mv-font-semibold mv-leading-4"
+              ? "text-sm font-normal text-neutral-700 leading-5 tracking-[2%]"
+              : "text-base font-semibold leading-4"
           )}
         >
           {firstChild === "" ? emptyMessage : firstChild}
@@ -283,7 +283,7 @@ export function CardBodySection(props: CardBodySectionProps) {
       )}
       {firstChild &&
         (firstChild as React.ReactElement).type === ChipContainer && (
-          <div className="mv-pt-1.5">{firstChild}</div>
+          <div className="pt-1.5">{firstChild}</div>
         )}
     </div>
   );
@@ -297,11 +297,9 @@ type CardFooterProps = {
 
 export function CardFooter(props: CardFooterProps) {
   return (
-    <div className="mv-p-4 mv-pt-0 mv-mt-auto">
-      <hr className="mv-h-0 mv-border-t mv-border-neutral-200 mv-m-0 mv-mb-4" />
-      <div className="mv-flex mv-justify-between mv-items-center">
-        {props.children}
-      </div>
+    <div className="p-4 pt-0 mt-auto">
+      <hr className="h-0 border-t border-neutral-200 m-0 mb-4" />
+      <div className="flex justify-between items-center">{props.children}</div>
     </div>
   );
 }
@@ -319,9 +317,7 @@ function wrapCardRowContainerChildren(children: React.ReactNode) {
 
   return Children.map(validChildren, (child) => {
     return (
-      <div className="mv-w-3/4 @md:mv-w-1/3 mv-px-2 @md:mv-px-4 mv-shrink-0">
-        {child}
-      </div>
+      <div className="w-3/4 @md:w-1/3 px-2 @md:px-4 shrink-0">{child}</div>
     );
   });
 }
@@ -333,12 +329,12 @@ function CardRowContainer(props: CardRowContainerProps) {
     return isValidElement(child);
   });
 
-  const classes = classNames("mv-flex -mv-mx-2 @md:-mv-mx-4 mv-mb-8", {
-    "mv-flex-wrap": itemsPerRow < validChildren.length,
+  const classes = classNames("flex -mx-2 @md:-mx-4 mb-8", {
+    "flex-wrap": itemsPerRow < validChildren.length,
   });
 
   return (
-    <div className="mv-relative">
+    <div className="relative">
       <div className={classes}>
         {wrapCardRowContainerChildren(validChildren)}
       </div>
@@ -351,7 +347,7 @@ Card.RowContainer = CardRowContainer;
 export function CardControls(props: React.PropsWithChildren) {
   const { children } = props;
 
-  return <div className="mv-absolute mv-top-4 mv-right-4">{children}</div>;
+  return <div className="absolute top-4 right-4">{children}</div>;
 }
 
 Card.Controls = CardControls;

@@ -25,14 +25,14 @@ export function Section(props: {
 
   return (
     <section
-      className={`mv-w-full mv-flex mv-flex-col mv-gap-8 @sm:mv-px-4 @lg:mv-px-6 @sm:mv-py-6 @sm:mv-bg-white @sm:mv-rounded-2xl @sm:mv-border @sm:mv-border-neutral-200${
+      className={`w-full flex flex-col gap-8 @sm:px-4 @lg:px-6 @sm:py-6 @sm:bg-white @sm:rounded-2xl @sm:border @sm:border-neutral-200${
         props.additionalClassNames !== undefined
           ? ` ${props.additionalClassNames}`
           : ""
       }`}
     >
       {typeof headline !== "undefined" || typeof subline !== "undefined" ? (
-        <div className="mv-flex mv-flex-col mv-gap-2">
+        <div className="flex flex-col gap-2">
           {headline}
           {subline}
         </div>
@@ -46,7 +46,7 @@ function SectionHeadline(props: React.PropsWithChildren<{ id?: string }>) {
   const { children, ...otherProps } = props;
   return (
     <h2
-      className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+      className="text-2xl font-bold text-primary leading-[26px] mb-0"
       {...otherProps}
     >
       {children}
@@ -58,7 +58,7 @@ function SectionSubline(props: React.PropsWithChildren<{ id?: string }>) {
   const { children, ...otherProps } = props;
 
   return (
-    <p className="mv-text-base mv-text-neutral-600" {...otherProps}>
+    <p className="text-base text-neutral-600" {...otherProps}>
       {children}
     </p>
   );

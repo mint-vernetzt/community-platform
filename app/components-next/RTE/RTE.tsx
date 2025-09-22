@@ -80,14 +80,14 @@ function RTE(
 
   const theme: EditorThemeClasses = {
     text: {
-      bold: "mv-font-semibold",
-      italic: "mv-italic",
-      underline: "mv-underline mv-underline-offset-2",
+      bold: "font-semibold",
+      italic: "italic",
+      underline: "underline underline-offset-2",
     },
-    link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
+    link: "text-primary font-semibold hover:underline active:underline underline-offset-2 cursor-pointer",
     list: {
-      ul: "mv-pl-8 mv-list-disc",
-      ol: "mv-pl-8 mv-list-decimal",
+      ul: "pl-8 list-disc",
+      ol: "pl-8 list-decimal",
     },
   };
 
@@ -118,7 +118,7 @@ function RTE(
       {isHydrated === false ? (
         <div
           title="Rich text editor is loading..."
-          className="mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg"
+          className="w-full h-[234px] border border-gray-200 rounded-lg"
         >
           <LoadingToolbar locales={locales} />
         </div>
@@ -140,7 +140,7 @@ function RTE(
               }
             }
           }}
-          className="mv-relative mv-w-full mv-h-[234px] mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
+          className="relative w-full h-[234px] border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
         >
           <LexicalComposer initialConfig={initialConfig}>
             <EditorRefPlugin editorRef={editorRef} />
@@ -149,10 +149,10 @@ function RTE(
               contentEditable={
                 <ContentEditable
                   ref={contentEditableRef}
-                  className="mv-p-2 mv-rounded-bl-lg mv-rounded-br-lg mv-h-48 mv-w-full mv-overflow-y-scroll focus:mv-outline-none"
+                  className="p-2 rounded-bl-lg rounded-br-lg h-48 w-full overflow-y-scroll focus:outline-none"
                   placeholder={
                     placeholder !== undefined ? (
-                      <div className="mv-absolute mv-top-12 mv-left-2 mv-pointer-events-none">
+                      <div className="absolute top-12 left-2 pointer-events-none">
                         {placeholder}
                       </div>
                     ) : null
@@ -206,12 +206,12 @@ function RTE(
                   charset="UTF-8"
                   maxLength={maxLength}
                   renderer={({ remainingCharacters }) => (
-                    <div className="mv-flex mv-w-full mv-mt-2 mv-justify-end">
+                    <div className="flex w-full mt-2 justify-end">
                       <div
-                        className={`mv-text-sm ${
+                        className={`text-sm ${
                           remainingCharacters < 0
-                            ? "mv-text-red-500"
-                            : "mv-text-gray-700"
+                            ? "text-red-500"
+                            : "text-gray-700"
                         }`}
                         title={locales.rte.remainingCharacters}
                       >

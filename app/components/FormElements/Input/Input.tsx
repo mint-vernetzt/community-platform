@@ -17,13 +17,11 @@ const Input = (props: React.HTMLProps<HTMLInputElement> & InputProps) => {
   } = props;
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
+    <div className="flex flex-col gap-2 w-full">
       {label && (
         <label
           htmlFor={inputProps.id || label}
-          className={`mv-font-semibold${
-            errorMessage ? " mv-text-red-500" : ""
-          }`}
+          className={`font-semibold${errorMessage ? " text-red-500" : ""}`}
           title={errorMessage}
         >
           {label}
@@ -31,13 +29,13 @@ const Input = (props: React.HTMLProps<HTMLInputElement> & InputProps) => {
         </label>
       )}
 
-      <div className="mv-flex mv-flex-row mv-items-center">
-        <div className="mv-flex-auto">
+      <div className="flex flex-row items-center">
+        <div className="flex-auto">
           <input
             {...inputProps}
             ref={inputProps.ref}
             type={inputProps.type ?? "text"}
-            className={`mv-appearance-none mv-rounded-lg mv-border mv-border-gray-300 mv-w-full mv-min-h-10 mv-p-2 mv-text-gray-800 mv-bg-white mv-text-base mv-text-start mv-leading-snug mv-font-semibold placeholder:mv-font-normal placeholder:mv-gray-400 focus:mv-border-blue-400 focus-visible:mv-outline-0 ${
+            className={`appearance-none rounded-lg border border-gray-300 w-full min-h-10 p-2 text-gray-800 bg-white text-base text-start leading-snug font-semibold placeholder:font-normal placeholder:gray-400 focus:border-blue-400 focus-visible:outline-0 ${
               inputProps.className !== undefined ? inputProps.className : ""
             }`.trimEnd()}
             id={inputProps.id || label}

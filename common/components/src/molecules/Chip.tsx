@@ -24,23 +24,23 @@ function Chip(props: ChipProps) {
   const classes = classNames(
     color === "primary" &&
       !disabled &&
-      "mv-bg-primary-50 mv-border-primary-50 mv-text-primary-600",
+      "bg-primary-50 border-primary-50 text-primary-600",
     color === "primary" &&
       interactive &&
-      "hover:mv-bg-primary-600 hover:mv-text-white",
+      "hover:bg-primary-600 hover:text-white",
     color === "secondary" &&
       !disabled &&
-      "mv-bg-secondary-50 mv-border-secondary-50 mv-text-secondary-600",
+      "bg-secondary-50 border-secondary-50 text-secondary-600",
     color === "secondary" &&
       interactive &&
-      "hover:mv-bg-secondary-600 hover:mv-text-white",
-    disabled && "mv-bg-white mv-text-gray-300 mv-border-gray-300",
-    !disabled && interactive && "mv-cursor-pointer",
-    "mv-flex mv-gap-2 mv-items-center",
-    "mv-border mv-rounded-lg mv-font-semibold mv-w-fit mv-max-w-full mv-h-fit mv-text-left mv-text-ellipsis mv-whitespace-nowrap mv-overflow-hidden mv-shrink-0",
-    props.responsive && "@md:mv-px-4 @md:mv-py-2 @md:mv-text-base",
-    size === "small" && "mv-text-xs mv-py-1.5 mv-px-3",
-    size === "medium" && "mv-text-base mv-py-2 mv-px-4"
+      "hover:bg-secondary-600 hover:text-white",
+    disabled && "bg-white text-gray-300 border-gray-300",
+    !disabled && interactive && "cursor-pointer",
+    "flex gap-2 items-center",
+    "border rounded-lg font-semibold w-fit max-w-full h-fit text-left text-ellipsis whitespace-nowrap overflow-hidden shrink-0",
+    props.responsive && "@md:px-4 @md:py-2 @md:text-base",
+    size === "small" && "text-xs py-1.5 px-3",
+    size === "medium" && "text-base py-2 px-4"
   );
   const children = Children.toArray(props.children);
 
@@ -125,19 +125,14 @@ function ChipDelete(
   const disabled = typeof props.disabled !== "undefined" && props.disabled;
 
   const classes = classNames(
-    "mv-rounded-full hover:mv-bg-white -mv-my-2",
-    typeof props.responsive !== "undefined" &&
-      props.responsive &&
-      "@md:mv-my-0",
-    !disabled &&
-      interactive &&
-      color === "primary" &&
-      "hover:mv-text-primary-600",
+    "rounded-full hover:bg-white -my-2",
+    typeof props.responsive !== "undefined" && props.responsive && "@md:my-0",
+    !disabled && interactive && color === "primary" && "hover:text-primary-600",
     !disabled &&
       interactive &&
       color === "secondary" &&
-      "hover:mv-text-secondary-600",
-    disabled && "mv-cursor-default"
+      "hover:text-secondary-600",
+    disabled && "cursor-default"
   );
 
   let clone;
@@ -180,10 +175,10 @@ export function ChipContainer(props: ChipContainerProps) {
   });
   const classes = classNames(
     {
-      "mv-h-[72px]": props.maxRows === 2,
-      "mv-overflow-hidden": props.maxRows !== undefined,
+      "h-[72px]": props.maxRows === 2,
+      "overflow-hidden": props.maxRows !== undefined,
     },
-    "mv-flex mv-flex-wrap mv-gap-2"
+    "flex flex-wrap gap-2"
   );
   return <div className={classes}>{validChildren}</div>;
 }

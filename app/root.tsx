@@ -304,10 +304,10 @@ export const ErrorBoundary = () => {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-flex mv-min-h-dvh mv-break-words mv-antialiased mv-overflow-x-hidden",
+    "flex min-h-dvh break-words antialiased overflow-x-hidden",
     mainMenuIsOpen !== null &&
       mainMenuIsOpen !== "false" &&
-      "mv-overflow-y-hidden xl:mv-overflow-y-visible"
+      "overflow-y-hidden xl:overflow-y-visible"
   );
 
   let errorTitle;
@@ -361,10 +361,10 @@ export const ErrorBoundary = () => {
           }
         />
         <div
-          className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+          className={`flex flex-col w-full @container relative ${
             mainMenuIsOpen === null || mainMenuIsOpen === "false"
               ? ""
-              : "mv-hidden xl:mv-block"
+              : "hidden xl:block"
           }`}
         >
           <NavBar
@@ -374,9 +374,9 @@ export const ErrorBoundary = () => {
             openMainMenuKey={openMainMenuKey}
             locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
           />
-          <main className="mv-w-full mv-h-full @md:mv-bg-neutral-50">
+          <main className="w-full h-full @md:bg-neutral-50">
             {/* Content */}
-            <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+            <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
               <H1 like="h0">{errorTitle}</H1>
               <H2 like="h1">Sorry, something went wrong!</H2>
               <p>
@@ -392,13 +392,13 @@ export const ErrorBoundary = () => {
               </p>
             </section>
             {errorText !== undefined ? (
-              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+              <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
                 <p>Error Text:</p>
                 {errorText}
               </section>
             ) : null}
             {errorData !== undefined ? (
-              <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-my-8 md:mv-mt-10 lg:mv-mt-20 mv-text-center">
+              <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
                 <p>Error Data:</p>
                 {errorData}
               </section>
@@ -546,15 +546,15 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "mv-flex mv-min-h-dvh mv-break-words mv-antialiased mv-overflow-x-hidden",
-    modal && "mv-overflow-y-hidden",
-    overlayMenu && "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",
+    "flex min-h-dvh break-words antialiased overflow-x-hidden",
+    modal && "overflow-y-hidden",
+    overlayMenu && "overflow-y-hidden container-lg:overflow-y-visible",
     showFilters !== null &&
       showFilters === "on" &&
-      "mv-overflow-y-hidden container-lg:mv-overflow-y-visible",
+      "overflow-y-hidden container-lg:overflow-y-visible",
     mainMenuIsOpen !== null &&
       mainMenuIsOpen !== "false" &&
-      "mv-overflow-y-hidden xl:mv-overflow-y-visible"
+      "overflow-y-hidden xl:overflow-y-visible"
   );
 
   return (
@@ -571,11 +571,7 @@ export default function App() {
           <>
             <div
               inert={modal ? true : undefined}
-              className={
-                mainMenuIsOpen
-                  ? "mv-w-full xl:mv-w-fit"
-                  : "mv-hidden xl:mv-block"
-              }
+              className={mainMenuIsOpen ? "w-full xl:w-fit" : "hidden xl:block"}
             >
               <MainMenu
                 mode={mode}
@@ -590,18 +586,18 @@ export default function App() {
             </div>
             <div
               inert={modal ? true : undefined}
-              className={`mv-flex mv-flex-col mv-w-full mv-@container mv-relative ${
+              className={`flex flex-col w-full @container relative ${
                 mainMenuIsOpen === null || mainMenuIsOpen === "false"
                   ? ""
-                  : "mv-hidden xl:mv-block"
+                  : "hidden xl:block"
               }`}
             >
               <div
-                className={`${showFilters ? "mv-hidden @lg:mv-block " : ""}${
+                className={`${showFilters ? "hidden @lg:block " : ""}${
                   isProjectSettings || isOrganizationSettings
-                    ? "mv-hidden @md:mv-block "
+                    ? "hidden @md:block "
                     : ""
-                }mv-sticky mv-top-0 mv-z-30`}
+                }sticky top-0 z-30`}
               >
                 <NavBar
                   sessionUserInfo={sessionUserInfo}
@@ -626,9 +622,9 @@ export default function App() {
                 <div
                   className={`${
                     isProjectSettings || isOrganizationSettings
-                      ? "mv-hidden @md:mv-block "
+                      ? "hidden @md:block "
                       : ""
-                  }${showFilters ? "mv-hidden @lg:mv-block" : ""}`}
+                  }${showFilters ? "hidden @lg:block" : ""}`}
                 >
                   <LoginOrRegisterCTA
                     isAnon={mode === "anon"}
@@ -636,16 +632,16 @@ export default function App() {
                   />
                 </div>
               )}
-              <div className="mv-flex mv-flex-nowrap mv-w-full">
-                <main className="mv-w-full @md:mv-bg-neutral-50">
+              <div className="flex flex-nowrap w-full">
+                <main className="w-full @md:bg-neutral-50">
                   <Outlet />
                 </main>
                 <div
-                  className={`${isSettings ? "mv-hidden @md:mv-block " : ""}${
+                  className={`${isSettings ? "hidden @md:block " : ""}${
                     showFilters === "true" && isMapOnExplore === false
-                      ? "mv-hidden @lg:mv-block "
+                      ? "hidden @lg:block "
                       : ""
-                  }${isMapOnExplore ? "mv-hidden " : ""}mv-w-0`}
+                  }${isMapOnExplore ? "hidden " : ""}w-0`}
                 >
                   <ScrollToTopButton locales={locales} />
                 </div>

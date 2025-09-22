@@ -13,7 +13,7 @@ import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
-    <div className="mv-w-full mv-text-sm mv-leading-1 mv-flex mv-flex-col mv-gap-4">
+    <div className="w-full text-sm leading-1 flex flex-col gap-4">
       {props.children}
     </div>
   );
@@ -23,7 +23,7 @@ function ModalClose(props: { route: string }) {
   return (
     <Link
       id="modal-close-top"
-      className="mv-text-primary"
+      className="text-primary"
       to={props.route}
       preventScrollReset
       aria-label="Close modal"
@@ -48,7 +48,7 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
       {...anchorProps}
       id="modal-close-bottom"
       to={route}
-      className="mv-inline-flex mv-min-h-12 mv-cursor-pointer mv-select-none mv-rounded-lg mv-border-transparent mv-text-center mv-leading-4 mv-flex-wrap mv-items-center mv-justify-center mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-text-primary-700 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-h-10 mv-text-sm mv-px-6 mv-py-2.5 mv-border"
+      className="inline-flex min-h-12 cursor-pointer select-none rounded-lg border-transparent text-center leading-4 flex-wrap items-center justify-center text-primary hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100 font-semibold whitespace-nowrap w-full h-10 text-sm px-6 py-2.5 border"
       preventScrollReset
       prefetch="intent"
     >
@@ -66,10 +66,10 @@ function ModalSubmitButton(
     <button
       {...inputProps}
       type="submit"
-      className={`mv-inline-flex mv-h-12 mv-min-h-12 mv-shrink-0 mv-cursor-pointer mv-select-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-border-transparent mv-px-4 hover:mv-bg-primary-600 focus:mv-bg-primary-600 active:mv-bg-primary-700 mv-font-semibold mv-whitespace-nowrap mv-w-full mv-text-sm mv-text-center mv-leading-[1em] mv-py-2.5 mv-border ${
+      className={`inline-flex h-12 min-h-12 shrink-0 cursor-pointer select-none flex-wrap items-center justify-center rounded-lg border-transparent px-4 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 font-semibold whitespace-nowrap w-full text-sm text-center leading-[1em] py-2.5 border ${
         inputProps.disabled === true
-          ? "mv-bg-neutral-200 mv-text-neutral-400 mv-pointer-events-none"
-          : "mv-bg-primary mv-text-neutral-50"
+          ? "bg-neutral-200 text-neutral-400 pointer-events-none"
+          : "bg-primary text-neutral-50"
       }`}
       disabled={inputProps.disabled || isSubmitting}
     >
@@ -80,7 +80,7 @@ function ModalSubmitButton(
 
 function ModalTitle(props: { children: React.ReactNode }) {
   return (
-    <h2 className="mv-text-3xl mv-text-primary mv-font-bold mv-m-0 mv-p-0">
+    <h2 className="text-3xl text-primary font-bold m-0 p-0">
       {props.children}
     </h2>
   );
@@ -162,24 +162,24 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
       : null;
 
   return createPortal(
-    <div className="mv-transition mv-fixed mv-inset-0 mv-bg-black/50 mv-backdrop-blur-sm mv-flex mv-flex-col mv-gap-10 mv-items-center mv-justify-center mv-z-30 mv-px-4">
+    <div className="transition fixed inset-0 bg-black/50 backdrop-blur-sm flex flex-col gap-10 items-center justify-center z-30 px-4">
       <div
         id="modal"
         tabIndex={-1}
-        className="mv-relative mv-max-w-[31rem] mv-rounded-2xl mv-bg-white mv-p-6 mv-flex mv-flex-col mv-gap-6"
+        className="relative max-w-[31rem] rounded-2xl bg-white p-6 flex flex-col gap-6"
       >
-        <div className="mv-flex mv-justify-between mv-items-baseline mv-gap-4">
+        <div className="flex justify-between items-baseline gap-4">
           {title}
           <ModalClose route={redirect ?? "."} />
         </div>
         {sections}
         {(submitButton !== null || closeButtonClone !== null) && (
-          <div className="mv-w-full mv-text-sm mv-leading-1 mv-flex mv-flex-col mv-gap-2">
+          <div className="w-full text-sm leading-1 flex flex-col gap-2">
             {submitButton !== null && submitButton}
             {closeButtonClone !== null && closeButtonClone}
           </div>
         )}
-        <div className="mv-absolute -mv-bottom-20 mv-left-0 mv-w-full">
+        <div className="absolute -bottom-20 left-0 w-full">
           {alert !== null ? alert : null}
         </div>
       </div>

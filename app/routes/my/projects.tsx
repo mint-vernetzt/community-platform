@@ -250,7 +250,7 @@ function MyProjects() {
               );
             })}
           </Section.TabBar>
-          <div className="mv-mt-2 mv--mx-4 mv--mb-8">
+          <div className="mt-2 -mx-4 -mb-8">
             <Form
               {...getFormProps(quitProjectForm)}
               method="post"
@@ -373,7 +373,7 @@ function MyProjects() {
                                     <div
                                       id={quitProjectForm.errorId}
                                       key={index}
-                                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                      className="text-sm font-semibold text-negative-600"
                                     >
                                       {error}
                                     </div>

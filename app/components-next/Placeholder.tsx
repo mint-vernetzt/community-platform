@@ -17,8 +17,8 @@ export function Placeholder(props: { children: React.ReactNode }) {
   });
 
   return (
-    <div className="mv-relative mv-flex mv-flex-col mv-gap-6 mv-h-[320px] mv-p-6 mv-border mv-border-secondary-50 mv-rounded-2xl mv-bg-secondary-50 mv-justify-center mv-overflow-hidden">
-      <div className="mv-absolute mv-text-secondary-300 mv--bottom-8 @md:mv-bottom-0 mv--left-16 @md:mv-left-0">
+    <div className="relative flex flex-col gap-6 h-[320px] p-6 border border-secondary-50 rounded-2xl bg-secondary-50 justify-center overflow-hidden">
+      <div className="absolute text-secondary-300 -bottom-8 @md:bottom-0 -left-16 @md:left-0">
         <svg
           width="288"
           height="172"
@@ -32,7 +32,7 @@ export function Placeholder(props: { children: React.ReactNode }) {
           />
         </svg>
       </div>
-      <div className="mv-absolute mv-text-primary-600 mv--bottom-8 @md:mv-bottom-0 mv--left-16 @md:mv-left-0">
+      <div className="absolute text-primary-600 -bottom-8 @md:bottom-0 -left-16 @md:left-0">
         <svg
           width="306"
           height="104"
@@ -47,7 +47,7 @@ export function Placeholder(props: { children: React.ReactNode }) {
           />
         </svg>
       </div>
-      <div className="mv-absolute mv-text-negative-100 mv--top-16 @md:mv-top-0 mv--right-20 @md:mv-right-0">
+      <div className="absolute text-negative-100 -top-16 @md:top-0 -right-20 @md:right-0">
         <svg
           width="239"
           height="195"
@@ -61,7 +61,7 @@ export function Placeholder(props: { children: React.ReactNode }) {
           />
         </svg>
       </div>
-      <div className="mv-absolute mv-text-negative-500 mv--top-16 @md:mv-top-0 mv--right-20 @md:mv-right-0">
+      <div className="absolute text-negative-500 -top-16 @md:top-0 -right-20 @md:right-0">
         <svg
           width="191"
           height="189"
@@ -76,20 +76,18 @@ export function Placeholder(props: { children: React.ReactNode }) {
           />
         </svg>
       </div>
-      <div className="mv-flex mv-flex-col mv-gap-2 mv-z-10">
+      <div className="flex flex-col gap-2 z-10">
         {title}
         {text}
       </div>
-      <div className="mv-flex mv-justify-center mv-text-center mv-z-10">
-        {button}
-      </div>
+      <div className="flex justify-center text-center z-10">{button}</div>
     </div>
   );
 }
 
 function PlaceholderTitle(props: { children: React.ReactNode }) {
   return (
-    <h2 className="mv-text-xl mv-text-neutral-700 mv-font-bold mv-leading-6 mv-text-center mv-mb-0">
+    <h2 className="text-xl text-neutral-700 font-bold leading-6 text-center mb-0">
       {props.children}
     </h2>
   );
@@ -97,7 +95,7 @@ function PlaceholderTitle(props: { children: React.ReactNode }) {
 
 function PlaceholderText(props: { children: React.ReactNode }) {
   return (
-    <p className="mv-text-lg mv-text-neutral-700 mv-font-normal mv-text-center">
+    <p className="text-lg text-neutral-700 font-normal text-center">
       {props.children}
     </p>
   );

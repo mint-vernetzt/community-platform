@@ -62,7 +62,7 @@ function Requirements() {
 
   return (
     <>
-      <p className="mv-font-normal mv-text-neutral-800">
+      <p className="font-normal text-neutral-800">
         {locales.route.content.information}
       </p>
 
@@ -76,16 +76,16 @@ function Requirements() {
         project.furtherTechnicalRequirements === null &&
         project.roomSituation === null &&
         project.furtherRoomSituation === null && (
-          <p className="mv-font-normal mv-text-neutral-800">
+          <p className="font-normal text-neutral-800">
             {locales.route.content.confirmation}
           </p>
         )}
       {project.timeframe !== null && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.timeFrame.headline}
           </h2>
-          <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+          <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.timeFrame.intro}
           </h3>
           <RichText html={project.timeframe} />
@@ -94,12 +94,12 @@ function Requirements() {
       {(project.jobFillings !== null ||
         project.furtherJobFillings !== null) && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.jobFillings.headline}
           </h2>
           {project.jobFillings !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.jobFillings.intro}
               </h3>
               <RichText html={project.jobFillings} />
@@ -107,7 +107,7 @@ function Requirements() {
           )}
           {project.furtherJobFillings !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.furtherJobFillings.headline}
               </h3>
               <RichText html={project.furtherJobFillings} />
@@ -119,22 +119,22 @@ function Requirements() {
         project.financings.length > 0 ||
         project.furtherFinancings !== null) && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.finance.headline}
           </h2>
           {project.yearlyBudget !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.yearlyBudget}
               </h3>
-              <p className="mv-font-normal mv-text-neutral-800">
+              <p className="font-normal text-neutral-800">
                 {project.yearlyBudget}
               </p>
             </>
           )}
           {project.financings.length > 0 && (
-            <div className="mv-flex mv-flex-col mv-gap-4">
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.financings}
               </h3>
               <Chip.Container>
@@ -162,7 +162,7 @@ function Requirements() {
           )}
           {project.furtherFinancings !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.moreInformation}
               </h3>
               <RichText html={project.furtherFinancings} />
@@ -173,12 +173,12 @@ function Requirements() {
       {(project.technicalRequirements !== null ||
         project.furtherTechnicalRequirements !== null) && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.technical.headline}
           </h2>
           {project.technicalRequirements !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.technical.technicalRequirements}
               </h3>
               <RichText html={project.technicalRequirements} />
@@ -186,7 +186,7 @@ function Requirements() {
           )}
           {project.furtherTechnicalRequirements !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.technical.furtherTechnicalRequirements}
               </h3>
               <RichText html={project.furtherTechnicalRequirements} />
@@ -197,12 +197,12 @@ function Requirements() {
       {(project.roomSituation !== null ||
         project.furtherRoomSituation !== null) && (
         <>
-          <h2 className="mv-text-2xl @md:mv-text-5xl mv-font-bold mv-text-primary mv-mb-0">
+          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.rooms.headline}
           </h2>
           {project.roomSituation !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.rooms.roomSituation}
               </h3>
               <RichText html={project.roomSituation} />
@@ -210,7 +210,7 @@ function Requirements() {
           )}
           {project.furtherRoomSituation !== null && (
             <>
-              <h3 className="mv-text-neutral-700 mv-text-lg mv-font-bold mv-mb-0">
+              <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.rooms.furtherRoomSituation}
               </h3>
               <RichText html={project.furtherRoomSituation} />

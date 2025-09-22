@@ -103,45 +103,45 @@ const IMAGE_QUALITY = 1.0;
 const DEFAULT_ASPECT = 16 / 9;
 const DEFAULT_SCALE = 1.0;
 const SCALE_CLASSES = {
-  0.1: "mv-scale-[0.1]",
-  0.15: "mv-scale-[0.15]",
-  0.2: "mv-scale-[0.2]",
-  0.25: "mv-scale-[0.25]",
-  0.3: "mv-scale-[0.3]",
-  0.35: "mv-scale-[0.35]",
-  0.4: "mv-scale-[0.4]",
-  0.45: "mv-scale-[0.45]",
-  0.5: "mv-scale-[0.5]",
-  0.55: "mv-scale-[0.55]",
-  0.6: "mv-scale-[0.6]",
-  0.65: "mv-scale-[0.65]",
-  0.7: "mv-scale-[0.7]",
-  0.75: "mv-scale-[0.75]",
-  0.8: "mv-scale-[0.8]",
-  0.85: "mv-scale-[0.85]",
-  0.9: "mv-scale-[0.9]",
-  0.95: "mv-scale-[0.95]",
-  1: "mv-scale-[1]",
-  1.05: "mv-scale-[1.05]",
-  1.1: "mv-scale-[1.1]",
-  1.15: "mv-scale-[1.15]",
-  1.2: "mv-scale-[1.2]",
-  1.25: "mv-scale-[1.25]",
-  1.3: "mv-scale-[1.3]",
-  1.35: "mv-scale-[1.35]",
-  1.4: "mv-scale-[1.4]",
-  1.45: "mv-scale-[1.45]",
-  1.5: "mv-scale-[1.5]",
-  1.55: "mv-scale-[1.55]",
-  1.6: "mv-scale-[1.6]",
-  1.65: "mv-scale-[1.65]",
-  1.7: "mv-scale-[1.7]",
-  1.75: "mv-scale-[1.75]",
-  1.8: "mv-scale-[1.8]",
-  1.85: "mv-scale-[1.85]",
-  1.9: "mv-scale-[1.9]",
-  1.95: "mv-scale-[1.95]",
-  2: "mv-scale-[2]",
+  0.1: "scale-[0.1]",
+  0.15: "scale-[0.15]",
+  0.2: "scale-[0.2]",
+  0.25: "scale-[0.25]",
+  0.3: "scale-[0.3]",
+  0.35: "scale-[0.35]",
+  0.4: "scale-[0.4]",
+  0.45: "scale-[0.45]",
+  0.5: "scale-[0.5]",
+  0.55: "scale-[0.55]",
+  0.6: "scale-[0.6]",
+  0.65: "scale-[0.65]",
+  0.7: "scale-[0.7]",
+  0.75: "scale-[0.75]",
+  0.8: "scale-[0.8]",
+  0.85: "scale-[0.85]",
+  0.9: "scale-[0.9]",
+  0.95: "scale-[0.95]",
+  1: "scale-[1]",
+  1.05: "scale-[1.05]",
+  1.1: "scale-[1.1]",
+  1.15: "scale-[1.15]",
+  1.2: "scale-[1.2]",
+  1.25: "scale-[1.25]",
+  1.3: "scale-[1.3]",
+  1.35: "scale-[1.35]",
+  1.4: "scale-[1.4]",
+  1.45: "scale-[1.45]",
+  1.5: "scale-[1.5]",
+  1.55: "scale-[1.55]",
+  1.6: "scale-[1.6]",
+  1.65: "scale-[1.65]",
+  1.7: "scale-[1.7]",
+  1.75: "scale-[1.75]",
+  1.8: "scale-[1.8]",
+  1.85: "scale-[1.85]",
+  1.9: "scale-[1.9]",
+  1.95: "scale-[1.95]",
+  2: "scale-[2]",
 };
 
 function ImageCropper(props: ImageCropperProps) {
@@ -360,9 +360,9 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   return (
-    <div className="mv-flex mv-flex-col mv-items-center">
-      <div className="mv-flex mv-items-center">
-        <div className="mv-relative mv-max-h-72">
+    <div className="flex flex-col items-center">
+      <div className="flex items-center">
+        <div className="relative max-h-72">
           {!imgSrc && props.children}
           {typeof image !== "undefined" &&
             image !== DefaultImages.Event.Background &&
@@ -389,11 +389,11 @@ function ImageCropper(props: ImageCropperProps) {
                   key={INTENT_FIELD_NAME}
                 />
                 <button
-                  className={`mv-bg-transparent mv-w-8 mv-h-8 mv-p-0 mv-absolute ${
+                  className={`bg-transparent w-8 h-8 p-0 absolute ${
                     uploadKey === "logo" || uploadKey === "avatar"
-                      ? "mv-top-1 mv-right-1"
-                      : "-mv-top-3 -mv-right-3"
-                  } mv-rounded-full mv-border-2 mv-border-neutral-200`}
+                      ? "top-1 right-1"
+                      : "-top-3 -right-3"
+                  } rounded-full border-2 border-neutral-200`}
                   type="submit"
                   onClick={(e) => {
                     if (
@@ -413,7 +413,7 @@ function ImageCropper(props: ImageCropperProps) {
                     viewBox="0 0 32 32"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="mv-w-full mv-h-auto"
+                    className="w-full h-auto"
                     aria-hidden="true"
                   >
                     <circle cx="16" cy="16" r="16" fill="#EE7775" />
@@ -434,7 +434,7 @@ function ImageCropper(props: ImageCropperProps) {
               aspect={aspect ?? undefined}
               minWidth={minCropWidth}
               minHeight={minCropHeight}
-              className="mv-max-h-[288px]"
+              className="max-h-[288px]"
               circularCrop={circularCrop}
             >
               <img
@@ -444,7 +444,7 @@ function ImageCropper(props: ImageCropperProps) {
                 className={
                   scale in SCALE_CLASSES
                     ? SCALE_CLASSES[scale as keyof typeof SCALE_CLASSES]
-                    : "mv-scale-100"
+                    : "scale-100"
                 }
                 onLoad={onImageLoad}
               />
@@ -456,13 +456,13 @@ function ImageCropper(props: ImageCropperProps) {
         {Boolean(completedCrop) && (
           <canvas
             ref={previewCanvasRef}
-            className="mv-hidden mv-object-contain"
+            className="hidden object-contain"
             width={completedCrop?.width ?? 0}
             height={completedCrop?.height ?? 0}
           />
         )}
       </div>
-      <div className="Crop-Controls mv-flex mv-flex-col mv-w-full mv-my-2">
+      <div className="Crop-Controls flex flex-col w-full my-2">
         <Form
           {...getFormProps(imageUploadForm)}
           ref={formRef}
@@ -503,7 +503,7 @@ function ImageCropper(props: ImageCropperProps) {
               id: `${uploadKey}-${FILE_FIELD_NAME}`,
               key: `${uploadKey}-${FILE_FIELD_NAME}`,
               className:
-                "mv-peer mv-opacity-0 mv-pointer-events-none mv-w-0 mv-h-0 mv-fixed mv-top-0 mv-left-0",
+                "peer opacity-0 pointer-events-none w-0 h-0 fixed top-0 left-0",
               accept: IMAGE_MIME_TYPES.join(", "),
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                 onSelectFile(event);
@@ -533,7 +533,7 @@ function ImageCropper(props: ImageCropperProps) {
               }),
               id: `noscript-image-${FILE_FIELD_NAME}`,
               key: `noscript-image-${FILE_FIELD_NAME}`,
-              className: "mv-mb-2",
+              className: "mb-2",
               accept: IMAGE_MIME_TYPES.join(", "),
             }}
           >
@@ -541,11 +541,11 @@ function ImageCropper(props: ImageCropperProps) {
           </FileInput>
         </Form>
         {imgSrc && (
-          <div className="mv-flex mv-items-center mv-w-full mv-mt-2">
-            <div className="mv-flex-auto mv-w-1/2  md:mv-w-[calc(25%+1rem)] mv-flex mv-justify-end mv-px-4 md:mv-px-2">
+          <div className="flex items-center w-full mt-2">
+            <div className="flex-auto w-1/2  md:w-[calc(25%+1rem)] flex justify-end px-4 md:px-2">
               <button
                 id="scaleDown"
-                className="mv-bg-white mv-border mv-border-primary mv-h-8 mv-w-8 mv-flex mv-items-center mv-justify-center mv-rounded-md hover:mv-bg-primary mv-text-primary hover:mv-text-white"
+                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
                 onClick={handleZoomClick}
               >
                 <svg
@@ -561,7 +561,7 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="mv-w-[250px] mv-py-2 mv-hidden md:mv-block md:mv-w-[calc(50%-2rem)] md:mv-px-2">
+            <div className="w-[250px] py-2 hidden md:block md:w-[calc(50%-2rem)] md:px-2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
@@ -573,10 +573,10 @@ function ImageCropper(props: ImageCropperProps) {
                 }}
               />
             </div>
-            <div className="mv-flex-auto mv-w-1/2 md:mv-w-[calc(25%+1rem)] mv-flex mv-justify-start mv-px-4 md:mv-px-2">
+            <div className="flex-auto w-1/2 md:w-[calc(25%+1rem)] flex justify-start px-4 md:px-2">
               <button
                 id="scaleUp"
-                className="mv-bg-white mv-border mv-border-primary mv-h-8 mv-w-8 mv-flex mv-items-center mv-justify-center mv-rounded-md hover:mv-bg-primary mv-text-primary hover:mv-text-white"
+                className="bg-white border border-primary h-8 w-8 flex items-center justify-center rounded-md hover:bg-primary text-primary hover:text-white"
                 onClick={handleZoomClick}
               >
                 <svg
@@ -595,11 +595,11 @@ function ImageCropper(props: ImageCropperProps) {
           </div>
         )}
       </div>
-      <div className="mv-grid mv-grid-cols-2 mv-gap-x-8 mv-w-full mv-mt-2">
+      <div className="grid grid-cols-2 gap-x-8 w-full mt-2">
         <Form method="get" preventScrollReset>
           <Button
             type="submit"
-            className="mv-p-5"
+            className="p-5"
             onClick={() => {
               reset();
             }}
@@ -612,7 +612,7 @@ function ImageCropper(props: ImageCropperProps) {
         <Button
           form={imageUploadForm.id}
           type="submit"
-          className="mv-p-5"
+          className="p-5"
           disabled={
             isHydrated
               ? selectedImageFileNames.length === 0 ||

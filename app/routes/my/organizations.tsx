@@ -677,10 +677,10 @@ export default function MyOrganizations() {
 
   return (
     <>
-      <div className="mv-w-full mv-h-full mv-flex mv-justify-center">
-        <div className="mv-w-full mv-py-6 mv-px-4 @lg:mv-py-8 @md:mv-px-6 @lg:mv-px-8 mv-flex mv-flex-col mv-gap-6 mv-mb-10 @sm:mv-mb-[72px] @lg:mv-mb-16 mv-max-w-screen-2xl">
-          <div className="mv-flex mv-flex-col @sm:mv-flex-row mv-gap-8 @md:mv-gap-6 @lg:mv-gap-8 mv-items-center mv-justify-between mv-mb-6 @sm:mv-mb-0">
-            <h1 className="mv-mb-0 mv-text-5xl mv-text-primary mv-font-bold mv-leading-9">
+      <div className="w-full h-full flex justify-center">
+        <div className="w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-[72px] @lg:mb-16 max-w-screen-2xl">
+          <div className="flex flex-col @sm:flex-row gap-8 @md:gap-6 @lg:gap-8 items-center justify-between mb-6 @sm:mb-0">
+            <h1 className="mb-0 text-5xl text-primary font-bold leading-9">
               {locales.route.headline}
             </h1>
             <Button as="link" to={"/organization/create"} prefetch="intent">
@@ -700,13 +700,13 @@ export default function MyOrganizations() {
             </Button>
           </div>
           {/* Information about organization type network Section */}
-          <Section additionalClassNames="mv-group">
-            <div className="mv-w-full mv-flex mv-flex-col mv-gap-6">
-              <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+          <Section additionalClassNames="group">
+            <div className="w-full flex flex-col gap-6">
+              <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
                 {locales.route.networkInfo.headline}
               </h2>
-              <div className="mv-text-neutral-700 mv-text-lg mv-leading-[22px] -mv-mt-2">
-                <p className="mv-font-semibold">
+              <div className="text-neutral-700 text-lg leading-[22px] -mt-2">
+                <p className="font-semibold">
                   {locales.route.networkInfo.sublineOne}
                 </p>
                 <p>
@@ -715,47 +715,47 @@ export default function MyOrganizations() {
                     [
                       <span
                         key="network-info-subline-two-semibold"
-                        className="mv-font-semibold"
+                        className="font-semibold"
                       />,
                     ]
                   )}
                 </p>
               </div>
             </div>
-            <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-lg mv-font-bold mv-leading-6 mv-hidden group-has-[:checked]:mv-block">
+            <h3 className="mb-0 text-neutral-700 text-lg font-bold leading-6 hidden group-has-[:checked]:block">
               {locales.route.networkInfo.steps.headline}
             </h3>
-            <ol className="mv-w-full mv-flex-col mv-gap-6 mv-list-none mv-pr-6 mv-max-w-[964px] mv-hidden group-has-[:checked]:mv-flex">
-              <li className="mv-w-full mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+            <ol className="w-full flex-col gap-6 list-none pr-6 max-w-[964px] hidden group-has-[:checked]:flex">
+              <li className="w-full flex gap-2">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
                   1
                 </span>
-                <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
-                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                <div className="w-full flex flex-col gap-5">
+                  <p className="text-primary font-semibold leading-5">
                     {locales.route.networkInfo.steps.checkExisting.headline}
                   </p>
-                  <p className="mv-text-neutral-700 mv-leading-5">
+                  <p className="text-neutral-700 leading-5">
                     {insertComponentsIntoLocale(
                       locales.route.networkInfo.steps.checkExisting.description,
                       [
                         <span
                           key="network-info-step-check-existing-description-semibold"
-                          className="mv-font-semibold"
+                          className="font-semibold"
                         />,
                       ]
                     )}
                   </p>
                 </div>
               </li>
-              <li className="mv-w-full mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+              <li className="w-full flex gap-2">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
                   2
                 </span>
-                <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                <div className="w-full flex flex-col gap-4">
+                  <p className="text-primary font-semibold leading-5">
                     {locales.route.networkInfo.steps.createNetwork.headline}
                   </p>
-                  <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-text-neutral-700 mv-leading-5">
+                  <div className="w-full flex flex-col gap-4 text-neutral-700 leading-5">
                     <p>
                       {insertComponentsIntoLocale(
                         locales.route.networkInfo.steps.createNetwork
@@ -763,7 +763,7 @@ export default function MyOrganizations() {
                         [
                           <span
                             key="network-info-step-create-network-description-one-semibold"
-                            className="mv-font-semibold"
+                            className="font-semibold"
                           />,
                         ]
                       )}
@@ -777,22 +777,22 @@ export default function MyOrganizations() {
                   </div>
                 </div>
               </li>
-              <li className="mv-w-full mv-flex mv-gap-2">
-                <span className="mv-text-center mv-align-middle mv-w-5 mv-h-5 mv-rounded-full mv-bg-primary-50 mv-text-sm mv-text-primary mv-font-semibold mv-leading-[18px]">
+              <li className="w-full flex gap-2">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
                   3
                 </span>
-                <div className="mv-w-full mv-flex mv-flex-col mv-gap-5">
-                  <p className="mv-text-primary mv-font-semibold mv-leading-5">
+                <div className="w-full flex flex-col gap-5">
+                  <p className="text-primary font-semibold leading-5">
                     {locales.route.networkInfo.steps.addInformation.headline}
                   </p>
-                  <p className="mv-text-neutral-700 mv-leading-5">
+                  <p className="text-neutral-700 leading-5">
                     {insertComponentsIntoLocale(
                       locales.route.networkInfo.steps.addInformation
                         .description,
                       [
                         <span
                           key="network-info-step-add-information-description-semibold"
-                          className="mv-font-semibold"
+                          className="font-semibold"
                         />,
                       ]
                     )}
@@ -800,44 +800,44 @@ export default function MyOrganizations() {
                 </div>
               </li>
             </ol>
-            <div className="mv-hidden group-has-[:checked]:mv-block mv-mb-2 mv-ml-7">
-              <p className="mv-pb-2">{locales.route.networkInfo.faq.info}</p>
+            <div className="hidden group-has-[:checked]:block mb-2 ml-7">
+              <p className="pb-2">{locales.route.networkInfo.faq.info}</p>
               <Link
                 to={"/help#organizations"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mv-text-neutral-700 mv-font-semibold mv-underline hover:mv-no-underline"
+                className="text-neutral-700 font-semibold underline hover:no-underline"
                 prefetch="intent"
               >
                 {locales.route.networkInfo.faq.link}
               </Link>
             </div>
-            <div className="mv-w-full mv-flex mv-flex-col mv-gap-6">
+            <div className="w-full flex flex-col gap-6">
               <div
                 key="show-more-network-info-container"
-                className="mv-w-full mv-flex mv-justify-center mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+                className="w-full flex justify-center text-sm text-neutral-600 font-semibold leading-5 justify-self-center"
               >
                 <label
                   htmlFor="show-more-network-info"
-                  className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+                  className="flex gap-2 cursor-pointer w-fit"
                 >
-                  <div className="group-has-[:checked]:mv-hidden">
+                  <div className="group-has-[:checked]:hidden">
                     {locales.route.networkInfo.more}
                   </div>
-                  <div className="mv-hidden group-has-[:checked]:mv-block">
+                  <div className="hidden group-has-[:checked]:block">
                     {locales.route.networkInfo.less}
                   </div>
-                  <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+                  <div className="rotate-90 group-has-[:checked]:-rotate-90">
                     <Icon type="chevron-right" />
                   </div>
                 </label>
                 <input
                   id="show-more-network-info"
                   type="checkbox"
-                  className="mv-w-0 mv-h-0 mv-opacity-0"
+                  className="w-0 h-0 opacity-0"
                 />
               </div>
-              <div className="mv-block @sm:mv-hidden mv-w-full mv-border-t mv-border-neutral-200" />
+              <div className="block @sm:hidden w-full border-t border-neutral-200" />
             </div>
           </Section>
           {/* Request Organization Membership Section */}
@@ -916,7 +916,7 @@ export default function MyOrganizations() {
                       <div
                         id={searchForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -951,7 +951,7 @@ export default function MyOrganizations() {
                             return organization.id === searchedOrganization.id;
                           }
                         ) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                             {
                               locales.route.requestOrganizationMembership
                                 .alreadyMember
@@ -964,14 +964,14 @@ export default function MyOrganizations() {
                               );
                             }
                           ) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                             {
                               locales.route.requestOrganizationMembership
                                 .alreadyRequested
                             }
                           </div>
                         ) : searchedOrganization.allowedToClaimOrganization ? (
-                          <div className="mv-flex mv-w-full mv-flex-col @lg:mv-flex-row mv-items-center mv-gap-4 mv-p-4 mv-bg-primary-50 mv-rounded-[4px]">
+                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-[4px]">
                             <p>
                               {searchedOrganization.alreadyRequestedToClaim
                                 ? locales.route.claimRequest.alreadyRequested
@@ -982,13 +982,13 @@ export default function MyOrganizations() {
                                     [
                                       <span
                                         key="highlighted-text"
-                                        className="mv-font-semibold"
+                                        className="font-semibold"
                                       />,
                                       <Link
                                         key="help-link"
                                         to="/help#organizations-whatAreProvisionalOrganizations"
                                         target="_blank"
-                                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                                        className="text-primary font-semibold hover:underline"
                                         prefetch="intent"
                                       >
                                         {" "}
@@ -996,7 +996,7 @@ export default function MyOrganizations() {
                                     ]
                                   )}
                             </p>
-                            <div className="mv-w-full @lg:mv-w-fit">
+                            <div className="w-full @lg:w-fit">
                               <Button
                                 name={INTENT_FIELD_NAME}
                                 value={`${
@@ -1048,7 +1048,7 @@ export default function MyOrganizations() {
                               createOrganizationMemberOrClaimRequestForm.errorId
                             }
                             key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            className="text-sm font-semibold text-negative-600"
                           >
                             {error}
                           </div>
@@ -1076,7 +1076,7 @@ export default function MyOrganizations() {
             {pendingRequestsToOrganizations.length > 0 ? (
               <>
                 <hr />
-                <h4 className="mv-mb-0 mv-text-primary mv-font-semibold mv-text-base @md:mv-text-lg">
+                <h4 className="mb-0 text-primary font-semibold text-base @md:text-lg">
                   {
                     locales.route.requestOrganizationMembership
                       .openRequestsHeadline
@@ -1131,7 +1131,7 @@ export default function MyOrganizations() {
                             <div
                               id={cancelOrganizationMemberRequestForm.errorId}
                               key={index}
-                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              className="text-sm font-semibold text-negative-600"
                             >
                               {error}
                             </div>
@@ -1147,12 +1147,12 @@ export default function MyOrganizations() {
           {/* Organization team member and admin invites section */}
           {organizationMemberInvites.teamMember.invites.length > 0 ||
           organizationMemberInvites.admin.invites.length > 0 ? (
-            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-              <div className="mv-flex mv-flex-col mv-gap-2">
-                <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+            <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
                   {locales.route.organizationMemberInvites.headline}
                 </h2>
-                <p className="mv-text-sm mv-text-neutral-700">
+                <p className="text-sm text-neutral-700">
                   {locales.route.organizationMemberInvites.subline}
                 </p>
               </div>
@@ -1175,7 +1175,7 @@ export default function MyOrganizations() {
                         >
                           <div
                             id={`tab-description-${key}`}
-                            className="mv-flex mv-gap-1.5 mv-items-center"
+                            className="flex gap-1.5 items-center"
                           >
                             <span>
                               {(() => {
@@ -1229,14 +1229,14 @@ export default function MyOrganizations() {
                             locales={locales}
                             prefetch="intent"
                           >
-                            <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
+                            <div className="flex items-center gap-4 w-full @lg:w-fit @lg:min-w-fit">
                               <Button
                                 variant="outline"
                                 fullSize
                                 type="submit"
                                 name="intent"
                                 value={`reject-organization-invite-${key}-${invite.organizationId}`}
-                                className="mv-text-wrap @lg:mv-text-nowrap"
+                                className="text-wrap @lg:text-nowrap"
                                 disabled={isSubmitting}
                               >
                                 {
@@ -1249,7 +1249,7 @@ export default function MyOrganizations() {
                                 type="submit"
                                 name="intent"
                                 value={`accept-organization-invite-${key}-${invite.organizationId}`}
-                                className="mv-text-wrap @lg:mv-text-nowrap"
+                                className="text-wrap @lg:text-nowrap"
                                 disabled={isSubmitting}
                               >
                                 {locales.route.organizationMemberInvites.accept}
@@ -1272,7 +1272,7 @@ export default function MyOrganizations() {
                                   acceptOrRejectOrganizationMemberInviteForm.errorId
                                 }
                                 key={index}
-                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                className="text-sm font-semibold text-negative-600"
                               >
                                 {error}
                               </div>
@@ -1288,12 +1288,12 @@ export default function MyOrganizations() {
           ) : null}
           {/* Network invites section */}
           {networkInvites.length > 0 ? (
-            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-              <div className="mv-flex mv-flex-col mv-gap-2">
-                <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+            <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
                   {locales.route.networkInvites.headline}
                 </h2>
-                <p className="mv-text-sm mv-text-neutral-700">
+                <p className="text-sm text-neutral-700">
                   {locales.route.networkInvites.subline}
                 </p>
               </div>
@@ -1316,7 +1316,7 @@ export default function MyOrganizations() {
                       >
                         <div
                           id={`tab-description-${key}`}
-                          className="mv-flex mv-gap-1.5 mv-items-center"
+                          className="flex gap-1.5 items-center"
                         >
                           <span>{value.organization.name}</span>
                           <TabBar.Counter active={value.active}>
@@ -1357,14 +1357,14 @@ export default function MyOrganizations() {
                               locales={locales}
                               prefetch="intent"
                             >
-                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
+                              <div className="flex items-center gap-4 w-full @lg:w-fit @lg:min-w-fit">
                                 <Button
                                   variant="outline"
                                   fullSize
                                   type="submit"
                                   name="intent"
                                   value={`reject-network-invite-${invite.network.id}-${value.organization.id}`}
-                                  className="mv-text-wrap @lg:mv-text-nowrap"
+                                  className="text-wrap @lg:text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.decline}
@@ -1374,7 +1374,7 @@ export default function MyOrganizations() {
                                   type="submit"
                                   name="intent"
                                   value={`accept-network-invite-${invite.network.id}-${value.organization.id}`}
-                                  className="mv-text-wrap @lg:mv-text-nowrap"
+                                  className="text-wrap @lg:text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkInvites.accept}
@@ -1395,7 +1395,7 @@ export default function MyOrganizations() {
                               <div
                                 id={acceptOrRejectNetworkInviteForm.errorId}
                                 key={index}
-                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                className="text-sm font-semibold text-negative-600"
                               >
                                 {error}
                               </div>
@@ -1411,12 +1411,12 @@ export default function MyOrganizations() {
           ) : null}
           {/* Organization team member requests section */}
           {organizationMemberRequests.length > 0 ? (
-            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-              <div className="mv-flex mv-flex-col mv-gap-2">
-                <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+            <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
                   {locales.route.organizationMemberRequests.headline}
                 </h2>
-                <p className="mv-text-sm mv-text-neutral-700">
+                <p className="text-sm text-neutral-700">
                   {locales.route.organizationMemberRequests.subline}
                 </p>
               </div>
@@ -1441,7 +1441,7 @@ export default function MyOrganizations() {
                         >
                           <div
                             id={`tab-description-${key}`}
-                            className="mv-flex mv-gap-1.5 mv-items-center"
+                            className="flex gap-1.5 items-center"
                           >
                             <span>{value.organization.name}</span>
                             <TabBar.Counter active={value.active}>
@@ -1483,14 +1483,14 @@ export default function MyOrganizations() {
                                 locales={locales}
                                 prefetch="intent"
                               >
-                                <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
+                                <div className="flex items-center gap-4 w-full @lg:w-fit @lg:min-w-fit">
                                   <Button
                                     variant="outline"
                                     fullSize
                                     type="submit"
                                     name="intent"
                                     value={`reject-organization-member-request-${request.profile.id}-${value.organization.id}`}
-                                    className="mv-text-wrap @lg:mv-text-nowrap"
+                                    className="text-wrap @lg:text-nowrap"
                                     disabled={isSubmitting}
                                   >
                                     {
@@ -1503,7 +1503,7 @@ export default function MyOrganizations() {
                                     type="submit"
                                     name="intent"
                                     value={`accept-organization-member-request-${request.profile.id}-${value.organization.id}`}
-                                    className="mv-text-wrap @lg:mv-text-nowrap"
+                                    className="text-wrap @lg:text-nowrap"
                                     disabled={isSubmitting}
                                   >
                                     {
@@ -1530,7 +1530,7 @@ export default function MyOrganizations() {
                                     acceptOrRejectOrganizationMemberRequestForm.errorId
                                   }
                                   key={index}
-                                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                  className="text-sm font-semibold text-negative-600"
                                 >
                                   {error}
                                 </div>
@@ -1547,12 +1547,12 @@ export default function MyOrganizations() {
           ) : null}
           {/* Network requests section */}
           {networkRequests.length > 0 ? (
-            <section className="mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl">
-              <div className="mv-flex mv-flex-col mv-gap-2">
-                <h2 className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0">
+            <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
                   {locales.route.networkRequests.headline}
                 </h2>
-                <p className="mv-text-sm mv-text-neutral-700">
+                <p className="text-sm text-neutral-700">
                   {locales.route.networkRequests.subline}
                 </p>
               </div>
@@ -1575,7 +1575,7 @@ export default function MyOrganizations() {
                       >
                         <div
                           id={`tab-description-${key}`}
-                          className="mv-flex mv-gap-1.5 mv-items-center"
+                          className="flex gap-1.5 items-center"
                         >
                           <span>{value.network.name}</span>
                           <TabBar.Counter active={value.active}>
@@ -1613,14 +1613,14 @@ export default function MyOrganizations() {
                               locales={locales}
                               prefetch="intent"
                             >
-                              <div className="mv-flex mv-items-center mv-gap-4 mv-w-full @lg:mv-w-fit @lg:mv-min-w-fit">
+                              <div className="flex items-center gap-4 w-full @lg:w-fit @lg:min-w-fit">
                                 <Button
                                   variant="outline"
                                   fullSize
                                   type="submit"
                                   name="intent"
                                   value={`reject-network-request-${request.organization.id}-${value.network.id}`}
-                                  className="mv-text-wrap @lg:mv-text-nowrap"
+                                  className="text-wrap @lg:text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkRequests.decline}
@@ -1630,7 +1630,7 @@ export default function MyOrganizations() {
                                   type="submit"
                                   name="intent"
                                   value={`accept-network-request-${request.organization.id}-${value.network.id}`}
-                                  className="mv-text-wrap @lg:mv-text-nowrap"
+                                  className="text-wrap @lg:text-nowrap"
                                   disabled={isSubmitting}
                                 >
                                   {locales.route.networkRequests.accept}
@@ -1651,7 +1651,7 @@ export default function MyOrganizations() {
                               <div
                                 id={acceptOrRejectNetworkRequestForm.errorId}
                                 key={index}
-                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                className="text-sm font-semibold text-negative-600"
                               >
                                 {error}
                               </div>
@@ -1685,7 +1685,7 @@ export default function MyOrganizations() {
                         }}
                         preventScrollReset
                       >
-                        <div className="mv-flex mv-gap-1.5 mv-items-center">
+                        <div className="flex gap-1.5 items-center">
                           <span>
                             {(() => {
                               let title;
@@ -1714,11 +1714,11 @@ export default function MyOrganizations() {
                   ) : null;
                 })}
               </TabBar>
-              <div className="-mv-mx-4">
+              <div className="-mx-4">
                 {Object.entries(organizations).map(([key, value]) => {
                   return value.active && value.organizations.length > 0 ? (
                     <div key={`${key}-organizations`}>
-                      <p className="mv-text-sm mv-text-neutral-700 mv-mx-4 mv-mb-6">
+                      <p className="text-sm text-neutral-700 mx-4 mb-6">
                         {
                           locales.route.organizations.subline[
                             key as keyof typeof organizations
@@ -1839,7 +1839,7 @@ export default function MyOrganizations() {
                                           [
                                             <span
                                               key="highlighted-organization-name"
-                                              className="mv-font-semibold"
+                                              className="font-semibold"
                                             />,
                                           ]
                                         )}
@@ -1858,7 +1858,7 @@ export default function MyOrganizations() {
                                                     quitOrganizationForm.errorId
                                                   }
                                                   key={index}
-                                                  className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                                  className="text-sm font-semibold text-negative-600"
                                                 >
                                                   {error}
                                                 </div>

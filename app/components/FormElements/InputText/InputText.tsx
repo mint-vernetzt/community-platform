@@ -40,24 +40,22 @@ const InputText = forwardRef(
 
     return (
       <div
-        className={`mv-flex mv-flex-col mv-gap-2 mv-w-full${
-          centered ? " mv-items-center" : ""
+        className={`flex flex-col gap-2 w-full${
+          centered ? " items-center" : ""
         }`}
       >
         {label && (
           <label
             htmlFor={inputProps.id || label}
-            className={`mv-font-semibold${
-              errorMessage ? " mv-text-red-500" : ""
-            }`}
+            className={`font-semibold${errorMessage ? " text-red-500" : ""}`}
             title={errorMessage}
           >
             {label} {inputProps.required !== undefined ? "*" : ""}
           </label>
         )}
 
-        <div className="mv-flex mv-flex-row mv-items-center">
-          <div className="mv-flex-auto">
+        <div className="flex flex-row items-center">
+          <div className="flex-auto">
             <input
               {...inputProps}
               ref={(node) => {
@@ -69,7 +67,7 @@ const InputText = forwardRef(
                 }
               }}
               type={inputProps.type ?? "text"}
-              className={`mv-w-full mv-outline-none mv-bg-white mv-h-auto mv-border-2 mv-border-neutral-300 mv-px-4 mv-text-base mv-font-semibold mv-leading-8 mv-appearance-none mv-rounded-lg focus:mv-border-neutral-200 ${
+              className={`w-full outline-none bg-white h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200 ${
                 inputProps.className !== undefined ? inputProps.className : ""
               }`.trimEnd()}
               id={inputProps.id || label}
@@ -77,10 +75,7 @@ const InputText = forwardRef(
             />
           </div>
           {withClearButton === true && (
-            <button
-              className="mv-p-2 mv-ml-2 mv-text-neutral-600"
-              onClick={handleClear}
-            >
+            <button className="p-2 ml-2 text-neutral-600" onClick={handleClear}>
               <svg
                 viewBox="0 0 10 10"
                 width="10px"

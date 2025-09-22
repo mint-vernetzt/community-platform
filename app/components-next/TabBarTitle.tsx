@@ -15,7 +15,7 @@ export function TabBarTitle(props: { children: React.ReactNode }) {
 
   if (counter) {
     return (
-      <div className="mv-flex mv-gap-1.5 mv-items-center">
+      <div className="flex gap-1.5 items-center">
         <span>{otherChildren}</span>
         {counter}
       </div>

@@ -371,7 +371,7 @@ function CreateOrganization() {
         method="post"
         preventScrollReset
         autoComplete="off"
-        className="mv-absolute"
+        className="absolute"
       />
       <button
         form={createOrganizationForm.id}
@@ -389,13 +389,13 @@ function CreateOrganization() {
       >
         {locales.route.back}
       </TextButton>
-      <h1 className="mv-mb-0 mv-text-primary mv-text-5xl mv-font-bold mv-leading-9">
+      <h1 className="mb-0 text-primary text-5xl font-bold leading-9">
         {locales.route.headline}
       </h1>
       <Section>
-        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
+        <div className="w-full flex flex-col gap-4">
           {/* Organization name Section */}
-          <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
+          <h2 className="mb-0 text-2xl font-bold leading-[26px]">
             {locales.route.form.organizationName.headline}
           </h2>
           <searchFetcher.Form
@@ -465,7 +465,7 @@ function CreateOrganization() {
                   <div
                     id={searchForm.errorId}
                     key={index}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -513,7 +513,7 @@ function CreateOrganization() {
 
           {searchedOrganizations.length > 0 ? (
             <>
-              <div className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center">
+              <div className="w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center">
                 <p>
                   {insertParametersIntoLocale(
                     decideBetweenSingularOrPlural(
@@ -548,7 +548,7 @@ function CreateOrganization() {
                         {organizations.some((organization) => {
                           return organization.id === searchedOrganization.id;
                         }) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                             {
                               locales.route.form.organizationName
                                 .requestOrganizationMembership.alreadyMember
@@ -561,14 +561,14 @@ function CreateOrganization() {
                               );
                             }
                           ) ? (
-                          <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                          <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                             {
                               locales.route.form.organizationName
                                 .requestOrganizationMembership.alreadyRequested
                             }
                           </div>
                         ) : searchedOrganization.allowedToClaimOrganization ? (
-                          <div className="mv-flex mv-w-full mv-flex-col @lg:mv-flex-row mv-items-center mv-gap-4 mv-p-4 mv-bg-primary-50 mv-rounded-[4px]">
+                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-[4px]">
                             <p>
                               {searchedOrganization.alreadyRequestedToClaim
                                 ? locales.route.claimRequest.alreadyRequested
@@ -579,13 +579,13 @@ function CreateOrganization() {
                                     [
                                       <span
                                         key="highlighted-text"
-                                        className="mv-font-semibold"
+                                        className="font-semibold"
                                       />,
                                       <Link
                                         key="help-link"
                                         to="/help#organizations-whatAreProvisionalOrganizations"
                                         target="_blank"
-                                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                                        className="text-primary font-semibold hover:underline"
                                         prefetch="intent"
                                       >
                                         {" "}
@@ -593,7 +593,7 @@ function CreateOrganization() {
                                     ]
                                   )}
                             </p>
-                            <div className="mv-w-full @lg:mv-w-fit">
+                            <div className="w-full @lg:w-fit">
                               <Button
                                 name={INTENT_FIELD_NAME}
                                 value={`${
@@ -646,7 +646,7 @@ function CreateOrganization() {
                               createOrganizationMemberOrClaimRequestForm.errorId
                             }
                             key={index}
-                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                            className="text-sm font-semibold text-negative-600"
                           >
                             {error}
                           </div>
@@ -660,8 +660,8 @@ function CreateOrganization() {
           ) : null}
         </div>
         {/* Organization types section */}
-        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-          <h2 className="mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px]">
+        <div className="w-full flex flex-col gap-4">
+          <h2 className="mb-0 text-2xl font-bold leading-[26px]">
             {locales.route.form.organizationTypes.headline}
           </h2>
           <ConformSelect
@@ -783,10 +783,10 @@ function CreateOrganization() {
           )}
         </div>
         {/* Network types section */}
-        <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
+        <div className="w-full flex flex-col gap-4">
           <h2
-            className={`mv-mb-0 mv-text-2xl mv-font-bold mv-leading-[26px] ${
-              isNetwork === false ? "mv-text-neutral-300" : "mv-text-primary"
+            className={`mb-0 text-2xl font-bold leading-[26px] ${
+              isNetwork === false ? "text-neutral-300" : "text-primary"
             }`}
           >
             {locales.route.form.networkTypes.headline}
@@ -799,9 +799,7 @@ function CreateOrganization() {
             <ConformSelect.Label
               htmlFor={createOrganizationFields.networkTypes.id}
             >
-              <span
-                className={isNetwork === false ? "mv-text-neutral-300" : ""}
-              >
+              <span className={isNetwork === false ? "text-neutral-300" : ""}>
                 {locales.route.form.networkTypes.label}
               </span>
             </ConformSelect.Label>
@@ -818,9 +816,7 @@ function CreateOrganization() {
               ))
             ) : (
               <ConformSelect.HelperText>
-                <span
-                  className={isNetwork === false ? "mv-text-neutral-300" : ""}
-                >
+                <span className={isNetwork === false ? "text-neutral-300" : ""}>
                   {isNetwork === false
                     ? locales.route.form.networkTypes.helperWithoutNetwork
                     : locales.route.form.networkTypes.helper}
@@ -914,14 +910,14 @@ function CreateOrganization() {
       </Section>
       <Section>
         <div>
-          <h2 className="mv-w-full mv-text-2xl mv-font-bold mv-leading-[26px] mv-mb-2 @md:mv-mb-4">
+          <h2 className="w-full text-2xl font-bold leading-[26px] mb-2 @md:mb-4">
             {locales.route.form.address.headline}
           </h2>
-          <p className="mv-w-full mv-text-neutral-700 mv-mb-2 @md:mv-mb-4">
+          <p className="w-full text-neutral-700 mb-2 @md:mb-4">
             {locales.route.form.address.subline}
           </p>
-          <div className="mv-grid mv-grid-rows-5 mv-grid-cols-1 @md:mv-grid-rows-3 @md:mv-grid-cols-2 mv-gap-x-2 mv-gap-y-2 @md:mv-gap-x-6 @md:mv-gap-y-4">
-            <div className="mv-w-full @md:mv-col-span-2">
+          <div className="grid grid-rows-5 grid-cols-1 @md:grid-rows-3 @md:grid-cols-2 gap-x-2 gap-y-2 @md:gap-x-6 @md:gap-y-4">
+            <div className="w-full @md:col-span-2">
               <Input
                 {...getInputProps(createOrganizationFields.addressSupplement, {
                   type: "text",
@@ -951,7 +947,7 @@ function CreateOrganization() {
                   : null}
               </Input>
             </div>
-            <div className="mv-w-full">
+            <div className="w-full">
               <Input
                 {...getInputProps(createOrganizationFields.street, {
                   type: "text",
@@ -975,7 +971,7 @@ function CreateOrganization() {
                   : null}
               </Input>
             </div>
-            <div className="mv-w-full">
+            <div className="w-full">
               <Input
                 {...getInputProps(createOrganizationFields.streetNumber, {
                   type: "text",
@@ -1001,7 +997,7 @@ function CreateOrganization() {
                   : null}
               </Input>
             </div>
-            <div className="mv-w-full">
+            <div className="w-full">
               <Input
                 {...getInputProps(createOrganizationFields.zipCode, {
                   type: "text",
@@ -1025,7 +1021,7 @@ function CreateOrganization() {
                   : null}
               </Input>
             </div>
-            <div className="mv-w-full">
+            <div className="w-full">
               <Input
                 {...getInputProps(createOrganizationFields.city, {
                   type: "text",
@@ -1059,7 +1055,7 @@ function CreateOrganization() {
               <div
                 id={createOrganizationForm.errorId}
                 key={index}
-                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                className="text-sm font-semibold text-negative-600"
               >
                 {error}
               </div>
@@ -1068,12 +1064,12 @@ function CreateOrganization() {
         </div>
       ) : null}
 
-      <div className="mv-w-full mv-flex mv-flex-col @sm:mv-flex-row mv-justify-between mv-gap-4">
-        <p className="mv-text-neutral-700 mv-text-xs mv-leading-4 mv-text-nowrap">
+      <div className="w-full flex flex-col @sm:flex-row justify-between gap-4">
+        <p className="text-neutral-700 text-xs leading-4 text-nowrap">
           {locales.route.form.helperText}
         </p>
-        <div className="mv-flex mv-flex-col @sm:mv-flex-row-reverse @sm:mv-items-end mv-w-full mv-gap-2">
-          <div className="mv-w-full @sm:mv-w-fit">
+        <div className="flex flex-col @sm:flex-row-reverse @sm:items-end w-full gap-2">
+          <div className="w-full @sm:w-fit">
             <Button
               form={createOrganizationForm.id}
               type="submit"
@@ -1092,7 +1088,7 @@ function CreateOrganization() {
               {locales.route.form.submit}
             </Button>
           </div>
-          <div className="mv-w-full @sm:mv-w-fit">
+          <div className="w-full @sm:w-fit">
             <Button
               as="link"
               to="/my/organizations"

@@ -28,20 +28,18 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
   }, [onHide, delay]);
 
   const classes = classNames(
-    "mv-px-4 mv-py-1.5 mv-rounded mv-font-semibold mv-text-sm mv-text-center",
-    level === "positive" && "mv-bg-positive-200 mv-text-positive-900",
-    level === "attention" && "mv-bg-attention-200 mv-text-attention-900",
-    level === "negative" && "mv-bg-negative-100 mv-text-negative-900",
-    level === "neutral" && "mv-bg-primary-50 mv-text-primary-700",
-    hide && "mv-hidden"
+    "px-4 py-1.5 rounded font-semibold text-sm text-center",
+    level === "positive" && "bg-positive-200 text-positive-900",
+    level === "attention" && "bg-attention-200 text-attention-900",
+    level === "negative" && "bg-negative-100 text-negative-900",
+    level === "neutral" && "bg-primary-50 text-primary-700",
+    hide && "hidden"
   );
 
   return hide ? null : (
     <div id={props.id}>
       <noscript>
-        <div className={classes.replace(" mv-hidden", "")}>
-          {props.children}
-        </div>
+        <div className={classes.replace(" hidden", "")}>{props.children}</div>
       </noscript>
       <div className={classes}>{props.children}</div>
     </div>

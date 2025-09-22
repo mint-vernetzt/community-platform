@@ -17,7 +17,7 @@ function Accordion(props: React.PropsWithChildren) {
 
   if (topics.length > 0) {
     return (
-      <ul className="mv-flex mv-flex-col mv-gap-10 @xl:mv-gap-[52px] mv-px-0 mv-pt-0 mv-pb-0 @md:mv-px-8 @md:mv-pt-8 @md:mv-pb-12 @md:mv-border @md:mv-border-neutral-200 @md:mv-rounded-2xl @md:mv-bg-white">
+      <ul className="flex flex-col gap-10 @xl:gap-[52px] px-0 pt-0 pb-0 @md:px-8 @md:pt-8 @md:pb-12 @md:border @md:border-neutral-200 @md:rounded-2xl @md:bg-white">
         {topics}
       </ul>
     );
@@ -42,9 +42,9 @@ function AccordionTopic(props: React.PropsWithChildren & { id: string }) {
   }
 
   return (
-    <li key={`${props.id}-key`} className="mv-relative">
-      <div id={props.id} className="mv-absolute -mv-top-[76px] xl:-mv-top-20" />
-      <h2 className="mv-mb-2 @md:mv-mb-3 @xl:mv-mb-5 mv-text-secondary mv-text-3xl mv-font-semibold mv-leading-7">
+    <li key={`${props.id}-key`} className="relative">
+      <div id={props.id} className="absolute -top-[76px] xl:-top-20" />
+      <h2 className="mb-2 @md:mb-3 @xl:mb-5 text-secondary text-3xl font-semibold leading-7">
         {topicLabel}
       </h2>
       <ul>{items}</ul>
@@ -86,32 +86,32 @@ function AccordionItem(props: React.PropsWithChildren & { id: string }) {
   return (
     <li
       key={`${props.id}-key`}
-      className="mv-group mv-border-neutral-200 mv-border-b mv-relative"
+      className="group border-neutral-200 border-b relative"
     >
       <div
         ref={scrollAnchorRef}
         id={props.id}
-        className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+        className="absolute -top-[76px] xl:-top-20"
       />
       <label
         htmlFor={`expand-question-${props.id}`}
-        className="mv-pb-6 mv-pt-6 @xl:mv-pb-8 @xl:mv-pt-8 group-has-[:checked]:mv-pb-0 mv-text-primary-600 mv-text-xl mv-font-bold mv-leading-6 mv-cursor-pointer mv-flex mv-gap-2 mv-items-center mv-justify-between mv-mb-0 focus-within:mv-underline focus-within:mv-underline-offset-4 focus-within:mv-decoration-2"
+        className="pb-6 pt-6 @xl:pb-8 @xl:pt-8 group-has-[:checked]:pb-0 text-primary-600 text-xl font-bold leading-6 cursor-pointer flex gap-2 items-center justify-between mb-0 focus-within:underline focus-within:underline-offset-4 focus-within:decoration-2"
       >
-        <p className="mv-max-w-[800px]">{itemLabel}</p>
-        <span className="mv-w-fit mv-h-fit mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-mr-0 @md:mv-mr-3 @lg:mv-mr-6">
+        <p className="max-w-[800px]">{itemLabel}</p>
+        <span className="w-fit h-fit rotate-90 group-has-[:checked]:-rotate-90 mr-0 @md:mr-3 @lg:mr-6">
           <Icon type="chevron-right" aria-hidden="true" />
         </span>
         <input
           id={`expand-question-${props.id}`}
           type="checkbox"
-          className="mv-absolute mv-opacity-0 mv-w-0 mv-h-0 mv-overflow-hidden"
+          className="absolute opacity-0 w-0 h-0 overflow-hidden"
           checked={isExpanded}
           onChange={() => {
             setIsExpanded(!isExpanded);
           }}
         />
       </label>
-      <div className="mv-text-primary-600 mv-leading-[20.8px] mv-font-normal mv-pt-[10px] mv-pb-6 @xl:mv-pt-4 @xl:mv-pb-8 mv-max-w-[800px] mv-hidden group-has-[:checked]:mv-block mv-hyphens-auto">
+      <div className="text-primary-600 leading-[20.8px] font-normal pt-[10px] pb-6 @xl:pt-4 @xl:pb-8 max-w-[800px] hidden group-has-[:checked]:block hyphens-auto">
         {content}
       </div>
     </li>
