@@ -85,6 +85,7 @@ export default async function handleRequest(
     "form-action": "'self'",
     "script-src": scriptSrc.join(" "),
     "img-src": imgSrc.join(" "),
+    "worker-src": "blob:",
     "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
     "base-uri": "'self'",
     "frame-ancestors": isMap ? false : "'none'",
