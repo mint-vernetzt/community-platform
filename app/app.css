@@ -200,6 +200,11 @@
   .h0 + h5 {
     @apply font-bold;
   }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 #roadmap {
