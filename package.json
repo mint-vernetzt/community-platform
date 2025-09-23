@@ -120,7 +120,6 @@
     "simple-git": "^3.21.0",
     "supabase": "^2.22.12",
     "tailwindcss": "^4.1.13",
-    "tailwindcss-opentype": "^1.2.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.2",

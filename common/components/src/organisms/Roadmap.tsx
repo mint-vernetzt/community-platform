@@ -99,8 +99,8 @@ function Roadmap(props: { locales: LandingPageLocales }) {
       id="roadmap"
       className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)] py-16"
     >
-      <h2 className="text-center mb-4 text-5xl text-primary-600 font-bold all-small-caps subpixel-antialiased leading-9">
-        {locales.roadmap.headline}
+      <h2 className="text-center mb-4 text-4xl text-primary-600 font-bold subpixel-antialiased leading-9">
+        {locales.roadmap.headline.toLocaleUpperCase()}
       </h2>
       <p className="text-center mb-16 text-2xl font-semibold leading-[26px] text-primary-600">
         {locales.roadmap.subline}

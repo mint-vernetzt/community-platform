@@ -412,8 +412,8 @@ export default function Index() {
         <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
           <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
             <div className="@md:col-start-2 @md:col-span-10 @xl:col-start-3 @xl:col-span-8">
-              <h2 className="text-center font-semibold all-small-caps subpixel-antialiased mb-12 text-primary-600 text-5xl leading-9">
-                {locales.route.content.education.headline}
+              <h2 className="text-center font-semibold subpixel-antialiased mb-12 text-primary-600 text-4xl leading-9">
+                {locales.route.content.education.headline.toLocaleUpperCase()}
               </h2>
               <p className="text-primary-600 text-3xl font-semibold leading-8 mb-12 hyphens-auto">
                 {insertComponentsIntoLocale(
@@ -449,8 +449,8 @@ export default function Index() {
       <section className="pt-16 pb-10 @md:pt-20 @md:pb-[50px] @lg:pt-24 @lg:pb-[60px] relative bg-primary-600">
         <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
           <div className="w-full flex flex-col items-center gap-12">
-            <h2 className="text-center mb-0 text-5xl font-semibold leading-9 text-neutral-50 all-small-caps subpixel-antialiased">
-              {locales.route.content.growth.headline}
+            <h2 className="text-center mb-0 text-4xl font-semibold leading-9 text-neutral-50 subpixel-antialiased">
+              {locales.route.content.growth.headline.toLocaleUpperCase()}
             </h2>
             <div className="flex flex-col @md:flex-row gap-8 @lg:gap-24 @xl:gap-44">
               <div className="text-center flex flex-col gap-6 items-center">
@@ -521,8 +521,8 @@ export default function Index() {
 
       <section className="flex flex-col items-center gap-12 w-full py-16 @md:py-24 @xl:py-32 px-4 @md:px-20 @xl:px-36 bg-accent-100">
         <div className="max-w-[852px]">
-          <h2 className="mb-12 text-center all-small-caps subpixel-antialiased text-primary-600 text-5xl font-semibold leading-9">
-            {locales.route.content.more.headline}
+          <h2 className="mb-12 text-center subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9">
+            {locales.route.content.more.headline.toLocaleUpperCase()}
           </h2>
           <p className="hyphens-auto text-primary-600 text-3xl font-semibold leading-8">
             {insertComponentsIntoLocale(locales.route.content.more.content, [
@@ -601,8 +601,8 @@ export default function Index() {
             />
           </svg>
         </div>
-        <h2 className="mb-[42px] all-small-caps subpixel-antialiased text-primary-600 text-5xl font-semibold leading-9">
-          {locales.route.content.faq.headline}
+        <h2 className="mb-[42px] subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9">
+          {locales.route.content.faq.headline.toLocaleUpperCase()}
         </h2>
         <div className="w-full mb-8 @md:mb-14 @xl:mb-[88px]">
           <Accordion>
