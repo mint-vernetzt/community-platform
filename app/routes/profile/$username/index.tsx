@@ -466,7 +466,7 @@ export default function Index() {
   const lastName = loaderData.data.lastName;
   const Avatar = useCallback(
     () => (
-      <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full border">
+      <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
         {avatar !== null ? (
           <MVAvatar
             avatar={avatar}
@@ -992,7 +992,7 @@ export default function Index() {
                           <div className="w-full flex items-center flex-row">
                             {relation.project.logo !== "" &&
                             relation.project.logo !== null ? (
-                              <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden border">
+                              <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden">
                                 <MVAvatar
                                   logo={relation.project.logo}
                                   blurredLogo={relation.project.blurredLogo}
@@ -1001,7 +1001,7 @@ export default function Index() {
                                 />
                               </div>
                             ) : (
-                              <div className="h-16 w-16 bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                              <div className="h-16 w-16 bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border border-neutral-200">
                                 {getInitialsOfName(relation.project.name)}
                               </div>
                             )}

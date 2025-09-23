@@ -188,7 +188,7 @@ function Autocomplete(
                   onMouseOver={() => handleMouseOver(index)}
                   onFocus={() => handleMouseOver(index)}
                 >
-                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                     {suggestion.logo !== null && suggestion.logo !== "" ? (
                       <Avatar
                         size="full"
@@ -248,7 +248,7 @@ function Autocomplete(
                   onMouseOver={() => handleMouseOver(index)}
                   onFocus={() => handleMouseOver(index)}
                 >
-                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+                  <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                     {suggestion.avatar !== null && suggestion.avatar !== "" ? (
                       <Avatar
                         size="full"

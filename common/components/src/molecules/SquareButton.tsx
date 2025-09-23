@@ -103,7 +103,7 @@ function SquareButton(
     // button primary ghost
     !isDisabled &&
       variant === "ghost" &&
-      "bg-white text-primary hover:text-primary-700 hover:bg-neutral-50 focus:underline focus:underline-offset-4 active:bg-neutral-100 focus:outline-hidden",
+      "bg-white border-transparent text-primary hover:text-primary-700 hover:bg-neutral-50 focus:underline focus:underline-offset-4 active:bg-neutral-100 focus:outline-hidden",
 
     Array.isArray(otherProps.children) &&
       otherProps.children.length > 1 &&

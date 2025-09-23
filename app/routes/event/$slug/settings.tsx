@@ -127,7 +127,7 @@ function Settings() {
                 >
                   {locales.content.documents}
                 </NavLink>
-                <hr className="border-neutral-400 my-4 @lg:my-8" />
+                <hr className="border-t border-neutral-400 my-4 @lg:my-8" />
                 <NavLink
                   to="delete#settings"
                   className={({ isActive }) => getClassName(isActive)}

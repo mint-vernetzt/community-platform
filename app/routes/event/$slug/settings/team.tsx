@@ -210,7 +210,7 @@ function Team() {
               key={`team-member-${teamMember.id}`}
               className="w-full flex items-center flex-row flex-wrap @sm:flex-nowrap border-b border-neutral-400 py-4 @md:px-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                 {teamMember.avatar !== null && teamMember.avatar !== "" ? (
                   <Avatar
                     size="full"

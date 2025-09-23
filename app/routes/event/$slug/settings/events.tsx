@@ -422,7 +422,7 @@ function Events() {
           </RemixFormsForm>
         </div>
       ) : null}
-      <hr className="border-neutral-400 my-4 @lg:my-8" />
+      <hr className="border-t border-neutral-400 my-4 @lg:my-8" />
       <h4 className="mb-4 font-semibold">
         {locales.route.content.related.headline}
       </h4>

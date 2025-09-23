@@ -65,7 +65,7 @@ function CircleButton(
     // button ghost
     !isDisabled &&
       variant === "ghost" &&
-      "text-primary hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100",
+      "text-primary border-transparent hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100",
     // floating
     floating && "shadow-lg"
   );

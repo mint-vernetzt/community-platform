@@ -68,7 +68,7 @@ export function Avatar(props: AvatarProps) {
 
   const classes = classNames(
     "w-full aspect-[1]",
-    "bg-neutral-600 border-gray-200 flex items-center justify-center rounded-full overflow-hidden shrink-0",
+    "bg-neutral-600 border-neutral-200 flex items-center justify-center rounded-full overflow-hidden shrink-0",
     "text-white font-normal	flex items-center justify-center",
     props.to &&
       "hover:border-0 active:border-2 focus-within:border-2 active:border-blue-500 focus-within:border-blue-500 hover:shadow-md active:shadow-md focus:shadow-md"

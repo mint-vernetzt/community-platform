@@ -348,7 +348,7 @@ export default function Security() {
             </Button>
           </Form>
 
-          <hr className="border-neutral-400 my-10 @lg:my-16" />
+          <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
           <h4 className="mb-4 font-semibold">
             {locales.section.changeEmail.headline}

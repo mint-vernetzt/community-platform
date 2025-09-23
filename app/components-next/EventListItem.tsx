@@ -82,7 +82,7 @@ function EventListItemFlag(props: {
       ? "border-negative-500 text-negative-500"
       : !props.published
       ? "border-primary-300 text-primary-300"
-      : ""
+      : "border-gray-200"
   );
 
   return typeof props.canceled === "boolean" && props.canceled ? (

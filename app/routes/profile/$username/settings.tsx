@@ -89,7 +89,7 @@ function Index() {
                     </NavLink>
                   </li>
                 </ul>
-                <hr className="border-neutral-400 my-4 @lg:my-8" />
+                <hr className="border-t border-neutral-400 my-4 @lg:my-8" />
                 <div>
                   <NavLink
                     to="delete#settings"

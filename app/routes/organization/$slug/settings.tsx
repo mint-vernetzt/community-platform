@@ -90,12 +90,12 @@ function Settings() {
   const deep = searchParams.get(Deep);
 
   const menuClasses = classNames(
-    "w-full @md:w-1/3 @2xl:w-1/4 max-h-dvh @md:max-h-fit flex flex-col absolute @md:relative top-0 bg-white @md:border-l @md:border-b @md:rounded-bl-xl @md:self-start",
+    "w-full @md:w-1/3 @2xl:w-1/4 max-h-dvh @md:max-h-fit flex flex-col absolute @md:relative top-0 bg-white @md:border-l @md:border-b border-neutral-200 @md:rounded-bl-xl @md:self-start",
     deep !== null && deep !== "false" && "hidden @md:block"
   );
 
   const outletClasses = classNames(
-    "overflow-hidden @md:w-2/3 @2xl:w-3/4 @md:border-x @md:border-b @md:rounded-b-xl @md:mb-4 @lg:mb-24 bg-white",
+    "overflow-hidden @md:w-2/3 @2xl:w-3/4 @md:border-x @md:border-b border-neutral-200 @md:rounded-b-xl @md:mb-4 @lg:mb-24 bg-white",
     (deep === null || deep === "false") && "hidden @md:block"
   );
 
@@ -150,7 +150,7 @@ function Settings() {
               const isActive = pathnameWithoutSlug.includes(absolutePath);
 
               const itemClasses = classNames(
-                "@md:border-b @md:last:border-b-0 h-full grid grid-rows-1 grid-cols-1",
+                "@md:border-b @md:last:border-b-0 border-b-neutral-200 h-full grid grid-rows-1 grid-cols-1",
                 isActive && "@md:border-l-8",
                 navLink.variant === "negative"
                   ? "@md:border-l-negative"

@@ -499,7 +499,7 @@ export default function Index() {
               </div>
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
             <div className="flex flex-row items-center mb-4">
               <h4 className="font-semibold">
@@ -567,7 +567,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
             <h4 className="mb-4 font-semibold">
               {locales.route.offer.headline}
             </h4>
@@ -601,7 +601,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
             <h4 className="mb-4 font-semibold">
               {locales.route.lookingFor.headline}
@@ -636,7 +636,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
             <h2 className="mb-8">
               {locales.route.websiteSocialMedia.headline}
@@ -668,7 +668,7 @@ export default function Index() {
               />
             </div>
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
             <h4 className="mb-4 font-semibold">
               {locales.route.websiteSocialMedia.socialMedia.headline}
@@ -693,7 +693,7 @@ export default function Index() {
               </div>
             ))}
 
-            <hr className="border-neutral-400 my-10 @lg:my-16" />
+            <hr className="border-t border-neutral-400 my-10 @lg:my-16" />
 
             <div className="flex flex-col justify-start @sm:items-center mb-4 @sm:flex-row gap-2 @sm:gap-4">
               <h4 className="font-semibold">

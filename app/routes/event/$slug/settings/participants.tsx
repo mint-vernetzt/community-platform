@@ -387,7 +387,7 @@ function Participants() {
               key={participant.id}
               className="w-full flex items-center flex-row border-b border-neutral-400 p-4"
             >
-              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full border overflow-hidden shrink-0">
+              <div className="h-16 w-16 bg-primary text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                 {participant.avatar !== null && participant.avatar !== "" ? (
                   <Avatar
                     size="full"

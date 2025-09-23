@@ -92,7 +92,7 @@ function ConformSelectInput(props: {
       </label>
       <ul
         ref={listRef}
-        className="absolute top-[64px] w-full hidden group-has-[:checked]/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-gray-300 border-t-transparent peer-focus:border-t-primary-200"
+        className="absolute top-[64px] w-full hidden group-has-[:checked]/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
       >
         {listItems.map((button) => {
           if (isValidElement(button)) {

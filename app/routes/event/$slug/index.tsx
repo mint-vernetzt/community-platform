@@ -1426,7 +1426,7 @@ function Index() {
                           to={`/profile/${profile.username}`}
                           prefetch="intent"
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
                               <Avatar
@@ -1715,7 +1715,7 @@ function Index() {
                           to={`/profile/${member.profile.username}`}
                           prefetch="intent"
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                             {member.profile.avatar !== null &&
                             member.profile.avatar !== "" ? (
                               <Avatar
@@ -1784,7 +1784,7 @@ function Index() {
                         >
                           {item.organization.logo !== null &&
                           item.organization.logo !== "" ? (
-                            <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                            <div className="h-11 w-11 flex items-center justify-center rounded-full overflow-hidden shrink-0">
                               <Avatar
                                 size="full"
                                 name={item.organization.name}
@@ -1869,7 +1869,7 @@ function Index() {
                           to={`/profile/${profile.username}`}
                           prefetch="intent"
                         >
-                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border">
+                          <div className="h-11 w-11 bg-primary text-white text-xl flex items-center justify-center rounded-full overflow-hidden shrink-0">
                             {profile.avatar !== null &&
                             profile.avatar !== "" ? (
                               <Avatar

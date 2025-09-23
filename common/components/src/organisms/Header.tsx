@@ -119,7 +119,7 @@ function Footer(props: FooterProps) {
 
   return (
     <div
-      className={`flex flex-col @lg:flex-row gap-4 @lg:gap-0 justify-end w-full @md:border-t p-6 ${
+      className={`flex flex-col @lg:flex-row gap-4 @lg:gap-0 justify-end w-full @md:border-t border-gray-200 p-6 ${
         otherChilds.length > 0 ? "bg-accent-300" : ""
       }`}
     >
