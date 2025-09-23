@@ -42,8 +42,13 @@ export default async function handleRequest(
 
   const connectSrc = ["'self'"];
   if (process.env.NODE_ENV === "production") {
-    connectSrc.push(process.env.MATOMO_URL);
-    if (typeof process.env.SENTRY_DSN !== "undefined") {
+    if (process.env.MATOMO_URL !== "") {
+      connectSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+    }
+    if (
+      typeof process.env.SENTRY_DSN !== "undefined" &&
+      process.env.SENTRY_DSN !== ""
+    ) {
       connectSrc.push(
         process.env.SENTRY_DSN.replace(/https?:\/\//, "")
           .replace(/sentry\.io.*/, "sentry.io")
@@ -52,28 +57,44 @@ export default async function handleRequest(
     }
   }
 
-  // const cspHeaderOptions = createCSPHeaderOptions({
-  //   "default-src": "'self'",
-  //   "style-src": "'self'",
-  //   "style-src-attr": "'self'",
-  //   "style-src-elem": "'self'",
-  //   "font-src": "'self'",
-  //   "form-action": "'self'",
-  //   "script-src": `'self' ${process.env.MATOMO_URL} 'nonce-${nonce}'`,
-  //   "img-src": `'self' ${
-  //     process.env.MATOMO_URL
-  //   } data: ${process.env.IMGPROXY_URL.replace(/https?:\/\//, "")}`,
-  //   "worker-src": "blob:",
-  //   "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
-  //   "base-uri": "'self'",
-  //   "frame-ancestors": isMap ? false : "'none'",
-  //   "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
-  //   "report-to": "csp-endpoint",
-  //   "upgrade-insecure-requests": process.env.NODE_ENV === "production",
-  //   "connect-src": connectSrc.join(" "),
-  // });
+  const styleSrcElem = ["'self'"];
+  if (process.env.NODE_ENV === "development") {
+    styleSrcElem.push("'unsafe-inline'");
+  }
 
-  // responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
+  const imgSrc = ["'self'", "data:"];
+  if (process.env.MATOMO_URL !== "") {
+    imgSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+  }
+  if (process.env.IMGPROXY_URL !== "") {
+    imgSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
+  }
+
+  const scriptSrc = ["'self'"];
+  if (process.env.MATOMO_URL !== "") {
+    scriptSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+  }
+  scriptSrc.push(`'nonce-${nonce}'`);
+
+  const cspHeaderOptions = createCSPHeaderOptions({
+    "default-src": "'self'",
+    "style-src": "'self'",
+    "style-src-attr": "'self'",
+    "style-src-elem": styleSrcElem.join(" "),
+    "font-src": "'self'",
+    "form-action": "'self'",
+    "script-src": scriptSrc.join(" "),
+    "img-src": imgSrc.join(" "),
+    "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
+    "base-uri": "'self'",
+    "frame-ancestors": isMap ? false : "'none'",
+    "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
+    "report-to": "csp-endpoint",
+    "upgrade-insecure-requests": process.env.NODE_ENV === "production",
+    "connect-src": connectSrc.join(" "),
+  });
+
+  responseHeaders.set("Content-Security-Policy", cspHeaderOptions);
   if (isMap === false) {
     responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
   }
