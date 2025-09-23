@@ -1584,11 +1584,11 @@ function Index() {
                               {event.name}
                             </h3>
                             {event.subline !== null ? (
-                              <p className="hidden text-xs mt-1 @md:line-clamp-1">
+                              <p className="text-xs mt-1 @md:line-clamp-1">
                                 {event.subline}
                               </p>
                             ) : (
-                              <p className="hidden text-xs mt-1 @md:line-clamp-1">
+                              <p className="text-xs mt-1 @md:line-clamp-1">
                                 {removeHtmlTags(event.description ?? "")}
                               </p>
                             )}

@@ -383,11 +383,11 @@ function Events() {
                           {loaderData.parentEvent.name}
                         </h4>
                         {loaderData.parentEvent.subline !== null ? (
-                          <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                          <p className="text-xs mt-1 @md:line-clamp-2">
                             {loaderData.parentEvent.subline}
                           </p>
                         ) : (
-                          <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                          <p className="text-xs mt-1 @md:line-clamp-2">
                             {removeHtmlTags(
                               loaderData.parentEvent.description ?? ""
                             )}
@@ -600,11 +600,11 @@ function Events() {
                               {childEvent.name}
                             </h4>
                             {childEvent.subline !== null ? (
-                              <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                              <p className="text-xs mt-1 @md:line-clamp-2">
                                 {childEvent.subline}
                               </p>
                             ) : (
-                              <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                              <p className="text-xs mt-1 @md:line-clamp-2">
                                 {removeHtmlTags(childEvent.description ?? "")}
                               </p>
                             )}

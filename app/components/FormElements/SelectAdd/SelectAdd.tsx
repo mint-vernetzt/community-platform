@@ -49,7 +49,7 @@ function SelectAdd(props: SelectAddProps) {
             value={`add${uppercaseSingularName}`}
             name="submit"
             type="submit"
-            className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 hidden ml-2"
+            className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 ml-2"
             disabled={isSubmitting}
           >
             +

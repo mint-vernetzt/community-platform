@@ -358,11 +358,11 @@ function Autocomplete(
                       {suggestion.name}
                     </h4>
                     {suggestion.subline !== null ? (
-                      <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                      <p className="text-xs mt-1 @md:line-clamp-2">
                         {suggestion.subline}
                       </p>
                     ) : (
-                      <p className="hidden text-xs mt-1 @md:line-clamp-2">
+                      <p className="text-xs mt-1 @md:line-clamp-2">
                         {suggestion.description}
                       </p>
                     )}
