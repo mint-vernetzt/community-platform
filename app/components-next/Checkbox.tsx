@@ -1,7 +1,7 @@
 export function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <div className="group w-5 h-5 relative focus-within:ring-2 focus-within:ring-primary-200 rounded-sm">
+      <div className="group w-5 h-5 relative focus-within:ring-2 focus-within:ring-primary-200 rounded-xs">
         <input
           type="checkbox"
           className="h-5 w-5 opacity-0 absolute cursor-pointer"

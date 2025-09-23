@@ -60,7 +60,7 @@ function SelectField(
         <div className="flex-auto relative">
           <select
             {...selectProps}
-            className={`w-full outline-none h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200 bg-neutral-100 focus:bg-white cursor-pointer ${
+            className={`w-full outline-hidden h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200 bg-neutral-100 focus:bg-white cursor-pointer ${
               selectProps.className ?? ""
             }`}
           >

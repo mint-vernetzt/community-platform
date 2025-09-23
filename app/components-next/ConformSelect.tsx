@@ -223,7 +223,7 @@ function ConformSelect(props: ConformSelectProps) {
 function getListItemChildrenStyles() {
   return {
     className:
-      "w-full appearance-none px-3.5 py-2.5 text-start text-neutral-700 leading-5 focus:outline-none",
+      "w-full appearance-none px-3.5 py-2.5 text-start text-neutral-700 leading-5 focus:outline-hidden",
   };
 }
 

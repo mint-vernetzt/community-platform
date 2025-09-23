@@ -28,7 +28,7 @@ function Toast(props: React.PropsWithChildren<ToastProps>) {
   }, [onHide, delay]);
 
   const classes = classNames(
-    "px-4 py-1.5 rounded font-semibold text-sm text-center",
+    "px-4 py-1.5 rounded-sm font-semibold text-sm text-center",
     level === "positive" && "bg-positive-200 text-positive-900",
     level === "attention" && "bg-attention-200 text-attention-900",
     level === "negative" && "bg-negative-100 text-negative-900",

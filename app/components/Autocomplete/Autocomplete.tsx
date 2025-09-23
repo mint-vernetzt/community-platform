@@ -162,7 +162,7 @@ function Autocomplete(
       <input
         ref={inputRef}
         // input input-lg input-bordered
-        className="w-full outline-none bg-white h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200"
+        className="w-full outline-hidden bg-white h-auto border-2 border-neutral-300 px-4 text-base font-semibold leading-8 appearance-none rounded-lg focus:border-neutral-200"
         value={searchedValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}

@@ -1506,7 +1506,7 @@ function Index() {
                         className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden focus-within:ring-2 focus-within:ring-primary-200"
                       >
                         <Link
-                          className="flex focus:outline-none"
+                          className="flex focus:outline-hidden"
                           to={`/event/${event.slug}`}
                           prefetch="intent"
                         >

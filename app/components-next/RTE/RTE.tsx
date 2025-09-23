@@ -149,7 +149,7 @@ function RTE(
               contentEditable={
                 <ContentEditable
                   ref={contentEditableRef}
-                  className="p-2 rounded-bl-lg rounded-br-lg h-48 w-full overflow-y-scroll focus:outline-none"
+                  className="p-2 rounded-bl-lg rounded-br-lg h-48 w-full overflow-y-scroll focus:outline-hidden"
                   placeholder={
                     placeholder !== undefined ? (
                       <div className="absolute top-12 left-2 pointer-events-none">

@@ -89,7 +89,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
   );
 
   const linkClasses = classNames(
-    "w-full @lg:max-w-content cursor-pointer p-2 @lg:p-0 outline-none focus:ring-primary-200 focus:ring-2 rounded-lg"
+    "w-full @lg:max-w-content cursor-pointer p-2 @lg:p-0 outline-hidden focus:ring-primary-200 focus:ring-2 rounded-lg"
   );
 
   return (

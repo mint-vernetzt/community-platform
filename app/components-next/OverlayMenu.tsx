@@ -113,7 +113,7 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <div className="fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit  @lg:bg-black/100 p-4 @lg:p-0 @lg:absolute top-0 @lg:top-10 left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-sm @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-10 overflow-hidden">
+        <div className="fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 @lg:top-10 left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-10 overflow-hidden">
           <ul ref={listRef} className="flex flex-col bg-white rounded-lg">
             {listItems}
           </ul>
@@ -121,7 +121,7 @@ function OverlayMenu(
             <ListItem>
               <Link
                 to={`?${enhancedSearchParams.toString()}`}
-                className="w-full text-center px-3 py-2 focus:outline-none"
+                className="w-full text-center px-3 py-2 focus:outline-hidden"
                 onClick={() => {
                   setIsOpen(false);
                 }}
@@ -161,7 +161,7 @@ function ListItem(
 function getListItemChildrenStyles() {
   return {
     className:
-      "w-full flex items-center justify-center @md:justify-normal gap-2 appearance-none px-3 py-2 focus:outline-none",
+      "w-full flex items-center justify-center @lg:justify-normal gap-2 appearance-none px-3 py-2 focus:outline-hidden",
   };
 }
 

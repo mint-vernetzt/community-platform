@@ -79,12 +79,12 @@ function SquareButton(
     !isDisabled &&
       variant === "normal" &&
       level === "primary" &&
-      "bg-primary text-neutral-50 hover:bg-primary-600 active:bg-primary-700 focus:ring-2 focus:ring-primary-200 focus:outline-none",
+      "bg-primary text-neutral-50 hover:bg-primary-600 active:bg-primary-700 focus:ring-2 focus:ring-primary-200 focus:outline-hidden",
     // button negative
     !isDisabled &&
       variant === "normal" &&
       level === "negative" &&
-      "bg-negative-600 text-white hover:bg-negative-700 active:bg-negative-800 focus:ring-2 focus:ring-negative-900 focus:outline-none",
+      "bg-negative-600 text-white hover:bg-negative-700 active:bg-negative-800 focus:ring-2 focus:ring-negative-900 focus:outline-hidden",
     // button primary outline disabled
     isDisabled &&
       variant === "outline" &&
@@ -93,17 +93,17 @@ function SquareButton(
     !isDisabled &&
       variant === "outline" &&
       size !== "large" &&
-      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-none focus:border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200",
     !isDisabled &&
       variant === "outline" &&
       size === "large" &&
-      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:outline-none focus:border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:outline-hidden focus:border-primary-200",
     // button primary ghost disabled
     isDisabled && variant === "ghost" && "bg-white text-neutral-300",
     // button primary ghost
     !isDisabled &&
       variant === "ghost" &&
-      "bg-white text-primary hover:text-primary-700 hover:bg-neutral-50 focus:underline focus:underline-offset-4 active:bg-neutral-100 focus:outline-none",
+      "bg-white text-primary hover:text-primary-700 hover:bg-neutral-50 focus:underline focus:underline-offset-4 active:bg-neutral-100 focus:outline-hidden",
 
     Array.isArray(otherProps.children) &&
       otherProps.children.length > 1 &&

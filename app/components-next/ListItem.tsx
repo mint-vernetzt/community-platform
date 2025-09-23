@@ -132,7 +132,7 @@ export function ListItem(
               ? `/project/${entity.slug}/detail/about`
               : `/organization/${entity.slug}/detail/about`
           }
-          className={`w-full flex gap-2 @lg:gap-4 focus:outline-none items-center grow rounded-lg ${
+          className={`w-full flex gap-2 @lg:gap-4 focus:outline-hidden items-center grow rounded-lg ${
             validChildren.length > 0
               ? `pb-0 pt-4 @lg:pr-0 @lg:pl-4 @lg:py-4 px-4`
               : "p-4"

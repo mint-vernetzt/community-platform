@@ -55,11 +55,11 @@ function CircleButton(
     !isDisabled &&
       variant === "outline" &&
       size !== "large" &&
-      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-none focus:border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200",
     !isDisabled &&
       variant === "outline" &&
       size === "large" &&
-      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:outline-none focus:border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:outline-hidden focus:border-primary-200",
     // button ghost disabled
     isDisabled && variant === "ghost" && "bg-neutral-50 text-neutral-300",
     // button ghost

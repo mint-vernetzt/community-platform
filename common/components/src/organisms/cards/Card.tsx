@@ -37,7 +37,7 @@ function Card(props: CardProps) {
           <div className="h-full hover:bg-neutral-100 active:bg-neutral-100 focus:bg-neutral-100">
             <Link
               to={props.to}
-              className="focus:outline-none"
+              className="focus:outline-hidden"
               prefetch={props.prefetch}
             >
               {header || null}

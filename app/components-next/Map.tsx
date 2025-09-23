@@ -888,7 +888,7 @@ function Popup(props: {
       ) : null}
       <a
         href={`/organization/${organization.slug}/detail/about`}
-        className="appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 w-full bg-white border border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-none focus:border-primary-200 pointer-events-auto"
+        className="appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 w-full bg-white border border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200 pointer-events-auto"
         rel={embeddable === true ? "noreferrer noopener" : undefined}
         target={embeddable === true ? "_blank" : undefined}
       >
