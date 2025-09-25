@@ -87,7 +87,7 @@ export function RemoveParticipantForm(props: RemoveParticipantFormProps) {
             <input name="profileId" defaultValue={props.profileId} hidden />
             {props.modalSearchParam === undefined ? (
               <button
-                className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                 type="submit"
               >
                 {locales.removeParticipant.action}

@@ -391,8 +391,8 @@ function OrganizationDetail() {
 
   return (
     <Container
-      outerContainerClassName="mv-w-full mv-h-full mv-flex mv-justify-center mv-bg-white @sm:mv-bg-transparent"
-      innerContainerClassName="mv-w-full mv-py-4 mv-px-4 @lg:mv-py-8 xl:mv-px-8 mv-flex mv-flex-col mv-gap-4 @md:mv-gap-6 @lg:mv-gap-8 mv-mb-14 @sm:mv-mb-20 @lg:mv-mb-16 mv-max-w-screen-2xl"
+      outerContainerClassName="w-full h-full flex justify-center bg-white @sm:bg-transparent"
+      innerContainerClassName="w-full py-4 px-4 @lg:py-8 xl:px-8 flex flex-col gap-4 @md:gap-6 @lg:gap-8 mb-14 @sm:mb-20 @lg:mb-16 max-w-screen-2xl"
     >
       {/* Back Button Section */}
       <BackButton
@@ -402,8 +402,8 @@ function OrganizationDetail() {
         {locales.route.back}
       </BackButton>
       {/* Header Section */}
-      <Container.Section className="mv-relative mv-flex mv-flex-col mv-items-center mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl mv-overflow-hidden">
-        <div className="mv-w-full mv-h-[196px] @lg:mv-h-[168px]">
+      <Container.Section className="relative flex flex-col items-center border border-neutral-200 bg-white rounded-2xl overflow-hidden">
+        <div className="w-full h-[196px] @lg:h-[168px]">
           <Image
             alt={`${locales.route.header.image.alt} ${organization.name}`}
             src={organization.background || undefined}
@@ -411,11 +411,11 @@ function OrganizationDetail() {
             resizeType="fill"
           />
         </div>
-        <div className="mv-w-full mv-px-4 @sm:mv-px-6 @md:mv-px-8 mv-pt-9 @lg:mv-pt-8 mv-pb-6 @sm:mv-pb-7 @md:mv-pb-8 mv-flex mv-flex-col @lg:mv-flex-row mv-items-center @lg:mv-items-start mv-gap-10 @lg:mv-gap-3 @lg:mv-justify-between">
-          <div className="mv-flex mv-flex-col mv-items-center @lg:mv-items-start mv-gap-6 @lg:mv-flex-grow @lg:mv-w-full">
-            <div className="mv-flex mv-flex-col mv-items-center @lg:mv-items-start mv-gap-2">
+        <div className="w-full px-4 @sm:px-6 @md:px-8 pt-9 @lg:pt-8 pb-6 @sm:pb-7 @md:pb-8 flex flex-col @lg:flex-row items-center @lg:items-start gap-10 @lg:gap-3 @lg:justify-between">
+          <div className="flex flex-col items-center @lg:items-start gap-6 @lg:grow @lg:w-full">
+            <div className="flex flex-col items-center @lg:items-start gap-2">
               {mode === "admin" ? (
-                <div className="@lg:mv-hidden">
+                <div className="@lg:hidden">
                   <TextButton
                     variant="primary"
                     weight="thin"
@@ -425,7 +425,7 @@ function OrganizationDetail() {
                     disabled={isSubmitting}
                   >
                     <div>
-                      <div className="mv-cursor-pointer mv-flex mv-flex-nowrap mv-gap-1 mv-items-center">
+                      <div className="cursor-pointer flex flex-nowrap gap-1 items-center">
                         <svg
                           width="17"
                           height="16"
@@ -441,11 +441,11 @@ function OrganizationDetail() {
                   </TextButton>
                 </div>
               ) : null}
-              <h1 className="mv-mb-0 mv-text-3xl @sm:mv-text-4xl @md:mv-text-5xl mv-font-bold mv-leading-7 @sm:mv-leading-8 @md:mv-leading-9">
+              <h1 className="mb-0 text-3xl @sm:text-4xl @md:text-5xl font-bold leading-7 @sm:leading-8 @md:leading-9">
                 {organization.name}
               </h1>
               {organization.types.length > 0 ? (
-                <p className="mv-px-8 @lg:mv-px-0 mv-text-neutral-600 mv-text-lg mv-font-semibold mv-leading-6">
+                <p className="px-8 @lg:px-0 text-neutral-600 text-lg font-semibold leading-6">
                   {organization.types
                     .map((relation) => {
                       let title;
@@ -489,8 +489,8 @@ function OrganizationDetail() {
               ) : null}
             </div>
             {organization.networkMembers.length > 0 ? (
-              <div className="mv-flex mv-items-center mv-gap-2">
-                <div className="mv-flex mv-pl-[16px] *:mv--ml-[16px]">
+              <div className="flex items-center gap-2">
+                <div className="flex pl-[16px] *:-ml-[16px]">
                   {organization.networkMembers.slice(0, 3).map((relation) => {
                     return (
                       <Avatar
@@ -506,7 +506,7 @@ function OrganizationDetail() {
                   })}
                 </div>
                 {organization.networkMembers.length > 3 && (
-                  <div className="mv-font-semibold mv-text-primary mv-leading-[22px]">
+                  <div className="font-semibold text-primary leading-[22px]">
                     +{organization.networkMembers.length - 3}
                   </div>
                 )}
@@ -514,7 +514,7 @@ function OrganizationDetail() {
             ) : null}
           </div>
           {mode === "admin" ? (
-            <div className="mv-w-full @lg:mv-w-fit mv-grid @lg:mv-flex mv-grid-rows-1 mv-grid-cols-2 mv-gap-2">
+            <div className="w-full @lg:w-fit grid @lg:flex grid-rows-1 grid-cols-2 gap-2">
               <Button
                 as="link"
                 to={`/organization/${organization.slug}/settings/general`}
@@ -533,11 +533,11 @@ function OrganizationDetail() {
                     fill="white"
                   />
                 </svg>
-                <span className="mv-ml-2">
+                <span className="ml-2">
                   {locales.route.header.controls.edit}
                 </span>
               </Button>
-              <div className="@lg:mv-hidden mv-w-full">
+              <div className="@lg:hidden w-full">
                 <Button
                   variant="outline"
                   type="submit"
@@ -545,7 +545,7 @@ function OrganizationDetail() {
                   fullSize
                   disabled={isSubmitting}
                 >
-                  <div className="mv-flex mv-flex-nowrap">
+                  <div className="flex flex-nowrap">
                     <svg
                       width="17"
                       height="16"
@@ -555,7 +555,7 @@ function OrganizationDetail() {
                     >
                       <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                     </svg>
-                    <span className="mv-ml-2 ">
+                    <span className="ml-2 ">
                       {locales.route.header.controls.background}
                     </span>
                   </div>
@@ -565,9 +565,9 @@ function OrganizationDetail() {
           ) : null}
         </div>
         {mode === "admin" ? (
-          <div className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-[196px] @lg:mv-h-[168px] mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center">
-            <div className="mv-flex mv-flex-col mv-items-center mv-gap-4">
-              <p className="mv-text-white mv-text-lg mv-font-bold">
+          <div className="hidden @lg:grid absolute top-0 w-full h-[196px] @lg:h-[168px] opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center">
+            <div className="flex flex-col items-center gap-4">
+              <p className="text-white text-lg font-bold">
                 {locales.route.header.controls.backgroundLong}
               </p>
               <Button
@@ -575,7 +575,7 @@ function OrganizationDetail() {
                 form="modal-background-form"
                 disabled={isSubmitting}
               >
-                <div className="mv-flex mv-flex-nowrap">
+                <div className="flex flex-nowrap">
                   <svg
                     width="17"
                     height="16"
@@ -585,7 +585,7 @@ function OrganizationDetail() {
                   >
                     <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                   </svg>
-                  <span className="mv-ml-2">
+                  <span className="ml-2">
                     {locales.route.header.controls.backgroundEdit}
                   </span>
                 </div>
@@ -593,8 +593,8 @@ function OrganizationDetail() {
             </div>
           </div>
         ) : null}
-        <div className="mv-absolute mv-top-14 @lg:mv-top-8 @lg:mv-left-8 mv-w-40 mv-h-40 mv-rounded-full mv-shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
-          <div className="mv-relative mv-w-full mv-full">
+        <div className="absolute top-14 @lg:top-8 @lg:left-8 w-40 h-40 rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+          <div className="relative w-full full">
             <Avatar
               logo={organization.logo}
               blurredLogo={organization.blurredLogo}
@@ -606,11 +606,11 @@ function OrganizationDetail() {
               <button
                 type="submit"
                 form="modal-logo-form"
-                className="mv-hidden @lg:mv-grid mv-absolute mv-top-0 mv-w-full mv-h-full mv-rounded-full mv-opacity-0 hover:mv-opacity-100 focus-within:mv-opacity-100 mv-bg-opacity-0 hover:mv-bg-opacity-70 focus-within:mv-bg-opacity-70 mv-transition-all mv-bg-neutral-700 mv-grid-rows-1 mv-grid-cols-1 mv-place-items-center mv-cursor-pointer"
+                className="hidden @lg:grid absolute top-0 w-full h-full rounded-full opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center cursor-pointer"
                 disabled={isSubmitting}
               >
-                <div className="mv-flex mv-flex-col mv-items-center mv-gap-1">
-                  <div className="mv-w-8 mv-h-8 mv-rounded-full mv-bg-neutral-50 mv-flex mv-items-center mv-justify-center mv-border mv-border-primary mv-bg-opacity-100">
+                <div className="flex flex-col items-center gap-1">
+                  <div className="w-8 h-8 rounded-full bg-neutral-50/100 flex items-center justify-center border border-primary">
                     <svg
                       width="16"
                       height="16"
@@ -632,7 +632,7 @@ function OrganizationDetail() {
                       />
                     </svg>
                   </div>
-                  <p className="mv-text-white mv-text-sm mv-font-semibold mv-leading-4">
+                  <p className="text-white text-sm font-semibold leading-4">
                     {locales.route.header.controls.edit}
                   </p>
                 </div>
@@ -641,9 +641,9 @@ function OrganizationDetail() {
           </div>
         </div>
         {allowedToClaimOrganization ? (
-          <div className="mv-w-full mv-px-4 mv-pb-6">
-            <div className="mv-w-full mv-p-4 mv-flex mv-flex-col @md:mv-flex-row @md:mv-justify-between mv-items-center mv-gap-4 mv-rounded-[4px] mv-bg-primary-50">
-              <p className="mv-text-primary-700 @md:mv-max-w-[800px]">
+          <div className="w-full px-4 pb-6">
+            <div className="w-full p-4 flex flex-col @md:flex-row @md:justify-between items-center gap-4 rounded-[4px] bg-primary-50">
+              <p className="text-primary-700 @md:max-w-[800px]">
                 {alreadyRequestedToClaim
                   ? locales.route.claimRequest.alreadyRequested.description
                   : insertComponentsIntoLocale(
@@ -651,13 +651,13 @@ function OrganizationDetail() {
                       [
                         <span
                           key="highlighted-text"
-                          className="mv-font-semibold"
+                          className="font-semibold"
                         />,
                         <Link
                           key="help-link"
                           to="/help#organizations-whatAreProvisionalOrganizations"
                           target="_blank"
-                          className="mv-text-primary mv-font-semibold hover:mv-underline"
+                          className="text-primary font-semibold hover:underline"
                           prefetch="intent"
                         >
                           {" "}
@@ -665,7 +665,7 @@ function OrganizationDetail() {
                       ]
                     )}
               </p>
-              <div className="mv-w-full @md:mv-w-fit">
+              <div className="w-full @md:w-fit">
                 {mode === "anon" ? (
                   <Button
                     as="link"
@@ -760,7 +760,7 @@ function OrganizationDetail() {
                     blurredSrc={organization.blurredBackground}
                   />
                 ) : (
-                  <div className="mv-w-[300px] mv-min-h-[108px] mv-bg-attention-400 mv-rounded-md" />
+                  <div className="w-[300px] min-h-[108px] bg-attention-400 rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
@@ -805,7 +805,7 @@ function OrganizationDetail() {
         </>
       )}
       {/* TabBar Section */}
-      <Container.Section className="mv-pt-6 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 @sm:mv-border-x @sm:mv-border-t @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-t-2xl">
+      <Container.Section className="pt-6 @sm:px-4 @lg:px-6 flex flex-col gap-4 @sm:border-x @sm:border-t @sm:border-neutral-200 bg-white @sm:rounded-t-2xl">
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
             <Link to="./about" preventScrollReset prefetch="intent">

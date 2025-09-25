@@ -46,72 +46,71 @@ function Button(
   const isDisabled = "disabled" in props && props.disabled;
 
   const classes = classnames(
-    "mv-appearance-none",
-    "mv-font-semibold",
-    "mv-whitespace-nowrap",
-    "mv-flex",
-    "mv-items-center",
-    "mv-justify-center",
-    "mv-align-middle",
-    "mv-text-center",
-    "mv-rounded-lg",
-    isDisabled && "mv-pointer-events-none",
-    as === "label" && isDisabled === false && "mv-cursor-pointer",
+    "appearance-none",
+    "font-semibold",
+    "whitespace-nowrap",
+    "flex",
+    "items-center",
+    "justify-center",
+    "align-middle",
+    "text-center",
+    "rounded-lg",
+    isDisabled && "pointer-events-none",
+    as === "label" && isDisabled === false && "cursor-pointer",
     // button size
-    size === "x-small" && "mv-text-xs mv-p-2 mv-leading-4",
-    size === "small" && "mv-text-xs mv-px-4 mv-py-2 mv-leading-4",
-    size === "medium" && "mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5",
-    size === "large" &&
-      "mv-h-12 mv-text-base mv-px-6 mv-py-2.5 mv-leading-[22px]",
+    size === "x-small" && "text-xs p-2 leading-4",
+    size === "small" && "text-xs px-4 py-2 leading-4",
+    size === "medium" && "h-10 text-sm px-4 py-2.5 leading-5",
+    size === "large" && "h-12 text-base px-6 py-2.5 leading-[22px]",
     // button border
-    variant === "outline" && size !== "large" && "mv-border",
-    variant === "outline" && size === "large" && "mv-border-2",
+    variant === "outline" && size !== "large" && "border",
+    variant === "outline" && size === "large" && "border-2",
     // button full size
-    fullSize ? "mv-w-full" : "mv-w-fit",
+    fullSize ? "w-full" : "w-fit",
     // button primary disabled
     isDisabled &&
       variant === "normal" &&
       level === "primary" &&
-      "mv-bg-neutral-200 mv-text-neutral-400",
+      "bg-neutral-200 text-neutral-400",
     // button negative disabled
     isDisabled &&
       variant === "normal" &&
       level === "negative" &&
-      "mv-bg-negative-300 mv-text-white",
+      "bg-negative-300 text-white",
     // button primary
     !isDisabled &&
       variant === "normal" &&
       level === "primary" &&
-      "mv-bg-primary mv-text-neutral-50 hover:mv-bg-primary-600 active:mv-bg-primary-700 focus:mv-ring-2 focus:mv-ring-primary-200 focus:mv-outline-none",
+      "bg-primary text-neutral-50 hover:bg-primary-600 active:bg-primary-700 focus:ring-2 focus:ring-primary-200 focus:outline-hidden",
     // button negative
     !isDisabled &&
       variant === "normal" &&
       level === "negative" &&
-      "mv-bg-negative-600 mv-text-white hover:mv-bg-negative-700 active:mv-bg-negative-800 focus:mv-ring-2 focus:mv-ring-negative-900 focus:mv-outline-none",
+      "bg-negative-600 text-white hover:bg-negative-700 active:bg-negative-800 focus:ring-2 focus:ring-negative-900 focus:outline-hidden",
     // button primary outline disabled
     isDisabled &&
       variant === "outline" &&
-      "mv-bg-white mv-border-neutral-300 mv-text-neutral-300",
+      "bg-white border-neutral-300 text-neutral-300",
     // button primary outline
     !isDisabled &&
       variant === "outline" &&
       size !== "large" &&
-      "mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-ring-1 focus:mv-ring-primary-200 focus:mv-outline-none focus:mv-border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200",
     !isDisabled &&
       variant === "outline" &&
       size === "large" &&
-      "mv-bg-white mv-border-primary mv-text-primary hover:mv-bg-neutral-100 active:mv-bg-neutral-200 focus:mv-outline-none focus:mv-border-primary-200",
+      "bg-white border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:outline-hidden focus:border-primary-200",
     // button primary ghost disabled
-    isDisabled && variant === "ghost" && "mv-bg-white mv-text-neutral-300",
+    isDisabled && variant === "ghost" && "bg-white text-neutral-300",
     // button primary ghost
     !isDisabled &&
       variant === "ghost" &&
-      "mv-bg-white mv-text-primary hover:mv-text-primary-700 hover:mv-bg-neutral-50 focus:mv-underline focus:mv-underline-offset-4 active:mv-bg-neutral-100 focus:mv-outline-none",
+      "bg-white text-primary hover:text-primary-700 hover:bg-neutral-50 focus:underline focus:underline-offset-4 active:bg-neutral-100 focus:outline-hidden",
 
     Array.isArray(otherProps.children) &&
       otherProps.children.length > 1 &&
-      "mv-gap-2",
-    loading !== undefined && loading !== false && "mv-loading"
+      "gap-2",
+    loading !== undefined && loading !== false && "loading"
   );
 
   if (as === "link" && "to" in otherProps) {

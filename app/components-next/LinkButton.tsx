@@ -8,7 +8,7 @@ function LinkButton(props: {
   return (
     <Link
       to={props.to}
-      className="mv-appearance-none mv-font-semibold mv-text-center mv-rounded-lg mv-h-10 mv-text-sm mv-px-4 mv-py-2.5 mv-leading-5 mv-border mv-bg-neutral-50 mv-border-primary mv-text-primary hover:mv-bg-primary-50 focus:mv-bg-primary-50 active:mv-bg-primary-100"
+      className="appearance-none font-semibold text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 border bg-neutral-50 border-primary text-primary hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
       prefetch={props.prefetch}
     >
       {props.children}

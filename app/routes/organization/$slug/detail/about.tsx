@@ -69,23 +69,23 @@ function About() {
       {hasAboutData(organization) ? (
         <>
           {hasGeneralInformation(organization) ? (
-            <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
+            <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
               {organization.bio !== null ? (
-                <div className="mv-flex mv-flex-col mv-gap-4">
-                  <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+                <div className="flex flex-col gap-4">
+                  <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
                     {locales.route.headlines.bio}
                   </h2>
                   <div>
                     <RichText
                       html={organization.bio}
-                      additionalClassNames="mv-text-neutral-600 mv-text-lg mv-max-w-[800px]"
+                      additionalClassNames="text-neutral-600 text-lg max-w-[800px]"
                     />
                   </div>
                 </div>
               ) : null}
               {organization.areas.length > 0 ? (
-                <div className="mv-flex mv-flex-col mv-gap-2">
-                  <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                <div className="flex flex-col gap-2">
+                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
                     {locales.route.headlines.areas}
                   </h3>
                   <Chip.Container>
@@ -100,8 +100,8 @@ function About() {
                 </div>
               ) : null}
               {organization.focuses.length > 0 ? (
-                <div className="mv-flex mv-flex-col mv-gap-2">
-                  <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                <div className="flex flex-col gap-2">
+                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
                     {locales.route.headlines.focuses}
                   </h3>
                   <Chip.Container>
@@ -128,11 +128,11 @@ function About() {
                 </div>
               ) : null}
               {organization.supportedBy.length > 0 ? (
-                <div className="mv-flex mv-flex-col mv-gap-2">
-                  <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xs mv-font-semibold mv-leading-5">
+                <div className="flex flex-col gap-2">
+                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
                     {locales.route.headlines.supportedBy}
                   </h3>
-                  <p className="mv-text-neutral-700 mv-text-lg mv-leading-6 mv-max-w-[800px]">
+                  <p className="text-neutral-700 text-lg leading-6 max-w-[800px]">
                     {organization.supportedBy.join(" / ")}
                   </p>
                 </div>
@@ -142,18 +142,18 @@ function About() {
 
           {hasContactOrSoMeInformation(organization) ? (
             <Container.Section
-              className={`@sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-neutral-200 mv-bg-white ${
+              className={`@sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-neutral-200 bg-white ${
                 hasGeneralInformation(organization)
-                  ? "mv-py-6 @sm:mv-border @sm:mv-rounded-2xl"
-                  : "-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 mv-pb-6 @sm:mv-py-8 @sm:mv-border-b @sm:mv-border-x @sm:mv-rounded-b-2xl"
+                  ? "py-6 @sm:border @sm:rounded-2xl"
+                  : "-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 pb-6 @sm:py-8 @sm:border-b @sm:border-x @sm:rounded-b-2xl"
               }`}
             >
-              <h3 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+              <h3 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
                 {locales.route.headlines.contact}
               </h3>
-              <address className="mv-not-italic mv-w-full mv-flex mv-flex-col @md:mv-flex-row mv-gap-4 @md:mv-gap-6 mv-text-neutral-600 mv-leading-5">
+              <address className="not-italic w-full flex flex-col @md:flex-row gap-4 @md:gap-6 text-neutral-600 leading-5">
                 {hasContactInformation(organization) ? (
-                  <div className="mv-w-full mv-grid mv-grid-flow-row mv-auto-rows-min mv-gap-2">
+                  <div className="w-full grid grid-flow-row auto-rows-min gap-2">
                     {Object.entries(ContactInformationIcons).map(
                       ([key, value]) => {
                         const typedKey =
@@ -184,9 +184,9 @@ function About() {
                             to={to}
                             rel="noopener noreferrer"
                             target="_blank"
-                            className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center"
+                            className="py-3 px-4 flex gap-4 bg-neutral-100 rounded-lg items-center"
                           >
-                            <span className="mv-text-neutral-700 mv-font-semibold">
+                            <span className="text-neutral-700 font-semibold">
                               {value}
                             </span>
                             <span>{organization[typedKey]}</span>
@@ -195,11 +195,11 @@ function About() {
                       }
                     )}
                     {hasAddress(organization) ? (
-                      <div className="mv-py-3 mv-px-4 mv-flex mv-gap-4 mv-bg-neutral-100 mv-rounded-lg mv-items-center">
+                      <div className="py-3 px-4 flex gap-4 bg-neutral-100 rounded-lg items-center">
                         {ContactInformationIcons.address}
-                        <div className="mv-flex mv-flex-col mv-gap-1">
+                        <div className="flex flex-col gap-1">
                           {hasStreet(organization) ? (
-                            <p className="mv-flex mv-gap-1">
+                            <p className="flex gap-1">
                               <span>{organization.street}</span>
                               {organization.streetNumber !== null ? (
                                 <span>{organization.streetNumber}</span>
@@ -213,7 +213,7 @@ function About() {
                               )}
                             </p>
                           ) : null}
-                          <p className="mv-flex mv-gap-1">
+                          <p className="flex gap-1">
                             {organization.zipCode !== null ? (
                               <span>{organization.zipCode}</span>
                             ) : (
@@ -232,13 +232,13 @@ function About() {
                 ) : null}
                 {hasSocialService(organization) ? (
                   <ul
-                    className={`mv-w-full mv-grid ${
+                    className={`w-full grid ${
                       numberOfSocialServices === 1
-                        ? "mv-grid-cols-1"
+                        ? "grid-cols-1"
                         : numberOfSocialServices === 2
-                        ? "mv-grid-cols-2"
-                        : "mv-grid-cols-2 @md:mv-grid-cols-3"
-                    } mv-grid-flow-row mv-auto-rows-min mv-gap-2`}
+                        ? "grid-cols-2"
+                        : "grid-cols-2 @md:grid-cols-3"
+                    } grid-flow-row auto-rows-min gap-2`}
                   >
                     {Object.entries(ExternalServiceIcons).map(
                       ([key, value]) => {
@@ -252,7 +252,7 @@ function About() {
                                 to={organization[typedKey] as string}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mv-w-full mv-py-3 mv-px-4 mv-bg-neutral-100 mv-rounded-lg mv-flex mv-justify-center"
+                                className="w-full py-3 px-4 bg-neutral-100 rounded-lg flex justify-center"
                               >
                                 {value}
                               </Link>
@@ -269,22 +269,22 @@ function About() {
           ) : null}
         </>
       ) : (
-        <Container.Section className="-mv-mt-4 @md:-mv-mt-6 @lg:-mv-mt-8 mv-pt-10 @sm:mv-py-8 @sm:mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-6 @sm:mv-border-b @sm:mv-border-x @sm:mv-border-neutral-200 mv-bg-white @sm:mv-rounded-b-2xl">
-          <div className="mv-w-full mv-flex mv-flex-col mv-gap-4">
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-xl mv-font-bold mv-leading-6">
+        <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
+          <div className="w-full flex flex-col gap-4">
+            <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
               {locales.route.headlines.bio}
             </h2>
-            <div className="mv-w-full mv-flex mv-flex-col mv-gap-8 mv-items-center">
+            <div className="w-full flex flex-col gap-8 items-center">
               {/* TODO: SVG */}
-              <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-items-center">
-                <div className="mv-w-full mv-flex mv-flex-col mv-gap-4 mv-items-center mv-text-neutral-700 mv-text-center">
-                  <p className="mv-text-xl mv-font-bold mv-leading-6">
+              <div className="w-full flex flex-col gap-4 items-center">
+                <div className="w-full flex flex-col gap-4 items-center text-neutral-700 text-center">
+                  <p className="text-xl font-bold leading-6">
                     {mode === "admin"
                       ? locales.route.blankState.owner.title
                       : locales.route.blankState.anon.title}
                   </p>
                   {mode === "admin" ? (
-                    <p className="mv-text-lg">
+                    <p className="text-lg">
                       {locales.route.blankState.owner.description}
                     </p>
                   ) : null}

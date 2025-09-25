@@ -611,12 +611,12 @@ export default function ExploreAll() {
     <>
       {/* Profile Card Section */}
       {loaderData.profiles.length > 0 ? (
-        <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
+        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+            <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.profiles}
             </h2>
-            <div className="mv-text-right">
+            <div className="text-right">
               <LinkButton
                 to={
                   searchParamsString === ""
@@ -629,7 +629,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:mv-px-2">
+          <div className="@xl:px-2">
             <CardContainer>
               {loaderData.profiles.map((profile) => {
                 return (
@@ -648,12 +648,12 @@ export default function ExploreAll() {
       ) : null}
       {/* Organization Card Section */}
       {loaderData.organizations.length > 0 ? (
-        <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
+        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+            <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.organizations}
             </h2>
-            <div className="mv-text-right">
+            <div className="text-right">
               <LinkButton
                 to={
                   searchParamsString === ""
@@ -668,7 +668,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:mv-px-2">
+          <div className="@xl:px-2">
             <CardContainer>
               {loaderData.organizations.map((organization) => {
                 return (
@@ -687,12 +687,12 @@ export default function ExploreAll() {
       ) : null}
       {/* Event Card Section */}
       {loaderData.events.length > 0 ? (
-        <section className="mv-w-full mv-mb-8 mv-mx-auto @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
+        <section className="w-full mb-8 mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+            <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.events}
             </h2>
-            <div className="mv-text-right">
+            <div className="text-right">
               <LinkButton
                 to={
                   searchParamsString === ""
@@ -705,7 +705,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:mv-px-2">
+          <div className="@xl:px-2">
             <CardContainer>
               {loaderData.events.map((event) => {
                 const startTime = utcToZonedTime(
@@ -743,12 +743,12 @@ export default function ExploreAll() {
       ) : null}
       {/* Project Card Section */}
       {loaderData.projects.length > 0 ? (
-        <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
+        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+            <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.projects}
             </h2>
-            <div className="mv-text-right">
+            <div className="text-right">
               <LinkButton
                 to={
                   searchParamsString === ""
@@ -761,7 +761,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:mv-px-2">
+          <div className="@xl:px-2">
             <CardContainer>
               {loaderData.projects.map((project) => {
                 return (
@@ -780,12 +780,12 @@ export default function ExploreAll() {
       ) : null}
       {/* Funding Card Section */}
       {loaderData.fundings.length > 0 ? (
-        <section className="mv-w-full mv-mx-auto mv-mb-8 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-mb-4 mv-px-4 @xl:mv-px-6 @lg:mv-mb-6 mv-flex-nowrap mv-items-center mv-justify-between">
-            <h2 className="mv-font-bold mv-text-gray-700 mv-text-2xl mv-leading-7 mv-mb-0">
+        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+            <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.fundings}
             </h2>
-            <div className="mv-text-right">
+            <div className="text-right">
               <LinkButton
                 to={
                   searchParamsString === ""
@@ -798,7 +798,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="mv-px-4">
+          <div className="px-4">
             <FundingCard.Container>
               {loaderData.fundings.map((funding) => {
                 return (

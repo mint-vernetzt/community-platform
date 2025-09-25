@@ -74,20 +74,20 @@ const TextArea = (
   };
 
   const counterContainerClasses = classNames(
-    "mv-flex mv-w-full mv-mt-2",
+    "flex w-full mt-2",
     helperText === undefined && inputProps.maxLength !== undefined
-      ? "mv-justify-end"
-      : "mv-justify-between"
+      ? "justify-end"
+      : "justify-between"
   );
 
   return (
     <>
-      <div className="mv-flex mv-flex-col mv-w-full">
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-w-full">
-          <div className="mv-flex mv-flex-row mv-items-center mv-mb-2">
+      <div className="flex flex-col w-full">
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-row items-center mb-2">
             <label
               htmlFor={inputProps.id || label}
-              className="mv-font-semibold mv-flex-auto"
+              className="font-semibold flex-auto"
             >
               {props.label}
               {props.required === true ? " *" : ""}
@@ -104,10 +104,10 @@ const TextArea = (
                 />
               )}
           </div>
-          <div className="mv-flex mv-flex-row">
-            <div className="mv-flex-auto">
+          <div className="flex flex-row">
+            <div className="flex-auto">
               {rte !== undefined ? (
-                <div className="mv-relative">
+                <div className="relative">
                   <RTE
                     {...rteInputProps}
                     id={inputProps.id || label}
@@ -119,7 +119,7 @@ const TextArea = (
                     locales={rte.locales}
                     legacyFormRegister={rte.legacyFormRegister}
                   />
-                  <noscript className="mv-absolute mv-top-10 mv-w-full">
+                  <noscript className="absolute top-10 w-full">
                     <textarea
                       {...inputProps}
                       id={inputProps.id || label}
@@ -131,7 +131,7 @@ const TextArea = (
                           "\n"
                         )
                       )}
-                      className="mv-relative mv-w-full mv-h-[194px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-b-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
+                      className="relative w-full h-[194px] p-2 border border-gray-200 rounded-b-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
                     />
                     <input
                       type="hidden"
@@ -154,7 +154,7 @@ const TextArea = (
                       ? handleTextAreaChange
                       : undefined
                   }
-                  className="mv-relative mv-w-full mv-h-[234px] mv-p-2 mv-border mv-border-gray-200 mv-rounded-lg focus-within:mv-ring-2 focus-within:mv-ring-blue-400 focus-within:mv-border-blue-400 active-within:mv-ring-2 active-within:mv-ring-blue-400 active-within:mv-border-blue-400"
+                  className="relative w-full h-[234px] p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
                 />
               ) : null}
             </div>
@@ -173,9 +173,7 @@ const TextArea = (
         {(inputProps.maxLength !== undefined || helperText !== undefined) && (
           <div className={counterContainerClasses}>
             {helperText !== undefined && (
-              <div className="mv-text-sm mv-text-gray-700 mv-pr-8">
-                {helperText}
-              </div>
+              <div className="text-sm text-gray-700 pr-8">{helperText}</div>
             )}
             {inputProps.maxLength !== undefined && rte === undefined && (
               <Counter
@@ -188,7 +186,7 @@ const TextArea = (
         {errorMessage !== undefined && (
           <div
             id={errorId}
-            className="mv-text-sm mv-font-semibold mv-text-negative-600 mv-mt-2"
+            className="text-sm font-semibold text-negative-600 mt-2"
           >
             {errorMessage}
           </div>

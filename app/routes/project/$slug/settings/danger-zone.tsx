@@ -28,7 +28,7 @@ function DangerZone() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.content.back}
       </SettingsMenuBackButton>
-      <div id="danger-zone-tab-bar" className="mv-mt-2 @md:-mv-mt-2 mv-mb-4">
+      <div id="danger-zone-tab-bar" className="mt-2 @md:-mt-2 mb-4">
         <TabBar>
           <TabBar.Item active={location.pathname.endsWith("/change-url")}>
             <Link
@@ -50,7 +50,7 @@ function DangerZone() {
           </TabBar.Item>
         </TabBar>
       </div>
-      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
+      <div className="flex flex-col gap-6 @md:gap-4">
         <Outlet />
       </div>
     </Section>

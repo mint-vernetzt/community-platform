@@ -131,22 +131,22 @@ export default function Index() {
   return (
     <Form {...getFormProps(loginForm)} method="post" autoComplete="off">
       <>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-              <div className="mv-mb-6 mv-mt-12">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="flex flex-col w-full items-center">
+            <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+              <div className="mb-6 mt-12">
                 {locales.content.question}{" "}
                 <Link
                   to={`/register${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
-                  className="mv-text-primary mv-font-bold"
+                  className="text-primary font-bold"
                   prefetch="intent"
                 >
                   {locales.content.action}
                 </Link>
               </div>
-              <h1 className="mv-mb-8">{locales.content.headline}</h1>
+              <h1 className="mb-8">{locales.content.headline}</h1>
 
               {typeof loginForm.errors !== "undefined" &&
               loginForm.errors.length > 0 ? (
@@ -155,7 +155,7 @@ export default function Index() {
                     return (
                       <div
                         key={index}
-                        className="mv-p-3 mv-mb-3 mv-bg-negative-100 mv-text-negative-900 mv-rounded-md"
+                        className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
                       >
                         <RichText id={loginForm.errorId} html={error} />
                       </div>
@@ -164,7 +164,7 @@ export default function Index() {
                 </div>
               ) : null}
 
-              <div className="mv-mb-4">
+              <div className="mb-4">
                 <Input
                   {...getInputProps(loginFields.email, { type: "text" })}
                   key="email"
@@ -182,7 +182,7 @@ export default function Index() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-mb-10">
+              <div className="mb-10">
                 <Input
                   {...getInputProps(loginFields.password, {
                     type: showPassword ? "text" : "password",
@@ -205,7 +205,7 @@ export default function Index() {
                     : null}
                   {isHydrated === true ? (
                     <Input.Controls>
-                      <div className="mv-h-10 mv-w-10">
+                      <div className="h-10 w-10">
                         <ShowPasswordButton
                           onClick={() => {
                             setShowPassword(!showPassword);
@@ -234,12 +234,12 @@ export default function Index() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-between">
+              <div className="flex flex-row mb-8 items-center justify-between">
                 <Link
                   to={`/reset${
                     loginRedirect ? `?login_redirect=${loginRedirect}` : ""
                   }`}
-                  className="mv-text-primary mv-font-bold"
+                  className="text-primary font-bold"
                   prefetch="intent"
                 >
                   {locales.label.reset}

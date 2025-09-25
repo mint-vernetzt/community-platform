@@ -11,7 +11,7 @@ export function SettingsMenuBackButton(
   props: PropsWithChildren<SettingsMenuBackButtonProps>
 ) {
   return (
-    <div className="@md:mv-hidden">
+    <div className="@md:hidden">
       <TextButton
         as="link"
         to={props.to}

@@ -376,7 +376,7 @@ export function Icon(
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
-        className="mv-w-4 mv-h-4"
+        className="w-4 h-4"
         {...svgProps}
       >
         <path

@@ -10,9 +10,7 @@ type VideoProps = {
 
 function VideoSubline(props: React.PropsWithChildren) {
   return (
-    <p className="mv-text-neutral-600 mv-text-base mv-font-normal">
-      {props.children}
-    </p>
+    <p className="text-neutral-600 text-base font-normal">{props.children}</p>
   );
 }
 
@@ -30,15 +28,15 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
   });
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2">
-      <div className="mv-w-full mv-aspect-video">
-        <div className="mv-w-full mv-h-full mv-bg-primary-400 mv-flex mv-flex-col mv-justify-center mv-items-center mv-gap-4">
+    <div className="w-full flex flex-col gap-2">
+      <div className="w-full aspect-video">
+        <div className="w-full h-full bg-primary-400 flex flex-col justify-center items-center gap-4">
           {!cookiesAccepted ? (
             <>
               <Button variant="outline" onClick={handleClick}>
                 {locales.video.cookieAction}
               </Button>
-              <p className="mv-text-white mv-text-sm @md:mv-text-base mv-text-center mv-px-4">
+              <p className="text-white text-sm @md:text-base text-center px-4">
                 {locales.video.cookieActionDescription}
               </p>
             </>
@@ -48,7 +46,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               height="100%"
               src={props.src}
               title="YouTube video player"
-              className="mv-border-none mv-rounded-sm"
+              className="border-none rounded-sm"
               allow="fullscreen"
               allowFullScreen
               nonce={nonce}

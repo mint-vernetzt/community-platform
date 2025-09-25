@@ -126,12 +126,12 @@ export default function AcceptTerms() {
       autoComplete="off"
     >
       <>
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-          <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-            <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-              <h1 className="mv-mb-8">{locales.content.headline}</h1>
-              <div className="mv-mb-4">
-                <div className="mv-flex mv-gap-2 mv-items-center">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="flex flex-col w-full items-center">
+            <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+              <h1 className="mb-8">{locales.content.headline}</h1>
+              <div className="mb-4">
+                <div className="flex gap-2 items-center">
                   <Checkbox
                     {...getInputProps(acceptTermsFields.termsAccepted, {
                       type: "checkbox",
@@ -146,7 +146,7 @@ export default function AcceptTerms() {
                         to="https://mint-vernetzt.de/terms-of-use-community-platform"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                        className="text-primary font-semibold hover:underline"
                       >
                         {" "}
                       </Link>,
@@ -155,7 +155,7 @@ export default function AcceptTerms() {
                         to="https://mint-vernetzt.de/privacy-policy-community-platform"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                        className="text-primary font-semibold hover:underline"
                       >
                         {" "}
                       </Link>,
@@ -165,13 +165,13 @@ export default function AcceptTerms() {
               </div>
               {typeof acceptTermsForm.errors !== "undefined" &&
               acceptTermsForm.errors.length > 0 ? (
-                <div className="mv-mb-10">
+                <div className="mb-10">
                   {acceptTermsForm.errors.map((error, index) => {
                     return (
                       <div
                         id={acceptTermsForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -185,7 +185,7 @@ export default function AcceptTerms() {
                 })}
                 key="redirectTo"
               />
-              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+              <div className="flex flex-row mb-8 items-center justify-end">
                 <Button
                   type="submit"
                   // Don't disable button when js is disabled

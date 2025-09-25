@@ -263,7 +263,7 @@ export default function ExploreOrganizationsList() {
         })}
       </CardContainer>
       {showMore && (
-        <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+        <div className="w-full flex justify-center mb-10 mt-4 @lg:mb-12 @lg:mt-6 @xl:mb-14 @xl:mt-8">
           <ConformForm
             useFormOptions={{
               id: "load-more-organizations",

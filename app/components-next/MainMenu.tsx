@@ -54,14 +54,14 @@ export function MainMenu(
       id="mainMenu"
       className={`${
         isOpen !== null && isOpen !== "false"
-          ? "mv-flex mv-flex-col mv-mr-20 xl:mv-mr-0"
-          : "mv-hidden xl:mv-flex xl:mv-flex-col"
-      } mv-w-full mv-min-w-full xl:mv-w-[300px] xl:mv-min-w-[300px] mv-overflow-hidden mv-h-dvh mv-sticky mv-top-0 mv-bg-white`}
+          ? "flex flex-col mr-20 xl:mr-0"
+          : "hidden xl:flex xl:flex-col"
+      } w-full min-w-full xl:w-[300px] xl:min-w-[300px] overflow-hidden h-dvh sticky top-0 bg-white`}
     >
       <a
         id="main-menu-start"
         href="#main-menu-end"
-        className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-m-2 focus:mv-px-1"
+        className="w-0 h-0 opacity-0 pointer-events-none focus:pointer-events-auto focus:w-fit focus:h-fit focus:opacity-100 focus:m-2 focus:px-1"
       >
         {locales !== undefined
           ? locales.route.root.skipMainMenu.start
@@ -71,7 +71,7 @@ export function MainMenu(
       </a>
       <Link
         to={mode !== "anon" ? "/dashboard" : "/"}
-        className="mv-my-4 mv-w-fit mv-ml-6 mv-hidden xl:mv-block mv-flex-shrink"
+        className="my-4 w-fit ml-6 hidden xl:block shrink"
         aria-label={
           locales !== undefined
             ? mode === "anon"
@@ -91,9 +91,9 @@ export function MainMenu(
       >
         <HeaderLogo />
       </Link>
-      <div className="xl:mv-hidden mv-flex mv-w-full mv-items-center mv-h-[75px] mv-min-h-[75px] mv-px-6 mv-flex-shrink">
+      <div className="xl:hidden flex w-full items-center h-[75px] min-h-[75px] px-6 shrink">
         {mode === "anon" ? (
-          <div className="mv-gap-x-4 mv-flex-grow mv-items-center mv-flex xl:mv-hidden">
+          <div className="gap-x-4 grow items-center flex xl:hidden">
             <div>
               <Button
                 as="link"
@@ -107,7 +107,7 @@ export function MainMenu(
                   : "Login"}
               </Button>
             </div>
-            <div className="mv-hidden sm:mv-block mv-font-semibold mv-text-primary-500">
+            <div className="hidden sm:block font-semibold text-primary-500">
               {locales !== undefined
                 ? locales.route.root.or
                 : DEFAULT_LANGUAGE === "de"
@@ -130,12 +130,12 @@ export function MainMenu(
             </div>
           </div>
         ) : (
-          <div className="mv-flex-grow"> </div>
+          <div className="grow"> </div>
         )}
         <Closer openMainMenuKey={openMainMenuKey} locales={locales} />
       </div>
-      <div className="mv-flex mv-flex-col mv-w-full mv-flex-grow mv-pb-2 mv-overflow-y-auto">
-        <div className="mv-flex-grow">
+      <div className="flex flex-col w-full grow pb-2 overflow-y-auto">
+        <div className="grow">
           <TopMenu>
             {mode === "authenticated" && username !== undefined ? (
               <>
@@ -151,7 +151,7 @@ export function MainMenu(
                       <Icon type="grid-outline" aria-hidden="true" />
                     )}
                   </IconWrapper>
-                  <div className="mv-font-semibold">
+                  <div className="font-semibold">
                     {locales !== undefined
                       ? locales.route.root.menu.overview
                       : DEFAULT_LANGUAGE === "de"
@@ -179,7 +179,7 @@ export function MainMenu(
                         <Icon type="person-outline" aria-hidden="true" />
                       )}
                     </IconWrapper>
-                    <div className="mv-font-semibold">
+                    <div className="font-semibold">
                       {locales !== undefined
                         ? locales.route.root.menu.personalSpace.label
                         : DEFAULT_LANGUAGE === "de"
@@ -229,10 +229,10 @@ export function MainMenu(
               setActiveTopicId={setActiveTopicId}
             >
               <Label>
-                <IconWrapper className="mv--ml-1">
+                <IconWrapper className="-ml-1">
                   <Icon type="search" aria-hidden="true" />
                 </IconWrapper>
-                <div className="mv-font-semibold mv-ml-1">
+                <div className="font-semibold ml-1">
                   {locales !== undefined
                     ? locales.route.root.menu.explore.label
                     : DEFAULT_LANGUAGE === "de"
@@ -305,7 +305,7 @@ export function MainMenu(
                   <Icon type="briefcase-outline" aria-hidden="true" />
                 )}
               </IconWrapper>
-              <div className="mv-font-semibold">
+              <div className="font-semibold">
                 {locales !== undefined
                   ? locales.route.root.menu.resources.label
                   : DEFAULT_LANGUAGE === "de"
@@ -315,9 +315,9 @@ export function MainMenu(
             </Item>
           </TopMenu>
         </div>
-        <div className="mv-flex-shrink">
+        <div className="shrink">
           <BottomMenu>
-            <div className="mv-pl-2 mv-py-4">
+            <div className="pl-2 py-4">
               <LocaleSwitch
                 variant="dark"
                 currentLanguage={currentLanguage}
@@ -337,7 +337,7 @@ export function MainMenu(
                   <Icon type="life-preserver-outline" aria-hidden="true" />
                 )}
               </IconWrapper>
-              <div className="mv-font-semibold">
+              <div className="font-semibold">
                 {locales !== undefined
                   ? locales.route.root.menu.help
                   : DEFAULT_LANGUAGE === "de"
@@ -362,7 +362,7 @@ export function MainMenu(
                       <Icon type="gear-outline" aria-hidden="true" />
                     )}
                   </IconWrapper>
-                  <div className="mv-font-semibold">
+                  <div className="font-semibold">
                     {locales !== undefined
                       ? locales.route.root.menu.settings
                       : DEFAULT_LANGUAGE === "de"
@@ -379,7 +379,7 @@ export function MainMenu(
                   <IconWrapper>
                     <Icon type="door-closed-outline" aria-hidden="true" />
                   </IconWrapper>
-                  <div className="mv-font-semibold">
+                  <div className="font-semibold">
                     {locales !== undefined
                       ? locales.route.root.menu.logout
                       : DEFAULT_LANGUAGE === "de"
@@ -391,11 +391,11 @@ export function MainMenu(
             ) : null}
           </BottomMenu>
         </div>
-        <div className="mv-flex-shrink">
+        <div className="shrink">
           <FooterMenu>
             <NavLink
               className={({ isActive }) =>
-                isActive ? "mv-underline" : "hover:mv-underline"
+                isActive ? "underline" : "hover:underline"
               }
               to="/imprint"
               prefetch="intent"
@@ -407,7 +407,7 @@ export function MainMenu(
                 : "Imprint"}
             </NavLink>
             <Link
-              className="hover:mv-underline"
+              className="hover:underline"
               target="_blank"
               rel="noopener noreferrer"
               to="https://mint-vernetzt.de/privacy-policy-community-platform/"
@@ -419,7 +419,7 @@ export function MainMenu(
                 : "Privacy policy"}
             </Link>
             <Link
-              className="hover:mv-underline"
+              className="hover:underline"
               target="_blank"
               rel="noopener noreferrer"
               to="https://mint-vernetzt.de/terms-of-use-community-platform/"
@@ -432,7 +432,7 @@ export function MainMenu(
             </Link>
             <NavLink
               className={({ isActive }) =>
-                isActive ? "mv-underline" : "hover:mv-underline"
+                isActive ? "underline" : "hover:underline"
               }
               to="/accessibility-statement"
               prefetch="intent"
@@ -449,7 +449,7 @@ export function MainMenu(
       <a
         id="main-menu-end"
         href="#main-menu-start"
-        className="mv-w-0 mv-h-0 mv-opacity-0 mv-pointer-events-none focus:mv-pointer-events-auto focus:mv-w-fit focus:mv-h-fit focus:mv-opacity-100 focus:mv-mx-2 focus:mv-mb-6 focus:mv-px-1"
+        className="w-0 h-0 opacity-0 pointer-events-none focus:pointer-events-auto focus:w-fit focus:h-fit focus:opacity-100 focus:mx-2 focus:mb-6 focus:px-1"
       >
         {locales !== undefined
           ? locales.route.root.skipMainMenu.end
@@ -470,10 +470,10 @@ function IconWrapper(
   const { orientation = "center", className } = props;
 
   const classes = classNames(
-    "mv-w-5 mv-h-5 mv-flex mv-items-center",
-    orientation === "left" && "mv-justify-start",
-    orientation === "right" && "mv-justify-end",
-    orientation === "center" && "mv-justify-center",
+    "w-5 h-5 flex items-center",
+    orientation === "left" && "justify-start",
+    orientation === "right" && "justify-end",
+    orientation === "center" && "justify-center",
     className
   );
 
@@ -484,7 +484,7 @@ function TopMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-2 mv-px-6 mv-select-none">
+    <div className="grid grid-cols-1 place-items-start pt-2 px-6 select-none">
       {children}
     </div>
   );
@@ -494,7 +494,7 @@ function BottomMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-6 mv-px-6 mv-select-none">
+    <div className="grid grid-cols-1 place-items-start pt-6 px-6 select-none">
       {children}
     </div>
   );
@@ -504,10 +504,10 @@ function FooterMenu(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-grid mv-grid-cols-1 mv-place-items-start mv-pt-[15px] mv-px-6 mv-select-none">
-      <div className="mv-relative mv-flex mv-flex-wrap mv-items-center mv-gap-x-4 mv-gap-y-2 mv-w-full mv-px-2.5 mv-pb-4 mv-pt-6 mv-text-xs">
-        <div className="mv-absolute mv-top-0 mv-left-0 mv-px-4 mv-w-full">
-          <div className="mv-w-full mv-border-t mv-border-gray-200" />
+    <div className="grid grid-cols-1 place-items-start pt-[15px] px-6 select-none">
+      <div className="relative flex flex-wrap items-center gap-x-4 gap-y-2 w-full px-2.5 pb-4 pt-6 text-xs">
+        <div className="absolute top-0 left-0 px-4 w-full">
+          <div className="w-full border-t border-gray-200" />
         </div>
         {children}
       </div>
@@ -544,7 +544,7 @@ function Item(
         }}
         form={linkOrFormProps.action}
         type="submit"
-        className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500"
+        className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-lg hover:bg-blue-50 hover:text-primary-500"
         disabled={isSubmitting}
       >
         {childs}
@@ -557,11 +557,11 @@ function Item(
       }}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-flex mv-items-center mv-gap-2.5 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg";
+          "flex items-center gap-2.5 w-full cursor-pointer px-2 py-4 rounded-lg";
         if (isActive || isPending || isTransitioning) {
-          return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
+          return `${baseClasses} bg-blue-50 text-primary-500`;
         }
-        return `${baseClasses} hover:mv-bg-blue-50 hover:mv-text-primary-500`;
+        return `${baseClasses} hover:bg-blue-50 hover:text-primary-500`;
       }}
       {...linkOrFormProps}
     >
@@ -592,15 +592,12 @@ function Topic(
   }
 
   return (
-    <label
-      htmlFor={props.id}
-      className="mv-w-full mv-flex mv-flex-col mv-group"
-    >
+    <label htmlFor={props.id} className="w-full flex flex-col group">
       <input
         id={props.id}
         name="open-topic"
         type="checkbox"
-        className="mv-w-0 mv-h-0 mv-opacity-0 mv-peer"
+        className="w-0 h-0 opacity-0 peer"
         checked={props.activeTopicId === props.id}
         onChange={() => {
           if (props.activeTopicId === props.id) {
@@ -610,12 +607,10 @@ function Topic(
           }
         }}
       />
-      <span className="peer-[:focus]:mv-text-primary-500 peer-[:focus]:mv-border-blue-500 mv-border-2 mv-border-transparent mv-rounded-lg">
+      <span className="peer-[:focus]:text-primary-500 peer-[:focus]:border-blue-500 border-2 border-transparent rounded-lg">
         {label}
       </span>
-      <div className="mv-hidden group-has-[:checked]:mv-block">
-        {topicItems}
-      </div>
+      <div className="hidden group-has-[:checked]:block">{topicItems}</div>
     </label>
   );
 }
@@ -624,11 +619,11 @@ function Label(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-px-2 mv-py-4 mv-rounded-lg hover:mv-bg-blue-50 hover:mv-text-primary-500">
-      <div className="mv-flex mv-items-center mv-gap-2 mv-flex-grow group-has-[:checked]:mv-text-primary-500">
+    <div className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-lg hover:bg-blue-50 hover:text-primary-500">
+      <div className="flex items-center gap-2 grow group-has-[:checked]:text-primary-500">
         {children}
       </div>
-      <div className="mv-flex-shrink mv-cursor-pointer mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+      <div className="shrink cursor-pointer rotate-90 group-has-[:checked]:-rotate-90">
         <Icon type="chevron-right" aria-hidden="true" />
       </div>
     </div>
@@ -646,7 +641,7 @@ function TopicItem(
   const childs = Children.toArray(children);
 
   const classes = classNames(
-    "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-10 mv-pr-2 mv-py-4 hover:mv-bg-blue-50 hover:mv-text-primary-500"
+    "relative flex items-center gap-2 w-full cursor-pointer pl-10 pr-2 py-4 hover:bg-blue-50 hover:text-primary-500"
   );
 
   return external ? (
@@ -663,11 +658,11 @@ function TopicItem(
       end
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "mv-relative mv-flex mv-items-center mv-gap-2 mv-w-full mv-cursor-pointer mv-pl-[38px] mv-pr-2 mv-py-4";
+          "relative flex items-center gap-2 w-full cursor-pointer pl-[38px] pr-2 py-4";
         if (isActive || isPending || isTransitioning) {
-          return `${baseClasses} mv-bg-blue-50 mv-text-primary-500`;
+          return `${baseClasses} bg-blue-50 text-primary-500`;
         }
-        return `${baseClasses} hover:mv-bg-blue-50 hover:mv-text-primary-500`;
+        return `${baseClasses} hover:bg-blue-50 hover:text-primary-500`;
       }}
       {...linkProps}
     >

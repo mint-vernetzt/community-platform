@@ -99,7 +99,7 @@ function IconHybrid() {
   return (
     <>
       <IconOnSite />
-      <span className="mv-mx-1">/</span>
+      <span className="mx-1">/</span>
       <IconOnline />
     </>
   );
@@ -144,7 +144,7 @@ function EventCard(
         ) : (
           <IconHybrid />
         )}
-        <span className="mv-ml-1">{title}</span>
+        <span className="ml-1">{title}</span>
       </>
     );
   };
@@ -187,7 +187,7 @@ function EventCard(
           event.startTime.getDate() === event.endTime.getDate() &&
           event.startTime.getMonth() === event.endTime.getMonth() &&
           event.startTime.getFullYear() === event.endTime.getFullYear() ? (
-            <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+            <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
               {timeDuration}
             </span>
           ) : (
@@ -195,14 +195,14 @@ function EventCard(
           )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit !== "number" && (
-              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+              <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
                 {locales.eventCard.seats.unlimited}
               </span>
             )}
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
             event.participantLimit - event._count.participants > 0 && (
-              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+              <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
                 {event.participantLimit - event._count.participants} /{" "}
                 {event.participantLimit}{" "}
                 {decideBetweenSingularOrPlural(
@@ -215,7 +215,7 @@ function EventCard(
           {event._count.childEvents === 0 &&
             typeof event.participantLimit === "number" &&
             event.participantLimit - event._count.participants <= 0 && (
-              <span className="mv-text-xs mv-text-neutral-200 mv-font-semibold mv-px-2 mv-py-1 mv-rounded-lg mv-bg-primary">
+              <span className="text-xs text-neutral-200 font-semibold px-2 py-1 rounded-lg bg-primary">
                 {event._count.waitingList}{" "}
                 {decideBetweenSingularOrPlural(
                   locales.eventCard.waitingList.places_one,
@@ -226,10 +226,10 @@ function EventCard(
             )}
         </CardInfoOverlay>
         <CardInfo>
-          <span className="mv-inline-block mv-text-sm mv-font-semibold mv-truncate">
+          <span className="inline-block text-sm font-semibold truncate">
             {dateDuration}
           </span>
-          <span className="mv-flex mv-items-center mv-text-sm mv-font-semibold">
+          <span className="flex items-center text-sm font-semibold">
             {typeof event.stage !== "undefined" && event.stage !== null
               ? getEventStageElement(locales, event.stage)
               : null}
@@ -238,21 +238,21 @@ function EventCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="mv-min-h-[80px]">
+          <div className="min-h-[80px]">
             {/* TODO: */}
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}
-            <div className="mv-max-h-10 mv-overflow-hidden">
+            <div className="max-h-10 overflow-hidden">
               <Heading
                 as={as}
-                className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+                className="text-primary text-base leading-5 font-bold mb-0 text-ellipsis overflow-hidden"
               >
                 {event.name}
               </Heading>
             </div>
-            <div className="mv-h-9">
+            <div className="h-9">
               {(event.subline || event.description) && (
-                <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-2 mv-px">
+                <p className="text-neutral-700 text-sm leading-5 line-clamp-2 px">
                   {event.subline || removeHtmlTags(event.description ?? "")}
                 </p>
               )}
@@ -312,7 +312,7 @@ function EventCard(
           event.published &&
           !event.canceled &&
           event.isParticipant && (
-            <span className="mv-text-xs mv-font-bold mv-text-positive">
+            <span className="text-xs font-bold text-positive">
               {locales.eventCard.registered}
             </span>
           )}
@@ -322,7 +322,7 @@ function EventCard(
           !event.canceled &&
           event.participationUntil.getTime() > Date.now() &&
           event.isOnWaitingList && (
-            <span className="mv-text-xs mv-font-bold mv-text-neutral-700">
+            <span className="text-xs font-bold text-neutral-700">
               {locales.eventCard.onWaitingList}
             </span>
           )}

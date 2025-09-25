@@ -31,11 +31,11 @@ export function Section(
       className={`${
         className !== undefined
           ? className
-          : "mv-py-6 mv-px-4 @lg:mv-px-6 mv-flex mv-flex-col mv-gap-4 mv-border mv-border-neutral-200 mv-bg-white mv-rounded-2xl"
+          : "py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl"
       }`}
     >
       {title !== undefined || text !== undefined ? (
-        <div className="mv-flex mv-flex-col mv-gap-2">
+        <div className="flex flex-col gap-2">
           {title || null}
           {text || null}
         </div>
@@ -49,7 +49,7 @@ function SectionTitle(props: React.PropsWithChildren<{ id?: string }>) {
   const { children, ...rest } = props;
   return (
     <h2
-      className="mv-text-2xl mv-font-bold mv-text-primary mv-leading-[26px] mv-mb-0"
+      className="text-2xl font-bold text-primary leading-[26px] mb-0"
       {...rest}
     >
       {children}
@@ -58,7 +58,7 @@ function SectionTitle(props: React.PropsWithChildren<{ id?: string }>) {
 }
 
 function SectionText(props: { children: React.ReactNode }) {
-  return <p className="mv-text-sm mv-text-neutral-700">{props.children}</p>;
+  return <p className="text-sm text-neutral-700">{props.children}</p>;
 }
 
 Section.Title = SectionTitle;

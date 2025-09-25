@@ -40,21 +40,21 @@ function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const getClassName = (active: boolean) =>
-    `mv-block mv-text-3xl ${
-      active ? "mv-text-primary" : "mv-text-neutral-500"
-    }  hover:mv-text-primary mv-py-3`;
+    `block text-3xl ${
+      active ? "text-primary" : "text-neutral-500"
+    }  hover:text-primary py-3`;
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
         <BackButton to={`/profile/${loaderData.username}`} prefetch="intent">
           {locales.back}
         </BackButton>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-        <div className="mv-flex mv-flex-col @lg:mv-flex-row mv--mx-4 mv-pt-10 @lg:mv-pt-0">
-          <div className="mv-basis-4/12 mv-px-4">
-            <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 mv-rounded-lg mv-bg-neutral-50 mv-shadow-lg mv-relative mv-mb-8">
+      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+        <div className="flex flex-col @lg:flex-row -mx-4 pt-10 @lg:pt-0">
+          <div className="basis-4/12 px-4">
+            <div className="px-4 py-8 @lg:p-8 pb-15 rounded-lg bg-neutral-50 shadow-lg relative mb-8">
               <h3 className="font-bold mb-7">{locales.context.headline}</h3>
               <menu>
                 <ul>
@@ -89,7 +89,7 @@ function Index() {
                     </NavLink>
                   </li>
                 </ul>
-                <hr className="mv-border-neutral-400 mv-my-4 @lg:mv-my-8" />
+                <hr className="border-t border-neutral-400 my-4 @lg:my-8" />
                 <div>
                   <NavLink
                     to="delete#settings"
@@ -102,9 +102,9 @@ function Index() {
                 </div>
               </menu>
             </div>
-            <div className="mv-px-8 mv-relative mv-mb-16">
-              <p className="mv-text-xs mv-flex mv-items-center mv-mb-4">
-                <span className="mv-w-4 mv-h-4 mv-mr-3">
+            <div className="px-8 relative mb-16">
+              <p className="text-xs flex items-center mb-4">
+                <span className="w-4 h-4 mr-3">
                   <svg
                     viewBox="0 0 20 20"
                     fill="none"
@@ -123,10 +123,10 @@ function Index() {
                 <span>{locales.state.public}</span>
               </p>
 
-              <p className="mv-text-xs mv-flex mv-items-center mv-mb-4">
-                <span className="mv-w-5 mv-h-5 mv-mr-2">
+              <p className="text-xs flex items-center mb-4">
+                <span className="w-5 h-5 mr-2">
                   <svg
-                    className="mv-block mv-w-4 mv-h-5 "
+                    className="block w-4 h-5 "
                     viewBox="0 0 20 20"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -149,11 +149,8 @@ function Index() {
               </p>
             </div>
           </div>
-          <div className="mv-basis-6/12 mv-px-4 mv-pb-24 mv-relative">
-            <div
-              id="settings"
-              className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
-            />
+          <div className="basis-6/12 px-4 pb-24 relative">
+            <div id="settings" className="absolute -top-[76px] xl:-top-20" />
             <main>
               <Outlet />
             </main>

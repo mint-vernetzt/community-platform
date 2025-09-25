@@ -739,7 +739,7 @@ function Details() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
+      <p className="my-6 @md:mt-0">{locales.route.content.description}</p>
       <Form
         {...getFormProps(form)}
         method="post"
@@ -748,9 +748,9 @@ function Details() {
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden disabled={isSubmitting} />
-        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-6 @md:gap-4">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.disciplines.headline}
             </h2>
 
@@ -860,9 +860,7 @@ function Details() {
             >
               <ConformSelect.Label htmlFor={fields.additionalDisciplines.id}>
                 <span
-                  className={
-                    hasDisciplines === false ? "mv-text-neutral-300" : ""
-                  }
+                  className={hasDisciplines === false ? "text-neutral-300" : ""}
                 >
                   {locales.route.content.additionalDisciplines.headline}
                 </span>
@@ -881,7 +879,7 @@ function Details() {
                 <ConformSelect.HelperText>
                   <span
                     className={
-                      hasDisciplines === false ? "mv-text-neutral-300" : ""
+                      hasDisciplines === false ? "text-neutral-300" : ""
                     }
                   >
                     {hasDisciplines === false
@@ -992,7 +990,7 @@ function Details() {
             )}
             {isHydrated === true ? (
               <>
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                <div className="flex flex-row gap-4 items-center">
                   <Input
                     value={furtherDiscipline}
                     onChange={handleFurtherDisciplineInputChange}
@@ -1064,7 +1062,7 @@ function Details() {
                         <input
                           {...getInputProps(field, { type: "text" })}
                           key={field.id}
-                          className="mv-pl-1"
+                          className="pl-1"
                         />
 
                         <Chip.Delete>
@@ -1106,8 +1104,8 @@ function Details() {
             )}
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.participants.headline}
             </h2>
 
@@ -1387,8 +1385,8 @@ function Details() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.shortDescription.headline}
             </h2>
             <p>{locales.route.content.shortDescription.intro}</p>
@@ -1412,8 +1410,8 @@ function Details() {
             </Input>
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.extendedDescription.headline}
             </h2>
 
@@ -1550,8 +1548,8 @@ function Details() {
             />
           </div>
 
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.video.headline}
             </h2>
 
@@ -1601,7 +1599,7 @@ function Details() {
                   <div
                     id={form.errorId}
                     key={form.errorId}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -1609,10 +1607,10 @@ function Details() {
               })}
             </div>
           ) : null}
-          <div className="mv-flex mv-w-full mv-justify-end">
-            <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+          <div className="flex w-full justify-end">
+            <div className="flex shrink w-full @md:max-w-fit @lg:w-auto items-center justify-center @lg:justify-end">
               <Controls>
-                <div className="mv-relative mv-w-full">
+                <div className="relative w-full">
                   <Button
                     type="reset"
                     onClick={() => {
@@ -1625,7 +1623,7 @@ function Details() {
                   >
                     {locales.route.content.reset}
                   </Button>
-                  <noscript className="mv-absolute mv-top-0">
+                  <noscript className="absolute top-0">
                     <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.content.reset}
                     </Button>

@@ -466,7 +466,7 @@ export default function Index() {
   const lastName = loaderData.data.lastName;
   const Avatar = useCallback(
     () => (
-      <div className="mv-h-36 mv-w-36 mv-bg-neutral-600 mv-text-white mv-text-6xl mv-flex mv-items-center mv-justify-center mv-overflow-hidden mv-rounded-full mv-border">
+      <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
         {avatar !== null ? (
           <MVAvatar
             avatar={avatar}
@@ -488,7 +488,7 @@ export default function Index() {
   const blurredBackground = loaderData.data.blurredBackground;
   const Background = useCallback(
     () => (
-      <div className="mv-w-full mv-bg-yellow-100 mv-rounded-md mv-overflow-hidden">
+      <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
         {background !== null ? (
           <Image
             src={background}
@@ -496,7 +496,7 @@ export default function Index() {
             blurredSrc={blurredBackground}
           />
         ) : (
-          <div className="mv-w-[300px] mv-min-h-[108px]" />
+          <div className="w-[300px] min-h-[108px]" />
         )}
       </div>
     ),
@@ -516,14 +516,14 @@ export default function Index() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
         <BackButton to="/explore/profiles" prefetch="intent">
           {locales.route.back}
         </BackButton>
       </section>
-      <section className="mv-hidden @md:mv-block mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-        <div className="mv-rounded-3xl mv-relative mv-overflow-hidden mv-bg-yellow-100 mv-w-full mv-aspect-[31/10]">
-          <div className="mv-w-full mv-h-full">
+      <section className="hidden @md:block w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+        <div className="rounded-3xl relative overflow-hidden bg-yellow-100 w-full aspect-[31/10]">
+          <div className="w-full h-full">
             {background !== null ? (
               <Image
                 src={background}
@@ -533,7 +533,7 @@ export default function Index() {
             ) : null}
           </div>
           {loaderData.mode === "owner" ? (
-            <div className="mv-absolute mv-bottom-6 mv-right-6">
+            <div className="absolute bottom-6 right-6">
               <Form method="get" preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
                 <Button type="submit">
@@ -569,11 +569,11 @@ export default function Index() {
           ) : null}
         </div>
       </section>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-mb-20">
-        <div className="mv-flex mv-flex-col @lg:mv-flex-row mv--mx-4">
-          <div className="mv-flex-gridcol @lg:mv-w-5/12 mv-px-4 mv-pt-10 @lg:mv-pt-0">
-            <div className="mv-px-4 mv-py-8 @lg:mv-p-8 mv-pb-15 @md:mv-pb-5 mv-rounded-3xl mv-border mv-border-neutral-100 mv-bg-neutral-50 mv-shadow-lg @lg:mv-ml-14 -mv-mt-2 @lg:-mv-mt-44 mv-sticky mv-top-24">
-              <div className="mv-flex mv-items-center mv-flex-col">
+      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative mb-20">
+        <div className="flex flex-col @lg:flex-row -mx-4">
+          <div className="flex-gridcol @lg:w-5/12 px-4 pt-10 @lg:pt-0">
+            <div className="px-4 py-8 @lg:p-8 pb-15 @md:pb-5 rounded-3xl border border-neutral-100 bg-neutral-50 shadow-lg @lg:ml-14 -mt-2 @lg:-mt-44 sticky top-24">
+              <div className="flex items-center flex-col">
                 <Avatar />
                 {loaderData.mode === "owner" ? (
                   <>
@@ -581,18 +581,18 @@ export default function Index() {
                       <input hidden name="modal-avatar" defaultValue="true" />
                       <button
                         type="submit"
-                        className="mv-appearance-none mv-flex mv-content-center mv-items-center mv-text-nowrap mv-py-2 mv-cursor-pointer mv-text-primary"
+                        className="appearance-none flex content-center items-center text-nowrap py-2 cursor-pointer text-primary"
                       >
                         <svg
                           width="17"
                           height="16"
                           viewBox="0 0 17 16"
                           xmlns="http://www.w3.org/2000/svg"
-                          className="mv-fill-neutral-600"
+                          className="fill-neutral-600"
                         >
                           <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                         </svg>
-                        <span className="mv-ml-2">
+                        <span className="ml-2">
                           {locales.route.profile.changeAvatar}
                         </span>
                       </button>
@@ -626,16 +626,16 @@ export default function Index() {
                   </>
                 ) : null}
 
-                <h3 className="mv-mt-6 mv-text-5xl mv-mb-1">{fullName}</h3>
+                <h3 className="mt-6 text-5xl mb-1">{fullName}</h3>
                 {typeof loaderData.data.position === "string" ? (
-                  <p className="mv-font-bold mv-text-sm mv-mb-4">
+                  <p className="font-bold text-sm mb-4">
                     {loaderData.data.position}
                   </p>
                 ) : null}
               </div>
               {hasContactInformations(loaderData.data) ||
               hasWebsiteOrSocialService(loaderData.data, ExternalServices) ? (
-                <h5 className="mv-font-semibold mv-mb-6 mv-mt-8">
+                <h5 className="font-semibold mb-6 mt-8">
                   {locales.route.profile.contact}
                 </h5>
               ) : null}
@@ -643,23 +643,23 @@ export default function Index() {
                 <>
                   {typeof loaderData.data.email === "string" &&
                   loaderData.data.email !== "" ? (
-                    <p className="mv-text-mb mv-mb-2">
+                    <p className="text-mb mb-2">
                       <Link
                         to={`mailto:${loaderData.data.email}`}
-                        className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
+                        className="flex items-center px-4 py-3 bg-neutral-100 rounded-lg text-neutral-600"
                       >
-                        <span className="mv-w-6 mv-mr-4">
+                        <span className="w-6 mr-4">
                           <svg
                             width="24"
                             height="19"
                             viewBox="0 0 24 19"
-                            className="mv-fill-current"
+                            className="fill-current"
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path d="M0 3.6a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3v-12Zm3-1.5a1.5 1.5 0 0 0-1.5 1.5v.325l10.5 6.3 10.5-6.3V3.6A1.5 1.5 0 0 0 21 2.1H3Zm19.5 3.574-7.062 4.238 7.062 4.345V5.675Zm-.051 10.314-8.46-5.206L12 11.975l-1.989-1.193-8.46 5.205A1.5 1.5 0 0 0 3 17.1h18a1.5 1.5 0 0 0 1.449-1.112ZM1.5 14.258l7.062-4.346L1.5 5.674v8.584Z" />
                           </svg>
                         </span>
-                        <span className="mv-line-clamp-1">
+                        <span className="line-clamp-1">
                           {loaderData.data.email}
                         </span>
                       </Link>
@@ -667,23 +667,23 @@ export default function Index() {
                   ) : null}
                   {typeof loaderData.data.email2 === "string" &&
                   loaderData.data.email2 !== "" ? (
-                    <p className="mv-text-mb mv-mb-2">
+                    <p className="text-mb mb-2">
                       <Link
                         to={`mailto:${loaderData.data.email2}`}
-                        className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
+                        className="flex items-center px-4 py-3 bg-neutral-100 rounded-lg text-neutral-600"
                       >
-                        <span className="mv-w-6 mv-mr-4">
+                        <span className="w-6 mr-4">
                           <svg
                             width="24"
                             height="19"
                             viewBox="0 0 24 19"
-                            className="mv-fill-current"
+                            className="fill-current"
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path d="M0 3.6a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3v-12Zm3-1.5a1.5 1.5 0 0 0-1.5 1.5v.325l10.5 6.3 10.5-6.3V3.6A1.5 1.5 0 0 0 21 2.1H3Zm19.5 3.574-7.062 4.238 7.062 4.345V5.675Zm-.051 10.314-8.46-5.206L12 11.975l-1.989-1.193-8.46 5.205A1.5 1.5 0 0 0 3 17.1h18a1.5 1.5 0 0 0 1.449-1.112ZM1.5 14.258l7.062-4.346L1.5 5.674v8.584Z" />
                           </svg>
                         </span>
-                        <span className="mv-line-clamp-1">
+                        <span className="line-clamp-1">
                           {loaderData.data.email2}
                         </span>
                       </Link>
@@ -691,23 +691,23 @@ export default function Index() {
                   ) : null}
                   {typeof loaderData.data.phone === "string" &&
                   loaderData.data.phone !== "" ? (
-                    <p className="mv-text-md mv-text-neutral-600 mv-mb-2">
+                    <p className="text-md text-neutral-600 mb-2">
                       <Link
                         to={`tel:${loaderData.data.phone}`}
-                        className="mv-flex mv-items-center mv-px-4 mv-py-3 mv-bg-neutral-100 mv-rounded-lg mv-text-neutral-600"
+                        className="flex items-center px-4 py-3 bg-neutral-100 rounded-lg text-neutral-600"
                       >
-                        <span className="mv-w-6 mv-mr-4">
+                        <span className="w-6 mr-4">
                           <svg
                             width="22"
                             height="22"
                             viewBox="0 0 22 22"
-                            className="mv-fill-current"
+                            className="fill-current"
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path d="M5.134 1.993a.915.915 0 0 0-1.37-.085L2.367 3.305c-.653.654-.893 1.578-.608 2.39a23.717 23.717 0 0 0 5.627 8.92 23.717 23.717 0 0 0 8.92 5.627c.812.285 1.736.045 2.39-.608l1.396-1.395a.916.916 0 0 0-.086-1.37l-3.114-2.422a.916.916 0 0 0-.783-.165l-2.956.738a2.356 2.356 0 0 1-2.237-.62L7.6 11.085a2.355 2.355 0 0 1-.62-2.237l.74-2.956a.915.915 0 0 0-.166-.783L5.134 1.993ZM2.744.89a2.356 2.356 0 0 1 3.526.22l2.422 3.113c.444.571.6 1.315.425 2.017L8.38 9.197a.915.915 0 0 0 .24.868l3.317 3.317a.915.915 0 0 0 .87.24l2.954-.739a2.354 2.354 0 0 1 2.017.426l3.113 2.421a2.355 2.355 0 0 1 .22 3.525l-1.395 1.396c-1 .999-2.493 1.438-3.884.948a25.156 25.156 0 0 1-9.464-5.967A25.156 25.156 0 0 1 .401 6.17c-.49-1.39-.05-2.885.949-3.884L2.745.89Z" />
                           </svg>
                         </span>
-                        <span className="mv-line-clamp-1">
+                        <span className="line-clamp-1">
                           {loaderData.data.phone}
                         </span>
                       </Link>
@@ -718,7 +718,7 @@ export default function Index() {
 
               {/* --- WEBSITE & SOCIAL --- */}
               {hasWebsiteOrSocialService(loaderData.data, ExternalServices) ? (
-                <ul className="mv-list-none mv-flex mv-flex-wrap mv--mx-1 mv-mb-2">
+                <ul className="list-none flex flex-wrap -mx-1 mb-2">
                   {ExternalServices.map((service) => {
                     if (
                       typeof loaderData.data[service] === "string" &&
@@ -726,15 +726,12 @@ export default function Index() {
                     ) {
                       if (service === "mastodon" || service === "tiktok") {
                         return (
-                          <li
-                            key={service}
-                            className="mv-flex-auto mv-px-1 mv-mb-2"
-                          >
+                          <li key={service} className="flex-auto px-1 mb-2">
                             <Link
                               to={loaderData.data[service] as string}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mv-flex-1 mv-flex mv-bg-neutral-100 mv-items-center mv-justify-center mv-px-4 mv-py-2.5 mv-rounded-lg mv-text-neutral-700"
+                              className="flex-1 flex bg-neutral-100 items-center justify-center px-4 py-2.5 rounded-lg text-neutral-700"
                             >
                               {service === "mastodon" && <Mastodon />}
                               {service === "tiktok" && <TikTok />}
@@ -744,10 +741,7 @@ export default function Index() {
                       }
 
                       return (
-                        <li
-                          key={service}
-                          className="mv-flex-auto mv-px-1 mv-mb-2"
-                        >
+                        <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
                             // TODO: can this type assertion be removed and proofen by code?
@@ -764,9 +758,9 @@ export default function Index() {
 
               {loaderData.data.createdAt !== undefined ? (
                 <>
-                  <hr className="mv-divide-y mv-divide-neutral-400 mv-mt-8 mv-mb-6" />
+                  <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
-                  <p className="mv-text-xs mv-mb-4 mv-text-center">
+                  <p className="text-xs mb-4 text-center">
                     {insertParametersIntoLocale(
                       locales.route.profile.existsSince,
                       {
@@ -786,10 +780,10 @@ export default function Index() {
             </div>
           </div>
 
-          <div className="mv-flex-col @lg:mv-w-7/12 mv-px-4 mv-pt-10 @lg:mv-pt-20 mv-overflow-hidden">
-            <div className="mv-flex mv-flex-col-reverse @lg:mv-flex-row mv-flex-nowrap">
-              <div className="mv-flex-auto mv-pr-4 mv-mb-6">
-                <h1 className="mv-mb-0">
+          <div className="flex-col @lg:w-7/12 px-4 pt-10 @lg:pt-20 overflow-hidden">
+            <div className="flex flex-col-reverse @lg:flex-row flex-nowrap">
+              <div className="flex-auto pr-4 mb-6">
+                <h1 className="mb-0">
                   {insertParametersIntoLocale(
                     locales.route.profile.introduction,
                     {
@@ -801,9 +795,9 @@ export default function Index() {
                 </h1>
               </div>
               {loaderData.mode === "owner" ? (
-                <div className="mv-flex-initial @lg:mv-pl-4 mv-pt-3 mv-mb-6">
+                <div className="flex-initial @lg:pl-4 pt-3 mb-6">
                   <Link
-                    className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                    className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white"
                     to={`/profile/${loaderData.data.username}/settings/general`}
                     prefetch="intent"
                   >
@@ -815,15 +809,15 @@ export default function Index() {
             {typeof loaderData.data.bio === "string" ? (
               <RichText
                 html={loaderData.data.bio}
-                additionalClassNames="mv-mb-6"
+                additionalClassNames="mb-6"
               />
             ) : null}
             {loaderData.data.areas.length > 0 ? (
-              <div className="mv-flex mv-mb-6 mv-font-semibold mv-flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 mv-text-xs @lg:mv-text-sm mv-leading-4 mv-mb-2 @lg:mv-mb-0 @lg:mv-leading-6">
+              <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
+                <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 mb-2 @lg:mb-0 @lg:leading-6">
                   {locales.route.profile.activityAreas}
                 </div>
-                <div className="@lg:mv-flex-auto">
+                <div className="@lg:flex-auto">
                   {loaderData.data.areas
                     .map((relation) => relation.area.name)
                     .join(" / ")}
@@ -831,30 +825,30 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.data.skills.length > 0 ? (
-              <div className="mv-flex mv-mb-6 mv-font-semibold mv-flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 mv-text-xs @lg:mv-text-sm mv-leading-4 @lg:mv-leading-6 mv-mb-2 @lg:mv-mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
+                <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 mb-2 @lg:mb-0">
                   {locales.route.profile.competences}
                 </div>
 
-                <div className="mv-flex-auto">
+                <div className="flex-auto">
                   {loaderData.data.skills.join(" / ")}
                 </div>
               </div>
             ) : null}
 
             {loaderData.data.interests.length > 0 ? (
-              <div className="mv-flex mv-mb-6 mv-font-semibold mv-flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 mv-text-xs @lg:mv-text-sm mv-leading-4 @lg:mv-leading-6 mv-mb-2 @lg:mv-mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
+                <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 mb-2 @lg:mb-0">
                   {locales.route.profile.interests}
                 </div>
-                <div className="mv-flex-auto">
+                <div className="flex-auto">
                   {loaderData.data.interests.join(" / ")}
                 </div>
               </div>
             ) : null}
             {loaderData.data.offers.length > 0 ? (
-              <div className="mv-flex mv-mb-6 mv-font-semibold mv-flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 mv-text-xs @lg:mv-text-sm mv-leading-4 @lg:mv-leading-6 mv-my-2 @lg:mv-mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
+                <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 my-2 @lg:mb-0">
                   {locales.route.profile.offer}
                 </div>
                 <Chip.Container>
@@ -883,8 +877,8 @@ export default function Index() {
               </div>
             ) : null}
             {loaderData.data.seekings.length > 0 ? (
-              <div className="mv-flex mv-mb-6 mv-font-semibold mv-flex-col @lg:mv-flex-row">
-                <div className="@lg:mv-basis-32 @lg:mv-shrink-0 @lg:mv-grow-0 mv-text-xs @lg:mv-text-sm mv-leading-4 @lg:mv-leading-6 mv-my-2 @lg:mv-mb-0">
+              <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
+                <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 my-2 @lg:mb-0">
                   {locales.route.profile.lookingFor}
                 </div>
                 <Chip.Container>
@@ -916,21 +910,21 @@ export default function Index() {
             {loaderData.data.memberOf.length > 0 ||
             loaderData.mode === "owner" ? (
               <>
-                <div className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center mv-relative">
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center relative">
                   <div
                     id="organizations"
-                    className="mv-absolute -mv-top-[76px] xl:-mv-top-20"
+                    className="absolute -top-[76px] xl:-top-20"
                   />
-                  <div className="mv-flex-auto mv-pr-4">
-                    <h3 className="mv-mb-0 mv-font-bold">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
                       {locales.route.section.organizations.title}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
-                    <div className="mv-flex-initial mv-pl-4">
+                    <div className="flex-initial pl-4">
                       <Link
                         to="/organization/create"
-                        className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white"
                         prefetch="intent"
                       >
                         {locales.route.section.organizations.create}
@@ -939,7 +933,7 @@ export default function Index() {
                   ) : null}
                 </div>
                 {loaderData.data.memberOf.length > 0 ? (
-                  <div className="mv-flex mv-flex-wrap mv--mx-3 mv-items-stretch">
+                  <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
                         key={`${relation.organization.slug}`}
@@ -962,18 +956,18 @@ export default function Index() {
               <>
                 <div
                   id="projects"
-                  className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center"
+                  className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
-                  <div className="mv-flex-auto mv-pr-4">
-                    <h3 className="mv-mb-0 mv-font-bold">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
                       {locales.route.section.projects.title}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" ? (
-                    <div className="mv-flex-initial mv-pl-4">
+                    <div className="flex-initial pl-4">
                       <Link
                         to="/project/create"
-                        className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white"
                         prefetch="intent"
                       >
                         {locales.route.section.projects.create}
@@ -982,23 +976,23 @@ export default function Index() {
                   ) : null}
                 </div>
                 {loaderData.data.teamMemberOfProjects.length > 0 ? (
-                  <div className="mv-flex mv-flex-wrap mv--mx-3 mv-items-stretch">
+                  <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.teamMemberOfProjects.map((relation) => (
                       // TODO: Project Card
                       <div
                         key={relation.project.slug}
                         data-testid="gridcell"
-                        className="mv-w-full mv-px-3 mv-mb-4"
+                        className="w-full px-3 mb-4"
                       >
                         <Link
                           to={`/project/${relation.project.slug}/detail/about`}
-                          className="mv-flex mv-flex-wrap mv-content-start mv-p-4 mv-rounded-2xl hover:mv-bg-neutral-200 mv-border mv-border-neutral-500"
+                          className="flex flex-wrap content-start p-4 rounded-2xl hover:bg-neutral-200 border border-neutral-500"
                           prefetch="intent"
                         >
-                          <div className="mv-w-full mv-flex mv-items-center mv-flex-row">
+                          <div className="w-full flex items-center flex-row">
                             {relation.project.logo !== "" &&
                             relation.project.logo !== null ? (
-                              <div className="mv-h-16 mv-w-16 mv-flex mv-flex-initial mv-items-center mv-justify-center mv-relative mv-shrink-0 mv-rounded-full mv-overflow-hidden mv-border">
+                              <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden">
                                 <MVAvatar
                                   logo={relation.project.logo}
                                   blurredLogo={relation.project.blurredLogo}
@@ -1007,17 +1001,17 @@ export default function Index() {
                                 />
                               </div>
                             ) : (
-                              <div className="mv-h-16 mv-w-16 mv-bg-neutral-600 mv-text-white mv-text-3xl mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-border">
+                              <div className="h-16 w-16 bg-neutral-600 text-white text-3xl flex items-center justify-center rounded-full overflow-hidden shrink-0 border border-neutral-200">
                                 {getInitialsOfName(relation.project.name)}
                               </div>
                             )}
-                            <div className="mv-pl-4 mv-flex-auto">
-                              <H3 like="h4" className="mv-text-xl mv-mb-1">
+                            <div className="pl-4 flex-auto">
+                              <H3 like="h4" className="text-xl mb-1">
                                 {relation.project.name}
                               </H3>
                               {relation.project.responsibleOrganizations
                                 .length > 0 ? (
-                                <p className="mv-font-bold mv-text-sm">
+                                <p className="font-bold text-sm">
                                   {relation.project.responsibleOrganizations
                                     .map(
                                       ({ organization }) => organization.name
@@ -1026,8 +1020,8 @@ export default function Index() {
                                 </p>
                               ) : null}
                             </div>
-                            <div className="mv-hidden @md:mv-flex mv-items-center mv-flex-initial">
-                              <button className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white">
+                            <div className="hidden @md:flex items-center flex-initial">
+                              <button className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white">
                                 {locales.route.section.projects.to}
                               </button>
                             </div>
@@ -1043,19 +1037,19 @@ export default function Index() {
               <>
                 <div
                   id="events"
-                  className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center"
+                  className="flex flex-row flex-nowrap mb-6 mt-14 items-center"
                 >
-                  <div className="mv-flex-auto mv-pr-4">
-                    <h3 className="mv-mb-0 mv-font-bold">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
                       {locales.route.section.comingEvents.title}
                     </h3>
                   </div>
                   {loaderData.mode === "owner" &&
                   loaderData.abilities.events.hasAccess ? (
-                    <div className="mv-flex-initial mv-pl-4">
+                    <div className="flex-initial pl-4">
                       <Link
                         to="/event/create"
-                        className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white"
+                        className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white"
                         prefetch="intent"
                       >
                         {locales.route.section.comingEvents.create}
@@ -1065,13 +1059,10 @@ export default function Index() {
                 </div>
                 {loaderData.futureEvents.administeredEvents.length > 0 ? (
                   <>
-                    <h6
-                      id="admin-future-events"
-                      className="mv-mb-4 mv-font-bold"
-                    >
+                    <h6 id="admin-future-events" className="mb-4 font-bold">
                       {locales.route.section.event.admin}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.futureEvents.administeredEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1085,15 +1076,15 @@ export default function Index() {
                           return (
                             <div
                               key={`future-admin-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1101,8 +1092,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1157,15 +1148,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1176,25 +1167,25 @@ export default function Index() {
                               !event.canceled ? (
                                 <>
                                   {event.published ? (
-                                    <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-600 mv-pr-4 mv-py-6 mv-text-green-600">
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
                                       {locales.route.section.event.published}
                                     </div>
                                   ) : (
-                                    <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-primary mv-pr-4 mv-py-6 mv-text-primary">
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-primary pr-4 py-6 text-primary">
                                       {locales.route.section.event.draft}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-centermv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-centerml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.registered}
                                   </p>
@@ -1202,7 +1193,7 @@ export default function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserParticipate(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
@@ -1213,13 +1204,13 @@ export default function Index() {
                               {event.isOnWaitingList &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-neutral-500 mv-pr-4 mv-py-6">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserBeAddedToWaitingList(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
@@ -1236,10 +1227,10 @@ export default function Index() {
                                 loaderData.mode !== "anon") ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -1257,11 +1248,11 @@ export default function Index() {
                   <>
                     <h6
                       id="team-member-future-events"
-                      className="mv-mb-4 mv-font-bold"
+                      className="mb-4 font-bold"
                     >
                       {locales.route.section.event.team}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.futureEvents.teamMemberOfEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1275,15 +1266,15 @@ export default function Index() {
                           return (
                             <div
                               key={`future-team-member-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1291,8 +1282,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1346,15 +1337,15 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1362,14 +1353,14 @@ export default function Index() {
                               </Link>
 
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.registered}
                                   </p>
@@ -1377,7 +1368,7 @@ export default function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserParticipate(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
@@ -1388,13 +1379,13 @@ export default function Index() {
                               {event.isOnWaitingList &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-neutral-500 mv-pr-4 mv-py-6">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserBeAddedToWaitingList(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
@@ -1410,10 +1401,10 @@ export default function Index() {
                                 loaderData.mode !== "anon") ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -1432,11 +1423,11 @@ export default function Index() {
                   <>
                     <h6
                       id="future-contributed-events"
-                      className="mv-mb-4 mv-font-bold"
+                      className="mb-4 font-bold"
                     >
                       {locales.route.section.event.speaker}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.futureEvents.contributedEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1450,15 +1441,15 @@ export default function Index() {
                           return (
                             <div
                               key={`future-contributed-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1466,8 +1457,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1521,27 +1512,27 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
                               </Link>
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.registered}
                                   </p>
@@ -1549,7 +1540,7 @@ export default function Index() {
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserParticipate(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
@@ -1558,13 +1549,13 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-neutral-500 mv-pr-4 mv-py-6">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
                                 </div>
                               ) : null}
                               {loaderData.mode !== "anon" &&
                               canUserBeAddedToWaitingList(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
@@ -1580,10 +1571,10 @@ export default function Index() {
                                 loaderData.mode !== "anon") ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -1601,11 +1592,11 @@ export default function Index() {
                   <>
                     <h6
                       id="future-participated-events"
-                      className="mv-mb-4 mv-font-bold"
+                      className="mb-4 font-bold"
                     >
                       {locales.route.section.event.participation}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.futureEvents.participatedEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1619,15 +1610,15 @@ export default function Index() {
                           return (
                             <div
                               key={`future-participated-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1635,8 +1626,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1690,34 +1681,34 @@ export default function Index() {
                                       </>
                                     ) : null}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
                               </Link>
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.registered}
                                   </p>
                                 </div>
                               ) : null}
                               {canUserParticipate(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddParticipantButton
                                     action={`/event/${event.slug}/settings/participants/add-participant`}
                                     profileId={loaderData.userId}
@@ -1726,12 +1717,12 @@ export default function Index() {
                                 </div>
                               ) : null}
                               {event.isOnWaitingList && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-neutral-500 mv-pr-4 mv-py-6">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
                                   <p>{locales.route.section.event.waiting}</p>
                                 </div>
                               ) : null}
                               {canUserBeAddedToWaitingList(event) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <AddToWaitingListButton
                                     action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
                                     profileId={loaderData.userId}
@@ -1744,10 +1735,10 @@ export default function Index() {
                               !event.isOnWaitingList &&
                               !canUserBeAddedToWaitingList(event) &&
                               !event.canceled ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -1765,19 +1756,19 @@ export default function Index() {
             ) : null}
             {hasPastEvents ? (
               <>
-                <div className="mv-flex mv-flex-row mv-flex-nowrap mv-mb-6 mv-mt-14 mv-items-center">
-                  <div className="mv-flex-auto mv-pr-4">
-                    <h3 className="mv-mb-0 mv-font-bold">
+                <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center">
+                  <div className="flex-auto pr-4">
+                    <h3 className="mb-0 font-bold">
                       {locales.route.section.pastEvents.title}
                     </h3>
                   </div>
                 </div>
                 {loaderData.pastEvents.administeredEvents.length > 0 ? (
                   <>
-                    <h6 id="past-admin-events" className="mv-mb-4 mv-font-bold">
+                    <h6 id="past-admin-events" className="mb-4 font-bold">
                       {locales.route.section.event.admin}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.pastEvents.administeredEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1791,15 +1782,15 @@ export default function Index() {
                           return (
                             <div
                               key={`past-admin-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1807,8 +1798,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1833,15 +1824,15 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
                                   </p>
-                                  <h4 className="mv-line-clamp-1 mv-font-bold mv-text-base mv-m-0">
+                                  <h4 className="line-clamp-1 font-bold text-base m-0">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className=" mv-hidden @lg:mv-line-clamp-1 mv-text-xs mv-mt-1">
+                                    <p className="@lg:line-clamp-1 text-xs mt-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className=" mv-hidden @lg:mv-line-clamp-1 mv-text-xs mv-mt-1">
+                                    <p className="@lg:line-clamp-1 text-xs mt-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1852,25 +1843,25 @@ export default function Index() {
                               !event.canceled ? (
                                 <>
                                   {event.published ? (
-                                    <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-600 mv-pr-4 mv-py-6 mv-text-green-600">
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
                                       {locales.route.section.event.published}
                                     </div>
                                   ) : (
-                                    <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-primary mv-pr-4 mv-py-6 mv-text-primary">
+                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-primary pr-4 py-6 text-primary">
                                       {locales.route.section.event.draft}
                                     </div>
                                   )}
                                 </>
                               ) : null}
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.participated}
                                   </p>
@@ -1884,10 +1875,10 @@ export default function Index() {
                                 !event.canceled) ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -1904,13 +1895,10 @@ export default function Index() {
 
                 {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
                   <>
-                    <h6
-                      id="past-team-member-events"
-                      className="mv-mb-4 mv-font-bold"
-                    >
+                    <h6 id="past-team-member-events" className="mb-4 font-bold">
                       {locales.route.section.event.team}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.pastEvents.teamMemberOfEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -1924,15 +1912,15 @@ export default function Index() {
                           return (
                             <div
                               key={`past-team-member-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -1940,8 +1928,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -1966,15 +1954,15 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
@@ -1982,14 +1970,14 @@ export default function Index() {
                               </Link>
 
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.cancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant &&
                               !event.canceled &&
                               loaderData.mode !== "owner" ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.participated}
                                   </p>
@@ -2002,10 +1990,10 @@ export default function Index() {
                                 !event.canceled) ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -2022,13 +2010,10 @@ export default function Index() {
 
                 {loaderData.pastEvents.contributedEvents.length > 0 ? (
                   <>
-                    <h6
-                      id="past-contributed-events"
-                      className="mv-mb-4 mv-font-bold"
-                    >
+                    <h6 id="past-contributed-events" className="mb-4 font-bold">
                       {locales.route.section.event.speaker}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.pastEvents.contributedEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -2042,15 +2027,15 @@ export default function Index() {
                           return (
                             <div
                               key={`past-contributed-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300  mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -2058,8 +2043,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -2084,27 +2069,27 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
                               </Link>
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.wasCancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.participated}
                                   </p>
@@ -2117,10 +2102,10 @@ export default function Index() {
                                 !event.canceled) ||
                               (loaderData.mode === "anon" &&
                                 !event.canceled) ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}
@@ -2138,11 +2123,11 @@ export default function Index() {
                   <>
                     <h6
                       id="past-participated-events"
-                      className="mv-mb-4 mv-font-bold"
+                      className="mb-4 font-bold"
                     >
                       {locales.route.section.event.participation}
                     </h6>
-                    <div className="mv-mb-6">
+                    <div className="mb-6">
                       {loaderData.pastEvents.participatedEvents.map(
                         ({ event }) => {
                           const startTime = utcToZonedTime(
@@ -2156,15 +2141,15 @@ export default function Index() {
                           return (
                             <div
                               key={`past-participated-event-${event.id}`}
-                              className="mv-rounded-lg mv-bg-white mv-shadow-xl mv-border-t mv-border-r mv-border-neutral-300 mv-mb-2 mv-flex mv-items-stretch mv-overflow-hidden"
+                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
                             >
                               <Link
-                                className="mv-flex"
+                                className="flex"
                                 to={`/event/${event.slug}`}
                                 prefetch="intent"
                               >
-                                <div className="mv-hidden @xl:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2]">
-                                  <div className="mv-w-36 mv-h-full mv-relative">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                  <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
                                       alt={event.name}
@@ -2172,8 +2157,8 @@ export default function Index() {
                                     />
                                   </div>
                                 </div>
-                                <div className="mv-px-4 mv-py-4">
-                                  <p className="mv-text-xs mv-mb-1">
+                                <div className="px-4 py-4">
+                                  <p className="text-xs mb-1">
                                     {/* TODO: Display icons (see figma) */}
                                     {event.stage !== null
                                       ? (() => {
@@ -2198,27 +2183,27 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
                                   </p>
-                                  <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
                                   {event.subline !== null ? (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
                                   ) : (
-                                    <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+                                    <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {removeHtmlTags(event.description ?? "")}
                                     </p>
                                   )}
                                 </div>
                               </Link>
                               {event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-red-400 mv-pr-4 mv-py-6 mv-text-red-400">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
                                   {locales.route.section.event.wasCancelled}
                                 </div>
                               ) : null}
                               {event.isParticipant && !event.canceled ? (
-                                <div className="mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-border-green-500 mv-pr-4 mv-py-6 mv-text-green-600">
+                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
                                   <p>
                                     {locales.route.section.event.participated}
                                   </p>
@@ -2229,10 +2214,10 @@ export default function Index() {
                               !event.isOnWaitingList &&
                               !canUserBeAddedToWaitingList(event) &&
                               !event.canceled ? (
-                                <div className="mv-flex mv-items-center mv-ml-auto mv-pr-4 mv-py-6">
+                                <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
                                     to={`/event/${event.slug}`}
-                                    className="mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
                                     {locales.route.section.event.more}

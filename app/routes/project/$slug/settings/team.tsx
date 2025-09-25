@@ -238,12 +238,12 @@ function Team() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+      <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
 
       {/* Current Team Members and Remove Section */}
-      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+      <div className="flex flex-col gap-6 @md:gap-4">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {decideBetweenSingularOrPlural(
               locales.route.content.current.headline_one,
               locales.route.content.current.headline_other,
@@ -294,7 +294,7 @@ function Team() {
                     <div
                       id={removeTeamMemberForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -305,8 +305,8 @@ function Team() {
           </Form>
         </div>
         {/* Search And Add Team Members Section */}
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.add.headline}
           </h2>
           <searchFetcher.Form
@@ -377,7 +377,7 @@ function Team() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -410,7 +410,7 @@ function Team() {
                       {project.teamMembers.some((teamMember) => {
                         return teamMember.profile.id === searchedProfile.id;
                       }) ? (
-                        <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-positive-600 mv-text-sm mv-font-semibold mv-leading-5">
+                        <div className="w-full text-center text-nowrap text-positive-600 text-sm font-semibold leading-5">
                           {locales.route.content.add.alreadyMember}
                         </div>
                       ) : (
@@ -420,7 +420,7 @@ function Team() {
                         //       relation.profile.id === searchedProfile.id
                         //     );
                         //   }) ? (
-                        //   <div className="mv-w-full mv-text-center mv-text-nowrap mv-text-neutral-700 mv-text-sm mv-font-semibold mv-leading-5">
+                        //   <div className="w-full text-center text-nowrap text-neutral-700 text-sm font-semibold leading-5">
                         //     {
                         //       locales.route.content.add
                         //         .alreadyInvited
@@ -450,7 +450,7 @@ function Team() {
                       <div
                         id={addTeamMemberForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -462,8 +462,8 @@ function Team() {
           ) : null}
           {/* TODO: Implement this when project team member invites are implemented */}
           {/* Search Profiles To Invite As Team Member Section */}
-          {/* <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          {/* <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.invite.headline}
           </h2>
           <Form
@@ -521,7 +521,7 @@ function Team() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -573,7 +573,7 @@ function Team() {
                       <div
                         id={inviteTeamMemberForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -585,8 +585,8 @@ function Team() {
           ) : null} */}
           {/* Pending Invites Section */}
           {/* {pendingTeamMemberInvites.length > 0 ? (
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h4 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h4 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.content.invites.headline}
               </h4>
               <p>{locales.route.content.invites.intro} </p>
@@ -632,7 +632,7 @@ function Team() {
                         <div
                           id={cancelTeamMemberInviteForm.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>

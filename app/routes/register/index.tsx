@@ -154,34 +154,34 @@ export default function Register() {
   });
 
   return (
-    <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative">
-      <div className="mv-flex mv-flex-col mv-w-full mv-items-center">
-        <div className="mv-w-full @sm:mv-w-2/3 @md:mv-w-1/2 @2xl:mv-w-1/3">
-          <div className="mv-mb-6 mv-mt-12">
+    <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="flex flex-col w-full items-center">
+        <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
+          <div className="mb-6 mt-12">
             {locales.content.question}{" "}
             <Link
               to={`/login${
                 loginRedirect !== null ? `?login_redirect=${loginRedirect}` : ""
               }`}
-              className="mv-text-primary mv-font-bold"
+              className="text-primary font-bold"
               prefetch="intent"
             >
               {locales.content.login}
             </Link>
           </div>
-          <h1 className="mv-mb-8">{locales.content.create}</h1>
+          <h1 className="mb-8">{locales.content.create}</h1>
           {typeof actionData !== "undefined" &&
           typeof actionData.submission.status !== "undefined" &&
           actionData.submission.status === "success" ? (
             <>
-              <p className="mv-mb-4">
+              <p className="mb-4">
                 {insertComponentsIntoLocale(
                   insertParametersIntoLocale(locales.content.success, {
                     email: actionData.email,
                     systemMail: actionData.systemMail,
                   }),
                   [
-                    <span key="email-highlight" className="mv-font-semibold" />,
+                    <span key="email-highlight" className="font-semibold" />,
                     <Link
                       key="reset-password-link"
                       to={`/reset${
@@ -189,7 +189,7 @@ export default function Register() {
                           ? `?login_redirect=${loginRedirect}`
                           : ""
                       }`}
-                      className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      className="text-primary font-semibold hover:underline"
                       prefetch="intent"
                     >
                       {" "}
@@ -197,7 +197,7 @@ export default function Register() {
                     <Link
                       key="support-mail-link"
                       to={`mailto:${actionData.supportMail}`}
-                      className="mv-text-primary mv-font-semibold hover:mv-underline"
+                      className="text-primary font-semibold hover:underline"
                     >
                       {" "}
                     </Link>,
@@ -212,9 +212,9 @@ export default function Register() {
               preventScrollReset
               autoComplete="off"
             >
-              <p className="mv-mb-4">{locales.form.intro}</p>
-              <div className="mv-flex mv-flex-row mv-mb-4">
-                <div className="mv-basis-full @lg:mv-basis-1/2">
+              <p className="mb-4">{locales.form.intro}</p>
+              <div className="flex flex-row mb-4">
+                <div className="basis-full @lg:basis-1/2">
                   <Dropdown>
                     <Dropdown.Label>
                       {isHydrated === true &&
@@ -243,14 +243,14 @@ export default function Register() {
                   </Dropdown>
                   {typeof registerFields.academicTitle.errors !== "undefined" &&
                   registerFields.academicTitle.errors.length > 0 ? (
-                    <div className="mv-mb-10">
+                    <div className="mb-10">
                       {registerFields.academicTitle.errors.map(
                         (error, index) => {
                           return (
                             <div
                               id={registerFields.academicTitle.errorId}
                               key={index}
-                              className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                              className="text-sm font-semibold text-negative-600"
                             >
                               {error}
                             </div>
@@ -261,7 +261,7 @@ export default function Register() {
                   ) : null}
                 </div>
               </div>
-              <div className="mv-flex mv-flex-col @lg:mv-flex-row mv-mb-4 mv-gap-4">
+              <div className="flex flex-col @lg:flex-row mb-4 gap-4">
                 <Input
                   {...getInputProps(registerFields.firstName, {
                     type: "text",
@@ -305,7 +305,7 @@ export default function Register() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-mb-4">
+              <div className="mb-4">
                 <Input
                   {...getInputProps(registerFields.email, { type: "text" })}
                   key="email"
@@ -326,7 +326,7 @@ export default function Register() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-mb-4">
+              <div className="mb-4">
                 <Input
                   {...getInputProps(registerFields.password, {
                     type: showPassword ? "text" : "password",
@@ -349,7 +349,7 @@ export default function Register() {
                     : null}
                   {isHydrated === true ? (
                     <Input.Controls>
-                      <div className="mv-h-10 mv-w-10">
+                      <div className="h-10 w-10">
                         <ShowPasswordButton
                           onClick={() => {
                             setShowPassword(!showPassword);
@@ -371,8 +371,8 @@ export default function Register() {
                   ) : null}
                 </Input>
               </div>
-              <div className="mv-mb-10">
-                <div className="mv-flex mv-gap-2 mv-items-center">
+              <div className="mb-10">
+                <div className="flex gap-2 items-center">
                   <Checkbox
                     {...getInputProps(registerFields.termsAccepted, {
                       type: "checkbox",
@@ -387,7 +387,7 @@ export default function Register() {
                         to="https://mint-vernetzt.de/terms-of-use-community-platform"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                        className="text-primary font-semibold hover:underline"
                       >
                         {" "}
                       </Link>,
@@ -396,7 +396,7 @@ export default function Register() {
                         to="https://mint-vernetzt.de/privacy-policy-community-platform"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="mv-text-primary mv-font-semibold hover:mv-underline"
+                        className="text-primary font-semibold hover:underline"
                       >
                         {" "}
                       </Link>,
@@ -405,13 +405,13 @@ export default function Register() {
                 </div>
                 {typeof registerFields.termsAccepted.errors !== "undefined" &&
                 registerFields.termsAccepted.errors.length > 0 ? (
-                  <div className="mv-mb-10 mv-ml-5">
+                  <div className="mb-10 ml-5">
                     {registerFields.termsAccepted.errors.map((error, index) => {
                       return (
                         <div
                           id={registerFields.termsAccepted.errorId}
                           key={index}
-                          className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                          className="text-sm font-semibold text-negative-600"
                         >
                           {error}
                         </div>
@@ -422,13 +422,13 @@ export default function Register() {
               </div>
               {typeof registerForm.errors !== "undefined" &&
               registerForm.errors.length > 0 ? (
-                <div className="mv-mb-10">
+                <div className="mb-10">
                   {registerForm.errors.map((error, index) => {
                     return (
                       <div
                         id={registerForm.errorId}
                         key={index}
-                        className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                        className="text-sm font-semibold text-negative-600"
                       >
                         {error}
                       </div>
@@ -443,7 +443,7 @@ export default function Register() {
                 })}
                 key="loginRedirect"
               />
-              <div className="mv-flex mv-flex-row mv-mb-8 mv-items-center mv-justify-end">
+              <div className="flex flex-row mb-8 items-center justify-end">
                 <Button
                   type="submit"
                   // Don't disable button when js is disabled

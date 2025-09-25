@@ -45,10 +45,10 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
   const [isUnderlineActive, setIsUnderlineActive] = useState(false);
 
   const baseButtonClassName =
-    "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4";
-  const disabledClassName = "mv-bg-neutral-50 mv-text-neutral-300";
+    "appearance-none w-fit font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg text-xs p-2 leading-4";
+  const disabledClassName = "bg-neutral-50 text-neutral-300";
   const enabledClassName =
-    "mv-text-gray hover:mv-text-gray-800 hover:mv-bg-neutral-200 focus:mv-text-gray-800 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 focus:mv-ring-2 focus:mv-ring-blue-500";
+    "text-gray hover:text-gray-800 hover:bg-neutral-200 focus:text-gray-800 focus:bg-neutral-50 active:bg-neutral-100 focus:ring-2 focus:ring-blue-500";
 
   useEffect(() => {
     window.addEventListener("click", (event) => {
@@ -123,7 +123,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
   }, [editor, isBoldActive, isItalicActive, isUnderlineActive]);
 
   return (
-    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-b mv-border-gray-200 mv-pl-1">
+    <div className="flex gap-1 w-full h-10 items-center border-b border-gray-200 pl-1">
       <button
         className={`${baseButtonClassName} ${
           canUndo === true ? enabledClassName : disabledClassName
@@ -158,7 +158,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}${
-          isBoldActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+          isBoldActive ? " bg-neutral-200 hover:bg-neutral-300" : ""
         }`}
         // This is added for Safari which would otherwise lead to focus loss
         onMouseDown={(event) => event.preventDefault()}
@@ -173,7 +173,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}${
-          isItalicActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+          isItalicActive ? " bg-neutral-200 hover:bg-neutral-300" : ""
         }`}
         // This is added for Safari which would otherwise lead to focus loss
         onMouseDown={(event) => event.preventDefault()}
@@ -188,7 +188,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${enabledClassName}${
-          isUnderlineActive ? " mv-bg-neutral-200 hover:mv-bg-neutral-300" : ""
+          isUnderlineActive ? " bg-neutral-200 hover:bg-neutral-300" : ""
         }`}
         // This is added for Safari which would otherwise lead to focus loss
         onMouseDown={(event) => event.preventDefault()}
@@ -247,15 +247,15 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         >
           <LinkIcon />
         </button>
-        <div className="mv-absolute mv-left-0 mv-max-w-1/2 mv-mt-1">
+        <div className="absolute left-0 max-w-1/2 mt-1">
           <div
-            className={`mv-bg-white mv-border-x mv-border-b mv-border-gray-200 mv-px-2 mv-pb-2 mv-rounded-br-lg ${
+            className={`bg-white border-x border-b border-gray-200 px-2 pb-2 rounded-br-lg ${
               showInsertLinkMenu
-                ? "mv-block mv-opacity-100 mv-w-fit mv-h-fit"
-                : "mv-fixed mv-opacity-0 mv-w-0 mv-h-0"
+                ? "block opacity-100 w-fit h-fit"
+                : "fixed opacity-0 w-0 h-0"
             }`}
           >
-            <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
+            <div className="flex gap-1 items-center abolute top-0">
               <Input
                 id={`link-input-${editor.getKey()}`}
                 ref={linkInputRef}
@@ -315,9 +315,9 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
 function LoadingToolbar(props: { locales: RTELocales }) {
   const { locales } = props;
   const buttonClassName =
-    "mv-appearance-none mv-w-fit mv-font-semibold mv-whitespace-nowrap mv-flex mv-items-center mv-justify-center mv-align-middle mv-text-center mv-rounded-lg mv-text-xs mv-p-2 mv-leading-4 mv-bg-neutral-50 mv-text-neutral-300";
+    "appearance-none w-fit font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg text-xs p-2 leading-4 bg-neutral-50 text-neutral-300";
   return (
-    <div className="mv-flex mv-gap-1 mv-w-full mv-h-10 mv-items-center mv-border-b mv-border-gray-200 mv-pl-1">
+    <div className="flex gap-1 w-full h-10 items-center border-b border-gray-200 pl-1">
       <button
         className={buttonClassName}
         disabled={true}
@@ -381,7 +381,7 @@ function LoadingToolbar(props: { locales: RTELocales }) {
       >
         <OrderedList />
       </button>
-      <div className="mv-group">
+      <div className="group">
         <button
           className={`${buttonClassName}`}
           disabled={true}
@@ -390,9 +390,9 @@ function LoadingToolbar(props: { locales: RTELocales }) {
         >
           <LinkIcon />
         </button>
-        <div className="mv-absolute mv-left-0 mv-max-w-1/2 mv-mt-1">
-          <div className="group-has-[:checked]:mv-block mv-hidden mv-bg-white mv-border-x mv-border-b mv-border-gray-200 mv-px-2 mv-pb-2 mv-rounded-br-lg">
-            <div className="mv-flex mv-gap-1 mv-items-center mv-abolute mv-top-0">
+        <div className="absolute left-0 max-w-1/2 mt-1">
+          <div className="group-has-[:checked]:block hidden bg-white border-x border-b border-gray-200 px-2 pb-2 rounded-br-lg">
+            <div className="flex gap-1 items-center abolute top-0">
               <Input id="linkInput" disabled={true} defaultValue="https://">
                 <Input.Label htmlFor="linkInput">
                   {locales.rte.toolbar.link.cta}

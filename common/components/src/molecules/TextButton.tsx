@@ -83,15 +83,15 @@ function TextButton(
   } = props;
 
   const classes = classNames(
-    "mv-flex mv-w-fit mv-items-center mv-gap-2 hover:mv-underline active:mv-underline mv-underline-offset-4",
-    variant === "primary" && "mv-text-primary",
-    variant === "neutral" && "mv-text-neutral",
-    variant === "dark" && "mv-text-neutral-700",
-    size === "small" && "mv-text-sm",
-    size === "large" && "mv-text-2xl",
-    weight === "thin" && "mv-font-thin",
-    weight === "base" && "mv-font-normal",
-    weight === "normal" && "mv-font-semibold"
+    "flex w-fit items-center gap-2 hover:underline active:underline underline-offset-4",
+    variant === "primary" && "text-primary",
+    variant === "neutral" && "text-neutral",
+    variant === "dark" && "text-neutral-700",
+    size === "small" && "text-sm",
+    size === "large" && "text-2xl",
+    weight === "thin" && "font-thin",
+    weight === "base" && "font-normal",
+    weight === "normal" && "font-semibold"
   );
 
   // If component is used as a wrapper, we need to clone inner node, apply the styles and rearrange the children

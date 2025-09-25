@@ -28,24 +28,23 @@ function ListItemImage(props: {
     }
   }, []);
 
-  const baseClasses =
-    "mv-w-full mv-h-full mv-object-cover mv-absolute mv-inset-0";
+  const baseClasses = "w-full h-full object-cover absolute inset-0";
   const blurredClasses = classNames(
     baseClasses,
     blurredImgLoaded
-      ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-      : "mv-opacity-0 mv-invisible"
+      ? "opacity-100 transition-opacity duration-200 ease-in"
+      : "opacity-0 invisible"
   );
   const classes = classNames(
     baseClasses,
     imgLoaded
-      ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-      : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
+      ? "opacity-100 transition-opacity duration-200 ease-in"
+      : "opacity-0 invisible h-0 w-0"
   );
 
   return (
-    <div className="mv-hidden @lg:mv-block mv-w-36 mv-shrink-0 mv-aspect-[3/2] mv-bg-neutral-200">
-      <div className="mv-w-36 mv-h-full mv-relative">
+    <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2] bg-neutral-200">
+      <div className="w-36 h-full relative">
         <img
           ref={blurredImgRef}
           src={props.blurredSrc}
@@ -78,12 +77,12 @@ function EventListItemFlag(props: {
   locales: MyEventsLocales | OrganizationEventsLocales;
 }) {
   const classes = classNames(
-    "mv-flex mv-font-semibold mv-items-center mv-ml-auto mv-border-r-8 mv-pr-4 mv-py-6",
+    "flex font-semibold items-center ml-auto border-r-8 pr-4 py-6",
     props.canceled
-      ? "mv-border-negative-500 mv-text-negative-500"
+      ? "border-negative-500 text-negative-500"
       : !props.published
-      ? "mv-border-primary-300 mv-text-primary-300"
-      : ""
+      ? "border-primary-300 text-primary-300"
+      : "border-gray-200"
   );
 
   return typeof props.canceled === "boolean" && props.canceled ? (
@@ -123,8 +122,8 @@ function EventListItemContent(props: {
 
   return (
     <>
-      <div className="mv-py-4 mv-px-4">
-        <p className="mv-text-xs mv-mb-1">
+      <div className="py-4 px-4">
+        <p className="text-xs mb-1">
           {event.stage !== null
             ? (() => {
                 let title;
@@ -162,15 +161,13 @@ function EventListItemContent(props: {
             </>
           ) : null}
         </p>
-        <h4 className="mv-font-bold mv-text-base mv-m-0 @lg:mv-line-clamp-1">
+        <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
           {event.name}
         </h4>
         {event.subline !== null ? (
-          <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
-            {event.subline}
-          </p>
+          <p className="text-xs mt-1 @lg:line-clamp-1">{event.subline}</p>
         ) : (
-          <p className="mv-hidden mv-text-xs mv-mt-1 @lg:mv-line-clamp-1">
+          <p className="text-xs mt-1 @lg:line-clamp-1">
             {removeHtmlTags(event.description ?? "")}
           </p>
         )}
@@ -193,17 +190,17 @@ export function EventListItem(
   }>
 ) {
   const classes = classNames(
-    "mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-overflow-hidden",
+    "rounded-lg bg-white border border-neutral-200 overflow-hidden",
     props.hideAfter !== undefined && props.listIndex > props.hideAfter - 1
-      ? "mv-hidden group-has-[:checked]:mv-block"
-      : "mv-block"
+      ? "hidden group-has-[:checked]:block"
+      : "block"
   );
 
   return (
     <li className={classes}>
       <Link
         to={props.to}
-        className="mv-flex mv-items-stretch"
+        className="flex items-stretch"
         prefetch={props.prefetch}
       >
         {props.children}

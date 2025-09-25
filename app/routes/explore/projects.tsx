@@ -587,7 +587,7 @@ export default function ExploreProjects() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -619,7 +619,7 @@ export default function ExploreProjects() {
           >
             <Filters.Title>{locales.route.filter.title}</Filters.Title>
             <Filters.Fieldset
-              className="mv-flex mv-flex-wrap @lg:mv-gap-4"
+              className="flex flex-wrap @lg:gap-4"
               {...getFieldsetProps(fields.prjFilter)}
               showMore={locales.route.filter.showMore}
               showLess={locales.route.filter.showLess}
@@ -627,7 +627,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.disciplines}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedDisciplines
                       .map((discipline) => {
@@ -823,7 +823,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.targetGroups}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedTargetGroups
                       .map((targetGroup) => {
@@ -924,7 +924,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.areas}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedAreas
                       .map((area) => {
@@ -935,7 +935,7 @@ export default function ExploreProjects() {
                 </Dropdown.Label>
                 <Dropdown.List>
                   {isHydrated ? (
-                    <div className="mv-mx-4 mv-my-2">
+                    <div className="mx-4 my-2">
                       <Input
                         id="prj-area-search"
                         onChange={handleAreaSearch}
@@ -1081,7 +1081,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.formats}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFormats
                       .map((format) => {
@@ -1165,7 +1165,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.specialTargetGroups}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedSpecialTargetGroups
                       .map((targetGroup) => {
@@ -1266,7 +1266,7 @@ export default function ExploreProjects() {
               <Dropdown>
                 <Dropdown.Label>
                   {locales.route.filter.financings}
-                  <span className="mv-font-normal @lg:mv-hidden">
+                  <span className="font-normal @lg:hidden">
                     <br />
                     {loaderData.selectedFinancings
                       .map((financing) => {
@@ -1354,11 +1354,11 @@ export default function ExploreProjects() {
             <Filters.Fieldset {...getFieldsetProps(fields.prjSortBy)}>
               <Dropdown orientation="right">
                 <Dropdown.Label>
-                  <span className="@lg:mv-hidden">
+                  <span className="@lg:hidden">
                     {locales.route.filter.sortBy.label}
                     <br />
                   </span>
-                  <span className="mv-font-normal @lg:mv-font-semibold">
+                  <span className="font-normal @lg:font-semibold">
                     {
                       loaderData.locales.route.filter.sortBy.values[
                         currentSortValue || PROJECT_SORT_VALUES[0]
@@ -1411,7 +1411,7 @@ export default function ExploreProjects() {
                 : locales.route.filter.apply}
             </Filters.ApplyButton>
           </Filters>
-          <noscript className="mv-hidden @lg:mv-block mv-mt-2">
+          <noscript className="hidden @lg:block mt-2">
             <Button>{locales.route.filter.apply}</Button>
           </noscript>
         </Form>
@@ -1419,14 +1419,14 @@ export default function ExploreProjects() {
       <div
         className={
           loaderData.submission.value.showFilters === true
-            ? "mv-hidden @lg:mv-block"
+            ? "hidden @lg:block"
             : undefined
         }
       >
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-4">
-          <hr className="mv-border-t mv-border-gray-200 mv-mt-4" />
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+          <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-6">
+        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6">
           {(loaderData.selectedDisciplines.length > 0 ||
             loaderData.selectedAdditionalDisciplines.length > 0 ||
             loaderData.selectedTargetGroups.length > 0 ||
@@ -1434,8 +1434,8 @@ export default function ExploreProjects() {
             loaderData.selectedFormats.length > 0 ||
             loaderData.selectedSpecialTargetGroups.length > 0 ||
             loaderData.selectedFinancings.length > 0) && (
-            <div className="mv-flex mv-flex-col mv-gap-2">
-              <div className="mv-overflow-auto mv-flex mv-flex-nowrap @lg:mv-flex-wrap mv-w-full mv-gap-2 mv-pb-2">
+            <div className="flex flex-col gap-2">
+              <div className="overflow-auto flex flex-nowrap @lg:flex-wrap w-full gap-2 pb-2">
                 {loaderData.selectedDisciplines.map((selectedDiscipline) => {
                   const deleteSearchParams = new URLSearchParams(searchParams);
                   deleteSearchParams.delete(
@@ -1889,7 +1889,7 @@ export default function ExploreProjects() {
                 {...getFormProps(resetForm)}
                 method="get"
                 preventScrollReset
-                className="mv-w-fit"
+                className="w-fit"
               >
                 <HiddenFilterInputs
                   fields={resetFields}
@@ -1908,10 +1908,10 @@ export default function ExploreProjects() {
           )}
         </section>
 
-        <section className="mv-mx-auto @sm:mv-px-4 @md:mv-px-0 @xl:mv-px-2 mv-w-full @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @2xl:mv-max-w-screen-container-2xl">
+        <section className="mx-auto @sm:px-4 @md:px-0 @xl:px-2 w-full @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4 mv-mx-4 @md:mv-mx-0">
+            <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">
               {insertParametersIntoLocale(
                 decideBetweenSingularOrPlural(
                   locales.route.notShown_one,
@@ -1927,7 +1927,7 @@ export default function ExploreProjects() {
               )}
             </p>
           ) : loaderData.projectsCount === 0 ? (
-            <p className="mv-text-center mv-text-gray-700 mv-mb-4">
+            <p className="text-center text-gray-700 mb-4">
               {locales.route.empty}
             </p>
           ) : null}
@@ -1947,7 +1947,7 @@ export default function ExploreProjects() {
                 })}
               </CardContainer>
               {showMore && (
-                <div className="mv-w-full mv-flex mv-justify-center mv-mb-10 mv-mt-4 @lg:mv-mb-12 @lg:mv-mt-6 @xl:mv-mb-14 @xl:mv-mt-8">
+                <div className="w-full flex justify-center mb-10 mt-4 @lg:mb-12 @lg:mt-6 @xl:mb-14 @xl:mt-8">
                   <Form
                     {...getFormProps(loadMoreForm)}
                     method="get"

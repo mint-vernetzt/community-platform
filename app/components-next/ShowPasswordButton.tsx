@@ -6,7 +6,7 @@ export function ShowPasswordButton(
   return (
     <button
       type="button"
-      className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-py-2 mv-px-[10px] mv-rounded-lg mv-border mv-border-gray-300 hover:mv-bg-neutral-50 focus:mv-bg-neutral-50 active:mv-bg-neutral-100 peer-focus:mv-border-blue-400 peer-focus:mv-ring-2 peer-focus:mv-ring-blue-500 mv-cursor-pointer"
+      className="w-full h-full grid grid-cols-1 grid-rows-1 place-items-center py-2 px-[10px] rounded-lg border border-gray-300 hover:bg-neutral-50 focus:bg-neutral-50 active:bg-neutral-100 peer-focus:border-blue-400 peer-focus:ring-2 peer-focus:ring-blue-500 cursor-pointer"
       {...buttonProps}
     >
       {children}

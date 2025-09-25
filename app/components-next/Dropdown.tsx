@@ -50,13 +50,13 @@ function DropdownLabel(
   return (
     <label
       ref={ref}
-      className="mv-peer mv-group mv-w-full @lg:mv-w-fit @lg:mv-min-w-content mv-inline-flex @lg:mv-flex mv-justify-between mv-items-center mv-gap-1 mv-cursor-pointer mv-p-6 @lg:mv-px-4 @lg:mv-py-2.5 @lg:mv-rounded-lg @lg:mv-border @lg:mv-border-gray-100 mv-font-semibold mv-text-gray-700 hover:mv-bg-gray-100 group-has-[:focus-within]/dropdown:mv-ring-2 group-has-[:focus-within]/dropdown:mv-ring-primary-200 mv-transition mv-bg-white"
+      className="peer group w-full @lg:w-fit @lg:min-w-content inline-flex @lg:flex justify-between items-center gap-1 cursor-pointer p-6 @lg:px-4 @lg:py-2.5 @lg:rounded-lg @lg:border @lg:border-gray-100 font-semibold text-gray-700 hover:bg-gray-100 group-has-[:focus-within]/dropdown:ring-2 group-has-[:focus-within]/dropdown:ring-primary-200 transition bg-white"
     >
       <span>{props.children}</span>
       <input
         form="none"
         type="checkbox"
-        className="mv-h-0 mv-w-0 mv-opacity-0"
+        className="h-0 w-0 opacity-0"
         checked={checked}
         onChange={handleChange}
       />
@@ -65,7 +65,7 @@ function DropdownLabel(
         width="20"
         height="20"
         viewBox="0 0 20 20"
-        className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90 mv-shrink-0"
+        className="rotate-90 group-has-[:checked]:-rotate-90 shrink-0"
       >
         <path
           fill="currentColor"
@@ -79,21 +79,19 @@ function DropdownLabel(
 
 function DropDownListLegend(props: React.PropsWithChildren) {
   return (
-    <legend className="mv-mt-2 mv-mx-4 mv-text-neutral-700 mv-text-sm mv-font-semibold">
+    <legend className="mt-2 mx-4 text-neutral-700 text-sm font-semibold">
       {props.children}
     </legend>
   );
 }
 
 function DropdownListDivider() {
-  return <hr className="mv-mx-4 mv-my-2 mv-border-t mv-border-gray-200" />;
+  return <hr className="mx-4 my-2 border-t border-gray-200" />;
 }
 
 function DropdownListCategory(props: React.PropsWithChildren) {
   return (
-    <p className="mv-mx-4 mv-my-2 mv-uppercase mv-whitespace-normal">
-      {props.children}
-    </p>
+    <p className="mx-4 my-2 uppercase whitespace-normal">{props.children}</p>
   );
 }
 
@@ -111,9 +109,9 @@ const DropdownList = forwardRef<
   const orientation = props.orientation || "left";
 
   const classes = classNames(
-    "@lg:mv-w-72 @lg:mv-h-fit @lg:mv-max-h-72 mv-overflow-auto @lg:mv-absolute @lg:mv-top-[calc(100%+0.5rem)] mv-py-2 @lg:mv-rounded-lg @lg:mv-shadow-xl mv-hidden peer-has-[:checked]:mv-block peer-has-[:checked]:mv-z-10 mv-bg-white",
-    orientation === "left" && "mv-left-0",
-    orientation === "right" && "mv-right-0"
+    "@lg:w-72 @lg:h-fit @lg:max-h-72 overflow-auto @lg:absolute @lg:top-[calc(100%+0.5rem)] py-2 @lg:rounded-lg @lg:shadow-xl hidden peer-has-[:checked]:block peer-has-[:checked]:z-10 bg-white",
+    orientation === "left" && "left-0",
+    orientation === "right" && "right-0"
   );
 
   return (
@@ -139,7 +137,7 @@ const DropdownList = forwardRef<
               child.type !== "div" &&
               child.type !== "p" &&
               isEnabled &&
-              "mv-bg-white hover:mv-bg-gray-100"
+              "bg-white hover:bg-gray-100"
           );
 
           return (
@@ -147,8 +145,8 @@ const DropdownList = forwardRef<
               <div
                 className={
                   isValidElement(child) && child.type !== "div"
-                    ? "focus-within:mv-ring-2 focus-within:mv-ring-primary-200 mv-m-[2px]"
-                    : "mv-m-[2px]"
+                    ? "focus-within:ring-2 focus-within:ring-primary-200 m-[2px]"
+                    : "m-[2px]"
                 }
               >
                 {child}
@@ -194,14 +192,14 @@ export function Dropdown(
 
   const classes = classNames(
     props.className,
-    "mv-relative mv-group/dropdown mv-w-full @lg:mv-w-fit @lg:mv-whitespace-nowrap"
+    "relative group/dropdown w-full @lg:w-fit @lg:whitespace-nowrap"
   );
 
   return (
     <div className={classes}>
       {labelClone}
       {listClone}
-      <hr className="@lg:mv-hidden mv-border-b mv-border-gray-200" />
+      <hr className="@lg:hidden border-b border-gray-200" />
     </div>
   );
 }

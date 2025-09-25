@@ -188,11 +188,11 @@ function Create() {
 
   return (
     <>
-      <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-relative mv-pt-20 mv-pb-44">
-        <div className="mv-flex mv-justify-center">
-          <div className="mv-flex mv-flex-col mv-w-[480px] mv-gap-6 mv-p-8 mv-border mv-rounded-lg mv-border-gray-200">
-            <div className="mv-flex mv-justify-between mv-items-center mv-gap-4">
-              <h1 className="mv-text-primary mv-text-5xl mv-font-bold mv-mb-0">
+      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative pt-20 pb-44">
+        <div className="flex justify-center">
+          <div className="flex flex-col w-[480px] gap-6 p-8 border rounded-lg border-gray-200">
+            <div className="flex justify-between items-center gap-4">
+              <h1 className="text-primary text-5xl font-bold mb-0">
                 {locales.content.headline}
               </h1>
               {/* TODO: Add and style this when putting the create dialog inside a modal */}
@@ -211,14 +211,14 @@ function Create() {
                 </svg>
               </CircleButton> */}
             </div>
-            <p className="mv-text-sm">{locales.content.intro1}</p>
-            <p className="mv-text-sm">
+            <p className="text-sm">{locales.content.intro1}</p>
+            <p className="text-sm">
               {insertComponentsIntoLocale(locales.content.intro2, [
                 <Link
                   key="terms-of-use"
                   as="link"
                   to="https://mint-vernetzt.de/terms-of-use-community-platform/"
-                  className="mv-text-primary"
+                  className="text-primary"
                   isExternal
                 >
                   {" "}
@@ -250,9 +250,9 @@ function Create() {
                   : null}
               </Input>
             </Form>
-            <p className="mv-text-xs">{locales.content.explanation.headline}</p>
-            <p className="mv-text-xs">{locales.content.explanation.intro}</p>
-            <div className="mv-flex mv-flex-col mv-gap-2">
+            <p className="text-xs">{locales.content.explanation.headline}</p>
+            <p className="text-xs">{locales.content.explanation.intro}</p>
+            <div className="flex flex-col gap-2">
               <Button
                 form={form.id}
                 type="submit"

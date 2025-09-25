@@ -477,10 +477,10 @@ function Attachments() {
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+      <p className="my-6 @md:mt-0">{locales.route.content.description}</p>
+      <div className="flex flex-col gap-6 @md:gap-4">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.document.upload}
           </h2>
           <p>
@@ -516,7 +516,7 @@ function Attachments() {
                 }),
                 id: `document-${FILE_FIELD_NAME}`,
                 key: `document-${FILE_FIELD_NAME}`,
-                className: "mv-hidden",
+                className: "hidden",
                 accept: DOCUMENT_MIME_TYPES.join(", "),
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                   setSelectedDocumentFileNames(
@@ -545,7 +545,7 @@ function Attachments() {
                 }),
                 id: `noscript-document-${FILE_FIELD_NAME}`,
                 key: `noscript-document-${FILE_FIELD_NAME}`,
-                className: "mv-mb-2",
+                className: "mb-2",
                 accept: DOCUMENT_MIME_TYPES.join(", "),
               }}
             >
@@ -576,9 +576,9 @@ function Attachments() {
             </FileInput>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <>
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.document.current}
             </h2>
             {loaderData.project.documents.length > 0 ? (
@@ -605,7 +605,7 @@ function Attachments() {
                               preventScrollReset
                               autoComplete="off"
                             >
-                              <div className="mv-flex mv-flex-col mv-gap-6">
+                              <div className="flex flex-col gap-6">
                                 <Input
                                   {...getInputProps(editDocumentFields.title, {
                                     type: "text",
@@ -690,7 +690,7 @@ function Attachments() {
                                           <div
                                             id={editDocumentForm.errorId}
                                             key={index}
-                                            className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                            className="text-sm font-semibold text-negative-600"
                                           >
                                             {error}
                                           </div>
@@ -735,7 +735,7 @@ function Attachments() {
                               {relation.document.description}
                             </MaterialList.Item.Paragraph>
                           )}
-                          <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                          <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
                             <Form
                               id={`disconnect-document-form-${relation.document.id}`}
                               method="post"
@@ -799,7 +799,7 @@ function Attachments() {
                                   <div
                                     id={disconnectDocumentForm.errorId}
                                     key={index}
-                                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                    className="text-sm font-semibold text-negative-600"
                                   >
                                     {error}
                                   </div>
@@ -812,7 +812,7 @@ function Attachments() {
                     );
                   })}
                 </MaterialList>
-                <div className="mv-w-full @md:mv-max-w-fit">
+                <div className="w-full @md:max-w-fit">
                   <Button
                     as="link"
                     to={`./download?type=documents`}
@@ -829,8 +829,8 @@ function Attachments() {
             )}
           </>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.image.upload}
           </h2>
           <p>{locales.route.content.image.requirements}</p>
@@ -859,7 +859,7 @@ function Attachments() {
                 }),
                 id: `image-${FILE_FIELD_NAME}`,
                 key: `image-${FILE_FIELD_NAME}`,
-                className: "mv-hidden",
+                className: "hidden",
                 accept: IMAGE_MIME_TYPES.join(", "),
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                   setSelectedImageFileNames(
@@ -888,7 +888,7 @@ function Attachments() {
                 }),
                 id: `noscript-image-${FILE_FIELD_NAME}`,
                 key: `noscript-image-${FILE_FIELD_NAME}`,
-                className: "mv-mb-2",
+                className: "mb-2",
                 accept: IMAGE_MIME_TYPES.join(", "),
               }}
             >
@@ -919,8 +919,8 @@ function Attachments() {
             </FileInput>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.image.current}
           </h2>
           {loaderData.project.images.length > 0 ? (
@@ -945,7 +945,7 @@ function Attachments() {
                             preventScrollReset
                             autoComplete="off"
                           >
-                            <div className="mv-flex mv-flex-col mv-gap-6">
+                            <div className="flex flex-col gap-6">
                               <Input
                                 {...getInputProps(editImageFields.title, {
                                   type: "text",
@@ -1063,7 +1063,7 @@ function Attachments() {
                                     <div
                                       id={editImageForm.errorId}
                                       key={index}
-                                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                      className="text-sm font-semibold text-negative-600"
                                     >
                                       {error}
                                     </div>
@@ -1113,7 +1113,7 @@ function Attachments() {
                             Foto-Credit: {relation.image.credits}
                           </MaterialList.Item.Paragraph>
                         )}
-                        <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                        <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
                           <Form
                             id={`disconnect-image-form-${relation.image.id}`}
                             method="post"
@@ -1175,7 +1175,7 @@ function Attachments() {
                               <div
                                 id={disconnectImageForm.errorId}
                                 key={index}
-                                className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                                className="text-sm font-semibold text-negative-600"
                               >
                                 {error}
                               </div>
@@ -1187,7 +1187,7 @@ function Attachments() {
                   );
                 })}
               </MaterialList>
-              <div className="mv-w-full @md:mv-max-w-fit">
+              <div className="w-full @md:max-w-fit">
                 <Button
                   as="link"
                   to={`./download?type=images`}

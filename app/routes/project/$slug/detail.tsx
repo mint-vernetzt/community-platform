@@ -422,12 +422,12 @@ function ProjectDetail() {
 
   return (
     <>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mb-2 @md:mv-mb-4 @md:mv-mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
         <BackButton to="/explore/projects" prefetch="intent">
           {locales.route.content.back}
         </BackButton>
       </section>
-      <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
+      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
         <Header>
           {mode === "admin" && project.published === false && (
             <Status>{locales.route.content.draft}</Status>
@@ -448,13 +448,13 @@ function ProjectDetail() {
             <Controls>
               <Form method="get" action={location.pathname} preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
-                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl */}
+                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl */}
                 <CircleButton
                   type="submit"
                   variant="outline"
                   disabled={isSubmitting}
                 >
-                  <div className="mv-absolute mv-top-4 mv-left-4 mv-w-full mv-h-full mv-modal-button mv-cursor-pointer">
+                  <div className="absolute top-4 left-4 w-full h-full modal-button cursor-pointer">
                     <svg
                       width="16"
                       height="16"
@@ -483,7 +483,7 @@ function ProjectDetail() {
                   <input hidden name="modal-logo" defaultValue="true" />
                   <button
                     type="submit"
-                    className="mv-appearance-none mv-flex mv-content-center mv-items-center mv-text-nowrap mv-cursor-pointer mv-text-primary"
+                    className="appearance-none flex content-center items-center text-nowrap cursor-pointer text-primary"
                     disabled={isSubmitting}
                   >
                     <svg
@@ -491,22 +491,22 @@ function ProjectDetail() {
                       height="16"
                       viewBox="0 0 17 16"
                       xmlns="http://www.w3.org/2000/svg"
-                      className="mv-fill-neutral-600"
+                      className="fill-neutral-600"
                     >
                       <path d="M14.9 3.116a.423.423 0 0 0-.123-.299l-1.093-1.093a.422.422 0 0 0-.598 0l-.882.882 1.691 1.69.882-.882a.423.423 0 0 0 .123-.298Zm-3.293.087 1.69 1.69v.001l-5.759 5.76a.422.422 0 0 1-.166.101l-2.04.68a.211.211 0 0 1-.267-.267l.68-2.04a.423.423 0 0 1 .102-.166l5.76-5.76ZM2.47 14.029a1.266 1.266 0 0 1-.37-.895V3.851a1.266 1.266 0 0 1 1.265-1.266h5.486a.422.422 0 0 1 0 .844H3.366a.422.422 0 0 0-.422.422v9.283a.422.422 0 0 0 .422.422h9.284a.422.422 0 0 0 .421-.422V8.07a.422.422 0 0 1 .845 0v5.064a1.266 1.266 0 0 1-1.267 1.266H3.367c-.336 0-.658-.133-.895-.37Z" />
                     </svg>
-                    <span className="mv-ml-2">
+                    <span className="ml-2">
                       {locales.route.content.changeImage}
                     </span>
                   </button>
                 </Form>
               </Controls>
             )}
-            <H1 like="h3" className="mv-mb-0">
+            <H1 like="h3" className="mb-0">
               {project.name}
             </H1>
             {project.subline !== null && (
-              <p className="mv-text-base @md:mv-text-2xl">{project.subline}</p>
+              <p className="text-base @md:text-2xl">{project.subline}</p>
             )}
           </Header.Body>
           {mode === "admin" && (
@@ -584,7 +584,7 @@ function ProjectDetail() {
                     blurredSrc={project.blurredBackground}
                   />
                 ) : (
-                  <div className="mv-w-[300px] mv-min-h-[108px] mv-bg-attention-400 mv-rounded-md" />
+                  <div className="w-[300px] min-h-[108px] bg-attention-400 rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
@@ -621,10 +621,10 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-overflow-hidden mv-mb-24"
+        className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl overflow-hidden mb-24"
       >
-        <div className="@md:mv-flex @xl:mv-justify-center mv-mt-6">
-          <div className="mv-flex mv-flex-col mv-gap-8 @xl:mv-w-2/3">
+        <div className="@md:flex @xl:justify-center mt-6">
+          <div className="flex flex-col gap-8 @xl:w-2/3">
             <TabBar>
               <TabBar.Item active={pathname.endsWith("/about")}>
                 <Link to="./about" preventScrollReset prefetch="intent">

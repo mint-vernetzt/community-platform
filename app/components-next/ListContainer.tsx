@@ -45,7 +45,7 @@ export function ListContainer(
   }
 
   return (
-    <ul className="mv-flex mv-flex-col mv-gap-4 @lg:mv-gap-6 mv-group">
+    <ul className="flex flex-col gap-4 @lg:gap-6 group">
       {children}
       {children !== undefined &&
       Array.isArray(children) &&
@@ -53,13 +53,13 @@ export function ListContainer(
       children.length > hideAfter ? (
         <div
           key={`show-more-${listKey}-container`}
-          className="mv-w-full mv-flex mv-justify-center mv-pt-2 mv-text-sm mv-text-neutral-600 mv-font-semibold mv-leading-5 mv-justify-self-center"
+          className="w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center"
         >
           <label
             htmlFor={`show-more-${listKey}`}
-            className="mv-flex mv-gap-2 mv-cursor-pointer mv-w-fit"
+            className="flex gap-2 cursor-pointer w-fit"
           >
-            <div className="group-has-[:checked]:mv-hidden">
+            <div className="group-has-[:checked]:hidden">
               {insertParametersIntoLocale(
                 locales.components.ListContainer.more,
                 {
@@ -67,7 +67,7 @@ export function ListContainer(
                 }
               )}
             </div>
-            <div className="mv-hidden group-has-[:checked]:mv-block">
+            <div className="hidden group-has-[:checked]:block">
               {insertParametersIntoLocale(
                 locales.components.ListContainer.less,
                 {
@@ -75,14 +75,14 @@ export function ListContainer(
                 }
               )}
             </div>
-            <div className="mv-rotate-90 group-has-[:checked]:-mv-rotate-90">
+            <div className="rotate-90 group-has-[:checked]:-rotate-90">
               <Icon type="chevron-right" />
             </div>
           </label>
           <input
             id={`show-more-${listKey}`}
             type="checkbox"
-            className="mv-w-0 mv-h-0 mv-opacity-0"
+            className="w-0 h-0 opacity-0"
           />
         </div>
       ) : null}

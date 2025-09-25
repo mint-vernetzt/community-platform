@@ -12,11 +12,7 @@ import {
 } from "react";
 
 function ConformSelectControls(props: React.PropsWithChildren) {
-  return (
-    <div className="mv-shrink-0 mv-flex mv-gap-4 mv-ml-auto">
-      {props.children}
-    </div>
-  );
+  return <div className="shrink-0 flex gap-4 ml-auto">{props.children}</div>;
 }
 
 function ConformSelectInput(props: {
@@ -62,7 +58,7 @@ function ConformSelectInput(props: {
         ref={inputRef}
         id={id}
         type="checkbox"
-        className="mv-peer mv-fixed mv-w-0 mv-h-0 mv-opacity-0 mv-top-0 mv-left-0"
+        className="peer fixed w-0 h-0 opacity-0 top-0 left-0"
         checked={isOpen}
         disabled={disabled === true}
         onChange={() => {
@@ -71,8 +67,8 @@ function ConformSelectInput(props: {
       />
       <label
         ref={labelRef}
-        className={`mv-relative mv-flex mv-gap-2.5 mv-justify-between mv-bg-white mv-rounded-lg mv-border mv-border-neutral-300 mv-w-full mv-pl-3 mv-py-2 mv-pr-2 mv-text-base mv-leading-5 mv-font-semibold peer-focus:mv-border-primary-200 peer-focus:mv-ring-1 peer-focus:mv-ring-primary-200 peer-checked:mv-rounded-b-none ${
-          disabled === true ? "mv-text-neutral-300" : "mv-text-neutral-600"
+        className={`relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-semibold peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none ${
+          disabled === true ? "text-neutral-300" : "text-neutral-600"
         }`}
         htmlFor={id}
       >
@@ -83,7 +79,7 @@ function ConformSelectInput(props: {
           height="21"
           fill="none"
           viewBox="0 0 20 21"
-          className="group-has-[:checked]/conform-select:mv-rotate-180"
+          className="group-has-[:checked]/conform-select:rotate-180"
         >
           <path
             stroke="#262D38"
@@ -96,7 +92,7 @@ function ConformSelectInput(props: {
       </label>
       <ul
         ref={listRef}
-        className="mv-absolute mv-top-[64px] mv-w-full mv-hidden group-has-[:checked]/conform-select:mv-flex mv-flex-col mv-bg-white mv-z-10 mv-max-h-96 mv-overflow-y-auto mv-rounded-b-lg mv-border mv-border-gray-300 mv-border-t-transparent peer-focus:mv-border-t-primary-200"
+        className="absolute top-[64px] w-full hidden group-has-[:checked]/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
       >
         {listItems.map((button) => {
           if (isValidElement(button)) {
@@ -104,14 +100,14 @@ function ConformSelectInput(props: {
               return (
                 <li
                   key={button.key}
-                  className="mv-border-2 mv-border-transparent hover:mv-bg-neutral-100 focus-within:mv-border-primary-200 last:mv-rounded-b-lg"
+                  className="border-2 border-transparent hover:bg-neutral-100 focus-within:border-primary-200 last:rounded-b-lg"
                 >
                   {button}
                 </li>
               );
             } else {
               return (
-                <li key={button.key} className="mv-w-full">
+                <li key={button.key} className="w-full">
                   {button}
                 </li>
               );
@@ -192,12 +188,12 @@ function ConformSelect(props: ConformSelectProps) {
   });
 
   return (
-    <div className="mv-relative mv-w-full">
+    <div className="relative w-full">
       {label}
       {typeof controls !== "undefined" ? (
-        <div className="mv-flex mv-flex-col mv-w-full">
-          <div className="mv-flex mv-w-full mv-gap-2">
-            <div className="mv-group/conform-select mv-flex mv-w-full mv-flex-col">
+        <div className="flex flex-col w-full">
+          <div className="flex w-full gap-2">
+            <div className="group/conform-select flex w-full flex-col">
               <ConformSelectInput
                 id={`expand-${props.id}`}
                 disabled={disabled}
@@ -209,7 +205,7 @@ function ConformSelect(props: ConformSelectProps) {
           </div>
         </div>
       ) : (
-        <div className="mv-group/conform-select mv-flex mv-flex-col mv-w-full">
+        <div className="group/conform-select flex flex-col w-full">
           <ConformSelectInput
             id={`expand-${props.id}`}
             disabled={disabled}
@@ -227,7 +223,7 @@ function ConformSelect(props: ConformSelectProps) {
 function getListItemChildrenStyles() {
   return {
     className:
-      "mv-w-full mv-appearance-none mv-px-3.5 mv-py-2.5 mv-text-start mv-text-neutral-700 mv-leading-5 focus:mv-outline-none",
+      "w-full appearance-none px-3.5 py-2.5 text-start text-neutral-700 leading-5 focus:outline-hidden",
   };
 }
 

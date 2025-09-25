@@ -3,7 +3,7 @@ import { Children, isValidElement } from "react";
 
 function FormControlLabel(props: React.PropsWithChildren) {
   return (
-    <span className="mv-hyphens-auto" lang="de">
+    <span className="hyphens-auto" lang="de">
       {props.children}
     </span>
   );
@@ -18,12 +18,12 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
         {...otherProps}
         form="none"
         type="checkbox"
-        className="mv-peer mv-h-0 mv-w-0 mv-opacity-0 mv-fixed mv-top-0 mv-left-0"
+        className="peer h-0 w-0 opacity-0 fixed top-0 left-0"
         onChange={(event) => {
           event.stopPropagation();
         }}
       />
-      <span className="mv-px-4 mv-pb-2.5 mv-hidden peer-[:checked]:mv-block mv-text-sm mv-whitespace-normal">
+      <span className="px-4 pb-2.5 hidden peer-[:checked]:block text-sm whitespace-normal">
         {children}
       </span>
     </>
@@ -31,25 +31,21 @@ function FromControlInfo(props: { id: string } & React.PropsWithChildren) {
 }
 
 function FormControlCounter(props: React.PropsWithChildren) {
-  return <span className="mv-ml-auto">{props.children}</span>;
+  return <span className="ml-auto">{props.children}</span>;
 }
 
 function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <div className="mv-w-5 mv-h-5 mv-relative">
-        <input
-          {...props}
-          type="checkbox"
-          className="mv-h-0 mv-w-0 mv-opacity-0 mv-fixed"
-        />
+      <div className="w-5 h-5 relative">
+        <input {...props} type="checkbox" className="h-0 w-0 opacity-0 fixed" />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="mv-block group-has-[:checked]:mv-hidden"
+          className="block group-has-[:checked]:hidden"
         >
           <path
             fill="currentColor"
@@ -62,7 +58,7 @@ function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
           height="20"
           fill="none"
           viewBox="0 0 20 20"
-          className="mv-hidden group-has-[:checked]:mv-block"
+          className="hidden group-has-[:checked]:block"
         >
           <path
             fill="currentColor"
@@ -81,19 +77,15 @@ function Checkbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
 function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <>
-      <input
-        {...props}
-        type="radio"
-        className="mv-h-0 mv-w-0 mv-opacity-0 mv-absolute"
-      />
-      <div className="mv-w-5 mv-h-5 mv-relative">
+      <input {...props} type="radio" className="h-0 w-0 opacity-0 absolute" />
+      <div className="w-5 h-5 relative">
         <svg
           width="20"
           height="20"
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="mv-block group-has-[:checked]:mv-hidden"
+          className="block group-has-[:checked]:hidden"
         >
           <rect
             x="0.6"
@@ -119,7 +111,7 @@ function Radio(props: React.InputHTMLAttributes<HTMLInputElement>) {
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="mv-hidden group-has-[:checked]:mv-block"
+          className="hidden group-has-[:checked]:block"
         >
           <rect
             x="0.6"
@@ -183,9 +175,9 @@ export function FormControl(
   });
 
   const classes = classNames(
-    "mv-group mv-px-4 mv-py-2.5 mv-flex mv-justify-between mv-items-center mv-gap-1 mv-transition",
-    props.disabled ? "mv-text-gray-400 mv-cursor-auto" : "mv-cursor-pointer",
-    props.hidden ? "mv-hidden" : ""
+    "group px-4 py-2.5 flex justify-between items-center gap-1 transition",
+    props.disabled ? "text-gray-400 cursor-auto" : "cursor-pointer",
+    props.hidden ? "hidden" : ""
   );
 
   return (
@@ -197,7 +189,7 @@ export function FormControl(
         {props.type === "radio" && labelPosition === "right" && (
           <Radio {...otherProps} />
         )}
-        <span className="mv-whitespace-normal">{label}</span>
+        <span className="whitespace-normal">{label}</span>
         {typeof info !== "undefined" && (
           <label
             htmlFor={
@@ -210,7 +202,7 @@ export function FormControl(
                 ? info.props.id
                 : String(label)
             }
-            className="mv-h-[20px] hover:mv-text-primary focus:mv-text-primary"
+            className="h-[20px] hover:text-primary focus:text-primary"
             aria-label={String(label)}
           >
             <svg
@@ -219,7 +211,7 @@ export function FormControl(
               viewBox="0 0 20 20"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="mv-rounded-full mv-border mv-border-neutral-50"
+              className="rounded-full border border-neutral-50"
             >
               <rect
                 x="0.5"
@@ -256,7 +248,7 @@ export function FormControl(
           <Radio {...otherProps} />
         )}
       </label>
-      <span className={props.disabled ? "mv-text-gray-400" : ""}>{info}</span>
+      <span className={props.disabled ? "text-gray-400" : ""}>{info}</span>
     </>
   );
 }

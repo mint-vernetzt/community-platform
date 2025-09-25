@@ -37,26 +37,26 @@ export function Alert(props: AlertProps & { onClose?: () => void }) {
   }
 
   const classes = classNames(
-    "mv-w-full mv-px-4 mv-py-2 mv-flex mv-justify-end mv-gap-2 mv-text-sm mv-font-semibold mv-rounded",
-    level === "neutral" && "mv-bg-primary-50 mv-text-primary-700",
-    level === "positive" && "mv-bg-positive-200 mv-text-positive-900",
-    level === "attention" && "mv-bg-attention-200 mv-text-attention-900",
-    level === "negative" && "mv-bg-negative-100 mv-text-negative-900"
+    "w-full px-4 py-2 flex justify-end gap-2 text-sm font-semibold rounded",
+    level === "neutral" && "bg-primary-50 text-primary-700",
+    level === "positive" && "bg-positive-200 text-positive-900",
+    level === "attention" && "bg-attention-200 text-attention-900",
+    level === "negative" && "bg-negative-100 text-negative-900"
   );
 
   return (
     <div
-      className={`mv-w-full ${
+      className={`w-full ${
         position === "relative"
-          ? "mv-relative"
-          : "mv-absolute mv-top-[84px] xl:mv-top-[88px] mv-px-4 @lg:mv-px-8"
+          ? "relative"
+          : "absolute top-[84px] xl:top-[88px] px-4 @lg:px-8"
       }`}
     >
       <div className={classes}>
         <div
-          className={`mv-w-full ${
-            textAlign === "left" ? "mv-text-left" : "mv-text-center"
-          }${truncate ? " mv-truncate" : ""}`}
+          className={`w-full ${
+            textAlign === "left" ? "text-left" : "text-center"
+          }${truncate ? " truncate" : ""}`}
         >
           {props.children}
         </div>

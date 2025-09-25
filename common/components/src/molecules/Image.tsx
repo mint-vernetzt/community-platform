@@ -27,16 +27,16 @@ function Image(props: ImageProps) {
 
   return (
     <>
-      <div className="mv-relative mv-w-full mv-h-full mv-bg-neutral-100">
+      <div className="relative w-full h-full bg-neutral-100">
         {props.src ? (
-          <noscript className="mv-absolute mv-inset-0 mv-w-full mv-h-full">
+          <noscript className="absolute inset-0 w-full h-full">
             <img
               src={props.src}
               alt={
                 typeof props.alt !== "undefined" ? `${props.alt} - (no-js)` : ""
               }
-              className={`mv-w-full mv-h-full ${
-                resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
+              className={`w-full h-full ${
+                resizeType === "fit" ? "object-contain" : "object-cover"
               }`}
             />
           </noscript>
@@ -49,10 +49,10 @@ function Image(props: ImageProps) {
             onLoad={() => {
               setBlurredImageLoaded(true);
             }}
-            className={`mv-absolute mv-inset-0 mv-w-full mv-h-full mv-object-cover ${
+            className={`absolute inset-0 w-full h-full object-cover ${
               blurredImageLoaded
-                ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-                : "mv-opacity-0 mv-invisible"
+                ? "opacity-100 transition-opacity duration-200 ease-in"
+                : "opacity-0 invisible"
             }`}
             aria-hidden="true"
           />
@@ -65,12 +65,12 @@ function Image(props: ImageProps) {
             onLoad={() => {
               setImageLoaded(true);
             }}
-            className={`mv-relative mv-w-full mv-h-full mv-inset-0 ${
-              resizeType === "fit" ? "mv-object-contain" : "mv-object-cover"
+            className={`relative w-full h-full inset-0 ${
+              resizeType === "fit" ? "object-contain" : "object-cover"
             } ${
               imageLoaded
-                ? "mv-opacity-100 mv-transition-opacity mv-duration-200 mv-ease-in"
-                : "mv-opacity-0 mv-invisible mv-h-0 mv-w-0"
+                ? "opacity-100 transition-opacity duration-200 ease-in"
+                : "opacity-0 invisible h-0 w-0"
             }`}
           />
         ) : null}

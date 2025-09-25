@@ -573,13 +573,13 @@ function General() {
 
   return (
     <>
-      <h1 className="mv-mb-8">{locales.route.content.headline}</h1>
-      <h4 className="mv-mb-4 mv-font-semibold">
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <h4 className="mb-4 font-semibold">
         {locales.route.content.start.headline}
       </h4>
 
-      <p className="mv-mb-4">{locales.route.content.start.intro}</p>
-      <div className="mv-flex mv-mb-4">
+      <p className="mb-4">{locales.route.content.start.intro}</p>
+      <div className="flex mb-4">
         <RemixFormsForm
           schema={cancelSchema}
           fetcher={cancelFetcher}
@@ -589,12 +589,12 @@ function General() {
             const { Button, Field } = remixFormsProps;
             return (
               <>
-                <div className="mv-hidden">
+                <div className="hidden">
                   {/** @ts-expect-error  event.canceled exists because of fetcher */}
                   <Field name="cancel" value={!event.canceled} />
                 </div>
-                <div className="mv-mt-2">
-                  <Button className="mv-ml-auto mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-[.375rem] mv-px-6 mv-normal-case mv-leading-[1.125rem] mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-text-sm mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                <div className="mt-2">
+                  <Button className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white">
                     {/** @ts-expect-error  event.canceled exists because of fetcher */}
                     {event.canceled
                       ? locales.route.content.revert
@@ -615,8 +615,8 @@ function General() {
             reset({}, { keepValues: true });
           }}
         >
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-mb-2">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4 mb-2">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("startDate")}
                 id="startDate"
@@ -629,7 +629,7 @@ function General() {
                 <div>{errors.startDate.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("startTime")}
                 id="startTime"
@@ -645,8 +645,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-mb-2">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4 mb-2">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("endDate")}
                 id="endDate"
@@ -659,7 +659,7 @@ function General() {
                 <div>{errors.endDate.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("endTime")}
                 id="endTime"
@@ -676,8 +676,8 @@ function General() {
             </div>
           </div>
 
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-mb-2">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4 mb-2">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationFromDate")}
                 id="participationFromDate"
@@ -690,7 +690,7 @@ function General() {
                 <div>{errors.participationFromDate.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationFromTime")}
                 id="participationFromTime"
@@ -706,8 +706,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-mb-2">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4 mb-2">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationUntilDate")}
                 id="participationUntilDate"
@@ -720,7 +720,7 @@ function General() {
                 <div>{errors.participationUntilDate.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("participationUntilTime")}
                 id="participationUntilTime"
@@ -736,10 +736,10 @@ function General() {
               ) : null}
             </div>
           </div>
-          <h4 className="mv-mb-4 mv-font-semibold">
+          <h4 className="mb-4 font-semibold">
             {locales.route.content.location}
           </h4>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectField
               {...register("stage")}
               name="stage"
@@ -752,7 +752,7 @@ function General() {
             />
           </div>
 
-          <div className="mv-mb-6">
+          <div className="mb-6">
             <InputText
               {...register("venueName")}
               id="venueName"
@@ -766,8 +766,8 @@ function General() {
               <div>{errors.venueName.message}</div>
             ) : null}
           </div>
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
@@ -781,7 +781,7 @@ function General() {
                 <div>{errors.venueStreet.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueStreetNumber")}
                 id="venueStreetNumber"
@@ -796,8 +796,8 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="mv-flex mv-flex-col @md:mv-flex-row mv--mx-4 mv-mb-2">
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+          <div className="flex flex-col @md:flex-row -mx-4 mb-2">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueZipCode")}
                 id="venueZipCode"
@@ -811,7 +811,7 @@ function General() {
                 <div>{errors.venueZipCode.message}</div>
               ) : null}
             </div>
-            <div className="mv-basis-full @md:mv-basis-6/12 mv-px-4 mv-mb-6">
+            <div className="basis-full @md:basis-6/12 px-4 mb-6">
               <InputText
                 {...register("venueCity")}
                 id="venueCity"
@@ -826,7 +826,7 @@ function General() {
               ) : null}
             </div>
           </div>
-          <div className="mv-basis-full mv-mb-6">
+          <div className="basis-full mb-6">
             <InputText
               {...register("conferenceLink")}
               id="conferenceLink"
@@ -842,7 +842,7 @@ function General() {
               <div>{errors.conferenceLink.message}</div>
             ) : null}
           </div>
-          <div className="mv-mb-6">
+          <div className="mb-6">
             <InputText
               {...register("conferenceCode")}
               id="conferenceCode"
@@ -858,11 +858,11 @@ function General() {
             ) : null}
           </div>
 
-          <h4 className="mv-mb-4 mv-font-semibold">
+          <h4 className="mb-4 font-semibold">
             {locales.route.content.generic.headline}
           </h4>
-          <p className="mv-mb-8">{locales.route.content.generic.intro}</p>
-          <div className="mv-mb-6">
+          <p className="mb-8">{locales.route.content.generic.intro}</p>
+          <div className="mb-6">
             <InputText
               {...register("name")}
               id="name"
@@ -875,7 +875,7 @@ function General() {
             {errors?.name?.message ? <div>{errors.name.message}</div> : null}
           </div>
 
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <TextArea
               {...register("subline")}
               id="subline"
@@ -890,7 +890,7 @@ function General() {
               <div>{errors.subline.message}</div>
             ) : null}
           </div>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <TextArea
               {...register("description")}
               id="description"
@@ -910,7 +910,7 @@ function General() {
               <div>{errors.description.message}</div>
             ) : null}
           </div>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectAdd
               name="types"
               label={locales.route.form.types.label}
@@ -934,7 +934,7 @@ function General() {
               isPublic={eventVisibilities.types}
             />
           </div>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectAdd
               name="tags"
               label={locales.route.form.tags.label}
@@ -959,7 +959,7 @@ function General() {
             />
           </div>
 
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectAdd
               name="eventTargetGroups"
               label={locales.route.form.targetGroups.label}
@@ -987,7 +987,7 @@ function General() {
               isPublic={eventVisibilities.eventTargetGroups}
             />
           </div>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectField
               {...register("experienceLevel")}
               name="experienceLevel"
@@ -999,7 +999,7 @@ function General() {
               isPublic={eventVisibilities.experienceLevel}
             />
           </div>
-          <div className="mv-mb-4">
+          <div className="mb-4">
             <SelectAdd
               name="focuses"
               label={locales.route.form.focuses.label}
@@ -1025,12 +1025,12 @@ function General() {
           </div>
         </Form>
       </FormProvider>
-      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <div
-              className={`mv-text-green-500 mv-text-bold ${
-                actionData?.updated && !isSubmitting ? "mv-block" : "mv-hidden"
+              className={`text-green-500 text-bold ${
+                actionData?.updated && !isSubmitting ? "block" : "hidden"
               }`}
             >
               {locales.route.content.feedback}
@@ -1040,7 +1040,7 @@ function General() {
             <Link
               to={`/event/${slug}/settings/general`}
               reloadDocument
-              className="mv-text-primary mv-underline mv-text-sm mv-font-semibold"
+              className="text-primary underline text-sm font-semibold"
             >
               {locales.route.form.reset.label}
             </Link>
@@ -1050,14 +1050,14 @@ function General() {
               name="submit"
               value="submit"
               form="general-settings-form"
-              className="mv-ml-4 mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-outline-primary mv-shrink-0 mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-border-primary mv-text-sm mv-font-semibold mv-border mv-bg-primary mv-text-white"
+              className="ml-4 h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
               // disabled={isSubmitting || !isFormChanged}
               disabled={isSubmitting}
             >
               {locales.route.form.submit.label}
             </button>
           </div>
-          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-mb-4">
+          <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -1067,11 +1067,11 @@ function General() {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <div className="mv-hidden">
+                    <div className="hidden">
                       {/** @ts-expect-error  event.published exists because of fetcher */}
                       <Field name="publish" value={!event.published} />
                     </div>
-                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                    <Button className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white">
                       {/** @ts-expect-error  event.published exists because of fetcher */}
                       {event.published
                         ? locales.route.form.hide.label

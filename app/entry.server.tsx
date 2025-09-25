@@ -42,8 +42,13 @@ export default async function handleRequest(
 
   const connectSrc = ["'self'"];
   if (process.env.NODE_ENV === "production") {
-    connectSrc.push(process.env.MATOMO_URL);
-    if (typeof process.env.SENTRY_DSN !== "undefined") {
+    if (process.env.MATOMO_URL !== "") {
+      connectSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+    }
+    if (
+      typeof process.env.SENTRY_DSN !== "undefined" &&
+      process.env.SENTRY_DSN !== ""
+    ) {
       connectSrc.push(
         process.env.SENTRY_DSN.replace(/https?:\/\//, "")
           .replace(/sentry\.io.*/, "sentry.io")
@@ -52,17 +57,34 @@ export default async function handleRequest(
     }
   }
 
+  const styleSrcElem = ["'self'"];
+  if (process.env.NODE_ENV === "development") {
+    styleSrcElem.push("'unsafe-inline'");
+  }
+
+  const imgSrc = ["'self'", "data:"];
+  if (process.env.MATOMO_URL !== "") {
+    imgSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+  }
+  if (process.env.IMGPROXY_URL !== "") {
+    imgSrc.push(process.env.IMGPROXY_URL.replace(/https?:\/\//, ""));
+  }
+
+  const scriptSrc = ["'self'"];
+  if (process.env.MATOMO_URL !== "") {
+    scriptSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+  }
+  scriptSrc.push(`'nonce-${nonce}'`);
+
   const cspHeaderOptions = createCSPHeaderOptions({
     "default-src": "'self'",
     "style-src": "'self'",
     "style-src-attr": "'self'",
-    "style-src-elem": "'self'",
+    "style-src-elem": styleSrcElem.join(" "),
     "font-src": "'self'",
     "form-action": "'self'",
-    "script-src": `'self' ${process.env.MATOMO_URL} 'nonce-${nonce}'`,
-    "img-src": `'self' ${
-      process.env.MATOMO_URL
-    } data: ${process.env.IMGPROXY_URL.replace(/https?:\/\//, "")}`,
+    "script-src": scriptSrc.join(" "),
+    "img-src": imgSrc.join(" "),
     "worker-src": "blob:",
     "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
     "base-uri": "'self'",

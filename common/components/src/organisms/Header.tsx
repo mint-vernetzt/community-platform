@@ -36,30 +36,26 @@ function Header(props: HeaderProps) {
   }
 
   return (
-    <div className="mv-relative mv-w-full mv-border mv-border-neutral-200 mv-rounded-2xl mv-overflow-hidden mv-bg-white">
-      <div className="mv-relative mv-w-full mv-aspect-[3/2] @md:mv-aspect-[2/1] @lg:mv-aspect-[31/10] mv-bg-attention-400">
+    <div className="relative w-full border border-neutral-200 rounded-2xl overflow-hidden bg-white">
+      <div className="relative w-full aspect-[3/2] @md:aspect-[2/1] @lg:aspect-[31/10] bg-attention-400">
         {image || null}
         {status !== undefined && (
-          <div className="mv-absolute mv-top-0 mv-inset-x-0">{status}</div>
+          <div className="absolute top-0 inset-x-0">{status}</div>
         )}
         {avatar !== undefined && (
-          <div className="mv-absolute mv-inset-x-0 -mv-bottom-20 @md:-mv-bottom-[124px] mv-flex mv-flex-col mv-items-center">
-            <div className="mv-w-40 @md:mv-w-[248px] mv-aspect-[1]">
-              {avatar}
-            </div>
+          <div className="absolute inset-x-0 -bottom-20 @md:-bottom-[124px] flex flex-col items-center">
+            <div className="w-40 @md:w-[248px] aspect-[1]">{avatar}</div>
           </div>
         )}
         {controls !== undefined && (
-          <div className="mv-absolute mv-bottom-4 mv-right-4">{controls}</div>
+          <div className="absolute bottom-4 right-4">{controls}</div>
         )}
       </div>
       {body !== undefined && (
         <div
           className={`${
-            avatar !== undefined
-              ? "mv-mt-24 @md:mv-mt-[140px]"
-              : "mv-mt-2 @md:mv-mt-4"
-          } mv-mb-2 @md:mv-mb-4`}
+            avatar !== undefined ? "mt-24 @md:mt-[140px]" : "mt-2 @md:mt-4"
+          } mb-2 @md:mb-4`}
         >
           {body}
         </div>
@@ -91,9 +87,9 @@ function Body(props: BodyProps) {
   });
 
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-gap-2 mv-w-full mv-mb-6 @md:mv-mb-8 mv-px-4 @md:mv-px-8 mv-text-center">
+    <div className="flex flex-col items-center gap-2 w-full mb-6 @md:mb-8 px-4 @md:px-8 text-center">
       {controls !== undefined && (
-        <div className="mv-my-0 @md:mv-my-2">{controls}</div>
+        <div className="my-0 @md:my-2">{controls}</div>
       )}
       {otherChilds}
     </div>
@@ -123,17 +119,17 @@ function Footer(props: FooterProps) {
 
   return (
     <div
-      className={`mv-flex mv-flex-col @lg:mv-flex-row mv-gap-4 @lg:mv-gap-0 mv-justify-end mv-w-full @md:mv-border-t mv-p-6 ${
-        otherChilds.length > 0 ? "mv-bg-accent-300" : ""
+      className={`flex flex-col @lg:flex-row gap-4 @lg:gap-0 justify-end w-full @md:border-t border-gray-200 p-6 ${
+        otherChilds.length > 0 ? "bg-accent-300" : ""
       }`}
     >
       {otherChilds.length > 0 && (
-        <div className="mv-flex mv-grow mv-items-center mv-justify-center mv-font-bold">
+        <div className="flex grow items-center justify-center font-bold">
           {otherChilds}
         </div>
       )}
       {controls !== undefined && (
-        <div className="mv-flex mv-shrink mv-w-full @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+        <div className="flex shrink w-full @lg:w-auto items-center justify-center @lg:justify-end">
           {controls}
         </div>
       )}

@@ -90,45 +90,43 @@ function Settings() {
   const deep = searchParams.get(Deep);
 
   const menuClasses = classNames(
-    "mv-w-full @md:mv-w-1/3 @2xl:mv-w-1/4 mv-max-h-dvh @md:mv-max-h-fit mv-flex mv-flex-col mv-absolute @md:mv-relative mv-top-0 mv-bg-white @md:mv-border-l @md:mv-border-b @md:mv-rounded-bl-xl @md:mv-self-start",
-    deep !== null && deep !== "false" && "mv-hidden @md:mv-block"
+    "w-full @md:w-1/3 @2xl:w-1/4 max-h-dvh @md:max-h-fit flex flex-col absolute @md:relative top-0 bg-white @md:border-l @md:border-b border-neutral-200 @md:rounded-bl-xl @md:self-start",
+    deep !== null && deep !== "false" && "hidden @md:block"
   );
 
   const outletClasses = classNames(
-    "mv-overflow-hidden @md:mv-w-2/3 @2xl:mv-w-3/4 @md:mv-border-x @md:mv-border-b @md:mv-rounded-b-xl @md:mv-mb-4 @lg:mv-mb-24 mv-bg-white",
-    (deep === null || deep === "false") && "mv-hidden @md:mv-block"
+    "overflow-hidden @md:w-2/3 @2xl:w-3/4 @md:border-x @md:border-b border-neutral-200 @md:rounded-b-xl @md:mb-4 @lg:mb-24 bg-white",
+    (deep === null || deep === "false") && "hidden @md:block"
   );
 
   return (
-    <div className="mv-w-full mv-max-w-none mv-px-0 mv-mx-auto @md:mv-px-4 @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl @md:mv-mt-2">
-      <div className="mv-hidden @md:mv-block mv-mb-8">
-        <div className="mv-flex mv-flex-col mv-gap-8 @lg:mv-gap-14">
+    <div className="w-full max-w-none px-0 mx-auto @md:px-4 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl @md:mt-2">
+      <div className="hidden @md:block mb-8">
+        <div className="flex flex-col gap-8 @lg:gap-14">
           <BackButton
             to={`/organization/${loaderData.organization.slug}/detail/about`}
             prefetch="intent"
           >
             {locales.route.content.back}
           </BackButton>
-          <h3 className="mv-mb-0 mv-font-bold">{locales.route.content.edit}</h3>
+          <h3 className="mb-0 font-bold">{locales.route.content.edit}</h3>
         </div>
       </div>
-      <div className="mv-hidden @md:mv-block">
+      <div className="hidden @md:block">
         <Section variant="primary" withBorder>
           <Section.Header>{loaderData.organization.name}</Section.Header>
         </Section>
       </div>
-      <div className="mv-w-full @md:mv-flex @md:mv-mb-20 @lg:mv-mb-0">
+      <div className="w-full @md:flex @md:mb-20 @lg:mb-0">
         <div className={menuClasses}>
-          <div className="mv-flex mv-gap-2 mv-items-center mv-justify-between @md:mv-hidden">
-            <span className="mv-p-6 mv-pr-0">
-              <h1 className="mv-text-2xl mv-m-0">
-                {locales.route.content.settings}
-              </h1>
+          <div className="flex gap-2 items-center justify-between @md:hidden">
+            <span className="p-6 pr-0">
+              <h1 className="text-2xl m-0">{locales.route.content.settings}</h1>
             </span>
             <Link
               to={`/organization/${loaderData.organization.slug}/detail/about`}
               prefetch="intent"
-              className="mv-px-4"
+              className="px-4"
             >
               <svg
                 width="32"
@@ -146,28 +144,28 @@ function Settings() {
               </svg>
             </Link>
           </div>
-          <ul className="mv-grid mv-grid-cols-1 mv-grid-rows-6">
+          <ul className="grid grid-cols-1 grid-rows-6">
             {navLinks.map((navLink) => {
               const absolutePath = navLink.to.replace(".", "");
               const isActive = pathnameWithoutSlug.includes(absolutePath);
 
               const itemClasses = classNames(
-                "@md:mv-border-b @md:mv-last:mv-border-b-0 mv-h-full mv-grid mv-grid-rows-1 mv-grid-cols-1",
-                isActive && "@md:mv-border-l-8",
+                "@md:border-b @md:last:border-b-0 border-b-neutral-200 h-full grid grid-rows-1 grid-cols-1",
+                isActive && "@md:border-l-8",
                 navLink.variant === "negative"
-                  ? "@md:mv-border-l-negative"
-                  : "@md:mv-border-l-primary"
+                  ? "@md:border-l-negative"
+                  : "@md:border-l-primary"
               );
               const linkClasses = classNames(
-                "mv-text-lg @lg:mv-text-2xl mv-font-semibold mv-block mv-place-self-center mv-w-full",
-                "mv-px-6 @lg:mv-px-8 mv-py-4 @lg:mv-py-8",
+                "text-lg @lg:text-2xl font-semibold block place-self-center w-full",
+                "px-6 @lg:px-8 py-4 @lg:py-8",
                 navLink.variant === "negative"
-                  ? "mv-text-negative"
-                  : "mv-text-primary",
-                isActive && "@lg:mv-pl-6 @lg:mv-pr-8",
+                  ? "text-negative"
+                  : "text-primary",
+                isActive && "@lg:pl-6 @lg:pr-8",
                 isActive === false &&
                   navLink.variant !== "negative" &&
-                  "@lg:mv-text-neutral @lg:mv-hover:mv-text-primary"
+                  "@lg:text-neutral @lg:hover:text-primary"
               );
 
               return (
@@ -179,7 +177,7 @@ function Settings() {
                     preventScrollReset
                     prefetch="intent"
                   >
-                    <span className="mv-text-wrap">{navLink.label}</span>
+                    <span className="text-wrap">{navLink.label}</span>
                   </Link>
                 </li>
               );

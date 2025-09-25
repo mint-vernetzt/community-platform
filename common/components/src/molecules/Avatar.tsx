@@ -29,25 +29,25 @@ function Avatar(props: AvatarProps) {
 
   const classes = classNames(
     {
-      "mv-w-full mv-aspect-[1]": size === "full",
-      "mv-h-[136px] mv-w-[136px]": size === "xl",
-      "mv-h-[44px] mv-w-[44px]": size === "lg",
-      "mv-h-[40px] mv-w-[40px]": size === "md",
-      "mv-h-[36px] mv-w-[36px]": size === "sm",
-      "mv-h-[24px] mv-w-[24px]": size === "xs",
-      "mv-h-[20px] mv-w-[20px]": size === "xxs",
+      "w-full aspect-[1]": size === "full",
+      "h-[136px] w-[136px]": size === "xl",
+      "h-[44px] w-[44px]": size === "lg",
+      "h-[40px] w-[40px]": size === "md",
+      "h-[36px] w-[36px]": size === "sm",
+      "h-[24px] w-[24px]": size === "xs",
+      "h-[20px] w-[20px]": size === "xxs",
     },
     {
-      "mv-text-[70px]": size === "xl" || textSize === "xl",
-      "mv-text-[22px]": size === "lg" || textSize === "lg",
-      "mv-text-[20px]": size === "md" || textSize === "md",
-      "mv-text-[14px]": size === "sm" || textSize === "sm",
-      "mv-text-[10px]": size === "xs" || textSize === "xs",
-      "mv-text-[9px]": size === "xxs" || textSize === "xxs",
+      "text-[70px]": size === "xl" || textSize === "xl",
+      "text-[22px]": size === "lg" || textSize === "lg",
+      "text-[20px]": size === "md" || textSize === "md",
+      "text-[14px]": size === "sm" || textSize === "sm",
+      "text-[10px]": size === "xs" || textSize === "xs",
+      "text-[9px]": size === "xxs" || textSize === "xxs",
     },
     {
-      "mv-border-2": size === "xl" || textSize === "xl",
-      "mv-border":
+      "border-2": size === "xl" || textSize === "xl",
+      border:
         size === "lg" ||
         size === "md" ||
         size === "sm" ||
@@ -57,9 +57,9 @@ function Avatar(props: AvatarProps) {
         textSize === "sm" ||
         textSize === "xs",
     },
-    "mv-bg-neutral-600 mv-border-neutral-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0 mv-text-white mv-font-normal mv-relative",
+    "bg-neutral-600 border-neutral-200 flex items-center justify-center rounded-full overflow-hidden shrink-0 text-white font-normal relative",
     props.to &&
-      "hover:mv-border-0 active:mv-border-2 focus-within:mv-border-2 active:mv-border-blue-500 focus-within:mv-border-blue-500 hover:mv-shadow-md active:mv-shadow-md focus-within:mv-shadow-md"
+      "hover:border-0 active:border-2 focus-within:border-2 active:border-blue-500 focus-within:border-blue-500 hover:shadow-md active:shadow-md focus-within:shadow-md"
   );
   const child = src ? (
     <Image
@@ -80,7 +80,7 @@ function Avatar(props: AvatarProps) {
         as === "link" ? (
           <Link
             to={props.to}
-            className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+            className="w-full h-full grid grid-cols-1 grid-rows-1 place-items-center"
             prefetch={props.prefetch}
           >
             {child}
@@ -88,7 +88,7 @@ function Avatar(props: AvatarProps) {
         ) : (
           <a
             href={props.to}
-            className="mv-w-full mv-h-full mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center"
+            className="w-full h-full grid grid-cols-1 grid-rows-1 place-items-center"
           >
             {child}
           </a>
@@ -113,19 +113,19 @@ function MoreIndicator(props: MoreIndicatorProps) {
 
   const classes = classNames(
     {
-      "mv-text-sm": props.amount < 100,
-      "mv-text-xs": props.amount >= 100,
+      "text-sm": props.amount < 100,
+      "text-xs": props.amount >= 100,
     },
-    "mv-w-[36px] mv-h-[36px] mv-bg-gray-200 mv-text-gray-700 mv-font-semibold mv-rounded-full mv-flex mv-items-center mv-justify-center",
-    props.to && "hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
+    "w-[36px] h-[36px] bg-gray-200 text-gray-700 font-semibold rounded-full flex items-center justify-center",
+    props.to && "hover:shadow-md active:shadow-md focus:shadow-md"
   );
   return props.to ? (
     as === "link" ? (
-      <Link to={props.to} className="mv-rounded-full">
+      <Link to={props.to} className="rounded-full">
         <div className={classes}>{amount}</div>
       </Link>
     ) : (
-      <a href={props.to} className="mv-rounded-full">
+      <a href={props.to} className="rounded-full">
         <div className={classes}>{amount}</div>
       </a>
     )
@@ -140,7 +140,7 @@ function wrapAvatars(children: React.ReactNode) {
   });
 
   if (validChildren.length === 0) {
-    return <div className="mv-h-9"></div>;
+    return <div className="h-9"></div>;
   }
 
   return Children.map(validChildren, (child) => {
@@ -160,7 +160,7 @@ export function AvatarList(props: AvatarListProps) {
   });
 
   return (
-    <div className={classNames("mv-flex mv-gap-2")}>
+    <div className={classNames("flex gap-2")}>
       {props.visibleAvatars !== undefined ? (
         <>
           {wrapAvatars(avatars.slice(0, props.visibleAvatars))}

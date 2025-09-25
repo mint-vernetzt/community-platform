@@ -19,9 +19,9 @@ function Controls(props: ControlsProps) {
   });
 
   const classes = classNames(
-    "mv-grid mv-gap-4 mv-w-full",
-    direction === "horizontal" && "mv-grid-flow-col mv-auto-cols-fr",
-    direction === "vertical" && "mv-grid-flow-row mv-auto-rows-fr"
+    "grid gap-4 w-full",
+    direction === "horizontal" && "grid-flow-col auto-cols-fr",
+    direction === "vertical" && "grid-flow-row auto-rows-fr"
   );
 
   return <div className={classes}>{children}</div>;

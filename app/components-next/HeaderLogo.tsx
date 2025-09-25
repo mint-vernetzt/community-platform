@@ -12,7 +12,7 @@ export function HeaderLogo(
   const { locales, showLabel = true, ...svgProps } = props;
 
   return (
-    <div className="mv-flex mv-flex-row mv-items-center">
+    <div className="flex flex-row items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="48"
@@ -37,7 +37,7 @@ export function HeaderLogo(
         </g>
       </svg>
       {showLabel ? (
-        <span className="mv-hidden lg:mv-block mv-font-bold mv-text-primary mv-ml-2">
+        <span className="hidden lg:block font-bold text-primary ml-2">
           {locales !== undefined
             ? locales.route.root.community
             : DEFAULT_LANGUAGE === "de"

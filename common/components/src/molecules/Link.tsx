@@ -40,9 +40,9 @@ function Link(props: LinkProps) {
 
   const classes = classNames(
     className !== undefined && className,
-    as === "link" && "hover:mv-underline mv-underline-offset-4 mv-decoration-2",
-    variant === "primary" && "mv-text-primary",
-    active && "mv-underline mv-cursor-default mv-pointer-events-none"
+    as === "link" && "hover:underline underline-offset-4 decoration-2",
+    variant === "primary" && "text-primary",
+    active && "underline cursor-default pointer-events-none"
   );
 
   if (as === "link") {

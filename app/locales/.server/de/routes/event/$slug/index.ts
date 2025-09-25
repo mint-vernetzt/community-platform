@@ -94,7 +94,7 @@ export const locale = {
     title: "Warum möchstest Du dieses Event melden?",
     description:
       "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
-    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="mv-text-primary mv-underline hover:mv-no-underline">Hilfebereich</a>.`,
+    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="text-primary underline hover:no-underline">Hilfebereich</a>.`,
     otherReason: "Anderer Grund",
     max: "Maximal {{max}} Zeichen",
     noReasons: "Bitte gib mindestens einen Grund an.",

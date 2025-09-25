@@ -134,23 +134,23 @@ function Notifications() {
 
   return (
     <>
-      <h1 className="mv-mb-8">{locales.content.headline}</h1>
+      <h1 className="mb-8">{locales.content.headline}</h1>
       {loaderData.profile.notificationSettings !== null ? (
         <ul>
           <Form method="post" {...form.props}>
-            <div className="mv-flex mv-justify-between">
-              <label className="mv-font-semibold" htmlFor={fields.updates.name}>
+            <div className="flex justify-between">
+              <label className="font-semibold" htmlFor={fields.updates.name}>
                 {locales.form.updates.label}
               </label>
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
             {fields.updates.error && (
-              <div className="mv-text-negative-600 mv-text-sm">
+              <div className="text-negative-600 text-sm">
                 {fields.updates.error}
               </div>
             )}
             <noscript>
-              <div className="mv-mt-2">
+              <div className="mt-2">
                 <Button variant="outline">{locales.form.submit.label}</Button>
               </div>
             </noscript>

@@ -15,8 +15,8 @@ export function BreadCrump(props: PropsWithChildren) {
   });
 
   return (
-    <div className="mv-flex mv-gap-1.5 mv-items-center">
-      <menu className="mv-flex mv-gap-2 mv-items-center">
+    <div className="flex gap-1.5 items-center">
+      <menu className="flex gap-2 items-center">
         {links.map((link) => {
           return <li key={link.toString()}>{link}</li>;
         })}
@@ -38,7 +38,7 @@ function Link(props: { to: string; children: React.ReactNode }) {
 
 function Current(props: { children: React.ReactNode }) {
   return (
-    <span className="mv-text-base mv-leading-5 mv-text-neutral-700 mv-font-normal">
+    <span className="text-base leading-5 text-neutral-700 font-normal">
       {props.children}
     </span>
   );

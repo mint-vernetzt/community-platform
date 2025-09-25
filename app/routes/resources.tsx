@@ -36,7 +36,7 @@ function getDataForToolsSection() {
       blurredImagePath: "/images/funding-search-blurred.png",
       external: false,
       beta: false,
-      bgClassName: "mv-bg-neutral-50",
+      bgClassName: "bg-neutral-50",
     },
     sharepic: {
       link: "https://sharepic.mint-vernetzt.de/",
@@ -44,7 +44,7 @@ function getDataForToolsSection() {
       blurredImagePath: "/images/sharepic-generator-blurred.png",
       external: true,
       beta: true,
-      bgClassName: "mv-bg-neutral-100",
+      bgClassName: "bg-neutral-100",
     },
     mediaDatabase: {
       link: "https://mediendatenbank.mint-vernetzt.de",
@@ -52,7 +52,7 @@ function getDataForToolsSection() {
       blurredImagePath: "/images/media-database-blurred.png",
       external: true,
       beta: true,
-      bgClassName: "mv-bg-neutral-50",
+      bgClassName: "bg-neutral-50",
     },
     oeb: {
       link: "https://openbadges.education",
@@ -83,21 +83,21 @@ function getDataForInformationSection() {
       imagePath: "/images/mint-vernetzt.png",
       blurredImagePath: "/images/mint-vernetzt-blurred.png",
       external: true,
-      bgClassName: "mv-bg-[#164194]",
+      bgClassName: "bg-[#164194]",
     },
     meshMint: {
       link: "https://www.meshmint.org",
       imagePath: "/images/mesh-mint.png",
       blurredImagePath: "/images/mesh-mint-blurred.png",
       external: true,
-      bgClassName: "mv-bg-[#0C9C85]",
+      bgClassName: "bg-[#0C9C85]",
     },
     mintDataLab: {
       link: "https://datalab.mint-vernetzt.de",
       imagePath: "/images/mint-datalab.png",
       blurredImagePath: "/images/mint-datalab-blurred.png",
       external: true,
-      bgClassName: "mv-bg-[#D1A9CC]",
+      bgClassName: "bg-[#D1A9CC]",
     },
   };
   return resourceListItems;
@@ -146,7 +146,7 @@ function getDataForContributeSection() {
       imagePath: "/images/github.png",
       blurredImagePath: "/images/github-blurred.png",
       external: true,
-      bgClassName: "mv-bg-neutral-900",
+      bgClassName: "bg-neutral-900",
     },
   };
   return resourceListItems;
@@ -160,19 +160,19 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
   const contributeSectionData = getDataForContributeSection();
 
   return (
-    <div className="mv-flex mv-flex-col mv-items-center mv-gap-8 mv-mt-10 @lg:mv-mt-8 mv-mb-24">
-      <div className="mv-w-full mv-max-w-screen-2xl mv-flex mv-flex-col mv-items-center mv-gap-2 mv-px-6 @lg:mv-px-8">
-        <h1 className="mv-text-center mv-text-primary mv-text-5xl @lg:mv-text-7xl mv-font-black mv-leading-9 @lg:mv-leading-[52px] mv-mb-0">
+    <div className="flex flex-col items-center gap-8 mt-10 @lg:mt-8 mb-24">
+      <div className="w-full max-w-screen-2xl flex flex-col items-center gap-2 px-6 @lg:px-8">
+        <h1 className="text-center text-primary text-5xl @lg:text-7xl font-black leading-9 @lg:leading-[52px] mb-0">
           {locales.headline}
         </h1>
-        <p className="mv-text-center mv-text-neutral-600 mv-text-base @lg:mv-text-lg mv-font-semibold mv-leading-5 @lg:mv-leading-6">
+        <p className="text-center text-neutral-600 text-base @lg:text-lg font-semibold leading-5 @lg:leading-6">
           {locales.subline}
         </p>
       </div>
-      <div className="mv-w-full mv-max-w-screen-2xl mv-flex mv-flex-col mv-items-center mv-gap-16 @lg:mv-gap-12 mv-px-4 @lg:mv-px-8">
+      <div className="w-full max-w-screen-2xl flex flex-col items-center gap-16 @lg:gap-12 px-4 @lg:px-8">
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-2xl mv-font-semibold mv-leading-6 @lg:mv-leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
               {locales.sections.tools.headline}
             </h2>
           </ResourceList.Header>
@@ -195,12 +195,12 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
                   <ResourceList.ListItem.ContentSection.Header>
-                    <h3 className="mv-mb-0 mv-text-primary mv-text-xl mv-font-bold mv-leading-6">
+                    <h3 className="mb-0 text-primary text-xl font-bold leading-6">
                       {locales.sections.tools[typedResourceKey].headline}
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <div className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <div className="text-neutral-600 text-base font-normal leading-5">
                     <RichText
                       html={locales.sections.tools[typedResourceKey].content}
                     />
@@ -221,7 +221,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className="mv-w-full @lg:mv-w-fit"
+                    className="w-full @lg:w-fit"
                     prefetch={
                       typedResourceValue.external === true ? "none" : "intent"
                     }
@@ -242,7 +242,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-2xl mv-font-semibold mv-leading-6 @lg:mv-leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
               {locales.sections.information.headline}
             </h2>
           </ResourceList.Header>
@@ -263,12 +263,12 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
                   <ResourceList.ListItem.ContentSection.Header>
-                    <h3 className="mv-mb-0 mv-text-primary mv-text-xl mv-font-bold mv-leading-6">
+                    <h3 className="mb-0 text-primary text-xl font-bold leading-6">
                       {locales.sections.information[typedResourceKey].headline}
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <div className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <div className="text-neutral-600 text-base font-normal leading-5">
                     <RichText
                       html={
                         locales.sections.information[typedResourceKey].content
@@ -291,7 +291,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className="mv-w-full @lg:mv-w-fit"
+                    className="w-full @lg:w-fit"
                     prefetch={
                       typedResourceValue.external === true ? "none" : "intent"
                     }
@@ -310,7 +310,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-2xl mv-font-semibold mv-leading-6 @lg:mv-leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
               {locales.sections.learn.headline}
             </h2>
           </ResourceList.Header>
@@ -337,17 +337,17 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     }
                     src={typedResourceValue.imagePath}
                     alt={locales.sections.learn[typedResourceKey].imgAlt}
-                    className="mv-w-full mv-h-full mv-object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
                   <ResourceList.ListItem.ContentSection.Header>
-                    <h3 className="mv-mb-0 mv-text-primary mv-text-xl mv-font-bold mv-leading-6">
+                    <h3 className="mb-0 text-primary text-xl font-bold leading-6">
                       {locales.sections.learn[typedResourceKey].headline}
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <p className="text-neutral-600 text-base font-normal leading-5">
                     {locales.sections.learn[typedResourceKey].content}
                   </p>
                 </ResourceList.ListItem.ContentSection>
@@ -366,7 +366,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className="mv-w-full @lg:mv-w-fit"
+                    className="w-full @lg:w-fit"
                     prefetch={
                       typedResourceValue.external === true ? "none" : "intent"
                     }
@@ -385,7 +385,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
         </ResourceList>
         <ResourceList>
           <ResourceList.Header>
-            <h2 className="mv-mb-0 mv-text-neutral-700 mv-text-2xl mv-font-semibold mv-leading-6 @lg:mv-leading-[26px]">
+            <h2 className="mb-0 text-neutral-700 text-2xl font-semibold leading-6 @lg:leading-[26px]">
               {locales.sections.contribute.headline}
             </h2>
           </ResourceList.Header>
@@ -406,12 +406,12 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                 </ResourceList.ListItem.ImageSection>
                 <ResourceList.ListItem.ContentSection>
                   <ResourceList.ListItem.ContentSection.Header>
-                    <h3 className="mv-mb-0 mv-text-primary mv-text-xl mv-font-bold mv-leading-6">
+                    <h3 className="mb-0 text-primary text-xl font-bold leading-6">
                       {locales.sections.contribute[typedResourceKey].headline}
                     </h3>
                     {typedResourceValue.beta ? <BetaTag /> : null}
                   </ResourceList.ListItem.ContentSection.Header>
-                  <p className="mv-text-neutral-600 mv-text-base mv-font-normal mv-leading-5">
+                  <p className="text-neutral-600 text-base font-normal leading-5">
                     {locales.sections.contribute[typedResourceKey].content}
                   </p>
                 </ResourceList.ListItem.ContentSection>
@@ -430,7 +430,7 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                         ? "_blank"
                         : undefined
                     }
-                    className="mv-w-full @lg:mv-w-fit"
+                    className="w-full @lg:w-fit"
                     prefetch={
                       typedResourceValue.external === true ? "none" : "intent"
                     }

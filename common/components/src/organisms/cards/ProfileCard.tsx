@@ -72,21 +72,21 @@ function ProfileCard(
       </CardHeader>
       <CardBody>
         {
-          <div className="mv-mt-[30px] mv-min-h-[80px]">
+          <div className="mt-[30px] min-h-[80px]">
             {/* TODO: */}
             {/* Issue with combination of line clamp with ellipsis (truncate) */}
             {/* Maybe find a better solution */}
-            <div className="mv-max-h-10 mv-overflow-hidden">
+            <div className="max-h-10 overflow-hidden">
               <Heading
                 as={as}
-                className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-text-ellipsis mv-overflow-hidden"
+                className="text-primary text-base leading-5 font-bold mb-0 text-ellipsis overflow-hidden"
               >
                 {fullName}
               </Heading>
             </div>
-            <div className="mv-h-5 mv-overflow-hidden">
+            <div className="h-5 overflow-hidden">
               {profile.position && (
-                <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-font-bold mv-truncate">
+                <p className="text-neutral-700 text-sm leading-5 font-bold truncate">
                   {profile.position}
                 </p>
               )}

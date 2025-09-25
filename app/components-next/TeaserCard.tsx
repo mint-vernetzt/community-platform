@@ -26,23 +26,23 @@ export function TeaserCard(props: {
         to={to}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className="mv-flex mv-gap-2 mv-items-center mv-rounded-lg mv-bg-white mv-border mv-border-neutral-200 mv-px-4 mv-py-2 hover:mv-no-underline @xl:mv-h-full"
+        className="flex gap-2 items-center rounded-lg bg-white border border-neutral-200 px-4 py-2 hover:no-underline @xl:h-full"
         prefetch={external ? "none" : prefetch}
       >
-        <div className="mv-flex mv-flex-col mv-gap-2 mv-py-2 mv-flex-grow @xl:mv-h-full">
-          <h3 className="mv-appearance-none mv-text-neutral-700 mv-text-xs mv-font-bold mv-leading-[15.6px] mv-tracking-[-0.24px]">
+        <div className="flex flex-col gap-2 py-2 grow @xl:h-full">
+          <h3 className="appearance-none text-neutral-700 text-xs font-bold leading-[15.6px] tracking-[-0.24px]">
             {headline}
           </h3>
-          <div className="mv-text-primary mv-text-2xl mv-font-semibold mv-leading-[26px] mv-tracking-[-0.44px] @xl:mv-flex-grow">
+          <div className="text-primary text-2xl font-semibold leading-[26px] tracking-[-0.44px] @xl:grow">
             {description}
           </div>
-          <div className="mv-flex mv-items-end mv-gap-1 mv-text-primary mv-text-sm mv-font-semibold mv-leading-5 mv-tracking-[0.14px] mv-underline mv-underline-offset-1">
+          <div className="flex items-end gap-1 text-primary text-sm font-semibold leading-5 tracking-[0.14px] underline underline-offset-1">
             {linkDescription}
             {external ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                className="mv-w-4 mv-h-4"
+                className="w-4 h-4"
               >
                 <path
                   fill="currentColor"
@@ -68,8 +68,8 @@ export function TeaserCard(props: {
           </div>
         </div>
         <div
-          className={`mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-[76px] mv-w-[85px] mv-min-h-[76px] mv-min-w-[85px] mv-flex-shrink mv-rounded-lg ${
-            type === "primary" ? "mv-bg-primary-200" : "mv-bg-secondary"
+          className={`grid grid-cols-1 grid-rows-1 place-items-center h-[76px] w-[85px] min-h-[76px] min-w-[85px] shrink rounded-lg ${
+            type === "primary" ? "bg-primary-200" : "bg-secondary"
           }`}
         >
           <TeaserIcon type={iconType} />

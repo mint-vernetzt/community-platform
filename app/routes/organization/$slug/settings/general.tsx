@@ -555,12 +555,12 @@ function General() {
       >
         {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
         <button type="submit" hidden disabled={isSubmitting} />
-        <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+        <div className="flex flex-col gap-6 @md:gap-4">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.contact.headline}
             </h2>
-            <div className="@lg:mv-flex @lg:mv-gap-4">
+            <div className="@lg:flex @lg:gap-4">
               <Input
                 {...getInputProps(fields.name, { type: "text" })}
                 minLength={NAME_MIN_LENGTH}
@@ -580,8 +580,8 @@ function General() {
                   : null}
               </Input>
             </div>
-            <div className="@lg:mv-flex @lg:mv-gap-4">
-              <div className="mv-flex-1">
+            <div className="@lg:flex @lg:gap-4">
+              <div className="flex-1">
                 <Input
                   {...getInputProps(fields.email, { type: "email" })}
                   key="email"
@@ -615,7 +615,7 @@ function General() {
                 </Input>
               </div>
 
-              <div className="mv-flex-1">
+              <div className="flex-1">
                 <Input
                   {...getInputProps(fields.phone, { type: "tel" })}
                   key="phone"
@@ -650,7 +650,7 @@ function General() {
               </div>
             </div>
 
-            <div className="@lg:mv-flex @lg:mv-gap-4">
+            <div className="@lg:flex @lg:gap-4">
               <Input
                 {...getInputProps(fields.addressSupplement, { type: "text" })}
                 key="addressSupplement"
@@ -672,8 +672,8 @@ function General() {
               </Input>
             </div>
 
-            <div className="@lg:mv-flex @lg:mv-gap-4">
-              <div className="mv-flex-1">
+            <div className="@lg:flex @lg:gap-4">
+              <div className="flex-1">
                 <Input
                   {...getInputProps(fields.street, { type: "text" })}
                   key="street"
@@ -691,7 +691,7 @@ function General() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+              <div className="flex-1 mt-4 @lg:mt-0">
                 <Input
                   {...getInputProps(fields.streetNumber, { type: "text" })}
                   key="streetNumber"
@@ -713,8 +713,8 @@ function General() {
                 </Input>
               </div>
             </div>
-            <div className="@lg:mv-flex @lg:mv-gap-4">
-              <div className="mv-flex-1">
+            <div className="@lg:flex @lg:gap-4">
+              <div className="flex-1">
                 <Input
                   {...getInputProps(fields.zipCode, { type: "text" })}
                   key="zipCode"
@@ -732,7 +732,7 @@ function General() {
                     : null}
                 </Input>
               </div>
-              <div className="mv-flex-1 mv-mt-4 @lg:mv-mt-0">
+              <div className="flex-1 mt-4 @lg:mt-0">
                 <Input
                   {...getInputProps(fields.city, { type: "text" })}
                   key="city"
@@ -752,12 +752,12 @@ function General() {
               </div>
             </div>
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.about.headline}
             </h2>
             <p>{locales.route.content.about.intro}</p>
-            <div className="mv-flex mv-gap-2">
+            <div className="flex gap-2">
               <TextArea
                 {...getInputProps(fields.bio, { type: "text" })}
                 key="bio"
@@ -775,7 +775,7 @@ function General() {
                   defaultValue: fields.bioRTEState.initialValue,
                 }}
               />
-              <div className="mv-min-w-[44px] mv-pt-[32px]">
+              <div className="min-w-[44px] pt-[32px]">
                 <VisibilityCheckbox
                   {...getInputProps(visibilitiesFieldList.bio, {
                     type: "checkbox",
@@ -846,7 +846,7 @@ function General() {
                     return (
                       <div
                         key={`${filteredOption.label}-${index}-divider`}
-                        className="mv-text-start mv-w-full mv-cursor-default mv-text-neutral-500 mv-py-1 mv-px-2"
+                        className="text-start w-full cursor-default text-neutral-500 py-1 px-2"
                       >
                         {filteredOption.label}
                       </div>
@@ -986,13 +986,13 @@ function General() {
               </Chip.Container>
             )}
           </div>
-          <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.supportedBy.headline}
             </h2>
             {isHydrated === true ? (
               <>
-                <div className="mv-flex mv-flex-row mv-gap-4 mv-items-center">
+                <div className="flex flex-row gap-4 items-center">
                   <Input
                     value={supportedBy}
                     onChange={handleSupportedByInputChange}
@@ -1061,7 +1061,7 @@ function General() {
                         <input
                           {...getInputProps(field, { type: "text" })}
                           key={field.id}
-                          className="mv-pl-1"
+                          className="pl-1"
                         />
 
                         <Chip.Delete>
@@ -1103,7 +1103,7 @@ function General() {
                   <div
                     id={form.errorId}
                     key={form.errorId}
-                    className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                    className="text-sm font-semibold text-negative-600"
                   >
                     {error}
                   </div>
@@ -1111,10 +1111,10 @@ function General() {
               })}
             </div>
           ) : null}
-          <div className="mv-flex mv-flex-col @xl:mv-flex-row mv-w-full mv-justify-end @xl:mv-justify-between mv-items-start mv-gap-4">
-            <div className="mv-flex mv-flex-col mv-gap-1">
-              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
-                <span className="mv-w-4 mv-h-4">
+          <div className="flex flex-col @xl:flex-row w-full justify-end @xl:justify-between items-start gap-4">
+            <div className="flex flex-col gap-1">
+              <p className="text-xs flex items-center gap-1">
+                <span className="w-4 h-4">
                   <svg
                     viewBox="0 0 20 20"
                     fill="none"
@@ -1132,8 +1132,8 @@ function General() {
                 </span>
                 <span>{locales.route.form.hint.public}</span>
               </p>
-              <p className="mv-text-xs mv-flex mv-items-center mv-gap-1">
-                <span className="mv-w-4 mv-h-4">
+              <p className="text-xs flex items-center gap-1">
+                <span className="w-4 h-4">
                   <svg
                     viewBox="0 0 20 20"
                     fill="none"
@@ -1156,9 +1156,9 @@ function General() {
                 <span>{locales.route.form.hint.private}</span>
               </p>
             </div>
-            <div className="mv-flex mv-flex-col mv-w-full @xl:mv-w-fit mv-gap-2">
+            <div className="flex flex-col w-full @xl:w-fit gap-2">
               <Controls>
-                <div className="mv-relative mv-w-full">
+                <div className="relative w-full">
                   <Button
                     type="reset"
                     onClick={() => {
@@ -1171,7 +1171,7 @@ function General() {
                   >
                     {locales.route.form.reset}
                   </Button>
-                  <noscript className="mv-absolute mv-top-0">
+                  <noscript className="absolute top-0">
                     <Button as="link" to="." variant="outline" fullSize>
                       {locales.route.form.reset}
                     </Button>

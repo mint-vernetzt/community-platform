@@ -31,9 +31,9 @@ export function LoginOrRegisterCTA(props: {
   }
 
   return (
-    <div className="mv-flex mv-flex-col mv-gap-4 mv-w-full mv-px-6 mv-py-6 mv-text-primary mv-bg-primary-50">
-      <div className="mv-flex mv-justify-between mv-w-full">
-        <p className="mv-block mv-font-semibold">
+    <div className="flex flex-col gap-4 w-full px-6 py-6 text-primary bg-primary-50">
+      <div className="flex justify-between w-full">
+        <p className="block font-semibold">
           {locales.route.root.loginOrRegisterCTA.info}
         </p>
 
@@ -48,7 +48,7 @@ export function LoginOrRegisterCTA(props: {
             });
             setHideLoginOrRegisterCookie(true);
           }}
-          className={`${isHydrated ? "mv-opacity-100" : "mv-opacity-0"}`}
+          className={`${isHydrated ? "opacity-100" : "opacity-0"}`}
         >
           <button
             type="submit"
@@ -70,8 +70,8 @@ export function LoginOrRegisterCTA(props: {
           </button>
         </Form>
       </div>
-      <div className="mv-flex mv-w-full mv-gap-4 mv-items-baseline">
-        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+      <div className="flex w-full gap-4 items-baseline">
+        <div className="text-primary font-semibold hover:underline grow @sm:grow-0">
           <Button
             as="link"
             to={`/login?login_redirect=${location.pathname}`}
@@ -82,10 +82,10 @@ export function LoginOrRegisterCTA(props: {
             {locales.route.root.loginOrRegisterCTA.login}
           </Button>
         </div>
-        <p className="mv-text-xs mv-flex-grow-0">
+        <p className="text-xs grow-0">
           {locales.route.root.loginOrRegisterCTA.or}
         </p>
-        <div className="mv-text-primary mv-font-semibold hover:mv-underline mv-flex-grow @sm:mv-flex-grow-0">
+        <div className="text-primary font-semibold hover:underline grow @sm:grow-0">
           <Button
             as="link"
             to={`/register?login_redirect=${location.pathname}`}

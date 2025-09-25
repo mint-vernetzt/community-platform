@@ -14,9 +14,9 @@ export default function GoodBye() {
   const { locales } = useLoaderData<typeof loader>();
 
   return (
-    <section className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl mv-mt-8 @md:mv-mt-10 @lg:mv-mt-20 mv-text-center">
+    <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mt-8 @md:mt-10 @lg:mt-20 text-center">
       <h1>{locales.content.headline}</h1>
-      <p className="mv-mt-4">{locales.content.info}</p>
+      <p className="mt-4">{locales.content.info}</p>
     </section>
   );
 }

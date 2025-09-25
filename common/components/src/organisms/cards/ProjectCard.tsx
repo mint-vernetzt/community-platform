@@ -46,7 +46,7 @@ function ProjectCard(
   });
 
   return (
-    <div className="mv-relative mv-w-full mv-h-full">
+    <div className="relative w-full h-full">
       <Card to={`/project/${project.slug}/detail/about`} prefetch={prefetch}>
         <Card.Header cardType="project">
           {typeof project.published !== "undefined" &&
@@ -65,20 +65,20 @@ function ProjectCard(
           )}
         </Card.Header>
         <Card.Body>
-          <div className="mv-mt-[30px] mv-max-h-10 mv-overflow-hidden">
+          <div className="mt-[30px] max-h-10 overflow-hidden">
             <Heading
               as={as}
-              className="mv-text-primary mv-text-base mv-leading-5 mv-font-bold mv-mb-0 mv-line-clamp-2"
+              className="text-primary text-base leading-5 font-bold mb-0 line-clamp-2"
             >
               {project.name}
             </Heading>
           </div>
-          <div className="mv-h-14">
+          <div className="h-14">
             {((typeof project.subline !== "undefined" &&
               project.subline !== null) ||
               (typeof project.excerpt !== "undefined" &&
                 project.excerpt !== null)) && (
-              <p className="mv-text-neutral-700 mv-text-sm mv-leading-5 mv-line-clamp-3">
+              <p className="text-neutral-700 text-sm leading-5 line-clamp-3">
                 {project.subline || project.excerpt}
               </p>
             )}

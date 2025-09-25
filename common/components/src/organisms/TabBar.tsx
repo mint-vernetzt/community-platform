@@ -12,10 +12,10 @@ function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
   const { active } = props;
   return (
     <span
-      className={`mv-text-xs mv-font-semibold mv-leading-4 mv-grid mv-grid-cols-1 mv-grid-rows-1 mv-place-items-center mv-h-fit mv-py-0.5 mv-px-2.5 mv-rounded-lg${
+      className={`text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-fit py-0.5 px-2.5 rounded-lg${
         active
-          ? " mv-text-primary mv-bg-primary-50"
-          : " mv-text-neutral-600 mv-bg-neutral-200"
+          ? " text-primary bg-primary-50"
+          : " text-neutral-600 bg-neutral-200"
       }`}
     >
       {props.children}
@@ -35,17 +35,17 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
   const firstNode = children[0];
 
   const listItemClasses = classNames(
-    "mv-h-fit",
-    "mv-min-w-fit",
-    "mv-relative",
-    "last:mv-mr-6 @sm:mv-last:mv-mr-0",
-    active && "mv-text-primary"
+    "h-fit",
+    "min-w-fit",
+    "relative",
+    "last:mr-6 @sm:last:mr-0",
+    active && "text-primary"
   );
 
   const spanClasses = classNames(
-    "mv-mb-3 mv-p-2 mv-block",
+    "mb-3 p-2 block",
     !active &&
-      "hover:mv-bg-neutral-100 hover:mv-rounded-lg mv-text-neutral-500 hover:mv-text-neutral-600"
+      "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600"
   );
 
   // if first node is a string, wrap string into span
@@ -54,7 +54,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
       <li className={listItemClasses}>
         <span className={spanClasses}>{firstNode}</span>
         {active ? (
-          <div className="mv-absolute mv-bottom-0 mv-w-full mv-h-1 mv-rounded-t-lg mv-bg-primary" />
+          <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
         ) : null}
       </li>
     );
@@ -79,7 +79,7 @@ function Item(props: React.PropsWithChildren<TabBarItemProps>) {
         <li className={listItemClasses}>
           {cloneElement(firstNode, {}, wrappedFirstChild)}
           {active ? (
-            <div className="mv-absolute mv-bottom-0 mv-w-full mv-h-1 mv-rounded-t-lg mv-bg-primary" />
+            <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
           ) : null}
         </li>
       );
@@ -178,31 +178,31 @@ function TabBar(props: TabBarProps) {
   }, []);
 
   const scrollClasses = classNames(
-    "mv-transition mv-duration-200 mv-ease-in-out mv-absolute mv-top-1 mv-h-16 mv-flex mv-items-end mv-text-gray-400"
+    "transition duration-200 ease-in-out absolute top-1 h-16 flex items-end text-gray-400"
   );
 
   const leftScrollClasses = classNames(
     scrollClasses,
-    "mv-left-0 mv-justify-start",
-    showScrollLeft ? "mv-opacity-100" : "mv-opacity-0 mv-pointer-events-none"
+    "left-0 justify-start",
+    showScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
   );
   const rightScrollClasses = classNames(
     scrollClasses,
-    "mv-right-0 mv-justify-end",
+    "right-0 justify-end",
     showScrollRight
-      ? "mv-visible mv-opacity-100"
-      : "mv-invisible mv-opacity-0 mv-pointer-events-none"
+      ? "visible opacity-100"
+      : "invisible opacity-0 pointer-events-none"
   );
 
   return (
     <>
-      <div className="mv-w-full mv-relative">
+      <div className="w-full relative">
         <div
-          className="mv-overflow-x-auto"
+          className="overflow-x-auto"
           onScroll={handleScroll}
           ref={scrollContainerRef}
         >
-          <ul className="mv-w-full mv-border-b mv-border-neutral-200 mv-flex mv-flex-nowrap mv-gap-8 @sm:mv-gap-14 mv-font-semibold">
+          <ul className="w-full border-b border-neutral-200 flex flex-nowrap gap-8 @sm:gap-14 font-semibold">
             {validChildren}
           </ul>
         </div>
@@ -211,7 +211,7 @@ function TabBar(props: TabBarProps) {
           onClick={handleLeftClick}
           disabled={!showScrollLeft}
         >
-          <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
+          <span className="bg-white h-full flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -225,22 +225,22 @@ function TabBar(props: TabBarProps) {
               />
             </svg>
           </span>
-          <span className="mv-h-full mv-w-5 mv-bg-gradient-to-r mv-from-white" />
+          <span className="h-full w-5 bg-gradient-to-r from-white" />
         </button>
         <button
           className={rightScrollClasses}
           onClick={handleRightClick}
           disabled={!showScrollRight}
         >
-          <span className="mv-h-full mv-w-5 mv-bg-gradient-to-l mv-from-white" />
-          <span className="mv-bg-white mv-h-full mv-flex mv-items-center">
+          <span className="h-full w-5 bg-gradient-to-l from-white" />
+          <span className="bg-white h-full flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
               fill="currentColor"
               viewBox="0 0 16 16"
-              className="mv--mr-2"
+              className="-mr-2"
             >
               <path
                 fillRule="evenodd"

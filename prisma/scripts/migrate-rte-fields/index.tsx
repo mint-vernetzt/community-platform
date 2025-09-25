@@ -52,14 +52,14 @@ async function getNewValueFromRTE(options: {
         namespace: "RTE",
         theme: {
           text: {
-            bold: "mv-font-semibold",
-            italic: "mv-italic",
-            underline: "mv-underline mv-underline-offset-2",
+            bold: "font-semibold",
+            italic: "italic",
+            underline: "underline underline-offset-2",
           },
-          link: "mv-text-primary mv-font-semibold hover:mv-underline active:mv-underline mv-underline-offset-2 mv-cursor-pointer",
+          link: "text-primary font-semibold hover:underline active:underline underline-offset-2 cursor-pointer",
           list: {
-            ul: "mv-pl-8 mv-list-disc",
-            ol: "mv-pl-8 mv-list-decimal",
+            ul: "pl-8 list-disc",
+            ol: "pl-8 list-decimal",
           },
         },
         nodes: [

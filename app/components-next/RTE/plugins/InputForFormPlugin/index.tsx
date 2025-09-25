@@ -94,7 +94,7 @@ function InputForFormPlugin(
         onChange={(event) => {
           event.preventDefault();
         }}
-        className="mv-hidden"
+        className="hidden"
         onFocus={(event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -111,7 +111,7 @@ function InputForFormPlugin(
           onChange={(event) => {
             event.preventDefault();
           }}
-          className="mv-hidden"
+          className="hidden"
           onFocus={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -126,7 +126,7 @@ function InputForFormPlugin(
           onChange={(event) => {
             event.preventDefault();
           }}
-          className="mv-hidden"
+          className="hidden"
           onFocus={(event) => {
             event.preventDefault();
             event.stopPropagation();

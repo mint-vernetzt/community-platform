@@ -67,11 +67,11 @@ export function Avatar(props: AvatarProps) {
   }
 
   const classes = classNames(
-    "mv-w-full mv-aspect-[1]",
-    "mv-bg-neutral-600 mv-border-gray-200 mv-flex mv-items-center mv-justify-center mv-rounded-full mv-overflow-hidden mv-shrink-0",
-    "mv-text-white mv-font-normal	mv-flex mv-items-center mv-justify-center",
+    "w-full aspect-[1]",
+    "bg-neutral-600 border-neutral-200 flex items-center justify-center rounded-full overflow-hidden shrink-0",
+    "text-white font-normal	flex items-center justify-center",
     props.to &&
-      "hover:mv-border-0 active:mv-border-2 focus-within:mv-border-2 active:mv-border-blue-500 focus-within:mv-border-blue-500 hover:mv-shadow-md active:mv-shadow-md focus:mv-shadow-md"
+      "hover:border-0 active:border-2 focus-within:border-2 active:border-blue-500 focus-within:border-blue-500 hover:shadow-md active:shadow-md focus:shadow-md"
   );
 
   const child = src ? (

@@ -35,9 +35,9 @@ function ListItemPreview(props: ListItemPreviewProps) {
   }
 
   return (
-    <div className="mv-bg-primary-100 mv-w-full mv-h-full">
+    <div className="bg-primary-100 w-full h-full">
       {type === "pdf" && (
-        <div className="mv-flex mv-justify-center mv-items-center  mv-text-primary-400 mv-h-full">
+        <div className="flex justify-center items-center  text-primary-400 h-full">
           <PDFIcon />
         </div>
       )}
@@ -49,8 +49,8 @@ function List(props: React.PropsWithChildren<{ maxColumns?: number }>) {
   const { maxColumns: columns = 1 } = props;
 
   const listClasses = classNames(
-    "mv-grid mv-grid-cols-1 mv-gap-2",
-    columns === 2 && "@lg:mv-grid-cols-2 @lg:mv-gap-4"
+    "grid grid-cols-1 gap-2",
+    columns === 2 && "@lg:grid-cols-2 @lg:gap-4"
   );
 
   return <ul className={listClasses}>{props.children}</ul>;
@@ -60,9 +60,9 @@ function ListItemTitle(props: React.PropsWithChildren<{ size?: Size }>) {
   const { size = "md" } = props;
 
   const classes = classNames(
-    size === "sm" && "mv-text-sm",
-    size === "md" && "mv-text-base",
-    "mv-w-full mv-text-primary mv-font-bold mv-line-clamp-1"
+    size === "sm" && "text-sm",
+    size === "md" && "text-base",
+    "w-full text-primary font-bold line-clamp-1"
   );
 
   return <span className={classes}>{props.children}</span>;
@@ -72,9 +72,9 @@ function ListItemSubtitle(props: React.PropsWithChildren<{ size?: Size }>) {
   const { size = "md" } = props;
 
   const classes = classNames(
-    size === "sm" && "mv-font-normal",
-    size === "md" && "mv-font-bold",
-    "mv-text-sm mv-text-neutral-700 mv-line-clamp-1"
+    size === "sm" && "font-normal",
+    size === "md" && "font-bold",
+    "text-sm text-neutral-700 line-clamp-1"
   );
 
   return <span className={classes}>{props.children}</span>;
@@ -119,7 +119,7 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 
   return typeof titleClone === "undefined" &&
     typeof subtitleClone === "undefined" ? null : (
-    <div className="mv-flex-1">
+    <div className="flex-1">
       {typeof titleClone !== "undefined" && titleClone}
       {typeof subtitleClone !== "undefined" && subtitleClone}
     </div>
@@ -127,11 +127,7 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 }
 
 function ListItemControls(props: React.PropsWithChildren) {
-  return (
-    <div className="mv-flex mv-flex-row mv-no-wrap mv-gap-2">
-      {props.children}
-    </div>
-  );
+  return <div className="flex flex-row no-wrap gap-2">{props.children}</div>;
 }
 
 function ListItem(
@@ -159,15 +155,15 @@ function ListItem(
   let info: React.ReactElement | undefined;
 
   const listItemClasses = classNames(
-    "mv-border mv-rounded-md mv-list-none mv-overflow-hidden",
-    noBorder ? "mv-border-transparent" : "mv-border-neutral-200",
-    interactive && "hover:mv-bg-primary-50"
+    "border rounded-md list-none overflow-hidden",
+    noBorder ? "border-transparent" : "border-neutral-200",
+    interactive && "hover:bg-primary-50"
   );
 
   const containerClasses = classNames(
-    size === "sm" && "mv-p-2",
-    size === "md" && "mv-p-4",
-    "mv-flex mv-flex-row mv-items-center mv-no-wrap mv-gap-2"
+    size === "sm" && "p-2",
+    size === "md" && "p-4",
+    "flex flex-row items-center no-wrap gap-2"
   );
 
   if (interactive) {
@@ -191,7 +187,7 @@ function ListItem(
       });
     }
 
-    const wrapperClasses = classNames(containerClasses, "mv-flex-1");
+    const wrapperClasses = classNames(containerClasses, "flex-1");
 
     return as !== undefined && as.type === "link" ? (
       <li className={listItemClasses}>
@@ -267,7 +263,7 @@ function ListItem(
     <li className={listItemClasses}>
       <Link {...as.props}>
         {typeof preview !== "undefined" && (
-          <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
+          <div className="w-[138px] h-[92px]">{preview}</div>
         )}
         {typeof avatar === "undefined" &&
         typeof info === "undefined" &&
@@ -290,7 +286,7 @@ function ListItem(
   ) : (
     <li className={listItemClasses}>
       {typeof preview !== "undefined" && (
-        <div className="mv-w-[138px] mv-h-[92px]">{preview}</div>
+        <div className="w-[138px] h-[92px]">{preview}</div>
       )}
       {typeof avatar === "undefined" &&
       typeof info === "undefined" &&

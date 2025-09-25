@@ -272,11 +272,11 @@ function Documents() {
 
   return (
     <>
-      <h1 className="mv-mb-8">{locales.route.content.headline}</h1>
-      <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.description}</p>
-      <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-          <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+      <h1 className="mb-8">{locales.route.content.headline}</h1>
+      <p className="my-6 @md:mt-0">{locales.route.content.description}</p>
+      <div className="flex flex-col gap-6 @md:gap-4">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+          <h2 className="text-primary text-lg font-semibold mb-0">
             {locales.route.content.document.upload}
           </h2>
           <p>
@@ -312,7 +312,7 @@ function Documents() {
                 }),
                 id: `document-${FILE_FIELD_NAME}`,
                 key: `document-${FILE_FIELD_NAME}`,
-                className: "mv-hidden",
+                className: "hidden",
                 accept: DOCUMENT_MIME_TYPES.join(", "),
                 onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
                   setSelectedDocumentFileNames(
@@ -341,7 +341,7 @@ function Documents() {
                 }),
                 id: `noscript-document-${FILE_FIELD_NAME}`,
                 key: `noscript-document-${FILE_FIELD_NAME}`,
-                className: "mv-mb-2",
+                className: "mb-2",
                 accept: DOCUMENT_MIME_TYPES.join(", "),
               }}
             >
@@ -371,9 +371,9 @@ function Documents() {
             </FileInput>
           </Form>
         </div>
-        <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
+        <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <>
-            <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.document.current}
             </h2>
             {loaderData.event.documents.length > 0 ? (
@@ -400,7 +400,7 @@ function Documents() {
                               preventScrollReset
                               autoComplete="off"
                             >
-                              <div className="mv-flex mv-flex-col mv-gap-6">
+                              <div className="flex flex-col gap-6">
                                 <Input
                                   {...getInputProps(editDocumentFields.title, {
                                     type: "text",
@@ -488,7 +488,7 @@ function Documents() {
                               {relation.document.description}
                             </MaterialList.Item.Paragraph>
                           )}
-                          <div className="mv-shrink-0 mv-p-4 mv-flex mv-gap-2 @lg:mv-gap-4 mv-ml-auto">
+                          <div className="shrink-0 p-4 flex gap-2 @lg:gap-4 ml-auto">
                             <Form
                               id={`disconnect-document-form-${relation.document.id}`}
                               method="post"
@@ -542,7 +542,7 @@ function Documents() {
                     );
                   })}
                 </MaterialList>
-                <div className="mv-w-full @md:mv-max-w-fit">
+                <div className="w-full @md:max-w-fit">
                   <Button
                     as="link"
                     to={`/event/${loaderData.event.slug}/documents-download`}
@@ -560,9 +560,9 @@ function Documents() {
           </>
         </div>
       </div>
-      <footer className="mv-fixed mv-bg-white mv-border-t-2 mv-border-primary mv-w-full mv-inset-x-0 mv-bottom-0">
-        <div className="mv-w-full mv-mx-auto mv-px-4 @sm:mv-max-w-screen-container-sm @md:mv-max-w-screen-container-md @lg:mv-max-w-screen-container-lg @xl:mv-max-w-screen-container-xl @xl:mv-px-6 @2xl:mv-max-w-screen-container-2xl">
-          <div className="mv-flex mv-flex-row mv-flex-nowrap mv-items-center mv-justify-end mv-my-4">
+      <footer className="fixed bg-white border-t-2 border-primary w-full inset-x-0 bottom-0">
+        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+          <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
               fetcher={publishFetcher}
@@ -572,13 +572,13 @@ function Documents() {
                 const { Button, Field } = remixFormsProps;
                 return (
                   <>
-                    <div className="mv-hidden">
+                    <div className="hidden">
                       <Field
                         name="publish"
                         value={!loaderData.event.published}
                       />
                     </div>
-                    <Button className="mv-border mv-border-primary mv-bg-white mv-text-primary mv-h-auto mv-min-h-0 mv-whitespace-nowrap mv-py-2 mv-px-6 mv-normal-case mv-leading-6 mv-inline-flex mv-cursor-pointer mv-selct-none mv-flex-wrap mv-items-center mv-justify-center mv-rounded-lg mv-text-center mv-font-semibold mv-gap-2 hover:mv-bg-primary hover:mv-text-white">
+                    <Button className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white">
                       {loaderData.event.published
                         ? locales.route.content.form.hide.label
                         : locales.route.content.form.publish.label}

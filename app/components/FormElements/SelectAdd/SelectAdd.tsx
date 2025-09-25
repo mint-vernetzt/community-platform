@@ -22,9 +22,9 @@ function SelectAdd(props: SelectAddProps) {
   const isSubmitting = useIsSubmitting();
 
   return (
-    <div className="mv-mb-4">
-      <div className="mv-flex mv-flex-row mv-items-center mv-w-full">
-        <div className="mv-flex-auto">
+    <div className="mb-4">
+      <div className="flex flex-row items-center w-full">
+        <div className="flex-auto">
           <SelectField
             name={`add${uppercaseSingularName}`}
             visibilityName={name}
@@ -49,7 +49,7 @@ function SelectAdd(props: SelectAddProps) {
             value={`add${uppercaseSingularName}`}
             name="submit"
             type="submit"
-            className="mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-neutral-500 mv-text-neutral-600 mv-hidden mv-ml-2"
+            className="bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-neutral-500 text-neutral-600 ml-2"
             disabled={isSubmitting}
           >
             +
@@ -57,10 +57,10 @@ function SelectAdd(props: SelectAddProps) {
         </div>
       </div>
 
-      <ul className="mv-pt-2">
+      <ul className="pt-2">
         {entries.map((entry) => (
-          <li key={`${name}-${entry.value}`} className="mv-flex">
-            <div className="mv-font-bold mv-py-2">
+          <li key={`${name}-${entry.value}`} className="flex">
+            <div className="font-bold py-2">
               {entry.label}
               <input name={name} type="hidden" value={entry.value} />
             </div>
@@ -69,7 +69,7 @@ function SelectAdd(props: SelectAddProps) {
               type="submit"
               name={`remove${uppercaseSingularName}`}
               value={entry.value}
-              className="mv-ml-auto mv-bg-transparent mv-w-10 mv-h-8 mv-flex mv-items-center mv-justify-center mv-rounded-md mv-border mv-border-transparent mv-text-neutral-600"
+              className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
               title="entfernen"
               disabled={isSubmitting}
             >

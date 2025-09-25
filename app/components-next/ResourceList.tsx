@@ -13,9 +13,9 @@ function ResourceList(props: ResourceListProps) {
   );
 
   return (
-    <div className="mv-w-full mv-max-w-[358px] @md:mv-max-w-[740px] @lg:mv-max-w-none mv-flex mv-flex-col @lg:mv-items-center mv-gap-6">
+    <div className="w-full max-w-[358px] @md:max-w-[740px] @lg:max-w-none flex flex-col @lg:items-center gap-6">
       {header}
-      <div className="mv-w-full mv-grid mv-grid-cols-1 @md:mv-grid-cols-2 @lg:mv-grid-cols-1 @lg:mv-items-center mv-gap-6">
+      <div className="w-full grid grid-cols-1 @md:grid-cols-2 @lg:grid-cols-1 @lg:items-center gap-6">
         {other}
       </div>
     </div>
@@ -27,9 +27,7 @@ type HeaderProps = React.PropsWithChildren;
 function Header(props: HeaderProps) {
   const { children } = props;
 
-  return (
-    <div className="mv-w-full mv-flex mv-gap-2 mv-items-center">{children}</div>
-  );
+  return <div className="w-full flex gap-2 items-center">{children}</div>;
 }
 
 type ListItemProps = React.PropsWithChildren;
@@ -48,9 +46,9 @@ function ListItem(props: ListItemProps) {
   );
 
   return (
-    <div className="mv-w-full @lg:mv-bg-white mv-rounded-lg mv-overflow-hidden mv-border mv-border-neutral-200 @lg:mv-flex @lg:mv-justify-center @lg:mv-gap-6 @lg:mv-pr-6">
+    <div className="w-full @lg:bg-white rounded-lg overflow-hidden border border-neutral-200 @lg:flex @lg:justify-center @lg:gap-6 @lg:pr-6">
       {imageSection}
-      <div className="mv-w-full mv-flex mv-flex-col @lg:mv-flex-row @lg:mv-justify-between @lg:mv-items-center mv-gap-6 mv-p-4 @lg:mv-p-0">
+      <div className="w-full flex flex-col @lg:flex-row @lg:justify-between @lg:items-center gap-6 p-4 @lg:p-0">
         {contentSection}
         {actionSection}
       </div>
@@ -68,13 +66,11 @@ function ImageSection(props: ImageSectionProps) {
 
   return (
     <div
-      className={`mv-w-full mv-h-36 @lg:mv-w-36 mv-flex mv-items-center mv-justify-center${
+      className={`w-full h-36 @lg:w-36 flex items-center justify-center${
         typeof className !== "undefined" ? ` ${className}` : ""
       }`}
     >
-      <div
-        className={`mv-h-36 ${fullWidth === false ? "mv-w-36" : "@lg:mv-w-36"}`}
-      >
+      <div className={`h-36 ${fullWidth === false ? "w-36" : "@lg:w-36"}`}>
         {children}
       </div>
     </div>
@@ -94,7 +90,7 @@ function ContentSection(props: ContentSectionProps) {
   );
 
   return (
-    <div className="mv-w-full mv-flex mv-flex-col mv-gap-2 mv-max-w-[560px] @md:mv-min-h-[132px] @lg:mv-min-h-fit">
+    <div className="w-full flex flex-col gap-2 max-w-[560px] @md:min-h-[132px] @lg:min-h-fit">
       {contentHeader}
       {other}
     </div>
@@ -106,11 +102,7 @@ type ActionSectionProps = React.PropsWithChildren;
 function ActionSection(props: ActionSectionProps) {
   const { children } = props;
 
-  return (
-    <div className="mv-flex mv-flex-col mv-gap-2 mv-text-center">
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col gap-2 text-center">{children}</div>;
 }
 
 ContentSection.Header = Header;

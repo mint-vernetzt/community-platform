@@ -575,7 +575,7 @@ function Requirements() {
         <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.back}
         </SettingsMenuBackButton>
-        <p className="mv-my-6 @md:mv-mt-0">{locales.route.content.intro}</p>
+        <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
         <Form
           {...getFormProps(form)}
           method="post"
@@ -584,9 +584,9 @@ function Requirements() {
         >
           {/* This button ensures submission via enter key. Always use a hidden button at top of the form when other submit buttons are inside it (f.e. the add/remove list buttons) */}
           <button type="submit" hidden disabled={isSubmitting} />
-          <div className="mv-flex mv-flex-col mv-gap-6 @md:mv-gap-4">
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+          <div className="flex flex-col gap-6 @md:gap-4">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h2 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.form.timeframe.headline}
               </h2>
 
@@ -609,8 +609,8 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h2 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.form.personellSituation.headline}
               </h2>
 
@@ -660,8 +660,8 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h2 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.form.budget.headline}
               </h2>
 
@@ -806,8 +806,8 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h2 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.form.technicalFrame.headline}
               </h2>
 
@@ -859,8 +859,8 @@ function Requirements() {
               />
             </div>
 
-            <div className="mv-flex mv-flex-col mv-gap-4 @md:mv-p-4 @md:mv-border @md:mv-rounded-lg @md:mv-border-gray-200">
-              <h2 className="mv-text-primary mv-text-lg mv-font-semibold mv-mb-0">
+            <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
+              <h2 className="text-primary text-lg font-semibold mb-0">
                 {locales.route.form.spatialSituation.headline}
               </h2>
 
@@ -915,7 +915,7 @@ function Requirements() {
                     <div
                       id={form.errorId}
                       key={form.errorId}
-                      className="mv-text-sm mv-font-semibold mv-text-negative-600"
+                      className="text-sm font-semibold text-negative-600"
                     >
                       {error}
                     </div>
@@ -924,10 +924,10 @@ function Requirements() {
               </div>
             ) : null}
 
-            <div className="mv-flex mv-w-full mv-justify-end">
-              <div className="mv-flex mv-shrink mv-w-full @md:mv-max-w-fit @lg:mv-w-auto mv-items-center mv-justify-center @lg:mv-justify-end">
+            <div className="flex w-full justify-end">
+              <div className="flex shrink w-full @md:max-w-fit @lg:w-auto items-center justify-center @lg:justify-end">
                 <Controls>
-                  <div className="mv-relative mv-w-full">
+                  <div className="relative w-full">
                     <Button
                       type="reset"
                       onClick={() => {
@@ -940,7 +940,7 @@ function Requirements() {
                     >
                       {locales.route.form.reset}
                     </Button>
-                    <noscript className="mv-absolute mv-top-0">
+                    <noscript className="absolute top-0">
                       <Button as="link" to="." variant="outline" fullSize>
                         {locales.route.form.reset}
                       </Button>
