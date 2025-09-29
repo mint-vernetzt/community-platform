@@ -13,9 +13,7 @@ import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
-    <div className="w-full text-sm leading-1 flex flex-col gap-4">
-      {props.children}
-    </div>
+    <div className="w-full text-sm flex flex-col gap-4">{props.children}</div>
   );
 }
 
