@@ -1,22 +1,21 @@
+import { InputError, makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
 import { useFetcher } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { detectLanguage } from "~/i18n.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { deriveEventMode } from "~/routes/event/utils.server";
-import { getProfileById } from "../utils.server";
-import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { type AddEventParticipantLocales } from "./add-participant.server";
-import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { type EventDetailLocales } from "../../index.server";
+import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
+import { type EventDetailLocales } from "../../index.server";
+import { getProfileById } from "../utils.server";
+import { type AddEventParticipantLocales } from "./add-participant.server";
+import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
 
 const schema = z.object({
   profileId: z.string().trim().uuid(),
@@ -106,22 +105,14 @@ export function AddParticipantButton(props: AddParticipantButtonProps) {
   const fetcher = useFetcher<typeof action>();
   const locales = props.locales;
   return (
-    <RemixFormsForm action={props.action} fetcher={fetcher} schema={schema}>
-      {(remixFormsProps) => {
-        const { Errors } = remixFormsProps;
-        return (
-          <>
-            <input name="profileId" defaultValue={props.profileId} hidden />
-            <button
-              className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-              type="submit"
-            >
-              {locales.addParticipant.action}
-            </button>
-            <Errors />
-          </>
-        );
-      }}
-    </RemixFormsForm>
+    <fetcher.Form method="post" action={props.action}>
+      <input name="profileId" defaultValue={props.profileId} hidden />
+      <button
+        className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+        type="submit"
+      >
+        {locales.addParticipant.action}
+      </button>
+    </fetcher.Form>
   );
 }
