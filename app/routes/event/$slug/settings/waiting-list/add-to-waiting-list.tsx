@@ -1,22 +1,21 @@
+import { InputError, makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
 import { useFetcher } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
+import { type EventDetailLocales } from "../../index.server";
 import { getProfileById } from "../utils.server";
 import { type AddProfileToEventWaitingListLocales } from "./add-to-waiting-list.server";
 import { connectToWaitingListOfEvent, getEventBySlug } from "./utils.server";
-import { type EventDetailLocales } from "../../index.server";
-import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string().trim().uuid(),
@@ -115,22 +114,14 @@ export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {
   const fetcher = useFetcher<typeof action>();
   const locales = props.locales;
   return (
-    <RemixFormsForm action={props.action} fetcher={fetcher} schema={schema}>
-      {(remixFormsProps) => {
-        const { Errors } = remixFormsProps;
-        return (
-          <>
-            <input name="profileId" defaultValue={props.profileId} hidden />
-            <button
-              type="submit"
-              className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-            >
-              {locales.addToWaitingList.action}
-            </button>
-            <Errors />
-          </>
-        );
-      }}
-    </RemixFormsForm>
+    <fetcher.Form method="post" action={props.action}>
+      <input name="profileId" defaultValue={props.profileId} hidden />
+      <button
+        type="submit"
+        className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
+      >
+        {locales.addToWaitingList.action}
+      </button>
+    </fetcher.Form>
   );
 }
