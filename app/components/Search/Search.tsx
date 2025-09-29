@@ -48,7 +48,7 @@ function Search(props: SearchProps) {
     const query = event.target.value;
     setValue(query);
 
-    if (query.length > minLength) {
+    if (query.length >= minLength) {
       fetcher.submit({ method: "get", search: query });
     }
   };
@@ -116,10 +116,10 @@ function Search(props: SearchProps) {
     }
 
     if (
-      value.length > minLength ||
-      (value.length > minLength &&
+      value.length >= minLength ||
+      (value.length >= minLength &&
         typeof fetcher.data !== "undefined" &&
-        fetcher.data.tags.length > minLength)
+        fetcher.data.tags.length >= minLength)
     ) {
       setShowResults(true);
     } else {
@@ -216,8 +216,8 @@ function Search(props: SearchProps) {
                   locales !== undefined
                     ? locales.clear
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Suchleiste leeren"
-                    : "Clear search field"
+                      ? "Suchleiste leeren"
+                      : "Clear search field"
                 }
                 tabIndex={-1}
               >
