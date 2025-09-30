@@ -1,5 +1,5 @@
 export const locale = {
-  back: "Profile entdecken",
+  back: "Personen entdecken",
   error: {
     profileNotFound: "Profile not found",
     onStoring:
