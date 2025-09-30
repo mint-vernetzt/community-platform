@@ -136,8 +136,8 @@ export const locale = {
       placeholder: "Select the experience level.",
     },
     focuses: {
-      label: "STEM focuses",
-      placeholder: "Add STEM focuses.",
+      label: "focuses",
+      placeholder: "Add focuses.",
     },
     reset: {
       label: "Discard changes",
