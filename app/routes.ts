@@ -355,6 +355,14 @@ export default [
       ]
     ),
   ]),
+  route("/next/event/:slug", "./routes/next/event/$slug/index.tsx"),
+  route("/next/event/:slug/detail", "./routes/next/event/$slug/detail.tsx", [
+    index("./routes/next/event/$slug/detail/index.tsx"),
+    route(
+      "/next/event/:slug/detail/about",
+      "./routes/next/event/$slug/detail/about.tsx"
+    ),
+  ]),
   route("/auth/confirm", "./routes/auth/confirm.tsx"),
   route("/auth/keycloak", "./routes/auth/keycloak.tsx"),
   route("/auth/keycloak/callback", "./routes/auth/keycloak.callback.tsx"),
