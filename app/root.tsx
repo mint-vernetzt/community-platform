@@ -33,8 +33,8 @@ import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
-import { H1, H2 } from "./components/Heading/Heading";
-import { RichText } from "./components/Richtext/RichText";
+import { H1, H2 } from "./components/legacy/Heading/Heading";
+import { RichText } from "./components/legacy/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
@@ -610,11 +610,11 @@ export default function App() {
                           afterBreakpoint: "@md",
                         }
                       : isExplore
-                      ? {
-                          untilScrollY: 274,
-                          afterBreakpoint: "@lg",
-                        }
-                      : undefined
+                        ? {
+                            untilScrollY: 274,
+                            afterBreakpoint: "@lg",
+                          }
+                        : undefined
                   }
                 />
               </div>

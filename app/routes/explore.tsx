@@ -29,7 +29,7 @@ import { getFilterSchemes } from "./explore/all.shared";
 import { getEventIds } from "./explore/events.server";
 import { getFundingIds } from "./explore/fundings.server";
 import { getProjectIds } from "./explore/projects.server";
-import Search from "~/components/Search/Search";
+import Search from "~/components/legacy/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
@@ -219,32 +219,32 @@ export default function Explore() {
       loaderData.url.pathname === "/explore/all"
         ? loaderData.locales.route.content.menu.allContent
         : loaderData.url.pathname === "/explore/profiles"
-        ? loaderData.locales.route.content.menu.profiles
-        : loaderData.url.pathname ===
-          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
-        ? loaderData.locales.route.content.menu.organizations
-        : loaderData.url.pathname === "/explore/events"
-        ? loaderData.locales.route.content.menu.events
-        : loaderData.url.pathname === "/explore/projects"
-        ? loaderData.locales.route.content.menu.projects
-        : loaderData.url.pathname === "/explore/fundings"
-        ? loaderData.locales.route.content.menu.fundings
-        : loaderData.locales.route.content.menu.label,
+          ? loaderData.locales.route.content.menu.profiles
+          : loaderData.url.pathname ===
+              `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
+            ? loaderData.locales.route.content.menu.organizations
+            : loaderData.url.pathname === "/explore/events"
+              ? loaderData.locales.route.content.menu.events
+              : loaderData.url.pathname === "/explore/projects"
+                ? loaderData.locales.route.content.menu.projects
+                : loaderData.url.pathname === "/explore/fundings"
+                  ? loaderData.locales.route.content.menu.fundings
+                  : loaderData.locales.route.content.menu.label,
     value:
       loaderData.url.pathname === "/explore/all"
         ? loaderData.counts.allContent
         : loaderData.url.pathname === "/explore/profiles"
-        ? loaderData.counts.profiles
-        : loaderData.url.pathname ===
-          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
-        ? loaderData.counts.organizations
-        : loaderData.url.pathname === "/explore/events"
-        ? loaderData.counts.events
-        : loaderData.url.pathname === "/explore/projects"
-        ? loaderData.counts.projects
-        : loaderData.url.pathname === "/explore/fundings"
-        ? loaderData.counts.fundings
-        : undefined,
+          ? loaderData.counts.profiles
+          : loaderData.url.pathname ===
+              `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
+            ? loaderData.counts.organizations
+            : loaderData.url.pathname === "/explore/events"
+              ? loaderData.counts.events
+              : loaderData.url.pathname === "/explore/projects"
+                ? loaderData.counts.projects
+                : loaderData.url.pathname === "/explore/fundings"
+                  ? loaderData.counts.fundings
+                  : undefined,
   };
 
   return (

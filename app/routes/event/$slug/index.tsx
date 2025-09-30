@@ -28,8 +28,8 @@ import { BreadCrump } from "~/components-next/BreadCrump";
 import { Modal } from "~/components-next/Modal";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
-import { RichText } from "~/components/Richtext/RichText";
+} from "~/components/legacy/ImageCropper/ImageCropper";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
@@ -895,8 +895,8 @@ function Index() {
                     {laysInThePast
                       ? locales.route.content.event.alreadyTakenPlace
                       : beforeParticipationPeriod
-                      ? locales.route.content.event.registrationNotStarted
-                      : locales.route.content.event.registrationExpired}
+                        ? locales.route.content.event.registrationNotStarted
+                        : locales.route.content.event.registrationExpired}
                   </p>
                 </div>
               ) : (

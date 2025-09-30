@@ -12,9 +12,9 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { H3 } from "~/components/Heading/Heading";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Autocomplete from "~/components/legacy/Autocomplete/Autocomplete";
+import { H3 } from "~/components/legacy/Heading/Heading";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";

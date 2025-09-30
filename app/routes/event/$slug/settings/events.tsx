@@ -13,7 +13,7 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import Autocomplete from "~/components/legacy/Autocomplete/Autocomplete";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
@@ -41,7 +41,7 @@ import {
   getParentEventSuggestions,
 } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";

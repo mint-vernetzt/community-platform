@@ -25,7 +25,7 @@ import { Modal } from "~/components-next/Modal";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
@@ -254,9 +254,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         organization.shadow === false
           ? false
           : openClaimRequest !== null
-          ? openClaimRequest.status === "open" ||
-            openClaimRequest.status === "withdrawn"
-          : true;
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
     } else {
       alreadyRequestedToClaim = false;
       allowedToClaimOrganization = organization.shadow === true;

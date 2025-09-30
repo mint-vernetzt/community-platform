@@ -14,8 +14,8 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Input from "~/components/legacy/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";

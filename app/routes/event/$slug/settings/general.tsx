@@ -20,10 +20,10 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import { TextArea } from "~/components-next/TextArea";
-import InputText from "~/components/FormElements/InputText/InputText";
-import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import SelectField from "~/components/FormElements/SelectField/SelectField";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import InputText from "~/components/legacy/FormElements/InputText/InputText";
+import SelectAdd from "~/components/legacy/FormElements/SelectAdd/SelectAdd";
+import SelectField from "~/components/legacy/FormElements/SelectField/SelectField";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";

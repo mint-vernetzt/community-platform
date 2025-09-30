@@ -30,10 +30,10 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
 import { Modal } from "~/components-next/Modal";
-import { H1 } from "~/components/Heading/Heading";
+import { H1 } from "~/components/legacy/Heading/Heading";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";

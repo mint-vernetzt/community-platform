@@ -1,5 +1,5 @@
 import type React from "react";
-import { Heading } from "~/components/Heading/Heading";
+import { Heading } from "~/components/legacy/Heading/Heading";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";

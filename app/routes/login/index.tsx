@@ -18,7 +18,7 @@ import { z } from "zod";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { languageModuleMap } from "~/locales/.server";

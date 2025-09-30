@@ -16,10 +16,10 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import InputAdd from "~/components/FormElements/InputAdd/InputAdd";
-import InputText from "~/components/FormElements/InputText/InputText";
-import SelectAdd from "~/components/FormElements/SelectAdd/SelectAdd";
-import SelectField from "~/components/FormElements/SelectField/SelectField";
+import InputAdd from "~/components/legacy/FormElements/InputAdd/InputAdd";
+import InputText from "~/components/legacy/FormElements/InputText/InputText";
+import SelectAdd from "~/components/legacy/FormElements/SelectAdd/SelectAdd";
+import SelectField from "~/components/legacy/FormElements/SelectField/SelectField";
 import { TextArea } from "~/components-next/TextArea";
 import {
   createAreaOptionFromData,
@@ -52,7 +52,7 @@ import {
   getProfileByUsername,
 } from "./general.server";
 import { languageModuleMap } from "~/locales/.server";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { createRef, useEffect } from "react";
 

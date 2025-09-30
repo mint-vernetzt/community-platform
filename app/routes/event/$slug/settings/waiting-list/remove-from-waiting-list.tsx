@@ -4,7 +4,7 @@ import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";

@@ -8,7 +8,7 @@ import {
 import {
   disconnectImageSchema,
   createImageUploadSchema,
-} from "~/components/ImageCropper/ImageCropper";
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";

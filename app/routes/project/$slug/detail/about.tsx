@@ -5,7 +5,7 @@ import { Video } from "@mint-vernetzt/components/src/organisms/Video";
 import { Link, type LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { createAuthClient } from "~/auth.server";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";

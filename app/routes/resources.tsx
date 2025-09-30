@@ -3,7 +3,7 @@ import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import BetaTag from "~/components-next/BetaTag";
 import { External } from "~/components-next/icons/External";
 import ResourceList from "~/components-next/ResourceList";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import type { Route } from "./+types/resources";
 import { detectLanguage } from "./../i18n.server";
 import { languageModuleMap } from "./../locales/.server";

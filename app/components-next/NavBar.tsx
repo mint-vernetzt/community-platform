@@ -3,7 +3,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { Form, Link, useLocation, useSearchParams } from "react-router";
-import Search from "~/components/Search/Search";
+import Search from "~/components/legacy/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { HeaderLogo } from "./HeaderLogo";
@@ -75,8 +75,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
             : DEFAULT_LANGUAGE === "de"
-            ? "Navigationsleiste überspringen"
-            : "Skip navigation bar"}
+              ? "Navigationsleiste überspringen"
+              : "Skip navigation bar"}
         </a>
       </div>
       <div className="flex h-full w-full items-center pr-4 xl:pr-6">
@@ -90,16 +90,16 @@ export function NavBar(props: NavBarProps) {
               ? props.sessionUserInfo === undefined
                 ? props.locales.route.root.toLandingPage
                 : props.sessionUserInfo !== undefined
-                ? props.locales.route.root.toDashboard
-                : DEFAULT_LANGUAGE === "de" &&
-                  props.sessionUserInfo === undefined
-                ? "Zur Startseite"
-                : DEFAULT_LANGUAGE === "de" &&
-                  props.sessionUserInfo !== undefined
-                ? "Zum Dashboard"
-                : props.sessionUserInfo === undefined
-                ? "To the start page"
-                : "To the dashboard"
+                  ? props.locales.route.root.toDashboard
+                  : DEFAULT_LANGUAGE === "de" &&
+                      props.sessionUserInfo === undefined
+                    ? "Zur Startseite"
+                    : DEFAULT_LANGUAGE === "de" &&
+                        props.sessionUserInfo !== undefined
+                      ? "Zum Dashboard"
+                      : props.sessionUserInfo === undefined
+                        ? "To the start page"
+                        : "To the dashboard"
               : ""
           }
           prefetch="intent"
@@ -211,8 +211,8 @@ export function NavBar(props: NavBarProps) {
                   {props.locales !== undefined
                     ? props.locales.route.root.login
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Anmelden"
-                    : "Login"}
+                      ? "Anmelden"
+                      : "Login"}
                 </Button>
               </div>
               <div>
@@ -224,8 +224,8 @@ export function NavBar(props: NavBarProps) {
                   {props.locales !== undefined
                     ? props.locales.route.root.register
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Registrieren"
-                    : "Register"}
+                      ? "Registrieren"
+                      : "Register"}
                 </Button>
               </div>
             </div>
@@ -241,8 +241,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end
             : DEFAULT_LANGUAGE === "de"
-            ? "Zurück zum Anfang der Suchleiste"
-            : "Back to the start of the search bar"}
+              ? "Zurück zum Anfang der Suchleiste"
+              : "Back to the start of the search bar"}
         </a>
       </div>
     </header>
@@ -262,8 +262,8 @@ function Opener(props: { openMainMenuKey: string; locales?: RootLocales }) {
         props.locales !== undefined
           ? props.locales.route.root.menu.open
           : DEFAULT_LANGUAGE === "de"
-          ? "Hauptmenü öffnen"
-          : "Open main menu"
+            ? "Hauptmenü öffnen"
+            : "Open main menu"
       }
       prefetch="intent"
     >

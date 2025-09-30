@@ -13,9 +13,9 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { H3 } from "~/components/Heading/Heading";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Autocomplete from "~/components/legacy/Autocomplete/Autocomplete";
+import { H3 } from "~/components/legacy/Heading/Heading";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";

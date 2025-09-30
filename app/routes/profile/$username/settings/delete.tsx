@@ -10,7 +10,7 @@ import {
   getSessionUserOrThrow,
   signOut,
 } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
+import Input from "~/components/legacy/FormElements/Input/Input";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { deriveProfileMode } from "../utils.server";
@@ -20,7 +20,7 @@ import {
   getProfileWithAdministrations,
 } from "./delete.server";
 import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { useLoaderData, redirect } from "react-router";

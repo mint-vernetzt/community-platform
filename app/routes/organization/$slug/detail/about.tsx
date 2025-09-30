@@ -3,7 +3,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { type LoaderFunctionArgs } from "react-router";
 import { Link, useLoaderData } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";
@@ -236,8 +236,8 @@ function About() {
                       numberOfSocialServices === 1
                         ? "grid-cols-1"
                         : numberOfSocialServices === 2
-                        ? "grid-cols-2"
-                        : "grid-cols-2 @md:grid-cols-3"
+                          ? "grid-cols-2"
+                          : "grid-cols-2 @md:grid-cols-3"
                     } grid-flow-row auto-rows-min gap-2`}
                   >
                     {Object.entries(ExternalServiceIcons).map(

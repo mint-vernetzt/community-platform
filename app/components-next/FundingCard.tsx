@@ -1,6 +1,6 @@
 import { Children, createContext, isValidElement, useContext } from "react";
 import { Link } from "react-router";
-import { Heading } from "~/components/Heading/Heading";
+import { Heading } from "~/components/legacy/Heading/Heading";
 import { type ExploreFundingsLocales } from "~/routes/explore/fundings.server";
 
 const FundingCardContext = createContext<{
