@@ -136,8 +136,8 @@ export const locale = {
       placeholder: "Wähle die Erfahrungsstufe aus.",
     },
     focuses: {
-      label: "MINT-Schwerpunkte",
-      placeholder: "Füge die MINT-Schwerpunkte hinzu.",
+      label: "Schwerpunkte",
+      placeholder: "Füge die Schwerpunkte hinzu.",
     },
     reset: {
       label: "Änderungen verwerfen",
