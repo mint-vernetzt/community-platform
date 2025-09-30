@@ -48,7 +48,7 @@ export const locale = {
       description: {
         title: "Führe folgende Schritte aus",
         step1:
-          "Konfiguriere Deine Karte entsprechend Deiner Anforderungen hast (Suchbegriff, ausgewählte Filter, Ansicht).",
+          "Konfiguriere Deine Karte entsprechend Deiner Anforderungen (Suchbegriff, ausgewählte Filter, Ansicht).",
         step2: "Kopiere den angezeigten Code.",
         step3: "Füge ihn an der passenden Stelle auf Deiner Website ein.",
       },
