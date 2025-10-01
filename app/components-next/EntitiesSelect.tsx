@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router";
 
 const EntitiesSelectMenuItemContext = createContext<Pick<
@@ -145,11 +145,23 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
     "group-has-[:focus-within]/dropdown-label:bg-neutral-100 group-has-[:focus-within]/dropdown-label:ring-2 group-has-[:focus-within]/dropdown-label:ring-primary-200"
   );
 
+  const location = useLocation();
+
+  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="group/dropdown-label">
       <label className={classes}>
         {props.children}
-        <input type="checkbox" className="h-0 w-0 opacity-0" />
+        <input
+          type="checkbox"
+          className="h-0 w-0 opacity-0"
+          checked={isOpen}
+          onChange={() => setIsOpen(!isOpen)}
+        />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
