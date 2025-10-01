@@ -3,6 +3,7 @@ export const locale = {
     headline: "Discover the STEM community",
     searchHeadline: "Your search for “{{search}}”",
     search: {
+      label: "Search",
       placeholder: {
         default: "Search...",
         xl: "Discover the community and find new fundings...",

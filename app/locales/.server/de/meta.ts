@@ -15,6 +15,7 @@ export const locale = {
     login: "Anmelden",
     register: "Registrieren",
     search: {
+      label: "Suchen",
       placeholder: {
         default: "Suche...",
         xl: "Entdecke die Community und finde neue Förderungen...",

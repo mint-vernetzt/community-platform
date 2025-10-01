@@ -3,6 +3,7 @@ export const locale = {
     headline: "Entdecke die MINT-Community",
     searchHeadline: "Deine Suche zu “{{search}}”",
     search: {
+      label: "Suchen",
       placeholder: {
         default: "Suche...",
         xl: "Entdecke die Community und finde neue Förderungen...",

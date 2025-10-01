@@ -31,6 +31,7 @@ export const locale = {
     },
     search: {
       headline: "Entdecke die Community und finde neue Förderungen",
+      label: "Suchen",
       placeholder: {
         default: "Suche...",
         xl: "Suche nach",

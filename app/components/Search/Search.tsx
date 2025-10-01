@@ -204,6 +204,13 @@ function Search(props: SearchProps) {
             onBlur={handleBlur}
             ref={inputRef}
             autoComplete="off"
+            aria-label={
+              locales !== undefined
+                ? locales.label
+                : DEFAULT_LANGUAGE === "de"
+                  ? "Suchen"
+                  : "Search"
+            }
             {...otherInputProps}
           />
           {value.length > 0 && (
