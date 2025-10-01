@@ -70,6 +70,7 @@ function Search(props: SearchProps) {
     const handler = (evt: KeyboardEvent) => {
       if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
         if (inputRef.current !== null) {
+          evt.preventDefault();
           inputRef.current.focus();
         }
       }
