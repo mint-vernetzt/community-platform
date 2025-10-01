@@ -15,6 +15,7 @@ export const locale = {
     login: "Login",
     register: "Register",
     search: {
+      label: "Search",
       placeholder: {
         default: "Search...",
         xl: "Discover the community and find new fundings...",
