@@ -108,6 +108,7 @@ function Search(props: SearchProps) {
   useEffect(() => {
     const query = searchParams.get("search");
     setValue(query !== null ? query : "");
+    setShowResults(false);
   }, [searchParams]);
 
   useEffect(() => {
