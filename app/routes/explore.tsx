@@ -139,15 +139,21 @@ export async function loader(args: LoaderFunctionArgs) {
 
   let preferredExploreOrganizationsView: "map" | "list" = "map";
 
-  const cookieHeader = request.headers.get("Cookie");
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-  if (cookie !== null) {
-    try {
-      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
-    } catch {
-      // ignore invalid cookie
+  if (url.pathname === "/explore/organizations/list") {
+    preferredExploreOrganizationsView = "list";
+  } else if (url.pathname === "/explore/organizations/map") {
+    preferredExploreOrganizationsView = "map";
+  } else {
+    const cookieHeader = request.headers.get("Cookie");
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+    if (cookie !== null) {
+      try {
+        preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+      } catch {
+        // ignore invalid cookie
+      }
     }
   }
 
@@ -174,6 +180,7 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+
   const links = [
     {
       pathname: "/explore/all",
@@ -219,32 +226,32 @@ export default function Explore() {
       loaderData.url.pathname === "/explore/all"
         ? loaderData.locales.route.content.menu.allContent
         : loaderData.url.pathname === "/explore/profiles"
-        ? loaderData.locales.route.content.menu.profiles
-        : loaderData.url.pathname ===
-          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
-        ? loaderData.locales.route.content.menu.organizations
-        : loaderData.url.pathname === "/explore/events"
-        ? loaderData.locales.route.content.menu.events
-        : loaderData.url.pathname === "/explore/projects"
-        ? loaderData.locales.route.content.menu.projects
-        : loaderData.url.pathname === "/explore/fundings"
-        ? loaderData.locales.route.content.menu.fundings
-        : loaderData.locales.route.content.menu.label,
+          ? loaderData.locales.route.content.menu.profiles
+          : loaderData.url.pathname ===
+              `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
+            ? loaderData.locales.route.content.menu.organizations
+            : loaderData.url.pathname === "/explore/events"
+              ? loaderData.locales.route.content.menu.events
+              : loaderData.url.pathname === "/explore/projects"
+                ? loaderData.locales.route.content.menu.projects
+                : loaderData.url.pathname === "/explore/fundings"
+                  ? loaderData.locales.route.content.menu.fundings
+                  : loaderData.locales.route.content.menu.label,
     value:
       loaderData.url.pathname === "/explore/all"
         ? loaderData.counts.allContent
         : loaderData.url.pathname === "/explore/profiles"
-        ? loaderData.counts.profiles
-        : loaderData.url.pathname ===
-          `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
-        ? loaderData.counts.organizations
-        : loaderData.url.pathname === "/explore/events"
-        ? loaderData.counts.events
-        : loaderData.url.pathname === "/explore/projects"
-        ? loaderData.counts.projects
-        : loaderData.url.pathname === "/explore/fundings"
-        ? loaderData.counts.fundings
-        : undefined,
+          ? loaderData.counts.profiles
+          : loaderData.url.pathname ===
+              `/explore/organizations/${loaderData.preferredExploreOrganizationsView}`
+            ? loaderData.counts.organizations
+            : loaderData.url.pathname === "/explore/events"
+              ? loaderData.counts.events
+              : loaderData.url.pathname === "/explore/projects"
+                ? loaderData.counts.projects
+                : loaderData.url.pathname === "/explore/fundings"
+                  ? loaderData.counts.fundings
+                  : undefined,
   };
 
   return (

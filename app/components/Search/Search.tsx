@@ -70,6 +70,7 @@ function Search(props: SearchProps) {
     const handler = (evt: KeyboardEvent) => {
       if ((evt.metaKey || evt.ctrlKey) && evt.key === "k") {
         if (inputRef.current !== null) {
+          evt.preventDefault();
           inputRef.current.focus();
         }
       }
@@ -108,6 +109,7 @@ function Search(props: SearchProps) {
   useEffect(() => {
     const query = searchParams.get("search");
     setValue(query !== null ? query : "");
+    setShowResults(false);
   }, [searchParams]);
 
   useEffect(() => {
