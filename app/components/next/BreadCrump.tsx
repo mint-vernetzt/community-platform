@@ -2,7 +2,7 @@ import { Children, isValidElement } from "react";
 import { Link, type LinkProps } from "react-router";
 import { getBasicGroupFocusStyles } from "./styleUtils";
 
-export function BreadCrump(props: { children: React.ReactNode }) {
+function BreadCrump(props: { children: React.ReactNode }) {
   const { children } = props;
 
   const childrenArray = Children.toArray(children);

@@ -5,21 +5,19 @@ import {
   useLoaderData,
 } from "react-router";
 import { createAuthClient } from "~/auth.server";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./detail.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
 
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { getPublicURL } from "~/storage.server";
+import BackButton from "~/components/next/BackButton";
+import BasicStructure from "~/components/next/BasicStructure";
+import BreadCrump from "~/components/next/BreadCrump";
+import EventsOverview from "~/components/next/EventsOverview";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
-import BasicStructure from "~/components/next/BasicStructure";
-import BackButton from "~/components/next/BackButton";
-import SectionDetailHeader from "~/components/next/SectionDetailHeader";
-import SectionDetailHeaderEventImage from "~/components/next/SectionDetailHeaderEventImage";
-import BreadCrump from "~/components/next/BreadCrump";
+import { getPublicURL } from "~/storage.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -88,19 +86,26 @@ function Detail() {
           {loaderData.locales.route.content.back}
         </BackButton>
       )}
-      <SectionDetailHeader>
-        <SectionDetailHeaderEventImage>
-          <Image
-            alt={loaderData.event.name}
-            src={loaderData.event.background}
-            blurredSrc={loaderData.event.blurredBackground}
-            resizeType="fit"
-          />
-        </SectionDetailHeaderEventImage>
-        <SectionDetailHeader.Content>
-          {loaderData.event.name}
-        </SectionDetailHeader.Content>
-      </SectionDetailHeader>
+      <EventsOverview>
+        <EventsOverview.Container>
+          <div className="flex flex-col gap-2 sm:gap-4">
+            <EventsOverview.EventName>
+              {loaderData.event.name}
+            </EventsOverview.EventName>
+            <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <div className="flex flex-col gap-2 sm:gap-4 min-w-1/2">
+                <div className="">Name der Organisation</div>
+                <div className="">30. Sept. – 02. Okt. 2025</div>
+              </div>
+              <div className="flex flex-col gap-2 sm:gap-4 min-w-1/2">
+                <div className="order-last sm:order-none">7/10 Plätze frei</div>
+                <div className="">VDI - GARAGE GGMBH</div>
+              </div>
+            </div>
+          </div>
+          <div className="">Button</div>
+        </EventsOverview.Container>
+      </EventsOverview>
       <Outlet />
     </BasicStructure>
   );
