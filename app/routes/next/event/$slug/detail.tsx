@@ -15,6 +15,7 @@ import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
 import EventsOverview from "~/components/next/EventsOverview";
+import Image from "~/components/next/Image";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
@@ -87,6 +88,14 @@ function Detail() {
         </BackButton>
       )}
       <EventsOverview>
+        <div className="relative overflow-hidden h-[186px] sm:h-[400px] aspect-[31/10]">
+          <Image
+            alt={loaderData.event.name}
+            src={loaderData.event.background}
+            blurredSrc={loaderData.event.blurredBackground}
+            resizeType="fit"
+          />
+        </div>
         <EventsOverview.Container>
           <div className="flex flex-col gap-2 sm:gap-4">
             <EventsOverview.EventName>
