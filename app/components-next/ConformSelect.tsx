@@ -24,6 +24,7 @@ function ConformSelectInput(props: {
   const { id, disabled = false, cta, listItems } = props;
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(disabled);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const labelRef = useRef<HTMLLabelElement>(null);
@@ -52,6 +53,16 @@ function ConformSelectInput(props: {
     };
   });
 
+  useEffect(() => {
+    if (listItems.length === 0) {
+      setIsOpen(false);
+      setIsDisabled(true);
+    }
+    if (listItems.length > 0) {
+      setIsDisabled(disabled);
+    }
+  }, [listItems, disabled]);
+
   return (
     <>
       <input
@@ -60,7 +71,7 @@ function ConformSelectInput(props: {
         type="checkbox"
         className="peer fixed w-0 h-0 opacity-0 top-0 left-0"
         checked={isOpen}
-        disabled={disabled === true}
+        disabled={isDisabled}
         onChange={() => {
           setIsOpen((prev) => !prev);
         }}
@@ -68,7 +79,7 @@ function ConformSelectInput(props: {
       <label
         ref={labelRef}
         className={`relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-semibold peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none ${
-          disabled === true ? "text-neutral-300" : "text-neutral-600"
+          isDisabled === true ? "text-neutral-300" : "text-neutral-600"
         }`}
         htmlFor={id}
       >
