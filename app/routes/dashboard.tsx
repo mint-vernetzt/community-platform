@@ -856,11 +856,13 @@ function DashboardSearch(props: {
                 )
               ) : (
                 <>
-                  <div className="xl:hidden mt-3">
+                  <div className="xl:hidden mt-3 text-neutral-700 font-normal">
                     {props.locales.placeholder.default}
                   </div>
                   <div className="hidden xl:flex gap-1 mt-[0.75rem]">
-                    <div>{props.locales.placeholder.xl}</div>
+                    <div className="text-neutral-700 font-normal">
+                      {props.locales.placeholder.xl}
+                    </div>
                     <DashboardSearchPlaceholderRotation
                       locales={props.locales.placeholder.rotation}
                     />
