@@ -329,7 +329,7 @@ export default function Explore() {
                 }}
                 locales={loaderData.locales.route.content.search}
               >
-                <label className="line-clamp-1">
+                <label className="line-clamp-1 text-neutral-700 font-normal">
                   {typeof loaderData.locales.route.content.search
                     .placeholder === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (

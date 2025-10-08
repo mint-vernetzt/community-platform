@@ -75,8 +75,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.start
             : DEFAULT_LANGUAGE === "de"
-            ? "Navigationsleiste überspringen"
-            : "Skip navigation bar"}
+              ? "Navigationsleiste überspringen"
+              : "Skip navigation bar"}
         </a>
       </div>
       <div className="flex h-full w-full items-center pr-4 xl:pr-6">
@@ -90,16 +90,16 @@ export function NavBar(props: NavBarProps) {
               ? props.sessionUserInfo === undefined
                 ? props.locales.route.root.toLandingPage
                 : props.sessionUserInfo !== undefined
-                ? props.locales.route.root.toDashboard
-                : DEFAULT_LANGUAGE === "de" &&
-                  props.sessionUserInfo === undefined
-                ? "Zur Startseite"
-                : DEFAULT_LANGUAGE === "de" &&
-                  props.sessionUserInfo !== undefined
-                ? "Zum Dashboard"
-                : props.sessionUserInfo === undefined
-                ? "To the start page"
-                : "To the dashboard"
+                  ? props.locales.route.root.toDashboard
+                  : DEFAULT_LANGUAGE === "de" &&
+                      props.sessionUserInfo === undefined
+                    ? "Zur Startseite"
+                    : DEFAULT_LANGUAGE === "de" &&
+                        props.sessionUserInfo !== undefined
+                      ? "Zum Dashboard"
+                      : props.sessionUserInfo === undefined
+                        ? "To the start page"
+                        : "To the dashboard"
               : ""
           }
           prefetch="intent"
@@ -157,7 +157,7 @@ export function NavBar(props: NavBarProps) {
                     : props.locales.route.root.search
                 }
               >
-                <label className="line-clamp-1">
+                <label className="line-clamp-1 text-neutral-700 font-normal">
                   {typeof props.locales === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (
                       "Suche..."
@@ -211,8 +211,8 @@ export function NavBar(props: NavBarProps) {
                   {props.locales !== undefined
                     ? props.locales.route.root.login
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Anmelden"
-                    : "Login"}
+                      ? "Anmelden"
+                      : "Login"}
                 </Button>
               </div>
               <div>
@@ -224,8 +224,8 @@ export function NavBar(props: NavBarProps) {
                   {props.locales !== undefined
                     ? props.locales.route.root.register
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Registrieren"
-                    : "Register"}
+                      ? "Registrieren"
+                      : "Register"}
                 </Button>
               </div>
             </div>
@@ -241,8 +241,8 @@ export function NavBar(props: NavBarProps) {
           {props.locales !== undefined
             ? props.locales.route.root.skipNavBar.end
             : DEFAULT_LANGUAGE === "de"
-            ? "Zurück zum Anfang der Suchleiste"
-            : "Back to the start of the search bar"}
+              ? "Zurück zum Anfang der Suchleiste"
+              : "Back to the start of the search bar"}
         </a>
       </div>
     </header>
@@ -262,8 +262,8 @@ function Opener(props: { openMainMenuKey: string; locales?: RootLocales }) {
         props.locales !== undefined
           ? props.locales.route.root.menu.open
           : DEFAULT_LANGUAGE === "de"
-          ? "Hauptmenü öffnen"
-          : "Open main menu"
+            ? "Hauptmenü öffnen"
+            : "Open main menu"
       }
       prefetch="intent"
     >
