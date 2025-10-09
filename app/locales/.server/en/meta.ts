@@ -1,5 +1,18 @@
 export const locale = {
   root: {
+    errorBoundary: {
+      title: "We're sorry, something went wrong...",
+      message:
+        "We would appreciate it if you could inform us about the error via email at <0>{{supportMail}}</0>. Thank you!",
+      primaryCta: "Reload the page",
+      secondaryCta: {
+        toLandingPage: "To the landing page",
+        toDashboard: "To the dashboard",
+      },
+      errorDetails: {
+        headline: "Error Details",
+      },
+    },
     toLandingPage: "To the landing page",
     toDashboard: "To the dashboard",
     community: "Community",
