@@ -22,6 +22,17 @@ export async function getProfileByUserId(id: string) {
   });
 }
 
+export async function getBannedProfileByUserId(id: string) {
+  return await prismaClient.bannedProfile.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      id,
+    },
+  });
+}
+
 export type RootLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
 >]["root"];
