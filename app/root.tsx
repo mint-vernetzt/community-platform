@@ -27,7 +27,7 @@ import {
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
-import { createAuthClient, getSessionUser } from "./auth.server";
+import { createAuthClient, getSessionUser, signOut } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
@@ -43,6 +43,7 @@ import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
 import {
+  getBannedProfileByUserId,
   getEntitiesBySearchQuery,
   getProfileByUserId,
   getTagsBySearchQuery,
@@ -118,6 +119,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let sessionUserInfo;
   if (user !== null) {
+    // Check if user is banned but still has a session and sign out if so
+    const bannedProfile = await getBannedProfileByUserId(user.id);
+    if (bannedProfile !== null) {
+      const { error, headers } = await signOut(request);
+      if (error !== null) {
+        invariantResponse(false, "Server Error", { status: 500 });
+      }
+      return redirect("/", { headers: headers });
+    }
+
     const profile = await getProfileByUserId(user.id);
     if (profile !== null) {
       const url = new URL(request.url);
@@ -610,11 +621,11 @@ export default function App() {
                           afterBreakpoint: "@md",
                         }
                       : isExplore
-                      ? {
-                          untilScrollY: 274,
-                          afterBreakpoint: "@lg",
-                        }
-                      : undefined
+                        ? {
+                            untilScrollY: 274,
+                            afterBreakpoint: "@lg",
+                          }
+                        : undefined
                   }
                 />
               </div>

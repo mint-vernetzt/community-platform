@@ -130,6 +130,13 @@ model ProfileVisibility {
   @@map("profile_visibilities")
 }
 
+model BannedProfile {
+  id       String @id
+  jsonData String @map("json_data")
+
+  @@map("banned_profiles")
+}
+
 model NotificationSettings {
   id        String  @id @default(uuid())
   updates   Boolean @default(true)
