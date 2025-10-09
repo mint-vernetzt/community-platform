@@ -7,7 +7,7 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient } from "~/auth.server";
-import { Map } from "~/components-next/Map";
+import { MapView } from "~/components-next/Map";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
@@ -171,7 +171,7 @@ function MapIndex() {
 
   return (
     <div className="relative w-screen h-dvh min-h-[284px]">
-      <Map
+      <MapView
         organizations={organizations}
         locales={locales}
         language={language}
