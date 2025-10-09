@@ -117,7 +117,9 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <div className="fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 @lg:top-10 left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-20">
+        <div
+          className={`fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 ${size === "small" ? "@lg:top-10" : size === "medium" ? "@lg:top-12" : "@lg:top-14"} left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-20`}
+        >
           <ul ref={listRef} className="flex flex-col bg-white rounded-lg">
             {listItems}
           </ul>

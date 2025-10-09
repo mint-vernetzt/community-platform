@@ -24,16 +24,14 @@ function ImageContainer(props: { children: React.ReactNode }) {
 function Container(props: { children: React.ReactNode }) {
   return (
     <div className="p-6 bg-white border-x border-b border-neutral-200 rounded-b-2xl">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 sm:gap-4">
-        {props.children}
-      </div>
+      <div className="flex flex-wrap gap-2 sm:gap-6">{props.children}</div>
     </div>
   );
 }
 
 function InfoContainer(props: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 order-2 xl:order-last xl:col-span-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 order-2 xl:order-last w-full">
       {props.children}
     </div>
   );
@@ -41,7 +39,7 @@ function InfoContainer(props: { children: React.ReactNode }) {
 
 function EventName(props: { children: React.ReactNode }) {
   return (
-    <h1 className="text-primary font-bold text-3xl/7 m-0 sm:mb-2 xl:m-0 order-1 xl:col-span-1">
+    <h1 className="text-primary font-bold text-3xl/7 m-0 order-1 w-full xl:w-auto xl:grow-1">
       {props.children}
     </h1>
   );
@@ -231,7 +229,7 @@ function Stage(props: {
           </svg>
         </div>
         <div className="self-center text-neutral-700 font-semibold">
-          {props.locales.stages[stage].title}
+          {props.locales.route.content.online}
         </div>
       </div>
     );
@@ -271,9 +269,9 @@ function Stage(props: {
         </div>
         <div className="self-center text-neutral-700 flex flex-col">
           <div className=" font-semibold line-clamp-1">
-            {props.venueName !== null
+            {props.venueName !== null && props.venueName.trim() !== ""
               ? props.venueName
-              : props.locales.stages[stage].title}
+              : props.locales.route.content.onSite}
           </div>
           {props.venueStreet !== null &&
             props.venueStreetNumber !== null &&
@@ -339,7 +337,7 @@ function Stage(props: {
           <div className=" font-semibold line-clamp-1">
             {props.venueName !== null
               ? props.venueName
-              : props.locales.stages[stage].title}
+              : props.locales.route.content.hybrid}
           </div>
           {props.venueStreet !== null &&
             props.venueStreetNumber !== null &&
@@ -347,8 +345,9 @@ function Stage(props: {
             props.venueCity !== null && (
               <>
                 <div className="font-normal line-clamp-1">
-                  {props.venueStreet} {props.venueStreetNumber},{" "}
-                  {props.venueZipCode} {props.venueCity}
+                  {props.locales.stages.online.title} / {props.venueStreet}{" "}
+                  {props.venueStreetNumber}, {props.venueZipCode}{" "}
+                  {props.venueCity}
                 </div>
               </>
             )}
@@ -415,8 +414,10 @@ function FreeSeats(props: {
 
 function ButtonStates(props: { children: React.ReactNode }) {
   return (
-    <div className="flex justify-center xl:justify-end gap-2 sm:gap-4 order-last xl:order-1 mt-4 sm:mt-2 xl:m-0">
-      {props.children}
+    <div className="w-full xl:w-auto flex justify-center order-last xl:order-1">
+      <div className="flex justify-center xl:justify-end gap-2 sm:gap-4 xl:gap-2 mt-4 sm:mt-0 w-full sm:w-fit">
+        {props.children}
+      </div>
     </div>
   );
 }
