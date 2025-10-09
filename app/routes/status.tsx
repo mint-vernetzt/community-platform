@@ -1,8 +1,6 @@
 import { useLoaderData } from "react-router";
-import { invariantResponse } from "~/lib/utils/response";
 
 export const loader = async () => {
-  invariantResponse(false, "Test error", { status: 500 });
   return { message: "Server is up and running" };
 };
 
