@@ -11,11 +11,12 @@ import { languageModuleMap } from "~/locales/.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./detail.server";
 
+import { Button } from "@mint-vernetzt/components/src/molecules/Button"; // refactor?
+import { Image } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
 import EventsOverview from "~/components/next/EventsOverview";
-import Image from "~/components/next/Image";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
@@ -65,9 +66,53 @@ export async function loader(args: LoaderFunctionArgs) {
     blurredBackground = DefaultImages.Event.BlurredBackground;
   }
 
-  const enhancedEvent = { ...event, background, blurredBackground };
+  const responsibleOrganizations = event.responsibleOrganizations.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.EventDetailResponsibleOrganization
+                .Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.EventDetailResponsibleOrganization
+                .BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return {
+        ...relation.organization,
+        logo,
+        blurredLogo,
+      };
+    }
+  );
 
-  return { event: enhancedEvent, locales };
+  const enhancedEvent = {
+    ...event,
+    background,
+    blurredBackground,
+    responsibleOrganizations,
+  };
+
+  return {
+    event: enhancedEvent,
+    locales,
+    language,
+    meta: {
+      baseUrl: process.env.COMMUNITY_BASE_URL,
+    },
+  };
 }
 
 function Detail() {
@@ -88,31 +133,62 @@ function Detail() {
         </BackButton>
       )}
       <EventsOverview>
-        <div className="relative overflow-hidden h-[186px] sm:h-[400px] aspect-[31/10]">
+        <EventsOverview.ImageContainer>
           <Image
             alt={loaderData.event.name}
             src={loaderData.event.background}
             blurredSrc={loaderData.event.blurredBackground}
             resizeType="fit"
           />
-        </div>
+        </EventsOverview.ImageContainer>
         <EventsOverview.Container>
-          <div className="flex flex-col gap-2 sm:gap-4">
-            <EventsOverview.EventName>
-              {loaderData.event.name}
-            </EventsOverview.EventName>
-            <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <div className="flex flex-col gap-2 sm:gap-4 min-w-1/2">
-                <div className="">Name der Organisation</div>
-                <div className="">30. Sept. – 02. Okt. 2025</div>
-              </div>
-              <div className="flex flex-col gap-2 sm:gap-4 min-w-1/2">
-                <div className="order-last sm:order-none">7/10 Plätze frei</div>
-                <div className="">VDI - GARAGE GGMBH</div>
-              </div>
+          <EventsOverview.EventName>
+            {loaderData.event.name}
+          </EventsOverview.EventName>
+
+          <EventsOverview.InfoContainer>
+            <EventsOverview.ResponsibleOrganizations
+              organizations={loaderData.event.responsibleOrganizations}
+              locales={loaderData.locales}
+            />
+            <EventsOverview.PeriodOfTime
+              startTime={loaderData.event.startTime}
+              endTime={loaderData.event.endTime}
+              language={loaderData.language}
+            />
+            {loaderData.event.stage !== null && (
+              <EventsOverview.Stage
+                venueName={loaderData.event.venueName}
+                venueStreet={loaderData.event.venueStreet}
+                venueStreetNumber={loaderData.event.venueStreetNumber}
+                venueZipCode={loaderData.event.venueZipCode}
+                venueCity={loaderData.event.venueCity}
+                stage={
+                  loaderData.event.stage
+                    .slug as keyof typeof loaderData.locales.stages
+                }
+                locales={loaderData.locales}
+              />
+            )}
+            <EventsOverview.FreeSeats
+              participantLimit={loaderData.event.participantLimit}
+              participantsCount={loaderData.event._count.participants}
+              locales={loaderData.locales}
+            />
+          </EventsOverview.InfoContainer>
+          <EventsOverview.ButtonStates>
+            <EventsOverview.SquareButton
+              alreadyReported={false}
+              authenticated={false}
+              hasAbuseReportAccess={false}
+              locales={loaderData.locales}
+              baseUrl={loaderData.meta.baseUrl}
+            />
+
+            <div className="flex-grow sm:flex-grow-0">
+              <Button fullSize>Teilnehmen</Button>
             </div>
-          </div>
-          <div className="">Button</div>
+          </EventsOverview.ButtonStates>
         </EventsOverview.Container>
       </EventsOverview>
       <Outlet />

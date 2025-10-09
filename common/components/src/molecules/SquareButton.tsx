@@ -2,7 +2,7 @@ import classnames from "classnames";
 import { createElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
-type SquareButtonSize = "small" | "medium" | "large";
+export type SquareButtonSize = "small" | "medium" | "large";
 type SquareButtonVariant = "normal" | "outline" | "ghost";
 type SquareButtonType = "button" | "link" | "div" | "label";
 type SquareButtonLevel =

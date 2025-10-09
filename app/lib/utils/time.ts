@@ -62,8 +62,8 @@ export const getDuration = (
   const format = sameDay
     ? formatTimestamp
     : onlySameYear
-    ? formatDateShort
-    : formatDateLong;
+      ? formatDateShort
+      : formatDateLong;
   const formatter = new Intl.DateTimeFormat(language, format);
 
   const formattedString = transformParts(
@@ -136,4 +136,12 @@ export function getTimeDuration(
     .replaceAll(/\u202F/g, " ");
 
   return result.match(/^(.*)(Uhr|PM|AM)$/) ? result : `${result} Uhr`;
+}
+
+export function isSameDay(date1: Date, date2: Date) {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
 }

@@ -163,6 +163,10 @@ export const ImageSizes = {
       Logo: { width: 24, height: 24 },
       BlurredLogo: { width: 4, height: 4 },
     },
+    EventDetailResponsibleOrganization: {
+      Logo: { width: 48, height: 48 },
+      BlurredLogo: { width: 4, height: 4 },
+    },
   },
   Event: {
     Detail: {
