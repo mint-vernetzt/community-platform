@@ -12,7 +12,7 @@ function BackButton(props: {
     <Link
       to={to}
       prefetch={prefetch}
-      className="flex gap-2 text-base font-normal text-neutral-700 items-center group w-fit focus:outline-none"
+      className="flex -my-4 xl:mt-0 xl:-mb-2 gap-4 text-base font-normal text-neutral-700 items-center group w-fit focus:outline-none"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
