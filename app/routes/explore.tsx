@@ -313,7 +313,7 @@ export default function Explore() {
             </EntitiesSelect.Menu>
           </EntitiesSelect>
           <div className="hidden @lg:block w-full">
-            <Form method="get" action="/explore/all">
+            <Form method="get" action={location.pathname}>
               <Search
                 inputProps={{
                   id: "search-bar",
