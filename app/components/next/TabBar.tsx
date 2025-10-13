@@ -1,0 +1,260 @@
+import classNames from "classnames";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
+  const { active } = props;
+  return (
+    <span
+      className={`text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-fit py-0.5 px-2.5 rounded-lg${
+        active
+          ? " text-primary bg-primary-50"
+          : " text-neutral-600 bg-neutral-200"
+      }`}
+    >
+      {props.children}
+    </span>
+  );
+}
+
+type TabBarItemProps = {
+  children: React.ReactNode;
+  active?: boolean;
+};
+
+function Item(props: React.PropsWithChildren<TabBarItemProps>) {
+  const { active } = props;
+
+  const children = Children.toArray(props.children);
+  const firstNode = children[0];
+
+  const listItemClasses = classNames(
+    "h-fit",
+    "min-w-fit",
+    "relative",
+    "last:mr-6 @sm:last:mr-0",
+    active && "text-primary"
+  );
+
+  const spanClasses = classNames(
+    "mb-3 p-2 block",
+    !active &&
+      "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600"
+  );
+
+  // if first node is a string, wrap string into span
+  if (typeof firstNode === "string") {
+    return (
+      <li className={listItemClasses}>
+        <span className={spanClasses}>{firstNode}</span>
+        {active ? (
+          <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
+        ) : null}
+      </li>
+    );
+  }
+
+  // if first node is a valid react element, get first child and wrap it into span
+  if (isValidElement(firstNode)) {
+    const clone = cloneElement(firstNode as React.ReactElement);
+    const cloneChildren =
+      typeof clone.props === "object" &&
+      clone.props !== null &&
+      "children" in clone.props
+        ? Children.toArray(clone.props.children as React.ReactNode)
+        : [];
+
+    if (cloneChildren.length > 0) {
+      const firstChild = cloneChildren[0];
+      const wrappedFirstChild = (
+        <span className={spanClasses}>{firstChild}</span>
+      );
+      return (
+        <li className={listItemClasses}>
+          {cloneElement(firstNode, {}, wrappedFirstChild)}
+          {active ? (
+            <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
+          ) : null}
+        </li>
+      );
+    }
+  }
+
+  return null;
+}
+
+type TabBarProps = {
+  children: React.ReactNode;
+};
+
+function TabBar(props: TabBarProps) {
+  const children = Children.toArray(props.children);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
+  const [showScrollRight, setShowScrollRight] = useState(false);
+
+  const validChildren = children.filter((child) => {
+    return isValidElement(child) && child.type === Item;
+  });
+
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (event.currentTarget.scrollLeft > 0) {
+      setShowScrollLeft(true);
+    } else {
+      setShowScrollLeft(false);
+    }
+    if (
+      event.currentTarget.scrollWidth -
+        event.currentTarget.clientWidth -
+        event.currentTarget.scrollLeft <
+      20
+    ) {
+      setShowScrollRight(false);
+    } else {
+      setShowScrollRight(true);
+    }
+  };
+
+  const handleLeftClick = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft -= 40;
+    }
+  };
+
+  const handleRightClick = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft += 40;
+    }
+  };
+
+  // check if scroll container is scrollable on mount
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      if (
+        scrollContainerRef.current.scrollWidth >
+        scrollContainerRef.current.clientWidth
+      ) {
+        setShowScrollRight(true);
+        setShowScrollLeft(false);
+      } else {
+        setShowScrollRight(false);
+        setShowScrollLeft(false);
+      }
+    }
+  }, []);
+
+  // check if scroll container is scrollable on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (scrollContainerRef.current) {
+        if (
+          scrollContainerRef.current.scrollWidth >
+          scrollContainerRef.current.clientWidth
+        ) {
+          setShowScrollRight(true);
+        } else {
+          setShowScrollRight(false);
+        }
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
+  }, []);
+
+  const scrollClasses = classNames(
+    "transition duration-200 ease-in-out absolute top-1 h-16 flex items-end text-gray-400"
+  );
+
+  const leftScrollClasses = classNames(
+    scrollClasses,
+    "left-0 justify-start",
+    showScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+  );
+  const rightScrollClasses = classNames(
+    scrollClasses,
+    "right-0 justify-end",
+    showScrollRight
+      ? "visible opacity-100"
+      : "invisible opacity-0 pointer-events-none"
+  );
+
+  return (
+    <>
+      <div className="w-full relative">
+        <div
+          className="overflow-x-auto"
+          onScroll={handleScroll}
+          ref={scrollContainerRef}
+        >
+          <ul className="w-full border-b border-neutral-200 flex flex-nowrap gap-8 @sm:gap-14 font-semibold">
+            {validChildren}
+          </ul>
+        </div>
+        <button
+          className={leftScrollClasses}
+          onClick={handleLeftClick}
+          disabled={!showScrollLeft}
+        >
+          <span className="bg-white h-full flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fillRule="evenodd"
+                d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"
+              />
+            </svg>
+          </span>
+          <span className="h-full w-5 bg-gradient-to-r from-white" />
+        </button>
+        <button
+          className={rightScrollClasses}
+          onClick={handleRightClick}
+          disabled={!showScrollRight}
+        >
+          <span className="h-full w-5 bg-gradient-to-l from-white" />
+          <span className="bg-white h-full flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+              className="-mr-2"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"
+              />
+            </svg>
+          </span>
+        </button>
+      </div>
+    </>
+  );
+}
+
+TabBar.Item = Item;
+TabBar.Counter = Counter;
+
+export { TabBar };
