@@ -1,8 +1,10 @@
 import {
+  Link,
   type LoaderFunctionArgs,
   Outlet,
   redirect,
   useLoaderData,
+  useLocation,
 } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
@@ -20,6 +22,7 @@ import EventsOverview from "~/components/next/EventsOverview";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
+import TabBar from "~/components/next/TabBar";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -117,12 +120,17 @@ export async function loader(args: LoaderFunctionArgs) {
 
 function Detail() {
   const loaderData = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const { pathname } = location;
 
   return (
     <BasicStructure>
       {loaderData.event.parentEvent !== null ? (
         <BreadCrump>
-          <BreadCrump.Link to={`/event/${loaderData.event.parentEvent.slug}`}>
+          <BreadCrump.Link
+            to={`/next/event/${loaderData.event.parentEvent.slug}/detail/about`}
+            prefetch="intent"
+          >
             {loaderData.event.parentEvent.name}
           </BreadCrump.Link>
           <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
@@ -133,14 +141,11 @@ function Detail() {
         </BackButton>
       )}
       <EventsOverview>
-        <EventsOverview.ImageContainer>
-          <Image
-            alt={loaderData.event.name}
-            src={loaderData.event.background}
-            blurredSrc={loaderData.event.blurredBackground}
-            resizeType="fit"
-          />
-        </EventsOverview.ImageContainer>
+        <EventsOverview.Image
+          alt={loaderData.event.name}
+          src={loaderData.event.background}
+          blurredSrc={loaderData.event.blurredBackground}
+        />
         <EventsOverview.Container>
           <EventsOverview.EventName>
             {loaderData.event.name}
@@ -185,13 +190,56 @@ function Detail() {
               baseUrl={loaderData.meta.baseUrl}
             />
 
-            <div className="flex-grow sm:flex-grow-0">
+            <div className="flex-grow md:flex-grow-0">
               <Button fullSize>Teilnehmen</Button>
             </div>
           </EventsOverview.ButtonStates>
         </EventsOverview.Container>
       </EventsOverview>
-      <Outlet />
+      <BasicStructure.Container>
+        <TabBar>
+          <TabBar.Item active={pathname.endsWith("/about")}>
+            <Link to="./about" preventScrollReset>
+              <TabBar.Item.Title>
+                {loaderData.locales.route.content.details}
+              </TabBar.Item.Title>
+            </Link>
+          </TabBar.Item>
+          {loaderData.event._count.participants > 0 && (
+            <TabBar.Item active={pathname.endsWith("/participants")}>
+              <Link
+                to="./participants"
+                preventScrollReset
+                {...TabBar.getItemElementsContainerClasses()}
+              >
+                <TabBar.Item.Title>
+                  {loaderData.locales.route.content.participants}
+                </TabBar.Item.Title>
+                <TabBar.Item.Counter>
+                  {loaderData.event._count.participants}
+                </TabBar.Item.Counter>
+              </Link>
+            </TabBar.Item>
+          )}
+          {loaderData.event._count.childEvents > 0 && (
+            <TabBar.Item active={pathname.endsWith("/child-events")}>
+              <Link
+                to="./child-events"
+                preventScrollReset
+                {...TabBar.getItemElementsContainerClasses()}
+              >
+                <TabBar.Item.Title>
+                  {loaderData.locales.route.content.childEvents}
+                </TabBar.Item.Title>
+                <TabBar.Item.Counter>
+                  {loaderData.event._count.childEvents}
+                </TabBar.Item.Counter>
+              </Link>
+            </TabBar.Item>
+          )}
+        </TabBar>
+        <Outlet />
+      </BasicStructure.Container>
     </BasicStructure>
   );
 }

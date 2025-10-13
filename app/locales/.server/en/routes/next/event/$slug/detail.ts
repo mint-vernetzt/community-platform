@@ -10,5 +10,8 @@ export const locale = {
     onSite: "on site",
     online: "Online Event",
     hybrid: "Hybrid Event",
+    details: "Event details",
+    participants: "Participants",
+    childEvents: "Child events",
   },
 } as const;

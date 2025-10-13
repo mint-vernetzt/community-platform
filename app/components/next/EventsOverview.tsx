@@ -7,16 +7,22 @@ import { OverlayMenu } from "./OverlayMenu"; // refactor?
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { useLocation } from "react-router";
 import { useEffect, useState } from "react";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
+import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
+import classNames from "classnames";
 
 function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col">{props.children}</div>;
 }
 
-function ImageContainer(props: { children: React.ReactNode }) {
+function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
   return (
-    <div className="relative h-[186px] sm:h-[400px] aspect-[31/10] border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
-      {props.children}
+    <div className="relative h-[186px] md:h-[400px] aspect-[31/10] border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
+      <ImageComponent
+        alt={props.alt}
+        src={props.src}
+        blurredSrc={props.blurredSrc}
+        resizeType="fit"
+      />
     </div>
   );
 }
@@ -24,14 +30,14 @@ function ImageContainer(props: { children: React.ReactNode }) {
 function Container(props: { children: React.ReactNode }) {
   return (
     <div className="p-6 bg-white border-x border-b border-neutral-200 rounded-b-2xl">
-      <div className="flex flex-wrap gap-2 sm:gap-6">{props.children}</div>
+      <div className="flex flex-wrap gap-2 md:gap-6">{props.children}</div>
     </div>
   );
 }
 
 function InfoContainer(props: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 order-2 xl:order-last w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 order-2 xl:order-last w-full">
       {props.children}
     </div>
   );
@@ -61,8 +67,9 @@ function ResponsibleOrganizations(props: {
   if (organizations.length === 0) {
     return null;
   }
+
   return (
-    <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg">
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
       <div className="flex gap-1">
         <div className="flex -space-x-2">
           {organizations.slice(0, 2).map((organization, index) => {
@@ -114,7 +121,7 @@ function PeriodOfTime(props: {
   const timeDuration = getTimeDuration(startTime, endTime, props.language);
 
   return (
-    <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg order-2">
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg order-2">
       <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
         <div className="relative w-6 h-6 text-neutral-700">
           <svg
@@ -211,10 +218,20 @@ function Stage(props: {
     return null;
   }
 
+  const containerClasses = classNames(
+    "flex gap-4 align-center py-4 md:px-4",
+    "border-0 md:border border-neutral-200 rounded-lg",
+    "order-3 md:order-last"
+  );
+
+  const iconClasses = classNames(
+    "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700"
+  );
+
   if (stage === "online") {
     return (
-      <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg order-3 sm:order-last">
-        <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
+      <div className={containerClasses}>
+        <div className={iconClasses}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -237,8 +254,8 @@ function Stage(props: {
 
   if (stage === "on-site") {
     return (
-      <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg order-3 sm:order-last">
-        <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
+      <div className={containerClasses}>
+        <div className={iconClasses}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -291,8 +308,8 @@ function Stage(props: {
 
   if (stage === "hybrid") {
     return (
-      <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg order-3 sm:order-last">
-        <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 gap-[0.0625rem]">
+      <div className={containerClasses}>
+        <div className={`${iconClasses} gap-[0.0625rem]`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -369,7 +386,7 @@ function FreeSeats(props: {
   const { participantLimit, participantsCount, locales } = props;
 
   return (
-    <div className="flex gap-4 align-center py-4 sm:px-4 border-0 sm:border border-neutral-200 rounded-lg">
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
       <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -415,7 +432,7 @@ function FreeSeats(props: {
 function ButtonStates(props: { children: React.ReactNode }) {
   return (
     <div className="w-full xl:w-auto flex justify-center order-last xl:order-1">
-      <div className="flex justify-center xl:justify-end gap-2 sm:gap-4 xl:gap-2 mt-4 sm:mt-0 w-full sm:w-fit">
+      <div className="flex justify-center xl:justify-end gap-2 md:gap-4 xl:gap-2 mt-4 md:mt-0 w-full md:w-fit">
         {props.children}
       </div>
     </div>
@@ -498,7 +515,7 @@ EventsOverview.PeriodOfTime = PeriodOfTime;
 EventsOverview.ResponsibleOrganizations = ResponsibleOrganizations;
 EventsOverview.EventName = EventName;
 EventsOverview.InfoContainer = InfoContainer;
-EventsOverview.ImageContainer = ImageContainer;
+EventsOverview.Image = Image;
 EventsOverview.Container = Container;
 
 export default EventsOverview;

@@ -43,6 +43,7 @@ export async function getEventBySlug(slug: string) {
       _count: {
         select: {
           participants: true,
+          childEvents: true,
         },
       },
     },

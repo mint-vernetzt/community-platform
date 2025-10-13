@@ -2,92 +2,88 @@ import classNames from "classnames";
 import {
   Children,
   cloneElement,
+  createContext,
   isValidElement,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
 
+const TabBarItemContext = createContext<{ active: boolean }>({ active: false });
+
+function useTabBarItemContext() {
+  const context = useContext(TabBarItemContext);
+  if (typeof context === "undefined") {
+    throw new Error("TabBar.Item must be used within a TabBar");
+  }
+  return context;
+}
+
 function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
-  const { active } = props;
+  const { active } = useTabBarItemContext();
   return (
     <span
-      className={`text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-fit py-0.5 px-2.5 rounded-lg${
+      className={classNames(
+        "text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6 py-0.5 px-1.5 rounded-lg",
         active
-          ? " text-primary bg-primary-50"
-          : " text-neutral-600 bg-neutral-200"
-      }`}
+          ? "text-primary bg-primary-50"
+          : "text-neutral-600 bg-neutral-200"
+      )}
     >
       {props.children}
     </span>
   );
 }
 
-type TabBarItemProps = {
-  children: React.ReactNode;
-  active?: boolean;
-};
-
-function Item(props: React.PropsWithChildren<TabBarItemProps>) {
-  const { active } = props;
-
-  const children = Children.toArray(props.children);
-  const firstNode = children[0];
-
-  const listItemClasses = classNames(
-    "h-fit",
-    "min-w-fit",
-    "relative",
-    "last:mr-6 @sm:last:mr-0",
-    active && "text-primary"
+function Title(props: React.PropsWithChildren<{ id?: string }>) {
+  const { children, ...otherProps } = props;
+  const { active } = useTabBarItemContext();
+  return (
+    <h2
+      className={classNames("text-lg font-semibold text-neutral mb-0", {
+        "text-primary": active,
+      })}
+      {...otherProps}
+    >
+      {children}
+    </h2>
   );
+}
 
-  const spanClasses = classNames(
-    "mb-3 p-2 block",
-    !active &&
-      "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600"
-  );
+function Item(props: { children: React.ReactNode; active?: boolean }) {
+  const { active = false } = props;
 
-  // if first node is a string, wrap string into span
-  if (typeof firstNode === "string") {
-    return (
-      <li className={listItemClasses}>
-        <span className={spanClasses}>{firstNode}</span>
+  return (
+    <TabBarItemContext value={{ active }}>
+      <li
+        className={classNames(
+          "h-fit",
+          "min-w-fit",
+          "relative",
+          "last:mr-6",
+          "md:last:mr-0",
+          { "text-primary": active }
+        )}
+      >
+        <span
+          className={classNames("mb-3", "p-2", "block", {
+            "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600":
+              active === false,
+          })}
+        >
+          {props.children}
+        </span>
         {active ? (
           <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
         ) : null}
       </li>
-    );
-  }
-
-  // if first node is a valid react element, get first child and wrap it into span
-  if (isValidElement(firstNode)) {
-    const clone = cloneElement(firstNode as React.ReactElement);
-    const cloneChildren =
-      typeof clone.props === "object" &&
-      clone.props !== null &&
-      "children" in clone.props
-        ? Children.toArray(clone.props.children as React.ReactNode)
-        : [];
-
-    if (cloneChildren.length > 0) {
-      const firstChild = cloneChildren[0];
-      const wrappedFirstChild = (
-        <span className={spanClasses}>{firstChild}</span>
-      );
-      return (
-        <li className={listItemClasses}>
-          {cloneElement(firstNode, {}, wrappedFirstChild)}
-          {active ? (
-            <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
-          ) : null}
-        </li>
-      );
-    }
-  }
-
-  return null;
+    </TabBarItemContext>
+  );
 }
+
+Item.Title = Title;
+Item.Counter = Counter;
 
 type TabBarProps = {
   children: React.ReactNode;
@@ -254,7 +250,11 @@ function TabBar(props: TabBarProps) {
   );
 }
 
-TabBar.Item = Item;
-TabBar.Counter = Counter;
+function getItemElementsContainerClasses() {
+  return { className: "flex gap-2 items-center" };
+}
 
-export { TabBar };
+TabBar.Item = Item;
+TabBar.getItemElementsContainerClasses = getItemElementsContainerClasses;
+
+export default TabBar;

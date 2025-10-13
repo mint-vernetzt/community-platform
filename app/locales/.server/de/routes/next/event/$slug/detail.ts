@@ -10,5 +10,8 @@ export const locale = {
     onSite: "Vor Ort",
     online: "Online Event",
     hybrid: "Hybrides Event",
+    details: "Veranstaltungsdetails",
+    participants: "Teilnehmer:innen",
+    childEvents: "Zugehörige Veranstaltungen",
   },
 } as const;
