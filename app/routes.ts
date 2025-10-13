@@ -362,6 +362,14 @@ export default [
       "/next/event/:slug/detail/about",
       "./routes/next/event/$slug/detail/about.tsx"
     ),
+    route(
+      "/next/event/:slug/detail/participants",
+      "./routes/next/event/$slug/detail/participants.tsx"
+    ),
+    route(
+      "/next/event/:slug/detail/child-events",
+      "./routes/next/event/$slug/detail/child-events.tsx"
+    ),
   ]),
   route("/auth/confirm", "./routes/auth/confirm.tsx"),
   route("/auth/keycloak", "./routes/auth/keycloak.tsx"),
