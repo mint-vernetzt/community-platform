@@ -14,9 +14,7 @@ function OverlayMenu(
   const { children, searchParam, size = "small" } = props;
   const childrenArray = Children.toArray(children);
   const listItems = childrenArray.filter(
-    (child) =>
-      isValidElement(child) &&
-      (child.type === ListItem || child.type === Divider)
+    (child) => isValidElement(child) && child.type !== HiddenItem
   );
   const hiddenItems = childrenArray.filter(
     (child) => isValidElement(child) && child.type === HiddenItem

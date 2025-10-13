@@ -61,8 +61,7 @@ function SquareButton(
     size === "medium" && "h-10 w-10 text-sm leading-5",
     size === "large" && "h-12 w-12 text-base leading-[22px]",
     // button border
-    variant === "outline" && size !== "large" && "border",
-    variant === "outline" && size === "large" && "border-2",
+    variant === "outline" && "border",
     // button full size
     fullSize && "w-full aspect-square",
     // button primary disabled

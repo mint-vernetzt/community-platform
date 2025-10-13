@@ -14,15 +14,14 @@ import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./detail.server";
 
 import { Button } from "@mint-vernetzt/components/src/molecules/Button"; // refactor?
-import { Image } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
 import EventsOverview from "~/components/next/EventsOverview";
+import TabBar from "~/components/next/TabBar";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
-import TabBar from "~/components/next/TabBar";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -183,12 +182,13 @@ function Detail() {
           </EventsOverview.InfoContainer>
           <EventsOverview.ButtonStates>
             <EventsOverview.SquareButton
-              alreadyReported={false}
-              authenticated={false}
-              hasAbuseReportAccess={false}
-              locales={loaderData.locales}
               baseUrl={loaderData.meta.baseUrl}
-            />
+              overlayMenuId="event-overview-more"
+            >
+              <EventsOverview.SquareButton.CopyURLToClipboard // naming?
+                locales={loaderData.locales.route.content}
+              />
+            </EventsOverview.SquareButton>
 
             <div className="flex-grow md:flex-grow-0">
               <Button fullSize>Teilnehmen</Button>
