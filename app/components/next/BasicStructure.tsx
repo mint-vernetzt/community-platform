@@ -8,7 +8,7 @@ function BasicStructure(props: { children: React.ReactNode }) {
 
 function Container(props: { children: React.ReactNode }) {
   return (
-    <div className="xl:p-6 bg-white xl:border border-neutral-200 rounded-2xl">
+    <div className="md:p-6 bg-white md:border border-neutral-200 rounded-2xl">
       {props.children}
     </div>
   );
