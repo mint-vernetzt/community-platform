@@ -1,12 +1,13 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
-  redirect,
 } from "react-router";
 import {
   createAuthClient,
@@ -15,12 +16,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -33,12 +35,7 @@ import {
   addSpeakerSchema,
   type action as addSpeakerAction,
 } from "./speakers/add-speaker";
-import {
-  removeSpeakerSchema,
-  type action as removeSpeakerAction,
-} from "./speakers/remove-speaker";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { languageModuleMap } from "~/locales/.server";
+import { type action as removeSpeakerAction } from "./speakers/remove-speaker";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -243,43 +240,39 @@ function Speakers() {
                 ) : null}
               </div>
 
-              <RemixFormsForm
-                schema={removeSpeakerSchema}
-                fetcher={removeSpeakerFetcher}
+              <removeSpeakerFetcher.Form
+                method="post"
                 action={`/event/${slug}/settings/speakers/remove-speaker`}
                 className="ml-auto"
               >
-                {(remixFormsProps) => {
-                  const { Button, Errors } = remixFormsProps;
-                  return (
-                    <>
-                      <Errors />
-                      <input
-                        name="profileId"
-                        defaultValue={profile.id}
-                        hidden
-                      />
-                      <Button
-                        className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-                        title={locales.route.content.current.remove}
-                      >
-                        <svg
-                          viewBox="0 0 10 10"
-                          width="10px"
-                          height="10px"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </Button>
-                    </>
-                  );
-                }}
-              </RemixFormsForm>
+                <input name="profileId" defaultValue={profile.id} hidden />
+                <button
+                  type="submit"
+                  className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
+                  title={locales.route.content.current.remove}
+                >
+                  <svg
+                    viewBox="0 0 10 10"
+                    width="10px"
+                    height="10px"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </button>
+                {typeof removeSpeakerFetcher.data !== "undefined" &&
+                removeSpeakerFetcher.data !== null &&
+                removeSpeakerFetcher.data.success === false ? (
+                  <div className={`p-4 bg-red-200 rounded-md mt-4`}>
+                    {removeSpeakerFetcher.data.errors._global?.join(", ")}
+                    {removeSpeakerFetcher.data.errors.profileId?.join(", ")}
+                  </div>
+                ) : null}
+              </removeSpeakerFetcher.Form>
             </div>
           );
         })}

@@ -1,15 +1,16 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { InputError, makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useActionData,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
-  redirect,
 } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -23,10 +24,11 @@ import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -43,12 +45,7 @@ import {
   type action as addParticipantAction,
   addParticipantSchema,
 } from "./participants/add-participant";
-import {
-  type action as removeParticipantAction,
-  removeParticipantSchema,
-} from "./participants/remove-participant";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { languageModuleMap } from "~/locales/.server";
+import { type action as removeParticipantAction } from "./participants/remove-participant";
 
 const createParticipantLimitSchema = (locales: EventParticipantsLocales) => {
   return z.object({
@@ -415,43 +412,39 @@ function Participants() {
                   </p>
                 ) : null}
               </div>
-              <RemixFormsForm
-                schema={removeParticipantSchema}
-                fetcher={removeParticipantFetcher}
+              <removeParticipantFetcher.Form
+                method="post"
                 action={`/event/${slug}/settings/participants/remove-participant`}
                 className="ml-auto"
               >
-                {(remixFormsProps) => {
-                  const { Button, Errors } = remixFormsProps;
-                  return (
-                    <>
-                      <Errors />
-                      <input
-                        name="profileId"
-                        defaultValue={participant.id}
-                        hidden
-                      />
-                      <Button
-                        className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-                        title={locales.route.content.current.remove}
-                      >
-                        <svg
-                          viewBox="0 0 10 10"
-                          width="10px"
-                          height="10px"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </Button>
-                    </>
-                  );
-                }}
-              </RemixFormsForm>
+                <input name="profileId" defaultValue={participant.id} hidden />
+                <button
+                  type="submit"
+                  className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
+                  title={locales.route.content.current.remove}
+                >
+                  <svg
+                    viewBox="0 0 10 10"
+                    width="10px"
+                    height="10px"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </button>
+                {typeof removeParticipantFetcher.data !== "undefined" &&
+                removeParticipantFetcher.data !== null &&
+                removeParticipantFetcher.data.success === false ? (
+                  <div className={`p-4 bg-red-200 rounded-md mt-4`}>
+                    {removeParticipantFetcher.data.errors._global?.join(", ")}
+                    {removeParticipantFetcher.data.errors.profileId?.join(", ")}
+                  </div>
+                ) : null}
+              </removeParticipantFetcher.Form>
             </div>
           );
         })}

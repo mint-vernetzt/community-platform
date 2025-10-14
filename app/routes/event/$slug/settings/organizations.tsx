@@ -2,12 +2,12 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
-  redirect,
 } from "react-router";
 import {
   createAuthClient,
@@ -16,12 +16,13 @@ import {
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
 import { H3 } from "~/components/Heading/Heading";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -35,11 +36,7 @@ import {
   type action as addOrganizationAction,
   addOrganizationSchema,
 } from "./organizations/add-organization";
-import {
-  type action as removeOrganizationAction,
-  removeOrganizationSchema,
-} from "./organizations/remove-organization";
-import { languageModuleMap } from "~/locales/.server";
+import { type action as removeOrganizationAction } from "./organizations/remove-organization";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -321,33 +318,37 @@ function Organizations() {
                         </p>
                       ) : null}
                     </div>
-                    <RemixFormsForm
-                      schema={addOrganizationSchema}
-                      fetcher={addOrganizationFetcher}
+                    <addOrganizationFetcher.Form
+                      method="post"
                       action={`/event/${slug}/settings/organizations/add-organization`}
                       className="ml-auto"
                     >
-                      {(remixFormsProps) => {
-                        const { Errors } = remixFormsProps;
-                        return (
-                          <>
-                            <Errors />
-                            <input
-                              name="organizationId"
-                              defaultValue={organization.id}
-                              hidden
-                            />
-                            <button
-                              className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
-                              title="Hinzufügen"
-                              type="submit"
-                            >
-                              {locales.route.content.own.label}
-                            </button>
-                          </>
-                        );
-                      }}
-                    </RemixFormsForm>
+                      <input
+                        name="organizationId"
+                        defaultValue={organization.id}
+                        hidden
+                      />
+                      <button
+                        className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
+                        title="Hinzufügen"
+                        type="submit"
+                      >
+                        {locales.route.content.own.label}
+                      </button>
+                      {typeof addOrganizationFetcher.data !== "undefined" &&
+                      addOrganizationFetcher.data !== null &&
+                      "success" in addOrganizationFetcher.data &&
+                      addOrganizationFetcher.data.success === false ? (
+                        <div className={`p-4 bg-red-200 rounded-md mt-4`}>
+                          {addOrganizationFetcher.data.errors._global?.join(
+                            ", "
+                          )}
+                          {addOrganizationFetcher.data.errors.organizationId?.join(
+                            ", "
+                          )}
+                        </div>
+                      ) : null}
+                    </addOrganizationFetcher.Form>
                   </li>
                 );
               })}
@@ -420,43 +421,47 @@ function Organizations() {
                     </p>
                   ) : null}
                 </div>
-                <RemixFormsForm
-                  schema={removeOrganizationSchema}
-                  fetcher={removeOrganizationFetcher}
+                <removeOrganizationFetcher.Form
+                  method="post"
                   action={`/event/${slug}/settings/organizations/remove-organization`}
                   className="ml-auto"
                 >
-                  {(remixFormsProps) => {
-                    const { Button, Errors } = remixFormsProps;
-                    return (
-                      <>
-                        <Errors />
-                        <input
-                          name="organizationId"
-                          defaultValue={organization.id}
-                          hidden
-                        />
-                        <Button
-                          className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-                          title={locales.route.content.current.remove}
-                        >
-                          <svg
-                            viewBox="0 0 10 10"
-                            width="10px"
-                            height="10px"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                              fill="currentColor"
-                            />
-                          </svg>
-                        </Button>
-                      </>
-                    );
-                  }}
-                </RemixFormsForm>
+                  <input
+                    name="organizationId"
+                    defaultValue={organization.id}
+                    hidden
+                  />
+                  <button
+                    type="submit"
+                    className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
+                    title={locales.route.content.current.remove}
+                  >
+                    <svg
+                      viewBox="0 0 10 10"
+                      width="10px"
+                      height="10px"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </button>
+                  {typeof removeOrganizationFetcher.data !== "undefined" &&
+                  removeOrganizationFetcher.data !== null &&
+                  removeOrganizationFetcher.data.success === false ? (
+                    <div className={`p-4 bg-red-200 rounded-md mt-4`}>
+                      {removeOrganizationFetcher.data.errors._global?.join(
+                        ", "
+                      )}
+                      {removeOrganizationFetcher.data.errors.organizationId?.join(
+                        ", "
+                      )}
+                    </div>
+                  ) : null}
+                </removeOrganizationFetcher.Form>
               </li>
             );
           })}
