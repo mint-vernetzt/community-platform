@@ -1,5 +1,6 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { InputError, makeDomainFunction } from "domain-functions";
+import { makeDomainFunction } from "domain-functions";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Link,
@@ -182,10 +183,7 @@ const createMutation = (locales: EventParticipantsLocales) => {
   )(async (values, environment) => {
     if (values.participantLimit !== null) {
       if (environment.participantsCount > values.participantLimit) {
-        throw new InputError(
-          locales.route.error.inputError,
-          "participantLimit"
-        );
+        throw locales.route.error.inputError;
       }
     }
     return values;
@@ -235,6 +233,10 @@ function Participants() {
 
   const participantLimitSchema = createParticipantLimitSchema(locales);
 
+  const [currentParticipantLimit, setCurrentParticipantLimit] = useState<
+    number | null
+  >(loaderData.participantLimit || null);
+
   return (
     <>
       <h1 className="mb-8">{locales.route.content.headline}</h1>
@@ -243,24 +245,33 @@ function Participants() {
         {locales.route.content.limit.headline}
       </h4>
       <p className="mb-8">{locales.route.content.limit.intro}</p>
-      <RemixFormsForm schema={participantLimitSchema}>
-        {({ Field, Button, register }) => {
+      <RemixFormsForm method="post" schema={participantLimitSchema}>
+        {({ Field, Button, register, Errors }) => {
           return (
             <>
               <Field name="participantLimit" className="mb-4">
-                {({ Errors }) => (
+                {() => (
                   <>
                     <InputText
                       {...register("participantLimit")}
                       id="participantLimit"
                       label={locales.route.content.limit.label}
-                      defaultValue={loaderData.participantLimit || undefined}
-                      type="number"
+                      value={currentParticipantLimit || ""}
+                      type="text"
+                      onChange={(e) => {
+                        if (e.currentTarget.value === "") {
+                          setCurrentParticipantLimit(null);
+                          return;
+                        }
+                        setCurrentParticipantLimit(
+                          parseInt(e.currentTarget.value)
+                        );
+                      }}
                     />
-                    <Errors />
                   </>
                 )}
               </Field>
+              <Errors />
               <div className="flex flex-row">
                 <Button
                   type="submit"
