@@ -1,4 +1,4 @@
-import { InputError, makeDomainFunction } from "domain-functions";
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData, useParams } from "react-router";
 import { performMutation } from "remix-forms";
@@ -72,7 +72,7 @@ const createMutation = (locales: DeleteEventLocales) => {
     environmentSchema
   )(async (values, environment) => {
     if (values.eventName !== environment.eventName) {
-      throw new InputError(locales.error.input, "eventName");
+      throw locales.error.input;
     }
     try {
       await deleteEventBySlug(environment.eventSlug);
@@ -158,15 +158,12 @@ function Delete() {
         {({ Field, Errors, register }) => (
           <>
             <Field name="eventName" className="mb-4">
-              {({ Errors }) => (
-                <>
-                  <Input
-                    id="eventName"
-                    label={locales.form.eventName.label}
-                    {...register("eventName")}
-                  />
-                  <Errors />
-                </>
+              {() => (
+                <Input
+                  id="eventName"
+                  label={locales.form.eventName.label}
+                  {...register("eventName")}
+                />
               )}
             </Field>
             <button

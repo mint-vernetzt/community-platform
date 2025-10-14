@@ -1,5 +1,5 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -9,9 +9,9 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type AddChildEventLocales } from "./add-child.server";
 import { addChildEventRelationOrThrow, getEventBySlug } from "./utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
@@ -42,7 +42,7 @@ const createMutation = (locales: AddChildEventLocales) => {
     const eventStartTime = new Date(event.startTime).getTime();
     const eventEndTime = new Date(event.endTime).getTime();
     if (childStartTime < eventStartTime || childEndTime > eventEndTime) {
-      throw new InputError(locales.error.inputError, "childEventId");
+      throw locales.error.inputError;
     }
     return { ...values, childEventName: childEvent.name };
   });

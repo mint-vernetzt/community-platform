@@ -243,19 +243,16 @@ function Events() {
 
               <div className="flex flex-row">
                 <Field name="parentEventId" className="flex-auto">
-                  {({ Errors }) => (
-                    <>
-                      <Errors />
-                      <Autocomplete
-                        suggestions={loaderData.parentEventSuggestions || []}
-                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
-                        defaultValue={parentEventSuggestionsQuery || ""}
-                        {...register("parentEventId")}
-                        searchParameter="parent_autocomplete_query"
-                        locales={locales}
-                        currentLanguage={language}
-                      />
-                    </>
+                  {() => (
+                    <Autocomplete
+                      suggestions={loaderData.parentEventSuggestions || []}
+                      suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                      defaultValue={parentEventSuggestionsQuery || ""}
+                      {...register("parentEventId")}
+                      searchParameter="parent_autocomplete_query"
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   )}
                 </Field>
                 <div className="ml-2">
@@ -297,7 +294,7 @@ function Events() {
                 parentEventStartTime !== undefined &&
                 parentEventEndTime !== undefined
               ) {
-                const { Button } = remixFormsProps;
+                const { Button, Errors } = remixFormsProps;
                 let stageTitle;
                 if (loaderData.parentEvent.stage === null) {
                   stageTitle = null;
@@ -412,6 +409,7 @@ function Events() {
                         />
                       </svg>
                     </Button>
+                    <Errors />
                   </div>
                 );
               } else {
@@ -458,19 +456,16 @@ function Events() {
 
               <div className="flex flex-row">
                 <Field name="childEventId" className="flex-auto">
-                  {({ Errors }) => (
-                    <>
-                      <Autocomplete
-                        suggestions={loaderData.childEventSuggestions || []}
-                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
-                        defaultValue={childEventSuggestionsQuery || ""}
-                        {...register("childEventId")}
-                        searchParameter="child_autocomplete_query"
-                        locales={locales}
-                        currentLanguage={language}
-                      />
-                      <Errors />
-                    </>
+                  {() => (
+                    <Autocomplete
+                      suggestions={loaderData.childEventSuggestions || []}
+                      suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                      defaultValue={childEventSuggestionsQuery || ""}
+                      {...register("childEventId")}
+                      searchParameter="child_autocomplete_query"
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   )}
                 </Field>
                 <div className="ml-2">

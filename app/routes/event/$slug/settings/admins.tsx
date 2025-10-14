@@ -170,19 +170,16 @@ function Admins() {
 
                 <div className="flex flex-row">
                   <Field name="profileId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.adminSuggestions || []}
-                          suggestionsLoaderPath={`/event/${slug}/settings/admins`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("profileId")}
-                          searchParameter="autocomplete_query"
-                          locales={loaderData.locales}
-                          currentLanguage={loaderData.language}
-                        />
-                      </>
+                    {() => (
+                      <Autocomplete
+                        suggestions={loaderData.adminSuggestions || []}
+                        suggestionsLoaderPath={`/event/${slug}/settings/admins`}
+                        defaultValue={suggestionsQuery || ""}
+                        {...register("profileId")}
+                        searchParameter="autocomplete_query"
+                        locales={loaderData.locales}
+                        currentLanguage={loaderData.language}
+                      />
                     )}
                   </Field>
                   <div className="ml-2">

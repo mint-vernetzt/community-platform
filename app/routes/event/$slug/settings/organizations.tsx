@@ -216,21 +216,18 @@ function Organizations() {
 
                 <div className="flex flex-row">
                   <Field name="organizationId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={
-                            loaderData.responsibleOrganizationSuggestions || []
-                          }
-                          suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("organizationId")}
-                          searchParameter="autocomplete_query"
-                          locales={locales}
-                          currentLanguage={language}
-                        />
-                      </>
+                    {() => (
+                      <Autocomplete
+                        suggestions={
+                          loaderData.responsibleOrganizationSuggestions || []
+                        }
+                        suggestionsLoaderPath={`/event/${slug}/settings/organizations`}
+                        defaultValue={suggestionsQuery || ""}
+                        {...register("organizationId")}
+                        searchParameter="autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language}
+                      />
                     )}
                   </Field>
                   <div className="ml-2">

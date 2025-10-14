@@ -166,19 +166,16 @@ function Speakers() {
 
                 <div className="flex flex-row">
                   <Field name="profileId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.speakerSuggestions || []}
-                          suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("profileId")}
-                          searchParameter="autocomplete_query"
-                          locales={locales}
-                          currentLanguage={language}
-                        />
-                      </>
+                    {() => (
+                      <Autocomplete
+                        suggestions={loaderData.speakerSuggestions || []}
+                        suggestionsLoaderPath={`/event/${slug}/settings/speakers`}
+                        defaultValue={suggestionsQuery || ""}
+                        {...register("profileId")}
+                        searchParameter="autocomplete_query"
+                        locales={locales}
+                        currentLanguage={language}
+                      />
                     )}
                   </Field>
                   <div className="ml-2">

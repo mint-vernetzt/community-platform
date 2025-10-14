@@ -307,7 +307,7 @@ function Participants() {
             });
           }}
         >
-          {({ Field, Button, register }) => {
+          {({ Field, Button, register, Errors }) => {
             return (
               <>
                 <div className="flex flex-col gap-2 w-full">
@@ -325,21 +325,16 @@ function Participants() {
 
                   <div className="flex flex-row">
                     <Field name="profileId" className="flex-auto">
-                      {({ Errors }) => (
-                        <>
-                          <Errors />
-                          <Autocomplete
-                            suggestions={
-                              loaderData.participantSuggestions || []
-                            }
-                            suggestionsLoaderPath={`/event/${slug}/settings/participants`}
-                            defaultValue={suggestionsQuery || ""}
-                            {...register("profileId")}
-                            searchParameter="autocomplete_query"
-                            locales={locales}
-                            currentLanguage={language}
-                          />
-                        </>
+                      {() => (
+                        <Autocomplete
+                          suggestions={loaderData.participantSuggestions || []}
+                          suggestionsLoaderPath={`/event/${slug}/settings/participants`}
+                          defaultValue={suggestionsQuery || ""}
+                          {...register("profileId")}
+                          searchParameter="autocomplete_query"
+                          locales={locales}
+                          currentLanguage={language}
+                        />
                       )}
                     </Field>
                     <div className="ml-2">
@@ -347,6 +342,7 @@ function Participants() {
                         +
                       </Button>
                     </div>
+                    <Errors />
                   </div>
                 </div>
               </>

@@ -1,15 +1,15 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getOrganizationById } from "../utils.server";
 import { type AddResponsibleOrganizationToEventLocales } from "./add-organization.server";
 import { connectOrganizationToEvent, getEventBySlug } from "./utils.server";
@@ -31,7 +31,7 @@ const createMutation = (locales: AddResponsibleOrganizationToEventLocales) => {
   )(async (values, environment) => {
     const organization = await getOrganizationById(values.organizationId);
     if (organization === null) {
-      throw new InputError(locales.error.notFound, "organizationId");
+      throw locales.error.notFound;
     }
     const alreadyResponsible = organization.responsibleForEvents.some(
       (entry) => {
@@ -39,7 +39,7 @@ const createMutation = (locales: AddResponsibleOrganizationToEventLocales) => {
       }
     );
     if (alreadyResponsible) {
-      throw new InputError(locales.error.inputError, "organizationId");
+      throw locales.error.inputError;
     }
     return { ...values, name: organization.name };
   });
