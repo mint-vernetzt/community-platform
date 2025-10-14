@@ -33,7 +33,7 @@ import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getFullDepthProfiles } from "../utils.server";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import {
   type EventParticipantsLocales,
   getEventBySlug,
@@ -228,7 +228,6 @@ function Participants() {
   const { locales, language } = loaderData;
   const addParticipantFetcher = useFetcher<typeof addParticipantAction>();
   const removeParticipantFetcher = useFetcher<typeof removeParticipantAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -454,7 +453,7 @@ function Participants() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

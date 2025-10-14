@@ -33,7 +33,7 @@ import {
   type action as addAdminAction,
 } from "./admins/add-admin";
 import { type action as removeAdminAction } from "./admins/remove-admin";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { publishSchema } from "./events/publish";
 
 const i18nNS = ["routes-event-settings-admins"] as const;
 export const handle = {
@@ -126,7 +126,6 @@ function Admins() {
   const loaderData = useLoaderData<typeof loader>();
   const addAdminFetcher = useFetcher<typeof addAdminAction>();
   const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -298,7 +297,7 @@ function Admins() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

@@ -26,7 +26,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getSpeakerProfileDataFromEvent,
@@ -124,7 +124,6 @@ function Speakers() {
 
   const addSpeakerFetcher = useFetcher<typeof addSpeakerAction>();
   const removeSpeakerFetcher = useFetcher<typeof removeSpeakerAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -282,7 +281,7 @@ function Speakers() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

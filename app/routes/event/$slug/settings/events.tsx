@@ -1,25 +1,31 @@
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { utcToZonedTime } from "date-fns-tz";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
-  redirect,
 } from "react-router";
-import { utcToZonedTime } from "date-fns-tz";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./events.server";
@@ -27,7 +33,7 @@ import {
   type action as addChildAction,
   addChildSchema,
 } from "./events/add-child";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import {
   type action as removeChildAction,
   removeChildSchema,
@@ -40,12 +46,6 @@ import {
   getChildEventSuggestions,
   getParentEventSuggestions,
 } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -183,7 +183,6 @@ function Events() {
   const setParentFetcher = useFetcher<typeof setParentAction>();
   const addChildFetcher = useFetcher<typeof addChildAction>();
   const removeChildFetcher = useFetcher<typeof removeChildAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
   if (loaderData.parentEvent !== null) {
@@ -646,7 +645,7 @@ function Events() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

@@ -26,7 +26,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import {
   getEventBySlug,
   getOwnOrganizationsSuggestions,
@@ -174,7 +174,6 @@ function Organizations() {
   const addOrganizationFetcher = useFetcher<typeof addOrganizationAction>();
   const removeOrganizationFetcher =
     useFetcher<typeof removeOrganizationAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -472,7 +471,7 @@ function Organizations() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {
