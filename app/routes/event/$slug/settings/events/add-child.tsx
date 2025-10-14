@@ -11,7 +11,11 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type AddChildEventLocales } from "./add-child.server";
-import { addChildEventRelationOrThrow, getEventBySlug } from "./utils.server";
+import {
+  addChildEventRelationOrThrow,
+  getEventById,
+  getEventBySlug,
+} from "./utils.server";
 
 // TODO: Validate start and end time
 const schema = z.object({
@@ -33,7 +37,7 @@ const createMutation = (locales: AddChildEventLocales) => {
     if (event === null) {
       throw locales.error.notFound.parent;
     }
-    const childEvent = await getEventBySlug(values.childEventId);
+    const childEvent = await getEventById(values.childEventId);
     if (childEvent === null) {
       throw locales.error.notFound.related;
     }

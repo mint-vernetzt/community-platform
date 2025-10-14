@@ -11,6 +11,7 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type SetEventParentLocales } from "./set-parent.server";
 import {
+  getEventById,
   getEventBySlug,
   updateParentEventRelationOrThrow,
 } from "./utils.server";
@@ -36,7 +37,7 @@ const createMutation = (locales: SetEventParentLocales) => {
     }
     let parentEventName;
     if (values.parentEventId !== undefined) {
-      const parentEvent = await getEventBySlug(values.parentEventId);
+      const parentEvent = await getEventById(values.parentEventId);
       if (parentEvent === null) {
         throw locales.error.notFound.parent;
       }

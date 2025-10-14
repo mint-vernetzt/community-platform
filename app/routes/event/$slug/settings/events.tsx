@@ -107,8 +107,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
         background = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Event.ListItem.BlurredBackground.width,
-            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+            width: ImageSizes.Event.ListItem.Background.width,
+            height: ImageSizes.Event.ListItem.Background.height,
           },
         });
         blurredBackground = getImageURL(publicURL, {
@@ -610,8 +610,20 @@ function Events() {
                           hidden
                         />
                         <Button
+                          type="submit"
                           className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
                           title={locales.route.form.remove.label}
+                          onClick={() => {
+                            if (removeChildFetcher.state === "idle") {
+                              removeChildFetcher.submit(
+                                { childEventId: childEvent.id },
+                                {
+                                  method: "post",
+                                  action: `/event/${slug}/settings/events/remove-child`,
+                                }
+                              );
+                            }
+                          }}
                         >
                           <svg
                             viewBox="0 0 10 10"
