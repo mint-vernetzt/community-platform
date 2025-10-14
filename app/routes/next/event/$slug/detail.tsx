@@ -22,6 +22,8 @@ import TabBar from "~/components/next/TabBar";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
+import { utcToZonedTime } from "date-fns-tz";
+import { formatDateTime } from "./index.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -100,8 +102,29 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   );
 
+  const now = utcToZonedTime(new Date(), "Europe/Berlin");
+
+  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const participationFrom = utcToZonedTime(
+    event.participationFrom,
+    "Europe/Berlin"
+  );
+  const participationUntil = utcToZonedTime(
+    event.participationUntil,
+    "Europe/Berlin"
+  );
+
+  const beforeParticipationPeriod = now < participationFrom;
+  const afterParticipationPeriod = now > participationUntil;
+  const inPast = now > endTime;
+
   const enhancedEvent = {
     ...event,
+    startTime,
+    endTime,
+    participationFrom,
+    participationUntil,
     background,
     blurredBackground,
     responsibleOrganizations,
@@ -114,6 +137,9 @@ export async function loader(args: LoaderFunctionArgs) {
     meta: {
       baseUrl: process.env.COMMUNITY_BASE_URL,
     },
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
   };
 }
 
@@ -145,6 +171,25 @@ function Detail() {
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
+        {loaderData.beforeParticipationPeriod && (
+          <EventsOverview.State>
+            {formatDateTime(
+              loaderData.event.participationFrom,
+              loaderData.language,
+              loaderData.locales.route.content.beforeParticipationPeriod
+            )}
+          </EventsOverview.State>
+        )}
+        {loaderData.afterParticipationPeriod && loaderData.inPast === false && (
+          <EventsOverview.State>
+            {loaderData.locales.route.content.afterParticipationPeriod}
+          </EventsOverview.State>
+        )}
+        {loaderData.inPast && (
+          <EventsOverview.State tint="neutral">
+            {loaderData.locales.route.content.inPast}
+          </EventsOverview.State>
+        )}
         <EventsOverview.Container>
           <EventsOverview.EventName>
             {loaderData.event.name}

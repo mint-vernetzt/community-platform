@@ -13,5 +13,9 @@ export const locale = {
     details: "Event details",
     participants: "Participants",
     childEvents: "Child events",
+    inPast: "Event has already taken place",
+    beforeParticipationPeriod:
+      "Registration period starts on {{date}} at {{time}}",
+    afterParticipationPeriod: "Registration period has ended.",
   },
 } as const;

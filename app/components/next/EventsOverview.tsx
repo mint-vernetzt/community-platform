@@ -429,6 +429,21 @@ function FreeSeats(props: {
   );
 }
 
+function State(props: {
+  children: React.ReactNode;
+  tint?: "neutral" | "primary";
+}) {
+  const { tint = "primary" } = props;
+
+  const classes = classNames(
+    "w-full border-x border-neutral-200 h-10 flex items-center justify-center px-4 text-xs font-semibold tracking-[0.0225rem] line-clamp-1",
+    tint === "neutral" && "bg-neutral-100 text-neutral-700",
+    tint === "primary" && "bg-primary-50 text-primary-500"
+  );
+
+  return <div className={classes}>{props.children}</div>;
+}
+
 function ButtonStates(props: { children: React.ReactNode }) {
   return (
     <div className="w-full xl:w-auto flex justify-center order-last xl:order-1">
@@ -534,6 +549,7 @@ function CopyURLToClipboard(props: {
 
 SquareButton.CopyURLToClipboard = CopyURLToClipboard;
 
+EventsOverview.State = State;
 EventsOverview.SquareButton = SquareButton;
 EventsOverview.ButtonStates = ButtonStates;
 EventsOverview.FreeSeats = FreeSeats;

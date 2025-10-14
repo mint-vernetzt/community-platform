@@ -13,5 +13,9 @@ export const locale = {
     details: "Veranstaltungsdetails",
     participants: "Teilnehmer:innen",
     childEvents: "Zugehörige Veranstaltungen",
+    inPast: "Event hat bereits stattgefunden",
+    beforeParticipationPeriod:
+      "Anmeldefrist beginnt am {{date}} um {{time}} Uhr",
+    afterParticipationPeriod: "Anmeldefrist abgelaufen.",
   },
 } as const;
