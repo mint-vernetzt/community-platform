@@ -1,16 +1,17 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type SetEventParentLocales } from "./set-parent.server";
 import {
+  getEventById,
   getEventBySlug,
   updateParentEventRelationOrThrow,
 } from "./utils.server";
@@ -36,7 +37,7 @@ const createMutation = (locales: SetEventParentLocales) => {
     }
     let parentEventName;
     if (values.parentEventId !== undefined) {
-      const parentEvent = await getEventBySlug(values.parentEventId);
+      const parentEvent = await getEventById(values.parentEventId);
       if (parentEvent === null) {
         throw locales.error.notFound.parent;
       }
@@ -45,7 +46,7 @@ const createMutation = (locales: SetEventParentLocales) => {
       const eventStartTime = new Date(event.startTime).getTime();
       const eventEndTime = new Date(event.endTime).getTime();
       if (parentStartTime > eventStartTime || parentEndTime < eventEndTime) {
-        throw new InputError(locales.error.notInTime, "parentEventId");
+        throw locales.error.notInTime;
       }
       parentEventName = parentEvent.name;
     }

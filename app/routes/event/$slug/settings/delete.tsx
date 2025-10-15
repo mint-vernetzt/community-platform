@@ -1,12 +1,6 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useParams,
-  redirect,
-} from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
+import { Link, redirect, useLoaderData, useParams } from "react-router";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {
@@ -16,21 +10,21 @@ import {
 } from "~/auth.server";
 import Input from "~/components/FormElements/Input/Input";
 import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { deriveEventMode } from "../../utils.server";
 import {
-  type DeleteEventLocales,
   getEventBySlug,
   getEventBySlugForAction,
   getProfileById,
+  type DeleteEventLocales,
 } from "./delete.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import { deleteEventBySlug } from "./utils.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
   eventName: z.string().trim().optional(),
@@ -78,7 +72,7 @@ const createMutation = (locales: DeleteEventLocales) => {
     environmentSchema
   )(async (values, environment) => {
     if (values.eventName !== environment.eventName) {
-      throw new InputError(locales.error.input, "eventName");
+      throw locales.error.input;
     }
     try {
       await deleteEventBySlug(environment.eventSlug);
@@ -127,7 +121,6 @@ function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
   const { slug } = useParams();
-  const publishFetcher = useFetcher<typeof publishAction>();
 
   return (
     <>
@@ -165,15 +158,12 @@ function Delete() {
         {({ Field, Errors, register }) => (
           <>
             <Field name="eventName" className="mb-4">
-              {({ Errors }) => (
-                <>
-                  <Input
-                    id="eventName"
-                    label={locales.form.eventName.label}
-                    {...register("eventName")}
-                  />
-                  <Errors />
-                </>
+              {() => (
+                <Input
+                  id="eventName"
+                  label={locales.form.eventName.label}
+                  {...register("eventName")}
+                />
               )}
             </Field>
             <button
@@ -191,7 +181,7 @@ function Delete() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {
