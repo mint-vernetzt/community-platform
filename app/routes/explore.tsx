@@ -4,6 +4,7 @@ import {
   type LoaderFunctionArgs,
   Outlet,
   useLoaderData,
+  useLocation,
   useSearchParams,
 } from "react-router";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -180,6 +181,7 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const links = [
     {
