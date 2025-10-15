@@ -1,5 +1,6 @@
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import { useEffect } from "react";
@@ -27,18 +28,22 @@ import {
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
 import { getAlert } from "./alert.server";
+import "./app.css";
 import { createAuthClient, getSessionUser, signOut } from "./auth.server";
 import { LoginOrRegisterCTA } from "./components-next/LoginOrRegisterCTA";
 import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
-import { H1, H2 } from "./components/Heading/Heading";
 import { RichText } from "./components/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "./images.server";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "./lib/utils/i18n";
 import { invariantResponse } from "./lib/utils/response";
 import { languageModuleMap } from "./locales/.server";
 import { useNonce } from "./nonce-provider";
@@ -48,14 +53,13 @@ import {
   getProfileByUserId,
   getTagsBySearchQuery,
 } from "./root.server";
-import { getPublicURL } from "./storage.server";
-import { getToast } from "./toast.server";
-import { combineHeaders, deriveMode } from "./utils.server";
 import {
   viewCookie,
   viewCookieSchema,
 } from "./routes/explore/organizations.server";
-import "./app.css";
+import { getPublicURL } from "./storage.server";
+import { getToast } from "./toast.server";
+import { combineHeaders, deriveMode } from "./utils.server";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { data } = args;
@@ -280,6 +284,7 @@ export const ErrorBoundary = () => {
   const error = useRouteError();
   const isResponse = isRouteErrorResponse(error);
   const nonce = useNonce();
+  const location = useLocation();
 
   if (typeof document !== "undefined") {
     console.error(error);
@@ -387,33 +392,98 @@ export const ErrorBoundary = () => {
           />
           <main className="w-full h-full @md:bg-neutral-50">
             {/* Content */}
-            <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
-              <H1 like="h0">{errorTitle}</H1>
-              <H2 like="h1">Sorry, something went wrong!</H2>
-              <p>
-                Please capture a screenshot and send it over to{" "}
-                <StyledLink
-                  as="link"
-                  to="mailto:support@mint-vernetzt.de"
-                  variant="primary"
-                >
-                  support@mint-vernetzt.de
-                </StyledLink>
-                . We will do our best to help you with this issue.
-              </p>
+            <section className="mx-auto @lg:px-6 max-w-screen-2xl mb-8 @lg:mb-16">
+              <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
+                {hasRootLoaderData
+                  ? rootLoaderData.locales.route.root.errorBoundary.title
+                  : DEFAULT_LANGUAGE === "de"
+                    ? "Tut uns leid, etwas ist schiefgelaufen..."
+                    : "We're sorry, something went wrong..."}
+              </h1>
+              <div className="w-full flex justify-center mb-8 px-4">
+                <p className="text-left @sm:text-center text-neutral-700">
+                  {insertComponentsIntoLocale(
+                    insertParametersIntoLocale(
+                      hasRootLoaderData
+                        ? rootLoaderData.locales.route.root.errorBoundary
+                            .message
+                        : DEFAULT_LANGUAGE === "de"
+                          ? "Es würde uns freuen, wenn Du uns über eine E-Mail an <0>{{supportMail}}</0> über den Fehler informierst. Vielen Dank!"
+                          : "We would appreciate it if you could inform us about the error via email at <0>{{supportMail}}</0>. Thank you!",
+                      {
+                        supportMail: ENV.SUPPORT_MAIL,
+                      }
+                    ),
+                    [
+                      <TextButton
+                        key="supportMail"
+                        as="link"
+                        to={`mailto:${ENV.SUPPORT_MAIL}`}
+                        className="inline"
+                      />,
+                    ]
+                  )}
+                </p>
+              </div>
+              <div className="w-full flex flex-col items-center">
+                <div className="fixed @sm:static bottom-0 w-full @sm:w-fit grid grid-cols-2 grid-rows-1 @sm:flex @sm:justify-center mb-8 px-4 gap-4">
+                  <Button
+                    variant="outline"
+                    as="link"
+                    to={
+                      hasRootLoaderData &&
+                      typeof rootLoaderData.sessionUserInfo !== "undefined"
+                        ? "/dashboard"
+                        : "/"
+                    }
+                    fullSize
+                    prefetch="intent"
+                  >
+                    {hasRootLoaderData &&
+                    typeof rootLoaderData.sessionUserInfo !== "undefined"
+                      ? rootLoaderData.locales.route.root.errorBoundary
+                          .secondaryCta.toDashboard
+                      : hasRootLoaderData
+                        ? rootLoaderData.locales.route.root.errorBoundary
+                            .secondaryCta.toLandingPage
+                        : DEFAULT_LANGUAGE === "de"
+                          ? "Zur Startseite"
+                          : "To the landing page"}
+                  </Button>
+                  <Button
+                    fullSize
+                    as="link"
+                    to={`${location.pathname}${location.search}${location.hash}`}
+                    reloadDocument
+                    prefetch="intent"
+                  >
+                    {hasRootLoaderData
+                      ? rootLoaderData.locales.route.root.errorBoundary
+                          .primaryCta
+                      : DEFAULT_LANGUAGE === "de"
+                        ? "Seite neu laden"
+                        : "Reload the page"}
+                  </Button>
+                </div>
+                <div className="py-6 px-4 @lg:px-6 flex flex-col gap-4 @sm:border border-neutral-200 @sm:bg-white rounded-2xl w-full @sm:w-fit @sm:max-w-96">
+                  <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                    {hasRootLoaderData
+                      ? rootLoaderData.locales.route.root.errorBoundary
+                          .errorDetails.headline
+                      : DEFAULT_LANGUAGE === "de"
+                        ? "Details zur Fehlermeldung"
+                        : "Error Details"}
+                  </h2>
+                  <p>{errorTitle}</p>
+                  {typeof errorText !== "undefined" && errorText !== "" ? (
+                    <p>{errorText}</p>
+                  ) : null}
+                  {typeof errorData !== "undefined" && errorData !== "" ? (
+                    <p>{errorData}</p>
+                  ) : null}
+                </div>
+              </div>
             </section>
-            {errorText !== undefined ? (
-              <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
-                <p>Error Text:</p>
-                {errorText}
-              </section>
-            ) : null}
-            {errorData !== undefined ? (
-              <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 md:mt-10 lg:mt-20 text-center">
-                <p>Error Data:</p>
-                {errorData}
-              </section>
-            ) : null}
           </main>
         </div>
         <script
