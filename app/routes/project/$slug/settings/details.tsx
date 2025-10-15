@@ -1433,6 +1433,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.ideaRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
 
@@ -1454,6 +1455,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.goalsRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
 
@@ -1477,6 +1479,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.implementationRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
 
@@ -1502,6 +1505,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.furtherDescriptionRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
 
@@ -1523,6 +1527,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.targetingRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
 
@@ -1544,6 +1549,7 @@ function Details() {
               rte={{
                 locales: locales,
                 defaultValue: fields.hintsRTEState.initialValue,
+                isFormDirty: form.dirty,
               }}
             />
           </div>

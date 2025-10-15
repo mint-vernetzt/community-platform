@@ -9,6 +9,7 @@ function InputForFormPlugin(
     legacyFormRegister?: UseFormRegisterReturn<
       "bioRTEState" | "descriptionRTEState"
     >;
+    isFormDirty?: boolean;
   }
 ) {
   const {
@@ -16,6 +17,7 @@ function InputForFormPlugin(
     htmlDefaultValue,
     rteStateDefaultValue,
     contentEditableRef,
+    isFormDirty,
     ...rest
   } = props;
   const [editor] = useLexicalComposerContext();
@@ -28,23 +30,26 @@ function InputForFormPlugin(
   const [editorStateInitialized, setEditorStateInitialized] = useState(false);
 
   useEffect(() => {
-    // First init the editor state
-    editor.update(
-      () => {
-        if (typeof rteStateDefaultValue === "string") {
-          const editorState = editor.parseEditorState(rteStateDefaultValue);
-          if (editorState.isEmpty() === false) {
-            editor.setEditorState(editorState);
+    if (isFormDirty === false || typeof isFormDirty === "undefined") {
+      setEditorStateInitialized(true);
+      // First init the editor state
+      editor.update(
+        () => {
+          if (typeof rteStateDefaultValue === "string") {
+            const editorState = editor.parseEditorState(rteStateDefaultValue);
+            if (editorState.isEmpty() === false) {
+              editor.setEditorState(editorState);
+            }
           }
+          setEditorStateInitialized(true);
+        },
+        {
+          discrete: true,
         }
-        setEditorStateInitialized(true);
-      },
-      {
-        discrete: true,
-      }
-    );
+      );
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isFormDirty]);
 
   useEffect(() => {
     if (editorStateInitialized === false) {

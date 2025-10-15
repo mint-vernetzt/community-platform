@@ -62,6 +62,7 @@ function RTE(
     legacyFormRegister?: UseFormRegisterReturn<
       "bioRTEState" | "descriptionRTEState"
     >;
+    isFormDirty?: boolean;
   }
 ) {
   const {
@@ -71,6 +72,7 @@ function RTE(
     maxLength,
     locales,
     legacyFormRegister,
+    isFormDirty,
     ...rest
   } = props;
 
@@ -169,6 +171,7 @@ function RTE(
               htmlDefaultValue={htmlDefaultValue}
               rteStateDefaultValue={rteStateDefaultValue}
               contentEditableRef={contentEditableRef}
+              isFormDirty={isFormDirty}
             />
             <HistoryPlugin />
             <LinkPlugin
