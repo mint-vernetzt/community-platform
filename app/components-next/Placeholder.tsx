@@ -17,7 +17,7 @@ export function Placeholder(props: { children: React.ReactNode }) {
   });
 
   return (
-    <div className="relative flex flex-col gap-6 h-[320px] p-6 border border-secondary-50 rounded-2xl bg-secondary-50 justify-center overflow-hidden">
+    <div className="relative flex flex-col gap-6 h-[320px] p-6 border border-secondary-50 rounded-lg @sm:rounded-2xl bg-secondary-50 justify-center overflow-hidden">
       <div className="absolute text-secondary-300 -bottom-8 @md:bottom-0 -left-16 @md:left-0">
         <svg
           width="288"

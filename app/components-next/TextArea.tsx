@@ -19,6 +19,7 @@ export interface TextAreaProps {
     legacyFormRegister?: UseFormRegisterReturn<
       "bioRTEState" | "descriptionRTEState"
     >;
+    isFormDirty?: boolean;
   };
   helperText?: string;
 }
@@ -118,6 +119,7 @@ const TextArea = (
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                     legacyFormRegister={rte.legacyFormRegister}
+                    isFormDirty={rte.isFormDirty}
                   />
                   <noscript className="absolute top-10 w-full">
                     <textarea

@@ -1,4 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -39,5 +39,5 @@ export const action = async (args: ActionFunctionArgs) => {
   if (result.success === true) {
     await cancelEvent(slug, result.data.cancel);
   }
-  return { ...result };
+  return redirect(`/event/${slug}`);
 };

@@ -773,6 +773,7 @@ function General() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.bioRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
               <div className="min-w-[44px] pt-[32px]">

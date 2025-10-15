@@ -1,15 +1,15 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getProfileById } from "../utils.server";
 import { type AddEventSpeakerLocales } from "./add-speaker.server";
 import { connectSpeakerProfileToEvent, getEventBySlug } from "./utils.server";
@@ -31,13 +31,13 @@ const createMutation = (locales: AddEventSpeakerLocales) => {
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw locales.error.inputError.doesNotExist;
     }
     const alreadySpeaker = profile.contributedEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadySpeaker) {
-      throw new InputError(locales.error.inputError.alreadyIn, "profileId");
+      throw locales.error.inputError.alreadyIn;
     }
     return {
       ...values,

@@ -1,11 +1,24 @@
 import classNames from "classnames";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { NavLink, useLocation } from "react-router";
 
 const EntitiesSelectMenuItemContext = createContext<Pick<
   DropDownMenuItemProps,
   "pathname" | "disabled"
 > | null>(null);
+
+const EntitiesSelectContext = createContext<{
+  menuRef: React.RefObject<HTMLMenuElement | null>;
+} | null>(null);
+
+function useMenuRef() {
+  const context = useContext(EntitiesSelectContext);
+  if (context === null) {
+    throw new Error("useMenuRef must be used within a EntitiesSelectContext");
+  }
+  const { menuRef } = context;
+  return menuRef;
+}
 
 function useIsActive() {
   const context = useContext(EntitiesSelectMenuItemContext);
@@ -78,7 +91,7 @@ function EntitiesSelectDropdownItem(props: DropDownMenuItemProps) {
     isActive === false
       ? `${
           typeof isDropdownLabel === "undefined" || isDropdownLabel === false
-            ? "hover:bg-primary-50 @lg:hover:bg-transparent @lg:focus-within:bg-primary-100 @lg:focus-within:bg-transparent"
+            ? "hover:bg-primary-50"
             : ""
         }`
       : `p-2 @lg:p-0 ${
@@ -152,9 +165,30 @@ function EntitiesSelectLabel(props: React.PropsWithChildren) {
     setIsOpen(false);
   }, [location.pathname]);
 
+  const menuRef = useMenuRef();
+  const labelRef = useRef<HTMLLabelElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        labelRef.current !== null &&
+        labelRef.current.contains(target) === false &&
+        menuRef.current !== null &&
+        menuRef.current.contains(target) === false
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef, labelRef]);
+
   return (
     <div className="group/dropdown-label">
-      <label className={classes}>
+      <label ref={labelRef} className={classes}>
         {props.children}
         <input
           type="checkbox"
@@ -198,13 +232,25 @@ function EntitiesSelectDropdown(props: React.PropsWithChildren) {
     "border rounded-lg border-neutral-200 @lg:rounded-lg @lg:border-0"
   );
 
-  return <menu className={classes}>{props.children}</menu>;
+  const menuRef = useMenuRef();
+
+  return (
+    <menu ref={menuRef} className={classes}>
+      {props.children}
+    </menu>
+  );
 }
 
 function EntitiesSelect(props: React.PropsWithChildren) {
   const classes = classNames("relative group peer", "w-full @lg:max-w-fit");
 
-  return <div className={classes}>{props.children}</div>;
+  const menuRef = useRef<HTMLMenuElement | null>(null);
+
+  return (
+    <EntitiesSelectContext.Provider value={{ menuRef }}>
+      <div className={classes}>{props.children}</div>
+    </EntitiesSelectContext.Provider>
+  );
 }
 
 EntitiesSelect.Menu = EntitiesSelectDropdown;

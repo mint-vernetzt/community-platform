@@ -605,6 +605,7 @@ function Requirements() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.timeframeRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
             </div>
@@ -632,6 +633,7 @@ function Requirements() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.jobFillingsRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
 
@@ -656,6 +658,7 @@ function Requirements() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.furtherJobFillingsRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
             </div>
@@ -802,6 +805,7 @@ function Requirements() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.furtherFinancingsRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
             </div>
@@ -831,6 +835,7 @@ function Requirements() {
                   locales: locales,
                   defaultValue:
                     fields.technicalRequirementsRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
 
@@ -855,6 +860,7 @@ function Requirements() {
                   locales: locales,
                   defaultValue:
                     fields.furtherTechnicalRequirementsRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
             </div>
@@ -882,6 +888,7 @@ function Requirements() {
                 rte={{
                   locales: locales,
                   defaultValue: fields.roomSituationRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
 
@@ -905,6 +912,7 @@ function Requirements() {
                   locales: locales,
                   defaultValue:
                     fields.furtherRoomSituationRTEState.initialValue,
+                  isFormDirty: form.dirty,
                 }}
               />
             </div>

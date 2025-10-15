@@ -66,8 +66,8 @@ export function MainMenu(
         {locales !== undefined
           ? locales.route.root.skipMainMenu.start
           : DEFAULT_LANGUAGE === "de"
-          ? "Hauptmenü überspringen"
-          : "Skip main menu"}
+            ? "Hauptmenü überspringen"
+            : "Skip main menu"}
       </a>
       <Link
         to={mode !== "anon" ? "/dashboard" : "/"}
@@ -77,14 +77,14 @@ export function MainMenu(
             ? mode === "anon"
               ? locales.route.root.toLandingPage
               : mode === "authenticated"
-              ? locales.route.root.toDashboard
-              : DEFAULT_LANGUAGE === "de" && mode === "anon"
-              ? "Zur Startseite"
-              : DEFAULT_LANGUAGE === "de" && mode !== "anon"
-              ? "Zum Dashboard"
-              : mode === "anon"
-              ? "To the start page"
-              : "To the dashboard"
+                ? locales.route.root.toDashboard
+                : DEFAULT_LANGUAGE === "de" && mode === "anon"
+                  ? "Zur Startseite"
+                  : DEFAULT_LANGUAGE === "de" && mode !== "anon"
+                    ? "Zum Dashboard"
+                    : mode === "anon"
+                      ? "To the start page"
+                      : "To the dashboard"
             : ""
         }
         prefetch="intent"
@@ -103,16 +103,16 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.login
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Anmelden"
-                  : "Login"}
+                    ? "Anmelden"
+                    : "Login"}
               </Button>
             </div>
             <div className="hidden sm:block font-semibold text-primary-500">
               {locales !== undefined
                 ? locales.route.root.or
                 : DEFAULT_LANGUAGE === "de"
-                ? "oder"
-                : "or"}
+                  ? "oder"
+                  : "or"}
             </div>
             <div>
               <Button
@@ -124,8 +124,8 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.register
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Registrieren"
-                  : "Register"}
+                    ? "Registrieren"
+                    : "Register"}
               </Button>
             </div>
           </div>
@@ -155,8 +155,8 @@ export function MainMenu(
                     {locales !== undefined
                       ? locales.route.root.menu.overview
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Überblick"
-                      : "Overview"}
+                        ? "Überblick"
+                        : "Overview"}
                   </div>
                 </Item>
 
@@ -183,8 +183,8 @@ export function MainMenu(
                       {locales !== undefined
                         ? locales.route.root.menu.personalSpace.label
                         : DEFAULT_LANGUAGE === "de"
-                        ? "Mein MINT-Bereich"
-                        : "My space"}
+                          ? "Mein MINT-Bereich"
+                          : "My space"}
                     </div>
                   </Label>
 
@@ -192,32 +192,32 @@ export function MainMenu(
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myProfile
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Mein Profil"
-                      : "My profile"}
+                        ? "Mein Profil"
+                        : "My profile"}
                   </TopicItem>
 
                   <TopicItem to={`/my/organizations`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myOrganizations
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Meine Organisationen"
-                      : "My organizations"}
+                        ? "Meine Organisationen"
+                        : "My organizations"}
                   </TopicItem>
 
                   <TopicItem to={`/my/events`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myEvents
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Meine Events"
-                      : "My events"}
+                        ? "Meine Events"
+                        : "My events"}
                   </TopicItem>
 
                   <TopicItem to={`/my/projects`} prefetch="intent">
                     {locales !== undefined
                       ? locales.route.root.menu.personalSpace.myProjects
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Meine Projekte"
-                      : "My projects"}
+                        ? "Meine Projekte"
+                        : "My projects"}
                   </TopicItem>
                 </Topic>
               </>
@@ -236,8 +236,8 @@ export function MainMenu(
                   {locales !== undefined
                     ? locales.route.root.menu.explore.label
                     : DEFAULT_LANGUAGE === "de"
-                    ? "Entdecken"
-                    : "Explore"}
+                      ? "Entdecken"
+                      : "Explore"}
                 </div>
               </Label>
 
@@ -245,16 +245,16 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.menu.explore.index
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Alle Inhalte"
-                  : "All content"}
+                    ? "Alle Inhalte"
+                    : "All content"}
               </TopicItem>
 
               <TopicItem to="/explore/profiles" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.profiles
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Personen"
-                  : "Persons"}
+                    ? "Personen"
+                    : "Persons"}
               </TopicItem>
 
               <TopicItem
@@ -264,32 +264,32 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.menu.explore.organizations
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Organisationen"
-                  : "Organizations"}
+                    ? "Organisationen"
+                    : "Organizations"}
               </TopicItem>
 
               <TopicItem to="/explore/projects" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.projects
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Projekte"
-                  : "Projects"}
+                    ? "Projekte"
+                    : "Projects"}
               </TopicItem>
 
               <TopicItem to="/explore/events" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.events
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Events"
-                  : "Events"}
+                    ? "Events"
+                    : "Events"}
               </TopicItem>
 
               <TopicItem to="/explore/fundings" prefetch="intent">
                 {locales !== undefined
                   ? locales.route.root.menu.explore.fundings
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Förderungen"
-                  : "Fundings"}
+                    ? "Förderungen"
+                    : "Fundings"}
               </TopicItem>
             </Topic>
 
@@ -309,8 +309,8 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.menu.resources.label
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Ressourcen"
-                  : "Resources"}
+                    ? "Ressourcen"
+                    : "Resources"}
               </div>
             </Item>
           </TopMenu>
@@ -341,8 +341,8 @@ export function MainMenu(
                 {locales !== undefined
                   ? locales.route.root.menu.help
                   : DEFAULT_LANGUAGE === "de"
-                  ? "Hilfe"
-                  : "Help"}
+                    ? "Hilfe"
+                    : "Help"}
               </div>
             </Item>
 
@@ -366,8 +366,8 @@ export function MainMenu(
                     {locales !== undefined
                       ? locales.route.root.menu.settings
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Einstellungen"
-                      : "Settings"}
+                        ? "Einstellungen"
+                        : "Settings"}
                   </div>
                 </Item>
 
@@ -383,8 +383,8 @@ export function MainMenu(
                     {locales !== undefined
                       ? locales.route.root.menu.logout
                       : DEFAULT_LANGUAGE === "de"
-                      ? "Ausloggen"
-                      : "Logout"}
+                        ? "Ausloggen"
+                        : "Logout"}
                   </div>
                 </Item>
               </>
@@ -403,8 +403,8 @@ export function MainMenu(
               {locales !== undefined
                 ? locales.route.root.menu.imprint
                 : DEFAULT_LANGUAGE === "de"
-                ? "Impressum"
-                : "Imprint"}
+                  ? "Impressum"
+                  : "Imprint"}
             </NavLink>
             <Link
               className="hover:underline"
@@ -415,8 +415,8 @@ export function MainMenu(
               {locales !== undefined
                 ? locales.route.root.menu.privacy
                 : DEFAULT_LANGUAGE === "de"
-                ? "Datenschutz"
-                : "Privacy policy"}
+                  ? "Datenschutz"
+                  : "Privacy policy"}
             </Link>
             <Link
               className="hover:underline"
@@ -427,8 +427,8 @@ export function MainMenu(
               {locales !== undefined
                 ? locales.route.root.menu.terms
                 : DEFAULT_LANGUAGE === "de"
-                ? "Nutzungsbedingungen"
-                : "Terms of use"}
+                  ? "Nutzungsbedingungen"
+                  : "Terms of use"}
             </Link>
             <NavLink
               className={({ isActive }) =>
@@ -440,8 +440,8 @@ export function MainMenu(
               {locales !== undefined
                 ? locales.route.root.menu.accessibilityStatement
                 : DEFAULT_LANGUAGE === "de"
-                ? "Barrierefreiheit"
-                : "Accessibility"}
+                  ? "Barrierefreiheit"
+                  : "Accessibility"}
             </NavLink>
           </FooterMenu>
         </div>
@@ -454,8 +454,8 @@ export function MainMenu(
         {locales !== undefined
           ? locales.route.root.skipMainMenu.end
           : DEFAULT_LANGUAGE === "de"
-          ? "Zurück zum Anfang des Hauptmenüs"
-          : "Back to the start of the main menu"}
+            ? "Zurück zum Anfang des Hauptmenüs"
+            : "Back to the start of the main menu"}
       </a>
     </nav>
   );
@@ -544,7 +544,7 @@ function Item(
         }}
         form={linkOrFormProps.action}
         type="submit"
-        className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-lg hover:bg-blue-50 hover:text-primary-500"
+        className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-sm hover:bg-blue-50 hover:text-primary-500"
         disabled={isSubmitting}
       >
         {childs}
@@ -557,7 +557,7 @@ function Item(
       }}
       className={({ isActive, isPending, isTransitioning }) => {
         const baseClasses =
-          "flex items-center gap-2.5 w-full cursor-pointer px-2 py-4 rounded-lg";
+          "flex items-center gap-2.5 w-full cursor-pointer px-2 py-4 rounded-sm";
         if (isActive || isPending || isTransitioning) {
           return `${baseClasses} bg-blue-50 text-primary-500`;
         }
@@ -607,7 +607,7 @@ function Topic(
           }
         }}
       />
-      <span className="peer-[:focus]:text-primary-500 peer-[:focus]:border-blue-500 border-2 border-transparent rounded-lg">
+      <span className="peer-[:focus]:text-primary-500 peer-[:focus]:border-blue-500 border-2 border-transparent rounded-sm">
         {label}
       </span>
       <div className="hidden group-has-[:checked]:block">{topicItems}</div>
@@ -619,7 +619,7 @@ function Label(props: React.PropsWithChildren) {
   const children = Children.toArray(props.children);
 
   return (
-    <div className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-lg hover:bg-blue-50 hover:text-primary-500">
+    <div className="flex items-center gap-2 w-full cursor-pointer px-2 py-4 rounded-sm hover:bg-blue-50 hover:text-primary-500">
       <div className="flex items-center gap-2 grow group-has-[:checked]:text-primary-500">
         {children}
       </div>
@@ -690,8 +690,8 @@ function Closer(props: { openMainMenuKey: string; locales?: RootLocales }) {
         props.locales !== undefined
           ? props.locales.route.root.menu.close
           : DEFAULT_LANGUAGE === "de"
-          ? "Hauptmenü schließen"
-          : "Close main menu"
+            ? "Hauptmenü schließen"
+            : "Close main menu"
       }
     >
       <Icon type="close-x" aria-hidden="true" />

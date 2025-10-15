@@ -10,7 +10,6 @@ import {
   Link,
   redirect,
   useActionData,
-  useFetcher,
   useLoaderData,
   useNavigation,
   useParams,
@@ -48,7 +47,7 @@ import {
   uploadFile,
   type EventDocumentsSettingsLocales,
 } from "./documents.server";
-import { publishSchema, type action as publishAction } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
 
 export const createDocumentUploadSchema = (
@@ -204,7 +203,6 @@ function Documents() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const [searchParams] = useSearchParams();
-  const publishFetcher = useFetcher<typeof publishAction>();
 
   // Document upload form
   const [selectedDocumentFileNames, setSelectedDocumentFileNames] = useState<
@@ -565,7 +563,7 @@ function Documents() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

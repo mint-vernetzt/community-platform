@@ -39,7 +39,7 @@ type MapOrganization = ListOrganization &
     }[];
   };
 
-export function Map(props: {
+export function MapView(props: {
   organizations: Array<MapOrganization>;
   locales: MapLocales | ExploreOrganizationsLocales;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
@@ -171,8 +171,8 @@ export function Map(props: {
         "slug" in event
           ? event.slug
           : typeof event.features !== "undefined"
-          ? (event.features[0].properties.id as string)
-          : null;
+            ? (event.features[0].properties.id as string)
+            : null;
       if (slug === null) {
         return;
       }
@@ -287,9 +287,29 @@ export function Map(props: {
         features: [],
       };
 
+      const offsetDelta = 0.0001;
+      const offsetsAtCoordinates = new Map<string, number>();
+
       for (const organization of organizations) {
         if (organization.longitude === null || organization.latitude === null) {
           continue;
+        }
+
+        let offset = offsetsAtCoordinates.get(
+          `${organization.latitude},${organization.longitude}`
+        );
+        if (typeof offset === "undefined") {
+          offsetsAtCoordinates.set(
+            `${organization.latitude},${organization.longitude}`,
+            0
+          );
+          offset = 0;
+        } else {
+          offsetsAtCoordinates.set(
+            `${organization.latitude},${organization.longitude}`,
+            offset + 1
+          );
+          offset += 1;
         }
 
         const feature: GeoJSON.Feature<
@@ -303,7 +323,7 @@ export function Map(props: {
           geometry: {
             type: "Point",
             coordinates: [
-              parseFloat(organization.longitude),
+              parseFloat(organization.longitude) + offset * offsetDelta,
               parseFloat(organization.latitude),
             ],
           },
@@ -335,7 +355,7 @@ export function Map(props: {
             mapRef.current.flyTo({
               center: (features[0].geometry as GeoJSON.Point).coordinates as [
                 number,
-                number
+                number,
               ],
               zoom,
               duration,

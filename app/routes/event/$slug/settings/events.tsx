@@ -1,25 +1,31 @@
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { utcToZonedTime } from "date-fns-tz";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
-  redirect,
 } from "react-router";
-import { utcToZonedTime } from "date-fns-tz";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import Autocomplete from "~/components/Autocomplete/Autocomplete";
+import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { getDuration } from "~/lib/utils/time";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./events.server";
@@ -27,7 +33,7 @@ import {
   type action as addChildAction,
   addChildSchema,
 } from "./events/add-child";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { publishSchema } from "./events/publish";
 import {
   type action as removeChildAction,
   removeChildSchema,
@@ -40,12 +46,6 @@ import {
   getChildEventSuggestions,
   getParentEventSuggestions,
 } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -107,8 +107,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
         background = getImageURL(publicURL, {
           resize: {
             type: "fill",
-            width: ImageSizes.Event.ListItem.BlurredBackground.width,
-            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+            width: ImageSizes.Event.ListItem.Background.width,
+            height: ImageSizes.Event.ListItem.Background.height,
           },
         });
         blurredBackground = getImageURL(publicURL, {
@@ -183,7 +183,6 @@ function Events() {
   const setParentFetcher = useFetcher<typeof setParentAction>();
   const addChildFetcher = useFetcher<typeof addChildAction>();
   const removeChildFetcher = useFetcher<typeof removeChildAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   let parentEventStartTime: ReturnType<typeof utcToZonedTime> | undefined;
   let parentEventEndTime: ReturnType<typeof utcToZonedTime> | undefined;
   if (loaderData.parentEvent !== null) {
@@ -244,19 +243,16 @@ function Events() {
 
               <div className="flex flex-row">
                 <Field name="parentEventId" className="flex-auto">
-                  {({ Errors }) => (
-                    <>
-                      <Errors />
-                      <Autocomplete
-                        suggestions={loaderData.parentEventSuggestions || []}
-                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
-                        defaultValue={parentEventSuggestionsQuery || ""}
-                        {...register("parentEventId")}
-                        searchParameter="parent_autocomplete_query"
-                        locales={locales}
-                        currentLanguage={language}
-                      />
-                    </>
+                  {() => (
+                    <Autocomplete
+                      suggestions={loaderData.parentEventSuggestions || []}
+                      suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                      defaultValue={parentEventSuggestionsQuery || ""}
+                      {...register("parentEventId")}
+                      searchParameter="parent_autocomplete_query"
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   )}
                 </Field>
                 <div className="ml-2">
@@ -298,7 +294,7 @@ function Events() {
                 parentEventStartTime !== undefined &&
                 parentEventEndTime !== undefined
               ) {
-                const { Button } = remixFormsProps;
+                const { Button, Errors } = remixFormsProps;
                 let stageTitle;
                 if (loaderData.parentEvent.stage === null) {
                   stageTitle = null;
@@ -413,6 +409,7 @@ function Events() {
                         />
                       </svg>
                     </Button>
+                    <Errors />
                   </div>
                 );
               } else {
@@ -459,19 +456,16 @@ function Events() {
 
               <div className="flex flex-row">
                 <Field name="childEventId" className="flex-auto">
-                  {({ Errors }) => (
-                    <>
-                      <Autocomplete
-                        suggestions={loaderData.childEventSuggestions || []}
-                        suggestionsLoaderPath={`/event/${slug}/settings/events`}
-                        defaultValue={childEventSuggestionsQuery || ""}
-                        {...register("childEventId")}
-                        searchParameter="child_autocomplete_query"
-                        locales={locales}
-                        currentLanguage={language}
-                      />
-                      <Errors />
-                    </>
+                  {() => (
+                    <Autocomplete
+                      suggestions={loaderData.childEventSuggestions || []}
+                      suggestionsLoaderPath={`/event/${slug}/settings/events`}
+                      defaultValue={childEventSuggestionsQuery || ""}
+                      {...register("childEventId")}
+                      searchParameter="child_autocomplete_query"
+                      locales={locales}
+                      currentLanguage={language}
+                    />
                   )}
                 </Field>
                 <div className="ml-2">
@@ -616,8 +610,20 @@ function Events() {
                           hidden
                         />
                         <Button
+                          type="submit"
                           className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
                           title={locales.route.form.remove.label}
+                          onClick={() => {
+                            if (removeChildFetcher.state === "idle") {
+                              removeChildFetcher.submit(
+                                { childEventId: childEvent.id },
+                                {
+                                  method: "post",
+                                  action: `/event/${slug}/settings/events/remove-child`,
+                                }
+                              );
+                            }
+                          }}
                         >
                           <svg
                             viewBox="0 0 10 10"
@@ -646,7 +652,7 @@ function Events() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

@@ -253,11 +253,7 @@ export default function Index() {
   const methods = useForm<ProfileFormType>({
     defaultValues: profile,
   });
-  const {
-    register,
-    reset,
-    formState: { isDirty },
-  } = methods;
+  const { register, reset } = methods;
 
   const areaOptions = createAreaOptionFromData(areas);
   const offerOptions = offers.map((offer) => {
@@ -365,8 +361,6 @@ export default function Index() {
       errorElement[0].focus({ preventScroll: true });
     }
   }, [actionData]);
-
-  const isFormChanged = isDirty || actionData?.updated === false;
 
   return (
     <>
@@ -724,15 +718,13 @@ export default function Index() {
                     {locales.route.footer.profileUpdated}
                   </div>
 
-                  {isFormChanged ? (
-                    <Link
-                      to={`/profile/${username}/settings/general`}
-                      reloadDocument
-                      className="text-primary underline text-sm font-semibold"
-                    >
-                      {locales.route.footer.ignoreChanges}
-                    </Link>
-                  ) : null}
+                  <Link
+                    to={`/profile/${username}/settings/general`}
+                    reloadDocument
+                    className="text-primary underline text-sm font-semibold"
+                  >
+                    {locales.route.footer.ignoreChanges}
+                  </Link>
                   <button
                     type="submit"
                     name="submit"
