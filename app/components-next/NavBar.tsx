@@ -161,7 +161,7 @@ export function NavBar(props: NavBarProps) {
                     : props.locales.route.root.search
                 }
               >
-                <label className="line-clamp-1">
+                <label className="line-clamp-1 text-neutral-700 font-normal">
                   {typeof props.locales === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (
                       "Suche..."

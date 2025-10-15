@@ -196,7 +196,7 @@ function Search(props: SearchProps) {
           </div>
 
           <input
-            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-[230px] rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
+            className="w-full h-10 xl:h-12 outline-hidden bg-neutral-100 xl:bg-neutral-50 min-w-[230px] rounded-lg border border-neutral-100 xl:border-neutral-200 py-2 pl-9 xl:pl-4 pr-4 text-base placeholder:font-normal placeholder:text-neutral-700 font-semibold text-neutral-700 appearance-none leading-6 focus:border-primary-200 focus:border-2"
             aria-placeholder={placeholder}
             placeholder={isHydrated === false ? placeholder : undefined}
             minLength={minLength || 3}
