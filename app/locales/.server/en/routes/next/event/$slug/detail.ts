@@ -19,5 +19,7 @@ export const locale = {
     afterParticipationPeriod: "Registration period has ended.",
     draft: "Draft",
     canceled: "Event canceled",
+    edit: "Edit event",
+    login: "Log in to participate",
   },
 } as const;

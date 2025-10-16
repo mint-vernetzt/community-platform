@@ -9,6 +9,7 @@ import { useLocation } from "react-router";
 import { useEffect, useState, createContext, useContext } from "react";
 import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import classNames from "classnames";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
@@ -568,8 +569,41 @@ function CopyURLToClipboard(props: {
   );
 }
 
-SquareButton.CopyURLToClipboard = CopyURLToClipboard;
+function Edit(props: { children: React.ReactNode; slug: string }) {
+  return (
+    <Button as="link" to={`/event/${props.slug}/settings`} fullSize>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+      >
+        <path
+          d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
+          fill="currentColor"
+        />
+      </svg>
+      {props.children}
+    </Button>
+  );
+}
 
+function Login(props: { children: React.ReactNode; pathname: string }) {
+  return (
+    <Button
+      as="link"
+      to={`/login?redirectTo=${encodeURIComponent(props.pathname)}`}
+      fullSize
+    >
+      {props.children}
+    </Button>
+  );
+}
+
+SquareButton.CopyURLToClipboard = CopyURLToClipboard;
+EventsOverview.Edit = Edit;
+EventsOverview.Login = Login;
 EventsOverview.State = State;
 EventsOverview.StateFlag = StateFlag;
 EventsOverview.SquareButton = SquareButton;

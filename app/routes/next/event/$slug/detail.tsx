@@ -6,12 +6,16 @@ import {
   useLoaderData,
   useLocation,
 } from "react-router";
-import { createAuthClient } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { getEventBySlug } from "./detail.server";
+import {
+  deriveModeForEvent,
+  getEventBySlug,
+  getIsMember,
+} from "./detail.server";
 
 import { Button } from "@mint-vernetzt/components/src/molecules/Button"; // refactor?
 import BackButton from "~/components/next/BackButton";
@@ -24,10 +28,12 @@ import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
 import { utcToZonedTime } from "date-fns-tz";
 import { formatDateTime } from "./index.shared";
+import { deriveMode } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
   const abilities = await getFeatureAbilities(authClient, "next_event");
   if (abilities.next_event.hasAccess === false) {
     return redirect("/");
@@ -43,6 +49,38 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
 
   invariantResponse(event !== null, "event not found", { status: 404 });
+
+  const now = utcToZonedTime(new Date(), "Europe/Berlin");
+
+  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const participationFrom = utcToZonedTime(
+    event.participationFrom,
+    "Europe/Berlin"
+  );
+  const participationUntil = utcToZonedTime(
+    event.participationUntil,
+    "Europe/Berlin"
+  );
+
+  const beforeParticipationPeriod = now < participationFrom;
+  const afterParticipationPeriod = now > participationUntil;
+  const inPast = now > endTime;
+
+  const mode = await deriveModeForEvent(sessionUser, {
+    id: event.id,
+    participantLimit: event.participantLimit,
+    participantCount: event._count.participants,
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
+  });
+
+  // No right to access unpublished events
+  const isMember = await getIsMember(sessionUser, event);
+  invariantResponse(event.published || isMember, "event not found", {
+    status: 404,
+  });
 
   let blurredBackground;
   let background = event.background;
@@ -102,23 +140,6 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   );
 
-  const now = utcToZonedTime(new Date(), "Europe/Berlin");
-
-  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-  const participationFrom = utcToZonedTime(
-    event.participationFrom,
-    "Europe/Berlin"
-  );
-  const participationUntil = utcToZonedTime(
-    event.participationUntil,
-    "Europe/Berlin"
-  );
-
-  const beforeParticipationPeriod = now < participationFrom;
-  const afterParticipationPeriod = now > participationUntil;
-  const inPast = now > endTime;
-
   const enhancedEvent = {
     ...event,
     startTime,
@@ -140,6 +161,7 @@ export async function loader(args: LoaderFunctionArgs) {
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
+    mode: mode as Awaited<ReturnType<typeof deriveModeForEvent>>, // fixes type issue using invarientResponse if event not published
   };
 }
 
@@ -244,10 +266,24 @@ function Detail() {
                 locales={loaderData.locales.route.content}
               />
             </EventsOverview.SquareButton>
-
-            <div className="flex-grow md:flex-grow-0">
-              <Button fullSize>Teilnehmen</Button>
-            </div>
+            {loaderData.mode === "admin" && (
+              <EventsOverview.Edit slug={loaderData.event.slug}>
+                {loaderData.locales.route.content.edit}
+              </EventsOverview.Edit>
+            )}
+            {loaderData.mode === "anon" && (
+              <EventsOverview.Login pathname={pathname}>
+                {loaderData.locales.route.content.login}
+              </EventsOverview.Login>
+            )}
+            {loaderData.mode === "canParticipate" && <p>Teilnehmen</p>}
+            {loaderData.mode === "participating" && (
+              <p>Nicht mehr teilnehmen</p>
+            )}
+            {loaderData.mode === "canWait" && <p>Zur Warteliste hinzufügen</p>}
+            {loaderData.mode === "waiting" && (
+              <p>Von der Warteliste entfernen</p>
+            )}
           </EventsOverview.ButtonStates>
         </EventsOverview.Container>
       </EventsOverview>
