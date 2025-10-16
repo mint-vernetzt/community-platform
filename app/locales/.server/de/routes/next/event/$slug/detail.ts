@@ -17,5 +17,7 @@ export const locale = {
     beforeParticipationPeriod:
       "Anmeldefrist beginnt am {{date}} um {{time}} Uhr",
     afterParticipationPeriod: "Anmeldefrist abgelaufen.",
+    draft: "Entwurf",
+    canceled: "Event abgesagt",
   },
 } as const;

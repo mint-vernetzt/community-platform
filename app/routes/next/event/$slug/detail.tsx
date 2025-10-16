@@ -171,6 +171,16 @@ function Detail() {
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
+        {loaderData.event.published === false && (
+          <EventsOverview.StateFlag>
+            {loaderData.locales.route.content.draft}
+          </EventsOverview.StateFlag>
+        )}
+        {loaderData.event.canceled && loaderData.event.published && (
+          <EventsOverview.StateFlag tint="negative">
+            {loaderData.locales.route.content.canceled}
+          </EventsOverview.StateFlag>
+        )}
         {loaderData.beforeParticipationPeriod && (
           <EventsOverview.State>
             {formatDateTime(

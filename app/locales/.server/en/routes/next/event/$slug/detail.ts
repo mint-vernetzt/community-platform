@@ -17,5 +17,7 @@ export const locale = {
     beforeParticipationPeriod:
       "Registration period starts on {{date}} at {{time}}",
     afterParticipationPeriod: "Registration period has ended.",
+    draft: "Draft",
+    canceled: "Event canceled",
   },
 } as const;

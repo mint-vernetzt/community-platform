@@ -11,12 +11,12 @@ import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules
 import classNames from "classnames";
 
 function EventsOverview(props: { children: React.ReactNode }) {
-  return <div className="flex flex-col">{props.children}</div>;
+  return <div className="flex flex-col relative">{props.children}</div>;
 }
 
 function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
   return (
-    <div className="relative h-[186px] md:h-[400px] aspect-[31/10] border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
+    <div className="relative h-[239px] md:h-[400px] aspect-[31/10] border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
       <ImageComponent
         alt={props.alt}
         src={props.src}
@@ -444,10 +444,31 @@ function State(props: {
   return <div className={classes}>{props.children}</div>;
 }
 
+function StateFlag(props: {
+  children: React.ReactNode;
+  tint?: "primary" | "negative";
+}) {
+  const { tint = "primary" } = props;
+
+  return (
+    <div className="absolute top-0 left-0 w-full h-40 rounded-t-2xl text-white font-semibold overflow-hidden">
+      <div
+        className={classNames(
+          "w-full h-[2.4375rem] flex items-center justify-center shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)]",
+          tint === "primary" && "bg-primary-400",
+          tint === "negative" && "bg-negative-700"
+        )}
+      >
+        {props.children}
+      </div>
+    </div>
+  );
+}
+
 function ButtonStates(props: { children: React.ReactNode }) {
   return (
     <div className="w-full xl:w-auto flex justify-center order-last xl:order-1">
-      <div className="flex justify-center xl:justify-end gap-2 mt-4 md:mt-0 w-full md:w-fit">
+      <div className="flex flex-row-reverse justify-center xl:justify-end gap-2 mt-4 md:mt-0 w-full md:w-fit">
         {props.children}
       </div>
     </div>
@@ -550,6 +571,7 @@ function CopyURLToClipboard(props: {
 SquareButton.CopyURLToClipboard = CopyURLToClipboard;
 
 EventsOverview.State = State;
+EventsOverview.StateFlag = StateFlag;
 EventsOverview.SquareButton = SquareButton;
 EventsOverview.ButtonStates = ButtonStates;
 EventsOverview.FreeSeats = FreeSeats;
