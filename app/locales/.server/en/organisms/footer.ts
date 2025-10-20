@@ -1,6 +1,7 @@
 export const locale = {
   description: "The networking platform for STEM actors in Germany.",
-  bmbf: "To the German Federal Ministry of Education and Research",
+  promoted:
+    "To the German Federal Ministry for Education, Family Affairs, Senior Citizens, Women and Youth",
   meta: {
     copyright: "© 2021-{{year}} matrix gGmbH",
   },
