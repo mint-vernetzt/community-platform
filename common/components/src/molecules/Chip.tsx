@@ -37,7 +37,7 @@ function Chip(props: ChipProps) {
     disabled && "bg-white text-gray-300 border-gray-300",
     !disabled && interactive && "cursor-pointer",
     "flex gap-2 items-center",
-    "border rounded-lg font-semibold w-fit max-w-full h-fit text-left text-ellipsis overflow-hidden shrink-0 text-wrap",
+    "border rounded-lg font-semibold w-fit max-w-full h-fit text-left text-ellipsis whitespace-nowrap overflow-hidden shrink-0",
     props.responsive && "@md:px-4 @md:py-2 @md:text-base",
     size === "small" && "text-xs py-1.5 px-3",
     size === "medium" && "text-base py-2 px-4"
@@ -65,13 +65,20 @@ function Chip(props: ChipProps) {
         // TODO: fix type issue
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
-        { disabled: disabled },
+        { disabled: disabled, className: "line-clamp-1" },
 
         child.props.children
       );
       return clone;
     }
-    return child;
+    return (
+      <span
+        key={typeof child === "string" ? child : undefined}
+        className="line-clamp-1"
+      >
+        {child}
+      </span>
+    );
   });
 
   const chipDelete = children.find((child) => {
