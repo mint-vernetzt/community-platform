@@ -5,11 +5,12 @@ import type { ArrayElement } from "~/lib/utils/types";
 import type { languageModuleMap } from "~/locales/.server";
 import { OverlayMenu } from "./OverlayMenu"; // refactor?
 import { copyToClipboard } from "~/lib/utils/clipboard";
-import { useLocation } from "react-router";
+import { Form, useLocation } from "react-router";
 import { useEffect, useState, createContext, useContext } from "react";
 import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
@@ -601,7 +602,102 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
   );
 }
 
+function Participate(props: { children: React.ReactNode; profileId?: string }) {
+  if (typeof props.profileId === "undefined") {
+    return null;
+  }
+
+  return (
+    <Form method="post" preventScrollReset>
+      <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <Button
+        type="submit"
+        name={INTENT_FIELD_NAME}
+        value="participate"
+        fullSize
+      >
+        {props.children}
+      </Button>
+    </Form>
+  );
+}
+
+function WithdrawParticipation(props: {
+  children: React.ReactNode;
+  profileId?: string;
+}) {
+  if (typeof props.profileId === "undefined") {
+    return null;
+  }
+
+  return (
+    <Form method="post" preventScrollReset>
+      <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <Button
+        type="submit"
+        name={INTENT_FIELD_NAME}
+        value="withdrawParticipation"
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+    </Form>
+  );
+}
+
+function JoinWaitingList(props: {
+  children: React.ReactNode;
+  profileId?: string;
+}) {
+  if (typeof props.profileId === "undefined") {
+    return null;
+  }
+
+  return (
+    <Form method="post" preventScrollReset>
+      <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <Button
+        type="submit"
+        name={INTENT_FIELD_NAME}
+        value="joinWaitingList"
+        fullSize
+      >
+        {props.children}
+      </Button>
+    </Form>
+  );
+}
+
+function LeaveWaitingList(props: {
+  children: React.ReactNode;
+  profileId?: string;
+}) {
+  if (typeof props.profileId === "undefined") {
+    return null;
+  }
+
+  return (
+    <Form method="post" preventScrollReset>
+      <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <Button
+        type="submit"
+        name={INTENT_FIELD_NAME}
+        value="leaveWaitingList"
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+    </Form>
+  );
+}
+
 SquareButton.CopyURLToClipboard = CopyURLToClipboard;
+EventsOverview.Participate = Participate;
+EventsOverview.WithdrawParticipation = WithdrawParticipation;
+EventsOverview.JoinWaitingList = JoinWaitingList;
+EventsOverview.LeaveWaitingList = LeaveWaitingList;
 EventsOverview.Edit = Edit;
 EventsOverview.Login = Login;
 EventsOverview.State = State;

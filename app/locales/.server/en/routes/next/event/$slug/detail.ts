@@ -21,5 +21,22 @@ export const locale = {
     canceled: "Event canceled",
     edit: "Edit event",
     login: "Log in to participate",
+    participate: "Participate",
+    withdrawParticipation: "Withdraw participation",
+    joinWaitingList: "Join waiting list",
+    leaveWaitingList: "Leave waiting list",
+  },
+  errors: {
+    invalidProfileId: "Invalid profile ID",
+    participate: "Error adding to participants",
+    withdrawParticipation: "Error removing from participants",
+    joinWaitingList: "Error adding to waiting list",
+    leaveWaitingList: "Error removing from waiting list",
+  },
+  success: {
+    participate: "Successfully added to participants",
+    withdrawParticipation: "Successfully removed from participants",
+    joinWaitingList: "Successfully joined waiting list",
+    leaveWaitingList: "Successfully left waiting list",
   },
 } as const;

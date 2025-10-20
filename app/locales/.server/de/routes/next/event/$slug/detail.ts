@@ -21,5 +21,22 @@ export const locale = {
     canceled: "Event abgesagt",
     edit: "Event bearbeiten",
     login: "Anmelden um teilzunehmen",
+    participate: "Teilnehmen",
+    withdrawParticipation: "Nicht mehr teilnehmen",
+    joinWaitingList: "Zur Warteliste hinzufügen",
+    leaveWaitingList: "Von der Warteliste entfernen",
+  },
+  errors: {
+    invalidProfileId: "Ungültige Profil-ID",
+    participate: "Fehler beim Hinzufügen zu Teilnehmer:innen",
+    withdrawParticipation: "Fehler beim Entfernen von Teilnehmer:innen",
+    joinWaitingList: "Fehler beim Hinzufügen zur Warteliste",
+    leaveWaitingList: "Fehler beim Entfernen von der Warteliste",
+  },
+  success: {
+    participate: "Erfolgreich zu Teilnehmer:innen hinzugefügt",
+    withdrawParticipation: "Erfolgreich von Teilnehmer:innen entfernt",
+    joinWaitingList: "Erfolgreich zur Warteliste hinzugefügt",
+    leaveWaitingList: "Erfolgreich von der Warteliste entfernt",
   },
 } as const;

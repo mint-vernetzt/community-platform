@@ -1,4 +1,5 @@
 import {
+  type ActionFunctionArgs,
   Link,
   type LoaderFunctionArgs,
   Outlet,
@@ -12,9 +13,14 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import {
+  addProfileToParticipants,
+  addProfileToWaitingList,
   deriveModeForEvent,
   getEventBySlug,
+  getEventIdBySlug,
   getIsMember,
+  removeProfileFromParticipants,
+  removeProfileFromWaitingList,
 } from "./detail.server";
 
 import { utcToZonedTime } from "date-fns-tz";
@@ -27,6 +33,17 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
 import { formatDateTime } from "./index.shared";
+import { z } from "zod";
+import { parseWithZod } from "node_modules/@conform-to/zod-v1/dist/v3/parse";
+import { redirectWithToast } from "~/toast.server";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+
+function getSchema(locales: { invalidProfileId: string }) {
+  const schema = z.object({
+    profileId: z.string().uuid(locales.invalidProfileId),
+  });
+  return schema;
+}
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -161,7 +178,81 @@ export async function loader(args: LoaderFunctionArgs) {
     afterParticipationPeriod,
     inPast,
     mode: mode as Awaited<ReturnType<typeof deriveModeForEvent>>, // fixes type issue using invarientResponse if event not published
+    profileId: sessionUser !== null ? sessionUser.id : undefined,
   };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  if (sessionUser === null) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    return redirect(`/login?redirectTo=${encodeURIComponent(pathname)}`);
+  }
+
+  const abilities = await getFeatureAbilities(authClient, "next_event");
+  if (abilities.next_event.hasAccess === false) {
+    return redirect("/");
+  }
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/event/$slug/detail"];
+
+  const eventId = await getEventIdBySlug(params.slug!);
+  invariantResponse(eventId !== null, "event not found", { status: 404 });
+
+  const formData = await request.formData();
+  const intent = formData.get(INTENT_FIELD_NAME);
+
+  invariantResponse(
+    intent === "participate" ||
+      intent === "withdrawParticipation" ||
+      intent === "joinWaitingList" ||
+      intent === "leaveWaitingList",
+    "Invalid intent",
+    {
+      status: 400,
+    }
+  );
+
+  const submission = await parseWithZod(formData, {
+    schema: getSchema(locales.route.errors).transform(async (data, ctx) => {
+      let result: { error?: unknown } = {};
+      if (intent === "participate") {
+        result = await addProfileToParticipants(sessionUser.id, eventId);
+      } else if (intent === "withdrawParticipation") {
+        result = await removeProfileFromParticipants(sessionUser.id, eventId);
+      } else if (intent === "joinWaitingList") {
+        result = await addProfileToWaitingList(sessionUser.id, eventId);
+      } else {
+        result = await removeProfileFromWaitingList(sessionUser.id, eventId);
+      }
+      if (typeof result.error !== "undefined") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: locales.route.errors[intent],
+        });
+        return z.NEVER;
+      }
+      return data;
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return {
+      submission: submission.reply(),
+      currentTimestamp: Date.now(),
+    };
+  }
+
+  return redirectWithToast(request.url, {
+    id: "update-participation-toast",
+    key: `${new Date().getTime()}`,
+    message: locales.route.success[intent],
+  });
 }
 
 function Detail() {
@@ -275,13 +366,27 @@ function Detail() {
                 {loaderData.locales.route.content.login}
               </EventsOverview.Login>
             )}
-            {loaderData.mode === "canParticipate" && <p>Teilnehmen</p>}
-            {loaderData.mode === "participating" && (
-              <p>Nicht mehr teilnehmen</p>
+            {loaderData.mode === "canParticipate" && (
+              <EventsOverview.Participate profileId={loaderData.profileId}>
+                {loaderData.locales.route.content.participate}
+              </EventsOverview.Participate>
             )}
-            {loaderData.mode === "canWait" && <p>Zur Warteliste hinzufügen</p>}
+            {loaderData.mode === "participating" && (
+              <EventsOverview.WithdrawParticipation
+                profileId={loaderData.profileId}
+              >
+                {loaderData.locales.route.content.withdrawParticipation}
+              </EventsOverview.WithdrawParticipation>
+            )}
+            {loaderData.mode === "canWait" && (
+              <EventsOverview.JoinWaitingList profileId={loaderData.profileId}>
+                {loaderData.locales.route.content.joinWaitingList}
+              </EventsOverview.JoinWaitingList>
+            )}
             {loaderData.mode === "waiting" && (
-              <p>Von der Warteliste entfernen</p>
+              <EventsOverview.LeaveWaitingList profileId={loaderData.profileId}>
+                {loaderData.locales.route.content.leaveWaitingList}
+              </EventsOverview.LeaveWaitingList>
             )}
           </EventsOverview.ButtonStates>
         </EventsOverview.Container>

@@ -54,6 +54,21 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
+export async function getEventIdBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+    },
+  });
+
+  if (event === null) {
+    return null;
+  }
+
+  return event.id;
+}
+
 export async function deriveModeForEvent(
   sessionUser: { id: string } | null,
   eventInfo: {
@@ -157,4 +172,76 @@ export async function getIsMember(
     },
   });
   return member !== null;
+}
+
+export async function addProfileToParticipants(
+  profileId: string,
+  eventId: string
+) {
+  try {
+    const data = await prismaClient.participantOfEvent.create({
+      data: {
+        eventId,
+        profileId,
+      },
+    });
+    return { data };
+  } catch (error) {
+    console.error("Error adding profile to participants:", error);
+    return { error };
+  }
+}
+
+export async function removeProfileFromParticipants(
+  profileId: string,
+  eventId: string
+) {
+  try {
+    const data = await prismaClient.participantOfEvent.deleteMany({
+      where: {
+        eventId,
+        profileId,
+      },
+    });
+    return { data };
+  } catch (error) {
+    console.error("Error removing profile from participants:", error);
+    return { error };
+  }
+}
+
+export async function addProfileToWaitingList(
+  profileId: string,
+  eventId: string
+) {
+  try {
+    const data = await prismaClient.waitingParticipantOfEvent.create({
+      data: {
+        eventId,
+        profileId,
+      },
+    });
+    return { data };
+  } catch (error) {
+    console.error("Error adding profile to waiting list:", error);
+    return { error };
+  }
+}
+
+export async function removeProfileFromWaitingList(
+  profileId: string,
+  eventId: string
+) {
+  try {
+    const data = await prismaClient.waitingParticipantOfEvent.deleteMany({
+      where: {
+        eventId,
+        profileId,
+      },
+    });
+    return { data };
+  } catch (error) {
+    console.error("Error removing profile from waiting list:", error);
+    return { error };
+  }
 }
