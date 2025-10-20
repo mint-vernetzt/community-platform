@@ -1,6 +1,6 @@
 import {
   SquareButton,
-  SquareButtonSize,
+  type SquareButtonSize,
 } from "@mint-vernetzt/components/src/molecules/SquareButton";
 import { Children, isValidElement, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useSubmit } from "react-router";

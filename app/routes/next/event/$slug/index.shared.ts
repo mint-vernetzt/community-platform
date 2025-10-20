@@ -1,6 +1,6 @@
-import { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { ArrayElement } from "~/lib/utils/types";
+import { type ArrayElement } from "~/lib/utils/types";
 
 export function formatDateTime(
   date: Date,
