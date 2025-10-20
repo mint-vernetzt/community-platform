@@ -34,7 +34,7 @@ function Link(props: LinkProps) {
   }
 
   let href;
-  if (as === "link") {
+  if (as !== "link") {
     href = to;
   }
 
