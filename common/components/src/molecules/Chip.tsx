@@ -62,15 +62,26 @@ function Chip(props: ChipProps) {
     ) {
       const clone = cloneElement(
         child,
-        // TODO: fix type issue
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - We should look at our cloneElement implementation.
-        { disabled: disabled },
+        {
+          // TODO: fix type issue
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - We should look at our cloneElement implementation.
+          disabled: disabled,
+          className: `${"className" in child.props && typeof child.props.className === "string" ? `${child.props.className} ` : ""}line-clamp-1`,
+        },
+
         child.props.children
       );
       return clone;
     }
-    return child;
+    return (
+      <span
+        key={typeof child === "string" ? child : undefined}
+        className="line-clamp-1"
+      >
+        {child}
+      </span>
+    );
   });
 
   const chipDelete = children.find((child) => {
