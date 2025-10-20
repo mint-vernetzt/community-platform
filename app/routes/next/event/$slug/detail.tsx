@@ -17,7 +17,7 @@ import {
   getIsMember,
 } from "./detail.server";
 
-import { Button } from "@mint-vernetzt/components/src/molecules/Button"; // refactor?
+import { utcToZonedTime } from "date-fns-tz";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
@@ -26,14 +26,13 @@ import TabBar from "~/components/next/TabBar";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { getPublicURL } from "~/storage.server";
-import { utcToZonedTime } from "date-fns-tz";
 import { formatDateTime } from "./index.shared";
-import { deriveMode } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
+
   const abilities = await getFeatureAbilities(authClient, "next_event");
   if (abilities.next_event.hasAccess === false) {
     return redirect("/");

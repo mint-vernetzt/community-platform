@@ -79,8 +79,11 @@ function InputAdd(props: React.HTMLProps<HTMLInputElement> & InputAddProps) {
         </div>
       </div>
       <ul className="pt-2">
-        {entries.map((entry) => (
-          <li key={`${inputProps.name || label}-${entry}`} className="flex">
+        {entries.map((entry, index) => (
+          <li
+            key={`${inputProps.name || label}-${entry}-${index}`}
+            className="flex"
+          >
             <div className="font-bold  py-2">
               {entry}
               <input

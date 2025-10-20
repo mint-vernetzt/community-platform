@@ -147,9 +147,9 @@ function ListItem(
   const { children, disabled = false } = props;
   return (
     <li
-      className={`w-full flex gap-2 items-center bg-white border-2 border-transparent text-neutral-700 first:rounded-t-lg last:rounded-b-lg${
+      className={`w-full flex gap-2 items-center bg-white ring-2 ring-transparent @lg:border-2 @lg:ring-0 border-offset-2 border-transparent text-neutral-700 first:rounded-t-lg last:rounded-b-lg${
         disabled === false
-          ? " hover:bg-neutral-100 hover:border-neutral-100 active:bg-primary-50 active:border-primary-50 focus-within:bg-white focus-within:border-primary-200"
+          ? " hover:bg-neutral-100 hover:border-neutral-100 active:bg-primary-50 active:border-primary-50 active:ring-primary-50 focus-within:bg-white focus-within:border-primary-200 focus-within:ring-primary-200 focus-within:z-10"
           : ""
       }`}
     >

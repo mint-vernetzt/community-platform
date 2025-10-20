@@ -7,7 +7,6 @@ import {
   Link,
   redirect,
   useActionData,
-  useFetcher,
   useLoaderData,
   useNavigation,
   useParams,
@@ -49,8 +48,8 @@ import {
 } from "~/utils.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
-import { type action as cancelAction, cancelSchema } from "./events/cancel";
-import { type action as publishAction, publishSchema } from "./events/publish";
+import { cancelSchema } from "./events/cancel";
+import { publishSchema } from "./events/publish";
 import {
   type GeneralEventSettingsLocales,
   getEventBySlug,
@@ -286,9 +285,6 @@ function General() {
     stages,
     locales,
   } = loaderData;
-
-  const publishFetcher = useFetcher<typeof publishAction>();
-  const cancelFetcher = useFetcher<typeof cancelAction>();
 
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
@@ -581,8 +577,8 @@ function General() {
       <p className="mb-4">{locales.route.content.start.intro}</p>
       <div className="flex mb-4">
         <RemixFormsForm
+          method="post"
           schema={cancelSchema}
-          fetcher={cancelFetcher}
           action={`/event/${slug}/settings/events/cancel`}
         >
           {(remixFormsProps) => {
@@ -1059,8 +1055,8 @@ function General() {
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
             <RemixFormsForm
+              method="post"
               schema={publishSchema}
-              fetcher={publishFetcher}
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

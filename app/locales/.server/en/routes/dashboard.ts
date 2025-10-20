@@ -31,6 +31,7 @@ export const locale = {
     },
     search: {
       headline: "Discover the community and find new funding opportunities",
+      label: "Search",
       placeholder: {
         default: "Search...",
         xl: "Search for",

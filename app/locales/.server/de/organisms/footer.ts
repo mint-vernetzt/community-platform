@@ -1,7 +1,8 @@
 export const locale = {
   description:
     "Die Vernetzungsplattform für MINT-Akteurinnen und Akteure in Deutschland.",
-  bmbf: "Zum Bildungsministerium für Bildung und Forschung",
+  promoted:
+    "Zum Bundesministerium für Bildung, Familie, Senioren, Frauen und Jugend",
   meta: {
     copyright: "© 2021-{{year}} matrix gGmbH",
   },

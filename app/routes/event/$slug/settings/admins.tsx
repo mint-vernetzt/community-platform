@@ -1,12 +1,13 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { redirect, type LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useParams,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -18,9 +19,11 @@ import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsFor
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getProfileSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -29,13 +32,8 @@ import {
   addAdminSchema,
   type action as addAdminAction,
 } from "./admins/add-admin";
-import {
-  removeAdminSchema,
-  type action as removeAdminAction,
-} from "./admins/remove-admin";
-import { publishSchema, type action as publishAction } from "./events/publish";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { type action as removeAdminAction } from "./admins/remove-admin";
+import { publishSchema } from "./events/publish";
 
 const i18nNS = ["routes-event-settings-admins"] as const;
 export const handle = {
@@ -128,7 +126,6 @@ function Admins() {
   const loaderData = useLoaderData<typeof loader>();
   const addAdminFetcher = useFetcher<typeof addAdminAction>();
   const removeAdminFetcher = useFetcher<typeof removeAdminAction>();
-  const publishFetcher = useFetcher<typeof publishAction>();
   const [searchParams] = useSearchParams();
   const suggestionsQuery = searchParams.get("autocomplete_query");
   const submit = useSubmit();
@@ -173,19 +170,16 @@ function Admins() {
 
                 <div className="flex flex-row">
                   <Field name="profileId" className="flex-auto">
-                    {({ Errors }) => (
-                      <>
-                        <Errors />
-                        <Autocomplete
-                          suggestions={loaderData.adminSuggestions || []}
-                          suggestionsLoaderPath={`/event/${slug}/settings/admins`}
-                          defaultValue={suggestionsQuery || ""}
-                          {...register("profileId")}
-                          searchParameter="autocomplete_query"
-                          locales={loaderData.locales}
-                          currentLanguage={loaderData.language}
-                        />
-                      </>
+                    {() => (
+                      <Autocomplete
+                        suggestions={loaderData.adminSuggestions || []}
+                        suggestionsLoaderPath={`/event/${slug}/settings/admins`}
+                        defaultValue={suggestionsQuery || ""}
+                        {...register("profileId")}
+                        searchParameter="autocomplete_query"
+                        locales={loaderData.locales}
+                        currentLanguage={loaderData.language}
+                      />
                     )}
                   </Field>
                   <div className="ml-2">
@@ -256,44 +250,40 @@ function Admins() {
                 ) : null}
               </div>
               <div className="flex-1 @sm:flex-auto @sm:ml-auto flex items-center flex-row pt-4 @sm:pt-0 justify-end">
-                <RemixFormsForm
-                  schema={removeAdminSchema}
-                  fetcher={removeAdminFetcher}
+                <removeAdminFetcher.Form
+                  method="post"
                   action={`/event/${slug}/settings/admins/remove-admin`}
                 >
-                  {(remixFormsProps) => {
-                    const { Button, Errors } = remixFormsProps;
-                    return (
-                      <>
-                        <Errors />
-                        <input
-                          name="profileId"
-                          defaultValue={admin.id}
-                          hidden
+                  <input name="profileId" defaultValue={admin.id} hidden />
+                  {loaderData.admins.length > 1 ? (
+                    <button
+                      type="submit"
+                      className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
+                      title={loaderData.locales.route.form.remove.label}
+                    >
+                      <svg
+                        viewBox="0 0 10 10"
+                        width="10px"
+                        height="10px"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
+                          fill="currentColor"
                         />
-                        {loaderData.admins.length > 1 ? (
-                          <Button
-                            className="ml-auto bg-transparent w-10 h-8 flex items-center justify-center rounded-md border border-transparent text-neutral-600"
-                            title={loaderData.locales.route.form.remove.label}
-                          >
-                            <svg
-                              viewBox="0 0 10 10"
-                              width="10px"
-                              height="10px"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M.808.808a.625.625 0 0 1 .885 0L5 4.116 8.308.808a.626.626 0 0 1 .885.885L5.883 5l3.31 3.308a.626.626 0 1 1-.885.885L5 5.883l-3.307 3.31a.626.626 0 1 1-.885-.885L4.116 5 .808 1.693a.625.625 0 0 1 0-.885Z"
-                                fill="currentColor"
-                              />
-                            </svg>
-                          </Button>
-                        ) : null}
-                      </>
-                    );
-                  }}
-                </RemixFormsForm>
+                      </svg>
+                    </button>
+                  ) : null}
+                  {typeof removeAdminFetcher.data !== "undefined" &&
+                  removeAdminFetcher.data !== null &&
+                  removeAdminFetcher.data.success === false ? (
+                    <div className={`p-4 bg-red-200 rounded-md mt-4`}>
+                      {removeAdminFetcher.data.errors._global?.join(", ")}
+                      {removeAdminFetcher.data.errors.profileId?.join(", ")}
+                    </div>
+                  ) : null}
+                </removeAdminFetcher.Form>
               </div>
             </div>
           );
@@ -304,7 +294,7 @@ function Admins() {
           <div className="flex flex-row flex-nowrap items-center justify-end my-4">
             <RemixFormsForm
               schema={publishSchema}
-              fetcher={publishFetcher}
+              method="post"
               action={`/event/${slug}/settings/events/publish`}
             >
               {(remixFormsProps) => {

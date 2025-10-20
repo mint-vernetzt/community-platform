@@ -4,6 +4,7 @@ import {
   type LoaderFunctionArgs,
   Outlet,
   useLoaderData,
+  useLocation,
   useSearchParams,
 } from "react-router";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -139,15 +140,21 @@ export async function loader(args: LoaderFunctionArgs) {
 
   let preferredExploreOrganizationsView: "map" | "list" = "map";
 
-  const cookieHeader = request.headers.get("Cookie");
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
-  if (cookie !== null) {
-    try {
-      preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
-    } catch {
-      // ignore invalid cookie
+  if (url.pathname === "/explore/organizations/list") {
+    preferredExploreOrganizationsView = "list";
+  } else if (url.pathname === "/explore/organizations/map") {
+    preferredExploreOrganizationsView = "map";
+  } else {
+    const cookieHeader = request.headers.get("Cookie");
+    // TODO: fix type issue
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
+    if (cookie !== null) {
+      try {
+        preferredExploreOrganizationsView = viewCookieSchema.parse(cookie);
+      } catch {
+        // ignore invalid cookie
+      }
     }
   }
 
@@ -174,6 +181,8 @@ export async function loader(args: LoaderFunctionArgs) {
 export default function Explore() {
   const loaderData = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+
   const links = [
     {
       pathname: "/explore/all",
@@ -306,7 +315,7 @@ export default function Explore() {
             </EntitiesSelect.Menu>
           </EntitiesSelect>
           <div className="hidden @lg:block w-full">
-            <Form method="get" action="/explore/all">
+            <Form method="get" action={location.pathname}>
               <Search
                 inputProps={{
                   id: "search-bar",
@@ -322,7 +331,7 @@ export default function Explore() {
                 }}
                 locales={loaderData.locales.route.content.search}
               >
-                <label className="line-clamp-1">
+                <label className="line-clamp-1 text-neutral-700 font-normal">
                   {typeof loaderData.locales.route.content.search
                     .placeholder === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (

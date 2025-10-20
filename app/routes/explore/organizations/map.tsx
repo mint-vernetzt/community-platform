@@ -12,7 +12,7 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { QuestionMark } from "~/components-next/icons/QuestionMark";
-import { Map } from "~/components-next/Map";
+import { MapView } from "~/components-next/Map";
 import { Modal } from "~/components-next/Modal";
 import { detectLanguage } from "~/i18n.server";
 import { copyToClipboard } from "~/lib/utils/clipboard";
@@ -274,7 +274,7 @@ export default function ExploreOrganizationsList() {
   return (
     <div className="w-full px-4">
       <div className="w-full relative rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
-        <Map
+        <MapView
           organizations={loaderData.organizations.filter((organization) => {
             return (
               organization.longitude !== null && organization.latitude !== null

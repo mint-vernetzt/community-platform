@@ -31,7 +31,7 @@ function Card(props: CardProps) {
   });
 
   return (
-    <div className="w-full h-full bg-white border focus-within:ring-2 border-neutral-200 focus-within:ring-primary-200 rounded-3xl relative overflow-hidden text-gray-700 flex flex-col items-stretch">
+    <div className="w-full h-full bg-white border focus-within:ring-2 border-neutral-200 focus-within:ring-primary-200 rounded-lg relative overflow-hidden text-gray-700 flex flex-col items-stretch">
       {props.to !== undefined && props.to !== "" ? (
         <>
           <div className="h-full hover:bg-neutral-100 active:bg-neutral-100 focus:bg-neutral-100">
@@ -204,8 +204,8 @@ function CardImage(props: {
                     props.isHydrated === undefined
                       ? ""
                       : props.isHydrated
-                      ? "opacity-100 transition-opacity duration-200 ease-in"
-                      : "opacity-0 invisible"
+                        ? "opacity-100 transition-opacity duration-200 ease-in"
+                        : "opacity-0 invisible"
                   }
                   `}
             // TODO: alt text for user generated images

@@ -1,4 +1,4 @@
-import { InputError, makeDomainFunction } from "domain-functions";
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
 import { useFetcher } from "react-router";
 import { performMutation } from "remix-forms";
@@ -34,13 +34,13 @@ const createMutation = (locales: AddEventParticipantLocales) => {
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw locales.error.inputError.doesNotExist;
     }
     const alreadyParticipant = profile.participatedEvents.some((entry) => {
       return entry.event.slug === environment.eventSlug;
     });
     if (alreadyParticipant) {
-      throw new InputError(locales.error.inputError.alreadyIn, "profileId");
+      throw locales.error.inputError.alreadyIn;
     }
     return {
       ...values,

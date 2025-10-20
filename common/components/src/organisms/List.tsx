@@ -155,7 +155,7 @@ function ListItem(
   let info: React.ReactElement | undefined;
 
   const listItemClasses = classNames(
-    "border rounded-md list-none overflow-hidden",
+    "border rounded-lg list-none overflow-hidden",
     noBorder ? "border-transparent" : "border-neutral-200",
     interactive && "hover:bg-primary-50"
   );

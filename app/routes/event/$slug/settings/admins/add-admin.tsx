@@ -1,5 +1,5 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
-import { InputError, makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -9,13 +9,13 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   addAdminToEvent,
   type AddEventAdminLocales,
   getEventBySlug,
   getProfileById,
 } from "./add-admin.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 const schema = z.object({
   profileId: z.string().trim().uuid(),
@@ -34,13 +34,13 @@ const createMutation = (locales: AddEventAdminLocales) => {
   )(async (values, environment) => {
     const profile = await getProfileById(values.profileId);
     if (profile === null) {
-      throw new InputError(locales.error.inputError.doesNotExist, "profileId");
+      throw locales.error.inputError.doesNotExist;
     }
     const alreadyAdmin = profile.administeredEvents.some((relation) => {
       return relation.event.slug === environment.eventSlug;
     });
     if (alreadyAdmin) {
-      throw new InputError(locales.error.inputError.alreadyAdmin, "profileId");
+      throw locales.error.inputError.alreadyAdmin;
     }
     return {
       ...values,

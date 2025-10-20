@@ -26,7 +26,7 @@ export function TeaserCard(props: {
         to={to}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className="flex gap-2 items-center rounded-lg bg-white border border-neutral-200 px-4 py-2 hover:no-underline @xl:h-full"
+        className="flex gap-4 items-center rounded-lg bg-white border border-neutral-200 px-4 py-2 hover:no-underline @xl:h-full"
         prefetch={external ? "none" : prefetch}
       >
         <div className="flex flex-col gap-2 py-2 grow @xl:h-full">

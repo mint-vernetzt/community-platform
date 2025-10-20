@@ -900,7 +900,7 @@ export default function ExploreOrganizations() {
                   {locales.route.filter.network}
                   <span className="font-normal @lg:hidden">
                     <br />
-                    {loaderData.networks
+                    {loaderData.selectedNetworks
                       .map((network) => {
                         return network.name;
                       })

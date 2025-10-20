@@ -829,7 +829,7 @@ function DashboardSearch(props: {
 }) {
   return (
     <div className="hidden @md:block px-8 mt-12 w-full z-10">
-      <div className="w-full flex flex-col gap-4 p-6 bg-white rounded-xl shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
+      <div className="w-full flex flex-col gap-4 p-6 bg-white rounded-2xl shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
         <h2 className="text-2xl font-bold text-primary-500 mb-0">
           {props.locales.headline}
         </h2>
@@ -856,11 +856,13 @@ function DashboardSearch(props: {
                 )
               ) : (
                 <>
-                  <div className="xl:hidden mt-3">
+                  <div className="xl:hidden mt-3 text-neutral-700 font-normal">
                     {props.locales.placeholder.default}
                   </div>
                   <div className="hidden xl:flex gap-1 mt-[0.75rem]">
-                    <div>{props.locales.placeholder.xl}</div>
+                    <div className="text-neutral-700 font-normal">
+                      {props.locales.placeholder.xl}
+                    </div>
                     <DashboardSearchPlaceholderRotation
                       locales={props.locales.placeholder.rotation}
                     />

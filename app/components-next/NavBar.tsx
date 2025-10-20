@@ -138,7 +138,11 @@ export function NavBar(props: NavBarProps) {
                   : "w-full"
               }
               method="get"
-              action="/explore/all"
+              action={
+                location.pathname.startsWith("/explore")
+                  ? location.pathname
+                  : "/explore/all"
+              }
             >
               <Search
                 inputProps={{
@@ -157,7 +161,7 @@ export function NavBar(props: NavBarProps) {
                     : props.locales.route.root.search
                 }
               >
-                <label className="line-clamp-1">
+                <label className="line-clamp-1 text-neutral-700 font-normal">
                   {typeof props.locales === "undefined" ? (
                     DEFAULT_LANGUAGE === "de" ? (
                       "Suche..."
