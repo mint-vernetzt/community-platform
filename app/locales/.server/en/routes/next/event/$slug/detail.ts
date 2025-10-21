@@ -35,12 +35,19 @@ export const locale = {
     withdrawParticipation: "Error removing from participants",
     joinWaitingList: "Error adding to waiting list",
     leaveWaitingList: "Error removing from waiting list",
+    abuseReport: {
+      reasons: {
+        required: "Please give a reason.",
+      },
+      submit: "Error submitting the report",
+    },
   },
   success: {
     participate: "Successfully added to participants",
     withdrawParticipation: "Successfully removed from participants",
     joinWaitingList: "Successfully joined waiting list",
     leaveWaitingList: "Successfully left waiting list",
+    abuseReport: "The abuse report was successfully submitted.",
   },
   abuseReport: {
     title: "Why do you want to report this event?",

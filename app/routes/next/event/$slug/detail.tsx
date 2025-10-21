@@ -13,7 +13,10 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/routes/feature-access.server";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
@@ -25,6 +28,7 @@ import {
   getIsMember,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
+  reportEvent,
 } from "./detail.server";
 
 import { utcToZonedTime } from "date-fns-tz";
@@ -41,8 +45,9 @@ import { z } from "zod";
 import { parseWithZod } from "node_modules/@conform-to/zod-v1/dist/v3/parse";
 import { redirectWithToast } from "~/toast.server";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { ABUSE_REPORT_INTENT, createAbuseReportSchema } from "./details.shared";
 
-function getSchema(locales: { invalidProfileId: string }) {
+function createParticipationSchema(locales: { invalidProfileId: string }) {
   const schema = z.object({
     profileId: z.string().uuid(locales.invalidProfileId),
   });
@@ -58,10 +63,6 @@ export async function loader(args: LoaderFunctionArgs) {
   if (abilities.next_event.hasAccess === false) {
     return redirect("/");
   }
-
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  console.log("Loader searchParams:", searchParams.toString());
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/detail"];
@@ -214,6 +215,10 @@ export async function action(args: ActionFunctionArgs) {
     return redirect("/");
   }
 
+  invariantResponse(typeof params.slug !== "undefined", "slug not found", {
+    status: 400,
+  });
+
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/detail"];
 
@@ -227,35 +232,91 @@ export async function action(args: ActionFunctionArgs) {
     intent === "participate" ||
       intent === "withdrawParticipation" ||
       intent === "joinWaitingList" ||
-      intent === "leaveWaitingList",
+      intent === "leaveWaitingList" ||
+      intent === ABUSE_REPORT_INTENT,
     "Invalid intent",
     {
       status: 400,
     }
   );
 
+  const event = {
+    id: eventId,
+    slug: params.slug,
+  };
+
+  if (intent === ABUSE_REPORT_INTENT) {
+    await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
+    const submission = await parseWithZod(formData, {
+      schema: createAbuseReportSchema(locales.route.abuseReport).transform(
+        async (data, ctx) => {
+          const { reasons, otherReason } = data;
+          if (
+            data.reasons.length === 0 &&
+            typeof data.otherReason !== "string"
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: locales.route.errors.abuseReport.reasons.required,
+            });
+            return z.NEVER;
+          }
+          const { error } = await reportEvent({
+            sessionUser,
+            event,
+            reasons,
+            otherReason,
+            locales: locales.route.abuseReport,
+          });
+          if (typeof error !== "undefined") {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: locales.route.errors.abuseReport.submit,
+            });
+            return z.NEVER;
+          }
+          return { ...data };
+        }
+      ),
+    });
+
+    if (submission.status !== "success") {
+      return {
+        submission: submission.reply(),
+        currentTimestamp: Date.now(),
+      };
+    }
+
+    return redirectWithToast(request.url, {
+      id: "abuse-report-submitted-toast",
+      key: `${new Date().getTime()}`,
+      message: locales.route.success.abuseReport,
+    });
+  }
+
   const submission = await parseWithZod(formData, {
-    schema: getSchema(locales.route.errors).transform(async (data, ctx) => {
-      let result: { error?: unknown } = {};
-      if (intent === "participate") {
-        result = await addProfileToParticipants(sessionUser.id, eventId);
-      } else if (intent === "withdrawParticipation") {
-        result = await removeProfileFromParticipants(sessionUser.id, eventId);
-      } else if (intent === "joinWaitingList") {
-        result = await addProfileToWaitingList(sessionUser.id, eventId);
-      } else {
-        result = await removeProfileFromWaitingList(sessionUser.id, eventId);
+    schema: createParticipationSchema(locales.route.errors).transform(
+      async (data, ctx) => {
+        let result: { error?: unknown } = {};
+        if (intent === "participate") {
+          result = await addProfileToParticipants(sessionUser.id, eventId);
+        } else if (intent === "withdrawParticipation") {
+          result = await removeProfileFromParticipants(sessionUser.id, eventId);
+        } else if (intent === "joinWaitingList") {
+          result = await addProfileToWaitingList(sessionUser.id, eventId);
+        } else {
+          result = await removeProfileFromWaitingList(sessionUser.id, eventId);
+        }
+        if (typeof result.error !== "undefined") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: locales.route.errors[intent],
+          });
+          return z.NEVER;
+        }
+        return data;
       }
-      if (typeof result.error !== "undefined") {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: locales.route.errors[intent],
-        });
-        return z.NEVER;
-      }
-      return data;
-    }),
-    async: true,
+    ),
   });
 
   if (submission.status !== "success") {
@@ -375,13 +436,13 @@ function Detail() {
                 locales={loaderData.locales.route.content}
               />
               <EventsOverview.SquareButton.ReportEvent
-                // modalName="report-event"
+                modalName="modal-report-event"
                 alreadyReported={loaderData.hasUserReportedEvent}
                 locales={loaderData.locales.route.content}
               />
             </EventsOverview.SquareButton>
             <EventsOverview.AbuseReportModal
-              // modalName="report-event"
+              modalName="modal-report-event"
               locales={{
                 ...loaderData.locales.route.abuseReport,
                 eventAbuseReportReasonSuggestions:

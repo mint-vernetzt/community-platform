@@ -596,11 +596,20 @@ function ReportEvent(props: {
     reportFaq: string;
   };
 }) {
-  const { modalName = "modal-report" } = props;
+  const location = useLocation();
+
+  let modalName = "modal-report";
+  if (typeof props.modalName === "string") {
+    if (props.modalName.startsWith("modal-")) {
+      modalName = props.modalName;
+    } else {
+      modalName = `modal-${props.modalName}`;
+    }
+  }
 
   return (
     <OverlayMenu.ListItem disabled={props.alreadyReported}>
-      <Form method="get" preventScrollReset>
+      <Form method="get" action={location.pathname} preventScrollReset>
         <input
           type="hidden"
           name={modalName}
@@ -673,7 +682,14 @@ function AbuseReportModal(props: {
   lastResult?: SubmissionResult<string[]> | null;
   reasons: { slug: string; description: string }[];
 }) {
-  const { modalName = "modal-report" } = props;
+  let modalName = "modal-report";
+  if (typeof props.modalName === "string") {
+    if (props.modalName.startsWith("modal-")) {
+      modalName = props.modalName;
+    } else {
+      modalName = `modal-${props.modalName}`;
+    }
+  }
 
   const [form, fields] = useForm({
     id: `abuse-report-form-${Date.now()}`,

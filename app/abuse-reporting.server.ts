@@ -200,7 +200,7 @@ export async function createProjectAbuseReport(options: {
   };
 }
 
-async function getReporter(reporterId: string) {
+export async function getReporter(reporterId: string) {
   const reporter = await prismaClient.profile.findUnique({
     select: {
       username: true,

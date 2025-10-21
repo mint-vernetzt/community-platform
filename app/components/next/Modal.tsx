@@ -110,8 +110,6 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      console.log("Modal useEffect:", searchParams.get(props.searchParam));
-
       setOpen(searchParams.get(props.searchParam) === "true");
     }
   }, [props.searchParam, searchParams]);

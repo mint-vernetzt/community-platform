@@ -1,3 +1,8 @@
+import {
+  getReporter,
+  sendNewReportMailToSupport,
+} from "~/abuse-reporting.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { prismaClient } from "~/prisma.server";
 
 export async function getEventBySlug(slug: string) {
@@ -274,4 +279,112 @@ export async function getAbuseReportReasons() {
     },
   });
   return reasons;
+}
+
+export async function reportEvent(options: {
+  sessionUser: { id: string };
+  event: {
+    id: string;
+    slug: string;
+  };
+  reasons: string[];
+  otherReason?: string;
+  locales: { email: { subject: string } };
+}) {
+  let report: Awaited<ReturnType<typeof createEventAbuseReport>>;
+
+  try {
+    const existingReport = await prismaClient.eventAbuseReport.findFirst({
+      where: {
+        eventId: options.event.id,
+        reporterId: options.sessionUser.id,
+        status: "open",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingReport !== null) {
+      const error = new Error("Report already exists");
+      console.error(error);
+      return { error };
+    }
+
+    const suggestions =
+      await prismaClient.eventAbuseReportReasonSuggestion.findMany({
+        where: {
+          slug: {
+            in: options.reasons,
+          },
+        },
+      });
+    const reasonsForReport: string[] = [];
+    for (const suggestion of suggestions) {
+      reasonsForReport.push(suggestion.description);
+    }
+    if (typeof options.otherReason === "string") {
+      reasonsForReport.push(options.otherReason);
+    }
+
+    report = await createEventAbuseReport({
+      reporterId: options.sessionUser.id,
+      slug: options.event.slug,
+      reasons: reasonsForReport,
+      locales: options.locales,
+    });
+    await sendNewReportMailToSupport(report);
+  } catch (error) {
+    console.error({ error });
+    return { error };
+  }
+
+  return { data: report };
+}
+
+async function createEventAbuseReport(options: {
+  reporterId: string;
+  slug: string;
+  reasons: string[];
+  locales: {
+    email: { subject: string };
+  };
+}) {
+  const reporter = await getReporter(options.reporterId);
+  const title = insertParametersIntoLocale(options.locales.subject, {
+    username: reporter.username,
+    slug: options.slug,
+  });
+
+  await prismaClient.project.update({
+    data: {
+      abuseReports: {
+        create: {
+          title: title,
+          reporterId: options.reporterId,
+          reasons: {
+            createMany: {
+              data: options.reasons.map((reason) => {
+                return {
+                  description: reason,
+                };
+              }),
+            },
+          },
+        },
+      },
+    },
+    where: {
+      slug: options.slug,
+    },
+  });
+  return {
+    title,
+    entityUrl: `${process.env.COMMUNITY_BASE_URL}/event/${options.slug}/detail/about`,
+    reporter: {
+      email: reporter.email,
+      url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
+    },
+    reasons: options.reasons,
+  };
 }

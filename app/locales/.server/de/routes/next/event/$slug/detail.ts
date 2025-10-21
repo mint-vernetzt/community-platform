@@ -1,3 +1,5 @@
+import { success } from "node_modules/domain-functions/types/composable/composable";
+
 export const locale = {
   content: {
     back: "Events entdecken",
@@ -35,12 +37,19 @@ export const locale = {
     withdrawParticipation: "Fehler beim Entfernen von Teilnehmer:innen",
     joinWaitingList: "Fehler beim Hinzufügen zur Warteliste",
     leaveWaitingList: "Fehler beim Entfernen von der Warteliste",
+    abuseReport: {
+      reasons: {
+        required: "Bitte gib einen Grund an.",
+      },
+      submit: "Fehler beim Absenden der Meldung",
+    },
   },
   success: {
     participate: "Erfolgreich zu Teilnehmer:innen hinzugefügt",
     withdrawParticipation: "Erfolgreich von Teilnehmer:innen entfernt",
     joinWaitingList: "Erfolgreich zur Warteliste hinzugefügt",
     leaveWaitingList: "Erfolgreich von der Warteliste entfernt",
+    abuseReport: "Die Meldung des Events wurde verschickt.",
   },
   abuseReport: {
     title: "Warum möchstest Du dieses Event melden?",
