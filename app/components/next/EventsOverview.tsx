@@ -11,6 +11,23 @@ import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules
 import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Modal } from "./Modal"; // refactor?
+import { RichText } from "./RichText"; // refactor?
+import {
+  getFormProps,
+  getInputProps,
+  type SubmissionResult,
+  useForm,
+} from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import {
+  ABUSE_REPORT_INTENT,
+  createAbuseReportSchema,
+  REPORT_REASON_MAX_LENGTH,
+} from "~/routes/next/event/$slug/details.shared";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refactor?
+import { useHydrated } from "remix-utils/use-hydrated";
 
 function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
@@ -570,6 +587,231 @@ function CopyURLToClipboard(props: {
   );
 }
 
+function ReportEvent(props: {
+  modalName?: string;
+  alreadyReported: boolean;
+  locales: {
+    report: string;
+    reported: string;
+    reportFaq: string;
+  };
+}) {
+  const { modalName = "modal-report" } = props;
+
+  return (
+    <OverlayMenu.ListItem disabled={props.alreadyReported}>
+      <Form method="get" preventScrollReset>
+        <input
+          type="hidden"
+          name={modalName}
+          defaultValue="true"
+          aria-label={props.locales.report}
+          aria-hidden="true"
+        />
+        <button
+          {...OverlayMenu.getListChildrenStyles()}
+          type="submit"
+          disabled={props.alreadyReported === true}
+        >
+          {props.alreadyReported === false ? (
+            <span className="p-0.5">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18.4731 0.10593C18.6462 0.221985 18.75 0.416642 18.75 0.625V10C18.75 10.2556 18.5944 10.4854 18.3571 10.5803L18.125 10C18.3571 10.5803 18.3572 10.5803 18.3571 10.5803L18.3539 10.5816L18.3462 10.5846L18.3176 10.5959C18.2929 10.6056 18.257 10.6196 18.2109 10.6373C18.1187 10.6726 17.9859 10.7227 17.821 10.7827C17.4916 10.9025 17.0321 11.0623 16.5119 11.2224C15.4927 11.536 14.1644 11.875 13.125 11.875C12.0666 11.875 11.1896 11.5241 10.4277 11.2192L10.3929 11.2053C9.60032 10.8883 8.92543 10.625 8.125 10.625C7.24981 10.625 6.07698 10.9116 5.07819 11.2219C4.58838 11.374 4.15731 11.5264 3.84886 11.6407C3.81431 11.6535 3.78133 11.6659 3.75 11.6776V19.375C3.75 19.7202 3.47018 20 3.125 20C2.77982 20 2.5 19.7202 2.5 19.375V0.625C2.5 0.279822 2.77982 0 3.125 0C3.47018 0 3.75 0.279822 3.75 0.625V0.977815C4.03263 0.878926 4.37015 0.765844 4.73807 0.652638C5.75727 0.339038 7.08564 0 8.125 0C9.17594 0 10.0299 0.346159 10.7762 0.648704C10.7944 0.656068 10.8125 0.663406 10.8305 0.670712C11.6073 0.985329 12.2848 1.25 13.125 1.25C14.0002 1.25 15.173 0.963423 16.1718 0.653138C16.6616 0.500975 17.0927 0.34858 17.4011 0.234265C17.5552 0.177178 17.6782 0.129766 17.762 0.0968685C17.8039 0.0804242 17.8361 0.0676203 17.8574 0.0590629L17.8811 0.0494923L17.8866 0.0472411L17.8878 0.0467559M17.5 1.52804C17.2255 1.62545 16.8992 1.7361 16.5427 1.84686C15.5296 2.16158 14.2024 2.5 13.125 2.5C12.0172 2.5 11.1349 2.14262 10.3707 1.83311L10.3613 1.82929C9.57736 1.51179 8.92348 1.25 8.125 1.25C7.28936 1.25 6.11773 1.53596 5.10568 1.84736C4.61026 1.9998 4.17125 2.15248 3.85617 2.26706C3.81899 2.28058 3.78356 2.29356 3.75 2.30593V10.347C4.0245 10.2495 4.35082 10.1389 4.70735 10.0281C5.7204 9.71342 7.04757 9.375 8.125 9.375C9.1834 9.375 10.0604 9.72593 10.8223 10.0308L10.8571 10.0447C11.6497 10.3617 12.3246 10.625 13.125 10.625C13.9606 10.625 15.1323 10.339 16.1443 10.0276C16.6397 9.8752 17.0788 9.72252 17.3938 9.60794C17.431 9.59442 17.4664 9.58144 17.5 9.56907V1.52804Z"
+                  fill="#4D5970"
+                />
+              </svg>
+            </span>
+          ) : (
+            // TODO: Link to specific faq section/question
+            <CircleButton
+              as="link"
+              to="/help#events-iReportedAnEvent"
+              target="_blank"
+              size="x-small"
+              variant="outline"
+              aria-label={props.locales.reportFaq}
+              prefetch="intent"
+            >
+              <div aria-hidden="true" className="flex flex-col gap-[1px]">
+                <div className="w-0.5 h-0.5 bg-primary rounded-lg" />
+                <div className="w-0.5 h-2 bg-primary rounded-lg" />
+              </div>
+            </CircleButton>
+          )}
+          <span>
+            {props.alreadyReported === false
+              ? props.locales.report
+              : props.locales.reported}
+          </span>
+        </button>
+      </Form>
+    </OverlayMenu.ListItem>
+  );
+}
+
+function AbuseReportModal(props: {
+  modalName?: string;
+  locales: {
+    title: string;
+    description: string;
+    faq: string;
+    submit: string;
+    otherReason: string;
+    maxLength: string;
+    abort: string;
+    eventAbuseReportReasonSuggestions: {
+      [key: string]: { description: string };
+    };
+  };
+  lastResult?: SubmissionResult<string[]> | null;
+  reasons: { slug: string; description: string }[];
+}) {
+  const { modalName = "modal-report" } = props;
+
+  const [form, fields] = useForm({
+    id: `abuse-report-form-${Date.now()}`,
+    constraint: getZodConstraint(createAbuseReportSchema(props.locales)),
+    defaultValue: {
+      [INTENT_FIELD_NAME]: ABUSE_REPORT_INTENT,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult: props.lastResult,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: createAbuseReportSchema(props.locales),
+      });
+      return submission;
+    },
+  });
+
+  const isHydrated = useHydrated();
+
+  return (
+    <Modal searchParam={modalName}>
+      <Modal.Title>
+        <span className="text-5xl leading-9">{props.locales.title}</span>
+      </Modal.Title>
+      <Modal.Section>
+        {props.locales.description}
+        <RichText html={props.locales.faq} />
+      </Modal.Section>
+      <Modal.Section>
+        <Form {...getFormProps(form)} method="post" preventScrollReset>
+          <input
+            {...getInputProps(fields[INTENT_FIELD_NAME], {
+              type: "hidden",
+            })}
+            key={ABUSE_REPORT_INTENT}
+            aria-label={props.locales.submit}
+            aria-hidden="true"
+          />
+          <div className="flex flex-col gap-6">
+            {props.reasons.map((reason) => {
+              let description;
+              if (
+                reason.slug in props.locales.eventAbuseReportReasonSuggestions
+              ) {
+                type LocaleKey =
+                  keyof typeof props.locales.eventAbuseReportReasonSuggestions;
+                description =
+                  props.locales.eventAbuseReportReasonSuggestions[
+                    reason.slug as LocaleKey
+                  ].description;
+              } else {
+                console.error(
+                  `Event abuse report reason suggestion ${reason.slug} not found in locales`
+                );
+                description = reason.slug;
+              }
+              return (
+                <label key={reason.slug} className="flex group">
+                  <input
+                    {...getInputProps(fields.reasons, {
+                      type: "checkbox",
+                      value: reason.slug,
+                    })}
+                    key={reason.slug}
+                    className="h-0 w-0 opacity-0"
+                  />
+                  <div className="w-5 h-5 relative mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      viewBox="0 0 20 20"
+                      className="block group-has-[:checked]:hidden"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                      />
+                    </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      viewBox="0 0 20 20"
+                      className="hidden group-has-[:checked]:block"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M17.5 1.25c.69 0 1.25.56 1.25 1.25v15c0 .69-.56 1.25-1.25 1.25h-15c-.69 0-1.25-.56-1.25-1.25v-15c0-.69.56-1.25 1.25-1.25h15ZM2.5 0A2.5 2.5 0 0 0 0 2.5v15A2.5 2.5 0 0 0 2.5 20h15a2.5 2.5 0 0 0 2.5-2.5v-15A2.5 2.5 0 0 0 17.5 0h-15Z"
+                      />
+                      <path
+                        fill="currentColor"
+                        d="M13.712 6.212a.937.937 0 0 1 1.34 1.312l-4.991 6.238a.938.938 0 0 1-1.349.026L5.404 10.48A.938.938 0 0 1 6.73 9.154l2.617 2.617 4.34-5.53a.3.3 0 0 1 .025-.029Z"
+                      />
+                    </svg>
+                  </div>
+                  <span className="font-semibold">{description}</span>
+                </label>
+              );
+            })}
+            <Input
+              {...getInputProps(fields.otherReason, {
+                type: "text",
+              })}
+              maxLength={REPORT_REASON_MAX_LENGTH}
+            >
+              <Input.Label htmlFor={fields.otherReason.id}>
+                {props.locales.otherReason}
+              </Input.Label>
+              {typeof fields.reasons.errors !== "undefined" &&
+              fields.reasons.errors.length > 0
+                ? fields.reasons.errors.map((error) => (
+                    <Input.Error id={fields.reasons.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
+            </Input>
+          </div>
+        </Form>
+      </Modal.Section>
+      <Modal.SubmitButton
+        form={form.id} // Don't disable button when js is disabled
+        disabled={
+          isHydrated ? form.dirty === false || form.valid === false : false
+        }
+      >
+        {props.locales.submit}
+      </Modal.SubmitButton>
+      <Modal.CloseButton>{props.locales.abort}</Modal.CloseButton>
+    </Modal>
+  );
+}
+
 function Edit(props: { children: React.ReactNode; slug: string }) {
   return (
     <Button as="link" to={`/event/${props.slug}/settings`} fullSize>
@@ -694,6 +936,8 @@ function LeaveWaitingList(props: {
 }
 
 SquareButton.CopyURLToClipboard = CopyURLToClipboard;
+SquareButton.ReportEvent = ReportEvent;
+EventsOverview.AbuseReportModal = AbuseReportModal;
 EventsOverview.Participate = Participate;
 EventsOverview.WithdrawParticipation = WithdrawParticipation;
 EventsOverview.JoinWaitingList = JoinWaitingList;

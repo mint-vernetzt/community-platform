@@ -4,8 +4,10 @@ import {
   type LoaderFunctionArgs,
   Outlet,
   redirect,
+  useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
@@ -16,8 +18,10 @@ import {
   addProfileToParticipants,
   addProfileToWaitingList,
   deriveModeForEvent,
+  getAbuseReportReasons,
   getEventBySlug,
   getEventIdBySlug,
+  getHasUserReportedEvent,
   getIsMember,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
@@ -54,6 +58,10 @@ export async function loader(args: LoaderFunctionArgs) {
   if (abilities.next_event.hasAccess === false) {
     return redirect("/");
   }
+
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  console.log("Loader searchParams:", searchParams.toString());
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/detail"];
@@ -156,6 +164,13 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   );
 
+  const hasUserReportedEvent = await getHasUserReportedEvent(
+    sessionUser,
+    event.id
+  );
+
+  const abuseReportReasons = await getAbuseReportReasons();
+
   const enhancedEvent = {
     ...event,
     startTime,
@@ -179,6 +194,8 @@ export async function loader(args: LoaderFunctionArgs) {
     inPast,
     mode: mode as Awaited<ReturnType<typeof deriveModeForEvent>>, // fixes type issue using invarientResponse if event not published
     profileId: sessionUser !== null ? sessionUser.id : undefined,
+    hasUserReportedEvent,
+    abuseReportReasons,
   };
 }
 
@@ -257,6 +274,8 @@ export async function action(args: ActionFunctionArgs) {
 
 function Detail() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const location = useLocation();
   const { pathname } = location;
 
@@ -355,7 +374,26 @@ function Detail() {
               <EventsOverview.SquareButton.CopyURLToClipboard // naming?
                 locales={loaderData.locales.route.content}
               />
+              <EventsOverview.SquareButton.ReportEvent
+                // modalName="report-event"
+                alreadyReported={loaderData.hasUserReportedEvent}
+                locales={loaderData.locales.route.content}
+              />
             </EventsOverview.SquareButton>
+            <EventsOverview.AbuseReportModal
+              // modalName="report-event"
+              locales={{
+                ...loaderData.locales.route.abuseReport,
+                eventAbuseReportReasonSuggestions:
+                  loaderData.locales.eventAbuseReportReasonSuggestions,
+              }}
+              reasons={loaderData.abuseReportReasons}
+              lastResult={
+                navigation.state !== "idle" && typeof actionData !== "undefined"
+                  ? actionData.submission
+                  : null
+              }
+            />
             {loaderData.mode === "admin" && (
               <EventsOverview.Edit slug={loaderData.event.slug}>
                 {loaderData.locales.route.content.edit}

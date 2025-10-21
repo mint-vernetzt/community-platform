@@ -245,3 +245,33 @@ export async function removeProfileFromWaitingList(
     return { error };
   }
 }
+
+export async function getHasUserReportedEvent(
+  sessionUser: { id: string } | null,
+  eventId: string
+) {
+  if (sessionUser === null) {
+    return false;
+  }
+  const report = await prismaClient.eventAbuseReport.findFirst({
+    where: {
+      eventId,
+      status: "open",
+      reporterId: sessionUser.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+  return report !== null;
+}
+
+export async function getAbuseReportReasons() {
+  const reasons = await prismaClient.eventAbuseReportReasonSuggestion.findMany({
+    select: {
+      slug: true,
+      description: true,
+    },
+  });
+  return reasons;
+}

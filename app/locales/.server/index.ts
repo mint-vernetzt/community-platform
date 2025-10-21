@@ -458,6 +458,7 @@ const de = {
   "next/event/$slug/detail": {
     route: deNextEventDetail,
     stages: deStages,
+    eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
   },
   "next/event/$slug/detail/about": {
     route: deNextAboutEvent,
@@ -875,6 +876,7 @@ const en = {
   "next/event/$slug/detail": {
     route: enNextEventDetail,
     stages: enStages,
+    eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
   },
   "next/event/$slug/detail/about": {
     route: enNextAboutEvent,

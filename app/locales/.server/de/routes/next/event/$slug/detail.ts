@@ -25,6 +25,9 @@ export const locale = {
     withdrawParticipation: "Nicht mehr teilnehmen",
     joinWaitingList: "Zur Warteliste hinzufügen",
     leaveWaitingList: "Von der Warteliste entfernen",
+    report: "Melden",
+    reported: "Meldung wird geprüft",
+    reportFaq: "Weitere Infos zum Melden",
   },
   errors: {
     invalidProfileId: "Ungültige Profil-ID",
@@ -38,5 +41,20 @@ export const locale = {
     withdrawParticipation: "Erfolgreich von Teilnehmer:innen entfernt",
     joinWaitingList: "Erfolgreich zur Warteliste hinzugefügt",
     leaveWaitingList: "Erfolgreich von der Warteliste entfernt",
+  },
+  abuseReport: {
+    title: "Warum möchstest Du dieses Event melden?",
+    description:
+      "Um Deiner Meldung nachgehen zu  können, benötigen wir den Grund, warum Du dieses Event melden möchtest.",
+    faq: `Weitere Infos zum Meldenprozess findest Du in unserem <a href="/help#events-reportEvent" target="_blank" class="text-primary underline hover:no-underline">Hilfebereich</a>.`,
+    otherReason: "Anderer Grund",
+    maxLength: "Maximal {{max}} Zeichen",
+    noReasons: "Bitte gib mindestens einen Grund an.",
+    alreadySubmitted: "Du hast dieses Event bereits gemeldet.",
+    submit: "Event melden",
+    abort: "Abbrechen",
+    email: {
+      subject: 'Das Profil "{{username}}" hat das Event "{{slug}}" gemeldet',
+    },
   },
 } as const;

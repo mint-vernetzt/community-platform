@@ -25,6 +25,9 @@ export const locale = {
     withdrawParticipation: "Withdraw participation",
     joinWaitingList: "Join waiting list",
     leaveWaitingList: "Leave waiting list",
+    report: "Report",
+    reported: "Report is being reviewed",
+    reportFaq: "More info about reporting",
   },
   errors: {
     invalidProfileId: "Invalid profile ID",
@@ -38,5 +41,20 @@ export const locale = {
     withdrawParticipation: "Successfully removed from participants",
     joinWaitingList: "Successfully joined waiting list",
     leaveWaitingList: "Successfully left waiting list",
+  },
+  abuseReport: {
+    title: "Why do you want to report this event?",
+    description:
+      "In order to follow up on your report, we need the reason why you want to report this event.",
+    faq: 'Further information about the reporting process can be found in our <a href="/help#events-reportEvent" target="_blank" class="text-primary underline hover:no-underline">help section</a>.',
+    otherReason: "Other reason",
+    noReasons: "Please give at least one reason.",
+    alreadySubmitted: "You have already reported this event.",
+    maxLength: "Maximum {{max}} characters",
+    submit: "Report event",
+    abort: "Cancel",
+    email: {
+      subject: 'Profile "{{username}}" reported event "{{slug}}"',
+    },
   },
 } as const;
