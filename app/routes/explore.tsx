@@ -266,7 +266,7 @@ export default function Explore() {
             : ""
         }`}
       >
-        <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal">
+        <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal mx-auto max-w-[320px] md:max-w-none">
           {searchParams.has("search") && searchParams.get("search") !== ""
             ? insertParametersIntoLocale(
                 loaderData.locales.route.content.searchHeadline,
