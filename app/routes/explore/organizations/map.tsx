@@ -272,7 +272,7 @@ export default function ExploreOrganizationsList() {
   }/map?${embedLinkSearchParams.toString()}" title="MINTvernetzt-Community-Karte" referrerpolicy="no-referrer" allowfullscreen />`;
 
   return (
-    <div className="w-full px-4">
+    <div className="w-full">
       <div className="w-full relative rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
         <MapView
           organizations={loaderData.organizations.filter((organization) => {

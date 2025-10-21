@@ -1,13 +1,14 @@
-import classNames from "classnames";
 import { Children, isValidElement } from "react";
 
 type CardContainerType = "single row" | "multi row";
+type CardContainerJustification = "center" | "start";
 type CardContainerProps = {
   type?: CardContainerType;
+  justification?: CardContainerJustification;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 function CardContainer(props: CardContainerProps) {
-  const { type = "single row" } = props;
+  const { type = "single row", justification = "center" } = props;
   const validChildren = Children.toArray(props.children).filter((child) => {
     return isValidElement(child);
   });
@@ -19,18 +20,14 @@ function CardContainer(props: CardContainerProps) {
       })}
     </div>
   ) : (
-    <div className={`flex flex-wrap`}>
-      {validChildren.map((child, index) => {
-        const classes = classNames(
-          "w-full @sm:w-1/2 @lg:w-1/3 @xl:w-1/4 pb-8 px-4"
-        );
-
-        return (
-          <div key={`item-${index}`} className={classes}>
-            {child}
-          </div>
-        );
-      })}
+    <div
+      className={`w-full flex @container ${justification === "center" ? "justify-center" : "justify-start"}`}
+    >
+      <div className="w-full grid gap-8 max-w-fit grid-cols-1 @cards-2:grid-cols-2 @cards-3:grid-cols-3 @cards-4:grid-cols-4 auto-rows-auto">
+        {validChildren.map((child) => {
+          return child;
+        })}
+      </div>
     </div>
   );
 }

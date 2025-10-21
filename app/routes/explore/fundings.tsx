@@ -392,9 +392,144 @@ export default function ExploreFundings() {
     return value === `${loaderData.submission.value.fndSortBy}`;
   });
 
+  const fundings = [
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+    {
+      url: "test",
+      title: "test",
+      sourceAreas: [],
+      sourceEntities: [],
+      funders: [],
+      types: [],
+      regions: [],
+      areas: [],
+      eligibleEntities: [],
+    },
+  ] as typeof loaderData.fundings;
+
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -670,10 +805,10 @@ export default function ExploreFundings() {
               : undefined
           }
         >
-          <div className="w-full mx-auto @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl mb-4">
+          <div className="w-full mx-auto 2xl:max-w-screen-container-2xl mb-4">
             <hr className="border-t border-gray-200 mt-4" />
           </div>
-          <section className="w-full mx-auto @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6 px-0">
+          <section className="w-full mx-auto px-4 xl:px-6 2xl:max-w-screen-container-2xl mb-6">
             {(loaderData.selectedFundingTypes.length > 0 ||
               loaderData.selectedFundingAreas.length > 0 ||
               loaderData.selectedRegions.length > 0 ||
@@ -922,79 +1057,82 @@ export default function ExploreFundings() {
               {loaderData.locales.empty}
             </p>
           ) : null}
+          <div className="w-full mb-10 @lg:mb-12 @xl:mb-14">
+            <FundingCard.Container>
+              {fundings.map((funding) => {
+                return (
+                  <FundingCard
+                    key={funding.url}
+                    url={funding.url}
+                    locales={loaderData.locales}
+                  >
+                    <FundingCard.Subtitle>
+                      {funding.types
+                        .map((relation) => {
+                          return relation.type.title;
+                        })
+                        .join(", ")}
+                    </FundingCard.Subtitle>
+                    <FundingCard.Title as="h2">
+                      {funding.title}
+                    </FundingCard.Title>
+                    <FundingCard.Category
+                      items={funding.regions.map((relation) => {
+                        return relation.region.title;
+                      })}
+                      locales={loaderData.locales}
+                    >
+                      <FundingCard.Category.Title>
+                        {loaderData.locales.card.region}
+                      </FundingCard.Category.Title>
+                    </FundingCard.Category>
+                    <FundingCard.Category
+                      items={funding.sourceEntities}
+                      locales={loaderData.locales}
+                    >
+                      <FundingCard.Category.Title>
+                        {loaderData.locales.card.eligibleEntity}
+                      </FundingCard.Category.Title>
+                    </FundingCard.Category>
 
-          <FundingCard.Container>
-            {loaderData.fundings.map((funding) => {
-              return (
-                <FundingCard
-                  key={funding.url}
-                  url={funding.url}
-                  locales={loaderData.locales}
+                    <FundingCard.Category
+                      items={funding.sourceAreas}
+                      locales={loaderData.locales}
+                    >
+                      <FundingCard.Category.Title>
+                        {loaderData.locales.card.area}
+                      </FundingCard.Category.Title>
+                    </FundingCard.Category>
+                  </FundingCard>
+                );
+              })}
+            </FundingCard.Container>
+
+            {loaderData.count > loaderData.fundings.length && (
+              <div className="w-full flex justify-center mt-4 @lg:mt-8">
+                <Form
+                  {...getFormProps(loadMoreForm)}
+                  method="get"
+                  preventScrollReset
+                  replace
                 >
-                  <FundingCard.Subtitle>
-                    {funding.types
-                      .map((relation) => {
-                        return relation.type.title;
-                      })
-                      .join(", ")}
-                  </FundingCard.Subtitle>
-                  <FundingCard.Title as="h2">{funding.title}</FundingCard.Title>
-                  <FundingCard.Category
-                    items={funding.regions.map((relation) => {
-                      return relation.region.title;
-                    })}
-                    locales={loaderData.locales}
+                  <HiddenFilterInputs
+                    fields={loadMoreFields}
+                    defaultValue={loaderData.submission.value}
+                  />
+                  <Button
+                    type="submit"
+                    size="large"
+                    variant="outline"
+                    loading={navigation.state === "loading"}
+                    disabled={navigation.state === "loading"}
                   >
-                    <FundingCard.Category.Title>
-                      {loaderData.locales.card.region}
-                    </FundingCard.Category.Title>
-                  </FundingCard.Category>
-                  <FundingCard.Category
-                    items={funding.sourceEntities}
-                    locales={loaderData.locales}
-                  >
-                    <FundingCard.Category.Title>
-                      {loaderData.locales.card.eligibleEntity}
-                    </FundingCard.Category.Title>
-                  </FundingCard.Category>
-
-                  <FundingCard.Category
-                    items={funding.sourceAreas}
-                    locales={loaderData.locales}
-                  >
-                    <FundingCard.Category.Title>
-                      {loaderData.locales.card.area}
-                    </FundingCard.Category.Title>
-                  </FundingCard.Category>
-                </FundingCard>
-              );
-            })}
-          </FundingCard.Container>
-
-          {loaderData.count > loaderData.fundings.length && (
-            <div className="w-full flex justify-center mb-8 @md:mb-24 @lg:mb-8 mt-4 @lg:mt-8">
-              <Form
-                {...getFormProps(loadMoreForm)}
-                method="get"
-                preventScrollReset
-                replace
-              >
-                <HiddenFilterInputs
-                  fields={loadMoreFields}
-                  defaultValue={loaderData.submission.value}
-                />
-                <Button
-                  type="submit"
-                  size="large"
-                  variant="outline"
-                  loading={navigation.state === "loading"}
-                  disabled={navigation.state === "loading"}
-                >
-                  {loaderData.locales.more}
-                </Button>
-              </Form>
-            </div>
-          )}
+                    {loaderData.locales.more}
+                  </Button>
+                </Form>
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </>
