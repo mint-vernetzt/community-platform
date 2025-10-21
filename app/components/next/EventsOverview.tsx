@@ -517,15 +517,15 @@ function CopyURLToClipboard(props: {
   const location = useLocation();
   const { baseUrl, overlayMenuId } = useSquareButtonContext();
 
-  const searchParams = new URLSearchParams(location.search);
-  searchParams.delete(overlayMenuId);
-  const newSearch = searchParams.toString();
-
-  const url = new URL(location.pathname, baseUrl);
-  url.search = newSearch;
-  url.hash = location.hash;
-
   const handleCopyToClipboard = async () => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.delete(overlayMenuId);
+    const newSearch = searchParams.toString();
+
+    const url = new URL(location.pathname, baseUrl);
+    url.search = newSearch;
+    url.hash = location.hash;
+
     await copyToClipboard(url.toString());
     setHasCopied(true);
   };
@@ -594,7 +594,7 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
   return (
     <Button
       as="link"
-      to={`/login?redirectTo=${encodeURIComponent(props.pathname)}`}
+      to={`/login?login_redirect=${encodeURIComponent(props.pathname)}`}
       fullSize
     >
       {props.children}

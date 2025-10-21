@@ -189,7 +189,7 @@ export async function action(args: ActionFunctionArgs) {
   if (sessionUser === null) {
     const url = new URL(request.url);
     const pathname = url.pathname;
-    return redirect(`/login?redirectTo=${encodeURIComponent(pathname)}`);
+    return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
   }
 
   const abilities = await getFeatureAbilities(authClient, "next_event");
