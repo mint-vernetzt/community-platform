@@ -611,8 +611,8 @@ export default function ExploreAll() {
     <>
       {/* Profile Card Section */}
       {loaderData.profiles.length > 0 ? (
-        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.profiles}
             </h2>
@@ -629,7 +629,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:px-2">
+          <div className="px-4 xl:px-6">
             <CardContainer>
               {loaderData.profiles.map((profile) => {
                 return (
@@ -648,8 +648,8 @@ export default function ExploreAll() {
       ) : null}
       {/* Organization Card Section */}
       {loaderData.organizations.length > 0 ? (
-        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.organizations}
             </h2>
@@ -668,7 +668,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:px-2">
+          <div className="px-4 xl:px-6">
             <CardContainer>
               {loaderData.organizations.map((organization) => {
                 return (
@@ -687,8 +687,8 @@ export default function ExploreAll() {
       ) : null}
       {/* Event Card Section */}
       {loaderData.events.length > 0 ? (
-        <section className="w-full mb-8 mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+        <section className="w-full mb-8 mx-auto max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.events}
             </h2>
@@ -705,7 +705,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:px-2">
+          <div className="px-4 xl:px-6">
             <CardContainer>
               {loaderData.events.map((event) => {
                 const startTime = utcToZonedTime(
@@ -743,8 +743,8 @@ export default function ExploreAll() {
       ) : null}
       {/* Project Card Section */}
       {loaderData.projects.length > 0 ? (
-        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.projects}
             </h2>
@@ -761,7 +761,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="@xl:px-2">
+          <div className="px-4 xl:px-6">
             <CardContainer>
               {loaderData.projects.map((project) => {
                 return (
@@ -780,8 +780,8 @@ export default function ExploreAll() {
       ) : null}
       {/* Funding Card Section */}
       {loaderData.fundings.length > 0 ? (
-        <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-          <div className="flex mb-4 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+          <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.fundings}
             </h2>
@@ -798,7 +798,7 @@ export default function ExploreAll() {
               </LinkButton>
             </div>
           </div>
-          <div className="px-4">
+          <div className="px-4 xl:px-6">
             <FundingCard.Container>
               {loaderData.fundings.map((funding) => {
                 return (
