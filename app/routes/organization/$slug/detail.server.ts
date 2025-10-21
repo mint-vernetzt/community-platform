@@ -48,6 +48,25 @@ export async function getOrganization(slug: string) {
       tiktok: true,
       supportedBy: true,
       shadow: true,
+      areas: {
+        select: {
+          area: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      focuses: {
+        select: {
+          focus: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
       types: {
         select: {
           organizationType: {

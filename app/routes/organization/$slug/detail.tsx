@@ -64,6 +64,7 @@ import {
 } from "~/routes/feature-access.server";
 import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
 import { handleClaimRequest } from "~/claim-request.server";
+import { hasGeneralInformation } from "./detail/about.shared";
 
 export function links() {
   return [
@@ -254,9 +255,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         organization.shadow === false
           ? false
           : openClaimRequest !== null
-          ? openClaimRequest.status === "open" ||
-            openClaimRequest.status === "withdrawn"
-          : true;
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
     } else {
       alreadyRequestedToClaim = false;
       allowedToClaimOrganization = organization.shadow === true;
@@ -805,7 +806,14 @@ function OrganizationDetail() {
         </>
       )}
       {/* TabBar Section */}
-      <Container.Section className="pt-6 @sm:px-4 @lg:px-6 flex flex-col gap-4 @sm:border-x @sm:border-t @sm:border-neutral-200 bg-white @sm:rounded-t-2xl">
+      <Container.Section
+        className={
+          pathname.endsWith("/about") &&
+          hasGeneralInformation(organization) === false
+            ? "pt-6 px-4 @lg:px-6 flex flex-col gap-4 border-x border-t border-neutral-200 bg-white rounded-t-2xl"
+            : "pt-6 @sm:px-4 @lg:px-6 flex flex-col gap-4 @sm:border-x @sm:border-t @sm:border-neutral-200 bg-white @sm:rounded-t-2xl"
+        }
+      >
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
             <Link to="./about" preventScrollReset prefetch="intent">

@@ -142,10 +142,10 @@ function About() {
 
           {hasContactOrSoMeInformation(organization) ? (
             <Container.Section
-              className={`@sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-neutral-200 bg-white ${
+              className={`px-4 @lg:px-6 flex flex-col gap-6 border-neutral-200 bg-white ${
                 hasGeneralInformation(organization)
-                  ? "py-6 @sm:border @sm:rounded-2xl"
-                  : "-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 pb-6 @sm:py-8 @sm:border-b @sm:border-x @sm:rounded-b-2xl"
+                  ? "py-6 border rounded-2xl"
+                  : "-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 pb-6 py-8 border-b border-x rounded-b-2xl"
               }`}
             >
               <h3 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
@@ -236,8 +236,8 @@ function About() {
                       numberOfSocialServices === 1
                         ? "grid-cols-1"
                         : numberOfSocialServices === 2
-                        ? "grid-cols-2"
-                        : "grid-cols-2 @md:grid-cols-3"
+                          ? "grid-cols-2"
+                          : "grid-cols-2 @md:grid-cols-3"
                     } grid-flow-row auto-rows-min gap-2`}
                   >
                     {Object.entries(ExternalServiceIcons).map(
