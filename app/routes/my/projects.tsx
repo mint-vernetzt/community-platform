@@ -255,11 +255,7 @@ function MyProjects() {
             method="post"
             preventScrollReset
           >
-            <CardContainer
-              key={`projects`}
-              type="multi row"
-              justification="start"
-            >
+            <CardContainer key={`projects`} type="multi row">
               {loaderData.projects[
                 projects as "adminProjects" | "teamMemberProjects"
               ].map((project) => {

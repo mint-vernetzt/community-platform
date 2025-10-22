@@ -1,14 +1,12 @@
 import { Children, isValidElement } from "react";
 
 type CardContainerType = "single row" | "multi row";
-type CardContainerJustification = "center" | "start";
 type CardContainerProps = {
   type?: CardContainerType;
-  justification?: CardContainerJustification;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 function CardContainer(props: CardContainerProps) {
-  const { type = "single row", justification = "center" } = props;
+  const { type = "single row" } = props;
   const validChildren = Children.toArray(props.children).filter((child) => {
     return isValidElement(child);
   });
@@ -20,9 +18,7 @@ function CardContainer(props: CardContainerProps) {
       })}
     </div>
   ) : (
-    <div
-      className={`w-full flex @container ${justification === "center" ? "justify-center" : "justify-start"}`}
-    >
+    <div className="w-full @container">
       <div className="w-full grid gap-8 grid-cols-1 @cards-2:grid-cols-2 @cards-3:grid-cols-3 @cards-4:grid-cols-4 auto-rows-auto">
         {validChildren.map((child) => {
           return child;

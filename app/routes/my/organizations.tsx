@@ -1729,7 +1729,7 @@ export default function MyOrganizations() {
                       method="post"
                       preventScrollReset
                     >
-                      <CardContainer type="multi row" justification="start">
+                      <CardContainer type="multi row">
                         {value.organizations.map((organization) => {
                           const doubleCheckModalSearchParams =
                             new URLSearchParams(searchParams);
