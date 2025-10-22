@@ -31,10 +31,7 @@ export function hasContactOrSoMeInformation(organization: {
   tiktok: string | null;
   xing: string | null;
 }) {
-  return Object.values(organization).some(
-    (value) =>
-      value !== null && value.trim() !== "" && value.trim() !== "<p></p>"
-  );
+  return hasContactInformation(organization) || hasSocialService(organization);
 }
 
 export function hasContactInformation(organization: {
@@ -100,9 +97,31 @@ export function hasSocialService(organization: {
   tiktok: string | null;
   xing: string | null;
 }) {
-  return Object.values(organization).some(
-    (value) =>
-      value !== null && value.trim() !== "" && value.trim() !== "<p></p>"
+  return (
+    (organization.facebook !== null &&
+      organization.facebook.trim() !== "" &&
+      organization.facebook.trim() !== "<p></p>") ||
+    (organization.linkedin !== null &&
+      organization.linkedin.trim() !== "" &&
+      organization.linkedin.trim() !== "<p></p>") ||
+    (organization.twitter !== null &&
+      organization.twitter.trim() !== "" &&
+      organization.twitter.trim() !== "<p></p>") ||
+    (organization.instagram !== null &&
+      organization.instagram.trim() !== "" &&
+      organization.instagram.trim() !== "<p></p>") ||
+    (organization.youtube !== null &&
+      organization.youtube.trim() !== "" &&
+      organization.youtube.trim() !== "<p></p>") ||
+    (organization.mastodon !== null &&
+      organization.mastodon.trim() !== "" &&
+      organization.mastodon.trim() !== "<p></p>") ||
+    (organization.tiktok !== null &&
+      organization.tiktok.trim() !== "" &&
+      organization.tiktok.trim() !== "<p></p>") ||
+    (organization.xing !== null &&
+      organization.xing.trim() !== "" &&
+      organization.xing.trim() !== "<p></p>")
   );
 }
 

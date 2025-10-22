@@ -254,9 +254,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
         organization.shadow === false
           ? false
           : openClaimRequest !== null
-          ? openClaimRequest.status === "open" ||
-            openClaimRequest.status === "withdrawn"
-          : true;
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
     } else {
       alreadyRequestedToClaim = false;
       allowedToClaimOrganization = organization.shadow === true;

@@ -12,14 +12,16 @@ export const locale = {
     contact: "Contact",
   },
   blankState: {
-    owner: {
-      title: "You have not created any additional information yet.",
-      description:
-        "Edit your organization and make it more visible to the community.",
-      cta: "Edit organization",
+    admin: {
+      headline: "You haven't added any additional info yet.",
+      subline: "Share your information to be found more easily!",
+      cta: "Create info now",
+    },
+    authenticated: {
+      info: "No additional info has been added yet.",
     },
     anon: {
-      title: "No additional information has been created yet.",
+      info: "No public info has been created yet.",
     },
   },
 } as const;
