@@ -351,12 +351,12 @@ async function createEventAbuseReport(options: {
   };
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = insertParametersIntoLocale(options.locales.subject, {
+  const title = insertParametersIntoLocale(options.locales.email.subject, {
     username: reporter.username,
     slug: options.slug,
   });
 
-  await prismaClient.project.update({
+  await prismaClient.event.update({
     data: {
       abuseReports: {
         create: {

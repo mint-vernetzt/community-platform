@@ -1,5 +1,3 @@
-import { success } from "node_modules/domain-functions/types/composable/composable";
-
 export const locale = {
   content: {
     back: "Events entdecken",

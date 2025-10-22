@@ -278,6 +278,7 @@ export async function action(args: ActionFunctionArgs) {
           return { ...data };
         }
       ),
+      async: true,
     });
 
     if (submission.status !== "success") {
@@ -317,6 +318,7 @@ export async function action(args: ActionFunctionArgs) {
         return data;
       }
     ),
+    async: true,
   });
 
   if (submission.status !== "success") {

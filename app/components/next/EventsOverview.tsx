@@ -6,7 +6,7 @@ import type { languageModuleMap } from "~/locales/.server";
 import { OverlayMenu } from "./OverlayMenu"; // refactor?
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { Form, useLocation } from "react-router";
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState, createContext, useContext, useRef } from "react";
 import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -691,8 +691,10 @@ function AbuseReportModal(props: {
     }
   }
 
+  const now = useRef(Date.now());
+
   const [form, fields] = useForm({
-    id: `abuse-report-form-${Date.now()}`,
+    id: `abuse-report-form-${now.current}`,
     constraint: getZodConstraint(createAbuseReportSchema(props.locales)),
     defaultValue: {
       [INTENT_FIELD_NAME]: ABUSE_REPORT_INTENT,

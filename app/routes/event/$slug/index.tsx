@@ -236,13 +236,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  console.log(
-    "Loader event/$slug index called with search params:",
-    searchParams.toString()
-  );
-
   const mode = await deriveEventMode(sessionUser, slug);
 
   // TODO: Could this be inserted in deriveEventMode? It defines a mode for the session user in this specific context.
