@@ -403,7 +403,7 @@ function OrganizationDetail() {
       </BackButton>
       {/* Header Section */}
       <Container.Section className="relative flex flex-col items-center border border-neutral-200 bg-white rounded-2xl overflow-hidden">
-        <div className="w-full h-[196px] @lg:h-[168px]">
+        <div className="w-full h-[200px]">
           <Image
             alt={`${locales.route.header.image.alt} ${organization.name}`}
             src={organization.background || undefined}
@@ -565,7 +565,7 @@ function OrganizationDetail() {
           ) : null}
         </div>
         {mode === "admin" ? (
-          <div className="hidden @lg:grid absolute top-0 w-full h-[196px] @lg:h-[168px] opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center">
+          <div className="hidden @lg:grid absolute top-0 w-full h-[200px] opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center">
             <div className="flex flex-col items-center gap-4">
               <p className="text-white text-lg font-bold">
                 {locales.route.header.controls.backgroundLong}
@@ -593,7 +593,7 @@ function OrganizationDetail() {
             </div>
           </div>
         ) : null}
-        <div className="absolute top-14 @lg:top-8 @lg:left-8 w-40 h-40 rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+        <div className="absolute top-15 @lg:top-16 @lg:left-8 w-40 h-40 rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
           <div className="relative w-full full">
             <Avatar
               logo={organization.logo}
