@@ -31,7 +31,7 @@ function Card(props: CardProps) {
   });
 
   return (
-    <div className="w-full h-full bg-white border focus-within:ring-2 border-neutral-200 focus-within:ring-primary-200 rounded-lg relative overflow-hidden text-gray-700 flex flex-col items-stretch">
+    <div className="w-full h-full bg-white border focus-within:ring-2 border-neutral-200 focus-within:ring-primary-200 rounded-lg relative overflow-hidden text-gray-700 flex flex-col min-w-[304px]">
       {props.to !== undefined && props.to !== "" ? (
         <>
           <div className="h-full hover:bg-neutral-100 active:bg-neutral-100 focus:bg-neutral-100">
@@ -305,44 +305,6 @@ export function CardFooter(props: CardFooterProps) {
 }
 
 Card.Footer = CardFooter;
-
-type CardRowContainerProps = {
-  children?: React.ReactNode;
-};
-
-function wrapCardRowContainerChildren(children: React.ReactNode) {
-  const validChildren = Children.toArray(children).filter((child) => {
-    return isValidElement(child);
-  });
-
-  return Children.map(validChildren, (child) => {
-    return (
-      <div className="w-3/4 @md:w-1/3 px-2 @md:px-4 shrink-0">{child}</div>
-    );
-  });
-}
-
-function CardRowContainer(props: CardRowContainerProps) {
-  const itemsPerRow = 3;
-
-  const validChildren = Children.toArray(props.children).filter((child) => {
-    return isValidElement(child);
-  });
-
-  const classes = classNames("flex -mx-2 @md:-mx-4 mb-8", {
-    "flex-wrap": itemsPerRow < validChildren.length,
-  });
-
-  return (
-    <div className="relative">
-      <div className={classes}>
-        {wrapCardRowContainerChildren(validChildren)}
-      </div>
-    </div>
-  );
-}
-
-Card.RowContainer = CardRowContainer;
 
 export function CardControls(props: React.PropsWithChildren) {
   const { children } = props;

@@ -259,14 +259,14 @@ export default function Explore() {
   return (
     <>
       <section
-        className={`mx-auto @lg:px-6 max-w-screen-2xl mb-8 @lg:mb-16${
+        className={`mx-auto px-4 xl:px-6 max-w-screen-2xl mb-8 @lg:mb-16${
           searchParams.has("showFilters") &&
           searchParams.get("showFilters") === "on"
             ? " hidden @lg:block"
             : ""
         }`}
       >
-        <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
+        <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal mx-auto max-w-[320px] md:max-w-none">
           {searchParams.has("search") && searchParams.get("search") !== ""
             ? insertParametersIntoLocale(
                 loaderData.locales.route.content.searchHeadline,
@@ -274,7 +274,7 @@ export default function Explore() {
               )
             : loaderData.locales.route.content.headline}
         </h1>
-        <div className="flex flex-col-reverse items-center justify-center px-6 pt-6 @lg:rounded-lg @lg:border border-neutral-200 @lg:bg-white">
+        <div className="flex flex-col-reverse items-center justify-center @lg:px-6 pt-6 @lg:rounded-lg @lg:border border-neutral-200 @lg:bg-white">
           <EntitiesSelect>
             <EntitiesSelect.Menu.Label>
               {loaderData.locales.route.content.menu.label}

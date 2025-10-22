@@ -18,6 +18,10 @@
   --container-xl: 1280px;
   --container-2xl: 1536px;
 
+  --container-cards-2: 648px;
+  --container-cards-3: 988px;
+  --container-cards-4: 1328px;
+
   --color-neutral: #70809d;
   --color-neutral-50: #fcfcfd;
   --color-neutral-100: #f4f5f6;

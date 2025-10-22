@@ -446,7 +446,7 @@ export default function ExploreOrganizations() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           action={`/explore/organizations/${loaderData.currentView}`}
@@ -1031,10 +1031,10 @@ export default function ExploreOrganizations() {
             : undefined
         }
       >
-        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+        <div className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
           <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
           <div className="w-full flex justify-center">
             <ul className="grid grid-flow-col auto-cols-fr gap-2 p-1 rounded-lg bg-white border border-neutral-300">
               <li>
@@ -1074,7 +1074,7 @@ export default function ExploreOrganizations() {
             </ul>
           </div>
         </section>
-        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-6">
           {(loaderData.selectedTypes.length > 0 ||
             loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedAreas.length > 0 ||
@@ -1400,7 +1400,7 @@ export default function ExploreOrganizations() {
           )}
         </section>
 
-        <section className="mx-auto @sm:px-4 @md:px-0 @xl:px-2 w-full @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-10 @lg:mb-12 @xl:mb-14">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !==
             loaderData.organizationsCount ? (

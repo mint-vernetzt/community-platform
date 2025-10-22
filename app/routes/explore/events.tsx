@@ -358,7 +358,7 @@ export default function ExploreEvents() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -756,10 +756,10 @@ export default function ExploreEvents() {
             : undefined
         }
       >
-        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-4">
+        <div className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
           <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-6">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-6">
           {(loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedTargetGroups.length > 0) && (
             <div className="flex flex-col gap-2">
@@ -914,7 +914,7 @@ export default function ExploreEvents() {
           )}
         </section>
 
-        <section className="mx-auto @sm:px-4 @md:px-0 @xl:px-2 w-full @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-10 @lg:mb-12 @xl:mb-14">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
             <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">
@@ -976,7 +976,7 @@ export default function ExploreEvents() {
                 })}
               </CardContainer>
               {showMore && (
-                <div className="w-full flex justify-center mb-10 mt-4 @lg:mb-12 @lg:mt-6 @xl:mb-14 @xl:mt-8">
+                <div className="w-full flex justify-center mt-4 @lg:mt-6 @xl:mt-8">
                   <Form
                     {...getFormProps(loadMoreForm)}
                     method="get"
