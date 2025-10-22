@@ -45,7 +45,7 @@ export function ListContainer(
   }
 
   return (
-    <ul className="flex flex-col gap-4 @lg:gap-6 group">
+    <ul className="flex flex-col gap-4 group">
       {children}
       {children !== undefined &&
       Array.isArray(children) &&
