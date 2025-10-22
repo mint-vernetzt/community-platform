@@ -5,16 +5,18 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 function NoInfos(props: {
   mode: OrganizationMode;
   locales: {
-    admin: {
-      headline: string;
-      subline: string;
-      cta: string;
-    };
-    authenticated: {
-      info: string;
-    };
-    anon: {
-      info: string;
+    blankState: {
+      admin: {
+        headline: string;
+        subline: string;
+        cta: string;
+      };
+      authenticated: {
+        info: string;
+      };
+      anon: {
+        info: string;
+      };
     };
   };
   ctaLink: string;
@@ -28,22 +30,22 @@ function NoInfos(props: {
           <>
             <PencilIconBlankstate />
             <p className="w-full text-center text-neutral-700 text-xl font-semibold">
-              {locales.admin.headline}
+              {locales.blankState.admin.headline}
             </p>
             <p className="w-full text-center text-neutral-700 text-lg">
-              {locales.admin.subline}
+              {locales.blankState.admin.subline}
             </p>
             <Button variant="outline" as="link" to={ctaLink} prefetch="intent">
-              {locales.admin.cta}
+              {locales.blankState.admin.cta}
             </Button>
           </>
         ) : mode === "authenticated" ? (
           <p className="w-full text-center text-neutral-700 text-lg leading-6">
-            {locales.authenticated.info}
+            {locales.blankState.authenticated.info}
           </p>
         ) : (
           <p className="w-full text-center text-neutral-700 text-lg leading-6">
-            {locales.anon.info}
+            {locales.blankState.anon.info}
           </p>
         )}
       </div>

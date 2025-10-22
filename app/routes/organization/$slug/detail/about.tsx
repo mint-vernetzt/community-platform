@@ -1,14 +1,15 @@
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { type LoaderFunctionArgs } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { NoInfos } from "~/components/next/NoInfo";
 import { RichText } from "~/components/Richtext/RichText";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import { hasAboutData } from "../detail.shared";
 import { filterOrganization, getOrganization } from "./about.server";
 import {
   ContactInformationIcons,
@@ -20,9 +21,6 @@ import {
   hasSocialService,
   hasStreet,
 } from "./about.shared";
-import { hasAboutData } from "../detail.shared";
-import { languageModuleMap } from "~/locales/.server";
-import { NoInfos } from "~/components/next/NoInfo";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -70,7 +68,7 @@ function About() {
       {hasAboutData(organization) ? (
         <>
           <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
-            {hasGeneralInformation(organization) === false ? (
+            {hasGeneralInformation(organization) ? (
               <>
                 {organization.bio !== null ? (
                   <div className="flex flex-col gap-4">
@@ -275,37 +273,13 @@ function About() {
         </>
       ) : (
         <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
-          <div className="w-full flex flex-col gap-4">
-            <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
-              {locales.route.headlines.bio}
-            </h2>
-            <div className="w-full flex flex-col gap-8 items-center">
-              {/* TODO: SVG */}
-              <div className="w-full flex flex-col gap-4 items-center">
-                <div className="w-full flex flex-col gap-4 items-center text-neutral-700 text-center">
-                  <p className="text-xl font-bold leading-6">
-                    {mode === "admin"
-                      ? locales.route.blankState.owner.title
-                      : locales.route.blankState.anon.title}
-                  </p>
-                  {mode === "admin" ? (
-                    <p className="text-lg">
-                      {locales.route.blankState.owner.description}
-                    </p>
-                  ) : null}
-                </div>
-                {mode === "admin" ? (
-                  <Button
-                    as="link"
-                    to={`/organization/${organization.slug}/settings/general`}
-                    prefetch="intent"
-                  >
-                    {locales.route.blankState.owner.cta}
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-          </div>
+          <NoInfos
+            mode={mode}
+            locales={{
+              blankState: { ...locales.route.blankState },
+            }}
+            ctaLink={`/organization/${organization.slug}/settings/general`}
+          />
         </Container.Section>
       )}
     </>
