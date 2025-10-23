@@ -953,8 +953,69 @@ function LeaveWaitingList(props: {
   );
 }
 
+function EditBackground(props: {
+  modalName?: string;
+  locales: { changeBackground: string };
+}) {
+  let modalName = "modal-edit-background";
+  if (typeof props.modalName === "string") {
+    if (props.modalName.startsWith("modal-")) {
+      modalName = props.modalName;
+    } else {
+      modalName = `modal-${props.modalName}`;
+    }
+  }
+
+  return (
+    <div className="absolute top-0 left-0 w-full h-[239px] md:h-[400px] opacity-0 hover:opacity-100 rounded-t-2xl overflow-hidden">
+      <div className="relative h-full">
+        <div className="absolute top-0 left-0 w-full h-full bg-neutral-700 opacity-70" />
+        <div className="absolute top-0 left-0 w-full h-full flex items-start justify-end p-4">
+          <Form method="get" preventScrollReset className="w-10 h-10">
+            <input
+              hidden
+              name={modalName}
+              defaultValue="true"
+              aria-hidden="true"
+              aria-label={props.locales.changeBackground}
+            />
+            <CircleButton
+              type="submit"
+              aria-label={props.locales.changeBackground}
+              variant="outline"
+              fullSize
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path
+                  d="M15 12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V6C1 5.44772 1.44772 5 2 5H3.17157C3.96722 5 4.73028 4.68393 5.29289 4.12132L6.12132 3.29289C6.30886 3.10536 6.56321 3 6.82843 3H9.17157C9.43679 3 9.69114 3.10536 9.87868 3.29289L10.7071 4.12132C11.2697 4.68393 12.0328 5 12.8284 5H14C14.5523 5 15 5.44772 15 6V12ZM2 4C0.895431 4 0 4.89543 0 6V12C0 13.1046 0.895431 14 2 14H14C15.1046 14 16 13.1046 16 12V6C16 4.89543 15.1046 4 14 4H12.8284C12.298 4 11.7893 3.78929 11.4142 3.41421L10.5858 2.58579C10.2107 2.21071 9.70201 2 9.17157 2H6.82843C6.29799 2 5.78929 2.21071 5.41421 2.58579L4.58579 3.41421C4.21071 3.78929 3.70201 4 3.17157 4H2Z"
+                  fill="#154194"
+                />
+                <path
+                  d="M8 11C6.61929 11 5.5 9.88071 5.5 8.5C5.5 7.11929 6.61929 6 8 6C9.38071 6 10.5 7.11929 10.5 8.5C10.5 9.88071 9.38071 11 8 11ZM8 12C9.933 12 11.5 10.433 11.5 8.5C11.5 6.567 9.933 5 8 5C6.067 5 4.5 6.567 4.5 8.5C4.5 10.433 6.067 12 8 12Z"
+                  fill="#154194"
+                />
+                <path
+                  d="M3 6.5C3 6.77614 2.77614 7 2.5 7C2.22386 7 2 6.77614 2 6.5C2 6.22386 2.22386 6 2.5 6C2.77614 6 3 6.22386 3 6.5Z"
+                  fill="#154194"
+                />
+              </svg>
+            </CircleButton>
+          </Form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 SquareButton.CopyURLToClipboard = CopyURLToClipboard;
 SquareButton.ReportEvent = ReportEvent;
+EventsOverview.EditBackground = EditBackground;
 EventsOverview.AbuseReportModal = AbuseReportModal;
 EventsOverview.Participate = Participate;
 EventsOverview.WithdrawParticipation = WithdrawParticipation;

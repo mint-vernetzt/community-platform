@@ -365,6 +365,11 @@ function Detail() {
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
+        {loaderData.mode === "admin" && (
+          <EventsOverview.EditBackground
+            locales={loaderData.locales.route.content}
+          />
+        )}
         {loaderData.event.published === false && (
           <EventsOverview.StateFlag>
             {loaderData.locales.route.content.draft}

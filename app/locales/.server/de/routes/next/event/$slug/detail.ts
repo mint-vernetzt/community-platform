@@ -28,6 +28,7 @@ export const locale = {
     report: "Melden",
     reported: "Meldung wird geprüft",
     reportFaq: "Weitere Infos zum Melden",
+    changeBackground: "Hintergrund ändern",
   },
   errors: {
     invalidProfileId: "Ungültige Profil-ID",
