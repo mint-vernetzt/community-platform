@@ -51,7 +51,7 @@ function Chip(props: ChipProps) {
     );
   });
 
-  const enhancedChildren = validChildren.map((child) => {
+  const enhancedChildren = validChildren.map((child, index) => {
     if (
       typeof child !== "string" &&
       isValidElement(child) &&
@@ -76,7 +76,7 @@ function Chip(props: ChipProps) {
     }
     return (
       <span
-        key={typeof child === "string" ? child : undefined}
+        key={typeof child === "string" ? child : index}
         className="line-clamp-1"
       >
         {child}
