@@ -61,6 +61,12 @@ async function main() {
       },
     });
 
+    await prismaClient.organizationVisibility.create({
+      data: {
+        organizationId: createdOrganization.id,
+      },
+    });
+
     await updateFilterVectorOfOrganization(createdOrganization.id);
     await triggerEntityScore({
       entity: "organization",
