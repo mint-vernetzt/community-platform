@@ -12,9 +12,16 @@ function CardContainer(props: CardContainerProps) {
   });
 
   return type === "single row" ? (
-    <div className="flex overflow-x-auto gap-8">
-      {validChildren.map((child) => {
-        return child;
+    <div className="w-full flex overflow-x-auto @container">
+      {validChildren.map((child, index) => {
+        return (
+          <div
+            key={`item-${index}`}
+            className="flex-none w-3/4 @cards-2:w-1/2 @cards-3:w-1/3 @cards-4:w-1/4 first:pr-4 first:px-0 px-4 last:px-0 last:pl-4 only:pl-0 only:pr-4 pb-8 pt-2"
+          >
+            {child}
+          </div>
+        );
       })}
     </div>
   ) : (
