@@ -1,14 +1,15 @@
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { type LoaderFunctionArgs } from "react-router";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { NoInfos } from "~/components/next/NoInfo";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { detectLanguage } from "~/i18n.server";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
+import { languageModuleMap } from "~/locales/.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
+import { hasAboutData } from "../detail.shared";
 import { filterOrganization, getOrganization } from "./about.server";
 import {
   ContactInformationIcons,
@@ -20,8 +21,6 @@ import {
   hasSocialService,
   hasStreet,
 } from "./about.shared";
-import { hasAboutData } from "../detail.shared";
-import { languageModuleMap } from "~/locales/.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -52,7 +51,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organization: filteredOrganization,
     mode,
     locales,
-  };
+  } as const;
 };
 
 function About() {
@@ -68,86 +67,90 @@ function About() {
     <>
       {hasAboutData(organization) ? (
         <>
-          {hasGeneralInformation(organization) ? (
-            <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
-              {organization.bio !== null ? (
-                <div className="flex flex-col gap-4">
-                  <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
-                    {locales.route.headlines.bio}
-                  </h2>
-                  <div>
-                    <RichText
-                      html={organization.bio}
-                      additionalClassNames="text-neutral-600 text-lg max-w-[800px]"
-                    />
+          <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
+            {hasGeneralInformation(organization) ? (
+              <>
+                {organization.bio !== null ? (
+                  <div className="flex flex-col gap-4">
+                    <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
+                      {locales.route.headlines.bio}
+                    </h2>
+                    <div>
+                      <RichText
+                        html={organization.bio}
+                        additionalClassNames="text-neutral-600 text-lg max-w-[800px]"
+                      />
+                    </div>
                   </div>
-                </div>
-              ) : null}
-              {organization.areas.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
-                    {locales.route.headlines.areas}
-                  </h3>
-                  <Chip.Container>
-                    {organization.areas.map((relation) => {
-                      return (
-                        <Chip key={relation.area.slug} color="primary">
-                          {relation.area.name}
-                        </Chip>
-                      );
-                    })}
-                  </Chip.Container>
-                </div>
-              ) : null}
-              {organization.focuses.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
-                    {locales.route.headlines.focuses}
-                  </h3>
-                  <Chip.Container>
-                    {organization.focuses.map((relation) => {
-                      let title;
-                      if (relation.focus.slug in locales.focuses) {
-                        type LocaleKey = keyof typeof locales.focuses;
-                        title =
-                          locales.focuses[relation.focus.slug as LocaleKey]
-                            .title;
-                      } else {
-                        console.error(
-                          `Focus ${relation.focus.slug} not found in locales`
+                ) : null}
+                {organization.areas.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
+                      {locales.route.headlines.areas}
+                    </h3>
+                    <Chip.Container>
+                      {organization.areas.map((relation) => {
+                        return (
+                          <Chip key={relation.area.slug} color="primary">
+                            {relation.area.name}
+                          </Chip>
                         );
-                        title = relation.focus.slug;
-                      }
-                      return (
-                        <Chip key={relation.focus.slug} color="primary">
-                          {title}
-                        </Chip>
-                      );
-                    })}
-                  </Chip.Container>
-                </div>
-              ) : null}
-              {organization.supportedBy.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
-                    {locales.route.headlines.supportedBy}
-                  </h3>
-                  <p className="text-neutral-700 text-lg leading-6 max-w-[800px]">
-                    {organization.supportedBy.join(" / ")}
-                  </p>
-                </div>
-              ) : null}
-            </Container.Section>
-          ) : null}
+                      })}
+                    </Chip.Container>
+                  </div>
+                ) : null}
+                {organization.focuses.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
+                      {locales.route.headlines.focuses}
+                    </h3>
+                    <Chip.Container>
+                      {organization.focuses.map((relation) => {
+                        let title;
+                        if (relation.focus.slug in locales.focuses) {
+                          type LocaleKey = keyof typeof locales.focuses;
+                          title =
+                            locales.focuses[relation.focus.slug as LocaleKey]
+                              .title;
+                        } else {
+                          console.error(
+                            `Focus ${relation.focus.slug} not found in locales`
+                          );
+                          title = relation.focus.slug;
+                        }
+                        return (
+                          <Chip key={relation.focus.slug} color="primary">
+                            {title}
+                          </Chip>
+                        );
+                      })}
+                    </Chip.Container>
+                  </div>
+                ) : null}
+                {organization.supportedBy.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    <h3 className="mb-0 text-neutral-700 text-xs font-semibold leading-5">
+                      {locales.route.headlines.supportedBy}
+                    </h3>
+                    <p className="text-neutral-700 text-lg leading-6 max-w-[800px]">
+                      {organization.supportedBy.join(" / ")}
+                    </p>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <NoInfos
+                mode={mode}
+                locales={{
+                  blankState: { ...locales.route.blankState },
+                }}
+                ctaLink={`/organization/${organization.slug}/settings/general`}
+              />
+            )}
+          </Container.Section>
 
           {hasContactOrSoMeInformation(organization) ? (
-            <Container.Section
-              className={`@sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-neutral-200 bg-white ${
-                hasGeneralInformation(organization)
-                  ? "py-6 @sm:border @sm:rounded-2xl"
-                  : "-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 pb-6 @sm:py-8 @sm:border-b @sm:border-x @sm:rounded-b-2xl"
-              }`}
-            >
+            <Container.Section className="px-4 @lg:px-6 flex flex-col gap-6 border-neutral-200 bg-white py-6 border rounded-2xl">
               <h3 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
                 {locales.route.headlines.contact}
               </h3>
@@ -270,37 +273,13 @@ function About() {
         </>
       ) : (
         <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-6 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
-          <div className="w-full flex flex-col gap-4">
-            <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
-              {locales.route.headlines.bio}
-            </h2>
-            <div className="w-full flex flex-col gap-8 items-center">
-              {/* TODO: SVG */}
-              <div className="w-full flex flex-col gap-4 items-center">
-                <div className="w-full flex flex-col gap-4 items-center text-neutral-700 text-center">
-                  <p className="text-xl font-bold leading-6">
-                    {mode === "admin"
-                      ? locales.route.blankState.owner.title
-                      : locales.route.blankState.anon.title}
-                  </p>
-                  {mode === "admin" ? (
-                    <p className="text-lg">
-                      {locales.route.blankState.owner.description}
-                    </p>
-                  ) : null}
-                </div>
-                {mode === "admin" ? (
-                  <Button
-                    as="link"
-                    to={`/organization/${organization.slug}/settings/general`}
-                    prefetch="intent"
-                  >
-                    {locales.route.blankState.owner.cta}
-                  </Button>
-                ) : null}
-              </div>
-            </div>
-          </div>
+          <NoInfos
+            mode={mode}
+            locales={{
+              blankState: { ...locales.route.blankState },
+            }}
+            ctaLink={`/organization/${organization.slug}/settings/general`}
+          />
         </Container.Section>
       )}
     </>

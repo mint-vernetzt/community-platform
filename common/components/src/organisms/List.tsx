@@ -49,8 +49,8 @@ function List(props: React.PropsWithChildren<{ maxColumns?: number }>) {
   const { maxColumns: columns = 1 } = props;
 
   const listClasses = classNames(
-    "grid grid-cols-1 gap-2",
-    columns === 2 && "@lg:grid-cols-2 @lg:gap-4"
+    "grid grid-cols-1 gap-4",
+    columns === 2 && "@lg:grid-cols-2"
   );
 
   return <ul className={listClasses}>{props.children}</ul>;
@@ -155,7 +155,7 @@ function ListItem(
   let info: React.ReactElement | undefined;
 
   const listItemClasses = classNames(
-    "border rounded-lg list-none overflow-hidden",
+    "border rounded-lg list-none overflow-hidden focus-within:ring-2 focus-within:ring-primary-200",
     noBorder ? "border-transparent" : "border-neutral-200",
     interactive && "hover:bg-primary-50"
   );

@@ -11,10 +11,20 @@ async function main() {
       street: true,
       streetNumber: true,
       zipCode: true,
+      latitude: true,
+      longitude: true,
     },
   });
 
   for (const organization of organizations) {
+    // Skip existing coordinates
+    if (organization.latitude !== null && organization.longitude !== null) {
+      console.log(
+        `Skipping organization ${organization.id} as it already has coordinates.`
+      );
+      continue;
+    }
+
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: organization.id,
       street: organization.street,

@@ -1651,8 +1651,8 @@ function Dashboard() {
       </section>
       {/* Project Card Section */}
       <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
-          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+          <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.projects}
           </h2>
           <div className="text-right">
@@ -1663,7 +1663,7 @@ function Dashboard() {
             </MVLink>
           </div>
         </div>
-        <div className="@xl:px-2">
+        <div className="px-4 2xl:px-6">
           <CardContainer>
             {loaderData.projects.map((project) => {
               return (
@@ -1681,8 +1681,8 @@ function Dashboard() {
       </section>
       {/* Profile Card Section */}
       <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
-          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+          <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.profiles}
           </h2>
           <div className="text-right">
@@ -1693,7 +1693,7 @@ function Dashboard() {
             </MVLink>
           </div>
         </div>
-        <div className="@xl:px-2">
+        <div className="px-4 2xl:px-6">
           <CardContainer>
             {loaderData.profiles.map((profile) => {
               return (
@@ -1711,8 +1711,8 @@ function Dashboard() {
       </section>
       {/* Organization Card Section */}
       <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
-          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+          <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.organizations}
           </h2>
           <div className="text-right">
@@ -1727,7 +1727,7 @@ function Dashboard() {
             </MVLink>
           </div>
         </div>
-        <div className="@xl:px-2">
+        <div className="px-4 2xl:px-6">
           <CardContainer>
             {loaderData.organizations.map((organization) => {
               return (
@@ -1745,8 +1745,8 @@ function Dashboard() {
       </section>
       {/* Event Card Section */}
       <section className="w-full mb-24 mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
-        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-end justify-between">
-          <h2 className="font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
+        <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
+          <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.events}
           </h2>
           <div className="text-right">
@@ -1757,7 +1757,7 @@ function Dashboard() {
             </MVLink>
           </div>
         </div>
-        <div className="@xl:px-2">
+        <div className="px-4 2xl:px-6">
           <CardContainer>
             {loaderData.events.map((event) => {
               const startTime = utcToZonedTime(

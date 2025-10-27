@@ -137,9 +137,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
           organization.shadow === false
             ? false
             : openClaimRequest !== null
-            ? openClaimRequest.status === "open" ||
-              openClaimRequest.status === "withdrawn"
-            : true;
+              ? openClaimRequest.status === "open" ||
+                openClaimRequest.status === "withdrawn"
+              : true;
       }
       return {
         ...organization,
@@ -542,8 +542,8 @@ export default function MyOrganizations() {
       searchParams.get("organization-member-invites-tab") !== ""
       ? searchParams.get("organization-member-invites-tab")
       : organizationMemberInvitesFromLoader.adminInvites.length > 0
-      ? "admin"
-      : "teamMember"
+        ? "admin"
+        : "teamMember"
   );
   const organizationMemberInvites = {
     admin: {
@@ -655,8 +655,8 @@ export default function MyOrganizations() {
       searchParams.get("organizations-tab") !== ""
       ? searchParams.get("organizations-tab")
       : organizationsFromLoader.adminOrganizations.length > 0
-      ? "admin"
-      : "teamMember"
+        ? "admin"
+        : "teamMember"
   );
   const organizations = {
     admin: {
@@ -1714,82 +1714,51 @@ export default function MyOrganizations() {
                   ) : null;
                 })}
               </TabBar>
-              <div className="-mx-4">
-                {Object.entries(organizations).map(([key, value]) => {
-                  return value.active && value.organizations.length > 0 ? (
-                    <div key={`${key}-organizations`}>
-                      <p className="text-sm text-neutral-700 mx-4 mb-6">
-                        {
-                          locales.route.organizations.subline[
-                            key as keyof typeof organizations
-                          ]
-                        }
-                      </p>
-                      <Form
-                        {...getFormProps(quitOrganizationForm)}
-                        method="post"
-                        preventScrollReset
-                      >
-                        <CardContainer type="multi row">
-                          {value.organizations.map((organization) => {
-                            const doubleCheckModalSearchParams =
-                              new URLSearchParams(searchParams);
-                            doubleCheckModalSearchParams.set(
-                              `modal-quit-organization-${key}-${organization.id}`,
-                              "true"
-                            );
-                            doubleCheckModalSearchParams.delete(
-                              `overlay-menu-${key}-${organization.id}`
-                            );
-                            return (
-                              <OrganizationCard
-                                key={`${key}-organization-${organization.id}`}
-                                organization={organization}
-                                locales={locales}
-                                prefetch="intent"
-                              >
-                                <OrganizationCard.Controls>
-                                  <OverlayMenu
-                                    searchParam={`overlay-menu-${key}-${organization.id}`}
-                                  >
-                                    {key === "admin" ? (
-                                      <OverlayMenu.ListItem
-                                        key={`edit-organization-${organization.slug}`}
-                                      >
-                                        <Link
-                                          {...OverlayMenu.getListChildrenStyles()}
-                                          {...OverlayMenu.getIdToFocusWhenOpening()}
-                                          to={`/organization/${organization.slug}/settings/general`}
-                                          prefetch="intent"
-                                        >
-                                          <svg
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 20 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                          >
-                                            <path
-                                              d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
-                                              fill="CurrentColor"
-                                            />
-                                          </svg>
-                                          <span>
-                                            {locales.organizationCard.edit}
-                                          </span>
-                                        </Link>
-                                      </OverlayMenu.ListItem>
-                                    ) : null}
-                                    {key === "admin" ? (
-                                      <OverlayMenu.Divider key="edit-quit-divider" />
-                                    ) : null}
+              {Object.entries(organizations).map(([key, value]) => {
+                return value.active && value.organizations.length > 0 ? (
+                  <div key={`${key}-organizations`}>
+                    <p className="text-sm text-neutral-700 mb-6">
+                      {
+                        locales.route.organizations.subline[
+                          key as keyof typeof organizations
+                        ]
+                      }
+                    </p>
+                    <Form
+                      {...getFormProps(quitOrganizationForm)}
+                      method="post"
+                      preventScrollReset
+                    >
+                      <CardContainer type="multi row">
+                        {value.organizations.map((organization) => {
+                          const doubleCheckModalSearchParams =
+                            new URLSearchParams(searchParams);
+                          doubleCheckModalSearchParams.set(
+                            `modal-quit-organization-${key}-${organization.id}`,
+                            "true"
+                          );
+                          doubleCheckModalSearchParams.delete(
+                            `overlay-menu-${key}-${organization.id}`
+                          );
+                          return (
+                            <OrganizationCard
+                              key={`${key}-organization-${organization.id}`}
+                              organization={organization}
+                              locales={locales}
+                              prefetch="intent"
+                            >
+                              <OrganizationCard.Controls>
+                                <OverlayMenu
+                                  searchParam={`overlay-menu-${key}-${organization.id}`}
+                                >
+                                  {key === "admin" ? (
                                     <OverlayMenu.ListItem
-                                      key={`quit-organization-${organization.slug}`}
+                                      key={`edit-organization-${organization.slug}`}
                                     >
                                       <Link
                                         {...OverlayMenu.getListChildrenStyles()}
-                                        to={`?${doubleCheckModalSearchParams.toString()}`}
-                                        preventScrollReset
+                                        {...OverlayMenu.getIdToFocusWhenOpening()}
+                                        to={`/organization/${organization.slug}/settings/general`}
                                         prefetch="intent"
                                       >
                                         <svg
@@ -1800,106 +1769,135 @@ export default function MyOrganizations() {
                                           xmlns="http://www.w3.org/2000/svg"
                                         >
                                           <path
-                                            d="M10.625 12.5C10.2798 12.5 10 11.9404 10 11.25C10 10.5596 10.2798 10 10.625 10C10.9702 10 11.25 10.5596 11.25 11.25C11.25 11.9404 10.9702 12.5 10.625 12.5Z"
-                                            fill="CurrentColor"
-                                          />
-                                          <path
-                                            d="M13.5345 0.152845C13.6714 0.271556 13.75 0.443822 13.75 0.625004V1.25H14.375C15.4105 1.25 16.25 2.08947 16.25 3.125V18.75H18.125C18.4702 18.75 18.75 19.0298 18.75 19.375C18.75 19.7202 18.4702 20 18.125 20H1.875C1.52982 20 1.25 19.7202 1.25 19.375C1.25 19.0298 1.52982 18.75 1.875 18.75H3.75V1.875C3.75 1.56397 3.97871 1.30027 4.28661 1.25629L13.0366 0.00628568C13.216 -0.0193374 13.3976 0.0341345 13.5345 0.152845ZM14.375 2.5H13.75V18.75H15V3.125C15 2.77983 14.7202 2.5 14.375 2.5ZM5 2.41706V18.75H12.5V1.34564L5 2.41706Z"
+                                            d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
                                             fill="CurrentColor"
                                           />
                                         </svg>
-
                                         <span>
-                                          {locales.organizationCard.quit}
+                                          {locales.organizationCard.edit}
                                         </span>
                                       </Link>
                                     </OverlayMenu.ListItem>
-                                  </OverlayMenu>
-                                  <Modal
-                                    searchParam={`modal-quit-organization-${key}-${organization.id}`}
+                                  ) : null}
+                                  {key === "admin" ? (
+                                    <OverlayMenu.Divider key="edit-quit-divider" />
+                                  ) : null}
+                                  <OverlayMenu.ListItem
+                                    key={`quit-organization-${organization.slug}`}
                                   >
-                                    <Modal.Title>
-                                      {
-                                        locales.route.quit.modal[
-                                          key as keyof typeof organizations
-                                        ].headline
-                                      }
-                                    </Modal.Title>
-                                    <Modal.Section>
-                                      <p>
-                                        {insertComponentsIntoLocale(
-                                          insertParametersIntoLocale(
-                                            locales.route.quit.modal[
-                                              key as keyof typeof organizations
-                                            ].subline,
-                                            {
-                                              name: organization.name,
-                                            }
-                                          ),
-                                          [
-                                            <span
-                                              key="highlighted-organization-name"
-                                              className="font-semibold"
-                                            />,
-                                          ]
-                                        )}
-                                      </p>
-                                    </Modal.Section>
-                                    <Modal.Section>
-                                      {typeof quitOrganizationForm.errors !==
-                                        "undefined" &&
-                                      quitOrganizationForm.errors.length > 0 ? (
-                                        <div>
-                                          {quitOrganizationForm.errors.map(
-                                            (error, index) => {
-                                              return (
-                                                <div
-                                                  id={
-                                                    quitOrganizationForm.errorId
-                                                  }
-                                                  key={index}
-                                                  className="text-sm font-semibold text-negative-600"
-                                                >
-                                                  {error}
-                                                </div>
-                                              );
-                                            }
-                                          )}
-                                        </div>
-                                      ) : null}
-                                    </Modal.Section>
-                                    <Modal.SubmitButton
-                                      form={quitOrganizationForm.id}
-                                      type="submit"
-                                      name="intent"
-                                      value={`quit-organization-${key}-${organization.id}`}
-                                      disabled={
-                                        isHydrated === true
-                                          ? quitOrganizationForm.valid ===
-                                              false || isSubmitting
-                                          : false
-                                      }
+                                    <Link
+                                      {...OverlayMenu.getListChildrenStyles()}
+                                      to={`?${doubleCheckModalSearchParams.toString()}`}
+                                      preventScrollReset
+                                      prefetch="intent"
                                     >
-                                      {
-                                        locales.route.quit.modal[
-                                          key as keyof typeof organizations
-                                        ].cta
-                                      }
-                                    </Modal.SubmitButton>
-                                    <Modal.CloseButton>
-                                      {locales.route.quit.modal.cancelCta}
-                                    </Modal.CloseButton>
-                                  </Modal>
-                                </OrganizationCard.Controls>
-                              </OrganizationCard>
-                            );
-                          })}
-                        </CardContainer>
-                      </Form>
-                    </div>
-                  ) : null;
-                })}
-              </div>
+                                      <svg
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 20 20"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          d="M10.625 12.5C10.2798 12.5 10 11.9404 10 11.25C10 10.5596 10.2798 10 10.625 10C10.9702 10 11.25 10.5596 11.25 11.25C11.25 11.9404 10.9702 12.5 10.625 12.5Z"
+                                          fill="CurrentColor"
+                                        />
+                                        <path
+                                          d="M13.5345 0.152845C13.6714 0.271556 13.75 0.443822 13.75 0.625004V1.25H14.375C15.4105 1.25 16.25 2.08947 16.25 3.125V18.75H18.125C18.4702 18.75 18.75 19.0298 18.75 19.375C18.75 19.7202 18.4702 20 18.125 20H1.875C1.52982 20 1.25 19.7202 1.25 19.375C1.25 19.0298 1.52982 18.75 1.875 18.75H3.75V1.875C3.75 1.56397 3.97871 1.30027 4.28661 1.25629L13.0366 0.00628568C13.216 -0.0193374 13.3976 0.0341345 13.5345 0.152845ZM14.375 2.5H13.75V18.75H15V3.125C15 2.77983 14.7202 2.5 14.375 2.5ZM5 2.41706V18.75H12.5V1.34564L5 2.41706Z"
+                                          fill="CurrentColor"
+                                        />
+                                      </svg>
+
+                                      <span>
+                                        {locales.organizationCard.quit}
+                                      </span>
+                                    </Link>
+                                  </OverlayMenu.ListItem>
+                                </OverlayMenu>
+                                <Modal
+                                  searchParam={`modal-quit-organization-${key}-${organization.id}`}
+                                >
+                                  <Modal.Title>
+                                    {
+                                      locales.route.quit.modal[
+                                        key as keyof typeof organizations
+                                      ].headline
+                                    }
+                                  </Modal.Title>
+                                  <Modal.Section>
+                                    <p>
+                                      {insertComponentsIntoLocale(
+                                        insertParametersIntoLocale(
+                                          locales.route.quit.modal[
+                                            key as keyof typeof organizations
+                                          ].subline,
+                                          {
+                                            name: organization.name,
+                                          }
+                                        ),
+                                        [
+                                          <span
+                                            key="highlighted-organization-name"
+                                            className="font-semibold"
+                                          />,
+                                        ]
+                                      )}
+                                    </p>
+                                  </Modal.Section>
+                                  <Modal.Section>
+                                    {typeof quitOrganizationForm.errors !==
+                                      "undefined" &&
+                                    quitOrganizationForm.errors.length > 0 ? (
+                                      <div>
+                                        {quitOrganizationForm.errors.map(
+                                          (error, index) => {
+                                            return (
+                                              <div
+                                                id={
+                                                  quitOrganizationForm.errorId
+                                                }
+                                                key={index}
+                                                className="text-sm font-semibold text-negative-600"
+                                              >
+                                                {error}
+                                              </div>
+                                            );
+                                          }
+                                        )}
+                                      </div>
+                                    ) : null}
+                                  </Modal.Section>
+                                  <Modal.SubmitButton
+                                    form={quitOrganizationForm.id}
+                                    type="submit"
+                                    name="intent"
+                                    value={`quit-organization-${key}-${organization.id}`}
+                                    disabled={
+                                      isHydrated === true
+                                        ? quitOrganizationForm.valid ===
+                                            false || isSubmitting
+                                        : false
+                                    }
+                                  >
+                                    {
+                                      locales.route.quit.modal[
+                                        key as keyof typeof organizations
+                                      ].cta
+                                    }
+                                  </Modal.SubmitButton>
+                                  <Modal.CloseButton>
+                                    {locales.route.quit.modal.cancelCta}
+                                  </Modal.CloseButton>
+                                </Modal>
+                              </OrganizationCard.Controls>
+                            </OrganizationCard>
+                          );
+                        })}
+                      </CardContainer>
+                    </Form>
+                  </div>
+                ) : null;
+              })}
             </Section>
           ) : null}
         </div>

@@ -73,10 +73,15 @@ export const locale = {
             "Die neue MINT-Community Karte zeigt Dir, wer wo aktiv ist!",
           linkDescription: "Zur MINT-Community-Karte",
         },
-        actionDays: {
+        actionDaysPromotions: {
           headline: "Jetzt Aktionen einreichen",
           description: "Programm der digitalen MINT-Aktionstage mitgestalten",
           linkDescription: "Mehr Infos",
+        },
+        actionDays: {
+          headline: "MINT-Aktionstage",
+          description: "Programm der digitalen MINT-Aktionstage veröffentlicht",
+          linkDescription: "Jetzt anmelden",
         },
         networks: {
           headline: "Neue Netzwerk-Funktion",
