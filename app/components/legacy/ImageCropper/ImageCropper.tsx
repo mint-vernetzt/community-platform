@@ -19,10 +19,6 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { DefaultImages } from "~/images.shared";
 import { invariant } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
-import { type EventDetailLocales } from "~/routes/event/$slug/index.server";
-import { type OrganizationDetailLocales } from "~/routes/organization/$slug/detail.server";
-import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
-import { type ProjectDetailLocales } from "~/routes/project/$slug/detail.server";
 import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_IMAGES,
@@ -36,11 +32,33 @@ import { useDebounceEffect } from "./useDebounceEffect";
 import { useEffect, useRef, useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
-export type ImageCropperLocales =
-  | OrganizationDetailLocales
-  | EventDetailLocales
-  | ProfileDetailLocales
-  | ProjectDetailLocales;
+export type ImageCropperLocales = {
+  upload: {
+    validation: {
+      image: {
+        size: string;
+        type: string;
+      };
+    };
+    selection: {
+      select: string;
+      empty: string;
+    };
+  };
+  imageCropper: {
+    imageCropper: {
+      error: string;
+      confirmation: string;
+      disconnect: string;
+      reset: string;
+      submit: string;
+    };
+  };
+};
+// | OrganizationDetailLocales
+// | EventDetailLocales
+// | ProfileDetailLocales
+// | ProjectDetailLocales;
 export interface ImageCropperProps {
   uploadKey: ArrayElement<typeof UPLOAD_KEYS>;
   lastSubmission?: SubmissionResult<string[]>;

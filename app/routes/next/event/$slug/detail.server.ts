@@ -1,9 +1,19 @@
+import { parseWithZod } from "@conform-to/zod-v1";
+import { captureException } from "@sentry/node";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import {
   getReporter,
   sendNewReportMailToSupport,
 } from "~/abuse-reporting.server";
+import {
+  createImageUploadSchema,
+  disconnectImageSchema,
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { prismaClient } from "~/prisma.server";
+import { uploadFileToStorage } from "~/storage.server";
+import { FILE_FIELD_NAME } from "~/storage.shared";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -72,6 +82,24 @@ export async function getEventIdBySlug(slug: string) {
   }
 
   return event.id;
+}
+
+export async function isAdminOfEvent(
+  sessionUser: { id: string } | null,
+  event: { id: string }
+) {
+  if (sessionUser === null) {
+    return false;
+  }
+
+  const result = await prismaClient.adminOfEvent.findFirst({
+    where: {
+      profileId: sessionUser.id,
+      eventId: event.id,
+    },
+  });
+
+  return result !== null;
 }
 
 export async function deriveModeForEvent(
@@ -386,5 +414,196 @@ async function createEventAbuseReport(options: {
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,
     },
     reasons: options.reasons,
+  };
+}
+
+export async function uploadBackgroundImage(options: {
+  request: Request;
+  formData: FormData;
+  authClient: SupabaseClient;
+  slug: string;
+  locales: {
+    errors: {
+      background: {
+        upload: string;
+      };
+    };
+    upload: {
+      validation: {
+        image: {
+          size: string;
+          type: string;
+        };
+      };
+      selection: {
+        select: string;
+        empty: string;
+      };
+    };
+    imageCropper: {
+      imageCropper: {
+        error: string;
+        confirmation: string;
+        disconnect: string;
+        reset: string;
+        submit: string;
+      };
+    };
+    success: {
+      imageAdded: string;
+      imageTypes: {
+        background: string;
+        avatar: string;
+        logo: string;
+      };
+    };
+  };
+}) {
+  const { request, formData, authClient, slug, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: createImageUploadSchema(locales).transform(async (data, ctx) => {
+      const { file, bucket, uploadKey } = data;
+      const { fileMetadataForDatabase, error } = await uploadFileToStorage({
+        file,
+        authClient,
+        bucket,
+      });
+      if (error !== null) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.errors.background.upload,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+      if (uploadKey !== "background") {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.errors.background.upload,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+      try {
+        await prismaClient.event.update({
+          where: {
+            slug,
+          },
+          data: {
+            [uploadKey]: fileMetadataForDatabase.path,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.errors.background.upload,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+
+      return { ...data, uploadKey: uploadKey };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  return {
+    submission: null,
+    toast: {
+      id: "change-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.success.imageAdded, {
+        imageType: locales.success.imageTypes[submission.value.uploadKey],
+      }),
+    },
+    redirectUrl: redirectUrl.toString(),
+  };
+}
+
+export async function disconnectBackgroundImage(options: {
+  request: Request;
+  formData: FormData;
+  slug: string;
+  locales: {
+    errors: {
+      background: {
+        upload: string;
+      };
+    };
+    success: {
+      imageRemoved: string;
+      imageTypes: {
+        background: string;
+        avatar: string;
+        logo: string;
+      };
+    };
+  };
+}) {
+  const { request, formData, slug, locales } = options;
+  const submission = await parseWithZod(formData, {
+    schema: disconnectImageSchema.transform(async (data, ctx) => {
+      const { uploadKey } = data;
+      if (uploadKey !== "background") {
+        ctx.addIssue({
+          code: "custom",
+          message: locales.errors.background.upload,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+      try {
+        await prismaClient.event.update({
+          where: {
+            slug,
+          },
+          data: {
+            [uploadKey]: null,
+          },
+        });
+      } catch (error) {
+        console.error({ error });
+        captureException(error);
+        ctx.addIssue({
+          code: "custom",
+          message: locales.errors.background.upload,
+          path: [FILE_FIELD_NAME],
+        });
+        return z.NEVER;
+      }
+
+      return { ...data, uploadKey: uploadKey };
+    }),
+    async: true,
+  });
+
+  if (submission.status !== "success") {
+    return { submission, toast: null, redirectUrl: null };
+  }
+
+  // Close modal after redirect
+  const redirectUrl = new URL(request.url);
+  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  return {
+    submission: null,
+    toast: {
+      id: "disconnect-image",
+      key: `${new Date().getTime()}`,
+      message: insertParametersIntoLocale(locales.success.imageRemoved, {
+        imageType: locales.success.imageTypes[submission.value.uploadKey],
+      }),
+    },
+    redirectUrl: redirectUrl.toString(),
   };
 }

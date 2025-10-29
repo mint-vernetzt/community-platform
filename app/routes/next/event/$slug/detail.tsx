@@ -21,31 +21,48 @@ import {
   addProfileToParticipants,
   addProfileToWaitingList,
   deriveModeForEvent,
+  disconnectBackgroundImage,
   getAbuseReportReasons,
   getEventBySlug,
   getEventIdBySlug,
   getHasUserReportedEvent,
   getIsMember,
+  isAdminOfEvent,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
   reportEvent,
+  uploadBackgroundImage,
 } from "./detail.server";
 
 import { utcToZonedTime } from "date-fns-tz";
+import { parseWithZod } from "node_modules/@conform-to/zod-v1/dist/v3/parse";
+import { z } from "zod";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import BreadCrump from "~/components/next/BreadCrump";
 import EventsOverview from "~/components/next/EventsOverview";
 import TabBar from "~/components/next/TabBar";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
-import { getPublicURL } from "~/storage.server";
-import { formatDateTime } from "./index.shared";
-import { z } from "zod";
-import { parseWithZod } from "node_modules/@conform-to/zod-v1/dist/v3/parse";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 import { redirectWithToast } from "~/toast.server";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { ABUSE_REPORT_INTENT, createAbuseReportSchema } from "./details.shared";
+import { formatDateTime } from "./index.shared";
+
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { captureException } from "@sentry/node";
+import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
 
 function createParticipationSchema(locales: { invalidProfileId: string }) {
   const schema = z.object({
@@ -225,7 +242,19 @@ export async function action(args: ActionFunctionArgs) {
   const eventId = await getEventIdBySlug(params.slug!);
   invariantResponse(eventId !== null, "event not found", { status: 404 });
 
-  const formData = await request.formData();
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    console.error({ error });
+    captureException(error);
+    // TODO: How can we add this to the zod ctx?
+    return redirectWithToast(request.url, {
+      id: "upload-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.errors.background.upload,
+      level: "negative",
+    });
+  }
+
   const intent = formData.get(INTENT_FIELD_NAME);
 
   invariantResponse(
@@ -233,7 +262,9 @@ export async function action(args: ActionFunctionArgs) {
       intent === "withdrawParticipation" ||
       intent === "joinWaitingList" ||
       intent === "leaveWaitingList" ||
-      intent === ABUSE_REPORT_INTENT,
+      intent === ABUSE_REPORT_INTENT ||
+      intent === UPLOAD_INTENT_VALUE ||
+      intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
     "Invalid intent",
     {
       status: 400,
@@ -244,6 +275,55 @@ export async function action(args: ActionFunctionArgs) {
     id: eventId,
     slug: params.slug,
   };
+
+  if (
+    intent === UPLOAD_INTENT_VALUE ||
+    intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
+  ) {
+    let submission;
+    let toast;
+    let redirectUrl: string | null = request.url;
+    if (intent === UPLOAD_INTENT_VALUE) {
+      const isAdmin = await isAdminOfEvent(sessionUser, event);
+      invariantResponse(isAdmin, "Not authorized", { status: 403 });
+      const result = await uploadBackgroundImage({
+        request,
+        formData,
+        authClient,
+        slug: event.slug,
+        locales: {
+          ...locales.route.changeBackground,
+          errors: locales.route.errors,
+        },
+      });
+      submission = result.submission;
+      toast = result.toast;
+      redirectUrl = result.redirectUrl || request.url;
+    } else {
+      const result = await disconnectBackgroundImage({
+        request,
+        formData,
+        slug: event.slug,
+        locales: {
+          ...locales.route.changeBackground,
+          errors: locales.route.errors,
+        },
+      });
+      submission = result.submission;
+      toast = result.toast;
+      redirectUrl = result.redirectUrl || request.url;
+    }
+    if (submission !== null) {
+      return {
+        submission: submission.reply(),
+        currentTimestamp: Date.now(),
+      };
+    }
+    if (toast === null) {
+      return redirect(redirectUrl);
+    }
+    return redirectWithToast(redirectUrl, toast);
+  }
 
   if (intent === ABUSE_REPORT_INTENT) {
     await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
@@ -366,9 +446,22 @@ function Detail() {
           blurredSrc={loaderData.event.blurredBackground}
         />
         {loaderData.mode === "admin" && (
-          <EventsOverview.EditBackground
-            locales={loaderData.locales.route.content}
-          />
+          <>
+            <EventsOverview.EditBackground
+              locales={loaderData.locales.route.content}
+            />
+            <EventsOverview.EditBackgroundModal
+              background={loaderData.event.background}
+              blurredBackground={loaderData.event.blurredBackground}
+              locales={{
+                ...loaderData.locales.route.changeBackground,
+                alt: insertParametersIntoLocale(
+                  loaderData.locales.route.changeBackground.alt,
+                  { eventName: loaderData.event.name }
+                ),
+              }}
+            />
+          </>
         )}
         {loaderData.event.published === false && (
           <EventsOverview.StateFlag>

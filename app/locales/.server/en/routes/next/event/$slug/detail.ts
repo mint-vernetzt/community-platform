@@ -42,6 +42,10 @@ export const locale = {
       },
       submit: "Error submitting the report",
     },
+    background: {
+      upload:
+        "The image could not be saved. Please try again or contact support.",
+    },
   },
   success: {
     participate: "Successfully added to participants",
@@ -63,6 +67,40 @@ export const locale = {
     abort: "Cancel",
     email: {
       subject: 'Profile "{{username}}" reported event "{{slug}}"',
+    },
+  },
+  changeBackground: {
+    title: "Change background image",
+    alt: "Background image for event {{eventName}}",
+    upload: {
+      validation: {
+        image: {
+          size: "The image file is too large. Maximum allowed size is {{maxSize}} MB.",
+          type: "The image file has an invalid format. Allowed formats are: {{allowedFormats}}.",
+        },
+      },
+      selection: {
+        select: "Select image",
+        empty: "No image selected",
+      },
+    },
+    imageCropper: {
+      imageCropper: {
+        error: "Error cropping image",
+        confirmation: "Image cropped successfully",
+        disconnect: "Disconnected from image editing service",
+        reset: "Reset",
+        submit: "Crop image",
+      },
+    },
+    success: {
+      imageAdded: "{{imageType}} added",
+      imageRemoved: "{{imageType}} removed",
+      imageTypes: {
+        background: "Background image",
+        avatar: "Profile picture",
+        logo: "Logo",
+      },
     },
   },
 } as const;

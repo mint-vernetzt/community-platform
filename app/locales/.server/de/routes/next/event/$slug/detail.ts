@@ -42,6 +42,10 @@ export const locale = {
       },
       submit: "Fehler beim Absenden der Meldung",
     },
+    background: {
+      upload:
+        "Das Bild konnte nicht gespeichert werden. Bitte versuche es erneut oder wende Dich an den Support.",
+    },
   },
   success: {
     participate: "Erfolgreich zu Teilnehmer:innen hinzugefügt",
@@ -63,6 +67,40 @@ export const locale = {
     abort: "Abbrechen",
     email: {
       subject: 'Das Profil "{{username}}" hat das Event "{{slug}}" gemeldet',
+    },
+  },
+  changeBackground: {
+    title: "Hintergrundbild ändern",
+    alt: "Hintergrundbild für das Event {{eventName}}",
+    upload: {
+      validation: {
+        image: {
+          size: "Die Bilddatei ist zu groß. Maximal erlaubte Größe ist {{maxSize}} MB.",
+          type: "Die Bilddatei hat ein ungültiges Format. Erlaubte Formate sind: {{allowedFormats}}.",
+        },
+      },
+      selection: {
+        select: "Bild auswählen",
+        empty: "Kein Bild ausgewählt",
+      },
+    },
+    imageCropper: {
+      imageCropper: {
+        error: "Fehler beim Zuschneiden des Bildes",
+        confirmation: "Bild erfolgreich zugeschnitten",
+        disconnect: "Verbindung zum Bildbearbeitungsdienst getrennt",
+        reset: "Zurücksetzen",
+        submit: "Bild zuschneiden",
+      },
+    },
+    success: {
+      imageAdded: "{{imageType}} hinzugefügt",
+      imageRemoved: "{{imageType}} entfernt",
+      imageTypes: {
+        background: "Hintergrundbild",
+        avatar: "Profilbild",
+        logo: "Logo",
+      },
     },
   },
 } as const;
