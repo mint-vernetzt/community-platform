@@ -13,7 +13,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Modal } from "../../components-next/Modal"; // refactor?
-import { RichText } from "./RichText"; // refactor?
+import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import {
   getFormProps,
   getInputProps,
