@@ -2,6 +2,7 @@ import {
   type ActionFunctionArgs,
   Link,
   type LoaderFunctionArgs,
+  type MetaArgs,
   Outlet,
   redirect,
   useActionData,
@@ -50,17 +51,155 @@ import { redirectWithToast } from "~/toast.server";
 import { ABUSE_REPORT_INTENT, createAbuseReportSchema } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 
+import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
-import { captureException } from "@sentry/node";
 import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { removeHtmlTags } from "~/lib/utils/transformHtml";
+import { type loader as rootLoader } from "~/root";
+import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 
 export function links() {
   return [
     { rel: "stylesheet", href: rcSliderStyles },
     { rel: "stylesheet", href: reactCropStyles },
+  ];
+}
+
+export function meta(
+  args: MetaArgs<typeof loader, { root: typeof rootLoader }>
+) {
+  const { loaderData, matches } = args;
+
+  const rootLoaderData = matches.find((match) => {
+    return match.id === "root";
+  });
+
+  if (
+    typeof loaderData === "undefined" ||
+    loaderData === null ||
+    typeof rootLoaderData === "undefined" ||
+    rootLoaderData === null
+  ) {
+    return [
+      { title: "MINTvernetzt Community Plattform" },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+    ];
+  }
+
+  const {
+    meta: { url },
+  } = rootLoaderData.loaderData;
+
+  if (loaderData.event.description === null) {
+    return [
+      {
+        title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:image:secure_url",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:url",
+        content: url,
+      },
+    ];
+  }
+  if (loaderData.event.description === null) {
+    return [
+      {
+        title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content:
+          "Entdecke auf der MINTvernetzt Community-Plattform andere MINT-Akteur:innen, Organisationen und MINT-Veranstaltungen und lass Dich für Deine Arbeit inspirieren.",
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content: loaderData.event.background,
+      },
+      {
+        property: "og:image:secure_url",
+        content: loaderData.event.background,
+      },
+      {
+        property: "og:url",
+        content: url,
+      },
+    ];
+  }
+  if (loaderData.event.background === null) {
+    return [
+      {
+        title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
+      },
+      {
+        name: "description",
+        property: "og:description",
+        content: removeHtmlTags(loaderData.event.description),
+      },
+      {
+        name: "image",
+        property: "og:image",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:image:secure_url",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
+      },
+      {
+        property: "og:url",
+        content: url,
+      },
+    ];
+  }
+  return [
+    {
+      title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
+    },
+    {
+      name: "description",
+      property: "og:description",
+      content: removeHtmlTags(loaderData.event.description),
+    },
+    {
+      name: "image",
+      property: "og:image",
+      content: loaderData.event.background,
+    },
+    {
+      property: "og:image:secure_url",
+      content: loaderData.event.background,
+    },
+    {
+      property: "og:url",
+      content: url,
+    },
   ];
 }
 

@@ -21,6 +21,7 @@ export async function getEventBySlug(slug: string) {
     select: {
       id: true,
       name: true,
+      description: true,
       slug: true,
       background: true,
       startTime: true,
