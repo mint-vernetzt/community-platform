@@ -528,20 +528,20 @@ function Detail() {
             />
           </EventsOverview.InfoContainer>
           <EventsOverview.ButtonStates>
-            <EventsOverview.SquareButton
+            <EventsOverview.OverlayMenu
               baseUrl={loaderData.meta.baseUrl}
               overlayMenuId="event-overview-more"
               locales={loaderData.locales.route.content}
             >
-              <EventsOverview.SquareButton.CopyURLToClipboard // naming?
+              <EventsOverview.OverlayMenu.CopyURLToClipboard // naming?
                 locales={loaderData.locales.route.content}
               />
-              <EventsOverview.SquareButton.ReportEvent
+              <EventsOverview.OverlayMenu.ReportEvent
                 modalName="modal-report-event"
                 alreadyReported={loaderData.hasUserReportedEvent}
                 locales={loaderData.locales.route.content}
               />
-            </EventsOverview.SquareButton>
+            </EventsOverview.OverlayMenu>
             <EventsOverview.AbuseReportModal
               modalName="modal-report-event"
               locales={{

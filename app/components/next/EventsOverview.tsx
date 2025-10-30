@@ -3,7 +3,7 @@ import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
 import type { languageModuleMap } from "~/locales/.server";
-import { OverlayMenu } from "./OverlayMenu"; // refactor?
+import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { Form, useLocation } from "react-router";
 import { useEffect, useState, createContext, useContext, useRef } from "react";
@@ -498,13 +498,13 @@ function ButtonStates(props: { children: React.ReactNode }) {
   );
 }
 
-const SquareButtonContext = createContext<{
+const OverlayMenuContext = createContext<{
   baseUrl: string;
   overlayMenuId: string;
 } | null>(null);
 
-function useSquareButtonContext() {
-  const context = useContext(SquareButtonContext);
+function useOverlayMenuContext() {
+  const context = useContext(OverlayMenuContext);
   if (!context) {
     throw new Error(
       "SquareButton compound components cannot be rendered outside the SquareButton component"
@@ -513,7 +513,7 @@ function useSquareButtonContext() {
   return context;
 }
 
-function SquareButton(props: {
+function OverlayMenu(props: {
   baseUrl: string;
   children: React.ReactNode;
   overlayMenuId: string;
@@ -524,17 +524,17 @@ function SquareButton(props: {
   };
 }) {
   return (
-    <SquareButtonContext
+    <OverlayMenuContext
       value={{ baseUrl: props.baseUrl, overlayMenuId: props.overlayMenuId }}
     >
-      <OverlayMenu
+      <OverlayMenuComponent
         searchParam={props.overlayMenuId}
         size="medium"
         locales={props.locales.overlayMenu}
       >
         {props.children}
-      </OverlayMenu>
-    </SquareButtonContext>
+      </OverlayMenuComponent>
+    </OverlayMenuContext>
   );
 }
 
@@ -545,7 +545,7 @@ function CopyURLToClipboard(props: {
 
   const [hasCopied, setHasCopied] = useState(false);
   const location = useLocation();
-  const { baseUrl, overlayMenuId } = useSquareButtonContext();
+  const { baseUrl, overlayMenuId } = useOverlayMenuContext();
 
   const handleCopyToClipboard = async () => {
     const searchParams = new URLSearchParams(location.search);
@@ -571,8 +571,8 @@ function CopyURLToClipboard(props: {
 
   return (
     <button
-      {...OverlayMenu.getListChildrenStyles()}
-      {...OverlayMenu.getIdToFocusWhenOpening()}
+      {...OverlayMenuComponent.getListChildrenStyles()}
+      {...OverlayMenuComponent.getIdToFocusWhenOpening()}
       onClick={handleCopyToClipboard}
     >
       <span className="p-1">
@@ -621,7 +621,7 @@ function ReportEvent(props: {
   }
 
   return (
-    <OverlayMenu.ListItem disabled={props.alreadyReported}>
+    <OverlayMenuComponent.ListItem disabled={props.alreadyReported}>
       <Form method="get" action={location.pathname} preventScrollReset>
         <input
           type="hidden"
@@ -631,7 +631,7 @@ function ReportEvent(props: {
           aria-hidden="true"
         />
         <button
-          {...OverlayMenu.getListChildrenStyles()}
+          {...OverlayMenuComponent.getListChildrenStyles()}
           type="submit"
           disabled={props.alreadyReported === true}
         >
@@ -674,7 +674,7 @@ function ReportEvent(props: {
           </span>
         </button>
       </Form>
-    </OverlayMenu.ListItem>
+    </OverlayMenuComponent.ListItem>
   );
 }
 
@@ -1103,8 +1103,8 @@ function EditBackgroundModal(props: {
   );
 }
 
-SquareButton.CopyURLToClipboard = CopyURLToClipboard;
-SquareButton.ReportEvent = ReportEvent;
+OverlayMenu.CopyURLToClipboard = CopyURLToClipboard;
+OverlayMenu.ReportEvent = ReportEvent;
 EventsOverview.EditBackgroundModal = EditBackgroundModal;
 EventsOverview.EditBackground = EditBackground;
 EventsOverview.AbuseReportModal = AbuseReportModal;
@@ -1116,7 +1116,7 @@ EventsOverview.Edit = Edit;
 EventsOverview.Login = Login;
 EventsOverview.State = State;
 EventsOverview.StateFlag = StateFlag;
-EventsOverview.SquareButton = SquareButton;
+EventsOverview.OverlayMenu = OverlayMenu;
 EventsOverview.ButtonStates = ButtonStates;
 EventsOverview.FreeSeats = FreeSeats;
 EventsOverview.Stage = Stage;
