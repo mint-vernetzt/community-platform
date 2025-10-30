@@ -531,6 +531,7 @@ function Detail() {
             <EventsOverview.SquareButton
               baseUrl={loaderData.meta.baseUrl}
               overlayMenuId="event-overview-more"
+              locales={loaderData.locales.route.content}
             >
               <EventsOverview.SquareButton.CopyURLToClipboard // naming?
                 locales={loaderData.locales.route.content}

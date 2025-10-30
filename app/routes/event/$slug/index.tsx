@@ -90,7 +90,7 @@ import {
 } from "./utils.server";
 import { BackButton } from "~/components-next/BackButton";
 import { useState } from "react";
-import { OverlayMenu } from "~/components-next/OverlayMenu";
+import { OverlayMenu } from "~/components/next/OverlayMenu";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
@@ -560,7 +560,10 @@ function Index() {
         </div>
         {loaderData.abilities.abuse_report.hasAccess ? (
           <div className="w-full flex justify-end">
-            <OverlayMenu searchParam="overlay-menu-abuse-report">
+            <OverlayMenu
+              searchParam="overlay-menu-abuse-report"
+              locales={locales.route.overlayMenu}
+            >
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button

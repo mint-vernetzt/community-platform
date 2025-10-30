@@ -9,6 +9,9 @@ function OverlayMenu(
   props: React.PropsWithChildren & {
     searchParam: string;
     size?: SquareButtonSize;
+    locales: {
+      close: string;
+    };
   }
 ) {
   const { children, searchParam, size = "small" } = props;
@@ -132,7 +135,7 @@ function OverlayMenu(
                 preventScrollReset
                 replace
               >
-                Schließen
+                {props.locales.close}
               </Link>
             </ListItem>
           </ul>

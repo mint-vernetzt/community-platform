@@ -29,6 +29,9 @@ export const locale = {
     reported: "Report is being reviewed",
     reportFaq: "More info about reporting",
     changeBackground: "Change background",
+    overlayMenu: {
+      close: "Close",
+    },
   },
   errors: {
     invalidProfileId: "Invalid profile ID",

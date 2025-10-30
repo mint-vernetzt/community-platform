@@ -56,6 +56,9 @@ export const locale = {
     more: "Show more information",
     less: "Show less information",
   },
+  overlayMenu: {
+    close: "Close",
+  },
   requestOrganizationMembership: {
     headline: "Add me to an organization",
     subline:

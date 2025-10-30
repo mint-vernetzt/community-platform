@@ -517,12 +517,21 @@ function SquareButton(props: {
   baseUrl: string;
   children: React.ReactNode;
   overlayMenuId: string;
+  locales: {
+    overlayMenu: {
+      close: string;
+    };
+  };
 }) {
   return (
     <SquareButtonContext
       value={{ baseUrl: props.baseUrl, overlayMenuId: props.overlayMenuId }}
     >
-      <OverlayMenu searchParam={props.overlayMenuId} size="medium">
+      <OverlayMenu
+        searchParam={props.overlayMenuId}
+        size="medium"
+        locales={props.locales.overlayMenu}
+      >
         {props.children}
       </OverlayMenu>
     </SquareButtonContext>

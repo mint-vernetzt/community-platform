@@ -29,6 +29,9 @@ export const locale = {
     reported: "Meldung wird geprüft",
     reportFaq: "Weitere Infos zum Melden",
     changeBackground: "Hintergrund ändern",
+    overlayMenu: {
+      close: "Schließen",
+    },
   },
   errors: {
     invalidProfileId: "Ungültige Profil-ID",

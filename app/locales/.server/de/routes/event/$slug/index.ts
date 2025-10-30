@@ -105,4 +105,7 @@ export const locale = {
       subject: 'Das Profil "{{username}}" hat das Event "{{slug}}" gemeldet',
     },
   },
+  overlayMenu: {
+    close: "Schließen",
+  },
 } as const;

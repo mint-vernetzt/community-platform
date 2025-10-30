@@ -64,7 +64,7 @@ import { CreateOrganization } from "~/components-next/CreateOrganization";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { Modal } from "~/components-next/Modal";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { OverlayMenu } from "~/components-next/OverlayMenu";
+import { OverlayMenu } from "~/components/next/OverlayMenu";
 import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
 import { prismaClient } from "~/prisma.server";
 import { getFeatureAbilities } from "../feature-access.server";
@@ -1750,6 +1750,7 @@ export default function MyOrganizations() {
                               <OrganizationCard.Controls>
                                 <OverlayMenu
                                   searchParam={`overlay-menu-${key}-${organization.id}`}
+                                  locales={locales.route.overlayMenu}
                                 >
                                   {key === "admin" ? (
                                     <OverlayMenu.ListItem
