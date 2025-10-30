@@ -12,7 +12,7 @@ import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { Modal } from "./Modal"; // refactor?
+import { Modal } from "../../components-next/Modal"; // refactor?
 import { RichText } from "./RichText"; // refactor?
 import {
   getFormProps,
