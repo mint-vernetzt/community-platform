@@ -188,11 +188,15 @@ export async function getIsMember(
               eventId: event.id,
             },
           },
+        },
+        {
           contributedEvents: {
             some: {
               eventId: event.id,
             },
           },
+        },
+        {
           administeredEvents: {
             some: {
               eventId: event.id,
