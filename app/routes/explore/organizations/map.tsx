@@ -273,7 +273,7 @@ export default function ExploreOrganizationsList() {
 
   return (
     <div className="w-full">
-      <div className="w-full relative rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
+      <div className="w-full relative rounded-lg md:rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
         <MapView
           organizations={loaderData.organizations.filter((organization) => {
             return (
