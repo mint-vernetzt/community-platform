@@ -5,7 +5,7 @@ export const locale = {
     updateFailed:
       "Data could not be saved. Please try again or contact support",
     coordinatesNotFound:
-      "Successfully saved! However, no coordinates could be found for the address entered. Please check your details for spelling mistakes or try adjusting the spelling and address suffix. (Alternatively, check your entries here: https://nominatim.openstreetmap.org/ui/search.html)",
+      'Successfully saved! However, no coordinates could be found for the address entered. Please check your details for spelling mistakes or try adjusting the spelling and address suffix. (Alternatively, check your entries here: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}+{{streetNumber}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}+{{streetNumber}}&city={{city}}&postalcode={{zipCode}})</a>)',
   },
   validation: {
     name: {

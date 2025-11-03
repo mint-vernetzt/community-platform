@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from "react-router";
-import { combineHeaders } from "./utils.server";
+import { combineHeaders, sanitizeUserHtml } from "./utils.server";
 import { ZodError, z } from "zod";
 import { type ToastLevel } from "@mint-vernetzt/components/src/molecules/Toast";
 
@@ -8,6 +8,8 @@ export type Toast = {
   key: string;
   id?: string;
   level?: ToastLevel;
+  isRichtext?: boolean;
+  delayInMillis?: number;
 };
 
 const toastSchema = z.object({
@@ -15,6 +17,8 @@ const toastSchema = z.object({
   key: z.string(),
   id: z.string().optional(),
   level: z.string().optional(),
+  isRichtext: z.boolean().optional(),
+  delayInMillis: z.number().min(0).optional(),
 });
 
 const TOAST_KEY = "toast";
@@ -70,7 +74,14 @@ export async function redirectWithToast(
     ...redirectOptions?.init,
     headers: combineHeaders(
       redirectOptions?.init?.headers,
-      await createToastHeaders(toast.message, toast.key, toast.id, toast.level)
+      await createToastHeaders(
+        toast.message,
+        toast.key,
+        toast.id,
+        toast.level,
+        toast.isRichtext,
+        toast.delayInMillis
+      )
     ),
   });
 }
@@ -79,10 +90,19 @@ async function createToastHeaders(
   message: string,
   key: string,
   id?: string,
-  level?: ToastLevel
+  level?: ToastLevel,
+  isRichtext?: boolean,
+  delayInMillis?: number
 ) {
   const session = await TOAST_SESSION_STORAGE.getSession();
-  const toast = { message, id, key, level: level ?? "positive" };
+  const toast = {
+    message,
+    id,
+    key,
+    level: level ?? "positive",
+    isRichtext: isRichtext ?? false,
+    delayInMillis: delayInMillis ?? 5000,
+  };
   session.flash(TOAST_KEY, toast);
   const cookie = await TOAST_SESSION_STORAGE.commitSession(session);
   return new Headers({ "set-cookie": cookie });
@@ -100,9 +120,13 @@ export async function getToast(request: Request) {
       headers: null,
     };
   }
+  const sanitizedToast = {
+    ...toast,
+    message: sanitizeUserHtml(toast.message),
+  };
   // Parse data against the schema
   try {
-    toastSchema.parse(toast);
+    toastSchema.parse(sanitizedToast);
   } catch (error) {
     if (error instanceof ZodError) {
       console.error(
@@ -123,7 +147,7 @@ export async function getToast(request: Request) {
   }
 
   return {
-    toast: toast as Toast,
+    toast: sanitizedToast as Toast,
     headers:
       toast !== undefined
         ? new Headers({

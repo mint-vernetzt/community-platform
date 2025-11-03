@@ -6,6 +6,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
   type ActionFunctionArgs,
   Form,
@@ -19,11 +20,12 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
@@ -39,14 +41,12 @@ import {
   sanitizeUserHtml,
   triggerEntityScore,
 } from "~/utils.server";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 import {
   createAreaOptions,
   type GeneralOrganizationSettingsLocales,
 } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
-import { useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 
 const BIO_MAX_LENGTH = 2000;
 
@@ -383,6 +383,7 @@ export async function action(args: ActionFunctionArgs) {
       submission: submission.reply(),
     };
   }
+  let addressError;
   const submission = await parseWithZod(formData, {
     schema: () =>
       createGeneralSchema(locales, organization).transform(
@@ -398,10 +399,7 @@ export async function action(args: ActionFunctionArgs) {
             });
           if (error !== null) {
             console.error(error);
-            ctx.addIssue({
-              code: "custom",
-              message: locales.route.error.coordinatesNotFound,
-            });
+            addressError = error;
           }
           try {
             await prismaClient.organization.update({
@@ -481,6 +479,24 @@ export async function action(args: ActionFunctionArgs) {
       submission: submission.reply(),
       currentTimestamp: Date.now(),
     };
+  }
+
+  if (typeof addressError !== "undefined") {
+    return redirectWithToast(request.url, {
+      key: "address-error-toast",
+      level: "attention",
+      message: insertParametersIntoLocale(
+        locales.route.error.coordinatesNotFound,
+        {
+          street: submission.value.street,
+          streetNumber: submission.value.streetNumber,
+          city: submission.value.city,
+          zipCode: submission.value.zipCode,
+        }
+      ),
+      isRichtext: true,
+      delayInMillis: 60000,
+    });
   }
 
   return redirectWithToast(request.url, {
