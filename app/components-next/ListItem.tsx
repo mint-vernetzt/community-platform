@@ -115,8 +115,8 @@ export function ListItem(
         hideAfter !== undefined &&
         listIndex !== undefined &&
         listIndex > hideAfter - 1
-          ? "hidden group-has-[:checked]:block @container"
-          : "block @container"
+          ? "hidden group-has-[:checked]:block"
+          : "block"
       }
     >
       <div

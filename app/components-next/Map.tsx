@@ -725,7 +725,7 @@ export function MapView(props: {
             {mapMenuIsOpen ? (
               <ul
                 id="map-menu"
-                className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2"
+                className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2 @container"
               >
                 {organizations.map((organization) => {
                   return (
