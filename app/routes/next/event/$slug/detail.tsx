@@ -1,3 +1,4 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import {
   type ActionFunctionArgs,
   Link,
@@ -36,7 +37,6 @@ import {
 } from "./detail.server";
 
 import { utcToZonedTime } from "date-fns-tz";
-import { parseWithZod } from "node_modules/@conform-to/zod-v1/dist/v3/parse";
 import { z } from "zod";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
