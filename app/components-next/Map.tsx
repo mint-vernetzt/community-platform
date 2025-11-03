@@ -19,6 +19,7 @@ import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 type MapOrganization = ListOrganization &
   Pick<
@@ -724,7 +725,7 @@ export function MapView(props: {
             {mapMenuIsOpen ? (
               <ul
                 id="map-menu"
-                className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2"
+                className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2 @container"
               >
                 {organizations.map((organization) => {
                   return (
@@ -765,7 +766,19 @@ export function MapView(props: {
                         highlightedOrganization === organization.slug
                       }
                       preventScrollReset
-                    />
+                    >
+                      <Button
+                        as="link"
+                        to={`/organization/${organization.slug}/detail/about`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outline"
+                        size="small"
+                        fullSize
+                      >
+                        {locales.components.Map.organizationCardCta}
+                      </Button>
+                    </ListItem>
                   );
                 })}
               </ul>
