@@ -22,7 +22,6 @@ import { TextArea } from "~/components-next/TextArea";
 import InputText from "~/components/legacy/FormElements/InputText/InputText";
 import SelectAdd from "~/components/legacy/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/legacy/FormElements/SelectField/SelectField";
-import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";
@@ -48,8 +47,6 @@ import {
 } from "~/utils.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
-import { cancelSchema } from "./events/cancel";
-import { publishSchema } from "./events/publish";
 import {
   type GeneralEventSettingsLocales,
   getEventBySlug,
@@ -576,31 +573,38 @@ function General() {
 
       <p className="mb-4">{locales.route.content.start.intro}</p>
       <div className="flex mb-4">
-        <RemixFormsForm
+        <Form
           method="post"
-          schema={cancelSchema}
+          // schema={cancelSchema}
           action={`/event/${slug}/settings/events/cancel`}
         >
-          {(remixFormsProps) => {
+          {/* {(remixFormsProps) => {
             const { Button, Field } = remixFormsProps;
             return (
-              <>
-                <div className="hidden">
-                  {/** @ts-expect-error  event.canceled exists because of fetcher */}
-                  <Field name="cancel" value={!event.canceled} />
-                </div>
-                <div className="mt-2">
-                  <Button className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white">
-                    {/** @ts-expect-error  event.canceled exists because of fetcher */}
-                    {event.canceled
-                      ? locales.route.content.revert
-                      : locales.route.content.cancel}
-                  </Button>
-                </div>
-              </>
+              <> */}
+          <div className="hidden">
+            <input
+              type="checkbox"
+              name="cancel"
+              // @ts-expect-error  event.canceled exists because of fetcher
+              defaultChecked={!event.canceled}
+            />
+          </div>
+          <div className="mt-2">
+            <button
+              type="submit"
+              className="ml-auto border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-[.375rem] px-6 normal-case leading-[1.125rem] inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center text-sm font-semibold gap-2 hover:bg-primary hover:text-white"
+            >
+              {/** @ts-expect-error  event.canceled exists because of fetcher */}
+              {event.canceled
+                ? locales.route.content.revert
+                : locales.route.content.cancel}
+            </button>
+          </div>
+          {/* </>
             );
-          }}
-        </RemixFormsForm>
+          }} */}
+        </Form>
       </div>
       <FormProvider {...methods}>
         <Form
@@ -1054,29 +1058,29 @@ function General() {
             </button>
           </div>
           <div className="flex flex-row flex-nowrap items-center justify-end mb-4">
-            <RemixFormsForm
+            <Form
               method="post"
-              schema={publishSchema}
+              // schema={publishSchema}
               action={`/event/${slug}/settings/events/publish`}
             >
-              {(remixFormsProps) => {
-                const { Button, Field } = remixFormsProps;
-                return (
-                  <>
-                    <div className="hidden">
-                      {/** @ts-expect-error  event.published exists because of fetcher */}
-                      <Field name="publish" value={!event.published} />
-                    </div>
-                    <Button className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white">
-                      {/** @ts-expect-error  event.published exists because of fetcher */}
-                      {event.published
-                        ? locales.route.form.hide.label
-                        : locales.route.form.publish.label}
-                    </Button>
-                  </>
-                );
-              }}
-            </RemixFormsForm>
+              <div className="hidden">
+                <input
+                  type="checkbox"
+                  name="publish"
+                  // @ts-expect-error  event.published exists because of fetcher
+                  defaultChecked={!event.published}
+                />
+              </div>
+              <button
+                type="submit"
+                className="border border-primary bg-white text-primary h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer selct-none flex-wrap items-center justify-center rounded-lg text-center font-semibold gap-2 hover:bg-primary hover:text-white"
+              >
+                {/** @ts-expect-error  event.published exists because of fetcher */}
+                {event.published
+                  ? locales.route.form.hide.label
+                  : locales.route.form.publish.label}
+              </button>
+            </Form>
           </div>
         </div>
       </footer>
