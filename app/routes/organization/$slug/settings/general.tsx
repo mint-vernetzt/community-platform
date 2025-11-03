@@ -398,6 +398,10 @@ export async function action(args: ActionFunctionArgs) {
             });
           if (error !== null) {
             console.error(error);
+            ctx.addIssue({
+              code: "custom",
+              message: locales.route.error.coordinatesNotFound,
+            });
           }
           try {
             await prismaClient.organization.update({

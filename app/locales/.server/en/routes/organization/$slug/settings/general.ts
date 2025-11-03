@@ -4,6 +4,8 @@ export const locale = {
     invalidRoute: "Invalid route",
     updateFailed:
       "Data could not be saved. Please try again or contact support",
+    coordinatesNotFound:
+      "Successfully saved! However, no coordinates could be found for the address entered. Please check your details for spelling mistakes or try adjusting the spelling and address suffix. (Alternatively, check your entries here: https://nominatim.openstreetmap.org/ui/search.html)",
   },
   validation: {
     name: {
