@@ -115,8 +115,8 @@ export function ListItem(
         hideAfter !== undefined &&
         listIndex !== undefined &&
         listIndex > hideAfter - 1
-          ? "hidden group-has-[:checked]:block"
-          : "block"
+          ? "hidden group-has-[:checked]:block @container"
+          : "block @container"
       }
     >
       <div
@@ -129,8 +129,8 @@ export function ListItem(
             "academicTitle" in entity
               ? `/profile/${entity.username}`
               : "responsibleOrganizations" in entity
-              ? `/project/${entity.slug}/detail/about`
-              : `/organization/${entity.slug}/detail/about`
+                ? `/project/${entity.slug}/detail/about`
+                : `/organization/${entity.slug}/detail/about`
           }
           className={`w-full flex gap-2 @lg:gap-4 focus:outline-hidden items-center grow rounded-lg ${
             validChildren.length > 0
@@ -154,31 +154,33 @@ export function ListItem(
               {"academicTitle" in entity
                 ? entity.position
                 : "responsibleOrganizations" in entity
-                ? entity.responsibleOrganizations
-                    .map((relation) => relation.organization.name)
-                    .join(", ")
-                : [...entity.types, ...entity.networkTypes]
-                    .map((relation) => {
-                      let title;
-                      if (relation.slug in locales.organizationTypes) {
-                        type LocaleKey = keyof typeof locales.organizationTypes;
-                        title =
-                          locales.organizationTypes[relation.slug as LocaleKey]
-                            .title;
-                      } else if (relation.slug in locales.networkTypes) {
-                        type LocaleKey = keyof typeof locales.networkTypes;
-                        title =
-                          locales.networkTypes[relation.slug as LocaleKey]
-                            .title;
-                      } else {
-                        console.error(
-                          `Organization or network type ${relation.slug} not found in locales`
-                        );
-                        title = relation.slug;
-                      }
-                      return title;
-                    })
-                    .join(", ")}
+                  ? entity.responsibleOrganizations
+                      .map((relation) => relation.organization.name)
+                      .join(", ")
+                  : [...entity.types, ...entity.networkTypes]
+                      .map((relation) => {
+                        let title;
+                        if (relation.slug in locales.organizationTypes) {
+                          type LocaleKey =
+                            keyof typeof locales.organizationTypes;
+                          title =
+                            locales.organizationTypes[
+                              relation.slug as LocaleKey
+                            ].title;
+                        } else if (relation.slug in locales.networkTypes) {
+                          type LocaleKey = keyof typeof locales.networkTypes;
+                          title =
+                            locales.networkTypes[relation.slug as LocaleKey]
+                              .title;
+                        } else {
+                          console.error(
+                            `Organization or network type ${relation.slug} not found in locales`
+                          );
+                          title = relation.slug;
+                        }
+                        return title;
+                      })
+                      .join(", ")}
             </p>
           </div>
         </Link>
