@@ -12,7 +12,7 @@ function CardContainer(props: CardContainerProps) {
   });
 
   return type === "single row" ? (
-    <div className="w-full flex overflow-x-auto @container">
+    <div className="w-full flex overflow-x-auto @container items-stretch">
       {validChildren.map((child, index) => {
         return (
           <div
@@ -26,7 +26,7 @@ function CardContainer(props: CardContainerProps) {
     </div>
   ) : (
     <div className="w-full @container">
-      <div className="w-full grid gap-8 grid-cols-1 @cards-2:grid-cols-2 @cards-3:grid-cols-3 @cards-4:grid-cols-4 auto-rows-auto">
+      <div className="w-full grid gap-8 grid-cols-1 @cards-2:grid-cols-2 @cards-3:grid-cols-3 @cards-4:grid-cols-4 auto-rows-auto items-stretch">
         {validChildren.map((child) => {
           return child;
         })}
