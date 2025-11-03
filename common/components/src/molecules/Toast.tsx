@@ -11,7 +11,7 @@ type ToastProps = {
 };
 
 function Toast(props: React.PropsWithChildren<ToastProps>) {
-  const { level = "positive", delay = 2000, onHide } = props;
+  const { level = "positive", delay = 5000, onHide } = props;
   const [hide, setHide] = useState(true);
 
   useEffect(() => {
