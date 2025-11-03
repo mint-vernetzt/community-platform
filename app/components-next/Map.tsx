@@ -681,7 +681,7 @@ export function MapView(props: {
             className={`flex flex-col gap-2 p-2 bg-white border-neutral-200 w-full pointer-events-auto ${
               mapMenuIsOpen
                 ? "h-full rounded-none border-none md:border-r"
-                : "rounded-br-2xl border-r border-b"
+                : "rounded-br-lg border-r border-b"
             }`}
           >
             <Link
