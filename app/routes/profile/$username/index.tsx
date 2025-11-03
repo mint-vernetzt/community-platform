@@ -25,14 +25,14 @@ import { BackButton } from "~/components-next/BackButton";
 import { Mastodon } from "~/components-next/icons/Mastodon";
 import { TikTok } from "~/components-next/icons/TikTok";
 import { Modal } from "~/components-next/Modal";
-import ExternalServiceIcon from "~/components/ExternalService/ExternalServiceIcon";
-import { H3 } from "~/components/Heading/Heading";
+import ExternalServiceIcon from "~/components/legacy/ExternalService/ExternalServiceIcon";
+import { H3 } from "~/components/legacy/Heading/Heading";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
-import OrganizationCard from "~/components/OrganizationCard/OrganizationCard";
-import { RichText } from "~/components/Richtext/RichText";
-import type { ExternalService } from "~/components/types";
+} from "~/components/legacy/ImageCropper/ImageCropper";
+import OrganizationCard from "~/components/legacy/OrganizationCard/OrganizationCard";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import type { ExternalService } from "~/components/legacy/types";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";

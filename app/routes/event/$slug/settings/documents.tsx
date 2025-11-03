@@ -21,7 +21,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 import { MaterialList } from "~/components-next/MaterialList";
 import { Modal } from "~/components-next/Modal";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";

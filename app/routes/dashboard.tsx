@@ -45,8 +45,8 @@ import { Modal } from "~/components-next/Modal";
 import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
-import Search from "~/components/Search/Search";
+} from "~/components/legacy/ImageCropper/ImageCropper";
+import Search from "~/components/legacy/Search/Search";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";

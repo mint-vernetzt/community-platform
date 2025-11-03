@@ -1,18 +1,23 @@
-import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
+import {
+  SquareButton,
+  type SquareButtonSize,
+} from "@mint-vernetzt/components/src/molecules/SquareButton";
 import { Children, isValidElement, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useSubmit } from "react-router";
 
 function OverlayMenu(
   props: React.PropsWithChildren & {
     searchParam: string;
+    size?: SquareButtonSize;
+    locales: {
+      close: string;
+    };
   }
 ) {
-  const { children, searchParam } = props;
+  const { children, searchParam, size = "small" } = props;
   const childrenArray = Children.toArray(children);
   const listItems = childrenArray.filter(
-    (child) =>
-      isValidElement(child) &&
-      (child.type === ListItem || child.type === Divider)
+    (child) => isValidElement(child) && child.type !== HiddenItem
   );
   const hiddenItems = childrenArray.filter(
     (child) => isValidElement(child) && child.type === HiddenItem
@@ -88,7 +93,7 @@ function OverlayMenu(
   return (
     <div className="relative">
       <SquareButton
-        size="small"
+        size={size}
         variant="outline"
         as="link"
         ref={linkRef}
@@ -113,7 +118,9 @@ function OverlayMenu(
         </svg>
       </SquareButton>
       {isOpen === true ? (
-        <div className="fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 @lg:top-10 left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-10 overflow-hidden">
+        <div
+          className={`fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 ${size === "small" ? "@lg:top-10" : size === "medium" ? "@lg:top-12" : "@lg:top-14"} left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-20`}
+        >
           <ul ref={listRef} className="flex flex-col bg-white rounded-lg">
             {listItems}
           </ul>
@@ -128,7 +135,7 @@ function OverlayMenu(
                 preventScrollReset
                 replace
               >
-                Schließen
+                {props.locales.close}
               </Link>
             </ListItem>
           </ul>
@@ -147,9 +154,9 @@ function ListItem(
   const { children, disabled = false } = props;
   return (
     <li
-      className={`w-full flex gap-2 items-center bg-white ring-2 ring-transparent @lg:border-2 @lg:ring-0 border-offset-2 border-transparent text-neutral-700 first:rounded-t-lg last:rounded-b-lg${
+      className={`w-full flex gap-2 items-center bg-white border-2 border-transparent text-neutral-700 first:rounded-t-lg last:rounded-b-lg${
         disabled === false
-          ? " hover:bg-neutral-100 hover:border-neutral-100 active:bg-primary-50 active:border-primary-50 active:ring-primary-50 focus-within:bg-white focus-within:border-primary-200 focus-within:ring-primary-200 focus-within:z-10"
+          ? " hover:bg-neutral-100 hover:border-neutral-100 active:bg-primary-50 active:border-primary-50 focus-within:bg-white focus-within:border-primary-200"
           : ""
       }`}
     >

@@ -1,5 +1,5 @@
 import { Children, isValidElement } from "react";
-import { Heading } from "~/components/Heading/Heading";
+import { Heading } from "~/components/legacy/Heading/Heading";
 import { type DashboardLocales } from "~/routes/dashboard.server";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MyOrganizationsLocales } from "~/routes/my/organizations.server";

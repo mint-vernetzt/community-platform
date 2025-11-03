@@ -1,5 +1,5 @@
 import { createRef } from "react";
-import { capitalizeFirstLetter } from "../../../lib/string/transform";
+import { capitalizeFirstLetter } from "../../../../lib/string/transform";
 import { ToggleCheckbox } from "../Checkbox/ToggleCheckbox";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 

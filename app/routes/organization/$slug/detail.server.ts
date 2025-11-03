@@ -10,7 +10,7 @@ import { parseWithZod } from "@conform-to/zod-v1";
 import {
   createImageUploadSchema,
   disconnectImageSchema,
-} from "~/components/ImageCropper/ImageCropper";
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { captureException } from "@sentry/node";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";

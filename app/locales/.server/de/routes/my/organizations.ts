@@ -56,6 +56,9 @@ export const locale = {
     more: "Infos ausklappen",
     less: "Infos einklappen",
   },
+  overlayMenu: {
+    close: "Schließen",
+  },
   requestOrganizationMembership: {
     headline: "Mich zu einer Organisation hinzufügen",
     subline:

@@ -1,7 +1,7 @@
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { useLoaderData } from "react-router";
 import { type LoaderFunctionArgs } from "react-router";
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";

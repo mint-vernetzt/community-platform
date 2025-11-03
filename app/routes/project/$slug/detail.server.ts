@@ -11,7 +11,7 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import {
   createImageUploadSchema,
   disconnectImageSchema,
-} from "~/components/ImageCropper/ImageCropper";
+} from "~/components/legacy/ImageCropper/ImageCropper";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";

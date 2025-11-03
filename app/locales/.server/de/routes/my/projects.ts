@@ -6,6 +6,9 @@ export const locale = {
     lastTeamMember:
       "Du kannst das Projekt nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder das Projekt zu löschen.",
   },
+  overlayMenu: {
+    close: "Schließen",
+  },
   title: "Meine Projekte",
   create: "Projekt anlegen",
   placeholder: {

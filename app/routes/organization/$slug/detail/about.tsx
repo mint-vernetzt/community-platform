@@ -1,9 +1,9 @@
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { NoInfos } from "~/components/next/NoInfo";
-import { RichText } from "~/components/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";

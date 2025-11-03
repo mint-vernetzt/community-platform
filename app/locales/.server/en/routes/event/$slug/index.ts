@@ -104,4 +104,7 @@ export const locale = {
       subject: 'Profile "{{username}}" reported event "{{slug}}"',
     },
   },
+  overlayMenu: {
+    close: "Close",
+  },
 } as const;

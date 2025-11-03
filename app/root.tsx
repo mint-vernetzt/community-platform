@@ -35,7 +35,7 @@ import { MainMenu } from "./components-next/MainMenu";
 import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
-import { RichText } from "./components/Richtext/RichText";
+import { RichText } from "./components/legacy/Richtext/RichText";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";

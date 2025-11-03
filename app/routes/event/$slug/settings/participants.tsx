@@ -19,10 +19,10 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import InputText from "~/components/FormElements/InputText/InputText";
-import { H3 } from "~/components/Heading/Heading";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Autocomplete from "~/components/legacy/Autocomplete/Autocomplete";
+import InputText from "~/components/legacy/FormElements/InputText/InputText";
+import { H3 } from "~/components/legacy/Heading/Heading";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import { getInitials } from "~/lib/profile/getInitials";
 import { invariantResponse } from "~/lib/utils/response";

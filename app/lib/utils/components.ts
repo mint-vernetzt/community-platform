@@ -3,7 +3,7 @@ import type {
   OptGroupProps,
   OptionOrGroup,
   OptionsProps,
-} from "~/components/FormElements/SelectField/SelectField";
+} from "~/components/legacy/FormElements/SelectField/SelectField";
 import { capitalizeFirstLetter } from "../string/transform";
 import { type Area, type State } from "@prisma/client";
 
@@ -44,7 +44,7 @@ function removeListEntry<T extends InferType<ObjectSchema<AnyObject>>>(
 
 // TODO: Find better name
 export function objectListOperationResolver<
-  T extends InferType<ObjectSchema<AnyObject>>
+  T extends InferType<ObjectSchema<AnyObject>>,
 >(object: T, key: keyof T, formData: FormData) {
   // TODO: can this type assertion be removed and proofen by code?
   key = key as string;

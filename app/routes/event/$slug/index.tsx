@@ -28,8 +28,8 @@ import { BreadCrump } from "~/components-next/BreadCrump";
 import { Modal } from "~/components-next/Modal";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/ImageCropper/ImageCropper";
-import { RichText } from "~/components/Richtext/RichText";
+} from "~/components/legacy/ImageCropper/ImageCropper";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
@@ -90,7 +90,7 @@ import {
 } from "./utils.server";
 import { BackButton } from "~/components-next/BackButton";
 import { useState } from "react";
-import { OverlayMenu } from "~/components-next/OverlayMenu";
+import { OverlayMenu } from "~/components/next/OverlayMenu";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
@@ -560,7 +560,10 @@ function Index() {
         </div>
         {loaderData.abilities.abuse_report.hasAccess ? (
           <div className="w-full flex justify-end">
-            <OverlayMenu searchParam="overlay-menu-abuse-report">
+            <OverlayMenu
+              searchParam="overlay-menu-abuse-report"
+              locales={locales.route.overlayMenu}
+            >
               {isHydrated ? (
                 <OverlayMenu.ListItem>
                   <button
@@ -895,8 +898,8 @@ function Index() {
                     {laysInThePast
                       ? locales.route.content.event.alreadyTakenPlace
                       : beforeParticipationPeriod
-                      ? locales.route.content.event.registrationNotStarted
-                      : locales.route.content.event.registrationExpired}
+                        ? locales.route.content.event.registrationNotStarted
+                        : locales.route.content.event.registrationExpired}
                   </p>
                 </div>
               ) : (

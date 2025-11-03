@@ -1,7 +1,7 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Children, isValidElement } from "react";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { type ImageCropperLocales } from "~/components/ImageCropper/ImageCropper";
+import { type ImageCropperLocales } from "~/components/legacy/ImageCropper/ImageCropper";
 import { type EventDocumentsSettingsLocales } from "~/routes/event/$slug/settings/documents.server";
 import { type ProjectAttachmentSettingsLocales } from "~/routes/project/$slug/settings/attachments.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";

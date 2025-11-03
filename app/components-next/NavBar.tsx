@@ -3,7 +3,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { Form, Link, useLocation, useSearchParams } from "react-router";
-import Search from "~/components/Search/Search";
+import Search from "~/components/legacy/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { type RootLocales } from "~/root.server";
 import { HeaderLogo } from "./HeaderLogo";

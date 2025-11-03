@@ -13,7 +13,7 @@ import { getFullName } from "./../../utils";
 import { Image } from "./../../molecules/Image";
 import { type ExploreProfilesLocales } from "~/routes/explore/profiles.server";
 import { type DashboardLocales } from "~/routes/dashboard.server";
-import { Heading } from "~/components/Heading/Heading";
+import { Heading } from "~/components/legacy/Heading/Heading";
 import { type LinkProps } from "react-router";
 
 type ProfileCardProps = {

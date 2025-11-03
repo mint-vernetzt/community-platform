@@ -1,4 +1,4 @@
-import { RichText } from "~/components/Richtext/RichText";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 import { Accordion } from "~/components-next/Accordion";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
 import { useLoaderData } from "react-router";

@@ -30,7 +30,7 @@ import { getFilterSchemes } from "./explore/all.shared";
 import { getEventIds } from "./explore/events.server";
 import { getFundingIds } from "./explore/fundings.server";
 import { getProjectIds } from "./explore/projects.server";
-import Search from "~/components/Search/Search";
+import Search from "~/components/legacy/Search/Search";
 import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";

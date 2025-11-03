@@ -1,5 +1,5 @@
 import { createRef } from "react";
-import { capitalizeFirstLetter } from "../../../lib/string/transform";
+import { capitalizeFirstLetter } from "../../../../lib/string/transform";
 import SelectField, { type SelectFieldProps } from "../SelectField/SelectField";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 

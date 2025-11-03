@@ -8,8 +8,8 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import Input from "~/components/FormElements/Input/Input";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Input from "~/components/legacy/FormElements/Input/Input";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";

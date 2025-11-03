@@ -31,7 +31,7 @@ import { Modal } from "~/components-next/Modal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { useEffect, useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { OverlayMenu } from "~/components-next/OverlayMenu";
+import { OverlayMenu } from "~/components/next/OverlayMenu";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -279,6 +279,7 @@ function MyProjects() {
                     <ProjectCard.Controls>
                       <OverlayMenu
                         searchParam={`overlay-menu-${projects}-${project.id}`}
+                        locales={locales.route.overlayMenu}
                       >
                         {projects === "adminProjects" ? (
                           <OverlayMenu.ListItem

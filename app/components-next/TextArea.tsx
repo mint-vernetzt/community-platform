@@ -1,6 +1,6 @@
 import classNames from "classnames";
-import { Counter } from "../components/Counter/Counter";
-import { ToggleCheckbox } from "../components/FormElements/Checkbox/ToggleCheckbox";
+import { Counter } from "../components/legacy/Counter/Counter";
+import { ToggleCheckbox } from "../components/legacy/FormElements/Checkbox/ToggleCheckbox";
 import { RTE, type RTELocales } from "./RTE/RTE";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { useState } from "react";

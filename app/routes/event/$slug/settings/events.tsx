@@ -14,8 +14,8 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import Autocomplete from "~/components/Autocomplete/Autocomplete";
-import { RemixFormsForm } from "~/components/RemixFormsForm/RemixFormsForm";
+import Autocomplete from "~/components/legacy/Autocomplete/Autocomplete";
+import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";

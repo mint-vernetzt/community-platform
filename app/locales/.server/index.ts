@@ -66,6 +66,9 @@ import { locale as deDownloadEventDocuments } from "./de/routes/event/$slug/docu
 import { locale as deEventDetail } from "./de/routes/event/$slug/index";
 import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
+// next event routes
+import { locale as deNextEventDetail } from "./de/routes/next/event/$slug/detail";
+import { locale as deNextAboutEvent } from "./de/routes/next/event/$slug/detail/about";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -230,6 +233,9 @@ import { locale as enDownloadEventDocuments } from "./en/routes/event/$slug/docu
 import { locale as enEventDetail } from "./en/routes/event/$slug/index";
 import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
+// next event routes
+import { locale as enNextEventDetail } from "./en/routes/next/event/$slug/detail";
+import { locale as enNextAboutEvent } from "./en/routes/next/event/$slug/detail/about";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -448,6 +454,15 @@ const de = {
   },
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
+  // next event routes
+  "next/event/$slug/detail": {
+    route: deNextEventDetail,
+    stages: deStages,
+    eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
+  },
+  "next/event/$slug/detail/about": {
+    route: deNextAboutEvent,
+  },
   // explore routes
   explore: {
     route: deExplore,
@@ -857,6 +872,15 @@ const en = {
   },
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
+  // next event routes
+  "next/event/$slug/detail": {
+    route: enNextEventDetail,
+    stages: enStages,
+    eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
+  },
+  "next/event/$slug/detail/about": {
+    route: enNextAboutEvent,
+  },
   // explore routes
   explore: {
     route: enExplore,
