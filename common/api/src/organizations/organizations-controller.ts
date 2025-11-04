@@ -24,8 +24,7 @@ const exampleResponse = {
       background:
         "https://img.platform.org/public/url/of/organization/background",
       bio: "I am a <strong>bio</strong>",
-      street: "Freedom Road",
-      streetNumber: "22",
+      street: "Freedom Road 22",
       city: "City of Relief",
       zipCode: "12345",
       supportedBy: [
@@ -103,7 +102,6 @@ const exampleResponse = {
       background: null,
       bio: null,
       street: null,
-      streetNumber: null,
       city: null,
       zipCode: null,
       supportedBy: [],

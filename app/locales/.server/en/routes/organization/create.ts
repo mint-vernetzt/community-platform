@@ -22,9 +22,6 @@ export const locale = {
     street: {
       required: "Please enter the street of your organization.",
     },
-    streetNumber: {
-      required: "Please enter the street number of your organization.",
-    },
     zipCode: {
       required: "Please enter the ZIP code of your organization.",
     },
@@ -89,9 +86,6 @@ export const locale = {
       },
       street: {
         label: "Street*",
-      },
-      streetNumber: {
-        label: "Street number*",
       },
       zipCode: {
         label: "ZIP code*",

@@ -43,11 +43,6 @@ export const createOrganizationSchema = (
         required_error: locales.route.validation.street.required,
       })
       .trim(),
-    streetNumber: z
-      .string({
-        required_error: locales.route.validation.streetNumber.required,
-      })
-      .trim(),
     zipCode: z
       .string({
         required_error: locales.route.validation.zipCode.required,

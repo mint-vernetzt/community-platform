@@ -262,15 +262,12 @@ export const sanitizeUserHtml = (
 export async function getCoordinatesFromAddress(options: {
   id: string;
   street: string | null;
-  streetNumber: string | null;
   city: string | null;
   zipCode: string | null;
 }) {
-  const { id, street, streetNumber, city, zipCode } = options;
+  const { id, street, city, zipCode } = options;
   const searchParams = new URLSearchParams();
-  if (street !== null && streetNumber !== null) {
-    searchParams.set("street", `${street} ${streetNumber}`);
-  } else if (street !== null) {
+  if (street !== null) {
     searchParams.set("street", street);
   }
   if (city !== null) {

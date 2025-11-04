@@ -20,7 +20,6 @@ export async function exportPossibleOrganizationDuplicates() {
       email: true,
       zipCode: true,
       street: true,
-      streetNumber: true,
       phone: true,
       website: true,
       facebook: true,
@@ -99,19 +98,13 @@ export async function exportPossibleOrganizationDuplicates() {
             });
           }
         }
-      } else if (
-        typedKey === "zipCode" ||
-        typedKey === "streetNumber" ||
-        typedKey === "street"
-      ) {
+      } else if (typedKey === "zipCode" || typedKey === "street") {
         const possibleDuplicates = organizations.filter((organization) => {
           if (
             organization.zipCode === null ||
             organization.street === null ||
-            organization.streetNumber === null ||
             sample.zipCode === null ||
-            sample.street === null ||
-            sample.streetNumber === null
+            sample.street === null
           ) {
             return false;
           }
@@ -120,9 +113,7 @@ export async function exportPossibleOrganizationDuplicates() {
             (organization.zipCode.includes(sample.zipCode) ||
               sample.zipCode.includes(organization.zipCode)) &&
             (organization.street.includes(sample.street) ||
-              sample.street.includes(organization.street)) &&
-            (organization.streetNumber.includes(sample.streetNumber) ||
-              sample.streetNumber.includes(organization.streetNumber))
+              sample.street.includes(organization.street))
           );
         });
         for (const possibleDuplicate of possibleDuplicates) {

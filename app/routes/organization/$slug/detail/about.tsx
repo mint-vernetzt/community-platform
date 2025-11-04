@@ -204,11 +204,6 @@ function About() {
                           {hasStreet(organization) ? (
                             <p className="flex gap-1">
                               <span>{organization.street}</span>
-                              {organization.streetNumber !== null ? (
-                                <span>{organization.streetNumber}</span>
-                              ) : (
-                                ""
-                              )}
                               {organization.addressSupplement !== null ? (
                                 <span>{organization.addressSupplement}</span>
                               ) : (
