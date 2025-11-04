@@ -28,7 +28,9 @@ export const locale = {
     closeMenu: "Close organization list",
     organizationCardCta: "View organization",
     toThePlatform: "To the MINTvernetzt community platform",
-    whatIsShown:
-      "On the map, only organizations that have provided their address are shown. If you have further questions about the map, <0>here is the help section</0>.",
+    whatIsShown_singular:
+      "Only <0>{{organizationsCount}}</0> organization that has provided an address is displayed on the map. Do you have further questions about the map? <1>Here’s the help section</1>.",
+    whatIsShown_plural:
+      "Only <0>{{organizationsCount}}</0> organizations that have provided an address are displayed on the map. Do you have further questions about the map? <1>Here’s the help section</1>.",
   },
 } as const;

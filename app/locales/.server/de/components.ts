@@ -29,7 +29,9 @@ export const locale = {
     closeMenu: "Organisationsliste schließen",
     organizationCardCta: "Organisation ansehen",
     toThePlatform: "Zur MINTvernetzt-Community-Plattform",
-    whatIsShown:
-      "Auf der Karte werden nur Organisationen gezeigt, die ihre Adresse angegeben haben. Hast Du weitere Fragen zur Karte? <0>Hier geht’s zum Hilfebereich</0>.",
+    whatIsShown_singular:
+      "Ausschließlich <0>{{organizationsCount}}</0> Organisation, die eine Adresse angegeben hat, wird auf der Karte dargestellt. Hast Du weitere Fragen zur Karte? <1>Hier geht’s zum Hilfebereich</1>.",
+    whatIsShown_plural:
+      "Ausschließlich <0>{{organizationsCount}}</0> Organisationen, die eine Adresse angegeben haben, werden auf der Karte dargestellt. Hast Du weitere Fragen zur Karte? <1>Hier geht’s zum Hilfebereich</1>.",
   },
 } as const;
