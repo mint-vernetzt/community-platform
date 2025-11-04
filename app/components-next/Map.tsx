@@ -25,7 +25,6 @@ type MapOrganization = ListOrganization &
     | "longitude"
     | "latitude"
     | "street"
-    | "streetNumber"
     | "zipCode"
     | "city"
     | "addressSupplement"
@@ -1014,11 +1013,7 @@ function Popup(props: {
           </p>
         </div>
         <address className="not-italic text-center text-neutral-700 pointer-events-auto">
-          {[
-            organizations[0].street,
-            organizations[0].streetNumber,
-            organizations[0].addressSupplement,
-          ]
+          {[organizations[0].street, organizations[0].addressSupplement]
             .filter(Boolean)
             .join(" ")}
           ,{" "}

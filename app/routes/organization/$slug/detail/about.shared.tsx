@@ -20,7 +20,6 @@ export function hasContactOrSoMeInformation(organization: {
   website: string | null;
   city: string | null;
   street: string | null;
-  streetNumber: string | null;
   zipCode: string | null;
   facebook: string | null;
   linkedin: string | null;
@@ -40,7 +39,6 @@ export function hasContactInformation(organization: {
   website: string | null;
   city: string | null;
   street: string | null;
-  streetNumber: string | null;
   zipCode: string | null;
 }) {
   return (
@@ -60,7 +58,6 @@ export function hasContactInformation(organization: {
 export function hasAddress(organization: {
   city: string | null;
   street: string | null;
-  streetNumber: string | null;
   zipCode: string | null;
 }) {
   return (
@@ -70,9 +67,6 @@ export function hasAddress(organization: {
     (organization.street !== null &&
       organization.street.trim() !== "" &&
       organization.street.trim() !== "<p></p>") ||
-    (organization.streetNumber !== null &&
-      organization.streetNumber.trim() !== "" &&
-      organization.streetNumber.trim() !== "<p></p>") ||
     (organization.zipCode !== null &&
       organization.zipCode.trim() !== "" &&
       organization.zipCode.trim() !== "<p></p>")

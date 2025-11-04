@@ -40,7 +40,6 @@ async function createOrganizationOnProfile(
     street: string;
     zipCode: string;
     city: string;
-    streetNumber: string;
     latitude: string | null;
     longitude: string | null;
   },

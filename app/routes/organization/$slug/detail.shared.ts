@@ -9,7 +9,6 @@ export function hasAboutData(
     | "website"
     | "city"
     | "street"
-    | "streetNumber"
     | "zipCode"
     | "facebook"
     | "linkedin"
@@ -47,9 +46,6 @@ export function hasAboutData(
     (organization.street !== null &&
       organization.street.trim() !== "" &&
       organization.street.trim() !== "<p></p>") ||
-    (organization.streetNumber !== null &&
-      organization.streetNumber.trim() !== "" &&
-      organization.streetNumber.trim() !== "<p></p>") ||
     (organization.zipCode !== null &&
       organization.zipCode.trim() !== "" &&
       organization.zipCode.trim() !== "<p></p>") ||

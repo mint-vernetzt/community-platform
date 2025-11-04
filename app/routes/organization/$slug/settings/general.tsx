@@ -54,12 +54,11 @@ const createGeneralSchema = (
   locales: GeneralOrganizationSettingsLocales,
   organization: {
     street: string | null;
-    streetNumber: string | null;
     zipCode: string | null;
     city: string | null;
   }
 ) => {
-  const { street, streetNumber, zipCode, city } = organization;
+  const { street, zipCode, city } = organization;
   return z.object({
     name: z
       .string({
@@ -84,7 +83,7 @@ const createGeneralSchema = (
       .email(locales.route.validation.email)
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -93,7 +92,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -105,7 +104,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -115,23 +114,6 @@ const createGeneralSchema = (
               required_error: locales.route.validation.street.required,
             })
             .trim(),
-    streetNumber:
-      streetNumber === null
-        ? z
-            .string()
-            .trim()
-            .optional()
-            .transform((value) => {
-              if (value === undefined || value === "") {
-                return null;
-              }
-              return value;
-            })
-        : z
-            .string({
-              required_error: locales.route.validation.streetNumber.required,
-            })
-            .trim(),
     zipCode:
       zipCode === null
         ? z
@@ -139,7 +121,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -156,7 +138,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -171,7 +153,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -195,7 +177,7 @@ const createGeneralSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -205,7 +187,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -247,7 +229,6 @@ export async function loader(args: LoaderFunctionArgs) {
       phone: true,
       addressSupplement: true,
       street: true,
-      streetNumber: true,
       zipCode: true,
       city: true,
       bio: true,
@@ -363,7 +344,6 @@ export async function action(args: ActionFunctionArgs) {
     select: {
       id: true,
       street: true,
-      streetNumber: true,
       zipCode: true,
       city: true,
     },
@@ -393,7 +373,6 @@ export async function action(args: ActionFunctionArgs) {
             await getCoordinatesFromAddress({
               id: organization.id,
               street: organizationData.street,
-              streetNumber: organizationData.streetNumber,
               city: organizationData.city,
               zipCode: organizationData.zipCode,
             });
@@ -489,7 +468,6 @@ export async function action(args: ActionFunctionArgs) {
         locales.route.error.coordinatesNotFound,
         {
           street: submission.value.street,
-          streetNumber: submission.value.streetNumber,
           city: submission.value.city,
           zipCode: submission.value.zipCode,
         }
@@ -705,27 +683,6 @@ function General() {
                   fields.street.errors.length > 0
                     ? fields.street.errors.map((error) => (
                         <Input.Error id={fields.street.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-              </div>
-              <div className="flex-1 mt-4 @lg:mt-0">
-                <Input
-                  {...getInputProps(fields.streetNumber, { type: "text" })}
-                  key="streetNumber"
-                >
-                  <Input.Label htmlFor={fields.streetNumber.id}>
-                    {locales.route.content.contact.streetNumber.label}
-                  </Input.Label>
-                  {typeof fields.streetNumber.errors !== "undefined" &&
-                  fields.streetNumber.errors.length > 0
-                    ? fields.streetNumber.errors.map((error) => (
-                        <Input.Error
-                          id={fields.streetNumber.errorId}
-                          key={error}
-                        >
                           {error}
                         </Input.Error>
                       ))

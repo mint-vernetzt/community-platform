@@ -5,7 +5,7 @@ export const locale = {
     updateFailed:
       "Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support",
     coordinatesNotFound:
-      'Erfolgreich gespeichert! Allerdings konnten keine Koordinaten zur eingegebenen Adresse gefunden werden. Bitte überprüfe deine Angaben auf Rechtschreibfehler oder versuche Anpassungen bei Schreibweise und Adresszusatz. (Alternativ Eingaben hier prüfen: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}+{{streetNumber}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}+{{streetNumber}}&city={{city}}&postalcode={{zipCode}})</a>',
+      'Erfolgreich gespeichert! Allerdings konnten keine Koordinaten zur eingegebenen Adresse gefunden werden. Bitte überprüfe deine Angaben auf Rechtschreibfehler oder versuche Anpassungen bei Schreibweise und Adresszusatz. (Alternativ Eingaben hier prüfen: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}})</a>',
   },
   validation: {
     name: {
@@ -20,9 +20,6 @@ export const locale = {
     },
     street: {
       required: "Bitte gib die Straße Deiner Organisation ein.",
-    },
-    streetNumber: {
-      required: "Bitte gib die Hausnummer Deiner Organisation ein.",
     },
     zipCode: {
       required: "Bitte gib die Postleitzahl Deiner Organisation ein.",
@@ -51,9 +48,6 @@ export const locale = {
       },
       street: {
         label: "Straße*",
-      },
-      streetNumber: {
-        label: "Hausnummer*",
       },
       zipCode: {
         label: "Postleitzahl*",

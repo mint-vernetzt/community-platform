@@ -32,16 +32,16 @@ type EntityData = {
 type EntityTypeOnData<T> = T extends "profile"
   ? EntityData["profile"]
   : T extends "organization"
-  ? EntityData["organization"]
-  : T extends "project"
-  ? EntityData["project"]
-  : T extends "event"
-  ? EntityData["event"]
-  : T extends "award"
-  ? EntityData["award"]
-  : T extends "document"
-  ? EntityData["document"]
-  : never;
+    ? EntityData["organization"]
+    : T extends "project"
+      ? EntityData["project"]
+      : T extends "event"
+        ? EntityData["event"]
+        : T extends "award"
+          ? EntityData["award"]
+          : T extends "document"
+            ? EntityData["document"]
+            : never;
 
 type EntityStructure = {
   developer: "Developer";
@@ -87,68 +87,68 @@ type EntityTypeOnStructure<T> = T extends "profile"
       | "unicode"
       | "largest"]
   : T extends "organization"
-  ? EntityStructure[
-      | "developer"
-      | "standard"
-      | "largeTeam"
-      | "smallTeam"
-      | "eventCompanion"
-      | "projectCompanion"
-      | "network"
-      | "coordinator"
-      | "private"
-      | "public"
-      | "smallest"
-      | "emptyStrings"
-      | "unicode"
-      | "largest"]
-  : T extends "project"
-  ? EntityStructure[
-      | "developer"
-      | "standard"
-      | "smallest"
-      | "largeTeam"
-      | "smallTeam"
-      | "emptyStrings"
-      | "multipleAwarded"
-      | "manyResponsibleOrganizations"
-      | "unicode"
-      | "largest"]
-  : T extends "event"
-  ? EntityStructure[
-      | "developer"
-      | "standard"
-      | "largeTeam"
-      | "smallTeam"
-      | "depth2"
-      | "depth3"
-      | "fullParticipants"
-      | "overfullParticipants"
-      | "canceled"
-      | "unpublished"
-      | "manyDocuments"
-      | "manyResponsibleOrganizations"
-      | "manySpeakers"
-      | "manyParticipants"
-      | "smallest"
-      | "emptyStrings"
-      | "unicode"
-      | "largest"]
-  : T extends "award"
-  ? EntityStructure[
-      | "standard"
-      | "smallest"
-      | "largest"
-      | "emptyStrings"
-      | "unicode"]
-  : T extends "document"
-  ? EntityStructure[
-      | "standard"
-      | "smallest"
-      | "largest"
-      | "emptyStrings"
-      | "unicode"]
-  : never;
+    ? EntityStructure[
+        | "developer"
+        | "standard"
+        | "largeTeam"
+        | "smallTeam"
+        | "eventCompanion"
+        | "projectCompanion"
+        | "network"
+        | "coordinator"
+        | "private"
+        | "public"
+        | "smallest"
+        | "emptyStrings"
+        | "unicode"
+        | "largest"]
+    : T extends "project"
+      ? EntityStructure[
+          | "developer"
+          | "standard"
+          | "smallest"
+          | "largeTeam"
+          | "smallTeam"
+          | "emptyStrings"
+          | "multipleAwarded"
+          | "manyResponsibleOrganizations"
+          | "unicode"
+          | "largest"]
+      : T extends "event"
+        ? EntityStructure[
+            | "developer"
+            | "standard"
+            | "largeTeam"
+            | "smallTeam"
+            | "depth2"
+            | "depth3"
+            | "fullParticipants"
+            | "overfullParticipants"
+            | "canceled"
+            | "unpublished"
+            | "manyDocuments"
+            | "manyResponsibleOrganizations"
+            | "manySpeakers"
+            | "manyParticipants"
+            | "smallest"
+            | "emptyStrings"
+            | "unicode"
+            | "largest"]
+        : T extends "award"
+          ? EntityStructure[
+              | "standard"
+              | "smallest"
+              | "largest"
+              | "emptyStrings"
+              | "unicode"]
+          : T extends "document"
+            ? EntityStructure[
+                | "standard"
+                | "smallest"
+                | "largest"
+                | "emptyStrings"
+                | "unicode"]
+            : never;
 
 type BucketData = {
   document: {
@@ -172,14 +172,14 @@ type BucketData = {
 type EntityTypeOnBucketData<T> = T extends "document"
   ? Pick<BucketData, "document">
   : T extends "award"
-  ? Required<Pick<BucketData, "logo">>
-  : T extends "profile"
-  ? Pick<BucketData, "avatar" | "background">
-  : T extends "event"
-  ? Pick<BucketData, "background">
-  : T extends "organization" | "project"
-  ? Pick<BucketData, "logo" | "background">
-  : undefined;
+    ? Required<Pick<BucketData, "logo">>
+    : T extends "profile"
+      ? Pick<BucketData, "avatar" | "background">
+      : T extends "event"
+        ? Pick<BucketData, "background">
+        : T extends "organization" | "project"
+          ? Pick<BucketData, "logo" | "background">
+          : undefined;
 
 type SocialMediaService =
   | "facebook"
@@ -5796,7 +5796,7 @@ export function getEntityData<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -5846,7 +5846,10 @@ export function getEntityData<
     email: generateEmail<T>(entityType, entityStructure, index),
     phone: generatePhone<T>(entityType, entityStructure),
     street: generateStreet<T>(entityType, entityStructure),
-    streetNumber: generateStreetNumber<T>(entityType, entityStructure),
+    streetNumber:
+      entityType === "organization"
+        ? null
+        : generateStreetNumber<T>(entityType, entityStructure),
     city: generateCity<T>(entityType, entityStructure),
     zipCode: generateZipCode<T>(entityType, entityStructure),
     website: generateWebsite<T>(entityType, entityStructure),
@@ -5895,7 +5898,7 @@ export async function seedEntity<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entity: EntityTypeOnData<T>,
@@ -6293,7 +6296,7 @@ function generateUsername<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // profile required unique
   let username;
@@ -6318,7 +6321,7 @@ function generateTitle<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // award required, document
   let title;
@@ -6363,7 +6366,7 @@ function generateDate<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, index: number) {
   // award (default now)
   let date;
@@ -6377,7 +6380,7 @@ function generateShortTitle<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // award
   let shortTitle;
@@ -6405,7 +6408,7 @@ function setPath<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let path;
@@ -6421,7 +6424,7 @@ function setMimeType<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let mimeType;
@@ -6437,7 +6440,7 @@ function setExtension<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let extension;
@@ -6453,7 +6456,7 @@ function setFilename<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let filename;
@@ -6469,7 +6472,7 @@ function setSizeInMB<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
   // document required
   let sizeInMB;
@@ -6485,7 +6488,7 @@ function generateName<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -6539,7 +6542,7 @@ function generateSlug<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // organization required unique, event required unique, project required unique, award required unique
   let slug;
@@ -6586,7 +6589,7 @@ function generateHeadline<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -6624,7 +6627,7 @@ function generateExcerpt<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // project
   let excerpt;
@@ -6687,7 +6690,7 @@ function generateStartTime<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // event required
   let startTime;
@@ -6715,7 +6718,7 @@ function generateEndTime<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // event required
   let endTime;
@@ -6747,7 +6750,7 @@ function generateDescription<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event, project, document
   let description;
@@ -6799,7 +6802,7 @@ function generateSubline<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event, award required
   let subline;
@@ -6827,7 +6830,7 @@ function generatePublished<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event (default false)
   let published;
@@ -6845,7 +6848,7 @@ function generateConferenceLink<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let conferenceLink;
@@ -6867,7 +6870,7 @@ function generateConferenceCode<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let conferenceCode;
@@ -6889,7 +6892,7 @@ function generateParticipantLimit<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -6920,7 +6923,7 @@ function generateParticipationFrom<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, index: number) {
   // event (default now)
   let participationFrom;
@@ -6937,7 +6940,7 @@ function generateParticipationUntil<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, index: number) {
   // event required
   let participationUntil;
@@ -6954,7 +6957,7 @@ function generateVenueName<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let venueName;
@@ -6979,7 +6982,7 @@ function generateVenueStreet<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let venueStreet;
@@ -7003,7 +7006,7 @@ function generateVenueStreetNumber<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let venueStreetNumber;
@@ -7025,7 +7028,7 @@ function generateVenueCity<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let venueCity;
@@ -7049,7 +7052,7 @@ function generateVenueZipCode<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event
   let venueZipCode;
@@ -7073,7 +7076,7 @@ function generateCanceled<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // event (default false)
   let canceled;
@@ -7091,7 +7094,7 @@ function generateEmail<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>, index: number) {
   // profile required, organization, project
   let email;
@@ -7121,7 +7124,7 @@ function generatePhone<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let phone;
@@ -7158,7 +7161,7 @@ function generateStreet<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization, project
   let street;
@@ -7175,6 +7178,11 @@ function generateStreet<
       street = faker.location.street();
     }
   }
+
+  if (entityType === "organization") {
+    const streetNumber = generateStreetNumber(entityType, entityStructure);
+    return `${street} ${streetNumber}`;
+  }
   return street;
 }
 
@@ -7182,7 +7190,7 @@ function generateStreetNumber<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization, project
   let streetNumber;
@@ -7197,6 +7205,7 @@ function generateStreetNumber<
       streetNumber = faker.number.int({ min: 1, max: 999 }).toString();
     }
   }
+
   return streetNumber;
 }
 
@@ -7204,7 +7213,7 @@ function generateCity<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization, project
   let city;
@@ -7228,7 +7237,7 @@ function generateZipCode<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization, project
   let zipCode;
@@ -7252,7 +7261,7 @@ function generateWebsite<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization, project
   let website;
@@ -7281,7 +7290,7 @@ function setLogo<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7308,7 +7317,7 @@ function setAvatar<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7332,7 +7341,7 @@ function setBackground<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7361,7 +7370,7 @@ function generateSocialMediaUrl<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7415,7 +7424,7 @@ function generateBio<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile, organization
   let bio;
@@ -7446,7 +7455,7 @@ function generateQuote<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization
   let quote;
@@ -7472,7 +7481,7 @@ function generateQuoteAuthor<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization
   let quoteAuthor;
@@ -7497,7 +7506,7 @@ function generateQuoteAuthorInformation<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization
   let quoteAuthorInformation;
@@ -7522,7 +7531,7 @@ function generateSupportedBy<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // organization
   let supportedBy;
@@ -7553,7 +7562,7 @@ function generateSkills<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile
   let skills;
@@ -7584,7 +7593,7 @@ function generateInterests<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile
   let interests;
@@ -7615,7 +7624,7 @@ function generateAcademicTitle<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile
   let academicTitle;
@@ -7639,7 +7648,7 @@ function generateFirstName<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7671,7 +7680,7 @@ function generateLastName<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(
   entityType: T,
   entityStructure: EntityTypeOnStructure<T>,
@@ -7697,7 +7706,7 @@ function generateTermsAccepted<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T) {
   // profile required
   let termsAccepted;
@@ -7711,7 +7720,7 @@ function generatePosition<
   T extends keyof Pick<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
-  >
+  >,
 >(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
   // profile
   let position;
