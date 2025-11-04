@@ -84,7 +84,7 @@ const createGeneralSchema = (
       .email(locales.route.validation.email)
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -93,7 +93,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -105,7 +105,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -122,7 +122,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -139,7 +139,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -156,7 +156,7 @@ const createGeneralSchema = (
             .trim()
             .optional()
             .transform((value) => {
-              if (value === undefined || value === "") {
+              if (typeof value === "undefined" || value === "") {
                 return null;
               }
               return value;
@@ -171,7 +171,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -195,7 +195,7 @@ const createGeneralSchema = (
         }
       )
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
@@ -205,7 +205,7 @@ const createGeneralSchema = (
       .trim()
       .optional()
       .transform((value) => {
-        if (value === undefined || value === "") {
+        if (typeof value === "undefined" || value === "") {
           return null;
         }
         return value;
