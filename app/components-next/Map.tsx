@@ -700,7 +700,6 @@ export function MapView(props: {
       const zoomAndDragHandler = () => {
         if (mapRef.current !== null) {
           const bounds = mapRef.current.getBounds();
-          console.log(bounds);
           const visibleOrganizations = organizations.filter((organization) => {
             return (
               organization.longitude !== null &&
@@ -810,13 +809,6 @@ export function MapView(props: {
       }
     }
   }, [mapLoaded, language]);
-
-  useEffect(() => {
-    if (mapLoaded && mapRef.current !== null) {
-      const bounds = mapRef.current.getBounds();
-      console.log(bounds);
-    }
-  }, [mapLoaded, mapRef]);
 
   return (
     <>
