@@ -62,6 +62,8 @@ export function MapView(props: {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibreGL.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [visibleOrganizationsOnMap, setVisibleOrganizationsOnMap] =
+    useState(organizations);
   const lastOrgsRef = useRef<MapOrganization[]>([]);
   const lastLanguageRef = useRef<ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
@@ -565,6 +567,31 @@ export function MapView(props: {
         "unclustered-point",
         unclusteredMouseLeaveHandler
       );
+
+      const zoomAndDragHandler = () => {
+        if (mapRef.current !== null) {
+          const bounds = mapRef.current.getBounds();
+          console.log(bounds);
+          const visibleOrganizations = organizations.filter((organization) => {
+            return (
+              organization.longitude !== null &&
+              organization.latitude !== null &&
+              bounds.getNorth() >= parseFloat(organization.latitude) &&
+              bounds.getSouth() <= parseFloat(organization.latitude) &&
+              bounds.getEast() >= parseFloat(organization.longitude) &&
+              bounds.getWest() <= parseFloat(organization.longitude)
+            );
+          });
+          setVisibleOrganizationsOnMap(visibleOrganizations);
+        }
+      };
+      mapRef.current.off("wheel", zoomAndDragHandler);
+      mapRef.current.on("wheel", zoomAndDragHandler);
+      mapRef.current.off("drag", zoomAndDragHandler);
+      mapRef.current.on("drag", zoomAndDragHandler);
+      mapRef.current.off("zoom", zoomAndDragHandler);
+      mapRef.current.on("zoom", zoomAndDragHandler);
+
       // [["south", "west"], ["north", "east"]]
       let organizationBounds: [[number, number], [number, number]] | null =
         null;
@@ -655,6 +682,13 @@ export function MapView(props: {
     }
   }, [mapLoaded, language]);
 
+  useEffect(() => {
+    if (mapLoaded && mapRef.current !== null) {
+      const bounds = mapRef.current.getBounds();
+      console.log(bounds);
+    }
+  }, [mapLoaded, mapRef]);
+
   return (
     <>
       <div
@@ -724,7 +758,7 @@ export function MapView(props: {
                 id="map-menu"
                 className="w-full h-full flex flex-col gap-2 px-4 overflow-y-auto py-2 @container"
               >
-                {organizations.map((organization) => {
+                {visibleOrganizationsOnMap.map((organization) => {
                   return (
                     <ListItem
                       onClick={(event) => {
