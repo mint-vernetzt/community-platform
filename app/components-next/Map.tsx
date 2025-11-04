@@ -313,6 +313,7 @@ export function MapView(props: {
         features: [],
       };
 
+      organizationsByCoordinatesRef.current.clear();
       for (const organization of organizations) {
         if (organization.longitude === null || organization.latitude === null) {
           continue;
