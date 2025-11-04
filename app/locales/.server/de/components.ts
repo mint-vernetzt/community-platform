@@ -33,5 +33,6 @@ export const locale = {
       "Ausschließlich <0>{{organizationsCount}}</0> Organisation, die eine Adresse angegeben hat, wird auf der Karte dargestellt. Hast Du weitere Fragen zur Karte? <1>Hier geht’s zum Hilfebereich</1>.",
     whatIsShown_plural:
       "Ausschließlich <0>{{organizationsCount}}</0> Organisationen, die eine Adresse angegeben haben, werden auf der Karte dargestellt. Hast Du weitere Fragen zur Karte? <1>Hier geht’s zum Hilfebereich</1>.",
+    popupMultipleOrganizationsTitle: "Organisationen",
   },
 } as const;

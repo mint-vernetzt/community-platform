@@ -80,6 +80,8 @@ function Avatar(props: AvatarProps) {
         as === "link" ? (
           <Link
             to={props.to}
+            target={props.target}
+            rel={props.rel}
             className="w-full h-full grid grid-cols-1 grid-rows-1 place-items-center"
             prefetch={props.prefetch}
           >
@@ -88,6 +90,8 @@ function Avatar(props: AvatarProps) {
         ) : (
           <a
             href={props.to}
+            target={props.target}
+            rel={props.rel}
             className="w-full h-full grid grid-cols-1 grid-rows-1 place-items-center"
           >
             {child}
@@ -186,6 +190,8 @@ type AvatarProps = {
   size?: AvatarSize;
   textSize?: TextSize;
   to?: string;
+  target?: string;
+  rel?: string;
   altSuffix?: string;
   prefetch?: LinkProps["prefetch"];
   as?: "a" | "link";
