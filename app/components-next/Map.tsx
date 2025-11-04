@@ -69,12 +69,14 @@ export function MapView(props: {
   > | null>(null);
   const activePopupsRef = useRef<maplibreGL.Popup[]>([]);
   const hoverPopupsRef = useRef<maplibreGL.Popup[]>([]);
-  const [highlightedOrganization, setHighlightedOrganization] = useState<
-    string | null
-  >(null);
+  const [highlightedOrganizations, setHighlightedOrganizations] = useState<
+    string[]
+  >([]);
   const popupClosedByHandlerRef = useRef(false);
-
   const [isMobile, setIsMobile] = useState(false);
+  const organizationsByCoordinatesRef = useRef(
+    new Map<string, MapOrganization[]>()
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -161,33 +163,55 @@ export function MapView(props: {
         features?: maplibreGL.MapGeoJSONFeature[];
       } & {
         slug?: string;
+        duplicate_count?: number;
       }
     ) => {
       if (mapRef.current === null) {
         return;
       }
-      const slug =
+      const commaSeparatedSlugs =
         "slug" in event
           ? event.slug
           : typeof event.features !== "undefined"
-            ? (event.features[0].properties.id as string)
+            ? (event.features[0].properties.id as string | null | undefined)
             : null;
-      if (slug === null) {
+      if (
+        typeof commaSeparatedSlugs === "undefined" ||
+        commaSeparatedSlugs === null
+      ) {
         return;
       }
-      const organization = organizations.find((organization) => {
-        return organization.slug === slug;
+      const slugs = commaSeparatedSlugs.split(",");
+      const duplicateCount =
+        "slug" in event
+          ? event.duplicate_count
+          : typeof event.features !== "undefined"
+            ? (event.features[0].properties.duplicate_count as
+                | number
+                | null
+                | undefined)
+            : null;
+      if (typeof duplicateCount === "undefined" || duplicateCount === null) {
+        return;
+      }
+
+      const organizationsOnFeature = organizations.filter((organization) => {
+        return (
+          slugs.includes(organization.slug) &&
+          organization.longitude !== null &&
+          organization.latitude !== null
+        );
       });
       if (
-        typeof organization === "undefined" ||
-        organization.longitude === null ||
-        organization.latitude === null
+        organizationsOnFeature.length === 0 ||
+        organizationsOnFeature[0].longitude === null ||
+        organizationsOnFeature[0].latitude === null
       ) {
         return;
       }
       const coordinates = [
-        parseFloat(organization.longitude),
-        parseFloat(organization.latitude),
+        parseFloat(organizationsOnFeature[0].longitude),
+        parseFloat(organizationsOnFeature[0].latitude),
       ];
       const offsetCoordinateToFocusPopup = coordinates[1] - 0.0002;
 
@@ -208,23 +232,25 @@ export function MapView(props: {
       // eslint-disable-next-line import/no-named-as-default-member
       const popup = new maplibreGL.Popup()
         .setLngLat([
-          parseFloat(organization.longitude),
-          parseFloat(organization.latitude),
+          parseFloat(organizationsOnFeature[0].longitude),
+          parseFloat(organizationsOnFeature[0].latitude),
         ])
         .setHTML(
           renderToStaticMarkup(
             <Popup
-              organization={organization}
+              organizations={organizationsOnFeature}
               locales={locales}
               embeddable={embeddable}
             />
           )
         );
       popup.on("open", () => {
-        setHighlightedOrganization(organization.slug);
+        setHighlightedOrganizations(
+          organizationsOnFeature.map((org) => org.slug)
+        );
         const mapMenu = document.getElementById("map-menu");
         const listItem = document.getElementById(
-          `list-item-${organization.slug}`
+          `list-item-${organizationsOnFeature[0].slug}`
         );
         if (mapMenu !== null && listItem !== null) {
           mapMenu.scrollTo({
@@ -235,7 +261,7 @@ export function MapView(props: {
         popup.getElement().querySelector("a")?.blur();
       });
       popup.on("close", () => {
-        setHighlightedOrganization(null);
+        setHighlightedOrganizations([]);
         if (
           mapRef.current !== null &&
           popupClosedByHandlerRef.current === false &&
@@ -286,49 +312,53 @@ export function MapView(props: {
         features: [],
       };
 
-      const offsetDelta = 0.0001;
-      const offsetsAtCoordinates = new Map<string, number>();
-
+      organizationsByCoordinatesRef.current.clear();
       for (const organization of organizations) {
         if (organization.longitude === null || organization.latitude === null) {
           continue;
         }
-
-        let offset = offsetsAtCoordinates.get(
-          `${organization.latitude},${organization.longitude}`
-        );
-        if (typeof offset === "undefined") {
-          offsetsAtCoordinates.set(
-            `${organization.latitude},${organization.longitude}`,
-            0
-          );
-          offset = 0;
+        const key = `${organization.longitude},${organization.latitude}`;
+        const existingOrganizationsAtAddress =
+          organizationsByCoordinatesRef.current.get(key);
+        if (typeof existingOrganizationsAtAddress !== "undefined") {
+          existingOrganizationsAtAddress.push(organization);
         } else {
-          offsetsAtCoordinates.set(
-            `${organization.latitude},${organization.longitude}`,
-            offset + 1
-          );
-          offset += 1;
+          organizationsByCoordinatesRef.current.set(key, [organization]);
         }
+      }
 
-        const feature: GeoJSON.Feature<
-          GeoJSON.Point,
-          GeoJSON.GeoJsonProperties
-        > = {
-          type: "Feature",
-          properties: {
-            id: organization.slug,
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [
-              parseFloat(organization.longitude) + offset * offsetDelta,
-              parseFloat(organization.latitude),
-            ],
-          },
-        };
-
-        geoJSON.features.push(feature);
+      for (const [
+        key,
+        organizations,
+      ] of organizationsByCoordinatesRef.current.entries()) {
+        const [longitude, latitude] = key.split(",").map(Number);
+        for (const organization of organizations) {
+          if (organizations.length > 1) {
+            geoJSON.features.push({
+              type: "Feature",
+              properties: {
+                id: organizations.map((org) => org.slug).join(","),
+                duplicate_count: organizations.length,
+              },
+              geometry: {
+                type: "Point",
+                coordinates: [longitude, latitude],
+              },
+            });
+          } else {
+            geoJSON.features.push({
+              type: "Feature",
+              properties: {
+                id: organization.slug,
+                duplicate_count: organizations.length,
+              },
+              geometry: {
+                type: "Point",
+                coordinates: [longitude, latitude],
+              },
+            });
+          }
+        }
       }
 
       for (const popup of activePopupsRef.current) {
@@ -377,17 +407,41 @@ export function MapView(props: {
             return;
           }
           const feature = event.features[0];
-          const slug = feature.properties.id as string | null | undefined;
-          if (typeof slug === "undefined" || slug === null) {
+          const commaSeparatedSlugs = feature.properties.id as
+            | string
+            | null
+            | undefined;
+          if (
+            typeof commaSeparatedSlugs === "undefined" ||
+            commaSeparatedSlugs === null
+          ) {
             return;
           }
-          const organization = organizations.find((organization) => {
-            return organization.slug === slug;
-          });
+          const slugs = commaSeparatedSlugs.split(",");
+          const duplicateCount = feature.properties.duplicate_count as
+            | number
+            | null
+            | undefined;
           if (
-            typeof organization === "undefined" ||
-            organization.longitude === null ||
-            organization.latitude === null
+            typeof duplicateCount === "undefined" ||
+            duplicateCount === null
+          ) {
+            return;
+          }
+
+          const organizationsOnFeature = organizations.filter(
+            (organization) => {
+              return (
+                slugs.includes(organization.slug) &&
+                organization.longitude !== null &&
+                organization.latitude !== null
+              );
+            }
+          );
+          if (
+            organizationsOnFeature.length === 0 ||
+            organizationsOnFeature[0].longitude === null ||
+            organizationsOnFeature[0].latitude === null
           ) {
             return;
           }
@@ -398,23 +452,25 @@ export function MapView(props: {
           // eslint-disable-next-line import/no-named-as-default-member
           const popup = new maplibreGL.Popup()
             .setLngLat([
-              parseFloat(organization.longitude),
-              parseFloat(organization.latitude),
+              parseFloat(organizationsOnFeature[0].longitude),
+              parseFloat(organizationsOnFeature[0].latitude),
             ])
             .setHTML(
               renderToStaticMarkup(
                 <Popup
-                  organization={organization}
+                  organizations={organizationsOnFeature}
                   locales={locales}
                   embeddable={embeddable}
                 />
               )
             );
           popup.on("open", () => {
-            setHighlightedOrganization(organization.slug);
+            setHighlightedOrganizations(
+              organizationsOnFeature.map((org) => org.slug)
+            );
             const mapMenu = document.getElementById("map-menu");
             const listItem = document.getElementById(
-              `list-item-${organization.slug}`
+              `list-item-${organizationsOnFeature[0].slug}`
             );
             if (mapMenu !== null && listItem !== null) {
               mapMenu.scrollTo({
@@ -425,7 +481,7 @@ export function MapView(props: {
             popup.getElement().querySelector("a")?.blur();
           });
           popup.on("close", () => {
-            setHighlightedOrganization(null);
+            setHighlightedOrganizations([]);
           });
           hoverPopupsRef.current.push(popup);
           popup.addTo(mapRef.current);
@@ -461,6 +517,12 @@ export function MapView(props: {
       }
       if (mapRef.current.getLayer("cluster-count")) {
         mapRef.current.removeLayer("cluster-count");
+      }
+      if (mapRef.current.getLayer("same-address-point")) {
+        mapRef.current.removeLayer("same-address-point");
+      }
+      if (mapRef.current.getLayer("same-address-count")) {
+        mapRef.current.removeLayer("same-address-count");
       }
       if (mapRef.current.getSource("organizations")) {
         mapRef.current.removeSource("organizations");
@@ -511,7 +573,11 @@ export function MapView(props: {
         id: "unclustered-point",
         type: "circle",
         source: "organizations",
-        filter: ["!", ["has", "point_count"]],
+        filter: [
+          "all",
+          ["!", ["has", "point_count"]],
+          ["<=", ["get", "duplicate_count"], 1],
+        ],
         paint: {
           "circle-color": "#2D6BE1",
           "circle-radius": 8,
@@ -535,11 +601,54 @@ export function MapView(props: {
         },
       });
 
+      mapRef.current.addLayer({
+        id: "same-address-point",
+        type: "circle",
+        source: "organizations",
+        filter: [
+          "all",
+          ["!", ["has", "point_count"]],
+          [">", ["get", "duplicate_count"], 1],
+        ],
+        paint: {
+          "circle-color": "#2D6BE1",
+          "circle-radius": 12,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#2D6BE166",
+        },
+      });
+
+      mapRef.current.addLayer({
+        id: "same-address-count",
+        type: "symbol",
+        source: "organizations",
+        filter: [
+          "all",
+          ["!", ["has", "point_count"]],
+          [">", ["get", "duplicate_count"], 1],
+        ],
+        layout: {
+          "text-field": ["concat", ["get", "duplicate_count"], "x"],
+          "text-font": ["noto_sans_bold"],
+          "text-size": 14,
+        },
+        paint: {
+          "text-color": "#fff",
+        },
+      });
+
       mapRef.current.off("click", "clusters", clusterClickHandler);
       mapRef.current.on("click", "clusters", clusterClickHandler);
 
       mapRef.current.off("click", "unclustered-point", unclusteredClickHandler);
       mapRef.current.on("click", "unclustered-point", unclusteredClickHandler);
+
+      mapRef.current.off(
+        "click",
+        "same-address-point",
+        unclusteredClickHandler
+      );
+      mapRef.current.on("click", "same-address-point", unclusteredClickHandler);
 
       mapRef.current.off("mouseenter", "clusters", clusterMouseEnterHandler);
       mapRef.current.on("mouseenter", "clusters", clusterMouseEnterHandler);
@@ -557,6 +666,17 @@ export function MapView(props: {
         unclusteredMouseEnterHandler
       );
       mapRef.current.off(
+        "mouseenter",
+        "same-address-point",
+        unclusteredMouseEnterHandler
+      );
+      mapRef.current.on(
+        "mouseenter",
+        "same-address-point",
+        unclusteredMouseEnterHandler
+      );
+
+      mapRef.current.off(
         "mouseleave",
         "unclustered-point",
         unclusteredMouseLeaveHandler
@@ -564,6 +684,16 @@ export function MapView(props: {
       mapRef.current.on(
         "mouseleave",
         "unclustered-point",
+        unclusteredMouseLeaveHandler
+      );
+      mapRef.current.off(
+        "mouseleave",
+        "same-address-point",
+        unclusteredMouseLeaveHandler
+      );
+      mapRef.current.on(
+        "mouseleave",
+        "same-address-point",
         unclusteredMouseLeaveHandler
       );
 
@@ -765,6 +895,14 @@ export function MapView(props: {
                         if (mapRef.current === null) {
                           return;
                         }
+                        const key = `${organization.longitude},${organization.latitude}`;
+                        const existingOrganizationsAtAddress =
+                          organizationsByCoordinatesRef.current.get(key);
+                        if (
+                          typeof existingOrganizationsAtAddress === "undefined"
+                        ) {
+                          return;
+                        }
                         // eslint-disable-next-line import/no-named-as-default-member
                         const mapEvent = new maplibreGL.MapMouseEvent(
                           "click",
@@ -775,7 +913,11 @@ export function MapView(props: {
                           ...mapEvent,
                           preventDefault: () => event.preventDefault(),
                           defaultPrevented: false,
-                          slug: event.currentTarget.id,
+                          slug: existingOrganizationsAtAddress
+                            .map((org) => org.slug)
+                            .join(","),
+                          duplicate_count:
+                            existingOrganizationsAtAddress.length,
                         });
                       }}
                       id={organization.slug}
@@ -784,9 +926,9 @@ export function MapView(props: {
                       locales={locales}
                       rel="noopener noreferrer"
                       target="_blank"
-                      highlighted={
-                        highlightedOrganization === organization.slug
-                      }
+                      highlighted={highlightedOrganizations.includes(
+                        organization.slug
+                      )}
                       preventScrollReset
                     >
                       <Button
@@ -831,24 +973,24 @@ export function MapView(props: {
 }
 
 function Popup(props: {
-  organization: MapOrganization;
+  organizations: MapOrganization[];
   locales: MapLocales | ExploreOrganizationsLocales;
   embeddable: boolean;
 }) {
-  const { organization, locales, embeddable } = props;
+  const { organizations, locales, embeddable } = props;
 
-  return (
+  return organizations.length === 1 ? (
     <div className="flex flex-col gap-4 w-full items-center rounded-lg p-4 bg-white border border-neutral-200 pointer-events-none">
       <div className="relative w-full flex flex-col items-center gap-2">
         <div className="pointer-events-auto">
-          <Avatar size="lg" {...organization} disableFadeIn={true} />
+          <Avatar size="lg" {...organizations[0]} disableFadeIn={true} />
         </div>
         <div className="flex flex-col gap-1 items-center">
           <h1 className="appearance-none text-base text-center mb-0 text-primary font-bold leading-5 pointer-events-auto">
-            {organization.name}
+            {organizations[0].name}
           </h1>
           <p className="text-neutral-700 text-center font-semibold pointer-events-auto">
-            {[...organization.types, ...organization.networkTypes]
+            {[...organizations[0].types, ...organizations[0].networkTypes]
               .map((relation) => {
                 let title;
                 if (relation.slug in locales.organizationTypes) {
@@ -871,26 +1013,28 @@ function Popup(props: {
           </p>
         </div>
         <address className="not-italic text-center text-neutral-700 pointer-events-auto">
-          {[organization.street, organization.addressSupplement]
+          {[organizations[0].street, organizations[0].addressSupplement]
             .filter(Boolean)
             .join(" ")}
           ,{" "}
-          {[organization.zipCode, organization.city].filter(Boolean).join(" ")}
+          {[organizations[0].zipCode, organizations[0].city]
+            .filter(Boolean)
+            .join(" ")}
         </address>
         <div className="absolute right-0 top-0 pointer-events-auto">
           <MapPopupClose />
         </div>
       </div>
-      {organization.networkMembers.length > 0 ? (
+      {organizations[0].networkMembers.length > 0 ? (
         <div className="pointer-events-auto">
           <AvatarList
             visibleAvatars={2}
             moreIndicatorProps={{
-              to: `/organization/${organization.slug}/detail/network`,
+              to: `/organization/${organizations[0].slug}/detail/network`,
               as: "a",
             }}
           >
-            {organization.networkMembers.map((networkMember) => {
+            {organizations[0].networkMembers.map((networkMember) => {
               return (
                 <Avatar
                   key={networkMember.slug}
@@ -906,13 +1050,51 @@ function Popup(props: {
         </div>
       ) : null}
       <a
-        href={`/organization/${organization.slug}/detail/about`}
+        href={`/organization/${organizations[0].slug}/detail/about`}
         className="appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 w-full bg-white border border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200 pointer-events-auto"
         rel={embeddable === true ? "noreferrer noopener" : undefined}
         target={embeddable === true ? "_blank" : undefined}
       >
         {locales.components.Map.organizationCardCta}
       </a>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-4 w-full items-center rounded-lg p-4 bg-white border border-neutral-200 pointer-events-none">
+      <div className="relative w-full flex flex-col items-center gap-2">
+        <div className="flex gap-2">
+          {organizations.map((organization) => (
+            <div className="pointer-events-auto" key={organization.slug}>
+              <Avatar
+                as="a"
+                to={`/organization/${organization.slug}/detail/about`}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="lg"
+                {...organization}
+                disableFadeIn={true}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col gap-1 items-center">
+          <h1 className="appearance-none text-base text-center mb-0 text-primary font-bold leading-5 pointer-events-auto">
+            {organizations.length}{" "}
+            {locales.components.Map.popupMultipleOrganizationsTitle}
+          </h1>
+        </div>
+        <address className="not-italic text-center text-neutral-700 pointer-events-auto">
+          {[organizations[0].street, organizations[0].addressSupplement]
+            .filter(Boolean)
+            .join(" ")}
+          ,{" "}
+          {[organizations[0].zipCode, organizations[0].city]
+            .filter(Boolean)
+            .join(" ")}
+        </address>
+        <div className="absolute right-0 top-0 pointer-events-auto">
+          <MapPopupClose />
+        </div>
+      </div>
     </div>
   );
 }

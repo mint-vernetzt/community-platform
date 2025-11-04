@@ -32,5 +32,6 @@ export const locale = {
       "Only <0>{{organizationsCount}}</0> organization that has provided an address is displayed on the map. Do you have further questions about the map? <1>Here’s the help section</1>.",
     whatIsShown_plural:
       "Only <0>{{organizationsCount}}</0> organizations that have provided an address are displayed on the map. Do you have further questions about the map? <1>Here’s the help section</1>.",
+    popupMultipleOrganizationsTitle: "organizations",
   },
 } as const;
