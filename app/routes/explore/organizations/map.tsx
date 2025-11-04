@@ -16,7 +16,11 @@ import { MapView } from "~/components-next/Map";
 import { Modal } from "~/components-next/Modal";
 import { detectLanguage } from "~/i18n.server";
 import { copyToClipboard } from "~/lib/utils/clipboard";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import customMapStyles from "~/styles/map/map.css?url";
@@ -33,6 +37,7 @@ import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { languageModuleMap } from "~/locales/.server";
 import { getAllOrganizations } from "./map.server";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -271,15 +276,48 @@ export default function ExploreOrganizationsList() {
     ENV.COMMUNITY_BASE_URL
   }/map?${embedLinkSearchParams.toString()}" title="MINTvernetzt-Community-Karte" referrerpolicy="no-referrer" allowfullscreen />`;
 
+  const organizationsWithAddress = loaderData.organizations.filter(
+    (organization) => {
+      return organization.longitude !== null && organization.latitude !== null;
+    }
+  );
+
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-2">
+      <Alert
+        position="relative"
+        textAlign="left"
+        truncate={false}
+        level="neutral"
+        closeable={false}
+      >
+        {insertComponentsIntoLocale(
+          insertParametersIntoLocale(
+            decideBetweenSingularOrPlural(
+              loaderData.locales.components.Map.whatIsShown_singular,
+              loaderData.locales.components.Map.whatIsShown_plural,
+              organizationsWithAddress.length
+            ),
+            {
+              organizationsCount: organizationsWithAddress.length,
+            }
+          ),
+          [
+            <span key="org-count-highlight" className="font-bold" />,
+            <Link
+              key="help-link"
+              to="/help#organizationMapView"
+              target="_blank"
+              className="font-bold hover:underline"
+            >
+              {" "}
+            </Link>,
+          ]
+        )}
+      </Alert>
       <div className="w-full relative rounded-lg md:rounded-2xl overflow-hidden h-[calc(100dvh-292px)] min-h-[284px] mb-3 ring-1 ring-neutral-200">
         <MapView
-          organizations={loaderData.organizations.filter((organization) => {
-            return (
-              organization.longitude !== null && organization.latitude !== null
-            );
-          })}
+          organizations={organizationsWithAddress}
           locales={loaderData.locales}
           language={loaderData.lng}
         />

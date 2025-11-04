@@ -1,4 +1,3 @@
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import {
   Avatar,
   AvatarList,
@@ -9,7 +8,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Link, useSearchParams, useSubmit } from "react-router";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type MapLocales } from "~/routes/map.server";
@@ -74,7 +72,6 @@ export function MapView(props: {
     string | null
   >(null);
   const popupClosedByHandlerRef = useRef(false);
-  const [hideAlert, setHideAlert] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -802,38 +799,6 @@ export function MapView(props: {
               showLabel={false}
             />
           </Link>
-        </div>
-      ) : null}
-      {embeddable === false && hideAlert === false ? (
-        <div
-          className={`absolute ${
-            mapMenuIsOpen === true && organizations.length > 0
-              ? "hidden md:block left-[344px]"
-              : "left-2"
-          } bottom-2 right-2 z-10 h-fit`}
-        >
-          <Alert
-            position="relative"
-            textAlign={
-              mapMenuIsOpen && organizations.length > 0 ? "left" : "center"
-            }
-            truncate={false}
-            level="neutral"
-            onClose={() => {
-              setHideAlert(true);
-            }}
-          >
-            {insertComponentsIntoLocale(locales.components.Map.whatIsShown, [
-              <Link
-                key="help-link"
-                to="/help#organizationMapView"
-                target="_blank"
-                className="font-bold hover:underline"
-              >
-                {" "}
-              </Link>,
-            ])}
-          </Alert>
         </div>
       ) : null}
     </>
