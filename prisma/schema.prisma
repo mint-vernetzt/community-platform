@@ -247,7 +247,7 @@ model Organization {
   publicFields           String[]                             @map("public_fields") // legacy
   quoteAuthor            String?                              @map("quote_author")
   quoteAuthorInformation String?                              @map("quote_author_information")
-  streetNumber           String?                              @map("street_number") // is now required -> String? is legacy
+  streetNumber           String?                              @map("street_number") // legacy
   addressSupplement      String?                              @map("address_supplement")
   supportedBy            String[]                             @map("supported_by")
   updatedAt              DateTime                             @default(now()) @updatedAt @map("updated_at")
@@ -310,7 +310,7 @@ model OrganizationVisibility {
   createdAt              Boolean      @default(true) @map("created_at")
   quoteAuthor            Boolean      @default(true) @map("quote_author")
   quoteAuthorInformation Boolean      @default(true) @map("quote_author_information")
-  streetNumber           Boolean      @default(true) @map("street_number")
+  streetNumber           Boolean      @default(true) @map("street_number") // legacy
   addressSupplement      Boolean      @default(true) @map("address_supplement")
   supportedBy            Boolean      @default(true) @map("supported_by")
   updatedAt              Boolean      @default(true) @map("updated_at")

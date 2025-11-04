@@ -120,9 +120,9 @@ export async function loader(args: LoaderFunctionArgs) {
           organization.shadow === false
             ? false
             : openClaimRequest !== null
-            ? openClaimRequest.status === "open" ||
-              openClaimRequest.status === "withdrawn"
-            : true;
+              ? openClaimRequest.status === "open" ||
+                openClaimRequest.status === "withdrawn"
+              : true;
       }
       return {
         ...organization,
@@ -947,7 +947,7 @@ function CreateOrganization() {
                   : null}
               </Input>
             </div>
-            <div className="w-full">
+            <div className="w-full @md:col-span-2">
               <Input
                 {...getInputProps(createOrganizationFields.street, {
                   type: "text",
@@ -968,32 +968,6 @@ function CreateOrganization() {
                         {error}
                       </Input.Error>
                     ))
-                  : null}
-              </Input>
-            </div>
-            <div className="w-full">
-              <Input
-                {...getInputProps(createOrganizationFields.streetNumber, {
-                  type: "text",
-                })}
-                key="streetNumber"
-              >
-                <Input.Label htmlFor={createOrganizationFields.streetNumber.id}>
-                  {locales.route.form.address.streetNumber.label}
-                </Input.Label>
-                {typeof createOrganizationFields.streetNumber.errors !==
-                  "undefined" &&
-                createOrganizationFields.streetNumber.errors.length > 0
-                  ? createOrganizationFields.streetNumber.errors.map(
-                      (error) => (
-                        <Input.Error
-                          id={createOrganizationFields.streetNumber.errorId}
-                          key={error}
-                        >
-                          {error}
-                        </Input.Error>
-                      )
-                    )
                   : null}
               </Input>
             </div>

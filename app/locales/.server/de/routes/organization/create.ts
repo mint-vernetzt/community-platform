@@ -23,9 +23,6 @@ export const locale = {
     street: {
       required: "Bitte gib die Straße Deiner Organisation ein.",
     },
-    streetNumber: {
-      required: "Bitte gib die Hausnummer Deiner Organisation ein.",
-    },
     zipCode: {
       required: "Bitte gib die Postleitzahl Deiner Organisation ein.",
     },
@@ -90,9 +87,6 @@ export const locale = {
       },
       street: {
         label: "Straße*",
-      },
-      streetNumber: {
-        label: "Hausnummer*",
       },
       zipCode: {
         label: "Postleitzahl*",
