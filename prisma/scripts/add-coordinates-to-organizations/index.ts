@@ -9,7 +9,6 @@ async function main() {
       id: true,
       city: true,
       street: true,
-      streetNumber: true,
       zipCode: true,
       latitude: true,
       longitude: true,
@@ -28,7 +27,6 @@ async function main() {
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: organization.id,
       street: organization.street,
-      streetNumber: organization.streetNumber,
       city: organization.city,
       zipCode: organization.zipCode,
     });

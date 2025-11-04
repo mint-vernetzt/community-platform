@@ -21,7 +21,6 @@ const schema = z.array(
     city: z.string().nullable().optional(),
     zipCode: z.string().nullable().optional(),
     street: z.string().nullable().optional(),
-    streetNumber: z.string().nullable().optional(),
     longitude: z.string().nullable().optional(),
     latitude: z.string().nullable().optional(),
     instagram: z.string().nullable().optional(),
