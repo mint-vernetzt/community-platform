@@ -142,7 +142,7 @@ export function ListItem(
           <div className="h-[72px] w-[72px] min-h-[72px] min-w-[72px]">
             <Avatar size="full" {...entity} />
           </div>
-          <div className={validChildren.length > 0 ? "min-w-[220px]" : ""}>
+          <div className={validChildren.length > 0 ? "@lg:min-w-[220px]" : ""}>
             <p className={`text-primary text-sm font-bold line-clamp-2`}>
               {"academicTitle" in entity
                 ? `${entity.academicTitle ? `${entity.academicTitle} ` : ""}${
