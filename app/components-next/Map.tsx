@@ -571,9 +571,30 @@ export function MapView(props: {
         unclusteredMouseLeaveHandler
       );
 
-      const zoomHandler;
-      mapRef.current.off("wheel", unclusteredMouseLeaveHandler);
-      mapRef.current.on("wheel", unclusteredMouseLeaveHandler);
+      const zoomAndDragHandler = () => {
+        if (mapRef.current !== null) {
+          const bounds = mapRef.current.getBounds();
+          console.log(bounds);
+          const visibleOrganizations = organizations.filter((organization) => {
+            return (
+              organization.longitude !== null &&
+              organization.latitude !== null &&
+              bounds.getNorth() >= parseFloat(organization.latitude) &&
+              bounds.getSouth() <= parseFloat(organization.latitude) &&
+              bounds.getEast() >= parseFloat(organization.longitude) &&
+              bounds.getWest() <= parseFloat(organization.longitude)
+            );
+          });
+          setVisibleOrganizationsOnMap(visibleOrganizations);
+        }
+      };
+      mapRef.current.off("wheel", zoomAndDragHandler);
+      mapRef.current.on("wheel", zoomAndDragHandler);
+      mapRef.current.off("drag", zoomAndDragHandler);
+      mapRef.current.on("drag", zoomAndDragHandler);
+      mapRef.current.off("zoom", zoomAndDragHandler);
+      mapRef.current.on("zoom", zoomAndDragHandler);
+
       // [["south", "west"], ["north", "east"]]
       let organizationBounds: [[number, number], [number, number]] | null =
         null;
