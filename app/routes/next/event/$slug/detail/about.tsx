@@ -1,5 +1,4 @@
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { ChipContainer } from "~/components/next/ChipContainer";
 import ChipMedium from "~/components/next/ChipMedium";
@@ -11,10 +10,9 @@ import LabelAndChipsContainer from "~/components/next/LabelAndChipsContainer";
 import LongTextContainer from "~/components/next/LongTextContainer";
 import Tags from "~/components/next/Tags";
 import { detectLanguage } from "~/i18n.server";
+import { getLocaleFromSlug } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { filterEventByVisibility } from "~/next-public-fields-filtering.server";
-import { deriveEventMode } from "~/routes/event/utils.server";
 import { getEventBySlug } from "./about.server";
 import {
   getFormattedAddress,
@@ -30,13 +28,9 @@ import {
   hasTags,
   hasTypes,
 } from "./about.shared";
-import { getLocaleFromSlug } from "~/i18n.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/detail/about"];
@@ -49,18 +43,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
 
-  const mode = await deriveEventMode(sessionUser, params.slug);
-
-  let filteredEvent;
-  if (mode === "anon") {
-    filteredEvent = filterEventByVisibility<typeof event>(event);
-  } else {
-    filteredEvent = event;
-  }
-
   return {
     locales,
-    event: filteredEvent,
+    event,
   };
 }
 
