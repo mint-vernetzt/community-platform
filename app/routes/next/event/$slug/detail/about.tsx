@@ -86,9 +86,7 @@ function About() {
                 </EventTypeBadge>
               ) : null}
               {hasSubline(event) ? (
-                <EventSubline>
-                  <RichText html={event.subline} />
-                </EventSubline>
+                <EventSubline>{event.subline}</EventSubline>
               ) : null}
             </div>
           ) : null}
