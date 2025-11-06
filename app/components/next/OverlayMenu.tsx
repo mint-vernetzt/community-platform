@@ -5,6 +5,11 @@ import {
 import { Children, isValidElement, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams, useSubmit } from "react-router";
 
+// Design:
+// Name: SquareButton & Overlay_Link Option
+// TODO: No single source for this composed component available yet
+// Source SquareButton: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=44-410&t=fosH40faUSRHh7jI-4
+// Source Overlay_Link Option: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10424-7920&t=X1MCUGIi10fLyIKd-4
 function OverlayMenu(
   props: React.PropsWithChildren & {
     searchParam: string;

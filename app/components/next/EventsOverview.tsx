@@ -33,6 +33,9 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
 
+// Design:
+// Name: Events_Overview
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10820-11125&t=QaQ9E7QzJ3dcYKtd-4
 function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
 }

@@ -2,6 +2,9 @@ import { Children, isValidElement } from "react";
 import { Link, type LinkProps } from "react-router";
 import { getBasicGroupFocusStyles } from "./styleUtils";
 
+// Design:
+// Name: Breadcrump
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10671-10518&t=xdJOMkkpLkBCWx7M-4
 function BreadCrump(props: { children: React.ReactNode }) {
   const { children } = props;
 
