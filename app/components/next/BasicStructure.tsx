@@ -11,8 +11,10 @@ function BasicStructure(props: { children: React.ReactNode }) {
 
 // Design:
 // Name: Container
-// Source: TODO: No single source available yet
-// Example Usage: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10907-15341&m=dev
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10086-2824&t=x9uknsZpVIDwYqGv-4
+// TODO: 2 different Containers defined in source
+// TODO: No mobile and tablet size defined for the first Container in source
+// TODO: No tablet and desktop size defined for the second Container in source
 function Container(props: { children: React.ReactNode }) {
   return (
     <div className="w-full flex flex-col gap-8 md:gap-6 md:p-6 bg-white md:ring ring-neutral-200 rounded-2xl">
