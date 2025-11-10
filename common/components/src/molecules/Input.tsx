@@ -30,7 +30,7 @@ function InputLabel(props: React.PropsWithChildren<InputLabelProps>) {
     <label htmlFor={props.htmlFor} className={classes}>
       {props.children}
       {typeof props.hasError !== "undefined" && props.hasError !== false && (
-        <div className="text-negative-600">
+        <div className="text-negative-700">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="15"
@@ -131,7 +131,7 @@ function InputError(
   return (
     <div
       {...rest}
-      className={`text-sm font-semibold text-negative-600 mt-2${
+      className={`text-sm font-semibold text-negative-700 mt-2${
         additionalClassName !== undefined ? ` ${additionalClassName}` : ""
       }`}
     >
@@ -146,7 +146,7 @@ function InputCounter(props: { currentCount: number; maxCount: number }) {
       className={`text-sm ${
         props.currentCount < props.maxCount
           ? "text-neutral-700"
-          : "text-negative-600"
+          : "text-negative-700"
       } mt-2`}
     >
       {props.currentCount}/{props.maxCount}
@@ -275,7 +275,7 @@ function Input(props: InputProps) {
 
   const inputClasses = classNames(
     "rounded-lg border border-neutral-300 w-full p-2 text-gray-800 text-base leading-snug font-semibold outline-hidden placeholder:font-normal placeholder:gray-400 focus:ring-2 focus:ring-primary-200 focus:border-transparent focus-visible:outline-0",
-    errors.length > 0 && "border-negative-600",
+    errors.length > 0 && "border-negative-700",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
       "text-neutral-300",

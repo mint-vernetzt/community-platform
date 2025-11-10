@@ -916,7 +916,7 @@ export default function MyOrganizations() {
                       <div
                         id={searchForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -1048,7 +1048,7 @@ export default function MyOrganizations() {
                               createOrganizationMemberOrClaimRequestForm.errorId
                             }
                             key={index}
-                            className="text-sm font-semibold text-negative-600"
+                            className="text-sm font-semibold text-negative-700"
                           >
                             {error}
                           </div>
@@ -1131,7 +1131,7 @@ export default function MyOrganizations() {
                             <div
                               id={cancelOrganizationMemberRequestForm.errorId}
                               key={index}
-                              className="text-sm font-semibold text-negative-600"
+                              className="text-sm font-semibold text-negative-700"
                             >
                               {error}
                             </div>
@@ -1272,7 +1272,7 @@ export default function MyOrganizations() {
                                   acceptOrRejectOrganizationMemberInviteForm.errorId
                                 }
                                 key={index}
-                                className="text-sm font-semibold text-negative-600"
+                                className="text-sm font-semibold text-negative-700"
                               >
                                 {error}
                               </div>
@@ -1395,7 +1395,7 @@ export default function MyOrganizations() {
                               <div
                                 id={acceptOrRejectNetworkInviteForm.errorId}
                                 key={index}
-                                className="text-sm font-semibold text-negative-600"
+                                className="text-sm font-semibold text-negative-700"
                               >
                                 {error}
                               </div>
@@ -1530,7 +1530,7 @@ export default function MyOrganizations() {
                                     acceptOrRejectOrganizationMemberRequestForm.errorId
                                   }
                                   key={index}
-                                  className="text-sm font-semibold text-negative-600"
+                                  className="text-sm font-semibold text-negative-700"
                                 >
                                   {error}
                                 </div>
@@ -1651,7 +1651,7 @@ export default function MyOrganizations() {
                               <div
                                 id={acceptOrRejectNetworkRequestForm.errorId}
                                 key={index}
-                                className="text-sm font-semibold text-negative-600"
+                                className="text-sm font-semibold text-negative-700"
                               >
                                 {error}
                               </div>
@@ -1858,7 +1858,7 @@ export default function MyOrganizations() {
                                                   quitOrganizationForm.errorId
                                                 }
                                                 key={index}
-                                                className="text-sm font-semibold text-negative-600"
+                                                className="text-sm font-semibold text-negative-700"
                                               >
                                                 {error}
                                               </div>

@@ -7,7 +7,7 @@ export function Counter({ currentCount, maxCount }: CounterProps) {
   return (
     <div
       className={`text-sm ${
-        currentCount < maxCount ? "text-gray-700" : "text-negative-600"
+        currentCount < maxCount ? "text-neutral-700" : "text-negative-700"
       }`}
     >
       {currentCount}/{maxCount}

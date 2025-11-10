@@ -465,7 +465,7 @@ function CreateOrganization() {
                   <div
                     id={searchForm.errorId}
                     key={index}
-                    className="text-sm font-semibold text-negative-600"
+                    className="text-sm font-semibold text-negative-700"
                   >
                     {error}
                   </div>
@@ -646,7 +646,7 @@ function CreateOrganization() {
                               createOrganizationMemberOrClaimRequestForm.errorId
                             }
                             key={index}
-                            className="text-sm font-semibold text-negative-600"
+                            className="text-sm font-semibold text-negative-700"
                           >
                             {error}
                           </div>
@@ -1029,7 +1029,7 @@ function CreateOrganization() {
               <div
                 id={createOrganizationForm.errorId}
                 key={index}
-                className="text-sm font-semibold text-negative-600"
+                className="text-sm font-semibold text-negative-700"
               >
                 {error}
               </div>

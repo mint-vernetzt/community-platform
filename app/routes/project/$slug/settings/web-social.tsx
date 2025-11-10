@@ -233,7 +233,7 @@ function WebSocial() {
                   <div
                     id={form.errorId}
                     key={index}
-                    className="text-sm font-semibold text-negative-600"
+                    className="text-sm font-semibold text-negative-700"
                   >
                     {error}
                   </div>
