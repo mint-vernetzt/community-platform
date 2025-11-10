@@ -1,5 +1,8 @@
 export const loader = async () => {
-  if (process.env.COMMUNITY_BASE_URL.startsWith("https://stage.")) {
+  if (
+    typeof process.env.ALLOW_INDEXING !== "undefined" &&
+    process.env.ALLOW_INDEXING === "false"
+  ) {
     return new Response("User-agent: *\nDisallow: /", {
       status: 200,
       headers: {

@@ -348,9 +348,13 @@ export const ErrorBoundary = () => {
       data-theme="light"
     >
       <head>
+        <Meta />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
+        {typeof ENV.ALLOW_INDEXING !== "undefined" &&
+        ENV.ALLOW_INDEXING === "false" ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <Links />
       </head>
 
@@ -641,9 +645,13 @@ export default function App() {
   return (
     <html lang={currentLanguage} data-theme="light">
       <head>
+        <Meta />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
+        {typeof ENV.ALLOW_INDEXING !== "undefined" &&
+        ENV.ALLOW_INDEXING === "false" ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <Links />
       </head>
 

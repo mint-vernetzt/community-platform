@@ -112,8 +112,11 @@ export default async function handleRequest(
 
   const isBot = isBotRequest(request.headers.get("user-agent"));
 
-  if (process.env.COMMUNITY_BASE_URL.startsWith("https://stage.")) {
-    invariantResponse(isBot === true, "Forbidden", { status: 403 });
+  if (
+    typeof process.env.ALLOW_INDEXING !== "undefined" &&
+    process.env.ALLOW_INDEXING === "false"
+  ) {
+    invariantResponse(isBot === false, "Forbidden", { status: 403 });
   }
 
   const prohibitOutOfOrderStreaming = isBot || reactRouterContext.isSpaMode;

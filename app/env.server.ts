@@ -13,6 +13,7 @@ const schema = z.object({
   COMMUNITY_BASE_URL: z.string(),
   DATABASE_URL: z.string(),
   SERVICE_ROLE_KEY: z.string(),
+  ALLOW_INDEXING: z.enum(["true", "false"] as const).optional(),
   MATOMO_URL: z.string(),
   MATOMO_SITE_ID: z.string(),
   MAILER_HOST: z.string(),
@@ -66,6 +67,7 @@ export function getEnv() {
     COMMUNITY_BASE_URL: process.env.COMMUNITY_BASE_URL,
     SUPPORT_MAIL: process.env.SUPPORT_MAIL,
     SENTRY_DSN: process.env.SENTRY_DSN,
+    ALLOW_INDEXING: process.env.ALLOW_INDEXING,
   };
 }
 
