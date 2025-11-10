@@ -1,8 +1,5 @@
 export const loader = async () => {
-  if (
-    typeof process.env.ALLOW_INDEXING !== "undefined" &&
-    process.env.ALLOW_INDEXING === "false"
-  ) {
+  if (process.env.ALLOW_INDEXING === "false") {
     return new Response("User-agent: *\nDisallow: /", {
       status: 200,
       headers: {

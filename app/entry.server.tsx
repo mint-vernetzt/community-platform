@@ -112,10 +112,7 @@ export default async function handleRequest(
 
   const isBot = isBotRequest(request.headers.get("user-agent"));
 
-  if (
-    typeof process.env.ALLOW_INDEXING !== "undefined" &&
-    process.env.ALLOW_INDEXING === "false"
-  ) {
+  if (process.env.ALLOW_INDEXING === "false") {
     invariantResponse(isBot === false, "Forbidden", { status: 403 });
   }
 

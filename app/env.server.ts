@@ -13,7 +13,15 @@ const schema = z.object({
   COMMUNITY_BASE_URL: z.string(),
   DATABASE_URL: z.string(),
   SERVICE_ROLE_KEY: z.string(),
-  ALLOW_INDEXING: z.enum(["true", "false"] as const).optional(),
+  ALLOW_INDEXING: z
+    .enum(["true", "false"] as const)
+    .optional()
+    .transform((val) => {
+      if (typeof val === "undefined") {
+        return "true";
+      }
+      return val;
+    }),
   MATOMO_URL: z.string(),
   MATOMO_SITE_ID: z.string(),
   MAILER_HOST: z.string(),

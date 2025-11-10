@@ -351,8 +351,7 @@ export const ErrorBoundary = () => {
         <Meta />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        {typeof ENV.ALLOW_INDEXING !== "undefined" &&
-        ENV.ALLOW_INDEXING === "false" ? (
+        {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
         <Links />
@@ -648,8 +647,7 @@ export default function App() {
         <Meta />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        {typeof ENV.ALLOW_INDEXING !== "undefined" &&
-        ENV.ALLOW_INDEXING === "false" ? (
+        {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
         <Links />
