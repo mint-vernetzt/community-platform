@@ -213,8 +213,8 @@ function RTE(
                       <div
                         className={`text-sm ${
                           remainingCharacters < 0
-                            ? "text-red-500"
-                            : "text-gray-700"
+                            ? "text-negative-700"
+                            : "text-neutral-700"
                         }`}
                         title={locales.rte.remainingCharacters}
                       >

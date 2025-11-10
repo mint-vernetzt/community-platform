@@ -281,7 +281,7 @@ function Admins() {
                     <div
                       id={removeAdminForm.errorId}
                       key={index}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>
@@ -365,7 +365,7 @@ function Admins() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>
@@ -438,7 +438,7 @@ function Admins() {
                       <div
                         id={addAdminForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -509,7 +509,7 @@ function Admins() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>
@@ -561,7 +561,7 @@ function Admins() {
                       <div
                         id={addAdminForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -620,7 +620,7 @@ function Admins() {
                         <div
                           id={cancelAdminInviteForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>

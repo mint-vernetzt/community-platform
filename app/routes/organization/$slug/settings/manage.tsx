@@ -829,7 +829,7 @@ function Manage() {
                         <div
                           id={manageForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -1002,7 +1002,7 @@ function Manage() {
                         <div
                           id={removeNetworkMemberForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -1131,7 +1131,7 @@ function Manage() {
                       <div
                         id={searchNetworksForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -1209,7 +1209,7 @@ function Manage() {
                         <div
                           id={inviteNetworkMemberForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -1271,7 +1271,7 @@ function Manage() {
                             <div
                               id={cancelNetworkJoinInviteForm.errorId}
                               key={index}
-                              className="text-sm font-semibold text-negative-600"
+                              className="text-sm font-semibold text-negative-700"
                             >
                               {error}
                             </div>
@@ -1336,7 +1336,7 @@ function Manage() {
                         <div
                           id={leaveNetworkForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -1433,7 +1433,7 @@ function Manage() {
                       <div
                         id={searchNetworksForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -1518,7 +1518,7 @@ function Manage() {
                         <div
                           id={requestToJoinNetworkForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -1580,7 +1580,7 @@ function Manage() {
                             <div
                               id={cancelNetworkJoinRequestForm.errorId}
                               key={index}
-                              className="text-sm font-semibold text-negative-600"
+                              className="text-sm font-semibold text-negative-700"
                             >
                               {error}
                             </div>

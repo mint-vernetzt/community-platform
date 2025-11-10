@@ -47,7 +47,7 @@ const InputText = forwardRef(
         {label && (
           <label
             htmlFor={inputProps.id || label}
-            className={`font-semibold${errorMessage ? " text-red-500" : ""}`}
+            className={`font-semibold${errorMessage ? " text-negative-700" : ""}`}
             title={errorMessage}
           >
             {label} {inputProps.required !== undefined ? "*" : ""}
