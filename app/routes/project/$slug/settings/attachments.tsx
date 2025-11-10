@@ -690,7 +690,7 @@ function Attachments() {
                                           <div
                                             id={editDocumentForm.errorId}
                                             key={index}
-                                            className="text-sm font-semibold text-negative-600"
+                                            className="text-sm font-semibold text-negative-700"
                                           >
                                             {error}
                                           </div>
@@ -799,7 +799,7 @@ function Attachments() {
                                   <div
                                     id={disconnectDocumentForm.errorId}
                                     key={index}
-                                    className="text-sm font-semibold text-negative-600"
+                                    className="text-sm font-semibold text-negative-700"
                                   >
                                     {error}
                                   </div>
@@ -1063,7 +1063,7 @@ function Attachments() {
                                     <div
                                       id={editImageForm.errorId}
                                       key={index}
-                                      className="text-sm font-semibold text-negative-600"
+                                      className="text-sm font-semibold text-negative-700"
                                     >
                                       {error}
                                     </div>
@@ -1175,7 +1175,7 @@ function Attachments() {
                               <div
                                 id={disconnectImageForm.errorId}
                                 key={index}
-                                className="text-sm font-semibold text-negative-600"
+                                className="text-sm font-semibold text-negative-700"
                               >
                                 {error}
                               </div>

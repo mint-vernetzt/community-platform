@@ -188,7 +188,7 @@ const TextArea = (
         {errorMessage !== undefined && (
           <div
             id={errorId}
-            className="text-sm font-semibold text-negative-600 mt-2"
+            className="text-sm font-semibold text-negative-700 mt-2"
           >
             {errorMessage}
           </div>

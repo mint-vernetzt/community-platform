@@ -250,7 +250,7 @@ export default function Register() {
                             <div
                               id={registerFields.academicTitle.errorId}
                               key={index}
-                              className="text-sm font-semibold text-negative-600"
+                              className="text-sm font-semibold text-negative-700"
                             >
                               {error}
                             </div>
@@ -411,7 +411,7 @@ export default function Register() {
                         <div
                           id={registerFields.termsAccepted.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>
@@ -428,7 +428,7 @@ export default function Register() {
                       <div
                         id={registerForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
