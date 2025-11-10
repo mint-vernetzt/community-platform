@@ -21,6 +21,7 @@ import {
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import List from "~/components/next/List";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -118,10 +119,14 @@ function Participants() {
           </noscript>
         </Input>
       </Form>
-      <ListItemContainer>
-        {loaderData.participants.map((participant) => {
+      <List
+        id="participants-list"
+        hideAfter={4}
+        locales={loaderData.locales.route.content}
+      >
+        {loaderData.participants.map((participant, index) => {
           return (
-            <ListItem key={participant.id} slug={participant.username}>
+            <List.Item key={participant.id} index={index}>
               <Avatar
                 size="full"
                 to={`/profile/${participant.username}`}
@@ -137,36 +142,10 @@ function Participants() {
               {participant.position !== null ? (
                 <span>{participant.position}</span>
               ) : null}
-            </ListItem>
+            </List.Item>
           );
         })}
-      </ListItemContainer>
-    </div>
-  );
-}
-
-import { Children, isValidElement } from "react";
-
-function ListItemContainer(props: { children: React.ReactNode }) {
-  return <ul className="grid grid-cols-2 gap-4">{props.children}</ul>;
-}
-
-function ListItem(props: { slug: string; children: React.ReactNode }) {
-  const validChildren = Children.toArray(props.children).filter((child) => {
-    return isValidElement(child);
-  });
-
-  return (
-    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
-      <div className="flex gap-1">
-        <div className="w-12 h-12">{validChildren[0]}</div>
-      </div>
-      <div className="flex flex-col self-center text-neutral-700">
-        <div className="font-semibold line-clamp-1">{validChildren[1]}</div>
-        {validChildren.length > 2 ? (
-          <div className="font-normal line-clamp-1">{validChildren[2]}</div>
-        ) : null}
-      </div>
+      </List>
     </div>
   );
 }
