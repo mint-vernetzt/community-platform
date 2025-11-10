@@ -19,7 +19,7 @@ export const locale = {
       "other-network_one": "{{networkName}} is part of the other network",
       "other-network_other": "{{networkName}} is part of other networks",
     },
-    networkMembers_one: "member of {{networkName}}",
-    networkMembers_other: "members {{networkName}}",
+    networkMembers_one: "Member of {{networkName}}",
+    networkMembers_other: "Members of {{networkName}}",
   },
 } as const;
