@@ -2,6 +2,9 @@ import { type OrganizationMode } from "~/routes/organization/$slug/utils.server"
 import { PencilIconBlankstate } from "./icons/PencilIconBlankstate";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
+// Design:
+// Name: Keine Infos_Desktop and Keine Infos_Mobile
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=11688-16199&t=k3ckPzZS0pgAOOUz-4
 function NoInfos(props: {
   mode: OrganizationMode;
   locales: {

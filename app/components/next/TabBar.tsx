@@ -9,6 +9,9 @@ import {
   useState,
 } from "react";
 
+// Design:
+// Name: Tabbar_desktop and Tabbar_mobile
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10019-4739&t=RCfMh8dO7bplY9UJ-4
 const TabBarItemContext = createContext<{ active: boolean }>({ active: false });
 
 function useTabBarItemContext() {

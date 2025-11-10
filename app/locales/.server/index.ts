@@ -464,6 +464,11 @@ const de = {
   },
   "next/event/$slug/detail/about": {
     route: deNextAboutEvent,
+    experienceLevels: deExperienceLevels,
+    focuses: deFocuses,
+    eventTypes: deEventTypes,
+    eventTargetGroups: deEventTargetGroups,
+    tags: deTags,
   },
   "next/event/$slug/detail/participants": {
     route: deNextEventParticipants,
@@ -885,6 +890,11 @@ const en = {
   },
   "next/event/$slug/detail/about": {
     route: enNextAboutEvent,
+    experienceLevels: enExperienceLevels,
+    focuses: enFocuses,
+    eventTypes: enEventTypes,
+    eventTargetGroups: enEventTargetGroups,
+    tags: enTags,
   },
   "next/event/$slug/detail/participants": {
     route: enNextEventParticipants,

@@ -1,6 +1,9 @@
 import { Link, type LinkProps } from "react-router";
 import { getBasicGroupFocusStyles } from "./styleUtils";
 
+// Design:
+// Name: Back button
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10671-10532&t=xdJOMkkpLkBCWx7M-4
 function BackButton(props: {
   to: string;
   children: React.ReactNode;
