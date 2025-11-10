@@ -21,6 +21,7 @@ import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -56,28 +57,33 @@ function Participants() {
   const [participants, setParticipants] = useState(loaderData.participants);
 
   const handleChange: React.ChangeEventHandler<HTMLFormElement> = (event) => {
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const searchValue = formData.get(SEARCH_PARTICIPANTS_SEARCH_PARAM);
+    searchForm.validate();
+    if (searchForm.valid) {
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const searchValue = formData.get(SEARCH_PARTICIPANTS_SEARCH_PARAM);
 
-    if (searchValue !== null && typeof searchValue === "string") {
-      const query = searchValue.trim().split(" ");
+      if (searchValue !== null && typeof searchValue === "string") {
+        const query = searchValue.trim().split(" ");
 
-      const filteredParticipants = loaderData.participants.filter(
-        (participant) => {
-          const contains = query.some((term) => {
-            return (
-              participant.firstName
-                .toLowerCase()
-                .includes(term.toLowerCase()) ||
-              participant.lastName.toLowerCase().includes(term.toLowerCase()) ||
-              participant.username.toLowerCase().includes(term.toLowerCase())
-            );
-          });
-          return contains;
-        }
-      );
-      setParticipants(filteredParticipants);
+        const filteredParticipants = loaderData.participants.filter(
+          (participant) => {
+            const contains = query.some((term) => {
+              return (
+                participant.firstName
+                  .toLowerCase()
+                  .includes(term.toLowerCase()) ||
+                participant.lastName
+                  .toLowerCase()
+                  .includes(term.toLowerCase()) ||
+                participant.username.toLowerCase().includes(term.toLowerCase())
+              );
+            });
+            return contains;
+          }
+        );
+        setParticipants(filteredParticipants);
+      }
     }
   };
 
@@ -150,23 +156,25 @@ function Participants() {
       >
         {participants.map((participant, index) => {
           return (
-            <List.Item key={participant.id} index={index}>
-              <List.Item.Avatar
+            <ListItemPersonOrg key={participant.id} index={index}>
+              <ListItemPersonOrg.Avatar
                 size="full"
                 to={`/profile/${participant.username}`}
                 {...participant}
               />
-              <List.Item.Headline>
+              <ListItemPersonOrg.Headline>
                 {participant.academicTitle !== null &&
                 participant.academicTitle.length > 0
                   ? `${participant.academicTitle} `
                   : ""}
                 {participant.firstName} {participant.lastName}
-              </List.Item.Headline>
+              </ListItemPersonOrg.Headline>
               {participant.position !== null ? (
-                <List.Item.Subline>{participant.position}</List.Item.Subline>
+                <ListItemPersonOrg.Subline>
+                  {participant.position}
+                </ListItemPersonOrg.Subline>
               ) : null}
-            </List.Item>
+            </ListItemPersonOrg>
           );
         })}
       </List>

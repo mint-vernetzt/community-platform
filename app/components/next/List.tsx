@@ -1,11 +1,9 @@
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import classNames from "classnames";
-import { Children, createContext, isValidElement, useContext } from "react";
+import { createContext, useContext } from "react";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const ListContext = createContext<{ hideAfter?: number }>({});
 
-function useListContext() {
+export function useListContext() {
   const context = useContext(ListContext);
   if (context === null) {
     throw new Error("useListContext must be used within a ListContext");
@@ -25,8 +23,7 @@ function List(props: {
     <ListContext value={{ hideAfter }}>
       <ul className="grid grid-cols-1 @md:grid-cols-2 gap-4 group">
         {props.children}
-        {children !== undefined &&
-        Array.isArray(children) &&
+        {Array.isArray(children) &&
         typeof hideAfter !== "undefined" &&
         children.length > hideAfter ? (
           <div
@@ -78,57 +75,4 @@ function List(props: {
   );
 }
 
-// Variants: ListItemPersonOrg, ListItemEvent, ListItemMaterial (own bundles)
-
-function ListItem(props: { children: React.ReactNode; index: number }) {
-  const { children, index } = props;
-  const { hideAfter } = useListContext();
-
-  const classes = classNames(
-    typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:flex"
-      : "flex",
-    "gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg"
-  );
-
-  const validChildren = Children.toArray(children).filter((child) => {
-    return isValidElement(child);
-  });
-
-  const avatar = validChildren.find((child) => {
-    return isValidElement(child) && child.type === Avatar;
-  });
-  const headline = validChildren.find((child) => {
-    return isValidElement(child) && child.type === ListItem.Headline;
-  });
-  const subline = validChildren.find((child) => {
-    return isValidElement(child) && child.type === ListItem.Subline;
-  });
-
-  return (
-    <div className={classes}>
-      <div className="flex gap-1">
-        <div className="w-12 h-12">{avatar}</div>
-      </div>
-      <div className="flex flex-col self-center text-neutral-700">
-        {headline}
-        {subline}
-      </div>
-    </div>
-  );
-}
-
-function ListItemHeadline(props: { children: React.ReactNode }) {
-  return <div className="font-semibold line-clamp-1">{props.children}</div>;
-}
-
-function ListItemSubline(props: { children: React.ReactNode }) {
-  return <div className="font-normal line-clamp-1">{props.children}</div>;
-}
-
-ListItem.Subline = ListItemSubline;
-ListItem.Headline = ListItemHeadline;
-ListItem.Avatar = Avatar;
-
-List.Item = ListItem;
 export default List;
