@@ -1,3 +1,4 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import classNames from "classnames";
 import { Children, createContext, isValidElement, useContext } from "react";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
@@ -77,6 +78,8 @@ function List(props: {
   );
 }
 
+// Variants: ListItemPersonOrg, ListItemEvent, ListItemMaterial (own bundles)
+
 function ListItem(props: { children: React.ReactNode; index: number }) {
   const { children, index } = props;
   const { hideAfter } = useListContext();
@@ -92,20 +95,40 @@ function ListItem(props: { children: React.ReactNode; index: number }) {
     return isValidElement(child);
   });
 
+  const avatar = validChildren.find((child) => {
+    return isValidElement(child) && child.type === Avatar;
+  });
+  const headline = validChildren.find((child) => {
+    return isValidElement(child) && child.type === ListItem.Headline;
+  });
+  const subline = validChildren.find((child) => {
+    return isValidElement(child) && child.type === ListItem.Subline;
+  });
+
   return (
     <div className={classes}>
       <div className="flex gap-1">
-        <div className="w-12 h-12">{validChildren[0]}</div>
+        <div className="w-12 h-12">{avatar}</div>
       </div>
       <div className="flex flex-col self-center text-neutral-700">
-        <div className="font-semibold line-clamp-1">{validChildren[1]}</div>
-        {validChildren.length > 2 ? (
-          <div className="font-normal line-clamp-1">{validChildren[2]}</div>
-        ) : null}
+        {headline}
+        {subline}
       </div>
     </div>
   );
 }
+
+function ListItemHeadline(props: { children: React.ReactNode }) {
+  return <div className="font-semibold line-clamp-1">{props.children}</div>;
+}
+
+function ListItemSubline(props: { children: React.ReactNode }) {
+  return <div className="font-normal line-clamp-1">{props.children}</div>;
+}
+
+ListItem.Subline = ListItemSubline;
+ListItem.Headline = ListItemHeadline;
+ListItem.Avatar = Avatar;
 
 List.Item = ListItem;
 export default List;

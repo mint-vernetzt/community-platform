@@ -2,15 +2,16 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { useState } from "react";
 import {
   Form,
   useLoaderData,
   useNavigation,
   useSearchParams,
-  useSubmit,
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import List from "~/components/next/List";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
@@ -20,8 +21,6 @@ import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import List from "~/components/next/List";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -54,9 +53,40 @@ export async function loader(args: LoaderFunctionArgs) {
 function Participants() {
   const loaderData = useLoaderData<typeof loader>();
 
+  const [participants, setParticipants] = useState(loaderData.participants);
+
+  const handleChange: React.ChangeEventHandler<HTMLFormElement> = (event) => {
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const searchValue = formData.get(SEARCH_PARTICIPANTS_SEARCH_PARAM);
+
+    if (searchValue !== null && typeof searchValue === "string") {
+      const query = searchValue.trim().split(" ");
+
+      const filteredParticipants = loaderData.participants.filter(
+        (participant) => {
+          const contains = query.some((term) => {
+            return (
+              participant.firstName
+                .toLowerCase()
+                .includes(term.toLowerCase()) ||
+              participant.lastName.toLowerCase().includes(term.toLowerCase()) ||
+              participant.username.toLowerCase().includes(term.toLowerCase())
+            );
+          });
+          return contains;
+        }
+      );
+      setParticipants(filteredParticipants);
+    }
+  };
+
+  const handleReset: React.FormEventHandler<HTMLFormElement> = () => {
+    setParticipants(loaderData.participants);
+  };
+
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-  const submit = useSubmit();
   const [searchForm, searchFields] = useForm({
     id: "search-profiles",
     defaultValue: {
@@ -83,14 +113,8 @@ function Participants() {
         {...getFormProps(searchForm)}
         method="get"
         preventScrollReset
-        onChange={(event) => {
-          searchForm.validate();
-          if (searchForm.valid) {
-            submit(event.currentTarget, {
-              preventScrollReset: true,
-            });
-          }
-        }}
+        onChange={handleChange}
+        onReset={handleReset}
         autoComplete="off"
       >
         <Input name={Deep} defaultValue="true" type="hidden" />
@@ -124,23 +148,23 @@ function Participants() {
         hideAfter={4}
         locales={loaderData.locales.route.content}
       >
-        {loaderData.participants.map((participant, index) => {
+        {participants.map((participant, index) => {
           return (
             <List.Item key={participant.id} index={index}>
-              <Avatar
+              <List.Item.Avatar
                 size="full"
                 to={`/profile/${participant.username}`}
                 {...participant}
               />
-              <span>
+              <List.Item.Headline>
                 {participant.academicTitle !== null &&
                 participant.academicTitle.length > 0
                   ? `${participant.academicTitle} `
                   : ""}
                 {participant.firstName} {participant.lastName}
-              </span>
+              </List.Item.Headline>
               {participant.position !== null ? (
-                <span>{participant.position}</span>
+                <List.Item.Subline>{participant.position}</List.Item.Subline>
               ) : null}
             </List.Item>
           );
