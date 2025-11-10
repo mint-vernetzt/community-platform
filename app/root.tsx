@@ -351,7 +351,7 @@ export const ErrorBoundary = () => {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
@@ -644,7 +644,7 @@ export default function App() {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
