@@ -600,6 +600,7 @@ export default function ExploreProjects() {
             }
             submit(event.currentTarget, { preventScrollReset, method: "get" });
           }}
+          onReset={() => setVisibleAreas(loaderData.areas)}
         >
           <HiddenFilterInputs
             fields={fields}
@@ -948,6 +949,7 @@ export default function ExploreProjects() {
                           {locales.route.filter.searchAreaHelper}
                         </Input.HelperText>
                         <Input.SearchIcon />
+                        <Input.ClearIcon />
                       </Input>
                     </div>
                   ) : null}

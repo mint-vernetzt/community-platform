@@ -463,6 +463,7 @@ export default function ExploreProfiles() {
               method: "get",
             });
           }}
+          onReset={() => setVisibleAreas(loaderData.areas)}
         >
           <HiddenFilterInputs
             fields={fields}
@@ -592,6 +593,7 @@ export default function ExploreProfiles() {
                           {loaderData.locales.route.filter.searchAreaHelper}
                         </Input.HelperText>
                         <Input.SearchIcon />
+                        <Input.ClearIcon />
                       </Input>
                     </div>
                   ) : null}
