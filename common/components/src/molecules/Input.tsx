@@ -264,7 +264,7 @@ function Input(props: InputProps) {
   const controls = validChildren.find((child) => {
     return (
       isValidElement(child) &&
-      child.type === InputControls &&
+      (child.type === InputControls || child.type === "noscript") &&
       typeof child.props === "object" &&
       child.props !== null &&
       "children" in child.props &&
