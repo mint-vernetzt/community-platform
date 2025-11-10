@@ -1,4 +1,16 @@
-import { createContext, useContext } from "react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+} from "react";
+import { Form, useSearchParams } from "react-router";
+import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const ListContext = createContext<{ hideAfter?: number }>({});
@@ -11,6 +23,132 @@ export function useListContext() {
   return context;
 }
 
+function Search(props: {
+  id?: string;
+  children?: React.ReactNode;
+  searchParam: string;
+  defaultItems: (
+    | { firstName: string; lastName: string; username: string }
+    | { name: string; slug: string }
+  )[];
+  setValues: (
+    values: (
+      | { firstName: string; lastName: string; username: string }
+      | { name: string; slug: string }
+    )[]
+  ) => void;
+  hideUntil?: number;
+  locales: { placeholder: string };
+}) {
+  const { id = "search-form" } = props;
+  const [searchParams] = useSearchParams();
+
+  const getSchema = useCallback(() => {
+    return z.object({
+      [props.searchParam]: z.string().trim().min(3).optional(),
+    });
+  }, [props.searchParam]);
+
+  let defaultValue;
+  const searchParamValue = searchParams.get(props.searchParam);
+  if (searchParamValue !== null) {
+    defaultValue = { [props.searchParam]: searchParamValue };
+  }
+
+  const [form, fields] = useForm({
+    id,
+    defaultValue,
+    constraint: getZodConstraint(getSchema()),
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: getSchema(),
+      });
+    },
+  });
+
+  const handleChange: React.ChangeEventHandler<HTMLFormElement> = (event) => {
+    form.validate();
+    if (form.valid === false) {
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const searchValue = formData.get(props.searchParam);
+
+    if (typeof searchValue !== "string") {
+      return;
+    }
+    const query = searchValue.trim().split(" ");
+
+    const filteredItems = props.defaultItems.filter((item) => {
+      const contains = query.some((term) => {
+        return (
+          ("firstName" in item &&
+            typeof item.firstName === "string" &&
+            item.firstName.toLowerCase().includes(term.toLowerCase())) ||
+          ("lastName" in item &&
+            typeof item.lastName === "string" &&
+            item.lastName.toLowerCase().includes(term.toLowerCase())) ||
+          ("username" in item &&
+            typeof item.username === "string" &&
+            item.username.toLowerCase().includes(term.toLowerCase())) ||
+          ("name" in item &&
+            typeof item.name === "string" &&
+            item.name.toLowerCase().includes(term.toLowerCase())) ||
+          ("slug" in item &&
+            typeof item.slug === "string" &&
+            item.slug.toLowerCase().includes(term.toLowerCase()))
+        );
+      });
+      return contains;
+    });
+    props.setValues(filteredItems);
+  };
+
+  const handleReset: React.FormEventHandler<HTMLFormElement> = () => {
+    props.setValues(props.defaultItems);
+  };
+
+  if (
+    typeof props.hideUntil !== "undefined" &&
+    props.defaultItems.length <= props.hideUntil
+  ) {
+    return null;
+  }
+
+  return (
+    <Form
+      {...getFormProps(form)}
+      method="get"
+      preventScrollReset
+      onChange={handleChange}
+      onReset={handleReset}
+      autoComplete="off"
+    >
+      {props.children}
+      <Input
+        {...getInputProps(fields[props.searchParam], {
+          type: "text",
+        })}
+        key={fields[props.searchParam].id}
+        placeholder={props.locales.placeholder}
+        standalone
+      >
+        <Input.Label htmlFor={fields[props.searchParam].id} hidden>
+          {props.locales.placeholder}
+        </Input.Label>
+        <Input.SearchIcon />
+        <Input.ClearIcon />
+        <noscript>
+          <Input.Controls>
+            <Button type="submit">{props.locales.placeholder}</Button>
+          </Input.Controls>
+        </noscript>
+      </Input>
+    </Form>
+  );
+}
+
 function List(props: {
   id: string;
   children: React.ReactNode;
@@ -19,13 +157,21 @@ function List(props: {
 }) {
   const { children, hideAfter, id, locales } = props;
 
+  const search = Children.toArray(children).find((child) => {
+    return isValidElement(child) && child.type === Search;
+  });
+
+  const otherChildren = Children.toArray(children).filter((child) => {
+    return isValidElement(child) && child.type !== Search;
+  });
+
   return (
     <ListContext value={{ hideAfter }}>
+      {search}
       <ul className="grid grid-cols-1 @md:grid-cols-2 gap-4 group">
-        {props.children}
-        {Array.isArray(children) &&
-        typeof hideAfter !== "undefined" &&
-        children.length > hideAfter ? (
+        {otherChildren}
+        {typeof hideAfter !== "undefined" &&
+        otherChildren.length > hideAfter ? (
           <div
             key={`show-more-${id}-container`}
             className="@md:col-span-2 w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center"
@@ -36,12 +182,12 @@ function List(props: {
             >
               <div className="group-has-[:checked]:hidden">
                 {insertParametersIntoLocale(locales.more, {
-                  count: children.length - hideAfter,
+                  count: otherChildren.length - hideAfter,
                 })}
               </div>
               <div className="hidden group-has-[:checked]:block">
                 {insertParametersIntoLocale(locales.less, {
-                  count: children.length - hideAfter,
+                  count: otherChildren.length - hideAfter,
                 })}
               </div>
               <div className="rotate-90 group-has-[:checked]:-rotate-90">
@@ -74,5 +220,7 @@ function List(props: {
     </ListContext>
   );
 }
+
+List.Search = Search;
 
 export default List;

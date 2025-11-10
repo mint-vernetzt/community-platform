@@ -5,5 +5,6 @@ export const locale = {
     submit: "Search",
     more: "Show {{count}} more",
     less: "Show {{count}} less",
+    searchPlaceholder: "Search for participants...",
   },
 } as const;
