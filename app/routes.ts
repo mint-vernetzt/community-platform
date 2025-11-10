@@ -3,6 +3,7 @@ import { index, route, type RouteConfig } from "@react-router/dev/routes";
 export default [
   index("./routes/index.tsx"),
   route("*", "./routes/$.tsx"),
+  route("/robots.txt", "./routes/robots.txt.tsx"),
   route("/status", "./routes/status.tsx"),
   route("/resources", "./routes/resources.tsx"),
   route("/imprint", "./routes/imprint.tsx"),
