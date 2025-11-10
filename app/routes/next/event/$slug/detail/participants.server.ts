@@ -4,7 +4,7 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {
-  getSearchParticipantsSchmema,
+  getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
 
@@ -17,7 +17,7 @@ export async function getParticipantsOfEvent(options: {
   const { slug, authClient, searchParams } = options;
 
   const submission = parseWithZod(searchParams, {
-    schema: getSearchParticipantsSchmema(),
+    schema: getSearchParticipantsSchema(),
   });
 
   let participants = [];
@@ -106,13 +106,16 @@ export async function getParticipantsOfEvent(options: {
     }
 
     // Apply profile visibility settings
-    for (const field in participant.profileVisibility) {
-      if (
-        participant.profileVisibility[
-          field as keyof typeof participant.profileVisibility
-        ] === false
-      ) {
-        participant[field as keyof typeof participant.profileVisibility] = null;
+    if (options.sessionUser === null) {
+      for (const field in participant.profileVisibility) {
+        if (
+          participant.profileVisibility[
+            field as keyof typeof participant.profileVisibility
+          ] === false
+        ) {
+          participant[field as keyof typeof participant.profileVisibility] =
+            null;
+        }
       }
     }
 

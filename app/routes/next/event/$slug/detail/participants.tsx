@@ -17,9 +17,10 @@ import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getParticipantsOfEvent } from "./participants.server";
 import {
-  getSearchParticipantsSchmema,
+  getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -61,12 +62,12 @@ function Participants() {
       [SEARCH_PARTICIPANTS_SEARCH_PARAM]:
         searchParams.get(SEARCH_PARTICIPANTS_SEARCH_PARAM) || undefined,
     },
-    constraint: getZodConstraint(getSearchParticipantsSchmema()),
+    constraint: getZodConstraint(getSearchParticipantsSchema()),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: getSearchParticipantsSchmema(),
+        schema: getSearchParticipantsSchema(),
       });
     },
     lastResult: navigation.state === "idle" ? loaderData.submission : null,
@@ -117,18 +118,55 @@ function Participants() {
           </noscript>
         </Input>
       </Form>
-      <ul className="grid grid-cols-2 gap-4">
-        {loaderData.participants.map((participant) => (
-          <li
-            key={participant.id}
-            className="col-span-2 @lg:col-span-1 flex items-center justify-between"
-          >
-            <span className="text-neutral-700">
-              {participant.firstName} {participant.lastName}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <ListItemContainer>
+        {loaderData.participants.map((participant) => {
+          return (
+            <ListItem key={participant.id} slug={participant.username}>
+              <Avatar
+                size="full"
+                to={`/profile/${participant.username}`}
+                {...participant}
+              />
+              <span>
+                {participant.academicTitle !== null &&
+                participant.academicTitle.length > 0
+                  ? `${participant.academicTitle} `
+                  : ""}
+                {participant.firstName} {participant.lastName}
+              </span>
+              {participant.position !== null ? (
+                <span>{participant.position}</span>
+              ) : null}
+            </ListItem>
+          );
+        })}
+      </ListItemContainer>
+    </div>
+  );
+}
+
+import { Children, isValidElement } from "react";
+
+function ListItemContainer(props: { children: React.ReactNode }) {
+  return <ul className="grid grid-cols-2 gap-4">{props.children}</ul>;
+}
+
+function ListItem(props: { slug: string; children: React.ReactNode }) {
+  const validChildren = Children.toArray(props.children).filter((child) => {
+    return isValidElement(child);
+  });
+
+  return (
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
+      <div className="flex gap-1">
+        <div className="w-12 h-12">{validChildren[0]}</div>
+      </div>
+      <div className="flex flex-col self-center text-neutral-700">
+        <div className="font-semibold line-clamp-1">{validChildren[1]}</div>
+        {validChildren.length > 2 ? (
+          <div className="font-normal line-clamp-1">{validChildren[2]}</div>
+        ) : null}
+      </div>
     </div>
   );
 }
