@@ -10,6 +10,7 @@ import {
   useContext,
 } from "react";
 import { Form, useSearchParams } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
@@ -110,7 +111,9 @@ function Search<
     props.setValues(props.defaultItems);
   };
 
+  const isHydrated = useHydrated();
   if (
+    isHydrated === true &&
     typeof props.hideUntil !== "undefined" &&
     props.defaultItems.length <= props.hideUntil
   ) {
