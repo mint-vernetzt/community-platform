@@ -264,7 +264,7 @@ function Input(props: InputProps) {
   const controls = validChildren.find((child) => {
     return (
       isValidElement(child) &&
-      child.type === InputControls &&
+      (child.type === InputControls || child.type === "noscript") &&
       typeof child.props === "object" &&
       child.props !== null &&
       "children" in child.props &&
@@ -274,7 +274,7 @@ function Input(props: InputProps) {
   });
 
   const inputClasses = classNames(
-    "rounded-lg border border-neutral-300 w-full p-2 text-gray-800 text-base leading-snug font-semibold outline-hidden placeholder:font-normal placeholder:gray-400 focus:ring-2 focus:ring-primary-200 focus:border-transparent focus-visible:outline-0",
+    "rounded-lg border border-neutral-300 w-full p-2 text-gray-800 text-base leading-snug font-semibold outline-hidden placeholder:font-normal placeholder:text-neutral-700 focus:ring-2 focus:ring-primary-200 focus:border-transparent focus-visible:outline-0",
     errors.length > 0 && "border-negative-700",
     typeof inputProps.disabled !== "undefined" &&
       inputProps.disabled === true &&
