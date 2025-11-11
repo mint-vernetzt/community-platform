@@ -64,6 +64,7 @@ import {
 } from "~/routes/feature-access.server";
 import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
 import { handleClaimRequest } from "~/claim-request.server";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export function links() {
   return [
@@ -389,6 +390,8 @@ function OrganizationDetail() {
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
+  const previousLocation = usePreviousLocation();
+
   return (
     <Container
       outerContainerClassName="w-full h-full flex justify-center bg-white @sm:bg-transparent"
@@ -396,7 +399,13 @@ function OrganizationDetail() {
     >
       {/* Back Button Section */}
       <BackButton
-        to={`/explore/organizations/${preferredExploreOrganizationsView}`}
+        to={
+          previousLocation !== null &&
+          previousLocation.pathname ===
+            `/explore/organizations/${preferredExploreOrganizationsView}`
+            ? `${previousLocation.pathname}${previousLocation.search}`
+            : `/explore/organizations/${preferredExploreOrganizationsView}`
+        }
         prefetch="intent"
       >
         {locales.route.back}
