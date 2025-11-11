@@ -36,6 +36,7 @@ import type { ExternalService } from "~/components/legacy/types";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -514,10 +515,20 @@ export default function Index() {
     loaderData.pastEvents.participatedEvents.length > 0 ||
     loaderData.pastEvents.administeredEvents.length > 0;
 
+  const previousLocation = usePreviousLocation();
+
   return (
     <>
       <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
-        <BackButton to="/explore/profiles" prefetch="intent">
+        <BackButton
+          to={
+            previousLocation !== null &&
+            previousLocation.pathname === "/explore/profiles"
+              ? `${previousLocation.pathname}${previousLocation.search}`
+              : "/explore/profiles"
+          }
+          prefetch="intent"
+        >
           {locales.route.back}
         </BackButton>
       </section>

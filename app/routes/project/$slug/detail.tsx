@@ -58,6 +58,7 @@ import {
   uploadImage,
 } from "./detail.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export function links() {
   return [
@@ -420,10 +421,20 @@ function ProjectDetail() {
     },
   });
 
+  const previousLocation = usePreviousLocation();
+
   return (
     <>
       <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
-        <BackButton to="/explore/projects" prefetch="intent">
+        <BackButton
+          to={
+            previousLocation !== null &&
+            previousLocation.pathname === "/explore/projects"
+              ? `${previousLocation.pathname}${previousLocation.search}`
+              : "/explore/projects"
+          }
+          prefetch="intent"
+        >
           {locales.route.content.back}
         </BackButton>
       </section>

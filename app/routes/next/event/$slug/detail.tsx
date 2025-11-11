@@ -59,6 +59,7 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export function links() {
   return [
@@ -561,6 +562,8 @@ function Detail() {
   const location = useLocation();
   const { pathname } = location;
 
+  const previousLocation = usePreviousLocation();
+
   return (
     <BasicStructure>
       {loaderData.event.parentEvent !== null ? (
@@ -574,7 +577,15 @@ function Detail() {
           <BreadCrump.Current>{loaderData.event.name}</BreadCrump.Current>
         </BreadCrump>
       ) : (
-        <BackButton to="/explore/events" prefetch="intent">
+        <BackButton
+          to={
+            previousLocation !== null &&
+            previousLocation.pathname === "/explore/events"
+              ? `${previousLocation.pathname}${previousLocation.search}`
+              : "/explore/events"
+          }
+          prefetch="intent"
+        >
           {loaderData.locales.route.content.back}
         </BackButton>
       )}
