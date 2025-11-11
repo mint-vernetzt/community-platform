@@ -276,7 +276,7 @@ function Team() {
                     <div
                       id={removeTeamMemberForm.errorId}
                       key={index}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>
@@ -359,7 +359,7 @@ function Team() {
                     <div
                       id={searchForm.errorId}
                       key={index}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>
@@ -425,7 +425,7 @@ function Team() {
                       <div
                         id={inviteTeamMemberForm.errorId}
                         key={index}
-                        className="text-sm font-semibold text-negative-600"
+                        className="text-sm font-semibold text-negative-700"
                       >
                         {error}
                       </div>
@@ -484,7 +484,7 @@ function Team() {
                         <div
                           id={cancelTeamMemberInviteForm.errorId}
                           key={index}
-                          className="text-sm font-semibold text-negative-600"
+                          className="text-sm font-semibold text-negative-700"
                         >
                           {error}
                         </div>

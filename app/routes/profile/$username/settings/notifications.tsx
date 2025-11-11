@@ -145,7 +145,7 @@ function Notifications() {
               <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
             {fields.updates.error && (
-              <div className="text-negative-600 text-sm">
+              <div className="text-negative-700 text-sm">
                 {fields.updates.error}
               </div>
             )}

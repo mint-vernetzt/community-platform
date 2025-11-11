@@ -464,6 +464,7 @@ export default function ExploreOrganizations() {
               method: "get",
             });
           }}
+          onReset={() => setVisibleAreas(loaderData.areas)}
         >
           <HiddenFilterInputs
             fields={fields}

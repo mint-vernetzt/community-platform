@@ -923,7 +923,7 @@ function Requirements() {
                     <div
                       id={form.errorId}
                       key={form.errorId}
-                      className="text-sm font-semibold text-negative-600"
+                      className="text-sm font-semibold text-negative-700"
                     >
                       {error}
                     </div>

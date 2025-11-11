@@ -8,6 +8,7 @@ import { getEnv, init as initEnv } from "./env.server";
 import { NonceProvider } from "./nonce-provider";
 import { captureException } from "@sentry/node";
 import { createCSPHeaderOptions } from "./utils.server";
+import { invariantResponse } from "./lib/utils/response";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
@@ -109,9 +110,13 @@ export default async function handleRequest(
     responseHeaders.append("Document-Policy", "js-profiling");
   }
 
-  const prohibitOutOfOrderStreaming =
-    isBotRequest(request.headers.get("user-agent")) ||
-    reactRouterContext.isSpaMode;
+  const isBot = isBotRequest(request.headers.get("user-agent"));
+
+  if (process.env.ALLOW_INDEXING === "false") {
+    invariantResponse(isBot === false, "Forbidden", { status: 403 });
+  }
+
+  const prohibitOutOfOrderStreaming = isBot || reactRouterContext.isSpaMode;
 
   return prohibitOutOfOrderStreaming
     ? handleBotRequest(

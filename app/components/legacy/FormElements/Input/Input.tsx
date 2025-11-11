@@ -21,7 +21,7 @@ const Input = (props: React.HTMLProps<HTMLInputElement> & InputProps) => {
       {label && (
         <label
           htmlFor={inputProps.id || label}
-          className={`font-semibold${errorMessage ? " text-red-500" : ""}`}
+          className={`font-semibold${errorMessage ? " text-negative-700" : ""}`}
           title={errorMessage}
         >
           {label}
