@@ -66,6 +66,7 @@ function Participants() {
             placeholder: loaderData.locales.route.content.searchPlaceholder,
           }}
           hideUntil={10}
+          label={loaderData.locales.route.content.searchPlaceholder}
         >
           <Input name={Deep} defaultValue="true" type="hidden" />
         </List.Search>

@@ -39,6 +39,7 @@ function Search<
   setValues: React.Dispatch<React.SetStateAction<T[]>>;
   hideUntil?: number;
   locales: { placeholder: string };
+  label: string;
 }) {
   const { id = "search-form" } = props;
   const [searchParams] = useSearchParams();
@@ -133,6 +134,7 @@ function Search<
         key={fields[props.searchParam].id}
         placeholder={props.locales.placeholder}
         standalone
+        aria-label={props.label}
       >
         <Input.Label htmlFor={fields[props.searchParam].id} hidden>
           {props.locales.placeholder}
