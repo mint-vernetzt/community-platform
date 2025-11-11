@@ -108,7 +108,7 @@ function IconHybrid() {
 function EventCard(
   props: React.ButtonHTMLAttributes<HTMLDivElement> & EventCardProps
 ) {
-  const { event, locales, currentLanguage, as = "h4" } = props;
+  const { event, locales, currentLanguage, as = "h4", prefetch } = props;
 
   const now = new Date();
 
@@ -150,7 +150,7 @@ function EventCard(
   };
 
   return (
-    <Card to={`/event/${event.slug}`}>
+    <Card to={`/event/${event.slug}`} prefetch={prefetch}>
       <CardHeader cardType="event">
         {event.background && (
           <Image
