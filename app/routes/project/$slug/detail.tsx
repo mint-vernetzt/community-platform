@@ -21,6 +21,7 @@ import {
   useLoaderData,
   useLocation,
   useMatches,
+  useNavigate,
   useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -422,6 +423,7 @@ function ProjectDetail() {
   });
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -433,6 +435,15 @@ function ProjectDetail() {
               ? `${previousLocation.pathname}${previousLocation.search}`
               : "/explore/projects"
           }
+          onClick={(event) => {
+            if (
+              previousLocation !== null &&
+              previousLocation.pathname === "/explore/projects"
+            ) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
           prefetch="intent"
         >
           {locales.route.content.back}

@@ -4,18 +4,20 @@ import { getBasicGroupFocusStyles } from "./styleUtils";
 // Design:
 // Name: Back button
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10671-10532&t=xdJOMkkpLkBCWx7M-4
-function BackButton(props: {
-  to: string;
-  children: React.ReactNode;
-  prefetch?: LinkProps["prefetch"];
-}) {
-  const { to, children, prefetch } = props;
+function BackButton(
+  props: {
+    to: string;
+    children: React.ReactNode;
+  } & LinkProps &
+    React.AnchorHTMLAttributes<HTMLAnchorElement>
+) {
+  const { to, children, ...linkProps } = props;
 
   return (
     <Link
       to={to}
-      prefetch={prefetch}
       className="flex -my-4 xl:mt-0 xl:-mb-2 gap-4 text-base font-normal text-neutral-700 items-center group w-fit focus:outline-none"
+      {...linkProps}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

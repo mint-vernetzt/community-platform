@@ -19,6 +19,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigate,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
@@ -516,6 +517,7 @@ export default function Index() {
     loaderData.pastEvents.administeredEvents.length > 0;
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -527,6 +529,15 @@ export default function Index() {
               ? `${previousLocation.pathname}${previousLocation.search}`
               : "/explore/profiles"
           }
+          onClick={(event) => {
+            if (
+              previousLocation !== null &&
+              previousLocation.pathname === "/explore/profiles"
+            ) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
           prefetch="intent"
         >
           {locales.route.back}
