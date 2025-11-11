@@ -407,29 +407,29 @@ export default function ExploreOrganizations() {
   );
   const handleAreaSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
-    const value = event.target.value;
+    const value = event.target.value.trim().toLowerCase();
     if (value.length >= 3) {
       setVisibleAreas({
         global: loaderData.areas.global.map((area) => {
-          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+          if (!area.name.toLowerCase().includes(value)) {
             return { ...area, isVisible: false };
           }
           return { ...area, isVisible: true };
         }),
         country: loaderData.areas.country.map((area) => {
-          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+          if (!area.name.toLowerCase().includes(value)) {
             return { ...area, isVisible: false };
           }
           return { ...area, isVisible: true };
         }),
         state: loaderData.areas.state.map((area) => {
-          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+          if (!area.name.toLowerCase().includes(value)) {
             return { ...area, isVisible: false };
           }
           return { ...area, isVisible: true };
         }),
         district: loaderData.areas.district.map((area) => {
-          if (!area.name.toLowerCase().includes(value.toLowerCase())) {
+          if (!area.name.toLowerCase().includes(value)) {
             return { ...area, isVisible: false };
           }
           return { ...area, isVisible: true };
