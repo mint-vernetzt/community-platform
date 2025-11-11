@@ -9,6 +9,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigate,
   useNavigation,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -563,6 +564,7 @@ function Detail() {
   const { pathname } = location;
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <BasicStructure>
@@ -584,6 +586,15 @@ function Detail() {
               ? `${previousLocation.pathname}${previousLocation.search}`
               : "/explore/events"
           }
+          onClick={(event) => {
+            if (
+              previousLocation !== null &&
+              previousLocation.pathname === "/explore/events"
+            ) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
           prefetch="intent"
         >
           {loaderData.locales.route.content.back}

@@ -1,12 +1,14 @@
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { type LinkProps } from "react-router";
 
-export function BackButton(props: {
-  to: string;
-  children: React.ReactNode;
-  prefetch?: LinkProps["prefetch"];
-}) {
-  const { to, children, prefetch } = props;
+export function BackButton(
+  props: {
+    to: string;
+    children: React.ReactNode;
+  } & LinkProps &
+    React.RefAttributes<HTMLAnchorElement>
+) {
+  const { to, children, ...linkProps } = props;
 
   return (
     <TextButton
@@ -15,7 +17,7 @@ export function BackButton(props: {
       arrowLeft
       variant="dark"
       weight="base"
-      prefetch={prefetch}
+      {...linkProps}
     >
       {children}
     </TextButton>
