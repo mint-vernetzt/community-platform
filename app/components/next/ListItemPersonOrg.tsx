@@ -2,19 +2,21 @@ import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { useListContext } from "./List";
 import classNames from "classnames";
 import { Children, isValidElement } from "react";
+import { Link } from "react-router";
 
 function ListItemPersonOrg(props: {
   children: React.ReactNode;
   index: number;
+  to?: string;
 }) {
-  const { children, index } = props;
+  const { children, index, to } = props;
   const { hideAfter } = useListContext();
 
   const classes = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
       ? "hidden group-has-[:checked]:flex"
       : "flex",
-    "gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg"
+    "gap-4 align-center p-4 border border-neutral-200 rounded-lg"
   );
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -31,8 +33,28 @@ function ListItemPersonOrg(props: {
     return isValidElement(child) && child.type === ListItemPersonOrg.Subline;
   });
 
+  if (typeof to === "undefined") {
+    return (
+      <div className={classes}>
+        <div className="flex gap-1">
+          <div className="w-12 h-12">{avatar}</div>
+        </div>
+        <div className="flex flex-col self-center text-neutral-700">
+          {headline}
+          {subline}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={classes}>
+    <Link
+      to={to}
+      className={classNames(
+        classes,
+        "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
+      )}
+    >
       <div className="flex gap-1">
         <div className="w-12 h-12">{avatar}</div>
       </div>
@@ -40,7 +62,7 @@ function ListItemPersonOrg(props: {
         {headline}
         {subline}
       </div>
-    </div>
+    </Link>
   );
 }
 

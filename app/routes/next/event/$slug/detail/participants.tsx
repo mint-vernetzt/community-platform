@@ -68,12 +68,12 @@ function Participants() {
         </List.Search>
         {participants.map((participant, index) => {
           return (
-            <ListItemPersonOrg key={participant.id} index={index}>
-              <ListItemPersonOrg.Avatar
-                size="full"
-                to={`/profile/${participant.username}`}
-                {...participant}
-              />
+            <ListItemPersonOrg
+              key={participant.id}
+              index={index}
+              to={`/profile/${participant.username}`}
+            >
+              <ListItemPersonOrg.Avatar size="full" {...participant} />
               <ListItemPersonOrg.Headline>
                 {participant.academicTitle !== null &&
                 participant.academicTitle.length > 0
