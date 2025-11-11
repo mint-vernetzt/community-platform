@@ -23,20 +23,20 @@ export function useListContext() {
   return context;
 }
 
-function Search(props: {
+function Search<
+  T extends
+    | {
+        username: string;
+        firstName: string;
+        lastName: string;
+      }
+    | { slug: string; name: string },
+>(props: {
   id?: string;
   children?: React.ReactNode;
   searchParam: string;
-  defaultItems: (
-    | { firstName: string; lastName: string; username: string }
-    | { name: string; slug: string }
-  )[];
-  setValues: (
-    values: (
-      | { firstName: string; lastName: string; username: string }
-      | { name: string; slug: string }
-    )[]
-  ) => void;
+  defaultItems: T[];
+  setValues: React.Dispatch<React.SetStateAction<T[]>>;
   hideUntil?: number;
   locales: { placeholder: string };
 }) {

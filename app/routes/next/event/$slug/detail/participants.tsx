@@ -41,6 +41,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
 function Participants() {
   const loaderData = useLoaderData<typeof loader>();
+
   const [participants, setParticipants] = useState(loaderData.participants);
 
   return (
@@ -55,8 +56,6 @@ function Participants() {
       >
         <List.Search
           defaultItems={loaderData.participants}
-          // TODO: fix ts-expect-error
-          // @ts-expect-error List.Search type mismatch: setValues expects specific type
           setValues={setParticipants}
           searchParam={SEARCH_PARTICIPANTS_SEARCH_PARAM}
           locales={{
