@@ -54,6 +54,7 @@ function ListItemPersonOrg(props: {
         classes,
         "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
       )}
+      prefetch="intent"
     >
       <div className="flex gap-1">
         <div className="w-12 h-12">{avatar}</div>
