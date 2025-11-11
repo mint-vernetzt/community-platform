@@ -60,6 +60,7 @@ import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { getFullDepthParticipantIds } from "./detail/participants.server";
 
 export function links() {
   return [
@@ -329,6 +330,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
+  let participantsCount;
+  if (event._count.childEvents > 0) {
+    const participantIds = await getFullDepthParticipantIds(params.slug);
+    participantsCount = participantIds.length;
+  } else {
+    participantsCount = event._count.participants;
+  }
+
   const enhancedEvent = {
     ...event,
     startTime,
@@ -338,6 +347,10 @@ export async function loader(args: LoaderFunctionArgs) {
     background,
     blurredBackground,
     responsibleOrganizations,
+    _count: {
+      ...event._count,
+      participants: participantsCount,
+    },
   };
 
   return {

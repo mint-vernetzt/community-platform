@@ -8,7 +8,11 @@ import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { getParticipantsOfEvent } from "./participants.server";
+import {
+  getChildEventCount,
+  getFullDepthParticipantIds,
+  getParticipantsOfEvent,
+} from "./participants.server";
 import { SEARCH_PARTICIPANTS_SEARCH_PARAM } from "./participants.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -33,11 +37,23 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
+  const childEventCount = await getChildEventCount(slug);
+  let optionalWhereClause;
+  if (childEventCount > 0) {
+    const participantIds = await getFullDepthParticipantIds(slug);
+    optionalWhereClause = {
+      id: {
+        in: participantIds,
+      },
+    };
+  }
+
   const { submission, participants } = await getParticipantsOfEvent({
     slug,
     authClient,
     sessionUser,
     searchParams,
+    optionalWhereClause,
   });
 
   return { submission, participants, locales };
