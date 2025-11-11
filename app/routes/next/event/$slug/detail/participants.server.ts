@@ -7,6 +7,7 @@ import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 
 export async function getParticipantsOfEvent(options: {
   slug: string;
@@ -40,7 +41,11 @@ export async function getParticipantsOfEvent(options: {
         position: true,
         profileVisibility: {
           select: {
+            id: true,
+            username: true,
             academicTitle: true,
+            firstName: true,
+            lastName: true,
             avatar: true,
             position: true,
           },
@@ -74,7 +79,11 @@ export async function getParticipantsOfEvent(options: {
         position: true,
         profileVisibility: {
           select: {
+            id: true,
+            username: true,
             academicTitle: true,
+            firstName: true,
+            lastName: true,
             avatar: true,
             position: true,
           },
@@ -106,29 +115,19 @@ export async function getParticipantsOfEvent(options: {
     }
 
     // Apply profile visibility settings
+    let filteredParticipant;
     if (options.sessionUser === null) {
-      for (const field in participant.profileVisibility) {
-        if (
-          participant.profileVisibility[
-            field as keyof typeof participant.profileVisibility
-          ] === false
-        ) {
-          participant[field as keyof typeof participant.profileVisibility] =
-            null;
-        }
-      }
+      filteredParticipant =
+        filterProfileByVisibility<typeof participant>(participant);
+    } else {
+      filteredParticipant = {
+        ...participant,
+        avatar,
+        blurredAvatar,
+      };
     }
 
-    return {
-      id: participant.id,
-      username: participant.username,
-      academicTitle: participant.academicTitle,
-      firstName: participant.firstName,
-      lastName: participant.lastName,
-      position: participant.position,
-      avatar,
-      blurredAvatar,
-    };
+    return filteredParticipant;
   });
 
   return { submission: submission.reply(), participants: enhancedParticipants };
