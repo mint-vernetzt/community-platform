@@ -1,6 +1,6 @@
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
-import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
@@ -19,6 +19,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/detail/participants"];
+
+  if (sessionUser === null) {
+    return redirect(`/login?login_redirect=${encodeURIComponent(request.url)}`);
+  }
 
   const { slug } = params;
 

@@ -349,7 +349,7 @@ export async function loader(args: LoaderFunctionArgs) {
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
-    mode: mode as Awaited<ReturnType<typeof deriveModeForEvent>>, // fixes type issue using invarientResponse if event not published
+    mode,
     profileId: sessionUser !== null ? sessionUser.id : undefined,
     hasUserReportedEvent,
     abuseReportReasons,
@@ -739,22 +739,23 @@ function Detail() {
               </TabBar.Item.Title>
             </Link>
           </TabBar.Item>
-          {loaderData.event._count.participants > 0 && (
-            <TabBar.Item active={pathname.endsWith("/participants")}>
-              <Link
-                to="./participants"
-                preventScrollReset
-                {...TabBar.getItemElementsContainerClasses()}
-              >
-                <TabBar.Item.Title>
-                  {loaderData.locales.route.content.participants}
-                </TabBar.Item.Title>
-                <TabBar.Item.Counter>
-                  {loaderData.event._count.participants}
-                </TabBar.Item.Counter>
-              </Link>
-            </TabBar.Item>
-          )}
+          {loaderData.event._count.participants > 0 &&
+            loaderData.mode !== "anon" && (
+              <TabBar.Item active={pathname.endsWith("/participants")}>
+                <Link
+                  to="./participants"
+                  preventScrollReset
+                  {...TabBar.getItemElementsContainerClasses()}
+                >
+                  <TabBar.Item.Title>
+                    {loaderData.locales.route.content.participants}
+                  </TabBar.Item.Title>
+                  <TabBar.Item.Counter>
+                    {loaderData.event._count.participants}
+                  </TabBar.Item.Counter>
+                </Link>
+              </TabBar.Item>
+            )}
           {loaderData.event._count.childEvents > 0 && (
             <TabBar.Item active={pathname.endsWith("/child-events")}>
               <Link
