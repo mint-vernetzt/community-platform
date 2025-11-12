@@ -10,6 +10,8 @@ export const locale = {
     withdrawParticipation: "Nicht mehr teilnehmen",
     joinWaitingList: "Warteliste",
     leaveWaitingList: "Von Warteliste entfernen",
+    draft: "Entwurf",
+    canceled: "Abgesagt",
   },
   errors: {
     invalidProfileId: "Ungültige Daten",

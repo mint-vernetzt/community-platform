@@ -65,16 +65,27 @@ function ListItemEvent(props: {
       )}
       prefetch="intent"
     >
-      <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+      <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
         <div className="w-36 h-full">{image}</div>
       </div>
-      <div className="py-4 flex flex-col gap-1 max-w-[737px]">
-        {info}
-        {headline}
-        {subline}
+      <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
+        <div
+          className={classNames(
+            "flex flex-col max-w-[737px]",
+            typeof subline !== "undefined"
+              ? "justify-between"
+              : "justify-start gap-1"
+          )}
+        >
+          {info}
+          {headline}
+          <div className="hidden @sm:block">{subline}</div>
+        </div>
+        <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+          {control}
+        </div>
       </div>
       {flag}
-      {control}
     </Link>
   );
 }
@@ -146,13 +157,17 @@ function ListItemInfo(props: {
   }
 
   return (
-    <div className="text-neutral-700 font-semibold text-xs tracking-wide line-clamp-2">
+    <div className="text-neutral-700 font-semibold text-xs tracking-wide line-clamp-1">
       {strings.join(" | ")}
     </div>
   );
 }
 
-function ListItemFlag(props: { canceled: boolean; published: boolean }) {
+function ListItemFlag(props: {
+  canceled: boolean;
+  published: boolean;
+  locales: { draft: string; canceled: string };
+}) {
   const classes = classNames(
     "flex font-semibold items-center ml-auto border-r-8 pr-4 py-6"
   );
@@ -162,7 +177,7 @@ function ListItemFlag(props: { canceled: boolean; published: boolean }) {
       <div
         className={classNames(classes, "border-negative-700 text-negative-700")}
       >
-        Canceled
+        {props.locales.canceled}
       </div>
     );
   }
@@ -172,7 +187,7 @@ function ListItemFlag(props: { canceled: boolean; published: boolean }) {
       <div
         className={classNames(classes, "border-primary-400 text-primary-400")}
       >
-        Draft
+        {props.locales.draft}
       </div>
     );
   }
@@ -206,12 +221,14 @@ function ListItemControl(props: {
   }
 
   return (
-    <Form
-      method="post"
-      preventScrollReset
-      className="w-full flex justify-end items-center mr-6"
-    >
-      <input type="hidden" name="eventId" defaultValue={props.eventId} />
+    <>
+      <Form
+        method="post"
+        preventScrollReset
+        id={`event-control-form-${props.eventId}`}
+      >
+        <input type="hidden" name="eventId" defaultValue={props.eventId} />
+      </Form>
       <Button
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
@@ -221,13 +238,16 @@ function ListItemControl(props: {
             ? "normal"
             : "outline"
         }
+        size="small"
         type="submit"
         name={INTENT_FIELD_NAME}
         value={value}
+        fullSize
+        form={`event-control-form-${props.eventId}`}
       >
         {props.locales[value]}
       </Button>
-    </Form>
+    </>
   );
 }
 

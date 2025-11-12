@@ -189,6 +189,7 @@ function ChildEvents() {
               <ListItemEvent.Flag
                 canceled={event.canceled}
                 published={event.published}
+                locales={loaderData.locales.route.content}
               />
               {event.mode === "canParticipate" ||
               event.mode === "participating" ||
@@ -197,7 +198,7 @@ function ChildEvents() {
                 <ListItemEvent.Control
                   eventId={event.id}
                   mode={event.mode}
-                  locales={{ ...loaderData.locales.route.content }}
+                  locales={loaderData.locales.route.content}
                 />
               ) : null}
             </ListItemEvent>
