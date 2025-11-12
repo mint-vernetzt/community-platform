@@ -292,7 +292,12 @@ function About() {
           <HeadlineContainer as="h3">
             {locales.route.speakers.headline}
           </HeadlineContainer>
-          <List id="speakers-list" hideAfter={4} locales={locales.route.list}>
+          <List
+            id="speakers-list"
+            hideAfter={4}
+            locales={locales.route.list}
+            multiColumnAt="md"
+          >
             <List.Search
               id="speakers-search-form"
               defaultItems={event.speakers}
@@ -336,7 +341,12 @@ function About() {
         <HeadlineContainer as="h3">
           {locales.route.teamMembers.headline}
         </HeadlineContainer>
-        <List id="teamMembers-list" hideAfter={4} locales={locales.route.list}>
+        <List
+          id="teamMembers-list"
+          hideAfter={4}
+          locales={locales.route.list}
+          multiColumnAt="md"
+        >
           <List.Search
             id="teamMembers-search-form"
             defaultItems={event.teamMembers}
@@ -384,6 +394,7 @@ function About() {
             id="responsible-organizations-list"
             hideAfter={4}
             locales={locales.route.list}
+            multiColumnAt="md"
           >
             <List.Search
               id="responsible-organization-search-form"
