@@ -1,10 +1,17 @@
 import { z } from "zod";
 
 export const SEARCH_SPEAKERS_SEARCH_PARAM = "search_speakers";
+export const SEARCH_TEAM_MEMBERS_SEARCH_PARAM = "search_team_members";
 
 export function getSearchSpeakersSchema() {
   return z.object({
     [SEARCH_SPEAKERS_SEARCH_PARAM]: z.string().trim().min(3).optional(),
+  });
+}
+
+export function getSearchTeamMembersSchema() {
+  return z.object({
+    [SEARCH_TEAM_MEMBERS_SEARCH_PARAM]: z.string().trim().min(3).optional(),
   });
 }
 

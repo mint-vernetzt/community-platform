@@ -5,13 +5,52 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import {
   getSearchSpeakersSchema,
+  getSearchTeamMembersSchema,
   SEARCH_SPEAKERS_SEARCH_PARAM,
+  SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 
-export async function getEventBySlug(slug: string) {
+export async function getEventBySlug(options: {
+  slug: string;
+  authClient: SupabaseClient;
+  sessionUser: User | null;
+  searchParams: URLSearchParams;
+  locales: {
+    eventNotFound: string;
+  };
+}) {
+  const { slug, authClient, sessionUser, searchParams, locales } = options;
+
+  const submission = parseWithZod(searchParams, {
+    schema: getSearchTeamMembersSchema(),
+  });
+
+  let whereStatement;
+
+  if (
+    submission.status === "success" &&
+    typeof submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM] !== "undefined"
+  ) {
+    const query =
+      submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM].trim().split(" ");
+    whereStatement = {
+      profile: {
+        OR: query.map((term) => {
+          return {
+            OR: [
+              { firstName: { contains: term, mode: "insensitive" as const } },
+              { lastName: { contains: term, mode: "insensitive" as const } },
+              { username: { contains: term, mode: "insensitive" as const } },
+            ],
+          };
+        }),
+      },
+    };
+  }
+
   const event = await prismaClient.event.findUnique({
     where: { slug },
     select: {
@@ -64,10 +103,78 @@ export async function getEventBySlug(slug: string) {
           },
         },
       },
+      teamMembers: {
+        where: whereStatement,
+        select: {
+          profile: {
+            select: {
+              id: true,
+              username: true,
+              academicTitle: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              position: true,
+              profileVisibility: {
+                select: {
+                  id: true,
+                  username: true,
+                  academicTitle: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                  position: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
-  return event;
+  invariantResponse(event, locales.eventNotFound, { status: 404 });
+
+  const teamMembers = event.teamMembers.map((relation) => {
+    let filteredProfile;
+    if (sessionUser === null) {
+      filteredProfile = filterProfileByVisibility<typeof relation.profile>(
+        relation.profile
+      );
+    } else {
+      filteredProfile = relation.profile;
+    }
+    let avatar = filteredProfile.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItem.Avatar,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.ListItem.BlurredAvatar,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+    return {
+      ...filteredProfile,
+      avatar,
+      blurredAvatar,
+    };
+  });
+
+  return {
+    ...event,
+    teamMembers,
+  };
 }
 
 export async function getSpeakersOfEvent(options: {
@@ -81,7 +188,8 @@ export async function getSpeakersOfEvent(options: {
     };
   };
 }) {
-  const { slug, authClient, searchParams, optionalWhereClause } = options;
+  const { slug, authClient, sessionUser, searchParams, optionalWhereClause } =
+    options;
 
   const submission = parseWithZod(searchParams, {
     schema: getSearchSpeakersSchema(),
@@ -199,7 +307,7 @@ export async function getSpeakersOfEvent(options: {
 
     // Apply profile visibility settings
     let filteredSpeaker;
-    if (options.sessionUser === null) {
+    if (sessionUser === null) {
       filteredSpeaker = filterProfileByVisibility<typeof speaker>(speaker);
     } else {
       filteredSpeaker = {

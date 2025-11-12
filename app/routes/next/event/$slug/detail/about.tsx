@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { ChipContainer } from "~/components/next/ChipContainer";
 import ChipMedium from "~/components/next/ChipMedium";
@@ -6,13 +8,17 @@ import EventSubline from "~/components/next/EventSubline";
 import EventTypeBadge from "~/components/next/EventTypeBadge";
 import HeadlineAndTagsContainer from "~/components/next/HeadlineAndTagsContainer";
 import HeadlineChipsAndTags from "~/components/next/HeadlineChipsAndTags";
+import HeadlineContainer from "~/components/next/HeadlineContainer";
 import LabelAndChipsContainer from "~/components/next/LabelAndChipsContainer";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import LongTextContainer from "~/components/next/LongTextContainer";
 import Tags from "~/components/next/Tags";
 import { detectLanguage } from "~/i18n.server";
 import { getLocaleFromSlug } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { getChildEventCount } from "../utils.server";
 import {
   getEventBySlug,
   getFullDepthSpeakerIds,
@@ -20,6 +26,8 @@ import {
 } from "./about.server";
 import {
   getFormattedAddress,
+  getSearchSpeakersSchema,
+  getSearchTeamMembersSchema,
   hasAddress,
   hasDescription,
   hasDescriptionSection,
@@ -33,13 +41,8 @@ import {
   hasTags,
   hasTypes,
   SEARCH_SPEAKERS_SEARCH_PARAM,
+  SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
-import HeadlineContainer from "~/components/next/HeadlineContainer";
-import List from "~/components/next/List";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { useState } from "react";
-import { getChildEventCount } from "../utils.server";
-import { createAuthClient, getSessionUser } from "~/auth.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -75,9 +78,13 @@ export async function loader(args: LoaderFunctionArgs) {
     optionalWhereClause: optionalSpeakerWhereClause,
   });
 
-  const event = await getEventBySlug(params.slug);
-
-  invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
+  const event = await getEventBySlug({
+    slug: params.slug,
+    authClient,
+    sessionUser,
+    searchParams,
+    locales: locales.route.error,
+  });
 
   return {
     locales,
@@ -93,6 +100,7 @@ function About() {
   const { event, locales, submission } = useLoaderData<typeof loader>();
 
   const [speakers, setSpeakers] = useState(event.speakers);
+  const [teamMembers, setTeamMembers] = useState(event.teamMembers);
 
   return (
     <div className="w-full flex flex-col gap-8 md:gap-10">
@@ -209,6 +217,7 @@ function About() {
           </HeadlineContainer>
           <List id="speakers-list" hideAfter={4} locales={locales.route.list}>
             <List.Search
+              id="speakers-search-form"
               defaultItems={event.speakers}
               setValues={setSpeakers}
               searchParam={SEARCH_SPEAKERS_SEARCH_PARAM}
@@ -218,6 +227,7 @@ function About() {
               hideUntil={4}
               label={locales.route.speakers.searchPlaceholder}
               submission={submission}
+              schema={getSearchSpeakersSchema()}
             />
             {speakers.map((speaker, index) => {
               return (
@@ -245,6 +255,49 @@ function About() {
           </List>
         </div>
       ) : null}
+      <div className="w-full flex flex-col gap-4">
+        <HeadlineContainer as="h3">
+          {locales.route.teamMembers.headline}
+        </HeadlineContainer>
+        <List id="teamMembers-list" hideAfter={4} locales={locales.route.list}>
+          <List.Search
+            id="teamMembers-search-form"
+            defaultItems={event.teamMembers}
+            setValues={setTeamMembers}
+            searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
+            locales={{
+              placeholder: locales.route.teamMembers.searchPlaceholder,
+            }}
+            hideUntil={4}
+            label={locales.route.teamMembers.searchPlaceholder}
+            submission={submission}
+            schema={getSearchTeamMembersSchema()}
+          />
+          {teamMembers.map((member, index) => {
+            return (
+              <ListItemPersonOrg
+                key={member.id}
+                index={index}
+                to={`/profile/${member.username}`}
+              >
+                <ListItemPersonOrg.Avatar size="full" {...member} />
+                <ListItemPersonOrg.Headline>
+                  {member.academicTitle !== null &&
+                  member.academicTitle.length > 0
+                    ? `${member.academicTitle} `
+                    : ""}
+                  {member.firstName} {member.lastName}
+                </ListItemPersonOrg.Headline>
+                {member.position !== null ? (
+                  <ListItemPersonOrg.Subline>
+                    {member.position}
+                  </ListItemPersonOrg.Subline>
+                ) : null}
+              </ListItemPersonOrg>
+            );
+          })}
+        </List>
+      </div>
     </div>
   );
 }

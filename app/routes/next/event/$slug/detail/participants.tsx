@@ -11,7 +11,10 @@ import {
   getFullDepthParticipantIds,
   getParticipantsOfEvent,
 } from "./participants.server";
-import { SEARCH_PARTICIPANTS_SEARCH_PARAM } from "./participants.shared";
+import {
+  getSearchParticipantsSchema,
+  SEARCH_PARTICIPANTS_SEARCH_PARAM,
+} from "./participants.shared";
 import { getChildEventCount } from "../utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -83,6 +86,7 @@ function Participants() {
           hideUntil={10}
           label={loaderData.locales.route.content.searchPlaceholder}
           submission={loaderData.submission}
+          schema={getSearchParticipantsSchema()}
         />
         {participants.map((participant, index) => {
           return (

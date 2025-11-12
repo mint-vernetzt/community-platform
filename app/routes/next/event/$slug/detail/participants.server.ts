@@ -22,7 +22,8 @@ export async function getParticipantsOfEvent(options: {
     };
   };
 }) {
-  const { slug, authClient, searchParams, optionalWhereClause } = options;
+  const { slug, authClient, sessionUser, searchParams, optionalWhereClause } =
+    options;
 
   const submission = parseWithZod(searchParams, {
     schema: getSearchParticipantsSchema(),
@@ -140,7 +141,7 @@ export async function getParticipantsOfEvent(options: {
 
     // Apply profile visibility settings
     let filteredParticipant;
-    if (options.sessionUser === null) {
+    if (sessionUser === null) {
       filteredParticipant =
         filterProfileByVisibility<typeof participant>(participant);
     } else {

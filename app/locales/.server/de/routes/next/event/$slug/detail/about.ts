@@ -22,6 +22,10 @@ export const locale = {
     headline: "Speaker:innen",
     searchPlaceholder: "Nach Speaker:innen suchen...",
   },
+  teamMembers: {
+    headline: "Team",
+    searchPlaceholder: "Nach Teammitgliedern suchen...",
+  },
   list: {
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",

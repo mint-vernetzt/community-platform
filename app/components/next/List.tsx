@@ -7,15 +7,9 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import {
-  Children,
-  createContext,
-  isValidElement,
-  useCallback,
-  useContext,
-} from "react";
+import { Children, createContext, isValidElement, useContext } from "react";
 import { Form, useNavigation, useSearchParams } from "react-router";
-import { z } from "zod";
+import { type z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const ListContext = createContext<{ hideAfter?: number }>({});
@@ -46,16 +40,11 @@ function Search<
   locales: { placeholder: string };
   label: string;
   submission: SubmissionResult<string[]>;
+  schema: z.ZodTypeAny;
 }) {
-  const { id = "search-form", submission } = props;
+  const { id = "search-form", submission, schema } = props;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
-
-  const getSchema = useCallback(() => {
-    return z.object({
-      [props.searchParam]: z.string().trim().min(3).optional(),
-    });
-  }, [props.searchParam]);
 
   let defaultValue;
   const searchParamValue = searchParams.get(props.searchParam);
@@ -66,10 +55,10 @@ function Search<
   const [form, fields] = useForm({
     id,
     defaultValue,
-    constraint: getZodConstraint(getSchema()),
+    constraint: getZodConstraint(schema),
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: getSchema(),
+        schema: schema,
       });
     },
     lastResult: navigation.state === "idle" ? submission : null,
