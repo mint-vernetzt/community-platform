@@ -14,6 +14,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigate,
   useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -391,6 +392,7 @@ function OrganizationDetail() {
   });
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <Container
@@ -406,6 +408,16 @@ function OrganizationDetail() {
             ? `${previousLocation.pathname}${previousLocation.search}`
             : `/explore/organizations/${preferredExploreOrganizationsView}`
         }
+        onClick={(event) => {
+          if (
+            previousLocation !== null &&
+            previousLocation.pathname ===
+              `/explore/organizations/${preferredExploreOrganizationsView}`
+          ) {
+            event.preventDefault();
+            navigate(-1);
+          }
+        }}
         prefetch="intent"
       >
         {locales.route.back}

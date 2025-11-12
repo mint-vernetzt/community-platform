@@ -9,6 +9,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigate,
   useNavigation,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -60,6 +61,7 @@ import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { getFullDepthParticipantIds } from "./detail/participants.server";
 
 export function links() {
   return [
@@ -328,6 +330,14 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
+  let participantsCount;
+  if (event._count.childEvents > 0) {
+    const participantIds = await getFullDepthParticipantIds(params.slug);
+    participantsCount = participantIds.length;
+  } else {
+    participantsCount = event._count.participants;
+  }
+
   const enhancedEvent = {
     ...event,
     startTime,
@@ -337,6 +347,10 @@ export async function loader(args: LoaderFunctionArgs) {
     background,
     blurredBackground,
     responsibleOrganizations,
+    _count: {
+      ...event._count,
+      participants: participantsCount,
+    },
   };
 
   return {
@@ -562,6 +576,7 @@ function Detail() {
   const { pathname } = location;
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <BasicStructure>
@@ -583,6 +598,15 @@ function Detail() {
               ? `${previousLocation.pathname}${previousLocation.search}`
               : "/explore/events"
           }
+          onClick={(event) => {
+            if (
+              previousLocation !== null &&
+              previousLocation.pathname === "/explore/events"
+            ) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
           prefetch="intent"
         >
           {loaderData.locales.route.content.back}

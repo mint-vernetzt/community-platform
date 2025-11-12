@@ -52,7 +52,13 @@ function OrganizationCard(
       children?: React.ReactNode;
     }
 ) {
-  const { organization, publicAccess = false, locales, as = "h4" } = props;
+  const {
+    organization,
+    publicAccess = false,
+    locales,
+    as = "h4",
+    prefetch,
+  } = props;
 
   const children = Children.toArray(props.children);
 
@@ -65,7 +71,10 @@ function OrganizationCard(
     : locales.organizationCard.nonStated;
 
   return (
-    <Card to={`/organization/${organization.slug}/detail/about`}>
+    <Card
+      to={`/organization/${organization.slug}/detail/about`}
+      prefetch={prefetch}
+    >
       <CardHeader>
         <Avatar {...organization} size="xl" />
         {organization.background && (

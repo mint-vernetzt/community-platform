@@ -471,6 +471,8 @@ const de = {
     eventTypes: deEventTypes,
     eventTargetGroups: deEventTargetGroups,
     tags: deTags,
+    networkTypes: deNetworkTypes,
+    organizationTypes: deOrganizationTypes,
   },
   "next/event/$slug/detail/participants": {
     route: deNextEventParticipants,
@@ -901,6 +903,8 @@ const en = {
     eventTypes: enEventTypes,
     eventTargetGroups: enEventTargetGroups,
     tags: enTags,
+    networkTypes: enNetworkTypes,
+    organizationTypes: enOrganizationTypes,
   },
   "next/event/$slug/detail/participants": {
     route: enNextEventParticipants,

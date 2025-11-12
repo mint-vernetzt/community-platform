@@ -20,6 +20,7 @@ import {
   useActionData,
   useLoaderData,
   useLocation,
+  useNavigate,
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -541,6 +542,7 @@ function Index() {
   });
 
   const previousLocation = usePreviousLocation();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -563,6 +565,15 @@ function Index() {
                   ? `${previousLocation.pathname}${previousLocation.search}`
                   : "/explore/events"
               }
+              onClick={(event) => {
+                if (
+                  previousLocation !== null &&
+                  previousLocation.pathname === "/explore/events"
+                ) {
+                  event.preventDefault();
+                  navigate(-1);
+                }
+              }}
               prefetch="intent"
             >
               {locales.route.content.back}
