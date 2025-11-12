@@ -8,6 +8,17 @@ export function getSearchChildEventsSchema() {
   });
 }
 
+export function getParticipationSchema(locales: {
+  // invalidProfileId: string; // Security?
+  invalidEventId: string;
+}) {
+  const schema = z.object({
+    eventId: z.string().uuid(locales.invalidEventId),
+    // profileId: z.string().uuid(locales.invalidProfileId), // Security?
+  });
+  return schema;
+}
+
 export function hasSubline(event: { subline: string | null }): boolean {
   return event.subline !== null && event.subline.trim().length > 0;
 }
