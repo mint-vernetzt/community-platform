@@ -1,15 +1,21 @@
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import HeadlineContainer from "~/components/next/HeadlineContainer";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { getParticipantsOfEvent } from "./participants.server";
-import { SEARCH_PARTICIPANTS_SEARCH_PARAM } from "./participants.shared";
+import {
+  getFullDepthParticipantIds,
+  getParticipantsOfEvent,
+} from "./participants.server";
+import {
+  getSearchParticipantsSchema,
+  SEARCH_PARTICIPANTS_SEARCH_PARAM,
+} from "./participants.shared";
+import { getChildEventCount } from "../utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -33,11 +39,23 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
+  const childEventCount = await getChildEventCount(slug);
+  let optionalWhereClause;
+  if (childEventCount > 0) {
+    const participantIds = await getFullDepthParticipantIds(slug);
+    optionalWhereClause = {
+      id: {
+        in: participantIds,
+      },
+    };
+  }
+
   const { submission, participants } = await getParticipantsOfEvent({
     slug,
     authClient,
     sessionUser,
     searchParams,
+    optionalWhereClause,
   });
 
   return { submission, participants, locales };
@@ -50,9 +68,9 @@ function Participants() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-neutral-700 text-xl font-bold leading-6">
+      <HeadlineContainer as="h3">
         {loaderData.locales.route.content.title}
-      </h3>
+      </HeadlineContainer>
       <List
         id="participants-list"
         hideAfter={10}
@@ -67,9 +85,9 @@ function Participants() {
           }}
           hideUntil={10}
           label={loaderData.locales.route.content.searchPlaceholder}
-        >
-          <Input name={Deep} defaultValue="true" type="hidden" />
-        </List.Search>
+          submission={loaderData.submission}
+          schema={getSearchParticipantsSchema()}
+        />
         {participants.map((participant, index) => {
           return (
             <ListItemPersonOrg

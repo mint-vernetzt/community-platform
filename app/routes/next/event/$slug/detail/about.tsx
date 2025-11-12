@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { ChipContainer } from "~/components/next/ChipContainer";
 import ChipMedium from "~/components/next/ChipMedium";
@@ -6,16 +8,27 @@ import EventSubline from "~/components/next/EventSubline";
 import EventTypeBadge from "~/components/next/EventTypeBadge";
 import HeadlineAndTagsContainer from "~/components/next/HeadlineAndTagsContainer";
 import HeadlineChipsAndTags from "~/components/next/HeadlineChipsAndTags";
+import HeadlineContainer from "~/components/next/HeadlineContainer";
 import LabelAndChipsContainer from "~/components/next/LabelAndChipsContainer";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import LongTextContainer from "~/components/next/LongTextContainer";
 import Tags from "~/components/next/Tags";
 import { detectLanguage } from "~/i18n.server";
 import { getLocaleFromSlug } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getEventBySlug } from "./about.server";
+import { getChildEventCount } from "../utils.server";
+import {
+  getEventBySlug,
+  getFullDepthSpeakerIds,
+  getSpeakersOfEvent,
+} from "./about.server";
 import {
   getFormattedAddress,
+  getSearchResponsibleOrganizationsSchema,
+  getSearchSpeakersSchema,
+  getSearchTeamMembersSchema,
   hasAddress,
   hasDescription,
   hasDescriptionSection,
@@ -23,14 +36,21 @@ import {
   hasExperienceLevel,
   hasFocuses,
   hasGeneralInfo,
+  hasResponsibleOrganizations,
+  hasSpeakers,
   hasSubline,
   hasSublineAndTypesSection,
   hasTags,
   hasTypes,
+  SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM,
+  SEARCH_SPEAKERS_SEARCH_PARAM,
+  SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/detail/about"];
@@ -39,18 +59,63 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
-  const event = await getEventBySlug(params.slug);
+  const childEventCount = await getChildEventCount(params.slug);
+  let optionalSpeakerWhereClause;
+  if (childEventCount > 0) {
+    const speakerIds = await getFullDepthSpeakerIds(params.slug);
+    optionalSpeakerWhereClause = {
+      id: {
+        in: speakerIds,
+      },
+    };
+  }
 
-  invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  const { speakersSubmission, speakers } = await getSpeakersOfEvent({
+    slug: params.slug,
+    authClient,
+    sessionUser,
+    searchParams,
+    optionalWhereClause: optionalSpeakerWhereClause,
+  });
+
+  const { teamMembersSubmission, responsibleOrganizationsSubmission, event } =
+    await getEventBySlug({
+      slug: params.slug,
+      authClient,
+      sessionUser,
+      searchParams,
+      locales: locales.route.error,
+    });
 
   return {
     locales,
-    event,
+    event: {
+      ...event,
+      speakers,
+    },
+    speakersSubmission,
+    teamMembersSubmission,
+    responsibleOrganizationsSubmission,
   };
 }
 
 function About() {
-  const { event, locales } = useLoaderData<typeof loader>();
+  const {
+    event,
+    locales,
+    speakersSubmission,
+    teamMembersSubmission,
+    responsibleOrganizationsSubmission,
+  } = useLoaderData<typeof loader>();
+
+  const [speakers, setSpeakers] = useState(event.speakers);
+  const [teamMembers, setTeamMembers] = useState(event.teamMembers);
+  const [responsibleOrganizations, setResponsibleOrganizations] = useState(
+    event.responsibleOrganizations
+  );
 
   return (
     <div className="w-full flex flex-col gap-8 md:gap-10">
@@ -158,6 +223,154 @@ function About() {
               </ChipContainer>
             </LabelAndChipsContainer>
           ) : null}
+        </div>
+      ) : null}
+      {hasSpeakers(event) ? (
+        <div className="w-full flex flex-col gap-4">
+          <HeadlineContainer as="h3">
+            {locales.route.speakers.headline}
+          </HeadlineContainer>
+          <List id="speakers-list" hideAfter={4} locales={locales.route.list}>
+            <List.Search
+              id="speakers-search-form"
+              defaultItems={event.speakers}
+              setValues={setSpeakers}
+              searchParam={SEARCH_SPEAKERS_SEARCH_PARAM}
+              locales={{
+                placeholder: locales.route.speakers.searchPlaceholder,
+              }}
+              hideUntil={4}
+              label={locales.route.speakers.searchPlaceholder}
+              submission={speakersSubmission}
+              schema={getSearchSpeakersSchema()}
+            />
+            {speakers.map((speaker, index) => {
+              return (
+                <ListItemPersonOrg
+                  key={speaker.id}
+                  index={index}
+                  to={`/profile/${speaker.username}`}
+                >
+                  <ListItemPersonOrg.Avatar size="full" {...speaker} />
+                  <ListItemPersonOrg.Headline>
+                    {speaker.academicTitle !== null &&
+                    speaker.academicTitle.length > 0
+                      ? `${speaker.academicTitle} `
+                      : ""}
+                    {speaker.firstName} {speaker.lastName}
+                  </ListItemPersonOrg.Headline>
+                  {speaker.position !== null ? (
+                    <ListItemPersonOrg.Subline>
+                      {speaker.position}
+                    </ListItemPersonOrg.Subline>
+                  ) : null}
+                </ListItemPersonOrg>
+              );
+            })}
+          </List>
+        </div>
+      ) : null}
+      <div className="w-full flex flex-col gap-4">
+        <HeadlineContainer as="h3">
+          {locales.route.teamMembers.headline}
+        </HeadlineContainer>
+        <List id="teamMembers-list" hideAfter={4} locales={locales.route.list}>
+          <List.Search
+            id="teamMembers-search-form"
+            defaultItems={event.teamMembers}
+            setValues={setTeamMembers}
+            searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
+            locales={{
+              placeholder: locales.route.teamMembers.searchPlaceholder,
+            }}
+            hideUntil={4}
+            label={locales.route.teamMembers.searchPlaceholder}
+            submission={teamMembersSubmission}
+            schema={getSearchTeamMembersSchema()}
+          />
+          {teamMembers.map((member, index) => {
+            return (
+              <ListItemPersonOrg
+                key={member.id}
+                index={index}
+                to={`/profile/${member.username}`}
+              >
+                <ListItemPersonOrg.Avatar size="full" {...member} />
+                <ListItemPersonOrg.Headline>
+                  {member.academicTitle !== null &&
+                  member.academicTitle.length > 0
+                    ? `${member.academicTitle} `
+                    : ""}
+                  {member.firstName} {member.lastName}
+                </ListItemPersonOrg.Headline>
+                {member.position !== null ? (
+                  <ListItemPersonOrg.Subline>
+                    {member.position}
+                  </ListItemPersonOrg.Subline>
+                ) : null}
+              </ListItemPersonOrg>
+            );
+          })}
+        </List>
+      </div>
+      {hasResponsibleOrganizations(event) ? (
+        <div className="w-full flex flex-col gap-4">
+          <HeadlineContainer as="h3">
+            {locales.route.responsibleOrganizations.headline}
+          </HeadlineContainer>
+          <List
+            id="responsible-organizations-list"
+            hideAfter={4}
+            locales={locales.route.list}
+          >
+            <List.Search
+              id="responsible-organization-search-form"
+              defaultItems={event.responsibleOrganizations}
+              setValues={setResponsibleOrganizations}
+              searchParam={SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM}
+              locales={{
+                placeholder:
+                  locales.route.responsibleOrganizations.searchPlaceholder,
+              }}
+              hideUntil={4}
+              label={locales.route.responsibleOrganizations.searchPlaceholder}
+              submission={responsibleOrganizationsSubmission}
+              schema={getSearchResponsibleOrganizationsSchema()}
+            />
+            {responsibleOrganizations.map((organization, index) => {
+              return (
+                <ListItemPersonOrg
+                  key={organization.id}
+                  index={index}
+                  to={`/organization/${organization.slug}/detail/about`}
+                >
+                  <ListItemPersonOrg.Avatar size="full" {...organization} />
+                  <ListItemPersonOrg.Headline>
+                    {organization.name}
+                  </ListItemPersonOrg.Headline>
+                  {organization.types.length > 0 ||
+                  organization.networkTypes.length > 0 ? (
+                    <ListItemPersonOrg.Subline>
+                      {[
+                        ...organization.types.map((relation) => {
+                          return getLocaleFromSlug(
+                            relation.organizationType.slug,
+                            locales.organizationTypes
+                          );
+                        }),
+                        ...organization.networkTypes.map((relation) => {
+                          return getLocaleFromSlug(
+                            relation.networkType.slug,
+                            locales.networkTypes
+                          );
+                        }),
+                      ].join(", ")}
+                    </ListItemPersonOrg.Subline>
+                  ) : null}
+                </ListItemPersonOrg>
+              );
+            })}
+          </List>
         </div>
       ) : null}
     </div>

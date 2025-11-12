@@ -1,16 +1,15 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import {
+  getFormProps,
+  getInputProps,
+  type SubmissionResult,
+  useForm,
+} from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import {
-  Children,
-  createContext,
-  isValidElement,
-  useCallback,
-  useContext,
-} from "react";
-import { Form, useSearchParams } from "react-router";
-import { z } from "zod";
+import { Children, createContext, isValidElement, useContext } from "react";
+import { Form, useNavigation, useSearchParams } from "react-router";
+import { type z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 const ListContext = createContext<{ hideAfter?: number }>({});
@@ -40,15 +39,12 @@ function Search<
   hideUntil?: number;
   locales: { placeholder: string };
   label: string;
+  submission: SubmissionResult<unknown>;
+  schema: z.ZodTypeAny;
 }) {
-  const { id = "search-form" } = props;
+  const { id = "search-form", submission, schema } = props;
   const [searchParams] = useSearchParams();
-
-  const getSchema = useCallback(() => {
-    return z.object({
-      [props.searchParam]: z.string().trim().min(3).optional(),
-    });
-  }, [props.searchParam]);
+  const navigation = useNavigation();
 
   let defaultValue;
   const searchParamValue = searchParams.get(props.searchParam);
@@ -59,12 +55,13 @@ function Search<
   const [form, fields] = useForm({
     id,
     defaultValue,
-    constraint: getZodConstraint(getSchema()),
+    constraint: getZodConstraint(schema),
     onValidate: (values) => {
       return parseWithZod(values.formData, {
-        schema: getSchema(),
+        schema: schema,
       });
     },
+    lastResult: navigation.state === "idle" ? submission : null,
   });
 
   const handleChange: React.ChangeEventHandler<HTMLFormElement> = (event) => {
@@ -111,6 +108,7 @@ function Search<
   };
 
   if (
+    searchParamValue === null &&
     typeof props.hideUntil !== "undefined" &&
     props.defaultItems.length <= props.hideUntil
   ) {
