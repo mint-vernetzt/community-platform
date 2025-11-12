@@ -18,6 +18,9 @@ export const locale = {
   tags: {
     label: "Tags",
   },
+  documents: {
+    label: "Material",
+  },
   speakers: {
     headline: "Speakers",
     searchPlaceholder: "Search speakers...",

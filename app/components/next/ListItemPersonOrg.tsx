@@ -4,6 +4,9 @@ import classNames from "classnames";
 import { Children, isValidElement } from "react";
 import { Link } from "react-router";
 
+// Design:
+// Name: List item (Person & Org)
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10065-3526&t=RJvvlCKHSMjVtZMO-4
 function ListItemPersonOrg(props: {
   children: React.ReactNode;
   index: number;
@@ -16,7 +19,7 @@ function ListItemPersonOrg(props: {
     typeof hideAfter !== "undefined" && index > hideAfter - 1
       ? "hidden group-has-[:checked]:flex"
       : "flex",
-    "gap-4 align-center p-4 border border-neutral-200 rounded-lg"
+    "gap-4 items-center p-4 border border-neutral-200 rounded-lg"
   );
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -35,7 +38,30 @@ function ListItemPersonOrg(props: {
 
   if (typeof to === "undefined") {
     return (
-      <div className={classes}>
+      <li>
+        <div className={classes}>
+          <div className="flex gap-1">
+            <div className="w-12 h-12">{avatar}</div>
+          </div>
+          <div className="flex flex-col self-center text-neutral-700">
+            {headline}
+            {subline}
+          </div>
+        </div>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <Link
+        to={to}
+        className={classNames(
+          classes,
+          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
+        )}
+        prefetch="intent"
+      >
         <div className="flex gap-1">
           <div className="w-12 h-12">{avatar}</div>
         </div>
@@ -43,27 +69,8 @@ function ListItemPersonOrg(props: {
           {headline}
           {subline}
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      to={to}
-      className={classNames(
-        classes,
-        "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
-      )}
-      prefetch="intent"
-    >
-      <div className="flex gap-1">
-        <div className="w-12 h-12">{avatar}</div>
-      </div>
-      <div className="flex flex-col self-center text-neutral-700">
-        {headline}
-        {subline}
-      </div>
-    </Link>
+      </Link>
+    </li>
   );
 }
 

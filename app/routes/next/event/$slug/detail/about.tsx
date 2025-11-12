@@ -11,6 +11,7 @@ import HeadlineChipsAndTags from "~/components/next/HeadlineChipsAndTags";
 import HeadlineContainer from "~/components/next/HeadlineContainer";
 import LabelAndChipsContainer from "~/components/next/LabelAndChipsContainer";
 import List from "~/components/next/List";
+import ListItemMaterial from "~/components/next/ListItemMaterial";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import LongTextContainer from "~/components/next/LongTextContainer";
 import Tags from "~/components/next/Tags";
@@ -32,6 +33,7 @@ import {
   hasAddress,
   hasDescription,
   hasDescriptionSection,
+  hasDocuments,
   hasEventTargetGroups,
   hasExperienceLevel,
   hasFocuses,
@@ -89,6 +91,8 @@ export async function loader(args: LoaderFunctionArgs) {
       searchParams,
       locales: locales.route.error,
     });
+
+  // TODO: Check if documents are available for all modes? (anon, authenticated, member, etc...)
 
   return {
     locales,
@@ -223,6 +227,64 @@ function About() {
               </ChipContainer>
             </LabelAndChipsContainer>
           ) : null}
+        </div>
+      ) : null}
+      {hasDocuments(event) ? (
+        <div className="w-full flex flex-col gap-2">
+          <h3 className="mb-0 text-neutral-600 text-xs font-semibold leading-4">
+            {locales.route.documents.label}
+          </h3>
+          {/* TODO: Different List column behaviour */}
+          <List id="documents-list" hideAfter={3} locales={locales.route.list}>
+            {event.documents.map((relation, index) => {
+              return (
+                <ListItemMaterial
+                  key={relation.document.id}
+                  index={index}
+                  type={
+                    relation.document.mimeType === "application/pdf"
+                      ? "pdf"
+                      : "image"
+                  }
+                >
+                  {relation.document.mimeType !== "application/pdf" ? (
+                    // TODO: Check if image is positioned correctly
+                    <ListItemMaterial.Image
+                      alt={
+                        relation.document.title || relation.document.filename
+                      }
+                      src="TODO:"
+                      blurredSrc="TODO:"
+                    />
+                  ) : null}
+                  <ListItemMaterial.Headline>
+                    {relation.document.title || relation.document.filename}
+                  </ListItemMaterial.Headline>
+                  <ListItemMaterial.HeadlineSuffix>
+                    {relation.document.mimeType === "application/pdf"
+                      ? "(PDF"
+                      : "(jpg"}
+                    ,{" "}
+                    {relation.document.sizeInMB < 1
+                      ? `${Math.round(relation.document.sizeInMB * 1024)} KB)`
+                      : `${Math.round(relation.document.sizeInMB)} MB)`}
+                  </ListItemMaterial.HeadlineSuffix>
+
+                  {relation.document.mimeType !== "application/pdf" &&
+                  relation.document.credits !== null ? (
+                    <ListItemMaterial.Subline>
+                      © {relation.document.credits}
+                    </ListItemMaterial.Subline>
+                  ) : null}
+                  <ListItemMaterial.Controls>
+                    TODO: Circle Button for Download
+                  </ListItemMaterial.Controls>
+                </ListItemMaterial>
+              );
+            })}
+          </List>
+          {/* TODO: Download all button -> see rules in figma */}
+          {/* TODO: Check gaps between list items and show more button -> thought i didnt change anything but they seem broken */}
         </div>
       ) : null}
       {hasSpeakers(event) ? (

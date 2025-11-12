@@ -195,6 +195,20 @@ export async function getEventBySlug(options: {
           },
         },
       },
+      documents: {
+        select: {
+          document: {
+            select: {
+              id: true,
+              filename: true,
+              sizeInMB: true,
+              title: true,
+              credits: true,
+              mimeType: true,
+            },
+          },
+        },
+      },
     },
   });
 

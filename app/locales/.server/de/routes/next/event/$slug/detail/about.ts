@@ -18,6 +18,9 @@ export const locale = {
   tags: {
     label: "Schlagworte",
   },
+  documents: {
+    label: "Material",
+  },
   speakers: {
     headline: "Speaker:innen",
     searchPlaceholder: "Nach Speaker:innen suchen...",
