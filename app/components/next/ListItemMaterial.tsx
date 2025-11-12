@@ -46,7 +46,7 @@ function ListItemMaterial(props: {
     throw new Error("ListItemMaterial.Image is not allowed for type PDF");
   }
   const imageClasses = classNames(
-    "h-24 w-36 rounded-l-lg overflow-hidden",
+    "h-24 w-36 min-w-36 rounded-l-lg overflow-hidden",
     type === "pdf" &&
       "hidden sm:flex bg-primary-100 items-center justify-center"
   );
