@@ -7,6 +7,7 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import classNames from "classnames";
 import { Children, createContext, isValidElement, useContext } from "react";
 import { Form, useNavigation, useSearchParams } from "react-router";
 import { type z } from "zod";
@@ -154,8 +155,16 @@ function List(props: {
   children: React.ReactNode;
   hideAfter?: number;
   locales: { more: string; less: string };
+  multiColumnAt?: "md" | "lg" | "xl";
 }) {
-  const { children, hideAfter, id, locales } = props;
+  const { children, hideAfter, id, locales, multiColumnAt } = props;
+
+  const classes = classNames(
+    "grid grid-cols-1 gap-4 group",
+    multiColumnAt === "md" && "@md:grid-cols-2",
+    multiColumnAt === "lg" && "@lg:grid-cols-2",
+    multiColumnAt === "xl" && "@xl:grid-cols-2"
+  );
 
   const search = Children.toArray(children).find((child) => {
     return isValidElement(child) && child.type === Search;
@@ -168,7 +177,7 @@ function List(props: {
   return (
     <ListContext value={{ hideAfter }}>
       {search}
-      <ul className="grid grid-cols-1 @md:grid-cols-2 gap-4 group">
+      <ul className={classes}>
         {otherChildren}
         {typeof hideAfter !== "undefined" &&
         otherChildren.length > hideAfter ? (

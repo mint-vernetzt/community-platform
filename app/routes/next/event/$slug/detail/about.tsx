@@ -234,8 +234,12 @@ function About() {
           <h3 className="mb-0 text-neutral-600 text-xs font-semibold leading-4">
             {locales.route.documents.label}
           </h3>
-          {/* TODO: Different List column behaviour */}
-          <List id="documents-list" hideAfter={3} locales={locales.route.list}>
+          <List
+            id="documents-list"
+            hideAfter={3}
+            locales={locales.route.list}
+            multiColumnAt="lg"
+          >
             {event.documents.map((relation, index) => {
               return (
                 <ListItemMaterial
