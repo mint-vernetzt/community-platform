@@ -26,6 +26,10 @@ export const locale = {
     headline: "Team",
     searchPlaceholder: "Nach Teammitgliedern suchen...",
   },
+  responsibleOrganizations: {
+    headline: "Veranstaltet von",
+    searchPlaceholder: "Nach Veranstalter:innen suchen...",
+  },
   list: {
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",

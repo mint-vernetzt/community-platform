@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const SEARCH_SPEAKERS_SEARCH_PARAM = "search_speakers";
 export const SEARCH_TEAM_MEMBERS_SEARCH_PARAM = "search_team_members";
+export const SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM =
+  "search_responsible_organizations";
 
 export function getSearchSpeakersSchema() {
   return z.object({
@@ -12,6 +14,16 @@ export function getSearchSpeakersSchema() {
 export function getSearchTeamMembersSchema() {
   return z.object({
     [SEARCH_TEAM_MEMBERS_SEARCH_PARAM]: z.string().trim().min(3).optional(),
+  });
+}
+
+export function getSearchResponsibleOrganizationsSchema() {
+  return z.object({
+    [SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM]: z
+      .string()
+      .trim()
+      .min(3)
+      .optional(),
   });
 }
 
@@ -196,4 +208,10 @@ export function hasTags(event: { tags: unknown[] }) {
 
 export function hasSpeakers(event: { speakers: unknown[] }) {
   return event.speakers.length > 0;
+}
+
+export function hasResponsibleOrganizations(event: {
+  responsibleOrganizations: unknown[];
+}) {
+  return event.responsibleOrganizations.length > 0;
 }

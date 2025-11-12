@@ -26,6 +26,7 @@ import {
 } from "./about.server";
 import {
   getFormattedAddress,
+  getSearchResponsibleOrganizationsSchema,
   getSearchSpeakersSchema,
   getSearchTeamMembersSchema,
   hasAddress,
@@ -35,11 +36,13 @@ import {
   hasExperienceLevel,
   hasFocuses,
   hasGeneralInfo,
+  hasResponsibleOrganizations,
   hasSpeakers,
   hasSubline,
   hasSublineAndTypesSection,
   hasTags,
   hasTypes,
+  SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM,
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
@@ -78,13 +81,14 @@ export async function loader(args: LoaderFunctionArgs) {
     optionalWhereClause: optionalSpeakerWhereClause,
   });
 
-  const { teamMembersSubmission, event } = await getEventBySlug({
-    slug: params.slug,
-    authClient,
-    sessionUser,
-    searchParams,
-    locales: locales.route.error,
-  });
+  const { teamMembersSubmission, responsibleOrganizationsSubmission, event } =
+    await getEventBySlug({
+      slug: params.slug,
+      authClient,
+      sessionUser,
+      searchParams,
+      locales: locales.route.error,
+    });
 
   return {
     locales,
@@ -94,15 +98,24 @@ export async function loader(args: LoaderFunctionArgs) {
     },
     speakersSubmission,
     teamMembersSubmission,
+    responsibleOrganizationsSubmission,
   };
 }
 
 function About() {
-  const { event, locales, speakersSubmission, teamMembersSubmission } =
-    useLoaderData<typeof loader>();
+  const {
+    event,
+    locales,
+    speakersSubmission,
+    teamMembersSubmission,
+    responsibleOrganizationsSubmission,
+  } = useLoaderData<typeof loader>();
 
   const [speakers, setSpeakers] = useState(event.speakers);
   const [teamMembers, setTeamMembers] = useState(event.teamMembers);
+  const [responsibleOrganizations, setResponsibleOrganizations] = useState(
+    event.responsibleOrganizations
+  );
 
   return (
     <div className="w-full flex flex-col gap-8 md:gap-10">
@@ -300,6 +313,66 @@ function About() {
           })}
         </List>
       </div>
+      {hasResponsibleOrganizations(event) ? (
+        <div className="w-full flex flex-col gap-4">
+          <HeadlineContainer as="h3">
+            {locales.route.responsibleOrganizations.headline}
+          </HeadlineContainer>
+          <List
+            id="responsible-organizations-list"
+            hideAfter={4}
+            locales={locales.route.list}
+          >
+            <List.Search
+              id="responsible-organization-search-form"
+              defaultItems={event.responsibleOrganizations}
+              setValues={setResponsibleOrganizations}
+              searchParam={SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM}
+              locales={{
+                placeholder:
+                  locales.route.responsibleOrganizations.searchPlaceholder,
+              }}
+              hideUntil={4}
+              label={locales.route.responsibleOrganizations.searchPlaceholder}
+              submission={responsibleOrganizationsSubmission}
+              schema={getSearchResponsibleOrganizationsSchema()}
+            />
+            {responsibleOrganizations.map((organization, index) => {
+              return (
+                <ListItemPersonOrg
+                  key={organization.id}
+                  index={index}
+                  to={`/organization/${organization.slug}/detail/about`}
+                >
+                  <ListItemPersonOrg.Avatar size="full" {...organization} />
+                  <ListItemPersonOrg.Headline>
+                    {organization.name}
+                  </ListItemPersonOrg.Headline>
+                  {organization.types.length > 0 ||
+                  organization.networkTypes.length > 0 ? (
+                    <ListItemPersonOrg.Subline>
+                      {[
+                        ...organization.types.map((relation) => {
+                          return getLocaleFromSlug(
+                            relation.organizationType.slug,
+                            locales.organizationTypes
+                          );
+                        }),
+                        ...organization.networkTypes.map((relation) => {
+                          return getLocaleFromSlug(
+                            relation.networkType.slug,
+                            locales.networkTypes
+                          );
+                        }),
+                      ].join(", ")}
+                    </ListItemPersonOrg.Subline>
+                  ) : null}
+                </ListItemPersonOrg>
+              );
+            })}
+          </List>
+        </div>
+      ) : null}
     </div>
   );
 }

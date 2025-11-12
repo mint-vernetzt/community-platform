@@ -26,6 +26,10 @@ export const locale = {
     headline: "Team",
     searchPlaceholder: "Search team members...",
   },
+  responsibleOrganizations: {
+    headline: "Organized by",
+    searchPlaceholder: "Search organizers...",
+  },
   list: {
     more: "Show {{count}} more",
     less: "Show {{count}} less",

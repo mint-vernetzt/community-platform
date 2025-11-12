@@ -4,8 +4,10 @@ import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import {
+  getSearchResponsibleOrganizationsSchema,
   getSearchSpeakersSchema,
   getSearchTeamMembersSchema,
+  SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM,
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
@@ -24,19 +26,27 @@ export async function getEventBySlug(options: {
 }) {
   const { slug, authClient, sessionUser, searchParams, locales } = options;
 
-  const submission = parseWithZod(searchParams, {
+  const teamMembersSubmission = parseWithZod(searchParams, {
     schema: getSearchTeamMembersSchema(),
   });
 
-  let whereStatement;
+  const responsibleOrganizationsSubmission = parseWithZod(searchParams, {
+    schema: getSearchResponsibleOrganizationsSchema(),
+  });
+
+  let teamMembersWhere;
+  let responsibleOrganizationsWhere;
 
   if (
-    submission.status === "success" &&
-    typeof submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM] !== "undefined"
+    teamMembersSubmission.status === "success" &&
+    typeof teamMembersSubmission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM] !==
+      "undefined"
   ) {
     const query =
-      submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM].trim().split(" ");
-    whereStatement = {
+      teamMembersSubmission.value[
+        SEARCH_TEAM_MEMBERS_SEARCH_PARAM
+      ].trim().split(" ");
+    teamMembersWhere = {
       profile: {
         OR: query.map((term) => {
           return {
@@ -44,6 +54,30 @@ export async function getEventBySlug(options: {
               { firstName: { contains: term, mode: "insensitive" as const } },
               { lastName: { contains: term, mode: "insensitive" as const } },
               { username: { contains: term, mode: "insensitive" as const } },
+            ],
+          };
+        }),
+      },
+    };
+  }
+
+  if (
+    responsibleOrganizationsSubmission.status === "success" &&
+    typeof responsibleOrganizationsSubmission.value[
+      SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM
+    ] !== "undefined"
+  ) {
+    const query =
+      responsibleOrganizationsSubmission.value[
+        SEARCH_RESPONSIBLE_ORGANIZATIONS_SEARCH_PARAM
+      ].trim().split(" ");
+    responsibleOrganizationsWhere = {
+      organization: {
+        OR: query.map((term) => {
+          return {
+            OR: [
+              { name: { contains: term, mode: "insensitive" as const } },
+              { slug: { contains: term, mode: "insensitive" as const } },
             ],
           };
         }),
@@ -104,7 +138,7 @@ export async function getEventBySlug(options: {
         },
       },
       teamMembers: {
-        where: whereStatement,
+        where: teamMembersWhere,
         select: {
           profile: {
             select: {
@@ -124,6 +158,37 @@ export async function getEventBySlug(options: {
                   lastName: true,
                   avatar: true,
                   position: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      responsibleOrganizations: {
+        where: responsibleOrganizationsWhere,
+        select: {
+          organization: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              logo: true,
+              types: {
+                select: {
+                  organizationType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              },
+              networkTypes: {
+                select: {
+                  networkType: {
+                    select: {
+                      slug: true,
+                    },
+                  },
                 },
               },
             },
@@ -171,11 +236,44 @@ export async function getEventBySlug(options: {
     };
   });
 
+  const responsibleOrganizations = event.responsibleOrganizations.map(
+    (relation) => {
+      let logo = relation.organization.logo;
+      let blurredLogo;
+      if (logo !== null) {
+        const publicURL = getPublicURL(authClient, logo);
+        if (publicURL !== null) {
+          logo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.Logo,
+            },
+          });
+          blurredLogo = getImageURL(publicURL, {
+            resize: {
+              type: "fill",
+              ...ImageSizes.Organization.ListItem.BlurredLogo,
+            },
+            blur: BlurFactor,
+          });
+        }
+      }
+      return {
+        ...relation.organization,
+        logo,
+        blurredLogo,
+      };
+    }
+  );
+
   return {
-    teamMembersSubmission: submission.reply(),
+    teamMembersSubmission: teamMembersSubmission.reply(),
+    responsibleOrganizationsSubmission:
+      responsibleOrganizationsSubmission.reply(),
     event: {
       ...event,
       teamMembers,
+      responsibleOrganizations,
     },
   };
 }
