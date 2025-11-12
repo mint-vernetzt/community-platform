@@ -172,8 +172,11 @@ export async function getEventBySlug(options: {
   });
 
   return {
-    ...event,
-    teamMembers,
+    teamMembersSubmission: submission.reply(),
+    event: {
+      ...event,
+      teamMembers,
+    },
   };
 }
 
@@ -320,7 +323,7 @@ export async function getSpeakersOfEvent(options: {
     return filteredSpeaker;
   });
 
-  return { submission: submission.reply(), speakers: enhancedSpeakers };
+  return { speakersSubmission: submission.reply(), speakers: enhancedSpeakers };
 }
 
 export async function getFullDepthSpeakerIds(slug: string) {

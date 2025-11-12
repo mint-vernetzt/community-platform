@@ -39,7 +39,7 @@ function Search<
   hideUntil?: number;
   locales: { placeholder: string };
   label: string;
-  submission: SubmissionResult<string[]>;
+  submission: SubmissionResult<unknown>;
   schema: z.ZodTypeAny;
 }) {
   const { id = "search-form", submission, schema } = props;

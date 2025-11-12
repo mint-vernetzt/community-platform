@@ -70,7 +70,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const { submission, speakers } = await getSpeakersOfEvent({
+  const { speakersSubmission, speakers } = await getSpeakersOfEvent({
     slug: params.slug,
     authClient,
     sessionUser,
@@ -78,7 +78,7 @@ export async function loader(args: LoaderFunctionArgs) {
     optionalWhereClause: optionalSpeakerWhereClause,
   });
 
-  const event = await getEventBySlug({
+  const { teamMembersSubmission, event } = await getEventBySlug({
     slug: params.slug,
     authClient,
     sessionUser,
@@ -92,12 +92,14 @@ export async function loader(args: LoaderFunctionArgs) {
       ...event,
       speakers,
     },
-    submission,
+    speakersSubmission,
+    teamMembersSubmission,
   };
 }
 
 function About() {
-  const { event, locales, submission } = useLoaderData<typeof loader>();
+  const { event, locales, speakersSubmission, teamMembersSubmission } =
+    useLoaderData<typeof loader>();
 
   const [speakers, setSpeakers] = useState(event.speakers);
   const [teamMembers, setTeamMembers] = useState(event.teamMembers);
@@ -226,7 +228,7 @@ function About() {
               }}
               hideUntil={4}
               label={locales.route.speakers.searchPlaceholder}
-              submission={submission}
+              submission={speakersSubmission}
               schema={getSearchSpeakersSchema()}
             />
             {speakers.map((speaker, index) => {
@@ -270,7 +272,7 @@ function About() {
             }}
             hideUntil={4}
             label={locales.route.teamMembers.searchPlaceholder}
-            submission={submission}
+            submission={teamMembersSubmission}
             schema={getSearchTeamMembersSchema()}
           />
           {teamMembers.map((member, index) => {
