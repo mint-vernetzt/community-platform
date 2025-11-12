@@ -250,8 +250,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const inPast = now > endTime;
 
   const mode = await deriveModeForEvent(sessionUser, {
-    id: event.id,
-    participantLimit: event.participantLimit,
+    ...event,
     participantCount: event._count.participants,
     beforeParticipationPeriod,
     afterParticipationPeriod,

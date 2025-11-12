@@ -110,6 +110,7 @@ export async function deriveModeForEvent(
     beforeParticipationPeriod: boolean;
     afterParticipationPeriod: boolean;
     inPast: boolean;
+    canceled: boolean;
     participantLimit: number | null;
     participantCount: number;
   }
@@ -155,7 +156,8 @@ export async function deriveModeForEvent(
   if (
     eventInfo.inPast ||
     eventInfo.afterParticipationPeriod ||
-    eventInfo.beforeParticipationPeriod
+    eventInfo.beforeParticipationPeriod ||
+    eventInfo.canceled
   ) {
     return null;
   }
