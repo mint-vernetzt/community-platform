@@ -1,4 +1,9 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import {
+  getFormProps,
+  getInputProps,
+  type SubmissionResult,
+  useForm,
+} from "@conform-to/react-v1";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
@@ -9,7 +14,7 @@ import {
   useCallback,
   useContext,
 } from "react";
-import { Form, useSearchParams } from "react-router";
+import { Form, useNavigation, useSearchParams } from "react-router";
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
@@ -40,9 +45,11 @@ function Search<
   hideUntil?: number;
   locales: { placeholder: string };
   label: string;
+  submission: SubmissionResult<string[]>;
 }) {
-  const { id = "search-form" } = props;
+  const { id = "search-form", submission } = props;
   const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
 
   const getSchema = useCallback(() => {
     return z.object({
@@ -65,6 +72,7 @@ function Search<
         schema: getSchema(),
       });
     },
+    lastResult: navigation.state === "idle" ? submission : null,
   });
 
   const handleChange: React.ChangeEventHandler<HTMLFormElement> = (event) => {

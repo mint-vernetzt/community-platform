@@ -18,4 +18,12 @@ export const locale = {
   tags: {
     label: "Tags",
   },
+  speakers: {
+    headline: "Speakers",
+    searchPlaceholder: "Search speakers...",
+  },
+  list: {
+    more: "Show {{count}} more",
+    less: "Show {{count}} less",
+  },
 } as const;

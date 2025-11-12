@@ -157,12 +157,6 @@ export async function getParticipantsOfEvent(options: {
   return { submission: submission.reply(), participants: enhancedParticipants };
 }
 
-export function getChildEventCount(slug: string) {
-  return prismaClient.event.count({
-    where: { parentEvent: { slug } },
-  });
-}
-
 export async function getFullDepthParticipantIds(slug: string) {
   try {
     // Get event and all child events of arbitrary depth with raw query

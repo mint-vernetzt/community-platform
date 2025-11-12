@@ -1,3 +1,13 @@
+import { z } from "zod";
+
+export const SEARCH_SPEAKERS_SEARCH_PARAM = "search_speakers";
+
+export function getSearchSpeakersSchema() {
+  return z.object({
+    [SEARCH_SPEAKERS_SEARCH_PARAM]: z.string().trim().min(3).optional(),
+  });
+}
+
 export function hasDescriptionSection(event: {
   subline: string | null;
   description: string | null;
@@ -175,4 +185,8 @@ export function hasExperienceLevel(event: {
 
 export function hasTags(event: { tags: unknown[] }) {
   return event.tags.length > 0;
+}
+
+export function hasSpeakers(event: { speakers: unknown[] }) {
+  return event.speakers.length > 0;
 }
