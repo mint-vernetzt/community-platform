@@ -70,6 +70,7 @@ import { locale as deCreateEvent } from "./de/routes/event/create";
 import { locale as deNextEventDetail } from "./de/routes/next/event/$slug/detail";
 import { locale as deNextAboutEvent } from "./de/routes/next/event/$slug/detail/about";
 import { locale as deNextEventParticipants } from "./de/routes/next/event/$slug/detail/participants";
+import { locale as deChildEvents } from "./de/routes/next/event/$slug/detail/child-events";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -238,6 +239,7 @@ import { locale as enCreateEvent } from "./en/routes/event/create";
 import { locale as enNextEventDetail } from "./en/routes/next/event/$slug/detail";
 import { locale as enNextAboutEvent } from "./en/routes/next/event/$slug/detail/about";
 import { locale as enNextEventParticipants } from "./en/routes/next/event/$slug/detail/participants";
+import { locale as enChildEvents } from "./en/routes/next/event/$slug/detail/child-events";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -474,6 +476,10 @@ const de = {
   },
   "next/event/$slug/detail/participants": {
     route: deNextEventParticipants,
+  },
+  "next/event/$slug/detail/child-events": {
+    route: deChildEvents,
+    stages: deStages,
   },
   // explore routes
   explore: {
@@ -902,6 +908,10 @@ const en = {
   },
   "next/event/$slug/detail/participants": {
     route: enNextEventParticipants,
+  },
+  "next/event/$slug/detail/child-events": {
+    route: enChildEvents,
+    stages: enStages,
   },
   // explore routes
   explore: {

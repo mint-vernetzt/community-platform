@@ -16,10 +16,13 @@ function ListItemPersonOrg(props: {
   const { hideAfter } = useListContext();
 
   const classes = classNames(
+    "flex gap-4 items-center p-4 border border-neutral-200 rounded-lg"
+  );
+
+  const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:flex"
-      : "flex",
-    "gap-4 items-center p-4 border border-neutral-200 rounded-lg"
+      ? "hidden group-has-[:checked]:block"
+      : "block"
   );
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -38,7 +41,7 @@ function ListItemPersonOrg(props: {
 
   if (typeof to === "undefined") {
     return (
-      <li>
+      <li className={hideClasses}>
         <div className={classes}>
           <div className="flex gap-1">
             <div className="w-12 h-12">{avatar}</div>
@@ -53,7 +56,7 @@ function ListItemPersonOrg(props: {
   }
 
   return (
-    <li>
+    <li className={hideClasses}>
       <Link
         to={to}
         className={classNames(

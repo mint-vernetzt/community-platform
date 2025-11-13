@@ -29,11 +29,14 @@ function ListItemMaterial(props: {
   const { children, index, type } = props;
   const { hideAfter } = useListContext();
 
-  const classes = classNames(
+  const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:flex"
-      : "flex",
-    "gap-4 items-center border border-neutral-200 rounded-lg h-24",
+      ? "hidden group-has-[:checked]:block"
+      : "block"
+  );
+
+  const classes = classNames(
+    "flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
     type === "pdf" && "pl-4 sm:pl-0"
   );
 
@@ -46,7 +49,7 @@ function ListItemMaterial(props: {
   });
 
   const imageClasses = classNames(
-    "h-24 w-36 min-w-36 rounded-l-lg overflow-hidden",
+    "h-[94px] w-36 min-w-36 rounded-l-[7px] overflow-hidden",
     type === "pdf" &&
       "hidden sm:flex bg-primary-100 items-center justify-center"
   );
@@ -71,7 +74,7 @@ function ListItemMaterial(props: {
 
   return (
     <ListItemMaterialContext value={{ type: type }}>
-      <li>
+      <li className={hideClasses}>
         <div className={classes}>
           <div className={imageClasses}>
             {type === "image" ? image : <FileTypePDFIcon />}
