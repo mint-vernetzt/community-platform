@@ -5,6 +5,13 @@ export const locale = {
   venue: {
     label: "Venue",
   },
+  conferenceLink: {
+    label: "Conference link",
+    toBeAnnounced: "The link to the online event will be announced later.",
+  },
+  conferenceCode: {
+    label: "Conference code",
+  },
   eventTargetGroups: {
     label:
       "The event is recommended for target groups from the following educational sectors",

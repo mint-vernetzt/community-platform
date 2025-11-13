@@ -32,6 +32,8 @@ import {
   getSearchSpeakersSchema,
   getSearchTeamMembersSchema,
   hasAddress,
+  hasConferenceCode,
+  hasConferenceLink,
   hasDescription,
   hasDescriptionSection,
   hasDocuments,
@@ -49,6 +51,7 @@ import {
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -92,8 +95,6 @@ export async function loader(args: LoaderFunctionArgs) {
       searchParams,
       locales: locales.route.error,
     });
-
-  // TODO: Check if documents are available for all modes? (anon, authenticated, member, etc...)
 
   return {
     locales,
@@ -153,13 +154,43 @@ function About() {
         </div>
       ) : null}
       {hasGeneralInfo(event) ? (
-        <div className="w-full flex flex-col gap-6">
+        <div
+          id="address-and-conference-link"
+          className="w-full flex flex-col gap-6"
+        >
           {hasAddress(event) ? (
             <HeadlineAndTagsContainer>
               <HeadlineChipsAndTags as="h3">
                 {locales.route.venue.label}
               </HeadlineChipsAndTags>
               <Tags as="address">{getFormattedAddress(event)}</Tags>
+            </HeadlineAndTagsContainer>
+          ) : null}
+          {event.conferenceLinkToBeAnnounced === true ? (
+            <HeadlineAndTagsContainer>
+              <HeadlineChipsAndTags as="h3">
+                {locales.route.conferenceLink.label}
+              </HeadlineChipsAndTags>
+              <Tags as="p">{locales.route.conferenceLink.toBeAnnounced}</Tags>
+            </HeadlineAndTagsContainer>
+          ) : hasConferenceLink(event) ? (
+            <HeadlineAndTagsContainer>
+              <HeadlineChipsAndTags as="h3">
+                {locales.route.conferenceLink.label}
+              </HeadlineChipsAndTags>
+              <TextButton
+                as="link"
+                to={event.conferenceLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {event.conferenceLink}
+              </TextButton>
+              {hasConferenceCode(event) ? (
+                <Tags as="p">
+                  {locales.route.conferenceCode.label}: {event.conferenceCode}
+                </Tags>
+              ) : null}
             </HeadlineAndTagsContainer>
           ) : null}
           {hasEventTargetGroups(event) ? (

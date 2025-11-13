@@ -5,7 +5,7 @@ import type { ArrayElement } from "~/lib/utils/types";
 import type { languageModuleMap } from "~/locales/.server";
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
 import { copyToClipboard } from "~/lib/utils/clipboard";
-import { Form, useLocation } from "react-router";
+import { Form, Link, useLocation } from "react-router";
 import { useEffect, useState, createContext, useContext, useRef } from "react";
 import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
 import classNames from "classnames";
@@ -235,28 +235,38 @@ function Stage(props: {
         typeof SUPPORTED_COOKIE_LANGUAGES
       >]["next/event/$slug/detail"]["stages"]
     | null;
+  conferenceLinkToBeAnnounced: boolean;
+  conferenceLink: string | null;
   locales: (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["next/event/$slug/detail"];
 }) {
-  const { stage } = props;
+  const { stage, conferenceLinkToBeAnnounced, conferenceLink } = props;
   if (stage === null) {
     return null;
   }
 
   const containerClasses = classNames(
-    "flex gap-4 align-center py-4 md:px-4",
+    "group flex gap-4 align-center py-4 md:px-4",
     "border-0 md:border border-neutral-200 rounded-lg",
-    "order-3 md:order-last"
+    "order-3 md:order-last",
+    (stage === "online" || stage === "hybrid") &&
+      (conferenceLinkToBeAnnounced === true || conferenceLink !== null)
+      ? "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+      : ""
   );
 
   const iconClasses = classNames(
-    "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700"
+    "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700",
+    (stage === "online" || stage === "hybrid") &&
+      (conferenceLinkToBeAnnounced === true || conferenceLink !== null)
+      ? "group-hover:bg-white"
+      : ""
   );
 
   if (stage === "online") {
-    return (
-      <div className={containerClasses}>
+    const childs = (
+      <>
         <div className={iconClasses}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -274,13 +284,21 @@ function Stage(props: {
         <div className="self-center text-neutral-700 font-semibold">
           {props.locales.route.content.online}
         </div>
-      </div>
+      </>
     );
+    if (props.conferenceLinkToBeAnnounced === true || conferenceLink !== null) {
+      return (
+        <Link to="#address-and-conference-link" className={containerClasses}>
+          {childs}
+        </Link>
+      );
+    }
+    return <div className={containerClasses}>{childs}</div>;
   }
 
   if (stage === "on-site") {
-    return (
-      <div className={containerClasses}>
+    const childs = (
+      <>
         <div className={iconClasses}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -328,8 +346,19 @@ function Stage(props: {
               </>
             )}
         </div>
-      </div>
+      </>
     );
+    if (
+      props.conferenceLinkToBeAnnounced === true ||
+      props.conferenceLink !== null
+    ) {
+      return (
+        <Link to="#address-and-conference-link" className={containerClasses}>
+          {childs}
+        </Link>
+      );
+    }
+    return <div className={containerClasses}>{childs}</div>;
   }
 
   if (stage === "hybrid") {
