@@ -38,9 +38,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let documents;
   if (documentId === null) {
     documents = event.documents.map((relation, index) => {
-      const escapedFilename = escapeFilenameSpecialChars(
+      let escapedFilename = escapeFilenameSpecialChars(
         relation.document.title || relation.document.filename
       );
+      if (escapedFilename.endsWith(relation.document.extension) === false) {
+        escapedFilename = `${escapedFilename}.${relation.document.extension}`;
+      }
       if (
         event.documents.some((otherRelation) => {
           return (

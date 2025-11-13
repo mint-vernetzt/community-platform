@@ -75,6 +75,7 @@ function Participants() {
         id="participants-list"
         hideAfter={10}
         locales={loaderData.locales.route.content}
+        multiColumnAt="md"
       >
         <List.Search
           defaultItems={loaderData.participants}

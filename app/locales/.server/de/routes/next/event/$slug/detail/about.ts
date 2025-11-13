@@ -18,6 +18,11 @@ export const locale = {
   tags: {
     label: "Schlagworte",
   },
+  documents: {
+    label: "Material",
+    download: "Herunterladen",
+    downloadAll: "Alle herunterladen",
+  },
   speakers: {
     headline: "Speaker:innen",
     searchPlaceholder: "Nach Speaker:innen suchen...",
