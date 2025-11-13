@@ -32,6 +32,7 @@ import {
   getSearchSpeakersSchema,
   getSearchTeamMembersSchema,
   hasAddress,
+  hasConferenceLink,
   hasDescription,
   hasDescriptionSection,
   hasDocuments,
@@ -155,6 +156,14 @@ function About() {
       {hasGeneralInfo(event) ? (
         <div className="w-full flex flex-col gap-6">
           {hasAddress(event) ? (
+            <HeadlineAndTagsContainer>
+              <HeadlineChipsAndTags as="h3">
+                {locales.route.venue.label}
+              </HeadlineChipsAndTags>
+              <Tags as="address">{getFormattedAddress(event)}</Tags>
+            </HeadlineAndTagsContainer>
+          ) : null}
+          {hasConferenceLink(event) ? (
             <HeadlineAndTagsContainer>
               <HeadlineChipsAndTags as="h3">
                 {locales.route.venue.label}

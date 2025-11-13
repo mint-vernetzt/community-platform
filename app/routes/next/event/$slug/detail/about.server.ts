@@ -14,6 +14,8 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { utcToZonedTime } from "date-fns-tz";
+import { deriveModeForEvent, getIsMember } from "../detail.server";
 
 export async function getEventBySlug(options: {
   slug: string;
@@ -106,6 +108,14 @@ export async function getEventBySlug(options: {
       venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
+      conferenceLink: true,
+      conferenceCode: true,
+      startTime: true,
+      endTime: true,
+      participationFrom: true,
+      participationUntil: true,
+      participantLimit: true,
+      canceled: true,
       eventTargetGroups: {
         select: {
           eventTargetGroup: {
@@ -211,10 +221,41 @@ export async function getEventBySlug(options: {
           },
         },
       },
+      _count: {
+        select: {
+          participants: true,
+        },
+      },
     },
   });
 
   invariantResponse(event, locales.eventNotFound, { status: 404 });
+
+  const now = utcToZonedTime(new Date(), "Europe/Berlin");
+  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const participationFrom = utcToZonedTime(
+    event.participationFrom,
+    "Europe/Berlin"
+  );
+  const participationUntil = utcToZonedTime(
+    event.participationUntil,
+    "Europe/Berlin"
+  );
+  const beforeParticipationPeriod = now < participationFrom;
+  const afterParticipationPeriod = now > participationUntil;
+  const inPast = now > endTime;
+
+  const participantCount = event._count.participants;
+
+  const mode = await deriveModeForEvent(sessionUser, {
+    ...event,
+    participantCount,
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
+  });
+
+  const isMember = await getIsMember(sessionUser, event);
 
   const teamMembers = event.teamMembers.map((relation) => {
     let filteredProfile;
@@ -287,6 +328,15 @@ export async function getEventBySlug(options: {
     documents = [];
   }
 
+  let conferenceLink = event.conferenceLink;
+  if (isMember === false && mode !== "participating") {
+    conferenceLink = null;
+  }
+  let conferenceCode = event.conferenceCode;
+  if (isMember === false && mode !== "participating") {
+    conferenceCode = null;
+  }
+
   return {
     teamMembersSubmission: teamMembersSubmission.reply(),
     responsibleOrganizationsSubmission:
@@ -296,6 +346,8 @@ export async function getEventBySlug(options: {
       documents,
       teamMembers,
       responsibleOrganizations,
+      conferenceLink,
+      conferenceCode,
     },
   };
 }
