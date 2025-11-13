@@ -282,12 +282,18 @@ export async function getEventBySlug(options: {
     }
   );
 
+  let documents = event.documents;
+  if (sessionUser === null) {
+    documents = [];
+  }
+
   return {
     teamMembersSubmission: teamMembersSubmission.reply(),
     responsibleOrganizationsSubmission:
       responsibleOrganizationsSubmission.reply(),
     event: {
       ...event,
+      documents,
       teamMembers,
       responsibleOrganizations,
     },
@@ -401,7 +407,15 @@ export async function getSpeakersOfEvent(options: {
   }
 
   const enhancedSpeakers = speakers.map((speaker) => {
-    let avatar = speaker.avatar;
+    // Apply profile visibility settings
+    let filteredSpeaker;
+    if (sessionUser === null) {
+      filteredSpeaker = filterProfileByVisibility<typeof speaker>(speaker);
+    } else {
+      filteredSpeaker = { ...speaker };
+    }
+
+    let avatar = filteredSpeaker.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -422,19 +436,7 @@ export async function getSpeakersOfEvent(options: {
       }
     }
 
-    // Apply profile visibility settings
-    let filteredSpeaker;
-    if (sessionUser === null) {
-      filteredSpeaker = filterProfileByVisibility<typeof speaker>(speaker);
-    } else {
-      filteredSpeaker = {
-        ...speaker,
-        avatar,
-        blurredAvatar,
-      };
-    }
-
-    return filteredSpeaker;
+    return { ...filteredSpeaker, avatar, blurredAvatar };
   });
 
   return { speakersSubmission: submission.reply(), speakers: enhancedSpeakers };
