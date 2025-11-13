@@ -21,6 +21,7 @@ export const locale = {
   documents: {
     label: "Material",
     download: "Download",
+    downloadAll: "Download all",
   },
   speakers: {
     headline: "Speakers",
