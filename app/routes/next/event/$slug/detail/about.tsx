@@ -1,3 +1,4 @@
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { useState } from "react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -11,6 +12,7 @@ import HeadlineChipsAndTags from "~/components/next/HeadlineChipsAndTags";
 import HeadlineContainer from "~/components/next/HeadlineContainer";
 import LabelAndChipsContainer from "~/components/next/LabelAndChipsContainer";
 import List from "~/components/next/List";
+import ListItemMaterial from "~/components/next/ListItemMaterial";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import LongTextContainer from "~/components/next/LongTextContainer";
 import Tags from "~/components/next/Tags";
@@ -32,6 +34,7 @@ import {
   hasAddress,
   hasDescription,
   hasDescriptionSection,
+  hasDocuments,
   hasEventTargetGroups,
   hasExperienceLevel,
   hasFocuses,
@@ -89,6 +92,8 @@ export async function loader(args: LoaderFunctionArgs) {
       searchParams,
       locales: locales.route.error,
     });
+
+  // TODO: Check if documents are available for all modes? (anon, authenticated, member, etc...)
 
   return {
     locales,
@@ -223,6 +228,80 @@ function About() {
               </ChipContainer>
             </LabelAndChipsContainer>
           ) : null}
+        </div>
+      ) : null}
+      {hasDocuments(event) ? (
+        <div className="w-full flex flex-col gap-2">
+          <h3 className="mb-0 text-neutral-600 text-xs font-semibold leading-4">
+            {locales.route.documents.label}
+          </h3>
+          <div className="flex flex-col gap-4">
+            <List
+              id="documents-list"
+              hideAfter={4}
+              locales={locales.route.list}
+              multiColumnAt="lg"
+            >
+              {event.documents.map((relation, index) => {
+                return (
+                  <ListItemMaterial
+                    key={relation.document.id}
+                    index={index}
+                    type={
+                      relation.document.mimeType === "application/pdf"
+                        ? "pdf"
+                        : "image"
+                    }
+                  >
+                    {/* {relation.document.mimeType !== "application/pdf" ? (
+                      <ListItemMaterial.Image
+                        alt={
+                          relation.document.title || relation.document.filename
+                        }
+                        src="TODO:"
+                        blurredSrc="TODO:"
+                      />
+                    ) : null} */}
+                    <ListItemMaterial.Headline>
+                      {relation.document.title || relation.document.filename}
+                    </ListItemMaterial.Headline>
+                    <ListItemMaterial.HeadlineSuffix>
+                      {relation.document.mimeType === "application/pdf"
+                        ? "(PDF"
+                        : "(jpg"}
+                      ,{" "}
+                      {relation.document.sizeInMB < 1
+                        ? `${Math.round(relation.document.sizeInMB * 1024)} KB)`
+                        : `${Math.round(relation.document.sizeInMB)} MB)`}
+                    </ListItemMaterial.HeadlineSuffix>
+                    {/* {relation.document.credits !== null && (
+                      <ListItemMaterial.Subline>
+                        © {relation.document.credits}
+                      </ListItemMaterial.Subline>
+                    )} */}
+                    <ListItemMaterial.Controls>
+                      <ListItemMaterial.Controls.Download
+                        to={`/event/${event.slug}/documents-download?document_id=${relation.document.id}`}
+                        label={locales.route.documents.download}
+                      />
+                    </ListItemMaterial.Controls>
+                  </ListItemMaterial>
+                );
+              })}
+            </List>
+            {event.documents.length > 1 && (
+              <div className="w-full justify-end flex">
+                <Button
+                  as="link"
+                  variant="outline"
+                  to={`/event/${event.slug}/documents-download`}
+                  reloadDocument
+                >
+                  {locales.route.documents.downloadAll}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       ) : null}
       {hasSpeakers(event) ? (

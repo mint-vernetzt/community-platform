@@ -206,6 +206,10 @@ export function hasTags(event: { tags: unknown[] }) {
   return event.tags.length > 0;
 }
 
+export function hasDocuments(event: { documents: unknown[] }) {
+  return event.documents.length > 0;
+}
+
 export function hasSpeakers(event: { speakers: unknown[] }) {
   return event.speakers.length > 0;
 }

@@ -27,6 +27,7 @@ export async function getEventBySlug(slug: string) {
               path: true,
               filename: true,
               title: true,
+              extension: true,
             },
           },
         },
