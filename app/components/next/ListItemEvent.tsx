@@ -93,7 +93,7 @@ function ListItemEvent(props: {
         to={to}
         className={classNames(
           classes,
-          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
+          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
         )}
         prefetch="intent"
       >

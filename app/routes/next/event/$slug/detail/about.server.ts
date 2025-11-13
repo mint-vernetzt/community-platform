@@ -1,8 +1,11 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import { Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 import {
   getSearchResponsibleOrganizationsSchema,
   getSearchSpeakersSchema,
@@ -11,11 +14,9 @@ import {
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
-import { utcToZonedTime } from "date-fns-tz";
+import { filterEventConferenceLink } from "../utils.server";
 import { deriveModeForEvent, getIsMember } from "../detail.server";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventBySlug(options: {
   slug: string;
@@ -221,6 +222,11 @@ export async function getEventBySlug(options: {
           },
         },
       },
+      stage: {
+        select: {
+          slug: true,
+        },
+      },
       _count: {
         select: {
           participants: true,
@@ -241,21 +247,27 @@ export async function getEventBySlug(options: {
     event.participationUntil,
     "Europe/Berlin"
   );
+
   const beforeParticipationPeriod = now < participationFrom;
   const afterParticipationPeriod = now > participationUntil;
   const inPast = now > endTime;
 
-  const participantCount = event._count.participants;
-
   const mode = await deriveModeForEvent(sessionUser, {
     ...event,
-    participantCount,
+    participantCount: event._count.participants,
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
   });
 
   const isMember = await getIsMember(sessionUser, event);
+  const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
+    await filterEventConferenceLink({
+      event,
+      mode,
+      isMember,
+      inPast,
+    });
 
   const teamMembers = event.teamMembers.map((relation) => {
     let filteredProfile;
@@ -328,15 +340,6 @@ export async function getEventBySlug(options: {
     documents = [];
   }
 
-  let conferenceLink = event.conferenceLink;
-  if (isMember === false && mode !== "participating") {
-    conferenceLink = null;
-  }
-  let conferenceCode = event.conferenceCode;
-  if (isMember === false && mode !== "participating") {
-    conferenceCode = null;
-  }
-
   return {
     teamMembersSubmission: teamMembersSubmission.reply(),
     responsibleOrganizationsSubmission:
@@ -348,6 +351,7 @@ export async function getEventBySlug(options: {
       responsibleOrganizations,
       conferenceLink,
       conferenceCode,
+      conferenceLinkToBeAnnounced,
     },
   };
 }

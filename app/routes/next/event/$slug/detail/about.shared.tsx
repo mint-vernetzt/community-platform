@@ -66,7 +66,9 @@ export function hasDescription(event: {
   );
 }
 
-export function hasConferenceLink(event: { conferenceLink: string | null }) {
+export function hasConferenceLink(event: {
+  conferenceLink: string | null;
+}): event is { conferenceLink: string } {
   return (
     event.conferenceLink !== null &&
     event.conferenceLink.trim() !== "" &&
@@ -74,7 +76,9 @@ export function hasConferenceLink(event: { conferenceLink: string | null }) {
   );
 }
 
-export function hasConferenceCode(event: { conferenceCode: string | null }) {
+export function hasConferenceCode(event: {
+  conferenceCode: string | null;
+}): event is { conferenceCode: string } {
   return (
     event.conferenceCode !== null &&
     event.conferenceCode.trim() !== "" &&
@@ -92,6 +96,7 @@ export function hasGeneralInfo(event: {
   focuses: unknown[];
   conferenceLink: string | null;
   conferenceCode: string | null;
+  conferenceLinkToBeAnnounced: boolean;
   experienceLevel: {
     slug: string;
   } | null;
@@ -104,7 +109,7 @@ export function hasGeneralInfo(event: {
     hasExperienceLevel(event) ||
     hasTags(event) ||
     hasConferenceLink(event) ||
-    hasConferenceCode(event)
+    event.conferenceLinkToBeAnnounced === true
   );
 }
 
