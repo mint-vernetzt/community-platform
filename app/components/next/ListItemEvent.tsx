@@ -17,11 +17,14 @@ function ListItemEvent(props: {
   const { children, index, to } = props;
   const { hideAfter } = useListContext();
 
-  const classes = classNames(
+  const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:flex"
-      : "flex",
-    "gap-4 align-center border border-neutral-200 rounded-lg overflow-hidden"
+      ? "hidden group-has-[:checked]:block"
+      : "block"
+  );
+
+  const classes = classNames(
+    "flex gap-4 items-center border border-neutral-200 rounded-lg"
   );
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -53,40 +56,72 @@ function ListItemEvent(props: {
   });
 
   if (typeof to === "undefined") {
-    return <div className={classes}>{children}</div>;
+    return (
+      <li className={hideClasses}>
+        <div className={classes}>
+          <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
+            <div className="w-36 h-[96px] rounded-l-lg overflow-hidden">
+              {image}
+            </div>
+          </div>
+          <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
+            <div
+              className={classNames(
+                "flex flex-col max-w-[737px]",
+                typeof subline !== "undefined"
+                  ? "justify-between"
+                  : "justify-start gap-1"
+              )}
+            >
+              {info}
+              {headline}
+              <div className="hidden @sm:block">{subline}</div>
+            </div>
+            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+              {control}
+            </div>
+          </div>
+          {flag}
+        </div>
+      </li>
+    );
   }
 
   return (
-    <Link
-      to={to}
-      className={classNames(
-        classes,
-        "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
-      )}
-      prefetch="intent"
-    >
-      <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
-        <div className="w-36 h-full">{image}</div>
-      </div>
-      <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
-        <div
-          className={classNames(
-            "flex flex-col max-w-[737px]",
-            typeof subline !== "undefined"
-              ? "justify-between"
-              : "justify-start gap-1"
-          )}
-        >
-          {info}
-          {headline}
-          <div className="hidden @sm:block">{subline}</div>
+    <li className={hideClasses}>
+      <Link
+        to={to}
+        className={classNames(
+          classes,
+          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50"
+        )}
+        prefetch="intent"
+      >
+        <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
+          <div className="w-36 h-[96px] rounded-l-[7px] overflow-hidden">
+            {image}
+          </div>
         </div>
-        <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
-          {control}
+        <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
+          <div
+            className={classNames(
+              "flex flex-col max-w-[737px]",
+              typeof subline !== "undefined"
+                ? "justify-between"
+                : "justify-start gap-1"
+            )}
+          >
+            {info}
+            {headline}
+            <div className="hidden @sm:block">{subline}</div>
+          </div>
+          <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+            {control}
+          </div>
         </div>
-      </div>
-      {flag}
-    </Link>
+        {flag}
+      </Link>
+    </li>
   );
 }
 
@@ -169,7 +204,7 @@ function ListItemFlag(props: {
   locales: { draft: string; canceled: string };
 }) {
   const classes = classNames(
-    "flex font-semibold items-center ml-auto border-r-8 pr-4 py-6"
+    "flex font-semibold items-center ml-auto border-r-8 pr-4 h-[123px] @sm:h-24 rounded-r-[7px]"
   );
 
   if (props.canceled) {

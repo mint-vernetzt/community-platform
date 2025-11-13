@@ -166,6 +166,13 @@ function List(props: {
     multiColumnAt === "xl" && "@xl:grid-cols-2"
   );
 
+  const showMoreClasses = classNames(
+    "w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center",
+    multiColumnAt === "md" && "@md:col-span-2",
+    multiColumnAt === "lg" && "@lg:col-span-2",
+    multiColumnAt === "xl" && "@xl:col-span-2"
+  );
+
   const search = Children.toArray(children).find((child) => {
     return isValidElement(child) && child.type === Search;
   });
@@ -181,10 +188,7 @@ function List(props: {
         {otherChildren}
         {typeof hideAfter !== "undefined" &&
         otherChildren.length > hideAfter ? (
-          <div
-            key={`show-more-${id}-container`}
-            className="@md:col-span-2 w-full flex justify-center pt-2 text-sm text-neutral-600 font-semibold leading-5 justify-self-center"
-          >
+          <div key={`show-more-${id}-container`} className={showMoreClasses}>
             <label
               htmlFor={`show-more-${id}`}
               className="flex gap-2 cursor-pointer w-fit"
