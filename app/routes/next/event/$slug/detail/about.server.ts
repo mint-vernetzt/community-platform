@@ -89,6 +89,7 @@ export async function getEventBySlug(options: {
     where: { slug },
     select: {
       id: true,
+      slug: true,
       types: {
         select: {
           eventType: {
@@ -205,6 +206,7 @@ export async function getEventBySlug(options: {
               title: true,
               credits: true,
               mimeType: true,
+              path: true,
             },
           },
         },

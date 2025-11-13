@@ -20,6 +20,7 @@ export const locale = {
   },
   documents: {
     label: "Material",
+    download: "Herunterladen",
   },
   speakers: {
     headline: "Speaker:innen",

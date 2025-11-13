@@ -251,8 +251,7 @@ function About() {
                       : "image"
                   }
                 >
-                  {relation.document.mimeType !== "application/pdf" ? (
-                    // TODO: Check if image is positioned correctly
+                  {/* {relation.document.mimeType !== "application/pdf" ? (
                     <ListItemMaterial.Image
                       alt={
                         relation.document.title || relation.document.filename
@@ -260,7 +259,7 @@ function About() {
                       src="TODO:"
                       blurredSrc="TODO:"
                     />
-                  ) : null}
+                  ) : null} */}
                   <ListItemMaterial.Headline>
                     {relation.document.title || relation.document.filename}
                   </ListItemMaterial.Headline>
@@ -273,15 +272,16 @@ function About() {
                       ? `${Math.round(relation.document.sizeInMB * 1024)} KB)`
                       : `${Math.round(relation.document.sizeInMB)} MB)`}
                   </ListItemMaterial.HeadlineSuffix>
-
-                  {relation.document.mimeType !== "application/pdf" &&
-                  relation.document.credits !== null ? (
+                  {/* {relation.document.credits !== null && (
                     <ListItemMaterial.Subline>
                       © {relation.document.credits}
                     </ListItemMaterial.Subline>
-                  ) : null}
+                  )} */}
                   <ListItemMaterial.Controls>
-                    TODO: Circle Button for Download
+                    <ListItemMaterial.Controls.Download
+                      to={`/event/${event.slug}/documents-download?document_id=${relation.document.id}`}
+                      label={locales.route.documents.download}
+                    />
                   </ListItemMaterial.Controls>
                 </ListItemMaterial>
               );
