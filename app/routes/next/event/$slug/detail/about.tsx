@@ -166,33 +166,40 @@ function About() {
               <Tags as="address">{getFormattedAddress(event)}</Tags>
             </HeadlineAndTagsContainer>
           ) : null}
-          {event.conferenceLinkToBeAnnounced === true ? (
+          {event.conferenceLinkToBeAnnounced ? (
             <HeadlineAndTagsContainer>
               <HeadlineChipsAndTags as="h3">
                 {locales.route.conferenceLink.label}
               </HeadlineChipsAndTags>
               <Tags as="p">{locales.route.conferenceLink.toBeAnnounced}</Tags>
             </HeadlineAndTagsContainer>
-          ) : hasConferenceLink(event) ? (
-            <HeadlineAndTagsContainer>
-              <HeadlineChipsAndTags as="h3">
-                {locales.route.conferenceLink.label}
-              </HeadlineChipsAndTags>
-              <TextButton
-                as="link"
-                to={event.conferenceLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {event.conferenceLink}
-              </TextButton>
-              {hasConferenceCode(event) ? (
-                <Tags as="p">
-                  {locales.route.conferenceCode.label}: {event.conferenceCode}
-                </Tags>
-              ) : null}
-            </HeadlineAndTagsContainer>
-          ) : null}
+          ) : (
+            <>
+              {hasConferenceLink(event) && (
+                <HeadlineAndTagsContainer>
+                  <HeadlineChipsAndTags as="h3">
+                    {locales.route.conferenceLink.label}
+                  </HeadlineChipsAndTags>
+                  <TextButton
+                    as="link"
+                    to={event.conferenceLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {event.conferenceLink}
+                  </TextButton>
+                </HeadlineAndTagsContainer>
+              )}
+              {hasConferenceCode(event) && (
+                <HeadlineAndTagsContainer>
+                  <HeadlineChipsAndTags as="h3">
+                    {locales.route.conferenceCode.label}
+                  </HeadlineChipsAndTags>
+                  <Tags as="p">{event.conferenceCode}</Tags>
+                </HeadlineAndTagsContainer>
+              )}
+            </>
+          )}
           {hasEventTargetGroups(event) ? (
             <LabelAndChipsContainer>
               <h3 className="mb-0 text-neutral-600 text-xs font-semibold leading-4">
