@@ -67,6 +67,11 @@ export const locale = {
       hide: "Hide updates",
       show: "Show updates",
       entries: {
+        resources: {
+          headline: "Tools & Knowledge",
+          description: "Support for your STEM work",
+          linkDescription: "Discover resources now",
+        },
         mapView: {
           headline: "New feature",
           description:

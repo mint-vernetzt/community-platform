@@ -638,14 +638,14 @@ function getDataForUpdateTeasers() {
     };
   };
   const teaserData: AtLeastOne<UpdateTeaser> = {
+    resources: {
+      link: "/resources",
+      icon: "bar-chart",
+      external: false,
+    },
     mapView: {
       link: "/explore/organizations/map",
       icon: "globe",
-      external: false,
-    },
-    actionDays: {
-      link: "/event/5mintvernetztaktionstage-mcac3igi",
-      icon: "megaphone",
       external: false,
     },
   };
