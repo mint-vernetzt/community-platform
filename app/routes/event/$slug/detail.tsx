@@ -225,7 +225,7 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/$slug/detail"];
+  const locales = languageModuleMap[language]["event/$slug/detail"];
 
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,
@@ -402,7 +402,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/$slug/detail"];
+  const locales = languageModuleMap[language]["event/$slug/detail"];
 
   const eventId = await getEventIdBySlug(params.slug!);
   invariantResponse(eventId !== null, "event not found", { status: 404 });
@@ -595,7 +595,7 @@ function Detail() {
       {loaderData.event.parentEvent !== null ? (
         <BreadCrump>
           <BreadCrump.Link
-            to={`/next/event/${loaderData.event.parentEvent.slug}/detail/about`}
+            to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
             prefetch="intent"
           >
             {loaderData.event.parentEvent.name}

@@ -221,8 +221,20 @@ export default [
     "/event/:slug/documents-download",
     "./routes/event/$slug/documents-download.tsx"
   ),
-  route("/event/:slug/ics-download", "./routes/event/$slug/ics-download.tsx"),
   route("/event/:slug", "./routes/event/$slug/index.tsx"),
+  route("/event/:slug/detail", "./routes/event/$slug/detail.tsx", [
+    index("./routes/event/$slug/detail/index.tsx"),
+    route("/event/:slug/detail/about", "./routes/event/$slug/detail/about.tsx"),
+    route(
+      "/event/:slug/detail/participants",
+      "./routes/event/$slug/detail/participants.tsx"
+    ),
+    route(
+      "/event/:slug/detail/child-events",
+      "./routes/event/$slug/detail/child-events.tsx"
+    ),
+  ]),
+  route("/event/:slug/ics-download", "./routes/event/$slug/ics-download.tsx"),
   route("/event/:slug/settings", "./routes/event/$slug/settings.tsx", [
     index("./routes/event/$slug/settings/index.tsx"),
     route(
@@ -354,22 +366,6 @@ export default [
           "./routes/event/$slug/settings/waiting-list/remove-from-waiting-list.tsx"
         ),
       ]
-    ),
-  ]),
-  route("/next/event/:slug", "./routes/next/event/$slug/index.tsx"),
-  route("/next/event/:slug/detail", "./routes/next/event/$slug/detail.tsx", [
-    index("./routes/next/event/$slug/detail/index.tsx"),
-    route(
-      "/next/event/:slug/detail/about",
-      "./routes/next/event/$slug/detail/about.tsx"
-    ),
-    route(
-      "/next/event/:slug/detail/participants",
-      "./routes/next/event/$slug/detail/participants.tsx"
-    ),
-    route(
-      "/next/event/:slug/detail/child-events",
-      "./routes/next/event/$slug/detail/child-events.tsx"
     ),
   ]),
   route("/auth/confirm", "./routes/auth/confirm.tsx"),

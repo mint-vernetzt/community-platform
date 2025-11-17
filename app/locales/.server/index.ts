@@ -33,6 +33,10 @@ import { locale as deRequestConfirmation } from "./de/routes/auth/request-confir
 import { locale as deVerify } from "./de/routes/auth/verify";
 import { locale as deKeycloakCallback } from "./de/routes/auth/keycloak.callback";
 // event routes
+import { locale as deEventDetail } from "./de/routes/event/$slug/detail";
+import { locale as deAboutEvent } from "./de/routes/event/$slug/detail/about";
+import { locale as deEventParticipants } from "./de/routes/event/$slug/detail/participants";
+import { locale as deChildEvents } from "./de/routes/event/$slug/detail/child-events";
 import { locale as deAddEventAdmin } from "./de/routes/event/$slug/settings/admins/add-admin";
 import { locale as deRemoveEventAdmin } from "./de/routes/event/$slug/settings/admins/remove-admin";
 import { locale as deAddChildEvent } from "./de/routes/event/$slug/settings/events/add-child";
@@ -58,19 +62,14 @@ import { locale as deEventDocuments } from "./de/routes/event/$slug/settings/doc
 import { locale as deConnectEventsWithEvent } from "./de/routes/event/$slug/settings/events";
 import { locale as deGeneralEventSettings } from "./de/routes/event/$slug/settings/general";
 import { locale as deResponsibleOrganizationsOfEvent } from "./de/routes/event/$slug/settings/organizations";
-import { locale as deEventParticipants } from "./de/routes/event/$slug/settings/participants";
+import { locale as deEventSettingsParticipants } from "./de/routes/event/$slug/settings/participants";
 import { locale as deAddSpeakersToEvent } from "./de/routes/event/$slug/settings/speakers";
 import { locale as deEventTeam } from "./de/routes/event/$slug/settings/team";
 import { locale as deEventWaitingList } from "./de/routes/event/$slug/settings/waiting-list";
 import { locale as deDownloadEventDocuments } from "./de/routes/event/$slug/documents-download";
-import { locale as deEventDetail } from "./de/routes/event/$slug/index";
 import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
-// next event routes
-import { locale as deNextEventDetail } from "./de/routes/next/event/$slug/detail";
-import { locale as deNextAboutEvent } from "./de/routes/next/event/$slug/detail/about";
-import { locale as deNextEventParticipants } from "./de/routes/next/event/$slug/detail/participants";
-import { locale as deChildEvents } from "./de/routes/next/event/$slug/detail/child-events";
+
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -202,6 +201,10 @@ import { locale as enRequestConfirmation } from "./en/routes/auth/request-confir
 import { locale as enVerify } from "./en/routes/auth/verify";
 import { locale as enKeycloakCallback } from "./en/routes/auth/keycloak.callback";
 // event routes
+import { locale as enEventDetail } from "./en/routes/event/$slug/detail";
+import { locale as enAboutEvent } from "./en/routes/event/$slug/detail/about";
+import { locale as enEventParticipants } from "./en/routes/event/$slug/detail/participants";
+import { locale as enChildEvents } from "./en/routes/event/$slug/detail/child-events";
 import { locale as enAddEventAdmin } from "./en/routes/event/$slug/settings/admins/add-admin";
 import { locale as enRemoveEventAdmin } from "./en/routes/event/$slug/settings/admins/remove-admin";
 import { locale as enAddChildEvent } from "./en/routes/event/$slug/settings/events/add-child";
@@ -227,19 +230,13 @@ import { locale as enEventDocuments } from "./en/routes/event/$slug/settings/doc
 import { locale as enConnectEventsWithEvent } from "./en/routes/event/$slug/settings/events";
 import { locale as enGeneralEventSettings } from "./en/routes/event/$slug/settings/general";
 import { locale as enResponsibleOrganizationsOfEvent } from "./en/routes/event/$slug/settings/organizations";
-import { locale as enEventParticipants } from "./en/routes/event/$slug/settings/participants";
+import { locale as enEventSettingsParticipants } from "./en/routes/event/$slug/settings/participants";
 import { locale as enAddSpeakersToEvent } from "./en/routes/event/$slug/settings/speakers";
 import { locale as enEventTeam } from "./en/routes/event/$slug/settings/team";
 import { locale as enEventWaitingList } from "./en/routes/event/$slug/settings/waiting-list";
 import { locale as enDownloadEventDocuments } from "./en/routes/event/$slug/documents-download";
-import { locale as enEventDetail } from "./en/routes/event/$slug/index";
 import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
-// next event routes
-import { locale as enNextEventDetail } from "./en/routes/next/event/$slug/detail";
-import { locale as enNextAboutEvent } from "./en/routes/next/event/$slug/detail/about";
-import { locale as enNextEventParticipants } from "./en/routes/next/event/$slug/detail/participants";
-import { locale as enChildEvents } from "./en/routes/next/event/$slug/detail/child-events";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -419,7 +416,7 @@ const de = {
     stages: deStages,
   },
   "event/$slug/settings/participants": {
-    route: deEventParticipants,
+    route: deEventSettingsParticipants,
     organizationTypes: deOrganizationTypes,
     stages: deStages,
   },
@@ -439,33 +436,15 @@ const de = {
     stages: deStages,
   },
   "event/$slug/documents-download": deDownloadEventDocuments,
-  "event/$slug/index": {
-    route: deEventDetail,
-    addParticipant: deAddParticipantToEvent,
-    removeParticipant: deRemoveParticipantFromEvent,
-    addToWaitingList: deAddProfileToEventWaitingList,
-    removeFromWaitingList: deRemoveProfileFromEventWaitingList,
-    stages: deStages,
-    experienceLevels: deExperienceLevels,
-    focuses: deFocuses,
-    eventTypes: deEventTypes,
-    eventTargetGroups: deEventTargetGroups,
-    tags: deTags,
-    eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
-    organizationTypes: deOrganizationTypes,
-    imageCropper: deImageCropper,
-    upload: deUpload,
-  },
   "event/$slug/settings": deEventSettings,
   "event/create": deCreateEvent,
-  // next event routes
-  "next/event/$slug/detail": {
-    route: deNextEventDetail,
+  "event/$slug/detail": {
+    route: deEventDetail,
     stages: deStages,
     eventAbuseReportReasonSuggestions: deEventAbuseReportReasonSuggestions,
   },
-  "next/event/$slug/detail/about": {
-    route: deNextAboutEvent,
+  "event/$slug/detail/about": {
+    route: deAboutEvent,
     experienceLevels: deExperienceLevels,
     focuses: deFocuses,
     eventTypes: deEventTypes,
@@ -474,10 +453,10 @@ const de = {
     networkTypes: deNetworkTypes,
     organizationTypes: deOrganizationTypes,
   },
-  "next/event/$slug/detail/participants": {
-    route: deNextEventParticipants,
+  "event/$slug/detail/participants": {
+    route: deEventParticipants,
   },
-  "next/event/$slug/detail/child-events": {
+  "event/$slug/detail/child-events": {
     route: deChildEvents,
     stages: deStages,
   },
@@ -851,7 +830,7 @@ const en = {
     stages: enStages,
   },
   "event/$slug/settings/participants": {
-    route: enEventParticipants,
+    route: enEventSettingsParticipants,
     stages: enStages,
     organizationTypes: enOrganizationTypes,
   },
@@ -871,33 +850,15 @@ const en = {
     stages: enStages,
   },
   "event/$slug/documents-download": enDownloadEventDocuments,
-  "event/$slug/index": {
-    route: enEventDetail,
-    addParticipant: enAddParticipantToEvent,
-    removeParticipant: enRemoveParticipantFromEvent,
-    addToWaitingList: enAddProfileToEventWaitingList,
-    removeFromWaitingList: enRemoveProfileFromEventWaitingList,
-    stages: enStages,
-    experienceLevels: enExperienceLevels,
-    focuses: enFocuses,
-    eventTypes: enEventTypes,
-    eventTargetGroups: enEventTargetGroups,
-    tags: enTags,
-    eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
-    organizationTypes: enOrganizationTypes,
-    imageCropper: enImageCropper,
-    upload: enUpload,
-  },
   "event/$slug/settings": enEventSettings,
   "event/create": enCreateEvent,
-  // next event routes
-  "next/event/$slug/detail": {
-    route: enNextEventDetail,
+  "event/$slug/detail": {
+    route: enEventDetail,
     stages: enStages,
     eventAbuseReportReasonSuggestions: enEventAbuseReportReasonSuggestions,
   },
-  "next/event/$slug/detail/about": {
-    route: enNextAboutEvent,
+  "event/$slug/detail/about": {
+    route: enAboutEvent,
     experienceLevels: enExperienceLevels,
     focuses: enFocuses,
     eventTypes: enEventTypes,
@@ -906,10 +867,10 @@ const en = {
     networkTypes: enNetworkTypes,
     organizationTypes: enOrganizationTypes,
   },
-  "next/event/$slug/detail/participants": {
-    route: enNextEventParticipants,
+  "event/$slug/detail/participants": {
+    route: enEventParticipants,
   },
-  "next/event/$slug/detail/child-events": {
+  "event/$slug/detail/child-events": {
     route: enChildEvents,
     stages: enStages,
   },

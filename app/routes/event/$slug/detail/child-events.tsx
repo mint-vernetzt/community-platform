@@ -41,7 +41,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/detail/child-events"];
+    languageModuleMap[language]["event/$slug/detail/child-events"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -91,7 +91,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/detail/child-events"];
+    languageModuleMap[language]["event/$slug/detail/child-events"];
 
   const submission = await parseWithZod(formData, {
     schema: getParticipationSchema({

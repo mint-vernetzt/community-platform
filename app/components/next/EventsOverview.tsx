@@ -25,7 +25,7 @@ import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   REPORT_REASON_MAX_LENGTH,
-} from "~/routes/next/event/$slug/details.shared";
+} from "~/routes/event/$slug/details.shared";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refactor?
 import { useHydrated } from "remix-utils/use-hydrated";
 import ImageCropper, {
@@ -86,7 +86,7 @@ function ResponsibleOrganizations(props: {
   }>;
   locales: (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
-  >]["next/event/$slug/detail"];
+  >]["event/$slug/detail"];
 }) {
   const { organizations, locales } = props;
 
@@ -258,13 +258,13 @@ function Stage(props: {
   stage:
     | keyof (typeof languageModuleMap)[ArrayElement<
         typeof SUPPORTED_COOKIE_LANGUAGES
-      >]["next/event/$slug/detail"]["stages"]
+      >]["event/$slug/detail"]["stages"]
     | null;
   conferenceLinkToBeAnnounced: boolean;
   conferenceLink: string | null;
   locales: (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
-  >]["next/event/$slug/detail"];
+  >]["event/$slug/detail"];
 }) {
   const { stage, conferenceLinkToBeAnnounced, conferenceLink, slug } = props;
   if (stage === null) {
@@ -314,7 +314,7 @@ function Stage(props: {
     if (props.conferenceLinkToBeAnnounced === true || conferenceLink !== null) {
       return (
         <Link
-          to={`/next/event/${slug}/detail/about#address-and-conference-link`}
+          to={`/event/${slug}/detail/about#address-and-conference-link`}
           className={containerClasses}
         >
           {children}
@@ -502,7 +502,7 @@ function FreeSeats(props: {
   participantsCount: number;
   locales: (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
-  >]["next/event/$slug/detail"];
+  >]["event/$slug/detail"];
 }) {
   const { participantLimit, participantsCount, locales } = props;
 
