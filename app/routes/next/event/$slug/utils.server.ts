@@ -31,9 +31,10 @@ export async function filterEventConferenceLink(options: {
     (stageSlug) => event.stage !== null && event.stage.slug === stageSlug
   );
   const allowedToSeeConferenceLink =
-    (isMember === true || mode === "participating") &&
-    inPast === false &&
-    event.canceled === false &&
+    (isMember === true ||
+      (mode === "participating" &&
+        inPast === false &&
+        event.canceled === false)) &&
     isOnlineEvent === true;
 
   let conferenceLink = event.conferenceLink;
