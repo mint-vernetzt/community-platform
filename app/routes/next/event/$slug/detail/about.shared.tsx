@@ -66,6 +66,26 @@ export function hasDescription(event: {
   );
 }
 
+export function hasConferenceLink(event: {
+  conferenceLink: string | null;
+}): event is { conferenceLink: string } {
+  return (
+    event.conferenceLink !== null &&
+    event.conferenceLink.trim() !== "" &&
+    event.conferenceLink.trim() !== "<p></p>"
+  );
+}
+
+export function hasConferenceCode(event: {
+  conferenceCode: string | null;
+}): event is { conferenceCode: string } {
+  return (
+    event.conferenceCode !== null &&
+    event.conferenceCode.trim() !== "" &&
+    event.conferenceCode.trim() !== "<p></p>"
+  );
+}
+
 export function hasGeneralInfo(event: {
   venueName: string | null;
   venueStreet: string | null;
@@ -74,6 +94,9 @@ export function hasGeneralInfo(event: {
   venueCity: string | null;
   eventTargetGroups: unknown[];
   focuses: unknown[];
+  conferenceLink: string | null;
+  conferenceCode: string | null;
+  conferenceLinkToBeAnnounced: boolean;
   experienceLevel: {
     slug: string;
   } | null;
@@ -84,7 +107,9 @@ export function hasGeneralInfo(event: {
     hasEventTargetGroups(event) ||
     hasFocuses(event) ||
     hasExperienceLevel(event) ||
-    hasTags(event)
+    hasTags(event) ||
+    hasConferenceLink(event) ||
+    event.conferenceLinkToBeAnnounced === true
   );
 }
 

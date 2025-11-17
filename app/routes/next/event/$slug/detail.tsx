@@ -62,6 +62,7 @@ import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { getFullDepthParticipantIds } from "./detail/participants.server";
+import { filterEventConferenceLink } from "./utils.server";
 
 export function links() {
   return [
@@ -338,6 +339,14 @@ export async function loader(args: LoaderFunctionArgs) {
     participantsCount = event._count.participants;
   }
 
+  const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
+    await filterEventConferenceLink({
+      event,
+      mode,
+      isMember,
+      inPast,
+    });
+
   const enhancedEvent = {
     ...event,
     startTime,
@@ -347,6 +356,9 @@ export async function loader(args: LoaderFunctionArgs) {
     background,
     blurredBackground,
     responsibleOrganizations,
+    conferenceLink,
+    conferenceCode,
+    conferenceLinkToBeAnnounced,
     _count: {
       ...event._count,
       participants: participantsCount,
@@ -690,6 +702,10 @@ function Detail() {
                 stage={
                   loaderData.event.stage
                     .slug as keyof typeof loaderData.locales.stages
+                }
+                conferenceLink={loaderData.event.conferenceLink}
+                conferenceLinkToBeAnnounced={
+                  loaderData.event.conferenceLinkToBeAnnounced
                 }
                 locales={loaderData.locales}
               />

@@ -36,6 +36,8 @@ export async function getEventBySlug(slug: string) {
       participationUntil: true,
       published: true,
       canceled: true,
+      conferenceLink: true,
+      conferenceCode: true,
       stage: {
         select: {
           slug: true,
