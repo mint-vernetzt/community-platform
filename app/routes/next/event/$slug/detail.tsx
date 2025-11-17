@@ -688,6 +688,7 @@ function Detail() {
               locales={loaderData.locales}
             />
             <EventsOverview.PeriodOfTime
+              slug={loaderData.event.slug}
               startTime={loaderData.event.startTime}
               endTime={loaderData.event.endTime}
               language={loaderData.language}
