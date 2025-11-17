@@ -270,7 +270,7 @@ export async function getCoordinatesFromAddress(options: {
   if (street !== null) {
     searchParams.set("street", street);
   }
-  if (city !== null) {
+  if (city !== null && zipCode === null) {
     searchParams.set("city", city);
   }
   if (zipCode !== null) {
