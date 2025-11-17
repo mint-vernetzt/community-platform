@@ -328,7 +328,7 @@ function Stage(props: {
             />
           </svg>
         </div>
-        <div className="self-center text-neutral-700 flex flex-col">
+        <div className="self-center text-neutral-700 flex flex-col grow-1">
           <div className=" font-semibold line-clamp-1">
             {props.venueName !== null && props.venueName.trim() !== ""
               ? props.venueName
@@ -338,14 +338,52 @@ function Stage(props: {
             props.venueStreetNumber !== null &&
             props.venueZipCode !== null &&
             props.venueCity !== null && (
-              <>
-                <div className="font-normal line-clamp-1">
-                  {props.venueStreet} {props.venueStreetNumber},{" "}
-                  {props.venueZipCode} {props.venueCity}
-                </div>
-              </>
+              <div className="font-normal line-clamp-1">
+                {props.venueStreet} {props.venueStreetNumber},{" "}
+                {props.venueZipCode} {props.venueCity}
+              </div>
             )}
         </div>
+        {props.venueStreet !== null &&
+          props.venueStreetNumber !== null &&
+          props.venueZipCode !== null &&
+          props.venueCity !== null && (
+            <CircleButton
+              as="link"
+              variant="ghost"
+              target="_blank"
+              rel="noopener noreferrer"
+              to={`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${props.venueStreet} ${props.venueStreetNumber} ${props.venueZipCode} ${props.venueCity}`)}`}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8.47727 4.625C8.47727 4.41789 8.30938 4.25 8.10227 4.25H3.125C2.50368 4.25 2 4.75368 2 5.375V12.875C2 13.4963 2.50368 14 3.125 14H10.625C11.2463 14 11.75 13.4963 11.75 12.875V7.89773C11.75 7.69062 11.5821 7.52273 11.375 7.52273C11.1679 7.52273 11 7.69062 11 7.89773V12.875C11 13.0821 10.8321 13.25 10.625 13.25H3.125C2.91789 13.25 2.75 13.0821 2.75 12.875V5.375C2.75 5.16789 2.91789 5 3.125 5H8.10227C8.30938 5 8.47727 4.83211 8.47727 4.625Z"
+                  fill="currentColor"
+                  stroke="currentColor"
+                  strokeWidth="0.3"
+                  strokeLinecap="round"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M14 2.375C14 2.16789 13.8321 2 13.625 2H9.875C9.66789 2 9.5 2.16789 9.5 2.375C9.5 2.58211 9.66789 2.75 9.875 2.75H12.7197L6.60983 8.85983C6.46339 9.00628 6.46339 9.24372 6.60983 9.39017C6.75628 9.53661 6.99372 9.53661 7.14017 9.39017L13.25 3.28033V6.125C13.25 6.33211 13.4179 6.5 13.625 6.5C13.8321 6.5 14 6.33211 14 6.125V2.375Z"
+                  fill="currentColor"
+                  stroke="currentColor"
+                  strokeWidth="0.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </CircleButton>
+          )}
       </>
     );
     if (
