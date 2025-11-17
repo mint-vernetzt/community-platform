@@ -249,6 +249,7 @@ function PeriodOfTime(props: {
 }
 
 function Stage(props: {
+  slug: string;
   venueName: string | null;
   venueStreet: string | null;
   venueStreetNumber: string | null;
@@ -265,7 +266,7 @@ function Stage(props: {
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["next/event/$slug/detail"];
 }) {
-  const { stage, conferenceLinkToBeAnnounced, conferenceLink } = props;
+  const { stage, conferenceLinkToBeAnnounced, conferenceLink, slug } = props;
   if (stage === null) {
     return null;
   }
@@ -312,7 +313,10 @@ function Stage(props: {
     );
     if (props.conferenceLinkToBeAnnounced === true || conferenceLink !== null) {
       return (
-        <Link to="#address-and-conference-link" className={containerClasses}>
+        <Link
+          to={`/next/event/${slug}/detail/about#address-and-conference-link`}
+          className={containerClasses}
+        >
           {children}
         </Link>
       );
