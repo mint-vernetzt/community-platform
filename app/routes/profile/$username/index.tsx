@@ -1102,7 +1102,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -1251,7 +1251,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -1292,7 +1292,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -1425,7 +1425,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -1467,7 +1467,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -1595,7 +1595,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -1636,7 +1636,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -1759,7 +1759,7 @@ export default function Index() {
                               !event.canceled ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -1808,7 +1808,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -1899,7 +1899,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -1938,7 +1938,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -2014,7 +2014,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -2053,7 +2053,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -2126,7 +2126,7 @@ export default function Index() {
                                 !event.canceled) ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >
@@ -2167,7 +2167,7 @@ export default function Index() {
                             >
                               <Link
                                 className="flex"
-                                to={`/event/${event.slug}`}
+                                to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
                                 <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
@@ -2238,7 +2238,7 @@ export default function Index() {
                               !event.canceled ? (
                                 <div className="flex items-center ml-auto pr-4 py-6">
                                   <Link
-                                    to={`/event/${event.slug}`}
+                                    to={`/event/${event.slug}/detail/about`}
                                     className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
                                     prefetch="intent"
                                   >

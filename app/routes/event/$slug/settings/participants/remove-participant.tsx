@@ -12,7 +12,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { disconnectParticipantFromEvent, getEventBySlug } from "./utils.server";
-import { type EventDetailLocales } from "../../index.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
@@ -58,7 +57,7 @@ type RemoveParticipantFormProps = {
   action: string;
   profileId?: string;
   modalSearchParam?: string;
-  locales: EventDetailLocales | ProfileDetailLocales;
+  locales: { removeParticipant: { action: string } } | ProfileDetailLocales;
 };
 
 export function RemoveParticipantForm(props: RemoveParticipantFormProps) {

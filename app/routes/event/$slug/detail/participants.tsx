@@ -24,7 +24,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/detail/participants"];
+    languageModuleMap[language]["event/$slug/detail/participants"];
 
   if (sessionUser === null) {
     return redirect(`/login?login_redirect=${encodeURIComponent(request.url)}`);

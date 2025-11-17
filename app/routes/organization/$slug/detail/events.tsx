@@ -67,7 +67,7 @@ function Network() {
               return (
                 <EventListItem
                   key={`future-event-${relation.event.slug}`}
-                  to={`/event/${relation.event.slug}`}
+                  to={`/event/${relation.event.slug}/detail/about`}
                   listIndex={index}
                   prefetch="intent"
                 >
@@ -97,7 +97,7 @@ function Network() {
               return (
                 <EventListItem
                   key={`past-event-${relation.event.slug}`}
-                  to={`/event/${relation.event.slug}`}
+                  to={`/event/${relation.event.slug}/detail/about`}
                   listIndex={index}
                   hideAfter={3}
                   prefetch="intent"

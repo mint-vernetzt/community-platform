@@ -161,7 +161,7 @@ test("Create event abuse report", async () => {
     reporterId: "some-reporter-id",
     slug: "some-reported-event-slug",
     reasons: ["Some reason", "Another reason"],
-    locales: languageModuleMap.en["event/$slug/index"],
+    locales: languageModuleMap.en["event/$slug/detail"].route.abuseReport,
   });
 
   expect(prismaClient.event.update).toHaveBeenCalledWith({

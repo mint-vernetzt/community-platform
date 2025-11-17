@@ -316,7 +316,7 @@ function Events() {
                   <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden">
                     <Link
                       className="flex"
-                      to={`/event/${loaderData.parentEvent.slug}`}
+                      to={`/event/${loaderData.parentEvent.slug}/detail/about`}
                       prefetch="intent"
                     >
                       <div className="hidden @xl:block w-40 shrink-0">
@@ -532,7 +532,7 @@ function Events() {
                       <div className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden">
                         <Link
                           className="flex"
-                          to={`/event/${childEvent.slug}`}
+                          to={`/event/${childEvent.slug}/detail/about`}
                           prefetch="intent"
                         >
                           <div className="hidden @xl:block w-40 shrink-0">

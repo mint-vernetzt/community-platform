@@ -1,8 +1,8 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import {
-  type ActionFunctionArgs,
   redirect,
   useLoaderData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
 import { z } from "zod";
@@ -14,7 +14,6 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   addProfileToParticipants,
@@ -41,7 +40,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/detail/child-events"];
+    languageModuleMap[language]["event/$slug/detail/child-events"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -67,11 +66,6 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
   }
 
-  const abilities = await getFeatureAbilities(authClient, "next_event");
-  if (abilities.next_event.hasAccess === false) {
-    return redirect("/");
-  }
-
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,
   });
@@ -91,7 +85,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const language = await detectLanguage(request);
   const locales =
-    languageModuleMap[language]["next/event/$slug/detail/child-events"];
+    languageModuleMap[language]["event/$slug/detail/child-events"];
 
   const submission = await parseWithZod(formData, {
     schema: getParticipationSchema({
@@ -159,7 +153,7 @@ function ChildEvents() {
             <ListItemEvent
               key={event.id}
               index={index}
-              to={`/event/${event.slug}`}
+              to={`/event/${event.slug}/detail/about`}
             >
               <ListItemEvent.Image
                 alt={event.name}

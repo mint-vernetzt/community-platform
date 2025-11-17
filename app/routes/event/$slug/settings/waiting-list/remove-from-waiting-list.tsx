@@ -1,22 +1,20 @@
+import { makeDomainFunction } from "domain-functions";
 import type { ActionFunctionArgs } from "react-router";
 import { useFetcher } from "react-router";
-import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { RemixFormsForm } from "~/components/legacy/RemixFormsForm/RemixFormsForm";
 import { detectLanguage } from "~/i18n.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   disconnectFromWaitingListOfEvent,
   getEventBySlug,
 } from "./utils.server";
-import { type EventDetailLocales } from "../../index.server";
-import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
 
 const schema = z.object({
   profileId: z.string().trim().uuid(),
@@ -59,7 +57,11 @@ export const action = async (args: ActionFunctionArgs) => {
 type RemoveFromWaitingListButtonProps = {
   action: string;
   profileId?: string;
-  locales: EventDetailLocales | ProfileDetailLocales;
+  locales: {
+    removeFromWaitingList: {
+      action: string;
+    };
+  };
 };
 
 export function RemoveFromWaitingListButton(

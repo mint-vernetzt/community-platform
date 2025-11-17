@@ -59,7 +59,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const sessionUser = await getSessionUser(authClient);
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/$slug/detail/about"];
+  const locales = languageModuleMap[language]["event/$slug/detail/about"];
 
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,

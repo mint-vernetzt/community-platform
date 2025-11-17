@@ -12,7 +12,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
-import { type EventDetailLocales } from "../../index.server";
 import { getProfileById } from "../utils.server";
 import { type AddEventParticipantLocales } from "./add-participant.server";
 import { connectParticipantToEvent, getEventBySlug } from "./utils.server";
@@ -98,7 +97,7 @@ export const action = async (args: ActionFunctionArgs) => {
 type AddParticipantButtonProps = {
   action: string;
   profileId?: string;
-  locales: EventDetailLocales | ProfileDetailLocales;
+  locales: { addParticipant: { action: string } } | ProfileDetailLocales;
 };
 
 export function AddParticipantButton(props: AddParticipantButtonProps) {

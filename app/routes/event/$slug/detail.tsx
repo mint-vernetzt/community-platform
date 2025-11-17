@@ -16,10 +16,7 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/routes/feature-access.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
@@ -56,11 +53,11 @@ import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
 
@@ -219,13 +216,8 @@ export async function loader(args: LoaderFunctionArgs) {
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
-  const abilities = await getFeatureAbilities(authClient, "next_event");
-  if (abilities.next_event.hasAccess === false) {
-    return redirect("/");
-  }
-
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/$slug/detail"];
+  const locales = languageModuleMap[language]["event/$slug/detail"];
 
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,
@@ -392,17 +384,12 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(`/login?login_redirect=${encodeURIComponent(pathname)}`);
   }
 
-  const abilities = await getFeatureAbilities(authClient, "next_event");
-  if (abilities.next_event.hasAccess === false) {
-    return redirect("/");
-  }
-
   invariantResponse(typeof params.slug !== "undefined", "slug not found", {
     status: 400,
   });
 
   const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/$slug/detail"];
+  const locales = languageModuleMap[language]["event/$slug/detail"];
 
   const eventId = await getEventIdBySlug(params.slug!);
   invariantResponse(eventId !== null, "event not found", { status: 404 });
@@ -595,7 +582,7 @@ function Detail() {
       {loaderData.event.parentEvent !== null ? (
         <BreadCrump>
           <BreadCrump.Link
-            to={`/next/event/${loaderData.event.parentEvent.slug}/detail/about`}
+            to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
             prefetch="intent"
           >
             {loaderData.event.parentEvent.name}

@@ -191,7 +191,7 @@ function MyEvents() {
               return (
                 <EventListItem
                   key={`canceled-${event.slug}`}
-                  to={`/event/${event.slug}`}
+                  to={`/event/${event.slug}/detail/about`}
                   listIndex={index}
                   prefetch="intent"
                 >
@@ -275,7 +275,7 @@ function MyEvents() {
                 return (
                   <EventListItem
                     key={`upcoming-${event.slug}`}
-                    to={`/event/${event.slug}`}
+                    to={`/event/${event.slug}/detail/about`}
                     listIndex={index}
                     hideAfter={3}
                     prefetch="intent"
@@ -355,7 +355,7 @@ function MyEvents() {
                 return (
                   <EventListItem
                     key={`past-${event.slug}`}
-                    to={`/event/${event.slug}`}
+                    to={`/event/${event.slug}/detail/about`}
                     listIndex={index}
                     hideAfter={3}
                     prefetch="intent"

@@ -6,7 +6,6 @@ import {
   mailerOptions,
 } from "./mailer.server";
 import { prismaClient } from "./prisma.server";
-import { type EventDetailLocales } from "./routes/event/$slug/index.server";
 import { type OrganizationDetailLocales } from "./routes/organization/$slug/detail.server";
 import { type ProfileDetailLocales } from "./routes/profile/$username/index.server";
 import { type ProjectDetailLocales } from "./routes/project/$slug/detail.server";
@@ -110,16 +109,17 @@ export async function createEventAbuseReport(options: {
   reporterId: string;
   slug: string;
   reasons: string[];
-  locales: EventDetailLocales;
+  locales: {
+    email: {
+      subject: string;
+    };
+  };
 }) {
   const reporter = await getReporter(options.reporterId);
-  const title = insertParametersIntoLocale(
-    options.locales.route.abuseReport.email.subject,
-    {
-      username: reporter.username,
-      slug: options.slug,
-    }
-  );
+  const title = insertParametersIntoLocale(options.locales.email.subject, {
+    username: reporter.username,
+    slug: options.slug,
+  });
   await prismaClient.event.update({
     data: {
       abuseReports: {
