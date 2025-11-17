@@ -67,6 +67,11 @@ export const locale = {
       hide: "Updates ausblenden",
       show: "Updates einblenden",
       entries: {
+        resources: {
+          headline: "Tools & Wissen",
+          description: "Unterstützung für Deine MINT-Arbeit",
+          linkDescription: "Jetzt Ressourcen entdecken",
+        },
         mapView: {
           headline: "Neues Feature",
           description:
