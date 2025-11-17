@@ -150,7 +150,7 @@ function EventCard(
   };
 
   return (
-    <Card to={`/event/${event.slug}`} prefetch={prefetch}>
+    <Card to={`/event/${event.slug}/detail/about`} prefetch={prefetch}>
       <CardHeader cardType="event">
         {event.background && (
           <Image

@@ -316,6 +316,7 @@ function Stage(props: {
         <Link
           to={`/event/${slug}/detail/about#address-and-conference-link`}
           className={containerClasses}
+          prefetch="intent"
         >
           {children}
         </Link>
@@ -414,22 +415,12 @@ function Stage(props: {
           )}
       </>
     );
-    if (
-      props.conferenceLinkToBeAnnounced === true ||
-      props.conferenceLink !== null
-    ) {
-      return (
-        <Link to="#address-and-conference-link" className={containerClasses}>
-          {children}
-        </Link>
-      );
-    }
     return <div className={containerClasses}>{children}</div>;
   }
 
   if (stage === "hybrid") {
-    return (
-      <Link to="#address-and-conference-link" className={containerClasses}>
+    const children = (
+      <>
         <div className={`${iconClasses} gap-[0.0625rem]`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -490,8 +481,27 @@ function Stage(props: {
               </>
             )}
         </div>
-      </Link>
+      </>
     );
+    if (
+      props.conferenceLinkToBeAnnounced === true ||
+      conferenceLink !== null ||
+      (props.venueStreet !== null &&
+        props.venueStreetNumber !== null &&
+        props.venueZipCode !== null &&
+        props.venueCity !== null)
+    ) {
+      return (
+        <Link
+          to={`/event/${slug}/detail/about#address-and-conference-link`}
+          className={containerClasses}
+          prefetch="intent"
+        >
+          {children}
+        </Link>
+      );
+    }
+    return <div className={containerClasses}>{children}</div>;
   }
 
   return null;
@@ -950,7 +960,12 @@ function AbuseReportModal(props: {
 
 function Edit(props: { children: React.ReactNode; slug: string }) {
   return (
-    <Button as="link" to={`/event/${props.slug}/settings`} fullSize>
+    <Button
+      as="link"
+      to={`/event/${props.slug}/settings/general`}
+      prefetch="intent"
+      fullSize
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -974,6 +989,7 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
       as="link"
       to={`/login?login_redirect=${encodeURIComponent(props.pathname)}`}
       fullSize
+      prefetch="intent"
     >
       {props.children}
     </Button>

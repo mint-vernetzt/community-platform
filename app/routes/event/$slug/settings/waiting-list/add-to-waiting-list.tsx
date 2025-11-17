@@ -11,8 +11,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { type ProfileDetailLocales } from "~/routes/profile/$username/index.server";
-import { type EventDetailLocales } from "../../index.server";
 import { getProfileById } from "../utils.server";
 import { type AddProfileToEventWaitingListLocales } from "./add-to-waiting-list.server";
 import { connectToWaitingListOfEvent, getEventBySlug } from "./utils.server";
@@ -104,7 +102,11 @@ export const action = async (args: ActionFunctionArgs) => {
 type AddToWaitingListButtonProps = {
   action: string;
   profileId?: string;
-  locales: EventDetailLocales | ProfileDetailLocales;
+  locales: {
+    addToWaitingList: {
+      action: string;
+    };
+  };
 };
 
 export function AddToWaitingListButton(props: AddToWaitingListButtonProps) {

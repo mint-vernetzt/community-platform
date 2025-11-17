@@ -2,7 +2,8 @@ import { stages } from "prisma/scripts/import-datasets/data/stages";
 import { prismaClient } from "~/prisma.server";
 import { type deriveModeForEvent } from "./detail.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { Prisma, type Profile } from "@prisma/client";
+import { Prisma, type Profile, type Event } from "@prisma/client";
+import { type ArrayElement } from "~/lib/utils/types";
 
 export function getChildEventCount(slug: string) {
   return prismaClient.event.count({
@@ -242,4 +243,26 @@ export async function getFullDepthProfiles(
     console.error({ error });
     invariantResponse(false, "Server Error", { status: 500 });
   }
+}
+
+// old
+export async function addUserParticipationStatus<
+  T extends {
+    event: Pick<Event, "id">;
+  }[],
+>(events: T, userId?: string) {
+  const result = await Promise.all(
+    events.map(async (item) => {
+      return {
+        event: {
+          ...item.event,
+          isParticipant: await getIsParticipant(item.event.id, userId),
+          isOnWaitingList: await getIsOnWaitingList(item.event.id, userId),
+          isTeamMember: await getIsTeamMember(item.event.id, userId),
+          isSpeaker: await getIsSpeaker(item.event.id, userId),
+        },
+      };
+    })
+  );
+  return result as Array<ArrayElement<T> & ArrayElement<typeof result>>;
 }

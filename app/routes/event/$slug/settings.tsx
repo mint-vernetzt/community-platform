@@ -45,7 +45,10 @@ function Settings() {
   return (
     <>
       <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
-        <BackButton to={`/event/${loaderData.slug}`} prefetch="intent">
+        <BackButton
+          to={`/event/${loaderData.slug}/detail/about`}
+          prefetch="intent"
+        >
           {locales.back}
         </BackButton>
       </section>

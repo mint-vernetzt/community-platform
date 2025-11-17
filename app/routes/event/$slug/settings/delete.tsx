@@ -142,7 +142,7 @@ function Delete() {
                   -{" "}
                   <Link
                     className="underline hover:no-underline"
-                    to={`/event/${childEvent.slug}`}
+                    to={`/event/${childEvent.slug}/detail/about`}
                     prefetch="intent"
                   >
                     {childEvent.name}
