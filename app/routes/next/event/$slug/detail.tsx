@@ -695,6 +695,7 @@ function Detail() {
             />
             {loaderData.event.stage !== null && (
               <EventsOverview.Stage
+                slug={loaderData.event.slug}
                 venueName={loaderData.event.venueName}
                 venueStreet={loaderData.event.venueStreet}
                 venueStreetNumber={loaderData.event.venueStreetNumber}
