@@ -289,7 +289,7 @@ function Stage(props: {
   );
 
   if (stage === "online") {
-    const childs = (
+    const children = (
       <>
         <div className={iconClasses}>
           <svg
@@ -313,15 +313,15 @@ function Stage(props: {
     if (props.conferenceLinkToBeAnnounced === true || conferenceLink !== null) {
       return (
         <Link to="#address-and-conference-link" className={containerClasses}>
-          {childs}
+          {children}
         </Link>
       );
     }
-    return <div className={containerClasses}>{childs}</div>;
+    return <div className={containerClasses}>{children}</div>;
   }
 
   if (stage === "on-site") {
-    const childs = (
+    const children = (
       <>
         <div className={iconClasses}>
           <svg
@@ -416,16 +416,16 @@ function Stage(props: {
     ) {
       return (
         <Link to="#address-and-conference-link" className={containerClasses}>
-          {childs}
+          {children}
         </Link>
       );
     }
-    return <div className={containerClasses}>{childs}</div>;
+    return <div className={containerClasses}>{children}</div>;
   }
 
   if (stage === "hybrid") {
     return (
-      <div className={containerClasses}>
+      <Link to="#address-and-conference-link" className={containerClasses}>
         <div className={`${iconClasses} gap-[0.0625rem]`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -486,7 +486,7 @@ function Stage(props: {
               </>
             )}
         </div>
-      </div>
+      </Link>
     );
   }
 
