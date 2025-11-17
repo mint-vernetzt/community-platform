@@ -134,6 +134,7 @@ function PeriodOfTime(props: {
   startTime: Date;
   endTime: Date;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
+  slug: string;
 }) {
   const { startTime, endTime } = props;
 
@@ -214,12 +215,35 @@ function PeriodOfTime(props: {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col self-center text-neutral-700">
+      <div className="flex flex-col self-center text-neutral-700 grow-1">
         <div className="font-semibold line-clamp-1">{dateDuration}</div>
         {isSameDay ? (
           <div className="font-normal line-clamp-1">{timeDuration}</div>
         ) : null}
       </div>
+      <CircleButton
+        as="link"
+        to={`/event/${props.slug}/ics-download`}
+        reloadDocument
+        variant="ghost"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+        >
+          <path
+            d="M0.625 12.375C0.970178 12.375 1.25 12.6549 1.25 13V16.125C1.25 16.8154 1.80964 17.375 2.5 17.375H17.5C18.1904 17.375 18.75 16.8154 18.75 16.125V13C18.75 12.6549 19.0298 12.375 19.375 12.375C19.7202 12.375 20 12.6549 20 13V16.125C20 17.5057 18.8807 18.625 17.5 18.625H2.5C1.11929 18.625 0 17.5057 0 16.125V13C0 12.6549 0.279822 12.375 0.625 12.375Z"
+            fill="currentColor"
+          />
+          <path
+            d="M9.55806 14.8169C9.80214 15.061 10.1979 15.061 10.4419 14.8169L14.1919 11.0669C14.436 10.8229 14.436 10.4271 14.1919 10.1831C13.9479 9.93898 13.5521 9.93898 13.3081 10.1831L10.625 12.8661V1.875C10.625 1.52982 10.3452 1.25 10 1.25C9.65482 1.25 9.375 1.52982 9.375 1.875V12.8661L6.69194 10.1831C6.44786 9.93898 6.05214 9.93898 5.80806 10.1831C5.56398 10.4271 5.56398 10.8229 5.80806 11.0669L9.55806 14.8169Z"
+            fill="currentColor"
+          />
+        </svg>
+      </CircleButton>
     </div>
   );
 }
