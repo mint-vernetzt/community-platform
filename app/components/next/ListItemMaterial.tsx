@@ -105,7 +105,7 @@ function ListItemHeadlineSuffix(props: { children: React.ReactNode }) {
   const { type } = useListItemMaterialContext();
 
   const classes = classNames(
-    "text-neutral-700 text-base font-normal leading-5 line-clamp-1",
+    "text-neutral-700 text-base font-normal leading-5 text-nowrap",
     type === "image" && "hidden sm:block"
   );
   return <div className={classes}>{props.children}</div>;
