@@ -32,6 +32,7 @@ import ImageCropper, {
   type ImageCropperLocales,
 } from "../legacy/ImageCropper/ImageCropper";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 // Design:
 // Name: Events_Overview
@@ -143,9 +144,21 @@ function PeriodOfTime(props: {
     startTime.getMonth() === endTime.getMonth() &&
     startTime.getDate() === endTime.getDate();
 
-  const dateDuration = getDateDuration(startTime, endTime, props.language);
+  const zonedStartTime = utcToZonedTime(startTime, "Europe/Berlin");
 
-  const timeDuration = getTimeDuration(startTime, endTime, props.language);
+  const zonedEndTime = utcToZonedTime(endTime, "Europe/Berlin");
+
+  const dateDuration = getDateDuration(
+    zonedStartTime,
+    zonedEndTime,
+    props.language
+  );
+
+  const timeDuration = getTimeDuration(
+    zonedStartTime,
+    zonedEndTime,
+    props.language
+  );
 
   return (
     <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg order-2">

@@ -32,8 +32,6 @@ import {
   reportEvent,
   uploadBackgroundImage,
 } from "./detail.server";
-
-import { utcToZonedTime } from "date-fns-tz";
 import { z } from "zod";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
@@ -226,22 +224,11 @@ export async function loader(args: LoaderFunctionArgs) {
 
   invariantResponse(event !== null, "event not found", { status: 404 });
 
-  const now = utcToZonedTime(new Date(), "Europe/Berlin");
+  const now = new Date();
 
-  const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-  const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-  const participationFrom = utcToZonedTime(
-    event.participationFrom,
-    "Europe/Berlin"
-  );
-  const participationUntil = utcToZonedTime(
-    event.participationUntil,
-    "Europe/Berlin"
-  );
-
-  const beforeParticipationPeriod = now < participationFrom;
-  const afterParticipationPeriod = now > participationUntil;
-  const inPast = now > endTime;
+  const beforeParticipationPeriod = now < event.participationFrom;
+  const afterParticipationPeriod = now > event.participationUntil;
+  const inPast = now > event.endTime;
 
   const mode = await deriveModeForEvent(sessionUser, {
     ...event,
@@ -340,10 +327,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const enhancedEvent = {
     ...event,
-    startTime,
-    endTime,
-    participationFrom,
-    participationUntil,
     background,
     blurredBackground,
     responsibleOrganizations,
