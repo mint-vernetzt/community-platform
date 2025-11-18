@@ -749,19 +749,20 @@ function Detail() {
                 {loaderData.locales.route.content.participate}
               </EventsOverview.Participate>
             )}
-            {loaderData.mode === "participating" && (
-              <EventsOverview.WithdrawParticipation
-                profileId={loaderData.profileId}
-              >
-                {loaderData.locales.route.content.withdrawParticipation}
-              </EventsOverview.WithdrawParticipation>
-            )}
+            {loaderData.mode === "participating" &&
+              loaderData.inPast === false && (
+                <EventsOverview.WithdrawParticipation
+                  profileId={loaderData.profileId}
+                >
+                  {loaderData.locales.route.content.withdrawParticipation}
+                </EventsOverview.WithdrawParticipation>
+              )}
             {loaderData.mode === "canWait" && (
               <EventsOverview.JoinWaitingList profileId={loaderData.profileId}>
                 {loaderData.locales.route.content.joinWaitingList}
               </EventsOverview.JoinWaitingList>
             )}
-            {loaderData.mode === "waiting" && (
+            {loaderData.mode === "waiting" && loaderData.inPast === false && (
               <EventsOverview.LeaveWaitingList profileId={loaderData.profileId}>
                 {loaderData.locales.route.content.leaveWaitingList}
               </EventsOverview.LeaveWaitingList>

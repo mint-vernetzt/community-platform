@@ -173,6 +173,7 @@ export async function getChildEventsOfEvent(options: {
         background,
         blurredBackground,
         isMember,
+        inPast,
         mode,
       };
     })
