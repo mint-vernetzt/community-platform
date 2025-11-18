@@ -161,7 +161,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/general"];
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const slug = getParamValueOrThrow(params, "slug");
 

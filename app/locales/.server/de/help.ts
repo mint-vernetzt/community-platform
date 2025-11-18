@@ -168,21 +168,18 @@ export const locale = {
             "Was sind “von MINTvernetzt angelegte Organisationsprofile”?",
           answer:
             '<p>Um die Sichtbarkeit der vielfältigen MINT-Akteur:innen in Deutschland zu erhöhen, haben wir auf Basis öffentlich zugänglicher Informationen Organisationsprofile auf unserer Plattform angelegt. Ziel ist es, die Community möglichst vollständig abzubilden – auch mit Organisationen, die bisher noch nicht selbst ein Profil erstellt haben.</br></br>Die verwendeten Informationen stammen ausschließlich aus frei zugänglichen Online-Quellen, darunter:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>Diese Profile sind auf der Plattform klar als von MINTvernetzt angelegt gekennzeichnet. Sie enthalten in der Regel Informationen wie Name, Ort, Webadresse und ggf. eine Kurzbeschreibung. Dabei wurden keine personenbezogenen Daten übernommen.</br></br>Die Organisationsprofile haben zudem noch keine Administrator:innen und keine Teammitglieder. Die betreffenden Akteur:innen können ihr Profil jederzeit übernehmen und selbst verwalten oder eine Löschung beantragen. Wie das funktioniert, erklären wir in den nächsten Abschnitten.</p>',
-          featureFlag: "provisional_organizations",
         },
         howToClaimProvisionalOrganizations: {
           question:
             "Wie kann ich das von MINTvernetzt erstellte Organisationsprofil meiner Organisation übernehmen?",
           answer:
             '<p>Es gibt mehrere Wege das Organisationsprofil einer von uns angelegten Organisation zu übernehmen:</br></br><ul><li>Zum einem kannst Du auf der Organisationsdetailseite einer von uns angelegten der Organisation den Button <b>“Übernehmen”</b> klicken.</li><li>Zweite Möglichkeit: Wenn Du beim Anlegen einer Organisation feststellst, dass Deine Organisation schon auf der Plattform, als von uns angelegte Organisation existiert, kannst Du sie direkt übernehmen und Administrator:in werden. Klicke dafür auf <b>“Organisation übernehmen”</b>.</li><li>Dritte Möglichkeit: Du kannst das Organisationsprofil auch übernehmen, wenn Du unter <b>Mein MINT-Bereich > Meine Organisationen > “Mich zu einer Organisation hinzufügen”</b> die von uns angelegte Organisation suchst und auf <b>“Organisation übernehmen”</b> klickst.</li></ul></br></br>In jedem dieser Fälle wird eine E-Mail an uns gesendet. Wir überprüfen Deine Anfrage und schalten Dich nach erfolgreicher Prüfung als Administrator:in frei.</br></br>Hast Du weitere Fragen oder benötigst Unterstützung, melde Dich gern unter <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
-          featureFlag: "provisional_organizations",
         },
         howToDeleteProvisionalOrganizations: {
           question:
             "Wie kann ich das Löschen meines von MINTvernetzt erstellten Organisationsprofils beantragen?",
           answer:
             '<p>Wenn Du nicht damit einverstanden bist, dass Deine Organisation als von uns angelegtes Organisationsprofil auf der Plattform existiert, dann kannst Du das Löschen beantragen, indem Du eine E-Mail an <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a> sendest. Wir werden dann prüfen, ob Du Teil dieser Organisation bist und ggf. dazu mit Dir in Kontakt treten. Damit stellen wir sicher, dass keine organisationsfremden Personen das Löschen Deiner Organisation veranlassen können.</p>',
-          featureFlag: "provisional_organizations",
         },
       },
     },
@@ -215,7 +212,6 @@ export const locale = {
             "Sind auf der Karte alle MINT-Organisationen in Deutschland zu finden?",
           answer:
             '<p>Es werden zum Einen die Organisationen angezeigt, die ein Profil auf der Plattform haben und <b>auch ihre Adresse</b> angegeben haben. Die Karte wächst also mit jeder neuen Organisation, die sich einträgt. Zum Anderen werden auf der Karte auch <b><a href="/help#whatAreProvisionalOrganizations">von uns angelegte Organisationsprofile</a></b> angezeigt, deren Daten wir auf externen Übersichtsseiten, wie bspw. auf <a href="https://www.schuelerforschungszentren.de" target="_blank" rel="noopener noreferrer">www.schuelerforschungszentren.de</a> gefunden und geprüft haben.</p>',
-          featureFlag: "provisional_organizations",
         },
         showOwnOrganizationOnMap: {
           question:
@@ -227,7 +223,6 @@ export const locale = {
           question: "Wie aktuell sind die Daten auf der Karte?",
           answer:
             '<p>Die Karte wird automatisch aktualisiert, sobald Organisationen ihre Angaben ändern oder neue Organisationen hinzukommen. Die Daten, der <b><a href="/help#whatAreProvisionalOrganizations">von uns angelegten Organisationsprofile</a></b>, stammen vom August 2025.</p>',
-          featureFlag: "provisional_organizations",
         },
         cannotFindMyOrganization: {
           question:
@@ -240,20 +235,17 @@ export const locale = {
             "Wie funktioniert das Einfügen der Karte per iFrame auf meiner eigenen Website?",
           answer:
             "<p><ol><li>Stelle die Karte so ein, wie Du sie brauchst (Suchbegriff eingeben, Filter setzen).</li><li>Klicke auf <b>“Die aktuelle Kartenansicht auf der eigenen Website einbinden.”</b> unterhalb der Kartenansicht.</li><li>Kopiere den angezeigten Code zum Einbinden (iFrame-Code).</li><li>Füge diesen Code an der gewünschten Stelle in den HTML-Bereich Deiner Website ein.</li></ol></br></br>Fertig – Deine Website zeigt nun genau die Kartenansicht, die Du eingestellt hast.</p>",
-          featureFlag: "map_embed",
         },
         isTheFilterPersistentWhenEmbedding: {
           question:
             "Bleiben die Filtereinstellungen erhalten, wenn ich die Karte einbette?",
           answer:
             "<p>Ja. Die Besucher:innen Deiner Website sehen genau die Auswahl an Organisationen, die Du vor dem Kopieren des Codes durch den Filter eingestellt hast.</p>",
-          featureFlag: "map_embed",
         },
         knowledgeNeededToEmbed: {
           question: "Muss ich für die Einbettung technische Kenntnisse haben?",
           answer:
             "<p>Ein kleines bisschen: Du musst den Code zum Einbinden an der richtigen Stelle in Deine Website einfügen – so wie bei einem YouTube-Video. Wenn Du unsicher bist, hilft Dir meist die Person, die Deine Website betreut.</p>",
-          featureFlag: "map_embed",
         },
       },
     },
@@ -374,13 +366,11 @@ export const locale = {
           question: "Wie kann ich Events melden?",
           answer:
             '<p>Nutzer:innen haben die Möglichkeit, Events zu melden. Der Melden-Button befindet sich auf der Eventdetailseite im oberen Bereich hinter dem 3-Punkte-Menü-Button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In der folgenden Abfrage, muss mindestens ein Grund für die Meldung angeben sein.</br></br><b>Folgende Gründe sprechen dafür ein Event zu melden:</b></br></br><ul><li><b>Unpassende Inhalte, wie Angebote speziell für Kinder und Jugendliche</b></br>Zum Beispiel: MINT-Feriencamps für Schüler:innen oder regelmäßige AGs oder Kurse in Schulen oder Schüler:innenlaboren.</li><li><b>Kommerzielle Veranstaltungen, Verkaufs- oder Werbeveranstaltungen</b></br>Also Veranstaltungen, die nur gegen Teilnahmegebühr angeboten werden, um Gewinn zu erzielen und Produktpräsentationen oder Trainings, die in erster Linie der Kundengewinnung dienen.</li><li><b>Events, die gegen unsere <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">Nutzungsbedingungen</a> verstoßen</b></br>Die zum Beispiel Belästigungen, Gewaltdarstellungen, pornografische oder menschenverachtende Inhalte oder Kennzeichen verbotener Organisationen zeigen oder Inhalte, die zu Hass oder der Gewalt gegen Menschen oder gegen bestimmte Gruppen von Menschen aufstacheln oder Inhalte, die unter der Herrschaft des Nationalsozialismus begangene Handlungen leugnen oder verharmlosen oder die Herrschaft des Nationalsozialismus verherrlichen. Ausführlichere Informationen dazu findest Du in unseren Nutzungsbedingungen.</li></ul></br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen.</p>',
-          featureFlag: "abuse_report",
         },
         iReportedAnEvent: {
           question: "Ich habe ein Event gemeldet, was passiert jetzt?",
           answer:
             '<p>Danke, dass Du uns auf unpassende oder rechtswidrige Inhalte hinweist.</br></br>Wie geht es nun weiter?</br></br>Nachdem das Event gemeldet wurde, wird es von uns geprüft und ggf. abgeschaltet. Wenn Du ein Event gemeldet hast, kannst Du es, solange es in der Prüfung ist, nicht nochmal melden.</br></br>Der bzw. die Ersteller:in des Events wird von uns informiert. Ein Verstoß gegen die Nutzungsbedingungen kann zum Ausschluss von der Community-Plattform führen und rechtliche Konsequenzen nach sich ziehen. </br></br>Wenn wir feststellen, dass kein Verstoß stattgefunden hat, werden wir das Event weiterhin sichtbar lassen. Solltest Du mit unserer Entscheidung nach der Prüfung nicht zufrieden sein, nimm bitte Kontakt zu uns auf: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
-          featureFlag: "abuse_report",
         },
         feedback: {
           question: "Feedback zu den Events",

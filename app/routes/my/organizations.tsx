@@ -1,5 +1,7 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
@@ -16,15 +18,23 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import { handleClaimRequest } from "~/claim-request.server";
+import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
+import { CreateOrganization } from "~/components-next/CreateOrganization";
 import { Icon } from "~/components-next/icons/Icon";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import { Modal } from "~/components-next/Modal";
 import { Section } from "~/components-next/MyOrganizationsSection";
+import { OverlayMenu } from "~/components/next/OverlayMenu";
+import { INTENT_FIELD_NAME, searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
@@ -35,7 +45,9 @@ import {
   SearchOrganizations,
 } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
+import { searchOrganizations } from "../utils.server";
 import {
   acceptOrRejectOrganizationMemberRequest,
   addImageUrlToNetworkInvites,
@@ -56,19 +68,6 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
-import { searchOrganizations } from "../utils.server";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { INTENT_FIELD_NAME, searchOrganizationsSchema } from "~/form-helpers";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { CreateOrganization } from "~/components-next/CreateOrganization";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { Modal } from "~/components-next/Modal";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { OverlayMenu } from "~/components/next/OverlayMenu";
-import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
-import { prismaClient } from "~/prisma.server";
-import { getFeatureAbilities } from "../feature-access.server";
-import { handleClaimRequest } from "~/claim-request.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -110,37 +109,27 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode: "authenticated",
   });
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "provisional_organizations"
-  );
   const enhancedSearchedOrganizations = await Promise.all(
     searchedOrganizations.map(async (organization) => {
-      let alreadyRequestedToClaim = false;
-      let allowedToClaimOrganization = false;
-      if (abilities["provisional_organizations"].hasAccess === true) {
-        const openClaimRequest =
-          await prismaClient.organizationClaimRequest.findFirst({
-            select: {
-              status: true,
-            },
-            where: {
-              organizationId: organization.id,
-              claimerId: sessionUser.id,
-            },
-          });
-        alreadyRequestedToClaim =
-          openClaimRequest !== null
-            ? openClaimRequest.status === "open"
-            : false;
-        allowedToClaimOrganization =
-          organization.shadow === false
-            ? false
-            : openClaimRequest !== null
-              ? openClaimRequest.status === "open" ||
-                openClaimRequest.status === "withdrawn"
-              : true;
-      }
+      const openClaimRequest =
+        await prismaClient.organizationClaimRequest.findFirst({
+          select: {
+            status: true,
+          },
+          where: {
+            organizationId: organization.id,
+            claimerId: sessionUser.id,
+          },
+        });
+      const alreadyRequestedToClaim =
+        openClaimRequest !== null ? openClaimRequest.status === "open" : false;
+      const allowedToClaimOrganization =
+        organization.shadow === false
+          ? false
+          : openClaimRequest !== null
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
       return {
         ...organization,
         alreadyRequestedToClaim,

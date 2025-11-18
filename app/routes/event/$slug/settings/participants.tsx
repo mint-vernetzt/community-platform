@@ -80,7 +80,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales =
     languageModuleMap[language]["event/$slug/settings/participants"];
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
+
   const slug = getParamValueOrThrow(params, "slug");
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);

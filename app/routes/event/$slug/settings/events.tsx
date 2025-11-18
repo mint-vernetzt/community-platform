@@ -25,7 +25,6 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDuration } from "~/lib/utils/time";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventBySlug } from "./events.server";
@@ -52,7 +51,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/events"];
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
+
   const slug = getParamValueOrThrow(params, "slug");
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
