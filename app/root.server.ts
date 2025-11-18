@@ -872,7 +872,7 @@ async function getEventsBySearchQuery(searchQuery: string) {
 
   const normalizedEvents = events.map((event) => {
     const name = event.name;
-    const url = `/event/${event.slug}`;
+    const url = `/event/${event.slug}/detail/about`;
     const logo = event.background;
 
     return {

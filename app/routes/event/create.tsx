@@ -135,7 +135,7 @@ export const action = async (args: ActionFunctionArgs) => {
       },
       { child: eventData.child, parent: eventData.parent }
     );
-    return redirect(`/event/${slug}`);
+    return redirect(`/event/${slug}/detail/about`);
   }
   return { data, errors };
 };

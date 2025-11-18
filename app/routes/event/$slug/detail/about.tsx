@@ -441,7 +441,10 @@ function About() {
         </List>
       </div>
       {hasResponsibleOrganizations(event) ? (
-        <div className="w-full flex flex-col gap-4">
+        <div
+          id="responsible-organizations"
+          className="w-full flex flex-col gap-4"
+        >
           <HeadlineContainer as="h3">
             {locales.route.responsibleOrganizations.headline}
           </HeadlineContainer>

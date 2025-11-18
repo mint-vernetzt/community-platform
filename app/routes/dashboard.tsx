@@ -670,7 +670,7 @@ function getDataForNewsTeasers() {
       external: true,
     },
     annualConference: {
-      link: "/event/mintvernetztjahrestagung2025-lxa5gke3",
+      link: "/event/mintvernetztjahrestagung2025-lxa5gke3/detail/about",
       icon: "megaphone",
       external: false,
     },

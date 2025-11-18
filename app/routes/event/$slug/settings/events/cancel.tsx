@@ -39,5 +39,5 @@ export const action = async (args: ActionFunctionArgs) => {
   if (result.success === true) {
     await cancelEvent(slug, result.data.cancel);
   }
-  return redirect(`/event/${slug}`);
+  return redirect(`/event/${slug}/detail/about`);
 };

@@ -194,7 +194,7 @@ test("Create event abuse report", async () => {
   expect(report).toStrictEqual({
     title:
       'Profile "some-reporter-username" reported event "some-reported-event-slug"',
-    entityUrl: `${testURL}/event/some-reported-event-slug`,
+    entityUrl: `${testURL}/event/some-reported-event-slug/detail/about`,
     reporter: {
       email: "reporter@mail.org",
       url: `${testURL}/profile/some-reporter-username`,

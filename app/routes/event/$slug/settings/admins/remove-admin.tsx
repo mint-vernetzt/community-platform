@@ -68,7 +68,7 @@ export const action = async (args: ActionFunctionArgs) => {
     if (sessionUser.id === result.data.profileId) {
       const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
       if (event.published || isTeamMember) {
-        return redirect(`/event/${slug}`);
+        return redirect(`/event/${slug}/detail/about`);
       } else {
         return redirect("/dashboard");
       }

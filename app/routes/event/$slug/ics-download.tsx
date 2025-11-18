@@ -45,7 +45,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const url = new URL(request.url);
   const absoluteEventURL =
-    url.protocol + "//" + url.host + `/event/${event.slug}`;
+    url.protocol + "//" + url.host + `/event/${event.slug}/detail/about`;
   const ics = createIcsString(event, absoluteEventURL);
   const filename = escapeFilenameSpecialChars(event.name + ".ics");
 

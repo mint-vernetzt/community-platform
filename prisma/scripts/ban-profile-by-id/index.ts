@@ -115,7 +115,7 @@ async function main() {
         message: `The profile ban will leave the following entities without an admin:\n\nEvents:\n${lastAdminEvents
           .map(
             ({ event }) =>
-              `- ${process.env.COMMUNITY_BASE_URL}/event/${event.slug}`
+              `- ${process.env.COMMUNITY_BASE_URL}/event/${event.slug}/detail/about`
           )
           .join("\n")}\n\nOrganizations:\n${lastAdminOrganizations
           .map(

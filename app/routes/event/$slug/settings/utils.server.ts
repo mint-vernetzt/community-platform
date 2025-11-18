@@ -30,7 +30,7 @@ export async function getRedirectPathOnProtectedEventRoute(args: {
   // check if admin of event and redirect to event details if not
   const mode = await deriveEventMode(sessionUser, slug);
   if (mode !== "admin") {
-    return `/event/${slug}`;
+    return `/event/${slug}/detail/about`;
   }
 
   return null;
