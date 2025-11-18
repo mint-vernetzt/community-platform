@@ -13,10 +13,13 @@ import { BackButton } from "~/components-next/BackButton";
 import { detectLanguage } from "~/i18n.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
+
+  await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);

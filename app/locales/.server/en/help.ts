@@ -162,21 +162,18 @@ export const locale = {
           question: "What are “organizations created by MINTvernetzt”?",
           answer:
             '<p>In order to increase the visibility of the diverse range of STEM stakeholders in Germany, we have created organizational profiles on our platform based on publicly available information. The aim is to represent the community as comprehensively as possible – including organizations that have not yet created a profile themselves.</br></br>The information used comes exclusively from freely accessible online sources, including:</br></br><ul><li><a href="https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list" target="_blank" rel="noreferrer nofollow noopener">https://schuelerforschungszentren.de/uebersicht-sfz?q&state&subject&targetGroup&view=list</a></li><li><a href="https://mint-community.de/zdi-schueler_innenlabore/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/zdi-schueler_innenlabore/</a></li><li><a href="https://mintthueringen.de/mint-netzwerk/" target="_blank" rel="noreferrer nofollow noopener">https://mintthueringen.de/mint-netzwerk/</a></li><li><a href="https://www.mint-in-hessen.de/RegionaleAngebote" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-in-hessen.de/RegionaleAngebote</a></li><li><a href="https://mint-community.de/netzwerke-in-nrw/" target="_blank" rel="noreferrer nofollow noopener">https://mint-community.de/netzwerke-in-nrw/</a></li><li><a href="https://www.mint-bayern.de/mint-regionen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-bayern.de/mint-regionen/</a></li><li><a href="https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://www.mint-ec.de/schulnetzwerk/mint-ec-schulen/</a></li><li><a href="https://mintzukunftschaffen.de/geehrte-schulen/" target="_blank" rel="noreferrer nofollow noopener">https://mintzukunftschaffen.de/geehrte-schulen/</a></li></ul></br></br>These profiles are clearly marked on the platform as having been created by MINTvernetzt. They usually contain information such as name, location, web address, and, if applicable, a brief description. No personal data has been transferred.</br></br>The organization profiles also do not yet have any administrators or team members. The relevant actors can take over their profile at any time and manage it themselves or request the deletion. We explain how this works in the following sections.</p>',
-          featureFlag: "provisional_organizations",
         },
         howToClaimProvisionalOrganizations: {
           question:
             "How can I claim the organizational profile of an organization created by MINTvernetzt?",
           answer:
             '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>“Claim”</b> button on the organizational detail page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>“Claim Organization”</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > “Add Me to an Organization”</b> and click on <b>“Claim Organization”</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
-          featureFlag: "provisional_organizations",
         },
         howToDeleteProvisionalOrganizations: {
           question:
             "How can I request the deletion of an organization created by MINTvernetzt?",
           answer:
             '<p>If you do not agree with your organization existing as an organization profile created by us on the platform, you can request deletion by sending an email to <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>. We will then check whether you are part of this organization and, if necessary, contact you about it. This ensures that no unauthorized persons can initiate the deletion of your organization.</p>',
-          featureFlag: "provisional_organizations",
         },
       },
     },
@@ -208,7 +205,6 @@ export const locale = {
             "Are all STEM organizations in Germany represented on the map?",
           answer:
             '<p>Only organizations that have a profile on the platform and have also <b>provided their address</b> are displayed. The map grows with each new organization that registers. Additionally, the map also displays <b><a href="/help#whatAreProvisionalOrganizations">provisional organization profiles created by us</a></b>, whose data we found and verified on external overview pages, such as <a href="https://www.schuelerforschungszentren.de" target="_blank" rel="noopener noreferrer">www.schuelerforschungszentren.de</a>.</p>',
-          featureFlag: "provisional_organizations",
         },
         showOwnOrganizationOnMap: {
           question: "How can I make my own organization visible on the map?",
@@ -219,7 +215,6 @@ export const locale = {
           question: "How current is the data on the map?",
           answer:
             '<p>The map is automatically updated as organizations change their information or new organizations are added. The data for the <b><a href="/help#whatAreProvisionalOrganizations">provisional organization profiles created by us</a></b> is from August 2025.</p>',
-          featureFlag: "provisional_organizations",
         },
         cannotFindMyOrganization: {
           question:
@@ -232,20 +227,17 @@ export const locale = {
             "How does embedding the map via iFrame on my own website work?",
           answer:
             "<p><ol><li>Set up the map as you need it (enter search term, set filters).</li><li>Click on <b>“Embed current map view on my own website.”</b> below the map view.</li><li>Copy the displayed code for embedding (iFrame code).</li><li>Paste this code in the desired location in the HTML area of your website.</li></ol></br></br>Done – your website now shows exactly the map view you have set.</p>",
-          featureFlag: "map_embed",
         },
         isTheFilterPersistentWhenEmbedding: {
           question:
             "Does the filter remain active when embedding the map on my own website?",
           answer:
             "<p>Yes. Visitors to your website will see exactly the selection of organizations that you set through the filter before copying the code.</p>",
-          featureFlag: "map_embed",
         },
         knowledgeNeededToEmbed: {
           question: "Do I need technical knowledge to embed the map?",
           answer:
             "<p>A little bit: You need to insert the embedding code in the right place on your website – just like with a YouTube video. If you're unsure, the person who manages your website can usually help you.</p>",
-          featureFlag: "map_embed",
         },
       },
     },
@@ -361,13 +353,11 @@ export const locale = {
           question: "How can I report an event?",
           answer:
             '<p>Users have the option to report events. The report button is located on the event detail page in the upper area behind the 3-dot menu button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason for the report need to be provided.</br></br><b>The following reasons speak for reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>For example: MINT holiday camps for students or regular courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="https://www.mint-vernetzt.de/terms-of-use-community-platform/">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></br></br>After the event has been reported, it will be checked by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</p>',
-          featureFlag: "abuse_report",
         },
         iReportedAnEvent: {
           question: "I reported an event, what happens next?",
           answer:
             '<p>Thank you for bringing inappropriate or illegal content to our attention.</br></br>What happens next?</br></br>After the event has been reported, it will be reviewed by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</br></br>If we determine that no violation has occurred, we will keep the event visible. If you are not satisfied with our decision after the review, please contact us at: <b><a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a></b></p>',
-          featureFlag: "abuse_report",
         },
         feedback: {
           question: "Feedback about events",

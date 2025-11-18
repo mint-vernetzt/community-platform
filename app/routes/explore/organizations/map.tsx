@@ -1,3 +1,5 @@
+import { parseWithZod } from "@conform-to/zod-v1";
+import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import { useState } from "react";
@@ -15,29 +17,26 @@ import { QuestionMark } from "~/components-next/icons/QuestionMark";
 import { MapView } from "~/components-next/Map";
 import { Modal } from "~/components-next/Modal";
 import { detectLanguage } from "~/i18n.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { copyToClipboard } from "~/lib/utils/clipboard";
 import {
   decideBetweenSingularOrPlural,
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
+import { languageModuleMap } from "~/locales/.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
+import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
+import { getFilterSchemes } from "../all.shared";
 import {
   getOrganizationIds,
   VIEW_COOKIE_VALUES,
   viewCookie,
 } from "../organizations.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { getFilterSchemes } from "../all.shared";
-import { parseWithZod } from "@conform-to/zod-v1";
-import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { languageModuleMap } from "~/locales/.server";
 import { getAllOrganizations } from "./map.server";
-import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -52,8 +51,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales = languageModuleMap[language]["explore/organizations"];
 
   const { authClient } = createAuthClient(request);
-
-  const abilities = await getFeatureAbilities(authClient, "map_embed");
 
   const submission = parseWithZod(searchParams, {
     schema: getFilterSchemes,
@@ -209,7 +206,7 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 
   return data(
-    { lng: language, abilities, organizations: enhancedOrganizations, locales },
+    { lng: language, organizations: enhancedOrganizations, locales },
     {
       headers: viewCookieHeader,
     }
@@ -240,7 +237,6 @@ export default function ExploreOrganizationsList() {
     "evtFilter.focus",
     "evtFilter.eventTargetGroup",
     "evtFilter.periodOfTime",
-    "evtFilter.area",
     "evtSortBy",
     "evtPage",
     "prjFilter.discipline",
@@ -412,26 +408,22 @@ export default function ExploreOrganizationsList() {
             </Modal.Alert>
           ) : null}
         </Modal>
-        {loaderData.abilities.map_embed.hasAccess === true ? (
-          <>
-            <TextButton
-              size="small"
-              as="link"
-              to={`?${modalOpenSearchParams.toString()}`}
-              prefetch="intent"
-            >
-              {loaderData.locales.route.map.embed}
-            </TextButton>
-            <Link
-              to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
-              target="_blank"
-              className="grid grid-cols-1 grid-rows-1 place-items-center rounded-full text-primary w-5 h-5 border border-primary bg-neutral-50 hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
-              prefetch="intent"
-            >
-              <QuestionMark />
-            </Link>
-          </>
-        ) : null}
+        <TextButton
+          size="small"
+          as="link"
+          to={`?${modalOpenSearchParams.toString()}`}
+          prefetch="intent"
+        >
+          {loaderData.locales.route.map.embed}
+        </TextButton>
+        <Link
+          to="/help#organizationMapView-howToEmbedMapOnMyWebsite"
+          target="_blank"
+          className="grid grid-cols-1 grid-rows-1 place-items-center rounded-full text-primary w-5 h-5 border border-primary bg-neutral-50 hover:bg-primary-50 focus:bg-primary-50 active:bg-primary-100"
+          prefetch="intent"
+        >
+          <QuestionMark />
+        </Link>
       </div>
     </div>
   );

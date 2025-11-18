@@ -1,3 +1,4 @@
+import { getFormProps, useForm } from "@conform-to/react-v1";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
@@ -21,12 +22,15 @@ import {
   type MetaFunction,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { handleClaimRequest } from "~/claim-request.server";
+import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
 import { BackButton } from "~/components-next/BackButton";
 import { Modal } from "~/components-next/Modal";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
 } from "~/components/legacy/ImageCropper/ImageCropper";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
@@ -58,14 +62,6 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
-import { getFormProps, useForm } from "@conform-to/react-v1";
-import {
-  checkFeatureAbilitiesOrThrow,
-  getFeatureAbilities,
-} from "~/routes/feature-access.server";
-import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
-import { handleClaimRequest } from "~/claim-request.server";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export function links() {
   return [
@@ -234,35 +230,29 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   let alreadyRequestedToClaim = false;
   let allowedToClaimOrganization = false;
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "provisional_organizations"
-  );
-  if (abilities["provisional_organizations"].hasAccess === true) {
-    if (sessionUser !== null) {
-      const openClaimRequest =
-        await prismaClient.organizationClaimRequest.findFirst({
-          select: {
-            status: true,
-          },
-          where: {
-            organizationId: organization.id,
-            claimerId: sessionUser.id,
-          },
-        });
-      alreadyRequestedToClaim =
-        openClaimRequest !== null ? openClaimRequest.status === "open" : false;
-      allowedToClaimOrganization =
-        organization.shadow === false
-          ? false
-          : openClaimRequest !== null
-            ? openClaimRequest.status === "open" ||
-              openClaimRequest.status === "withdrawn"
-            : true;
-    } else {
-      alreadyRequestedToClaim = false;
-      allowedToClaimOrganization = organization.shadow === true;
-    }
+  if (sessionUser !== null) {
+    const openClaimRequest =
+      await prismaClient.organizationClaimRequest.findFirst({
+        select: {
+          status: true,
+        },
+        where: {
+          organizationId: organization.id,
+          claimerId: sessionUser.id,
+        },
+      });
+    alreadyRequestedToClaim =
+      openClaimRequest !== null ? openClaimRequest.status === "open" : false;
+    allowedToClaimOrganization =
+      organization.shadow === false
+        ? false
+        : openClaimRequest !== null
+          ? openClaimRequest.status === "open" ||
+            openClaimRequest.status === "withdrawn"
+          : true;
+  } else {
+    alreadyRequestedToClaim = false;
+    allowedToClaimOrganization = organization.shadow === true;
   }
 
   return {
@@ -335,7 +325,6 @@ export const action = async (args: ActionFunctionArgs) => {
     intent === CLAIM_REQUEST_INTENTS.create ||
     intent === CLAIM_REQUEST_INTENTS.withdraw
   ) {
-    await checkFeatureAbilitiesOrThrow(authClient, "provisional_organizations");
     const result = await handleClaimRequest({
       formData,
       sessionUserId: sessionUser.id,

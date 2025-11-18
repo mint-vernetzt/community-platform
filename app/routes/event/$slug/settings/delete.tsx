@@ -41,8 +41,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/delete"];
 
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-
   const slug = getParamValueOrThrow(params, "slug");
 
   const { sessionUser, redirectPath } =

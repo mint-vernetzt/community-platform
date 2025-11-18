@@ -28,7 +28,6 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import {
   BUCKET_FIELD_NAME,
@@ -95,7 +94,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
 
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,

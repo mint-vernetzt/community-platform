@@ -22,7 +22,6 @@ import { getInitialsOfName } from "~/lib/string/getInitialsOfName";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getOrganizationSuggestionsForAutocomplete } from "~/routes/utils.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveEventMode } from "../../utils.server";
@@ -44,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales =
     languageModuleMap[language]["event/$slug/settings/organizations"];
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
+
   const slug = getParamValueOrThrow(params, "slug");
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);

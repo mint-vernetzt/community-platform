@@ -24,6 +24,8 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { handleClaimRequest } from "~/claim-request.server";
+import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
@@ -32,9 +34,15 @@ import { Container } from "~/components-next/MyProjectsCreateOrganizationContain
 import { INTENT_FIELD_NAME, searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import {
+  decideBetweenSingularOrPlural,
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import { SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { searchOrganizations } from "../utils.server";
 import {
@@ -48,15 +56,6 @@ import {
   getPendingRequestsToOrganizations,
 } from "./create.server";
 import { createOrganizationSchema } from "./create.shared";
-import {
-  decideBetweenSingularOrPlural,
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { getFeatureAbilities } from "../feature-access.server";
-import { prismaClient } from "~/prisma.server";
-import { CLAIM_REQUEST_INTENTS } from "~/claim-request.shared";
-import { handleClaimRequest } from "~/claim-request.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -93,37 +92,27 @@ export async function loader(args: LoaderFunctionArgs) {
     mode: "authenticated",
   });
 
-  const abilities = await getFeatureAbilities(
-    authClient,
-    "provisional_organizations"
-  );
   const enhancedSearchedOrganizations = await Promise.all(
     searchedOrganizations.map(async (organization) => {
-      let alreadyRequestedToClaim = false;
-      let allowedToClaimOrganization = false;
-      if (abilities["provisional_organizations"].hasAccess === true) {
-        const openClaimRequest =
-          await prismaClient.organizationClaimRequest.findFirst({
-            select: {
-              status: true,
-            },
-            where: {
-              organizationId: organization.id,
-              claimerId: sessionUser.id,
-            },
-          });
-        alreadyRequestedToClaim =
-          openClaimRequest !== null
-            ? openClaimRequest.status === "open"
-            : false;
-        allowedToClaimOrganization =
-          organization.shadow === false
-            ? false
-            : openClaimRequest !== null
-              ? openClaimRequest.status === "open" ||
-                openClaimRequest.status === "withdrawn"
-              : true;
-      }
+      const openClaimRequest =
+        await prismaClient.organizationClaimRequest.findFirst({
+          select: {
+            status: true,
+          },
+          where: {
+            organizationId: organization.id,
+            claimerId: sessionUser.id,
+          },
+        });
+      const alreadyRequestedToClaim =
+        openClaimRequest !== null ? openClaimRequest.status === "open" : false;
+      const allowedToClaimOrganization =
+        organization.shadow === false
+          ? false
+          : openClaimRequest !== null
+            ? openClaimRequest.status === "open" ||
+              openClaimRequest.status === "withdrawn"
+            : true;
       return {
         ...organization,
         alreadyRequestedToClaim,

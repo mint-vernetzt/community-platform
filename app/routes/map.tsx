@@ -1,7 +1,6 @@
 import { parseWithZod } from "@conform-to/zod-v1";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";
 import {
-  redirect,
   useLoaderData,
   type LinksFunction,
   type LoaderFunctionArgs,
@@ -17,7 +16,6 @@ import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";
 import { getAllOrganizations } from "./map.server";
-import { getFeatureAbilities } from "./feature-access.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: mapStyles },
@@ -29,11 +27,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["map"];
-
-  const abilities = await getFeatureAbilities(authClient, "map_embed");
-  if (abilities.map_embed.hasAccess === false) {
-    return redirect("/");
-  }
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;

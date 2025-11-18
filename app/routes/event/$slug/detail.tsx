@@ -16,7 +16,6 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
@@ -478,7 +477,6 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (intent === ABUSE_REPORT_INTENT) {
-    await checkFeatureAbilitiesOrThrow(authClient, "abuse_report");
     const submission = await parseWithZod(formData, {
       schema: createAbuseReportSchema(locales.route.abuseReport).transform(
         async (data, ctx) => {
