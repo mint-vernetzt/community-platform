@@ -144,7 +144,7 @@ export async function createEventAbuseReport(options: {
   });
   return {
     title,
-    entityUrl: `${process.env.COMMUNITY_BASE_URL}/event/${options.slug}`,
+    entityUrl: `${process.env.COMMUNITY_BASE_URL}/event/${options.slug}/detail/about`,
     reporter: {
       email: reporter.email,
       url: `${process.env.COMMUNITY_BASE_URL}/profile/${reporter.username}`,

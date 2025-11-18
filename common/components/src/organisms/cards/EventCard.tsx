@@ -264,7 +264,7 @@ function EventCard(
         <AvatarList
           visibleAvatars={2}
           moreIndicatorProps={{
-            to: `/event/${event.slug}/#responsible-organizations`,
+            to: `/event/${event.slug}/detail/about#responsible-organizations`,
             prefetch: props.prefetch,
           }}
         >

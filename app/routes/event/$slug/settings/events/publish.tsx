@@ -40,5 +40,5 @@ export const action = async (args: ActionFunctionArgs) => {
   if (result.success === true) {
     await publishEventAndItsChildren(slug, result.data.publish);
   }
-  return redirect(`/event/${slug}`);
+  return redirect(`/event/${slug}/detail/about`);
 };

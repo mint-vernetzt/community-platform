@@ -214,7 +214,7 @@ export class EventController extends Controller {
       );
     }
 
-    const { background, slug: projectSlug, ...rest } = event;
+    const { background, slug: eventSlug, ...rest } = event;
     let publicBackground: string | null = null;
     if (authClient !== undefined) {
       if (background !== null) {
@@ -228,7 +228,7 @@ export class EventController extends Controller {
 
     const url =
       baseURL !== undefined
-        ? decorate(request, `${baseURL}/event/${projectSlug}`)
+        ? decorate(request, `${baseURL}/event/${eventSlug}/detail/about`)
         : null;
 
     const enhancedEvent = {

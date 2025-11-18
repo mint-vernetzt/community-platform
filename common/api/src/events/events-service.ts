@@ -190,7 +190,7 @@ async function getEvents(request: Request, skip: number, take: number) {
 
       const url =
         baseURL !== undefined
-          ? decorate(request, `${baseURL}/event/${slug}`)
+          ? decorate(request, `${baseURL}/event/${slug}/detail/about`)
           : null;
 
       const enhancedResponsibleOrganizations = responsibleOrganizations.map(
