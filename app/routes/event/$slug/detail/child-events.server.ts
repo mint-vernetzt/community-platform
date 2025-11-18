@@ -1,15 +1,14 @@
+import { parseWithZod } from "@conform-to/zod-v1";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import { deriveModeForEvent, getIsMember } from "../detail.server";
 import {
   getSearchChildEventsSchema,
   SEARCH_CHILD_EVENTS_SEARCH_PARAM,
 } from "./child-events.shared";
-import { parseWithZod } from "@conform-to/zod-v1";
-import { prismaClient } from "~/prisma.server";
-import { utcToZonedTime } from "date-fns-tz";
-import { deriveModeForEvent, getIsMember } from "../detail.server";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
 
 export async function getChildEventsOfEvent(options: {
   slug: string;
@@ -110,20 +109,10 @@ export async function getChildEventsOfEvent(options: {
 
   const enhancedChildEvents = await Promise.all(
     childEvents.map(async (event) => {
-      const now = utcToZonedTime(new Date(), "Europe/Berlin");
-      const startTime = utcToZonedTime(event.startTime, "Europe/Berlin");
-      const endTime = utcToZonedTime(event.endTime, "Europe/Berlin");
-      const participationFrom = utcToZonedTime(
-        event.participationFrom,
-        "Europe/Berlin"
-      );
-      const participationUntil = utcToZonedTime(
-        event.participationUntil,
-        "Europe/Berlin"
-      );
-      const beforeParticipationPeriod = now < participationFrom;
-      const afterParticipationPeriod = now > participationUntil;
-      const inPast = now > endTime;
+      const now = new Date();
+      const beforeParticipationPeriod = now < event.participationFrom;
+      const afterParticipationPeriod = now > event.participationUntil;
+      const inPast = now > event.endTime;
 
       const participantCount = event._count.participants;
 
@@ -165,10 +154,6 @@ export async function getChildEventsOfEvent(options: {
 
       return {
         ...event,
-        startTime,
-        endTime,
-        participationFrom,
-        participationUntil,
         participantCount,
         background,
         blurredBackground,

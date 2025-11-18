@@ -8,6 +8,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { utcToZonedTime } from "date-fns-tz";
 
 function ListItemEvent(props: {
   children: React.ReactNode;
@@ -174,9 +175,12 @@ function ListItemInfo(props: {
     startTime.getMonth() === endTime.getMonth() &&
     startTime.getDate() === endTime.getDate();
 
-  strings.push(getDateDuration(startTime, endTime, props.language));
+  const zonedStartTime = utcToZonedTime(startTime, "Europe/Berlin");
+  const zonedEndTime = utcToZonedTime(endTime, "Europe/Berlin");
+
+  strings.push(getDateDuration(zonedStartTime, zonedEndTime, props.language));
   if (isSameDay) {
-    strings.push(getTimeDuration(startTime, endTime, props.language));
+    strings.push(getTimeDuration(zonedStartTime, zonedEndTime, props.language));
   }
 
   if (props.participantLimit !== null) {
