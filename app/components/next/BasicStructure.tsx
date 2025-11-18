@@ -3,7 +3,7 @@
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10015-37242&m=dev
 function BasicStructure(props: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col p-4 xl:p-8 gap-8 bg-white xl:bg-transparent w-full min-h-full max-w-2xl m-auto">
+    <div className="flex flex-col p-4 xl:p-8 gap-8 xl:gap-6 bg-white xl:bg-transparent w-full min-h-full max-w-2xl m-auto">
       {props.children}
     </div>
   );
