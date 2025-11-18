@@ -186,9 +186,9 @@ function ChildEvents() {
                 locales={loaderData.locales.route.content}
               />
               {event.mode === "canParticipate" ||
-              event.mode === "participating" ||
+              (event.mode === "participating" && event.inPast === false) ||
               event.mode === "canWait" ||
-              event.mode === "waiting" ? (
+              (event.mode === "waiting" && event.inPast === false) ? (
                 <ListItemEvent.Control
                   eventId={event.id}
                   mode={event.mode}
