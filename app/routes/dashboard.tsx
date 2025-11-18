@@ -640,7 +640,7 @@ function getDataForUpdateTeasers() {
   const teaserData: AtLeastOne<UpdateTeaser> = {
     resources: {
       link: "/resources",
-      icon: "bar-chart",
+      icon: "box-seam",
       external: false,
     },
     mapView: {
