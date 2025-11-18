@@ -661,25 +661,27 @@ function Detail() {
               endTime={loaderData.event.endTime}
               language={loaderData.language}
             />
-            {loaderData.event.stage !== null && (
-              <EventsOverview.Stage
-                slug={loaderData.event.slug}
-                venueName={loaderData.event.venueName}
-                venueStreet={loaderData.event.venueStreet}
-                venueStreetNumber={loaderData.event.venueStreetNumber}
-                venueZipCode={loaderData.event.venueZipCode}
-                venueCity={loaderData.event.venueCity}
-                stage={
-                  loaderData.event.stage
-                    .slug as keyof typeof loaderData.locales.stages
-                }
-                conferenceLink={loaderData.event.conferenceLink}
-                conferenceLinkToBeAnnounced={
-                  loaderData.event.conferenceLinkToBeAnnounced
-                }
-                locales={loaderData.locales}
-              />
-            )}
+            {loaderData.event.stage !== null &&
+              loaderData.event.stage.slug.trim() !== "" &&
+              loaderData.event.stage.slug.trim() !== "<p></p>" && (
+                <EventsOverview.Stage
+                  slug={loaderData.event.slug}
+                  venueName={loaderData.event.venueName}
+                  venueStreet={loaderData.event.venueStreet}
+                  venueStreetNumber={loaderData.event.venueStreetNumber}
+                  venueZipCode={loaderData.event.venueZipCode}
+                  venueCity={loaderData.event.venueCity}
+                  stage={
+                    loaderData.event.stage
+                      .slug as keyof typeof loaderData.locales.stages
+                  }
+                  conferenceLink={loaderData.event.conferenceLink}
+                  conferenceLinkToBeAnnounced={
+                    loaderData.event.conferenceLinkToBeAnnounced
+                  }
+                  locales={loaderData.locales}
+                />
+              )}
             <EventsOverview.FreeSeats
               participantLimit={loaderData.event.participantLimit}
               participantsCount={loaderData.event._count.participants}
