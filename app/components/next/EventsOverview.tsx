@@ -72,9 +72,11 @@ function InfoContainer(props: { children: React.ReactNode }) {
 
 function EventName(props: { children: React.ReactNode }) {
   return (
-    <h1 className="text-primary font-bold text-3xl/7 m-0 order-1 w-full xl:w-auto xl:grow-1">
-      {props.children}
-    </h1>
+    <div className="flex items-center order-1 w-full xl:w-auto xl:grow-1">
+      <h1 className="text-primary font-bold text-3xl/7 m-0 max-w-[800px]">
+        {props.children}
+      </h1>
+    </div>
   );
 }
 
