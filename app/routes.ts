@@ -216,6 +216,7 @@ export default [
     route("/explore/projects", "./routes/explore/projects.tsx"),
     route("/explore/fundings", "./routes/explore/fundings.tsx"),
   ]),
+  route("/next/event/create", "./routes/next/event/create.tsx"),
   route("/event/create", "./routes/event/create.tsx"),
   route(
     "/event/:slug/documents-download",

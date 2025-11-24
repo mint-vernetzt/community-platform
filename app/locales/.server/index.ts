@@ -69,6 +69,7 @@ import { locale as deEventWaitingList } from "./de/routes/event/$slug/settings/w
 import { locale as deDownloadEventDocuments } from "./de/routes/event/$slug/documents-download";
 import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
+import { locale as deNextCreateEvent } from "./de/routes/next/event/create";
 
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
@@ -237,6 +238,7 @@ import { locale as enEventWaitingList } from "./en/routes/event/$slug/settings/w
 import { locale as enDownloadEventDocuments } from "./en/routes/event/$slug/documents-download";
 import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
+import { locale as enNextCreateEvent } from "./en/routes/next/event/create";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -437,6 +439,9 @@ const de = {
   },
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/settings": deEventSettings,
+  "next/event/create": {
+    route: deNextCreateEvent,
+  },
   "event/create": deCreateEvent,
   "event/$slug/detail": {
     route: deEventDetail,
@@ -851,6 +856,9 @@ const en = {
   },
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/settings": enEventSettings,
+  "next/event/create": {
+    route: enNextCreateEvent,
+  },
   "event/create": enCreateEvent,
   "event/$slug/detail": {
     route: enEventDetail,
