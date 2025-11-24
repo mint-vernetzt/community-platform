@@ -21,6 +21,7 @@ export function hasContactOrSoMeInformation(organization: {
   city: string | null;
   street: string | null;
   zipCode: string | null;
+  addressSupplement: string | null;
   facebook: string | null;
   linkedin: string | null;
   twitter: string | null;
@@ -40,6 +41,7 @@ export function hasContactInformation(organization: {
   city: string | null;
   street: string | null;
   zipCode: string | null;
+  addressSupplement: string | null;
 }) {
   return (
     (organization.email !== null &&
@@ -59,25 +61,60 @@ export function hasAddress(organization: {
   city: string | null;
   street: string | null;
   zipCode: string | null;
+  addressSupplement: string | null;
 }) {
   return (
-    (organization.city !== null &&
-      organization.city.trim() !== "" &&
-      organization.city.trim() !== "<p></p>") ||
-    (organization.street !== null &&
-      organization.street.trim() !== "" &&
-      organization.street.trim() !== "<p></p>") ||
-    (organization.zipCode !== null &&
-      organization.zipCode.trim() !== "" &&
-      organization.zipCode.trim() !== "<p></p>")
+    hasAddressSupplement(organization) ||
+    hasStreet(organization) ||
+    hasCity(organization) ||
+    hasZipCode(organization)
   );
 }
 
-export function hasStreet(organization: { street: string | null }) {
+export function hasAddressSupplement(organization: {
+  addressSupplement: string | null;
+}): organization is { addressSupplement: string } {
+  return (
+    organization.addressSupplement !== null &&
+    organization.addressSupplement.trim() !== "" &&
+    organization.addressSupplement.trim() !== "<p></p>"
+  );
+}
+
+export function hasStreet(organization: {
+  street: string | null;
+}): organization is { street: string } {
   return (
     organization.street !== null &&
     organization.street.trim() !== "" &&
     organization.street.trim() !== "<p></p>"
+  );
+}
+
+export function hasCityOrZipCode(organization: {
+  city: string | null;
+  zipCode: string | null;
+}) {
+  return hasCity(organization) || hasZipCode(organization);
+}
+
+export function hasCity(organization: {
+  city: string | null;
+}): organization is { city: string } {
+  return (
+    organization.city !== null &&
+    organization.city.trim() !== "" &&
+    organization.city.trim() !== "<p></p>"
+  );
+}
+
+export function hasZipCode(organization: {
+  zipCode: string | null;
+}): organization is { zipCode: string } {
+  return (
+    organization.zipCode !== null &&
+    organization.zipCode.trim() !== "" &&
+    organization.zipCode.trim() !== "<p></p>"
   );
 }
 

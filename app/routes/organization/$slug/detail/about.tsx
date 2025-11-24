@@ -15,11 +15,15 @@ import {
   ContactInformationIcons,
   ExternalServiceIcons,
   hasAddress,
+  hasAddressSupplement,
+  hasCity,
+  hasCityOrZipCode,
   hasContactInformation,
   hasContactOrSoMeInformation,
   hasGeneralInformation,
   hasSocialService,
   hasStreet,
+  hasZipCode,
 } from "./about.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -201,28 +205,22 @@ function About() {
                       <div className="py-3 px-4 flex gap-4 bg-neutral-100 rounded-lg items-center">
                         {ContactInformationIcons.address}
                         <div className="flex flex-col gap-1">
+                          {hasAddressSupplement(organization) ? (
+                            <p>{organization.addressSupplement}</p>
+                          ) : null}
                           {hasStreet(organization) ? (
+                            <p>{organization.street}</p>
+                          ) : null}
+                          {hasCityOrZipCode(organization) ? (
                             <p className="flex gap-1">
-                              <span>{organization.street}</span>
-                              {organization.addressSupplement !== null ? (
-                                <span>{organization.addressSupplement}</span>
-                              ) : (
-                                ""
-                              )}
+                              {hasZipCode(organization) ? (
+                                <span>{organization.zipCode}</span>
+                              ) : null}
+                              {hasCity(organization) ? (
+                                <span>{organization.city}</span>
+                              ) : null}
                             </p>
                           ) : null}
-                          <p className="flex gap-1">
-                            {organization.zipCode !== null ? (
-                              <span>{organization.zipCode}</span>
-                            ) : (
-                              ""
-                            )}
-                            {organization.city !== null ? (
-                              <span>{organization.city}</span>
-                            ) : (
-                              ""
-                            )}
-                          </p>
                         </div>
                       </div>
                     ) : null}

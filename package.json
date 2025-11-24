@@ -99,6 +99,7 @@
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitest/coverage-v8": "^2.1.2",
+    "baseline-browser-mapping": "^2.8.31",
     "commander": "^11.1.0",
     "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
