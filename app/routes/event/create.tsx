@@ -16,7 +16,10 @@ import {
   getSessionUserOrThrow,
 } from "~/auth.server";
 import Input from "~/components/legacy/FormElements/Input/Input";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "~/routes/feature-access.server";
 import type { FormError } from "~/lib/utils/yup";
 import {
   getFormValues,
@@ -32,6 +35,7 @@ import { createEventOnProfile, transformFormToEvent } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const createSchema = (locales: CreateEventLocales) => {
   return object({
@@ -85,7 +89,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
-  return { child, parent, locales };
+  const abilities = await getFeatureAbilities(authClient, "next_event_create");
+
+  return { child, parent, locales, abilities };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -142,7 +148,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 export default function Create() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, abilities } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const { register } = useForm<FormType>();
@@ -151,6 +157,11 @@ export default function Create() {
     <>
       <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl @md:mt-2">
         <div className="font-semibold text-neutral-600 flex items-center">
+          {abilities["next_event_create"].hasAccess ? (
+            <Button as="link" to="/next/event/create" prefetch="intent">
+              Zur neuen Event Erstellung
+            </Button>
+          ) : null}
           {/* TODO: get back route from loader */}
           <button onClick={() => navigate(-1)} className="flex items-center">
             <svg
