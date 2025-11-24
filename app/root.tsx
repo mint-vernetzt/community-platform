@@ -598,6 +598,7 @@ export default function App() {
   let isDashboard = false;
   let isExplore = false;
   let isMap = false;
+  let isEventCreate = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
@@ -613,6 +614,7 @@ export default function App() {
     ];
     isSettings = otherSettingsRoutes.includes(matches[1].id);
     isMap = matches[1].id === "routes/map";
+    isEventCreate = matches[1].id === "routes/next/event/create";
   }
 
   const [searchParams] = useSearchParams();
@@ -690,7 +692,7 @@ export default function App() {
                     isProjectSettings || isOrganizationSettings
                       ? "hidden @md:block "
                       : ""
-                  }sticky top-0 z-30`}
+                  }${isEventCreate ? "hidden " : ""}sticky top-0 z-30`}
                 >
                   <NavBar
                     sessionUserInfo={sessionUserInfo}
