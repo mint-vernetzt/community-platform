@@ -53,6 +53,15 @@ function Title(props: React.PropsWithChildren<{ id?: string }>) {
   );
 }
 
+function getItemElementClasses(active: boolean) {
+  return {
+    className: classNames("mb-3", "p-2", "flex gap-2 items-center", {
+      "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600":
+        active === false,
+    }),
+  };
+}
+
 function Item(props: { children: React.ReactNode; active?: boolean }) {
   const { active = false } = props;
 
@@ -68,14 +77,7 @@ function Item(props: { children: React.ReactNode; active?: boolean }) {
           { "text-primary": active }
         )}
       >
-        <span
-          className={classNames("mb-3", "p-2", "block", {
-            "hover:bg-neutral-100 hover:rounded-lg text-neutral-500 hover:text-neutral-600":
-              active === false,
-          })}
-        >
-          {props.children}
-        </span>
+        {props.children}
         {active ? (
           <div className="absolute bottom-0 w-full h-1 rounded-t-lg bg-primary" />
         ) : null}
@@ -252,11 +254,7 @@ function TabBar(props: TabBarProps) {
   );
 }
 
-function getItemElementsContainerClasses() {
-  return { className: "flex gap-2 items-center" };
-}
-
 TabBar.Item = Item;
-TabBar.getItemElementsContainerClasses = getItemElementsContainerClasses;
+TabBar.getItemElementClasses = getItemElementClasses;
 
 export default TabBar;
