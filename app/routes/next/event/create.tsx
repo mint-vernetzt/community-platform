@@ -49,9 +49,9 @@ export default function Create() {
   return (
     <>
       <MobileSettingsHeader>
-        <h1 className="mb-0 text-neutral-700 text-2xl font-bold leading-[26px]">
+        <MobileSettingsHeader.Heading>
           {locales.route.headline}
-        </h1>
+        </MobileSettingsHeader.Heading>
         <MobileSettingsHeader.Close>
           <Link
             to="/my/events"
