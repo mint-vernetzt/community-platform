@@ -756,7 +756,11 @@ function Detail() {
       <BasicStructure.Container>
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/about")}>
-            <Link to="./about" preventScrollReset>
+            <Link
+              to="./about"
+              preventScrollReset
+              {...TabBar.getItemElementClasses(pathname.endsWith("/about"))}
+            >
               <TabBar.Item.Title>
                 {loaderData.locales.route.content.details}
               </TabBar.Item.Title>
@@ -768,7 +772,9 @@ function Detail() {
                 <Link
                   to="./participants"
                   preventScrollReset
-                  {...TabBar.getItemElementsContainerClasses()}
+                  {...TabBar.getItemElementClasses(
+                    pathname.endsWith("/participants")
+                  )}
                 >
                   <TabBar.Item.Title>
                     {loaderData.locales.route.content.participants}
@@ -784,7 +790,9 @@ function Detail() {
               <Link
                 to="./child-events"
                 preventScrollReset
-                {...TabBar.getItemElementsContainerClasses()}
+                {...TabBar.getItemElementClasses(
+                  pathname.endsWith("/child-events")
+                )}
               >
                 <TabBar.Item.Title>
                   {loaderData.locales.route.content.childEvents}
