@@ -16,16 +16,26 @@ function MobileSettingsHeader(props: { children: React.ReactNode }) {
     return isValidElement(child) && child.type === Back;
   });
 
-  const otherChildren = childrenArray.filter((child) => {
-    return child !== close && child !== back;
+  const heading = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === Heading;
   });
 
   return (
     <div className="flex xl:hidden items-center p-4 justify-between gap-2">
       {typeof back !== "undefined" ? back : <div className="w-10 h-10"></div>}
-      {otherChildren}
+      {typeof heading !== "undefined" ? heading : null}
       {typeof close !== "undefined" ? close : <div className="w-10 h-10"></div>}
     </div>
+  );
+}
+
+function Heading(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  return (
+    <h1 className="mb-0 text-neutral-700 text-lg font-bold leading-6">
+      {children}
+    </h1>
   );
 }
 
@@ -88,6 +98,7 @@ function BackIcon() {
   );
 }
 
+MobileSettingsHeader.Heading = Heading;
 MobileSettingsHeader.Close = Close;
 MobileSettingsHeader.CloseIcon = CloseIcon;
 MobileSettingsHeader.Back = Back;
