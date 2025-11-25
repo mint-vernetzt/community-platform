@@ -140,16 +140,19 @@ function InputError(
   );
 }
 
-function InputCounter(props: { currentCount: number; maxCount: number }) {
+function InputCounter(props: { currentCount: number; maxCount?: number }) {
+  const { currentCount, maxCount } = props;
+
   return (
     <div
       className={`text-sm ${
-        props.currentCount < props.maxCount
-          ? "text-neutral-700"
-          : "text-negative-700"
+        typeof maxCount !== "undefined" && currentCount >= maxCount
+          ? "text-negative-700"
+          : "text-neutral-700"
       } mt-2`}
     >
-      {props.currentCount}/{props.maxCount}
+      {currentCount}
+      {typeof maxCount !== "undefined" ? `/${maxCount}` : ""}
     </div>
   );
 }
@@ -177,10 +180,12 @@ function useCharacterCount() {
 export type InputProps = React.HTMLProps<HTMLInputElement> & {
   standalone?: boolean;
   withoutName?: boolean;
+  countCharacters?: boolean;
 };
 
 function Input(props: InputProps) {
-  const { children, standalone, withoutName, ...inputProps } = props;
+  const { children, standalone, withoutName, countCharacters, ...inputProps } =
+    props;
 
   const isSubmitting = useIsSubmitting();
 
@@ -320,7 +325,7 @@ function Input(props: InputProps) {
           </div>
           {typeof controls !== "undefined" && controls}
         </div>
-        {inputProps.maxLength !== undefined ? (
+        {inputProps.maxLength !== undefined || countCharacters === true ? (
           <div className={inputCounterContainerClasses}>
             {helperText !== undefined || errors.length > 0 ? (
               <div className="flex flex-col">
@@ -343,11 +348,15 @@ function Input(props: InputProps) {
           </div>
         ) : null}
 
-        {inputProps.maxLength === undefined && helperText !== undefined ? (
+        {inputProps.maxLength === undefined &&
+        countCharacters !== true &&
+        helperText !== undefined ? (
           <div className="pr-8">{helperText}</div>
         ) : null}
 
-        {inputProps.maxLength === undefined && errors.length > 0 ? (
+        {inputProps.maxLength === undefined &&
+        countCharacters !== true &&
+        errors.length > 0 ? (
           <ul>
             {errors.map((error, index) => (
               <li key={index}>{error}</li>
