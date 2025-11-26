@@ -848,6 +848,7 @@ function AbuseReportModal(props: {
   });
 
   const isHydrated = useHydrated();
+  const location = useLocation();
 
   return (
     <Modal searchParam={modalName}>

@@ -305,8 +305,10 @@ export async function uploadImage(options: {
   }
 
   // Close modal after redirect
-  const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  const redirectUrl = submission.value.redirectTo || new URL(request.url);
+  if (typeof redirectUrl !== "string") {
+    redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  }
   return {
     submission: null,
     toast: {
@@ -376,8 +378,10 @@ export async function disconnectImage(options: {
   }
 
   // Close modal after redirect
-  const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  const redirectUrl = submission.value.redirectTo || new URL(request.url);
+  if (typeof redirectUrl !== "string") {
+    redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  }
   return {
     submission: null,
     toast: {

@@ -301,7 +301,7 @@ export async function handleClaimRequest(options: {
           ? "positive"
           : ("neutral" as ToastLevel),
     },
-    redirectUrl: null,
+    redirectUrl: submission.value.redirectTo || null,
     alert: null,
   };
 }
