@@ -17,17 +17,14 @@ import {
   Link,
   Outlet,
   redirect,
-  useActionData,
   useLoaderData,
   useLocation,
   useMatches,
   useNavigate,
-  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
 import { Modal } from "~/components-next/Modal";
@@ -35,6 +32,7 @@ import { H1 } from "~/components/legacy/Heading/Heading";
 import ImageCropper, {
   IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
 } from "~/components/legacy/ImageCropper/ImageCropper";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
@@ -58,8 +56,8 @@ import {
   publishOrHideProject,
   uploadImage,
 } from "./detail.server";
+import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export function links() {
   return [
@@ -298,10 +296,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 };
 
-export const publishSchema = z.object({
-  [INTENT_FIELD_NAME]: z.enum(["publish", "hide"]),
-});
-
 export const action = async (args: ActionFunctionArgs) => {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
@@ -378,10 +372,22 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return redirectWithToast(`/project/${slug}/detail/about`, {
+      id:
+        intent === UPLOAD_INTENT_VALUE
+          ? "upload-failed"
+          : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
+            ? "disconnect-failed"
+            : "publish-failed",
+      key: `${new Date().getTime()}`,
+      message:
+        intent === UPLOAD_INTENT_VALUE
+          ? locales.route.error.onStoring
+          : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
+            ? locales.route.error.onDisconnecting
+            : locales.route.error.onPublishing,
+      level: "negative",
+    });
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -391,9 +397,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function ProjectDetail() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const location = useLocation();
-  const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
   const { project, mode, locales } = loaderData;
   const matches = useMatches();
@@ -406,13 +410,10 @@ function ProjectDetail() {
   }
 
   const [publishForm, publishFields] = useForm({
-    id: `publish-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `publish-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(publishSchema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -564,6 +565,7 @@ function ProjectDetail() {
               key="publish"
               defaultValue={loaderData.project.published ? "hide" : "publish"}
             />
+            <input type="hidden" name="redirectTo" value={location.pathname} />
             {typeof publishFields[INTENT_FIELD_NAME].errors !== "undefined" &&
             publishFields[INTENT_FIELD_NAME].errors.length > 0
               ? publishFields[INTENT_FIELD_NAME].errors.map((error) => (
@@ -595,9 +597,8 @@ function ProjectDetail() {
                 maxTargetHeight={MaxImageSizes.Background.height}
                 modalSearchParam="modal-background"
                 locales={locales}
-                currentTimestamp={
-                  actionData?.currentTimestamp || loaderData.currentTimestamp
-                }
+                currentTimestamp={loaderData.currentTimestamp}
+                redirectTo={location.pathname}
               >
                 {project.background !== undefined ? (
                   <Image
@@ -625,9 +626,8 @@ function ProjectDetail() {
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 modalSearchParam="modal-logo"
                 locales={locales}
-                currentTimestamp={
-                  actionData?.currentTimestamp || loaderData.currentTimestamp
-                }
+                currentTimestamp={loaderData.currentTimestamp}
+                redirectTo={location.pathname}
               >
                 <Avatar
                   name={project.name}

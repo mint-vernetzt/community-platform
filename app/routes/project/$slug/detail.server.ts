@@ -2,7 +2,6 @@ import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { publishSchema } from "./detail";
 import { parseWithZod } from "@conform-to/zod-v1";
 import { captureException } from "@sentry/node";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
@@ -15,6 +14,7 @@ import {
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { publishSchema } from "./detail.shared";
 
 export type ProjectDetailLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -84,8 +84,10 @@ export async function uploadImage(options: {
   }
 
   // Close modal after redirect
-  const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  const redirectUrl = submission.value.redirectTo || new URL(request.url);
+  if (typeof redirectUrl !== "string") {
+    redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  }
   return {
     submission: null,
     toast: {
@@ -148,8 +150,10 @@ export async function disconnectImage(options: {
   }
 
   // Close modal after redirect
-  const redirectUrl = new URL(request.url);
-  redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  const redirectUrl = submission.value.redirectTo || new URL(request.url);
+  if (typeof redirectUrl !== "string") {
+    redirectUrl.searchParams.delete(`modal-${submission.value.uploadKey}`);
+  }
   return {
     submission: null,
     toast: {
@@ -200,7 +204,7 @@ export async function publishOrHideProject(options: {
   });
 
   if (submission.status !== "success") {
-    return { submission, toast: null };
+    return { submission, toast: null, redirectUrl: null };
   }
 
   return {
@@ -213,5 +217,6 @@ export async function publishOrHideProject(options: {
           ? locales.route.content.published
           : locales.route.content.hided,
     },
+    redirectUrl: submission.value.redirectTo || null,
   };
 }
