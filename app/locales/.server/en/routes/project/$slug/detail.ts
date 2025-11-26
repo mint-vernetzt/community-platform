@@ -9,6 +9,8 @@ export const locale = {
       "The project could not be published or hided. Please try again or contact support.",
     onStoring:
       "The image could not be saved. Please try again or contact support.",
+    onDisconnecting:
+      "The image could not be removed. Please try again or contact support.",
     invalidAction: "Invalid action",
   },
   content: {

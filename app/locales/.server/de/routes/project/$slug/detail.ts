@@ -9,6 +9,8 @@ export const locale = {
       "Das Projekt konnte nicht veröffentlicht oder versteckt werden. Bitte versuche es erneut oder wende Dich an den Support.",
     onStoring:
       "Das Bild konnte nicht gespeichert werden. Bitte versuche es erneut oder wende Dich an den Support.",
+    onDisconnecting:
+      "Das Bild konnte nicht entfernt werden. Bitte versuche es erneut oder wende Dich an den Support.",
     invalidAction: "Invalid action",
   },
   content: {

@@ -73,6 +73,7 @@ export interface ImageCropperProps {
   modalSearchParam?: string;
   locales: ImageCropperLocales;
   currentTimestamp: number;
+  redirectTo?: string;
 }
 
 export const UPLOAD_KEYS = ["avatar", "background", "logo"] as const;
@@ -81,6 +82,15 @@ export const createImageUploadSchema = (locales: ImageCropperLocales) =>
   z.object({
     ...imageSchema(locales),
     uploadKey: z.enum(UPLOAD_KEYS),
+    redirectTo: z
+      .string()
+      .optional()
+      .refine((val) => {
+        if (typeof val === "string") {
+          return val.startsWith("/");
+        }
+        return true;
+      }),
   });
 
 export const IMAGE_CROPPER_DISCONNECT_INTENT_VALUE = "disconnect";
@@ -88,6 +98,15 @@ export const IMAGE_CROPPER_DISCONNECT_INTENT_VALUE = "disconnect";
 export const disconnectImageSchema = z.object({
   uploadKey: z.enum(UPLOAD_KEYS),
   [INTENT_FIELD_NAME]: z.enum([IMAGE_CROPPER_DISCONNECT_INTENT_VALUE]),
+  redirectTo: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (typeof val === "string") {
+        return val.startsWith("/");
+      }
+      return true;
+    }),
 });
 
 /**
@@ -188,6 +207,7 @@ function ImageCropper(props: ImageCropperProps) {
     circularCrop = false,
     locales,
     currentTimestamp,
+    redirectTo,
   } = props;
 
   const [selectedImageFileNames, setSelectedImageFileNames] = useState<
@@ -406,6 +426,7 @@ function ImageCropper(props: ImageCropperProps) {
                   })}
                   key={INTENT_FIELD_NAME}
                 />
+                <input type="hidden" name="redirectTo" value={redirectTo} />
                 <button
                   className={`bg-transparent w-8 h-8 p-0 absolute ${
                     uploadKey === "logo" || uploadKey === "avatar"
@@ -500,6 +521,7 @@ function ImageCropper(props: ImageCropperProps) {
             })}
             key={INTENT_FIELD_NAME}
           />
+          <input type="hidden" name="redirectTo" value={redirectTo} />
           <FileInput
             as="textButton"
             selectedFileNames={selectedImageFileNames}

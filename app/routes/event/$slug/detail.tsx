@@ -6,16 +6,25 @@ import {
   type MetaArgs,
   Outlet,
   redirect,
-  useActionData,
   useLoaderData,
   useLocation,
   useNavigate,
-  useNavigation,
 } from "react-router";
+import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import BackButton from "~/components/next/BackButton";
+import BasicStructure from "~/components/next/BasicStructure";
+import BreadCrump from "~/components/next/BreadCrump";
+import EventsOverview from "~/components/next/EventsOverview";
+import TabBar from "~/components/next/TabBar";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
+import { redirectWithToast } from "~/toast.server";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
@@ -32,18 +41,11 @@ import {
   reportEvent,
   uploadBackgroundImage,
 } from "./detail.server";
-import { z } from "zod";
-import BackButton from "~/components/next/BackButton";
-import BasicStructure from "~/components/next/BasicStructure";
-import BreadCrump from "~/components/next/BreadCrump";
-import EventsOverview from "~/components/next/EventsOverview";
-import TabBar from "~/components/next/TabBar";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { DefaultImages } from "~/images.shared";
-import { getPublicURL, parseMultipartFormData } from "~/storage.server";
-import { redirectWithToast } from "~/toast.server";
-import { ABUSE_REPORT_INTENT, createAbuseReportSchema } from "./details.shared";
+import {
+  ABUSE_REPORT_INTENT,
+  createAbuseReportSchema,
+  createParticipationSchema,
+} from "./details.shared";
 import { formatDateTime } from "./index.shared";
 
 import { captureException } from "@sentry/node";
@@ -199,13 +201,6 @@ export function meta(
       content: url,
     },
   ];
-}
-
-function createParticipationSchema(locales: { invalidProfileId: string }) {
-  const schema = z.object({
-    profileId: z.string().uuid(locales.invalidProfileId),
-  });
-  return schema;
 }
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -448,10 +443,18 @@ export async function action(args: ActionFunctionArgs) {
       redirectUrl = result.redirectUrl || request.url;
     }
     if (submission !== null) {
-      return {
-        submission: submission.reply(),
-        currentTimestamp: Date.now(),
-      };
+      return redirectWithToast(`/event/${event.slug}/detail/about`, {
+        id:
+          intent === UPLOAD_INTENT_VALUE
+            ? "upload-failed"
+            : "disconnect-failed",
+        key: `${new Date().getTime()}`,
+        message:
+          intent === UPLOAD_INTENT_VALUE
+            ? locales.route.errors.background.upload
+            : locales.route.errors.background.disconnect,
+        level: "negative",
+      });
     }
     if (toast === null) {
       return redirect(redirectUrl);
@@ -495,13 +498,15 @@ export async function action(args: ActionFunctionArgs) {
     });
 
     if (submission.status !== "success") {
-      return {
-        submission: submission.reply(),
-        currentTimestamp: Date.now(),
-      };
+      return redirectWithToast(`/event/${event.slug}/detail/about`, {
+        id: "abuse-report-failed",
+        key: `${new Date().getTime()}`,
+        message: locales.route.errors.abuseReport.submit,
+        level: "negative",
+      });
     }
 
-    return redirectWithToast(request.url, {
+    return redirectWithToast(submission.value.redirectTo || request.url, {
       id: "abuse-report-submitted-toast",
       key: `${new Date().getTime()}`,
       message: locales.route.success.abuseReport,
@@ -535,13 +540,22 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return redirectWithToast(`/event/${event.slug}/detail/about`, {
+      id:
+        intent === "participate"
+          ? "participate-failed"
+          : intent === "withdrawParticipation"
+            ? "withdraw-participation-failed"
+            : intent === "joinWaitingList"
+              ? "join-waiting-list-failed"
+              : "leave-waiting-list-failed",
+      key: `${new Date().getTime()}`,
+      message: locales.route.errors[intent],
+      level: "negative",
+    });
   }
 
-  return redirectWithToast(request.url, {
+  return redirectWithToast(submission.value.redirectTo || request.url, {
     id: "update-participation-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.success[intent],
@@ -550,8 +564,6 @@ export async function action(args: ActionFunctionArgs) {
 
 function Detail() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
-  const navigation = useNavigation();
   const location = useLocation();
   const { pathname } = location;
 
@@ -711,11 +723,6 @@ function Detail() {
                   loaderData.locales.eventAbuseReportReasonSuggestions,
               }}
               reasons={loaderData.abuseReportReasons}
-              lastResult={
-                navigation.state !== "idle" && typeof actionData !== "undefined"
-                  ? actionData.submission
-                  : null
-              }
             />
             {loaderData.mode === "admin" && (
               <EventsOverview.Edit slug={loaderData.event.slug}>

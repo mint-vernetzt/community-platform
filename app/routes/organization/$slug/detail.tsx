@@ -12,11 +12,9 @@ import {
   Link,
   Outlet,
   redirect,
-  useActionData,
   useLoaderData,
   useLocation,
   useNavigate,
-  useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
@@ -346,10 +344,20 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null && submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return redirectWithToast(`/organization/${slug}/detail/about`, {
+      id:
+        intent === UPLOAD_INTENT_VALUE
+          ? "upload-failed"
+          : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
+            ? "disconnect-failed"
+            : "claim-failed",
+      key: `${new Date().getTime()}`,
+      message:
+        submission.error !== null
+          ? Object.values(submission.error).join(" ")
+          : locales.route.error.onStoring,
+      level: "negative",
+    });
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -359,7 +367,6 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function OrganizationDetail() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const {
     organization,
     mode,
@@ -371,13 +378,9 @@ function OrganizationDetail() {
   const location = useLocation();
   const pathname = location.pathname;
   const isSubmitting = useIsSubmitting();
-  const navigation = useNavigation();
 
   const [claimRequestForm] = useForm({
-    id: `claim-request-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: `claim-request-${loaderData.currentTimestamp}`,
   });
 
   const previousLocation = usePreviousLocation();
@@ -694,6 +697,12 @@ function OrganizationDetail() {
                       method="post"
                       hidden
                     />
+                    <input
+                      form={claimRequestForm.id}
+                      type="hidden"
+                      name="redirectTo"
+                      value={location.pathname}
+                    />
                     <Button
                       name={INTENT_FIELD_NAME}
                       value={CLAIM_REQUEST_INTENTS.withdraw}
@@ -713,6 +722,12 @@ function OrganizationDetail() {
                       {...getFormProps(claimRequestForm)}
                       method="post"
                       hidden
+                    />
+                    <input
+                      form={claimRequestForm.id}
+                      type="hidden"
+                      name="redirectTo"
+                      value={location.pathname}
                     />
                     <Button
                       name={INTENT_FIELD_NAME}
@@ -759,9 +774,8 @@ function OrganizationDetail() {
                 maxTargetHeight={MaxImageSizes.Background.height}
                 modalSearchParam="modal-background"
                 locales={locales}
-                currentTimestamp={
-                  actionData?.currentTimestamp || loaderData.currentTimestamp
-                }
+                currentTimestamp={loaderData.currentTimestamp}
+                redirectTo={location.pathname}
               >
                 {organization.background !== null ? (
                   <Image
@@ -798,9 +812,8 @@ function OrganizationDetail() {
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 modalSearchParam="modal-logo"
                 locales={locales}
-                currentTimestamp={
-                  actionData?.currentTimestamp || loaderData.currentTimestamp
-                }
+                currentTimestamp={loaderData.currentTimestamp}
+                redirectTo={location.pathname}
               >
                 <Avatar
                   name={organization.name}

@@ -11,4 +11,13 @@ export const claimRequestSchema = z.object({
     CLAIM_REQUEST_INTENTS.create,
     CLAIM_REQUEST_INTENTS.withdraw,
   ]),
+  redirectTo: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (typeof val === "string") {
+        return val.startsWith("/");
+      }
+      return true;
+    }),
 });
