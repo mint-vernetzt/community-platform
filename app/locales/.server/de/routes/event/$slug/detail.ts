@@ -48,6 +48,8 @@ export const locale = {
     background: {
       upload:
         "Das Bild konnte nicht gespeichert werden. Bitte versuche es erneut oder wende Dich an den Support.",
+      disconnect:
+        "Das Hintergrundbild konnte nicht entfernt werden. Bitte versuche es erneut oder wende Dich an den Support.",
     },
   },
   success: {

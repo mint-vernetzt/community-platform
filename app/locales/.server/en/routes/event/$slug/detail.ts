@@ -48,6 +48,8 @@ export const locale = {
     background: {
       upload:
         "The image could not be saved. Please try again or contact support.",
+      disconnect:
+        "The background image could not be removed. Please try again or contact support.",
     },
   },
   success: {

@@ -1,38 +1,33 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar"; // refactor?
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
+import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
+import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refactor?
+import classNames from "classnames";
+import { utcToZonedTime } from "date-fns-tz";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { Form, Link, useLocation } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
+import { copyToClipboard } from "~/lib/utils/clipboard";
 import { getDateDuration, getTimeDuration } from "~/lib/utils/time";
 import type { ArrayElement } from "~/lib/utils/types";
 import type { languageModuleMap } from "~/locales/.server";
-import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
-import { copyToClipboard } from "~/lib/utils/clipboard";
-import { Form, Link, useLocation } from "react-router";
-import { useEffect, useState, createContext, useContext, useRef } from "react";
-import { Image as ImageComponent } from "@mint-vernetzt/components/src/molecules/Image"; // refactor?
-import classNames from "classnames";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { Modal } from "../../components-next/Modal"; // refactor?
-import { RichText } from "../legacy/Richtext/RichText"; // refactor?
-import {
-  getFormProps,
-  getInputProps,
-  type SubmissionResult,
-  useForm,
-} from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import {
   ABUSE_REPORT_INTENT,
   createAbuseReportSchema,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refactor?
-import { useHydrated } from "remix-utils/use-hydrated";
+import { Modal } from "../../components-next/Modal"; // refactor?
 import ImageCropper, {
   type ImageCropperLocales,
 } from "../legacy/ImageCropper/ImageCropper";
-import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { utcToZonedTime } from "date-fns-tz";
+import { RichText } from "../legacy/Richtext/RichText"; // refactor?
+import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
 
 // Design:
 // Name: Events_Overview
@@ -822,7 +817,6 @@ function AbuseReportModal(props: {
       [key: string]: { description: string };
     };
   };
-  lastResult?: SubmissionResult<string[]> | null;
   reasons: { slug: string; description: string }[];
 }) {
   let modalName = "modal-report";
@@ -844,7 +838,6 @@ function AbuseReportModal(props: {
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: props.lastResult,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -875,6 +868,7 @@ function AbuseReportModal(props: {
             aria-label={props.locales.submit}
             aria-hidden="true"
           />
+          <input type="hidden" name="redirectTo" value={location.pathname} />
           <div className="flex flex-col gap-6">
             {props.reasons.map((reason) => {
               let description;
@@ -1012,6 +1006,7 @@ function Login(props: { children: React.ReactNode; pathname: string }) {
 }
 
 function Participate(props: { children: React.ReactNode; profileId?: string }) {
+  const location = useLocation();
   if (typeof props.profileId === "undefined") {
     return null;
   }
@@ -1019,6 +1014,7 @@ function Participate(props: { children: React.ReactNode; profileId?: string }) {
   return (
     <Form method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
@@ -1035,6 +1031,7 @@ function WithdrawParticipation(props: {
   children: React.ReactNode;
   profileId?: string;
 }) {
+  const location = useLocation();
   if (typeof props.profileId === "undefined") {
     return null;
   }
@@ -1042,6 +1039,7 @@ function WithdrawParticipation(props: {
   return (
     <Form method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
@@ -1059,6 +1057,7 @@ function JoinWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
 }) {
+  const location = useLocation();
   if (typeof props.profileId === "undefined") {
     return null;
   }
@@ -1066,6 +1065,7 @@ function JoinWaitingList(props: {
   return (
     <Form method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
@@ -1082,6 +1082,7 @@ function LeaveWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
 }) {
+  const location = useLocation();
   if (typeof props.profileId === "undefined") {
     return null;
   }
@@ -1089,6 +1090,7 @@ function LeaveWaitingList(props: {
   return (
     <Form method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
+      <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
         type="submit"
         name={INTENT_FIELD_NAME}
@@ -1200,6 +1202,7 @@ function EditBackgroundModal(props: {
   } & ImageCropperLocales;
 }) {
   const timestamp = useRef(Date.now());
+  const location = useLocation();
 
   let modalName = "modal-edit-background";
   if (typeof props.modalName === "string") {
@@ -1225,6 +1228,7 @@ function EditBackgroundModal(props: {
           modalSearchParam="modal-background"
           locales={props.locales}
           currentTimestamp={timestamp.current}
+          redirectTo={location.pathname}
         >
           <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
             <ImageComponent

@@ -18,5 +18,32 @@ export function createAbuseReportSchema(locales: { maxLength: string }) {
         })
       )
       .optional(),
+    redirectTo: z
+      .string()
+      .optional()
+      .refine((val) => {
+        if (typeof val === "string") {
+          return val.startsWith("/");
+        }
+        return true;
+      }),
   });
+}
+
+export function createParticipationSchema(locales: {
+  invalidProfileId: string;
+}) {
+  const schema = z.object({
+    profileId: z.string().uuid(locales.invalidProfileId),
+    redirectTo: z
+      .string()
+      .optional()
+      .refine((val) => {
+        if (typeof val === "string") {
+          return val.startsWith("/");
+        }
+        return true;
+      }),
+  });
+  return schema;
 }
