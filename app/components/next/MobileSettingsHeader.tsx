@@ -1,10 +1,14 @@
+import classNames from "classnames";
 import { Children, isValidElement } from "react";
 
 // Design:
 // Name: Header
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10460-7441&t=tfQdYMN5AFhmqikL-4
-function MobileSettingsHeader(props: { children: React.ReactNode }) {
-  const { children } = props;
+function MobileSettingsHeader(props: {
+  children: React.ReactNode;
+  visibleUntil?: "xl" | "lg";
+}) {
+  const { children, visibleUntil = "lg" } = props;
 
   const childrenArray = Children.toArray(children);
 
@@ -20,8 +24,14 @@ function MobileSettingsHeader(props: { children: React.ReactNode }) {
     return isValidElement(child) && child.type === Heading;
   });
 
+  const classes = classNames(
+    "flex items-center p-4 justify-between gap-2",
+    visibleUntil === "xl" ? "xl:hidden" : "",
+    visibleUntil === "lg" ? "lg:hidden" : ""
+  );
+
   return (
-    <div className="flex xl:hidden items-center p-4 justify-between gap-2">
+    <div className={classes}>
       {typeof back !== "undefined" ? back : <div className="w-10 h-10"></div>}
       {typeof heading !== "undefined" ? heading : null}
       {typeof close !== "undefined" ? close : <div className="w-10 h-10"></div>}

@@ -13,10 +13,12 @@ type NavBarProps = {
   sessionUserInfo?: SessionUserInfo;
   openMainMenuKey: string;
   locales?: RootLocales;
-  hideSearchBar?: {
-    untilScrollY: number;
-    afterBreakpoint: "@md" | "@lg";
-  };
+  hideSearchBar?:
+    | {
+        untilScrollY: number;
+        afterBreakpoint: "@md" | "@lg";
+      }
+    | boolean;
 };
 
 type SessionUserInfo = {
@@ -45,9 +47,15 @@ export function NavBar(props: NavBarProps) {
   );
 
   useEffect(() => {
-    if (typeof props.hideSearchBar !== "undefined") {
+    if (
+      typeof props.hideSearchBar !== "undefined" &&
+      typeof props.hideSearchBar === "object"
+    ) {
       const handleScroll = () => {
-        if (typeof props.hideSearchBar !== "undefined") {
+        if (
+          typeof props.hideSearchBar !== "undefined" &&
+          typeof props.hideSearchBar === "object"
+        ) {
           const { scrollY } = window;
           if (scrollY > props.hideSearchBar.untilScrollY) {
             setHideSearchBar(false);
@@ -133,9 +141,13 @@ export function NavBar(props: NavBarProps) {
             <Form
               className={
                 hideSearchBar === true &&
-                typeof props.hideSearchBar !== "undefined"
+                typeof props.hideSearchBar !== "undefined" &&
+                typeof props.hideSearchBar === "object"
                   ? `block ${props.hideSearchBar.afterBreakpoint}:hidden`
-                  : "w-full"
+                  : typeof props.hideSearchBar === "boolean" &&
+                      props.hideSearchBar === true
+                    ? "hidden"
+                    : "w-full"
               }
               method="get"
               action={
