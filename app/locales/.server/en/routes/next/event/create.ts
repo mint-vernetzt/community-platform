@@ -10,20 +10,20 @@ export const locale = {
   },
   timePeriod: {
     headline: "Is it a one-day or multi-day event?",
-    oneDay: {
+    single: {
       label: "One-day event",
     },
-    multiDay: {
+    multi: {
       label: "Multi-day event",
     },
   },
   timings: {
     headline: "When does your event take place?",
     startDate: {
-      oneDay: {
+      single: {
         label: "Date*",
       },
-      multiDay: {
+      multi: {
         label: "Start date*",
       },
     },
@@ -40,4 +40,20 @@ export const locale = {
   requiredHint: "*Required information",
   cta: "Create draft",
   cancel: "Discard",
+  form: {
+    validation: {
+      nameRequired: "Please enter a title.",
+      startDateRequired: "Please enter the start date of your event.",
+      startDateInPast: "Your date is in the past.",
+      endDateRequired: "Please enter the end date of your event.",
+      endDateInPast: "Your end date is in the past.",
+      endDateBeforeStartDate: "Your end date is before the start date.",
+      startTimeRequired: "Please enter the start time.",
+      endTimeRequired: "Please enter the end time.",
+    },
+  },
+  errors: {
+    createEventFailed:
+      "An error occurred while creating your event. Please try again later.",
+  },
 } as const;
