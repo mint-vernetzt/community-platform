@@ -2,6 +2,8 @@ export const locale = {
   mobileHeadline: "Einstellungen",
   close: "Zum Event",
   back: "Zurück zum Menü",
+  publishHint: "Dein Event ist im Entwurfsmodus nicht öffentlich sichtbar.",
+  publishCta: "Event veröffentlichen",
   menu: {
     admins: "Administrator:innen",
     dangerZone: "Kritischer Bereich",

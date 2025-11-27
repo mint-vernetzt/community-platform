@@ -12,6 +12,7 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import MobileSettingsHeader from "~/components/next/MobileSettingsHeader";
+import SettingsNaviItem from "~/components/next/SettingsNaviItem";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
@@ -19,6 +20,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./settings.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -64,16 +66,41 @@ export default function Settings() {
     { to: `registration?${Deep}`, label: locales.route.menu.registration },
     { to: `details?${Deep}`, label: locales.route.menu.details },
     { to: `location?${Deep}`, label: locales.route.menu.location },
-    { to: `admins?${Deep}`, label: locales.route.menu.admins },
-    { to: `team?${Deep}`, label: locales.route.menu.team },
-    { to: `speakers?${Deep}`, label: locales.route.menu.speakers },
-    { to: `participants?${Deep}`, label: locales.route.menu.participants },
+    {
+      to: `admins?${Deep}`,
+      label: locales.route.menu.admins,
+      count: event._count.admins,
+    },
+    {
+      to: `team?${Deep}`,
+      label: locales.route.menu.team,
+      count: event._count.teamMembers,
+    },
+    {
+      to: `speakers?${Deep}`,
+      label: locales.route.menu.speakers,
+      count: event._count.speakers,
+    },
+    {
+      to: `participants?${Deep}`,
+      label: locales.route.menu.participants,
+      count: event._count.participants,
+    },
     {
       to: `responsible-orgs?${Deep}`,
       label: locales.route.menu.responsibleOrgs,
+      count: event._count.responsibleOrganizations,
     },
-    { to: `documents?${Deep}`, label: locales.route.menu.documents },
-    { to: `related-events?${Deep}`, label: locales.route.menu.relatedEvents },
+    {
+      to: `documents?${Deep}`,
+      label: locales.route.menu.documents,
+      count: event._count.documents,
+    },
+    {
+      to: `related-events?${Deep}`,
+      label: locales.route.menu.relatedEvents,
+      count: event._count.childEvents,
+    },
     { to: `danger-zone?${Deep}`, label: locales.route.menu.dangerZone },
   ];
 
@@ -111,21 +138,45 @@ export default function Settings() {
         )}
       </MobileSettingsHeader>
       {deep === null ? (
-        <menu className="w-full min-h-[calc(100dvh-72px)] bg-white lg:hidden flex flex-col">
-          {links.map((link) => {
-            return (
-              <Link
-                to={link.to}
-                key={link.to}
-                // TODO: getSettingsNaviMobileStyles()
-                className="w-full p-4 bg-white"
-                prefetch="intent"
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </menu>
+        <>
+          {event.published === false ? (
+            <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
+              <p className="text-neutral-600 text-base font-normal leading-5">
+                {locales.route.publishHint}
+              </p>
+              <div className="w-full md:w-fit">
+                {/* TODO: When implementing action remember to redirect to current leaf route and not this parent route */}
+                <Button variant="outline" fullSize>
+                  {locales.route.publishCta}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+          <menu className="w-full min-h-[calc(100dvh-72px)] bg-white lg:hidden flex flex-col">
+            {links.map((link) => {
+              return (
+                <Link
+                  to={link.to}
+                  key={link.to}
+                  prefetch="intent"
+                  {...SettingsNaviItem.getSettingsNaviItemStyles({
+                    type: "mobile",
+                    isCritical: link.to.includes("danger-zone"),
+                  })}
+                >
+                  <SettingsNaviItem.Label>
+                    <span>{link.label}</span>
+                    {/* TODO: Use Counter component */}
+                    {typeof link.count !== "undefined" && link.count !== 0 ? (
+                      <span>{link.count}</span>
+                    ) : null}
+                  </SettingsNaviItem.Label>
+                  <SettingsNaviItem.ChevronRightIcon />
+                </Link>
+              );
+            })}
+          </menu>
+        </>
       ) : null}
       {deep !== null ? <Outlet /> : null}
     </>

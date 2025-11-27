@@ -2,6 +2,8 @@ export const locale = {
   mobileHeadline: "Settings",
   close: "Back to Event",
   back: "Back to Menu",
+  publishHint: "Your event is not publicly visible while in draft mode.",
+  publishCta: "Publish event",
   menu: {
     admins: "Administrators",
     dangerZone: "Danger Zone",
