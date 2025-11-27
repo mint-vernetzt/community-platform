@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
@@ -14,8 +13,5 @@ export const loader = async (args: LoaderFunctionArgs) => {
 };
 
 export default function Details() {
-  const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
-
   return <>Details</>;
 }
