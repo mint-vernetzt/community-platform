@@ -50,6 +50,7 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
               allow="fullscreen"
               allowFullScreen
               nonce={nonce}
+              referrerPolicy="strict-origin-when-cross-origin"
             ></iframe>
           )}
         </div>
