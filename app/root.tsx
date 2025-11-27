@@ -740,7 +740,7 @@ export default function App() {
                       showFilters === "true" && isMapOnExplore === false
                         ? "hidden @lg:block "
                         : ""
-                    }${isMapOnExplore ? "hidden " : ""}w-0`}
+                    }${isMapOnExplore ? "hidden " : ""}${isEventSettings ? "hidden lg:block " : ""}w-0`}
                   >
                     <ScrollToTopButton locales={locales} />
                   </div>

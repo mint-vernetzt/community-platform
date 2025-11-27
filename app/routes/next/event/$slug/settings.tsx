@@ -19,7 +19,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./settings.server";
-import { useState } from "react";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -53,8 +52,7 @@ export default function Settings() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, event } = loaderData;
   const [searchParams] = useSearchParams();
-  const deepParam = searchParams.get(Deep);
-  const [deep, setDeep] = useState(deepParam);
+  const deep = searchParams.get(Deep);
 
   const location = useLocation();
   const leafPathname = location.pathname.replace(
@@ -104,10 +102,6 @@ export default function Settings() {
           <MobileSettingsHeader.Back>
             <Link
               to={location.pathname}
-              onClick={(event) => {
-                event.preventDefault();
-                setDeep(null);
-              }}
               aria-label={locales.route.back}
               prefetch="intent"
             >
@@ -116,6 +110,23 @@ export default function Settings() {
           </MobileSettingsHeader.Back>
         )}
       </MobileSettingsHeader>
+      {deep === null ? (
+        <menu className="w-full min-h-[calc(100dvh-72px)] bg-white lg:hidden flex flex-col">
+          {links.map((link) => {
+            return (
+              <Link
+                to={link.to}
+                key={link.to}
+                // TODO: getSettingsNaviMobileStyles()
+                className="w-full p-4 bg-white"
+                prefetch="intent"
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </menu>
+      ) : null}
       {deep !== null ? <Outlet /> : null}
     </>
   );
