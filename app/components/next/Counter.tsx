@@ -4,15 +4,18 @@
 
 import classNames from "classnames";
 
-function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
-  const { active = false } = props;
+function Counter(
+  props: React.PropsWithChildren<{ active?: boolean; responsive?: boolean }>
+) {
+  const { active = false, responsive = false } = props;
   return (
     <span
       className={classNames(
-        "text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6 py-0.5 px-1.5 rounded-lg",
+        "text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6.5 px-2 rounded-lg group-hover/counter:text-primary group-hover/counter:bg-primary-50",
         active
           ? "text-primary bg-primary-50"
-          : "text-neutral-600 bg-neutral-200"
+          : "text-neutral-600 bg-neutral-200",
+        responsive ? "lg:min-w-7 lg:text-sm lg:px-1.5" : ""
       )}
     >
       {props.children}

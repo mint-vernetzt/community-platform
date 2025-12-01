@@ -12,7 +12,6 @@ import {
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import MobileSettingsHeader from "~/components/next/MobileSettingsHeader";
-import SettingsNaviItem from "~/components/next/SettingsNaviItem";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
@@ -21,6 +20,7 @@ import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./settings.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import SettingsNavi from "~/components/next/SettingsNavi";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -137,9 +137,9 @@ export default function Settings() {
           </MobileSettingsHeader.Back>
         )}
       </MobileSettingsHeader>
-      {deep === null ? (
-        <>
-          {event.published === false ? (
+      <SettingsNavi deep={deep}>
+        {event.published === false ? (
+          <SettingsNavi.ActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
               <p className="text-neutral-600 text-base font-normal leading-5">
                 {locales.route.publishHint}
@@ -151,38 +151,38 @@ export default function Settings() {
                 </Button>
               </div>
             </div>
-          ) : null}
-          <menu className="w-full min-h-[calc(100dvh-72px)] bg-white lg:hidden flex flex-col">
-            {links.map((link) => {
-              return (
-                <SettingsNaviItem
-                  key={link.to}
-                  active={leafPathname === link.to.replace(`?${Deep}`, "")}
-                >
-                  <Link
-                    to={link.to}
-                    prefetch="intent"
-                    {...SettingsNaviItem.getSettingsNaviItemStyles({
-                      type: "mobile",
-                      isCritical: link.to.includes("danger-zone"),
-                    })}
-                  >
-                    <SettingsNaviItem.Label>
-                      <span>{link.label}</span>
-                      {typeof link.count !== "undefined" && link.count !== 0 ? (
-                        <SettingsNaviItem.Counter>
-                          {link.count}
-                        </SettingsNaviItem.Counter>
-                      ) : null}
-                    </SettingsNaviItem.Label>
-                    <SettingsNaviItem.ChevronRightIcon />
-                  </Link>
-                </SettingsNaviItem>
-              );
-            })}
-          </menu>
-        </>
-      ) : null}
+          </SettingsNavi.ActionSection>
+        ) : null}
+        {links.map((link) => {
+          return (
+            <SettingsNavi.Item
+              key={link.to}
+              active={leafPathname === link.to.replace(`?${Deep}`, "")}
+              critical={link.to.includes("danger-zone")}
+            >
+              <Link
+                to={link.to}
+                prefetch="intent"
+                {...SettingsNavi.getSettingsNaviItemStyles({
+                  active: leafPathname === link.to.replace(`?${Deep}`, ""),
+                  critical: link.to.includes("danger-zone"),
+                })}
+                preventScrollReset={true}
+              >
+                <SettingsNavi.Item.Label>
+                  <span>{link.label}</span>
+                  {typeof link.count !== "undefined" && link.count !== 0 ? (
+                    <SettingsNavi.Item.Counter>
+                      {link.count}
+                    </SettingsNavi.Item.Counter>
+                  ) : null}
+                </SettingsNavi.Item.Label>
+                <SettingsNavi.Item.ChevronRightIcon />
+              </Link>
+            </SettingsNavi.Item>
+          );
+        })}
+      </SettingsNavi>
       {deep !== null ? <Outlet /> : null}
     </>
   );
