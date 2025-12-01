@@ -84,28 +84,31 @@ export const action = async (args: ActionFunctionArgs) => {
   const slug = generateEventSlug(submission.value.name);
 
   try {
-    const event = await prismaClient.event.create({
-      data: {
-        ...submission.value,
-        slug,
-      },
-    });
-    await prismaClient.eventVisibility.create({
-      data: {
-        eventId: event.id,
-      },
-    });
-    await prismaClient.teamMemberOfEvent.create({
-      data: {
-        profileId: sessionUser.id,
-        eventId: event.id,
-      },
-    });
-    await prismaClient.adminOfEvent.create({
-      data: {
-        profileId: sessionUser.id,
-        eventId: event.id,
-      },
+    await prismaClient.$transaction(async (client) => {
+      const event = await client.event.create({
+        data: {
+          ...submission.value,
+          slug,
+        },
+      });
+      await client.eventVisibility.create({
+        data: {
+          eventId: event.id,
+        },
+      });
+      await client.teamMemberOfEvent.create({
+        data: {
+          profileId: sessionUser.id,
+          eventId: event.id,
+        },
+      });
+      await client.adminOfEvent.create({
+        data: {
+          profileId: sessionUser.id,
+          eventId: event.id,
+        },
+      });
+      return event;
     });
   } catch (error) {
     captureException(error);
