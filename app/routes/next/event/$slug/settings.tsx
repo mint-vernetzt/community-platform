@@ -155,24 +155,29 @@ export default function Settings() {
           <menu className="w-full min-h-[calc(100dvh-72px)] bg-white lg:hidden flex flex-col">
             {links.map((link) => {
               return (
-                <Link
-                  to={link.to}
+                <SettingsNaviItem
                   key={link.to}
-                  prefetch="intent"
-                  {...SettingsNaviItem.getSettingsNaviItemStyles({
-                    type: "mobile",
-                    isCritical: link.to.includes("danger-zone"),
-                  })}
+                  active={leafPathname === link.to.replace(`?${Deep}`, "")}
                 >
-                  <SettingsNaviItem.Label>
-                    <span>{link.label}</span>
-                    {/* TODO: Use Counter component */}
-                    {typeof link.count !== "undefined" && link.count !== 0 ? (
-                      <span>{link.count}</span>
-                    ) : null}
-                  </SettingsNaviItem.Label>
-                  <SettingsNaviItem.ChevronRightIcon />
-                </Link>
+                  <Link
+                    to={link.to}
+                    prefetch="intent"
+                    {...SettingsNaviItem.getSettingsNaviItemStyles({
+                      type: "mobile",
+                      isCritical: link.to.includes("danger-zone"),
+                    })}
+                  >
+                    <SettingsNaviItem.Label>
+                      <span>{link.label}</span>
+                      {typeof link.count !== "undefined" && link.count !== 0 ? (
+                        <SettingsNaviItem.Counter>
+                          {link.count}
+                        </SettingsNaviItem.Counter>
+                      ) : null}
+                    </SettingsNaviItem.Label>
+                    <SettingsNaviItem.ChevronRightIcon />
+                  </Link>
+                </SettingsNaviItem>
               );
             })}
           </menu>

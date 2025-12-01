@@ -1,13 +1,36 @@
 import classNames from "classnames";
+import { createContext, useContext } from "react";
+import { Counter as DesignCounter } from "./Counter";
 
 // Design:
 // Name: Settings Navi
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10089-3608&t=GN24nvSjNasWIKry-4
 
-function SettingsNaviItem(props: { children: React.ReactNode }) {
-  const { children } = props;
+const SettingsNaviItemContext = createContext<{ active: boolean }>({
+  active: false,
+});
 
-  return <>{children}</>;
+function useSettingsNaviItemContext() {
+  const context = useContext(SettingsNaviItemContext);
+  if (typeof context === "undefined") {
+    throw new Error(
+      "useSettingsNaviItemContext must be used within a SettingsNaviItem"
+    );
+  }
+  return context;
+}
+
+function SettingsNaviItem(props: {
+  children: React.ReactNode;
+  active?: boolean;
+}) {
+  const { children, active = false } = props;
+
+  return (
+    <SettingsNaviItemContext value={{ active }}>
+      <li>{children}</li>
+    </SettingsNaviItemContext>
+  );
 }
 
 function getSettingsNaviItemStyles(options: {
@@ -34,13 +57,22 @@ function getSettingsNaviItemStyles(options: {
 function Label(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  return <div className="flex gap-2">{children}</div>;
+  return <div className="flex gap-2 items-center">{children}</div>;
 }
 
-// TODO: Counter component used in TabBar is also used here in Design. How do we handle this with single source of truth and TabBarItem context?
-// Design:
-// Name: Tab/Navi Badge Zahl
-// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10421-8640&t=24txvZOJ4OBW1SUh-4
+function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
+  const { active } = useSettingsNaviItemContext();
+  return (
+    <>
+      <div className="hidden lg:block">
+        <DesignCounter active={active}>{props.children}</DesignCounter>
+      </div>
+      <div className="lg:hidden">
+        <DesignCounter active={true}>{props.children}</DesignCounter>
+      </div>
+    </>
+  );
+}
 
 function ChevronRightIcon() {
   return (
@@ -67,5 +99,6 @@ function ChevronRightIcon() {
 SettingsNaviItem.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
 SettingsNaviItem.ChevronRightIcon = ChevronRightIcon;
 SettingsNaviItem.Label = Label;
+SettingsNaviItem.Counter = Counter;
 
 export default SettingsNaviItem;
