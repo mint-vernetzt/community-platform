@@ -37,6 +37,8 @@ import { prismaClient } from "~/prisma.server";
 import { generateEventSlug } from "~/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { captureException } from "@sentry/node";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -139,11 +141,16 @@ export default function Create() {
       : TIME_PERIOD_SINGLE
   );
 
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
   const [form, fields] = useForm({
     id: "create-event-form",
     constraint: getZodConstraint(
       createEventCreationSchema(locales.route.form.validation)
     ),
+    shouldDirtyConsider(name) {
+      return name !== "timePeriod";
+    },
     shouldValidate: "onBlur",
     onValidate: (values) => {
       const submission = parseWithZod(values.formData, {
@@ -385,7 +392,18 @@ export default function Create() {
             </p>
             <div className="w-full md:w-fit flex flex-col md:flex-row gap-4">
               <div className="w-full md:w-fit">
-                <Button type="submit" fullSize form={form.id}>
+                <Button
+                  type="submit"
+                  fullSize
+                  form={form.id} // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? form.dirty === false ||
+                        form.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
                   {locales.route.cta}
                 </Button>
               </div>
