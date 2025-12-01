@@ -227,17 +227,12 @@ export default function Create() {
                 {locales.route.name.label}
               </Input.Label>
               {typeof fields.name.errors !== "undefined" &&
-              fields.name.errors.length > 0 ? (
+                fields.name.errors.length > 0 &&
                 fields.name.errors.map((error) => (
                   <Input.Error id={fields.name.errorId} key={error}>
                     {error}
                   </Input.Error>
-                ))
-              ) : (
-                <Input.HelperText>
-                  {locales.route.name.helperText}
-                </Input.HelperText>
-              )}
+                ))}
               <Input.HelperText>
                 {locales.route.name.helperText}
               </Input.HelperText>
