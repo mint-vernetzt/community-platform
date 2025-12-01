@@ -1,11 +1,12 @@
 import { zonedTimeToUtc } from "date-fns-tz";
-import z from "zod";
+import { z } from "zod";
 
 export const TIME_PERIOD_SINGLE = "single";
 export const TIME_PERIOD_MULTI = "multi";
 
 export function createEventCreationSchema(locales: {
   nameRequired: string;
+  nameMinLength: string;
   startDateRequired: string;
   startDateInPast: string;
   endDateRequired: string;
@@ -38,7 +39,15 @@ export function createEventCreationSchema(locales: {
           code: z.ZodIssueCode.custom,
           message: locales.nameRequired,
         });
+        // min length 3
+      } else if (data.name.trim().length < 3) {
+        context.addIssue({
+          path: ["name"],
+          code: z.ZodIssueCode.custom,
+          message: locales.nameMinLength,
+        });
       }
+
       if (data.timePeriod === TIME_PERIOD_SINGLE) {
         // Validate start date
         // required

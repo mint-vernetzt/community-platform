@@ -43,6 +43,7 @@ export const locale = {
   form: {
     validation: {
       nameRequired: "Please enter a title.",
+      nameMinLength: "The event name must be at least 3 characters long.",
       startDateRequired: "Please enter the start date of your event.",
       startDateInPast: "Your date is in the past.",
       endDateRequired: "Please enter the end date of your event.",
