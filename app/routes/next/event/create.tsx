@@ -390,7 +390,13 @@ export default function Create() {
                 </Button>
               </div>
               <div className="w-full md:w-fit">
-                <Button as="link" to="/my/events" variant="outline" fullSize>
+                <Button
+                  as="link"
+                  to="/my/events"
+                  variant="outline"
+                  fullSize
+                  prefetch="intent"
+                >
                   {locales.route.cancel}
                 </Button>
               </div>
