@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  NavLink,
   Outlet,
   redirect,
   useLoaderData,
@@ -160,13 +161,15 @@ export default function Settings() {
               active={leafPathname === link.to.replace(`?${Deep}`, "")}
               critical={link.to.includes("danger-zone")}
             >
-              <Link
+              <NavLink
                 to={link.to}
                 prefetch="intent"
-                {...SettingsNavi.getSettingsNaviItemStyles({
-                  active: leafPathname === link.to.replace(`?${Deep}`, ""),
-                  critical: link.to.includes("danger-zone"),
-                })}
+                className={({ isActive }) => {
+                  return SettingsNavi.getSettingsNaviItemStyles({
+                    active: isActive,
+                    critical: link.to.includes("danger-zone"),
+                  }).className;
+                }}
                 preventScrollReset={true}
               >
                 <SettingsNavi.Item.Label>
@@ -178,7 +181,7 @@ export default function Settings() {
                   ) : null}
                 </SettingsNavi.Item.Label>
                 <SettingsNavi.Item.ChevronRightIcon />
-              </Link>
+              </NavLink>
             </SettingsNavi.Item>
           );
         })}
