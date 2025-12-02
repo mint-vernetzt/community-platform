@@ -23,6 +23,8 @@ import { getEventBySlug } from "./settings.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import SettingsNavi from "~/components/next/SettingsNavi";
 import BasicStructure from "~/components/next/BasicStructure";
+import BackButton from "~/components/next/BackButton";
+import SettingsHeading from "~/components/next/SettingsHeading";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -108,6 +110,14 @@ export default function Settings() {
 
   return (
     <BasicStructure>
+      <div className="hidden lg:block">
+        <BackButton to={`/event/${event.slug}/detail/about`} prefetch="intent">
+          {loaderData.locales.route.close}
+        </BackButton>
+      </div>
+      <div className="hidden lg:block">
+        <SettingsHeading>{locales.route.desktopHeadline}</SettingsHeading>
+      </div>
       <SettingsNavi deep={deep}>
         <SettingsNavi.MobileHeader>
           <MobileSettingsHeader.Heading>

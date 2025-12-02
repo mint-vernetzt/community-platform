@@ -1,5 +1,6 @@
 export const locale = {
   mobileHeadline: "Settings",
+  desktopHeadline: "Edit Event",
   close: "Back to Event",
   back: "Back to Menu",
   publishHint: "Your event is not publicly visible while in draft mode.",

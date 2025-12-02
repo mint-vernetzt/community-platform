@@ -1,5 +1,6 @@
 export const locale = {
   mobileHeadline: "Einstellungen",
+  desktopHeadline: "Event bearbeiten",
   close: "Zum Event",
   back: "Zurück zum Menü",
   publishHint: "Dein Event ist im Entwurfsmodus nicht öffentlich sichtbar.",
