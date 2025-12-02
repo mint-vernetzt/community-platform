@@ -22,6 +22,7 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./settings.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import SettingsNavi from "~/components/next/SettingsNavi";
+import BasicStructure from "~/components/next/BasicStructure";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -106,9 +107,9 @@ export default function Settings() {
   ];
 
   return (
-    <>
+    <BasicStructure>
       <SettingsNavi deep={deep}>
-        <SettingsNavi.MobileSettingsHeader>
+        <SettingsNavi.MobileHeader>
           <MobileSettingsHeader.Heading>
             {deep === null
               ? locales.route.mobileHeadline
@@ -138,9 +139,10 @@ export default function Settings() {
               </Link>
             </MobileSettingsHeader.Back>
           )}
-        </SettingsNavi.MobileSettingsHeader>
+        </SettingsNavi.MobileHeader>
+        <SettingsNavi.DesktopHeader>{event.name}</SettingsNavi.DesktopHeader>
         {event.published === false ? (
-          <SettingsNavi.ActionSection>
+          <SettingsNavi.MobileActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
               <p className="text-neutral-600 text-base font-normal leading-5">
                 {locales.route.publishHint}
@@ -152,7 +154,14 @@ export default function Settings() {
                 </Button>
               </div>
             </div>
-          </SettingsNavi.ActionSection>
+          </SettingsNavi.MobileActionSection>
+        ) : null}
+        {event.published === false ? (
+          <SettingsNavi.DesktopActionSection>
+            <span>{locales.route.publishHint}</span>
+            {/* TODO: When implementing action remember to redirect to current leaf route and not this parent route */}
+            <Button variant="outline">{locales.route.publishCta}</Button>
+          </SettingsNavi.DesktopActionSection>
         ) : null}
         {links.map((link) => {
           return (
@@ -185,8 +194,10 @@ export default function Settings() {
             </SettingsNavi.Item>
           );
         })}
+        <SettingsNavi.Content>
+          <Outlet />
+        </SettingsNavi.Content>
       </SettingsNavi>
-      {deep !== null ? <Outlet /> : null}
-    </>
+    </BasicStructure>
   );
 }

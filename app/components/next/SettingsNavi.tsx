@@ -1,5 +1,14 @@
 import classNames from "classnames";
-import { Children, createContext, isValidElement, useContext } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useLocation } from "react-router";
 import { Counter as DesignCounter } from "./Counter";
 import MobileSettingsHeader from "./MobileSettingsHeader";
 
@@ -33,49 +42,126 @@ function SettingsNavi(props: {
 
   const childrenArray = Children.toArray(children);
 
-  const actionItem = childrenArray.find((child) => {
-    return isValidElement(child) && child.type === ActionSection;
+  const mobileActionSection = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === MobileActionSection;
+  });
+
+  const desktopActionSection = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === DesktopActionSection;
   });
 
   const mobileSettingsHeader = childrenArray.find((child) => {
     return isValidElement(child) && child.type === MobileSettingsHeader;
   });
 
+  const desktopHeader = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === DesktopHeader;
+  });
+
+  const content = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === Content;
+  });
+
   const menuItems = childrenArray.filter((child) => {
     return (
       isValidElement(child) &&
-      child.type !== ActionSection &&
-      child.type !== MobileSettingsHeader
+      child.type !== MobileActionSection &&
+      child.type !== MobileSettingsHeader &&
+      child.type !== DesktopActionSection &&
+      child.type !== DesktopHeader &&
+      child.type !== Content
     );
   });
 
   const classes = classNames(
-    "w-full bg-white lg:relative lg:h-fit lg:w-[412px] flex flex-col",
-    deep === null ? "fixed top-0 left-0 right-0 h-dvh" : ""
+    "w-full flex flex-col fixed top-0 left-0 right-0 h-dvh lg:relative lg:h-fit"
   );
 
-  const menuClasses = classNames(
-    "w-full",
+  const menuContainerClasses = classNames(
+    "w-full lg:w-[412px]",
     deep !== null
       ? "hidden lg:flex lg:flex-col"
       : "flex flex-col overflow-y-scroll"
   );
 
+  const menuRef = useRef<HTMLMenuElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentSmallerThanMenu, setContentSmallerThanMenu] = useState(true);
+  const location = useLocation();
+  useEffect(() => {
+    console.log("useEffect run");
+    if (menuRef.current !== null && contentRef.current !== null) {
+      const menuHeight = menuRef.current.clientHeight;
+      const contentHeight = contentRef.current.clientHeight;
+      console.log({ menuHeight, contentHeight });
+      // Menu rounded bottom right only when content is smaller than menu (-border radius menu)
+      if (contentHeight > menuHeight - 8) {
+        setContentSmallerThanMenu(false);
+      } else {
+        setContentSmallerThanMenu(true);
+      }
+    }
+  }, [location]);
+
+  const menuClasses = classNames(
+    "w-full flex flex-col bg-white lg:border-b border-neutral-200 lg:overflow-hidden",
+    contentSmallerThanMenu
+      ? "lg:rounded-b-lg lg:border-x"
+      : "lg:rounded-bl-lg lg:border-l"
+  );
+
+  const contentClasses = classNames(
+    "h-fit grow lg:border-b border-neutral-200",
+    contentSmallerThanMenu
+      ? "lg:rounded-br-lg lg:border-r"
+      : "lg:rounded-b-lg lg:border-x",
+    deep === null ? "hidden lg:block" : ""
+  );
+
   return (
     <div className={classes}>
       {mobileSettingsHeader}
-      <div className={menuClasses}>
-        {actionItem}
-        <menu className="w-full flex flex-col">{menuItems}</menu>
+      {desktopHeader}
+      {desktopActionSection}
+      <div className="w-full flex lg:border-t border-neutral-200 overflow-y-scroll">
+        <div className={menuContainerClasses}>
+          {mobileActionSection}
+          <menu ref={menuRef} className={menuClasses}>
+            {menuItems}
+          </menu>
+        </div>
+        <div ref={contentRef} className={contentClasses}>
+          {content}
+        </div>
       </div>
     </div>
   );
 }
 
-function ActionSection(props: { children: React.ReactNode }) {
+function DesktopHeader(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  return (
+    <div className="w-full hidden lg:block p-8 border-x border-t border-neutral-200 bg-primary-50 rounded-t-lg text-primary text-3xl font-bold leading-7">
+      {children}
+    </div>
+  );
+}
+
+function MobileActionSection(props: { children: React.ReactNode }) {
   const { children } = props;
 
   return <>{children}</>;
+}
+
+function DesktopActionSection(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  return (
+    <div className="w-full hidden lg:flex justify-between items-center gap-6 pl-8 py-6 pr-6 border-x border-neutral-200 bg-white">
+      {children}
+    </div>
+  );
 }
 
 function Item(props: {
@@ -87,7 +173,7 @@ function Item(props: {
 
   return (
     <SettingsNaviItemContext value={{ active, critical }}>
-      <li className="relative border-b border-neutral-200 last:border-b-0 lg:border-x lg:last:border-b lg:last:rounded-b-lg focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 overflow-hidden group/counter">
+      <li className="relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter">
         <StateFlag />
         {children}
       </li>
@@ -171,12 +257,21 @@ function ChevronRightIcon() {
   );
 }
 
+function Content(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  return <>{children}</>;
+}
+
 Item.ChevronRightIcon = ChevronRightIcon;
 Item.Label = Label;
 Item.Counter = Counter;
-SettingsNavi.MobileSettingsHeader = MobileSettingsHeader;
-SettingsNavi.ActionSection = ActionSection;
+SettingsNavi.MobileHeader = MobileSettingsHeader;
+SettingsNavi.DesktopHeader = DesktopHeader;
+SettingsNavi.MobileActionSection = MobileActionSection;
+SettingsNavi.DesktopActionSection = DesktopActionSection;
 SettingsNavi.Item = Item;
 SettingsNavi.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
+SettingsNavi.Content = Content;
 
 export default SettingsNavi;
