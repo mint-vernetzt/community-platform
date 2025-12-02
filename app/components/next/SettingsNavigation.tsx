@@ -77,23 +77,14 @@ function SettingsNavigation(props: {
     "w-full flex flex-col fixed top-0 left-0 right-0 h-dvh lg:relative lg:h-fit"
   );
 
-  const menuContainerClasses = classNames(
-    "w-full lg:w-[436px]",
-    deep !== null
-      ? "hidden lg:flex lg:flex-col"
-      : "flex flex-col overflow-y-scroll"
-  );
-
   const menuRef = useRef<HTMLMenuElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentSmallerThanMenu, setContentSmallerThanMenu] = useState(true);
   const location = useLocation();
   useEffect(() => {
-    console.log("useEffect run");
     if (menuRef.current !== null && contentRef.current !== null) {
       const menuHeight = menuRef.current.clientHeight;
       const contentHeight = contentRef.current.clientHeight;
-      console.log({ menuHeight, contentHeight });
       // Menu rounded bottom right only when content is smaller than menu (-border radius menu)
       if (contentHeight > menuHeight - 8) {
         setContentSmallerThanMenu(false);
@@ -102,6 +93,14 @@ function SettingsNavigation(props: {
       }
     }
   }, [location]);
+
+  const menuContainerClasses = classNames(
+    "w-full",
+    contentSmallerThanMenu ? "lg:w-[436px]" : "lg:w-[435px]",
+    deep !== null
+      ? "hidden lg:flex lg:flex-col"
+      : "flex flex-col overflow-y-scroll"
+  );
 
   const menuClasses = classNames(
     "w-full flex flex-col bg-white lg:border-b border-neutral-200 lg:overflow-hidden",
