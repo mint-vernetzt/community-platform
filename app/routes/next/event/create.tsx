@@ -169,7 +169,7 @@ export default function Create() {
 
   return (
     <>
-      <MobileSettingsHeader>
+      <MobileSettingsHeader visibleUntil="xl">
         <MobileSettingsHeader.Heading>
           {locales.route.headline}
         </MobileSettingsHeader.Heading>

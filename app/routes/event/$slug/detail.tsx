@@ -59,6 +59,8 @@ import { type loader as rootLoader } from "~/root";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export function links() {
   return [
@@ -334,6 +336,11 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   };
 
+  const abilities = await getFeatureAbilities(
+    authClient,
+    "next_event_settings"
+  );
+
   return {
     event: enhancedEvent,
     locales,
@@ -348,6 +355,7 @@ export async function loader(args: LoaderFunctionArgs) {
     profileId: sessionUser !== null ? sessionUser.id : undefined,
     hasUserReportedEvent,
     abuseReportReasons,
+    abilities,
   };
 }
 
@@ -572,6 +580,11 @@ function Detail() {
 
   return (
     <BasicStructure>
+      {loaderData.abilities["next_event_settings"].hasAccess === true ? (
+        <Button as="link" to={`/next/event/${loaderData.event.slug}/settings`}>
+          Zu den neuen Event-Einstellungen
+        </Button>
+      ) : null}
       {loaderData.event.parentEvent !== null ? (
         <BreadCrump>
           <BreadCrump.Link

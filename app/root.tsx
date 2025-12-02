@@ -599,6 +599,7 @@ export default function App() {
   let isExplore = false;
   let isMap = false;
   let isEventCreate = false;
+  let isEventSettings = false;
   if (matches[1] !== undefined) {
     isProjectSettings = matches[1].id === "routes/project/$slug/settings";
     isOrganizationSettings =
@@ -615,6 +616,7 @@ export default function App() {
     isSettings = otherSettingsRoutes.includes(matches[1].id);
     isMap = matches[1].id === "routes/map";
     isEventCreate = matches[1].id === "routes/next/event/create";
+    isEventSettings = matches[1].id === "routes/next/event/$slug/settings";
   }
 
   const [searchParams] = useSearchParams();
@@ -692,7 +694,7 @@ export default function App() {
                     isProjectSettings || isOrganizationSettings
                       ? "hidden @md:block "
                       : ""
-                  }${isEventCreate ? "hidden " : ""}sticky top-0 z-30`}
+                  }${isEventCreate ? "hidden " : ""}${isEventSettings ? "hidden lg:block xl:hidden " : ""}sticky top-0 z-30`}
                 >
                   <NavBar
                     sessionUserInfo={sessionUserInfo}
@@ -709,7 +711,9 @@ export default function App() {
                               untilScrollY: 274,
                               afterBreakpoint: "@lg",
                             }
-                          : undefined
+                          : isEventSettings
+                            ? true
+                            : undefined
                     }
                   />
                 </div>
@@ -736,7 +740,7 @@ export default function App() {
                       showFilters === "true" && isMapOnExplore === false
                         ? "hidden @lg:block "
                         : ""
-                    }${isMapOnExplore ? "hidden " : ""}w-0`}
+                    }${isMapOnExplore ? "hidden " : ""}${isEventSettings ? "hidden lg:block " : ""}w-0`}
                   >
                     <ScrollToTopButton locales={locales} />
                   </div>

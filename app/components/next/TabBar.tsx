@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Counter as DesignCounter } from "./Counter";
 
 // Design:
 // Name: Tabbar_desktop and Tabbar_mobile
@@ -24,18 +25,7 @@ function useTabBarItemContext() {
 
 function Counter(props: React.PropsWithChildren<{ active?: boolean }>) {
   const { active } = useTabBarItemContext();
-  return (
-    <span
-      className={classNames(
-        "text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6 py-0.5 px-1.5 rounded-lg",
-        active
-          ? "text-primary bg-primary-50"
-          : "text-neutral-600 bg-neutral-200"
-      )}
-    >
-      {props.children}
-    </span>
-  );
+  return <DesignCounter active={active}>{props.children}</DesignCounter>;
 }
 
 function Title(props: React.PropsWithChildren<{ id?: string }>) {

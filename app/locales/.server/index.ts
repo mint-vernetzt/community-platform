@@ -69,7 +69,21 @@ import { locale as deEventWaitingList } from "./de/routes/event/$slug/settings/w
 import { locale as deDownloadEventDocuments } from "./de/routes/event/$slug/documents-download";
 import { locale as deEventSettings } from "./de/routes/event/$slug/settings";
 import { locale as deCreateEvent } from "./de/routes/event/create";
+// next event routes
 import { locale as deNextCreateEvent } from "./de/routes/next/event/create";
+import { locale as deNextEventSettings } from "./de/routes/next/event/$slug/settings";
+import { locale as deNextEventSettingsAdmins } from "./de/routes/next/event/$slug/settings/admins";
+import { locale as deNextEventSettingsDangerZone } from "./de/routes/next/event/$slug/settings/danger-zone";
+import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
+import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
+import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
+import { locale as deNextEventSettingsParticipants } from "./de/routes/next/event/$slug/settings/participants";
+import { locale as deNextEventSettingsRegistration } from "./de/routes/next/event/$slug/settings/registration";
+import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
+import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
+import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
+import { locale as deNextEventSettingsTeam } from "./de/routes/next/event/$slug/settings/team";
+import { locale as deNextEventSettingsTimePeriod } from "./de/routes/next/event/$slug/settings/time-period";
 
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
@@ -238,7 +252,21 @@ import { locale as enEventWaitingList } from "./en/routes/event/$slug/settings/w
 import { locale as enDownloadEventDocuments } from "./en/routes/event/$slug/documents-download";
 import { locale as enEventSettings } from "./en/routes/event/$slug/settings";
 import { locale as enCreateEvent } from "./en/routes/event/create";
+// next event routes
 import { locale as enNextCreateEvent } from "./en/routes/next/event/create";
+import { locale as enNextEventSettings } from "./en/routes/next/event/$slug/settings";
+import { locale as enNextEventSettingsAdmins } from "./en/routes/next/event/$slug/settings/admins";
+import { locale as enNextEventSettingsDangerZone } from "./en/routes/next/event/$slug/settings/danger-zone";
+import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
+import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
+import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
+import { locale as enNextEventSettingsParticipants } from "./en/routes/next/event/$slug/settings/participants";
+import { locale as enNextEventSettingsRegistration } from "./en/routes/next/event/$slug/settings/registration";
+import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
+import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
+import { locale as enNextEventSettingsSpeakers } from "./en/routes/next/event/$slug/settings/speakers";
+import { locale as enNextEventSettingsTeam } from "./en/routes/next/event/$slug/settings/team";
+import { locale as enNextEventSettingsTimePeriod } from "./en/routes/next/event/$slug/settings/time-period";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
 import { locale as enExploreIndex } from "./en/routes/explore/index";
@@ -439,9 +467,6 @@ const de = {
   },
   "event/$slug/documents-download": deDownloadEventDocuments,
   "event/$slug/settings": deEventSettings,
-  "next/event/create": {
-    route: deNextCreateEvent,
-  },
   "event/create": deCreateEvent,
   "event/$slug/detail": {
     route: deEventDetail,
@@ -464,6 +489,49 @@ const de = {
   "event/$slug/detail/child-events": {
     route: deChildEvents,
     stages: deStages,
+  },
+  // next event routes
+  "next/event/create": {
+    route: deNextCreateEvent,
+  },
+  "next/event/$slug/settings": {
+    route: deNextEventSettings,
+  },
+  "next/event/$slug/settings/admins": {
+    route: deNextEventSettingsAdmins,
+  },
+  "next/event/$slug/settings/danger-zone": {
+    route: deNextEventSettingsDangerZone,
+  },
+  "next/event/$slug/settings/details": {
+    route: deNextEventSettingsDetails,
+  },
+  "next/event/$slug/settings/documents": {
+    route: deNextEventSettingsDocuments,
+  },
+  "next/event/$slug/settings/location": {
+    route: deNextEventSettingsLocation,
+  },
+  "next/event/$slug/settings/participants": {
+    route: deNextEventSettingsParticipants,
+  },
+  "next/event/$slug/settings/registration": {
+    route: deNextEventSettingsRegistration,
+  },
+  "next/event/$slug/settings/related-events": {
+    route: deNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/responsible-orgs": {
+    route: deNextEventSettingsResponsibleOrgs,
+  },
+  "next/event/$slug/settings/speakers": {
+    route: deNextEventSettingsSpeakers,
+  },
+  "next/event/$slug/settings/team": {
+    route: deNextEventSettingsTeam,
+  },
+  "next/event/$slug/settings/time-period": {
+    route: deNextEventSettingsTimePeriod,
   },
   // explore routes
   explore: {
@@ -856,9 +924,6 @@ const en = {
   },
   "event/$slug/documents-download": enDownloadEventDocuments,
   "event/$slug/settings": enEventSettings,
-  "next/event/create": {
-    route: enNextCreateEvent,
-  },
   "event/create": enCreateEvent,
   "event/$slug/detail": {
     route: enEventDetail,
@@ -881,6 +946,50 @@ const en = {
   "event/$slug/detail/child-events": {
     route: enChildEvents,
     stages: enStages,
+  },
+  // next event routes
+  // next event routes
+  "next/event/create": {
+    route: enNextCreateEvent,
+  },
+  "next/event/$slug/settings": {
+    route: enNextEventSettings,
+  },
+  "next/event/$slug/settings/admins": {
+    route: enNextEventSettingsAdmins,
+  },
+  "next/event/$slug/settings/danger-zone": {
+    route: enNextEventSettingsDangerZone,
+  },
+  "next/event/$slug/settings/details": {
+    route: enNextEventSettingsDetails,
+  },
+  "next/event/$slug/settings/documents": {
+    route: enNextEventSettingsDocuments,
+  },
+  "next/event/$slug/settings/location": {
+    route: enNextEventSettingsLocation,
+  },
+  "next/event/$slug/settings/participants": {
+    route: enNextEventSettingsParticipants,
+  },
+  "next/event/$slug/settings/registration": {
+    route: enNextEventSettingsRegistration,
+  },
+  "next/event/$slug/settings/related-events": {
+    route: enNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/responsible-orgs": {
+    route: enNextEventSettingsResponsibleOrgs,
+  },
+  "next/event/$slug/settings/speakers": {
+    route: enNextEventSettingsSpeakers,
+  },
+  "next/event/$slug/settings/team": {
+    route: enNextEventSettingsTeam,
+  },
+  "next/event/$slug/settings/time-period": {
+    route: enNextEventSettingsTimePeriod,
   },
   // explore routes
   explore: {
