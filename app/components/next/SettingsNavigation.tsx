@@ -81,7 +81,7 @@ function SettingsNavigation(props: {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentSmallerThanMenu, setContentSmallerThanMenu] = useState(true);
   const location = useLocation();
-  useEffect(() => {
+  const resizeHandler = () => {
     if (menuRef.current !== null && contentRef.current !== null) {
       const menuHeight = menuRef.current.clientHeight;
       const contentHeight = contentRef.current.clientHeight;
@@ -92,6 +92,15 @@ function SettingsNavigation(props: {
         setContentSmallerThanMenu(true);
       }
     }
+  };
+  useEffect(() => {
+    window.addEventListener("resize", resizeHandler);
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
+  }, []);
+  useEffect(() => {
+    resizeHandler();
   }, [location]);
 
   const menuContainerClasses = classNames(
