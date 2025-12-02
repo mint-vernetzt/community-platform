@@ -189,7 +189,7 @@ function Item(props: {
   );
 }
 
-function getSettingsNaviItemStyles(options: {
+function getSettingsNavigationItemStyles(options: {
   active?: boolean;
   critical?: boolean;
 }) {
@@ -283,7 +283,8 @@ SettingsNavigation.DesktopHeader = DesktopHeader;
 SettingsNavigation.MobileActionSection = MobileActionSection;
 SettingsNavigation.DesktopActionSection = DesktopActionSection;
 SettingsNavigation.Item = Item;
-SettingsNavigation.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
+SettingsNavigation.getSettingsNavigationItemStyles =
+  getSettingsNavigationItemStyles;
 SettingsNavigation.Content = Content;
 
 export default SettingsNavigation;

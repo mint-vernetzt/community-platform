@@ -185,7 +185,7 @@ export default function Settings() {
                 to={link.to}
                 prefetch="intent"
                 className={({ isActive }) => {
-                  return SettingsNavigation.getSettingsNaviItemStyles({
+                  return SettingsNavigation.getSettingsNavigationItemStyles({
                     active: isActive,
                     critical: link.to.includes("danger-zone"),
                   }).className;
