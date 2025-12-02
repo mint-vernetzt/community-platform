@@ -718,13 +718,7 @@ export default function App() {
                   />
                 </div>
                 {isIndexRoute === false && isNonAppBaseRoute === false && (
-                  <div
-                    className={`${
-                      isProjectSettings || isOrganizationSettings
-                        ? "hidden @md:block "
-                        : ""
-                    }${showFilters ? "hidden @lg:block" : ""}`}
-                  >
+                  <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
                     <LoginOrRegisterCTA
                       isAnon={mode === "anon"}
                       locales={locales}
