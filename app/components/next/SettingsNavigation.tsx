@@ -16,6 +16,22 @@ import MobileSettingsHeader from "./MobileSettingsHeader";
 // Name: Settings Navi
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10089-3608&t=GN24nvSjNasWIKry-4
 
+const SettingsNavigationContext = createContext<{
+  contentSmallerThanMenu: boolean;
+}>({
+  contentSmallerThanMenu: true,
+});
+
+function useSettingsNavigationContext() {
+  const context = useContext(SettingsNavigationContext);
+  if (typeof context === "undefined") {
+    throw new Error(
+      "useSettingsNavigationContext must be used within the SettingsNavigation"
+    );
+  }
+  return context;
+}
+
 const SettingsNavigationItemContext = createContext<{
   active: boolean;
   critical: boolean;
@@ -24,11 +40,11 @@ const SettingsNavigationItemContext = createContext<{
   critical: false,
 });
 
-function useSettingsNavigationContext() {
+function useSettingsNavigationItemContext() {
   const context = useContext(SettingsNavigationItemContext);
   if (typeof context === "undefined") {
     throw new Error(
-      "useSettingsNavigationContext must be used within a SettingsNavigationItem"
+      "useSettingsNavigationItemContext must be used within a SettingsNavigationItem"
     );
   }
   return context;
@@ -127,22 +143,24 @@ function SettingsNavigation(props: {
   );
 
   return (
-    <div className={classes}>
-      {mobileSettingsHeader}
-      {desktopHeader}
-      {desktopActionSection}
-      <div className="w-full flex lg:border-t border-neutral-200 overflow-y-scroll">
-        <div className={menuContainerClasses}>
-          {mobileActionSection}
-          <menu ref={menuRef} className={menuClasses}>
-            {menuItems}
-          </menu>
-        </div>
-        <div ref={contentRef} className={contentClasses}>
-          {content}
+    <SettingsNavigationContext value={{ contentSmallerThanMenu }}>
+      <div className={classes}>
+        {mobileSettingsHeader}
+        {desktopHeader}
+        {desktopActionSection}
+        <div className="w-full flex lg:border-t border-neutral-200 overflow-y-scroll">
+          <div className={menuContainerClasses}>
+            {mobileActionSection}
+            <menu ref={menuRef} className={menuClasses}>
+              {menuItems}
+            </menu>
+          </div>
+          <div ref={contentRef} className={contentClasses}>
+            {content}
+          </div>
         </div>
       </div>
-    </div>
+    </SettingsNavigationContext>
   );
 }
 
@@ -179,9 +197,15 @@ function Item(props: {
 }) {
   const { children, active = false, critical = false } = props;
 
+  const { contentSmallerThanMenu } = useSettingsNavigationContext();
+
+  const classes = classNames(
+    "relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter",
+    contentSmallerThanMenu ? "lg:last:rounded-b-lg" : "lg:last:rounded-bl-lg"
+  );
   return (
     <SettingsNavigationItemContext value={{ active, critical }}>
-      <li className="relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter">
+      <li className={classes}>
         <StateFlag />
         {children}
       </li>
@@ -208,7 +232,7 @@ function getSettingsNavigationItemStyles(options: {
 }
 
 function StateFlag() {
-  const { active, critical } = useSettingsNavigationContext();
+  const { active, critical } = useSettingsNavigationItemContext();
   const classes = classNames(
     "hidden lg:block absolute left-0 w-2 h-full",
     active ? (critical ? "bg-negative-700" : "bg-primary") : "hidden"
@@ -225,7 +249,7 @@ function Label(props: { children: React.ReactNode }) {
 
 function Counter(props: { children: React.ReactNode }) {
   const { children } = props;
-  const { active } = useSettingsNavigationContext();
+  const { active } = useSettingsNavigationItemContext();
   return (
     <>
       <div className="hidden lg:block pt-1">
