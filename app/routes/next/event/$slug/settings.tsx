@@ -1,3 +1,4 @@
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
@@ -12,7 +13,10 @@ import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
-import MobileSettingsHeader from "~/components/next/MobileSettingsHeader";
+import BackButton from "~/components/next/BackButton";
+import BasicStructure from "~/components/next/BasicStructure";
+import SettingsHeading from "~/components/next/SettingsHeading";
+import SettingsNavigation from "~/components/next/SettingsNavigation";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
@@ -20,11 +24,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getEventBySlug } from "./settings.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import SettingsNavi from "~/components/next/SettingsNavi";
-import BasicStructure from "~/components/next/BasicStructure";
-import BackButton from "~/components/next/BackButton";
-import SettingsHeading from "~/components/next/SettingsHeading";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -118,41 +117,43 @@ export default function Settings() {
       <div className="hidden lg:block">
         <SettingsHeading>{locales.route.desktopHeadline}</SettingsHeading>
       </div>
-      <SettingsNavi deep={deep}>
-        <SettingsNavi.MobileHeader>
-          <MobileSettingsHeader.Heading>
+      <SettingsNavigation deep={deep}>
+        <SettingsNavigation.MobileHeader>
+          <SettingsNavigation.MobileHeader.Heading>
             {deep === null
               ? locales.route.mobileHeadline
               : links.find((link) => {
                   const toSlug = link.to.replace(`?${Deep}`, "");
                   return toSlug === leafPathname;
                 })?.label || locales.route.mobileHeadline}
-          </MobileSettingsHeader.Heading>
+          </SettingsNavigation.MobileHeader.Heading>
           {deep === null ? (
-            <MobileSettingsHeader.Close>
+            <SettingsNavigation.MobileHeader.Close>
               <Link
                 to={`/event/${event.slug}/detail/about`}
                 aria-label={locales.route.close}
                 prefetch="intent"
               >
-                <MobileSettingsHeader.CloseIcon />
+                <SettingsNavigation.MobileHeader.CloseIcon />
               </Link>
-            </MobileSettingsHeader.Close>
+            </SettingsNavigation.MobileHeader.Close>
           ) : (
-            <MobileSettingsHeader.Back>
+            <SettingsNavigation.MobileHeader.Back>
               <Link
                 to={location.pathname}
                 aria-label={locales.route.back}
                 prefetch="intent"
               >
-                <MobileSettingsHeader.BackIcon />
+                <SettingsNavigation.MobileHeader.BackIcon />
               </Link>
-            </MobileSettingsHeader.Back>
+            </SettingsNavigation.MobileHeader.Back>
           )}
-        </SettingsNavi.MobileHeader>
-        <SettingsNavi.DesktopHeader>{event.name}</SettingsNavi.DesktopHeader>
+        </SettingsNavigation.MobileHeader>
+        <SettingsNavigation.DesktopHeader>
+          {event.name}
+        </SettingsNavigation.DesktopHeader>
         {event.published === false ? (
-          <SettingsNavi.MobileActionSection>
+          <SettingsNavigation.MobileActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
               <p className="text-neutral-600 text-base font-normal leading-5">
                 {locales.route.publishHint}
@@ -164,18 +165,18 @@ export default function Settings() {
                 </Button>
               </div>
             </div>
-          </SettingsNavi.MobileActionSection>
+          </SettingsNavigation.MobileActionSection>
         ) : null}
         {event.published === false ? (
-          <SettingsNavi.DesktopActionSection>
+          <SettingsNavigation.DesktopActionSection>
             <span>{locales.route.publishHint}</span>
             {/* TODO: When implementing action remember to redirect to current leaf route and not this parent route */}
             <Button variant="outline">{locales.route.publishCta}</Button>
-          </SettingsNavi.DesktopActionSection>
+          </SettingsNavigation.DesktopActionSection>
         ) : null}
         {links.map((link) => {
           return (
-            <SettingsNavi.Item
+            <SettingsNavigation.Item
               key={link.to}
               active={leafPathname === link.to.replace(`?${Deep}`, "")}
               critical={link.to.includes("danger-zone")}
@@ -184,30 +185,30 @@ export default function Settings() {
                 to={link.to}
                 prefetch="intent"
                 className={({ isActive }) => {
-                  return SettingsNavi.getSettingsNaviItemStyles({
+                  return SettingsNavigation.getSettingsNaviItemStyles({
                     active: isActive,
                     critical: link.to.includes("danger-zone"),
                   }).className;
                 }}
                 preventScrollReset={true}
               >
-                <SettingsNavi.Item.Label>
+                <SettingsNavigation.Item.Label>
                   <span>{link.label}</span>
                   {typeof link.count !== "undefined" && link.count !== 0 ? (
-                    <SettingsNavi.Item.Counter>
+                    <SettingsNavigation.Item.Counter>
                       {link.count}
-                    </SettingsNavi.Item.Counter>
+                    </SettingsNavigation.Item.Counter>
                   ) : null}
-                </SettingsNavi.Item.Label>
-                <SettingsNavi.Item.ChevronRightIcon />
+                </SettingsNavigation.Item.Label>
+                <SettingsNavigation.Item.ChevronRightIcon />
               </NavLink>
-            </SettingsNavi.Item>
+            </SettingsNavigation.Item>
           );
         })}
-        <SettingsNavi.Content>
+        <SettingsNavigation.Content>
           <Outlet />
-        </SettingsNavi.Content>
-      </SettingsNavi>
+        </SettingsNavigation.Content>
+      </SettingsNavigation>
     </BasicStructure>
   );
 }

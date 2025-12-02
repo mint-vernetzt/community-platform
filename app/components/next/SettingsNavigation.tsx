@@ -16,7 +16,7 @@ import MobileSettingsHeader from "./MobileSettingsHeader";
 // Name: Settings Navi
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10089-3608&t=GN24nvSjNasWIKry-4
 
-const SettingsNaviItemContext = createContext<{
+const SettingsNavigationItemContext = createContext<{
   active: boolean;
   critical: boolean;
 }>({
@@ -24,17 +24,17 @@ const SettingsNaviItemContext = createContext<{
   critical: false,
 });
 
-function useSettingsNaviContext() {
-  const context = useContext(SettingsNaviItemContext);
+function useSettingsNavigationContext() {
+  const context = useContext(SettingsNavigationItemContext);
   if (typeof context === "undefined") {
     throw new Error(
-      "useSettingsNaviItemContext must be used within a SettingsNaviItem"
+      "useSettingsNavigationContext must be used within a SettingsNavigationItem"
     );
   }
   return context;
 }
 
-function SettingsNavi(props: {
+function SettingsNavigation(props: {
   children: React.ReactNode;
   deep: string | null;
 }) {
@@ -172,12 +172,12 @@ function Item(props: {
   const { children, active = false, critical = false } = props;
 
   return (
-    <SettingsNaviItemContext value={{ active, critical }}>
+    <SettingsNavigationItemContext value={{ active, critical }}>
       <li className="relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter">
         <StateFlag />
         {children}
       </li>
-    </SettingsNaviItemContext>
+    </SettingsNavigationItemContext>
   );
 }
 
@@ -200,7 +200,7 @@ function getSettingsNaviItemStyles(options: {
 }
 
 function StateFlag() {
-  const { active, critical } = useSettingsNaviContext();
+  const { active, critical } = useSettingsNavigationContext();
   const classes = classNames(
     "hidden lg:block absolute left-0 w-2 h-full",
     active ? (critical ? "bg-negative-700" : "bg-primary") : "hidden"
@@ -217,7 +217,7 @@ function Label(props: { children: React.ReactNode }) {
 
 function Counter(props: { children: React.ReactNode }) {
   const { children } = props;
-  const { active } = useSettingsNaviContext();
+  const { active } = useSettingsNavigationContext();
   return (
     <>
       <div className="hidden lg:block pt-1">
@@ -266,12 +266,16 @@ function Content(props: { children: React.ReactNode }) {
 Item.ChevronRightIcon = ChevronRightIcon;
 Item.Label = Label;
 Item.Counter = Counter;
-SettingsNavi.MobileHeader = MobileSettingsHeader;
-SettingsNavi.DesktopHeader = DesktopHeader;
-SettingsNavi.MobileActionSection = MobileActionSection;
-SettingsNavi.DesktopActionSection = DesktopActionSection;
-SettingsNavi.Item = Item;
-SettingsNavi.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
-SettingsNavi.Content = Content;
+SettingsNavigation.MobileHeader = MobileSettingsHeader;
+SettingsNavigation.MobileHeader.Back = MobileSettingsHeader.Back;
+SettingsNavigation.MobileHeader.BackIcon = MobileSettingsHeader.BackIcon;
+SettingsNavigation.MobileHeader.Close = MobileSettingsHeader.Close;
+SettingsNavigation.MobileHeader.CloseIcon = MobileSettingsHeader.CloseIcon;
+SettingsNavigation.DesktopHeader = DesktopHeader;
+SettingsNavigation.MobileActionSection = MobileActionSection;
+SettingsNavigation.DesktopActionSection = DesktopActionSection;
+SettingsNavigation.Item = Item;
+SettingsNavigation.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
+SettingsNavigation.Content = Content;
 
-export default SettingsNavi;
+export default SettingsNavigation;
