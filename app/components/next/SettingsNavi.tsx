@@ -78,7 +78,7 @@ function SettingsNavi(props: {
   );
 
   const menuContainerClasses = classNames(
-    "w-full lg:w-[412px]",
+    "w-full lg:w-[436px]",
     deep !== null
       ? "hidden lg:flex lg:flex-col"
       : "flex flex-col overflow-y-scroll"
@@ -220,12 +220,12 @@ function Counter(props: { children: React.ReactNode }) {
   const { active } = useSettingsNaviContext();
   return (
     <>
-      <div className="hidden lg:block">
+      <div className="hidden lg:block pt-1">
         <DesignCounter active={active} responsive>
           {children}
         </DesignCounter>
       </div>
-      <div className="lg:hidden">
+      <div className="lg:hidden pt-0.5">
         <DesignCounter active responsive>
           {children}
         </DesignCounter>

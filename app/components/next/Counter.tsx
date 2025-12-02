@@ -11,11 +11,13 @@ function Counter(
   return (
     <span
       className={classNames(
-        "text-xs font-semibold leading-4 grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6.5 px-2 rounded-lg group-hover/counter:text-primary group-hover/counter:bg-primary-50",
+        "text-xs font-semibold leading-[14px] grid grid-cols-1 grid-rows-1 place-items-center h-4 min-w-6.5 pb-[1px] px-2 rounded-lg group-hover/counter:text-primary group-hover/counter:bg-primary-50",
         active
           ? "text-primary bg-primary-50"
           : "text-neutral-600 bg-neutral-200",
-        responsive ? "lg:min-w-7 lg:text-sm lg:px-1.5" : ""
+        responsive
+          ? "lg:min-w-7 lg:text-sm lg:px-1.5 lg:pb-[2px] lg:pt-[1px] lg:leading-3"
+          : ""
       )}
     >
       {props.children}
