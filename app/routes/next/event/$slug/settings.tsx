@@ -107,38 +107,38 @@ export default function Settings() {
 
   return (
     <>
-      <MobileSettingsHeader>
-        <MobileSettingsHeader.Heading>
-          {deep === null
-            ? locales.route.mobileHeadline
-            : links.find((link) => {
-                const toSlug = link.to.replace(`?${Deep}`, "");
-                return toSlug === leafPathname;
-              })?.label || locales.route.mobileHeadline}
-        </MobileSettingsHeader.Heading>
-        {deep === null ? (
-          <MobileSettingsHeader.Close>
-            <Link
-              to={`/event/${event.slug}/detail/about`}
-              aria-label={locales.route.close}
-              prefetch="intent"
-            >
-              <MobileSettingsHeader.CloseIcon />
-            </Link>
-          </MobileSettingsHeader.Close>
-        ) : (
-          <MobileSettingsHeader.Back>
-            <Link
-              to={location.pathname}
-              aria-label={locales.route.back}
-              prefetch="intent"
-            >
-              <MobileSettingsHeader.BackIcon />
-            </Link>
-          </MobileSettingsHeader.Back>
-        )}
-      </MobileSettingsHeader>
       <SettingsNavi deep={deep}>
+        <SettingsNavi.MobileSettingsHeader>
+          <MobileSettingsHeader.Heading>
+            {deep === null
+              ? locales.route.mobileHeadline
+              : links.find((link) => {
+                  const toSlug = link.to.replace(`?${Deep}`, "");
+                  return toSlug === leafPathname;
+                })?.label || locales.route.mobileHeadline}
+          </MobileSettingsHeader.Heading>
+          {deep === null ? (
+            <MobileSettingsHeader.Close>
+              <Link
+                to={`/event/${event.slug}/detail/about`}
+                aria-label={locales.route.close}
+                prefetch="intent"
+              >
+                <MobileSettingsHeader.CloseIcon />
+              </Link>
+            </MobileSettingsHeader.Close>
+          ) : (
+            <MobileSettingsHeader.Back>
+              <Link
+                to={location.pathname}
+                aria-label={locales.route.back}
+                prefetch="intent"
+              >
+                <MobileSettingsHeader.BackIcon />
+              </Link>
+            </MobileSettingsHeader.Back>
+          )}
+        </SettingsNavi.MobileSettingsHeader>
         {event.published === false ? (
           <SettingsNavi.ActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">

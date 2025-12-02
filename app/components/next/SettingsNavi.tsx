@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Children, createContext, isValidElement, useContext } from "react";
 import { Counter as DesignCounter } from "./Counter";
+import MobileSettingsHeader from "./MobileSettingsHeader";
 
 // Design:
 // Name: Settings Navi
@@ -36,21 +37,37 @@ function SettingsNavi(props: {
     return isValidElement(child) && child.type === ActionSection;
   });
 
+  const mobileSettingsHeader = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === MobileSettingsHeader;
+  });
+
   const menuItems = childrenArray.filter((child) => {
-    return isValidElement(child) && child.type !== ActionSection;
+    return (
+      isValidElement(child) &&
+      child.type !== ActionSection &&
+      child.type !== MobileSettingsHeader
+    );
   });
 
   const classes = classNames(
-    "w-full h-[calc(100dvh-72px)] bg-white lg:relative lg:h-fit lg:w-[412px]",
-    deep === null
-      ? "fixed top-[72px] left-0 right-0 flex flex-col overflow-y-scroll"
-      : "hidden lg:flex lg:flex-col"
+    "w-full bg-white lg:relative lg:h-fit lg:w-[412px] flex flex-col",
+    deep === null ? "fixed top-0 left-0 right-0 h-dvh" : ""
+  );
+
+  const menuClasses = classNames(
+    "w-full",
+    deep !== null
+      ? "hidden lg:flex lg:flex-col"
+      : "flex flex-col overflow-y-scroll"
   );
 
   return (
     <div className={classes}>
-      {actionItem}
-      <menu className="w-full flex flex-col">{menuItems}</menu>
+      {mobileSettingsHeader}
+      <div className={menuClasses}>
+        {actionItem}
+        <menu className="w-full flex flex-col">{menuItems}</menu>
+      </div>
     </div>
   );
 }
@@ -70,7 +87,7 @@ function Item(props: {
 
   return (
     <SettingsNaviItemContext value={{ active, critical }}>
-      <li className="relative border-b border-neutral-200 last:border-b-0 lg:border-x lg:first:border-t lg:last:border-b lg:last:rounded-b-lg focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 overflow-hidden group/counter">
+      <li className="relative border-b border-neutral-200 last:border-b-0 lg:border-x lg:last:border-b lg:last:rounded-b-lg focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 overflow-hidden group/counter">
         <StateFlag />
         {children}
       </li>
@@ -157,6 +174,7 @@ function ChevronRightIcon() {
 Item.ChevronRightIcon = ChevronRightIcon;
 Item.Label = Label;
 Item.Counter = Counter;
+SettingsNavi.MobileSettingsHeader = MobileSettingsHeader;
 SettingsNavi.ActionSection = ActionSection;
 SettingsNavi.Item = Item;
 SettingsNavi.getSettingsNaviItemStyles = getSettingsNaviItemStyles;
