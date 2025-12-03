@@ -26,11 +26,8 @@ import { extendSearchParams } from "~/lib/utils/searchParams";
 import { useState } from "react";
 import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import {
-  createEventCreationSchema,
-  TIME_PERIOD_MULTI,
-  TIME_PERIOD_SINGLE,
-} from "./create.shared";
+import { createEventCreationSchema } from "./create.shared";
+import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { prismaClient } from "~/prisma.server";
@@ -390,7 +387,7 @@ export default function Create() {
             <p className="text-neutral-700 text-sm font-normal leading-[18px]">
               {locales.route.requiredHint}
             </p>
-            <div className="w-full md:w-fit flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
               <div className="w-full md:w-fit">
                 <Button
                   type="submit"
