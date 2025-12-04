@@ -23,21 +23,31 @@ import classNames from "classnames";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { createTimePeriodSchema } from "./time-period.shared";
-import { captureException } from "@sentry/node";
+// TODO: Why is this included in the client bundle?
+// import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { invariant, invariantResponse } from "~/lib/utils/response";
+import { getEventBySlug, updateEventBySlug } from "./time-period.server";
+import { utcToZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request } = args;
+  const { request, params } = args;
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/time-period"];
 
-  return { locales };
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  return { locales, event, currentTimeStamp: Date.now() };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -81,9 +91,10 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   try {
-    // TODO: handle successful form submission, e.g., save to database
+    await updateEventBySlug(params.slug, submission.value);
   } catch (error) {
-    captureException(error);
+    // TODO: Why is this included in the client bundle?
+    // captureException(error);
     return redirectWithToast(request.url, {
       id: "time-period-error",
       key: `time-period-error-${Date.now()}`,
@@ -100,24 +111,34 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function TimePeriod() {
-  const { locales } = useLoaderData<typeof loader>();
+  const { locales, event, currentTimeStamp } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const [searchParams] = useSearchParams();
   const timePeriodParam = searchParams.get("timePeriod");
+  const startTimeZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const endTimeZoned = utcToZonedTime(event.endTime, "Europe/Berlin");
+  const formattedStartDate = format(startTimeZoned, "yyyy-MM-dd");
+  const formattedEndDate = format(endTimeZoned, "yyyy-MM-dd");
+  const formattedStartTime = format(startTimeZoned, "HH:mm");
+  const formattedEndTime = format(endTimeZoned, "HH:mm");
 
   const [timePeriod, setTimePeriod] = useState<
     typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI
   >(
     timePeriodParam === TIME_PERIOD_MULTI
       ? TIME_PERIOD_MULTI
-      : TIME_PERIOD_SINGLE
+      : timePeriodParam === TIME_PERIOD_SINGLE
+        ? TIME_PERIOD_SINGLE
+        : formattedStartDate === formattedEndDate
+          ? TIME_PERIOD_SINGLE
+          : TIME_PERIOD_MULTI
   );
 
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
   const [form, fields] = useForm({
-    id: "time-period-form",
+    id: `time-period-form-${currentTimeStamp}`,
     constraint: getZodConstraint(
       createTimePeriodSchema({
         locales: locales.route.form.validation,
@@ -149,9 +170,17 @@ export default function TimePeriod() {
       });
       return submission;
     },
-    // TODO: provide actual default values
-    // defaultValue: {
-    // },
+    defaultValue:
+      timePeriod === TIME_PERIOD_SINGLE
+        ? {
+            startDate: formattedStartDate,
+            startTime: formattedStartTime,
+            endTime: formattedEndTime,
+          }
+        : {
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+          },
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData : undefined,
   });
@@ -237,69 +266,73 @@ export default function TimePeriod() {
                   : null}
               </Input>
             </div>
-            {timePeriod === TIME_PERIOD_MULTI ? (
-              <div className={timingInputContainerClasses}>
-                <Input
-                  {...getInputProps(fields.endDate, { type: "date" })}
-                  type="date"
-                  key="endDate"
-                >
-                  <Input.Label htmlFor={fields.endDate.id}>
-                    {locales.route.timings.endDate.label}
-                  </Input.Label>
-                  {typeof fields.endDate.errors !== "undefined" &&
-                  fields.endDate.errors.length > 0
-                    ? fields.endDate.errors.map((error) => (
-                        <Input.Error id={fields.endDate.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-              </div>
-            ) : null}
-            {timePeriod === TIME_PERIOD_SINGLE ? (
-              <div className={timingInputContainerClasses}>
-                <Input
-                  {...getInputProps(fields.startTime, { type: "time" })}
-                  type="time"
-                  key="startTime"
-                >
-                  <Input.Label htmlFor={fields.startTime.id}>
-                    {locales.route.timings.startTime.label}
-                  </Input.Label>
-                  {typeof fields.startTime.errors !== "undefined" &&
-                  fields.startTime.errors.length > 0
-                    ? fields.startTime.errors.map((error) => (
-                        <Input.Error id={fields.startTime.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-              </div>
-            ) : null}
-            {timePeriod === TIME_PERIOD_SINGLE ? (
-              <div className={timingInputContainerClasses}>
-                <Input
-                  {...getInputProps(fields.endTime, { type: "time" })}
-                  type="time"
-                  key="endTime"
-                >
-                  <Input.Label htmlFor={fields.endTime.id}>
-                    {locales.route.timings.endTime.label}
-                  </Input.Label>
-                  {typeof fields.endTime.errors !== "undefined" &&
-                  fields.endTime.errors.length > 0
-                    ? fields.endTime.errors.map((error) => (
-                        <Input.Error id={fields.endTime.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-              </div>
-            ) : null}
+
+            <div
+              className={timingInputContainerClasses}
+              hidden={timePeriod === TIME_PERIOD_SINGLE}
+            >
+              <Input
+                {...getInputProps(fields.endDate, { type: "date" })}
+                type="date"
+                key="endDate"
+              >
+                <Input.Label htmlFor={fields.endDate.id}>
+                  {locales.route.timings.endDate.label}
+                </Input.Label>
+                {typeof fields.endDate.errors !== "undefined" &&
+                fields.endDate.errors.length > 0
+                  ? fields.endDate.errors.map((error) => (
+                      <Input.Error id={fields.endDate.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+            </div>
+            <div
+              className={timingInputContainerClasses}
+              hidden={timePeriod === TIME_PERIOD_MULTI}
+            >
+              <Input
+                {...getInputProps(fields.startTime, { type: "time" })}
+                type="time"
+                key="startTime"
+              >
+                <Input.Label htmlFor={fields.startTime.id}>
+                  {locales.route.timings.startTime.label}
+                </Input.Label>
+                {typeof fields.startTime.errors !== "undefined" &&
+                fields.startTime.errors.length > 0
+                  ? fields.startTime.errors.map((error) => (
+                      <Input.Error id={fields.startTime.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+            </div>
+            <div
+              className={timingInputContainerClasses}
+              hidden={timePeriod === TIME_PERIOD_MULTI}
+            >
+              <Input
+                {...getInputProps(fields.endTime, { type: "time" })}
+                type="time"
+                key="endTime"
+              >
+                <Input.Label htmlFor={fields.endTime.id}>
+                  {locales.route.timings.endTime.label}
+                </Input.Label>
+                {typeof fields.endTime.errors !== "undefined" &&
+                fields.endTime.errors.length > 0
+                  ? fields.endTime.errors.map((error) => (
+                      <Input.Error id={fields.endTime.errorId} key={error}>
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+            </div>
           </div>
         </BasicStructure.Container>
 
@@ -329,6 +362,11 @@ export default function TimePeriod() {
                 <Button
                   type="reset"
                   onClick={() => {
+                    setTimePeriod(
+                      formattedStartDate === formattedEndDate
+                        ? TIME_PERIOD_SINGLE
+                        : TIME_PERIOD_MULTI
+                    );
                     setTimeout(() => form.reset(), 0);
                   }}
                   variant="outline"
