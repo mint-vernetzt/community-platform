@@ -14,20 +14,18 @@ export function createTimePeriodSchema(options: {
     endTimeBeforeStartTime: string;
     startTimeRequired: string;
     endTimeRequired: string;
+    eventNotInParentEventBoundaries: string;
+    childEventsNotInEventBoundaries: string;
   };
   timePeriod: typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI;
-  parentEvent:
-    | {
-        startTime: Date;
-        endTime: Date;
-      }
-    | undefined;
-  childEvents:
-    | {
-        earliestStartTime: Date;
-        latestEndTime: Date;
-      }
-    | undefined;
+  parentEvent: {
+    startTime: Date;
+    endTime: Date;
+  } | null;
+  childEvents: {
+    earliestStartTime: Date;
+    latestEndTime: Date;
+  } | null;
 }) {
   const { locales, timePeriod, parentEvent, childEvents } = options;
   let schema;
@@ -91,7 +89,61 @@ export function createTimePeriodSchema(options: {
           return z.NEVER;
         }
 
-        // TODO: validate against parentEvent and childEvents
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            if (startTime.getDate() < parentEvent.startTime.getDate()) {
+              context.addIssue({
+                path: ["startDate"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            } else {
+              context.addIssue({
+                path: ["startTime"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            }
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
+        if (childEvents !== null) {
+          // validate against childEvents
+          if (startTime > childEvents.earliestStartTime) {
+            if (startTime.getDate() > childEvents.earliestStartTime.getDate()) {
+              context.addIssue({
+                path: ["startDate"],
+                code: z.ZodIssueCode.custom,
+                message: locales.childEventsNotInEventBoundaries,
+              });
+            } else {
+              context.addIssue({
+                path: ["startTime"],
+                code: z.ZodIssueCode.custom,
+                message: locales.childEventsNotInEventBoundaries,
+              });
+            }
+            return z.NEVER;
+          }
+          if (endTime < childEvents.latestEndTime) {
+            context.addIssue({
+              path: ["endTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.childEventsNotInEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
 
         return {
           startTime,
@@ -147,7 +199,45 @@ export function createTimePeriodSchema(options: {
           return z.NEVER;
         }
 
-        // TODO: validate against parentEvent and childEvents
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            context.addIssue({
+              path: ["startDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
+        if (childEvents !== null) {
+          // validate against parentEvent
+          if (startTime > childEvents.earliestStartTime) {
+            context.addIssue({
+              path: ["startDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.childEventsNotInEventBoundaries,
+            });
+            return z.NEVER;
+          }
+          if (endTime < childEvents.latestEndTime) {
+            context.addIssue({
+              path: ["endDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.childEventsNotInEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
 
         return {
           startTime,

@@ -7,9 +7,37 @@ export async function getEventBySlug(slug: string) {
       id: true,
       startTime: true,
       endTime: true,
+      parentEvent: {
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+        },
+      },
     },
   });
-  return event;
+
+  if (event === null) {
+    return null;
+  }
+
+  const childEventAggregate = await prismaClient.event.aggregate({
+    where: { parentEventId: event.id },
+    _min: { startTime: true },
+    _max: { endTime: true },
+  });
+
+  return {
+    ...event,
+    childEvents:
+      childEventAggregate._min.startTime !== null &&
+      childEventAggregate._max.endTime !== null
+        ? {
+            earliestStartTime: childEventAggregate._min.startTime,
+            latestEndTime: childEventAggregate._max.endTime,
+          }
+        : null,
+  };
 }
 
 export async function updateEventBySlug(

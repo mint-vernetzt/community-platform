@@ -43,6 +43,10 @@ export const locale = {
       endTimeBeforeStartTime: "The end time is before the start time.",
       startTimeRequired: "Please enter the start time.",
       endTimeRequired: "Please enter the end time.",
+      eventNotInParentEventBoundaries:
+        "Your event is not within the timeframe of the parent event.",
+      childEventsNotInEventBoundaries:
+        "Your event does not cover the period of the associated event(s).",
     },
   },
   errors: {

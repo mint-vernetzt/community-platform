@@ -76,12 +76,14 @@ export const action = async (args: ActionFunctionArgs) => {
     }
   );
 
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
   const schema = createTimePeriodSchema({
     locales: locales.route.form.validation,
     timePeriod,
-    // TODO: provide actual parent and child event data
-    parentEvent: undefined,
-    childEvents: undefined,
+    parentEvent: event.parentEvent,
+    childEvents: event.childEvents,
   });
   const submission = await parseWithZod(formData, { schema });
 
@@ -141,9 +143,8 @@ export default function TimePeriod() {
       createTimePeriodSchema({
         locales: locales.route.form.validation,
         timePeriod,
-        // TODO: provide actual parent and child event data
-        parentEvent: undefined,
-        childEvents: undefined,
+        parentEvent: event.parentEvent,
+        childEvents: event.childEvents,
       })
     ),
     shouldDirtyConsider(name) {
@@ -161,9 +162,8 @@ export default function TimePeriod() {
         schema: createTimePeriodSchema({
           locales: locales.route.form.validation,
           timePeriod,
-          // TODO: provide actual parent and child event data
-          parentEvent: undefined,
-          childEvents: undefined,
+          parentEvent: event.parentEvent,
+          childEvents: event.childEvents,
         }),
       });
       return submission;

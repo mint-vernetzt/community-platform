@@ -43,6 +43,10 @@ export const locale = {
       endTimeBeforeStartTime: "Die Endzeit liegt vor der Startzeit.",
       startTimeRequired: "Bitte gib die Startzeit an.",
       endTimeRequired: "Bitte gib die Endzeit an.",
+      eventNotInParentEventBoundaries:
+        "Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung.",
+      childEventsNotInEventBoundaries:
+        "Deine Rahmenveranstaltung umfasst nicht den Zeitraum des bzw. der zugehörigen Events.",
     },
   },
   errors: {
