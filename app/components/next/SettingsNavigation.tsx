@@ -121,7 +121,9 @@ function SettingsNavigation(props: {
 
   const menuContainerClasses = classNames(
     "w-full",
-    contentSmallerThanMenu ? "lg:w-[436px]" : "lg:w-[435px]",
+    contentSmallerThanMenu
+      ? "lg:w-[436px] lg:min-w-[436px]"
+      : "lg:w-[435px] lg:min-w-[435px]",
     deep !== null
       ? "hidden lg:flex lg:flex-col"
       : "flex flex-col overflow-y-scroll"
@@ -135,7 +137,7 @@ function SettingsNavigation(props: {
   );
 
   const contentClasses = classNames(
-    "h-fit grow lg:border-b border-neutral-200",
+    "h-fit grow lg:border-b border-neutral-200 bg-white",
     contentSmallerThanMenu
       ? "lg:rounded-br-lg lg:border-r"
       : "lg:rounded-b-lg lg:border-x",
