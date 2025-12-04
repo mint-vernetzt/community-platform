@@ -54,6 +54,8 @@ export const locale = {
       endTimeBeforeStartTime: "Die Endzeit liegt vor der Startzeit.",
       startTimeRequired: "Bitte gib die Startzeit an.",
       endTimeRequired: "Bitte gib die Endzeit an.",
+      multiDaySameDay:
+        "Bei mehrtägigen Events müssen Start- und Enddatum unterschiedlich sein.",
     },
   },
   errors: {

@@ -16,6 +16,7 @@ export function createEventCreationSchema(options: {
     endTimeBeforeStartTime: string;
     startTimeRequired: string;
     endTimeRequired: string;
+    multiDaySameDay: string;
   };
   timePeriod: typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI;
 }) {
@@ -123,14 +124,24 @@ export function createEventCreationSchema(options: {
       })
       .transform((data, context) => {
         const today = new Date();
+        const startDateISO = data.startDate.toISOString().split("T")[0];
+        const endDateISO = data.endDate.toISOString().split("T")[0];
+
+        // multi day events should not be on the same day
+        if (startDateISO === endDateISO) {
+          context.addIssue({
+            path: ["endDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.multiDaySameDay,
+          });
+          return z.NEVER;
+        }
+
         const startTime = zonedTimeToUtc(
-          `${data.startDate.toISOString().split("T")[0]} 00:00`,
+          `${startDateISO} 00:00`,
           "Europe/Berlin"
         );
-        const endTime = zonedTimeToUtc(
-          `${data.endDate.toISOString().split("T")[0]} 23:59`,
-          "Europe/Berlin"
-        );
+        const endTime = zonedTimeToUtc(`${endDateISO} 23:59`, "Europe/Berlin");
 
         // start time in the past
         if (startTime <= today) {

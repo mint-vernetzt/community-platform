@@ -47,6 +47,8 @@ export const locale = {
         "Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung.",
       childEventsNotInEventBoundaries:
         "Deine Rahmenveranstaltung umfasst nicht den Zeitraum des bzw. der zugehörigen Events.",
+      multiDaySameDay:
+        "Bei mehrtägigen Events müssen Start- und Enddatum unterschiedlich sein.",
     },
   },
   errors: {

@@ -47,6 +47,8 @@ export const locale = {
         "Your event is not within the timeframe of the parent event.",
       childEventsNotInEventBoundaries:
         "Your event does not cover the period of the associated event(s).",
+      multiDaySameDay:
+        "For multi-day events, the start and end dates must be different.",
     },
   },
   errors: {
