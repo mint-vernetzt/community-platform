@@ -59,5 +59,6 @@ export const locale = {
   errors: {
     createEventFailed:
       "An error occurred while creating your event. Please try again later.",
+    invalidTimePeriod: "Only one-day or multi-day events are allowed.",
   },
 } as const;
