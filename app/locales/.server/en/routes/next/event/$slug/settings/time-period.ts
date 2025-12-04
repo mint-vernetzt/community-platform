@@ -48,6 +48,7 @@ export const locale = {
   errors: {
     saveFailed:
       "An error occurred while saving your changes. Please try again later or contact support.",
+    invalidTimePeriod: "Only one-day or multi-day events are allowed.",
   },
   success: "Data saved!",
 } as const;

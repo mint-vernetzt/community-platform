@@ -48,6 +48,8 @@ export const locale = {
   errors: {
     saveFailed:
       "Beim Speichern Deiner Änderungen ist ein Fehler aufgetreten. Bitte versuche es später erneut oder kontaktiere den Support.",
+    invalidTimePeriod:
+      "Es ist nur eine ein- oder mehrtägige Veranstaltung zulässig.",
   },
   success: "Daten gespeichert!",
 } as const;
