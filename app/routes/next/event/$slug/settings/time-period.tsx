@@ -23,8 +23,7 @@ import classNames from "classnames";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { createTimePeriodSchema } from "./time-period.shared";
-// TODO: Why is this included in the client bundle?
-// import { captureException } from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
@@ -93,8 +92,7 @@ export const action = async (args: ActionFunctionArgs) => {
   try {
     await updateEventBySlug(params.slug, submission.value);
   } catch (error) {
-    // TODO: Why is this included in the client bundle?
-    // captureException(error);
+    captureException(error);
     return redirectWithToast(request.url, {
       id: "time-period-error",
       key: `time-period-error-${Date.now()}`,
