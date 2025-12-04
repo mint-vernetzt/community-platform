@@ -22,7 +22,7 @@ function BasicStructure(props: { children: React.ReactNode }) {
 // Therefore added deflatedUntil and gaps prop
 function Container(props: {
   children: React.ReactNode;
-  deflatedUntil?: "md" | "xl";
+  deflatedUntil?: "md" | "lg" | "xl";
   gaps?: {
     base: "gap-8" | "gap-4";
     md: "gap-6" | "gap-4";
@@ -38,6 +38,7 @@ function Container(props: {
   const classes = classNames(
     "w-full flex flex-col bg-white ring-neutral-200 rounded-2xl",
     deflatedUntil === "md" ? "md:p-6 md:ring" : "",
+    deflatedUntil === "lg" ? "lg:p-6 lg:ring" : "",
     deflatedUntil === "xl" ? "xl:p-6 xl:ring" : "",
     gaps.base === "gap-4" ? "gap-4" : "",
     gaps.base === "gap-8" ? "gap-8" : "",
