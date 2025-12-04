@@ -338,72 +338,72 @@ export default function Create() {
                     : null}
                 </Input>
               </div>
-              {timePeriod === TIME_PERIOD_MULTI ? (
-                <div className={timingInputContainerClasses}>
-                  <Input
-                    {...getInputProps(fields.endDate, { type: "date" })}
-                    type="date"
-                    key="endDate"
-                  >
-                    <Input.Label htmlFor={fields.endDate.id}>
-                      {locales.route.timings.endDate.label}
-                    </Input.Label>
-                    {typeof fields.endDate.errors !== "undefined" &&
-                    fields.endDate.errors.length > 0
-                      ? fields.endDate.errors.map((error) => (
-                          <Input.Error id={fields.endDate.errorId} key={error}>
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-              ) : null}
-              {timePeriod === TIME_PERIOD_SINGLE ? (
-                <div className={timingInputContainerClasses}>
-                  <Input
-                    {...getInputProps(fields.startTime, { type: "time" })}
-                    type="time"
-                    key="startTime"
-                  >
-                    <Input.Label htmlFor={fields.startTime.id}>
-                      {locales.route.timings.startTime.label}
-                    </Input.Label>
-                    {typeof fields.startTime.errors !== "undefined" &&
-                    fields.startTime.errors.length > 0
-                      ? fields.startTime.errors.map((error) => (
-                          <Input.Error
-                            id={fields.startTime.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-              ) : null}
-              {timePeriod === TIME_PERIOD_SINGLE ? (
-                <div className={timingInputContainerClasses}>
-                  <Input
-                    {...getInputProps(fields.endTime, { type: "time" })}
-                    type="time"
-                    key="endTime"
-                  >
-                    <Input.Label htmlFor={fields.endTime.id}>
-                      {locales.route.timings.endTime.label}
-                    </Input.Label>
-                    {typeof fields.endTime.errors !== "undefined" &&
-                    fields.endTime.errors.length > 0
-                      ? fields.endTime.errors.map((error) => (
-                          <Input.Error id={fields.endTime.errorId} key={error}>
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-              ) : null}
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_SINGLE}
+              >
+                <Input
+                  {...getInputProps(fields.endDate, { type: "date" })}
+                  type="date"
+                  key="endDate"
+                >
+                  <Input.Label htmlFor={fields.endDate.id}>
+                    {locales.route.timings.endDate.label}
+                  </Input.Label>
+                  {typeof fields.endDate.errors !== "undefined" &&
+                  fields.endDate.errors.length > 0
+                    ? fields.endDate.errors.map((error) => (
+                        <Input.Error id={fields.endDate.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_MULTI}
+              >
+                <Input
+                  {...getInputProps(fields.startTime, { type: "time" })}
+                  type="time"
+                  key="startTime"
+                >
+                  <Input.Label htmlFor={fields.startTime.id}>
+                    {locales.route.timings.startTime.label}
+                  </Input.Label>
+                  {typeof fields.startTime.errors !== "undefined" &&
+                  fields.startTime.errors.length > 0
+                    ? fields.startTime.errors.map((error) => (
+                        <Input.Error id={fields.startTime.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
+              <div
+                className={timingInputContainerClasses}
+                hidden={timePeriod === TIME_PERIOD_MULTI}
+              >
+                <Input
+                  {...getInputProps(fields.endTime, { type: "time" })}
+                  type="time"
+                  key="endTime"
+                >
+                  <Input.Label htmlFor={fields.endTime.id}>
+                    {locales.route.timings.endTime.label}
+                  </Input.Label>
+                  {typeof fields.endTime.errors !== "undefined" &&
+                  fields.endTime.errors.length > 0
+                    ? fields.endTime.errors.map((error) => (
+                        <Input.Error id={fields.endTime.errorId} key={error}>
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </div>
             </div>
           </BasicStructure.Container>
           <div className="w-full flex flex-col md:flex-row md:justify-between gap-4">
