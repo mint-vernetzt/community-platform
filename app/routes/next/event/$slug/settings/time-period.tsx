@@ -29,7 +29,11 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { deriveEventMode } from "~/routes/event/utils.server";
 import { invariant, invariantResponse } from "~/lib/utils/response";
-import { getEventBySlug, updateEventBySlug } from "./time-period.server";
+import {
+  getEventBySlug,
+  getEventBySlugForValidation,
+  updateEventBySlug,
+} from "./time-period.server";
 import { utcToZonedTime } from "date-fns-tz";
 import { format } from "date-fns";
 
@@ -76,7 +80,7 @@ export const action = async (args: ActionFunctionArgs) => {
     }
   );
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlugForValidation(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   const schema = createTimePeriodSchema({
