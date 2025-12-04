@@ -1,6 +1,6 @@
 import { zonedTimeToUtc } from "date-fns-tz";
 import { z } from "zod";
-import { type TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
+import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
 
 export function createTimePeriodSchema(options: {
   locales: {
@@ -246,4 +246,28 @@ export function createTimePeriodSchema(options: {
       });
   }
   return schema;
+}
+
+export function getTimePeriodDefaultValue(options: {
+  timePeriodSearchParam: string | null;
+  formattedStartDate: string; // yyyy-MM-dd
+  formattedEndDate: string; // yyyy-MM-dd
+}) {
+  const { timePeriodSearchParam, formattedStartDate, formattedEndDate } =
+    options;
+
+  if (timePeriodSearchParam === TIME_PERIOD_SINGLE) {
+    return TIME_PERIOD_SINGLE;
+  }
+  if (timePeriodSearchParam === TIME_PERIOD_MULTI) {
+    return TIME_PERIOD_MULTI;
+  }
+  if (timePeriodSearchParam === null) {
+    if (formattedStartDate === formattedEndDate) {
+      return TIME_PERIOD_SINGLE;
+    } else {
+      return TIME_PERIOD_MULTI;
+    }
+  }
+  return TIME_PERIOD_SINGLE;
 }

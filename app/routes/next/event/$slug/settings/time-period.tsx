@@ -22,7 +22,10 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import classNames from "classnames";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { createTimePeriodSchema } from "./time-period.shared";
+import {
+  createTimePeriodSchema,
+  getTimePeriodDefaultValue,
+} from "./time-period.shared";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -118,7 +121,7 @@ export default function TimePeriod() {
   const { locales, event, currentTimeStamp } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const [searchParams] = useSearchParams();
-  const timePeriodParam = searchParams.get("timePeriod");
+  const timePeriodSearchParam = searchParams.get("timePeriod");
   const startTimeZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
   const endTimeZoned = utcToZonedTime(event.endTime, "Europe/Berlin");
   const formattedStartDate = format(startTimeZoned, "yyyy-MM-dd");
@@ -129,13 +132,11 @@ export default function TimePeriod() {
   const [timePeriod, setTimePeriod] = useState<
     typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI
   >(
-    timePeriodParam === TIME_PERIOD_MULTI
-      ? TIME_PERIOD_MULTI
-      : timePeriodParam === TIME_PERIOD_SINGLE
-        ? TIME_PERIOD_SINGLE
-        : formattedStartDate === formattedEndDate
-          ? TIME_PERIOD_SINGLE
-          : TIME_PERIOD_MULTI
+    getTimePeriodDefaultValue({
+      timePeriodSearchParam,
+      formattedStartDate,
+      formattedEndDate,
+    })
   );
 
   const isHydrated = useHydrated();
