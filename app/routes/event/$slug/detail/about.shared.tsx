@@ -87,6 +87,8 @@ export function hasConferenceCode(event: {
 }
 
 export function hasGeneralInfo(event: {
+  accessibilityInformation: string | null;
+  privacyInformation: string | null;
   venueName: string | null;
   venueStreet: string | null;
   venueStreetNumber: string | null;
@@ -103,6 +105,8 @@ export function hasGeneralInfo(event: {
   tags: unknown[];
 }) {
   return (
+    hasAccessibilityInformation(event) ||
+    hasPrivacyInformation(event) ||
     hasAddress(event) ||
     hasEventTargetGroups(event) ||
     hasFocuses(event) ||
@@ -191,8 +195,10 @@ export function getFormattedAddress(event: {
     nameAndAddressLines.push(event.venueName);
   }
   const streetLines = [];
-  if (hasVenueStreetNumber(event) && hasVenueStreet(event)) {
+  if (hasVenueStreet(event)) {
     streetLines.push(event.venueStreet);
+  }
+  if (hasVenueStreetNumber(event)) {
     streetLines.push(event.venueStreetNumber);
   }
   const cityLines = [];
@@ -211,6 +217,26 @@ export function getFormattedAddress(event: {
     nameAndAddressLines.push(addressLine.join(", "));
   }
   return nameAndAddressLines.join(" / ");
+}
+
+export function hasAccessibilityInformation(event: {
+  accessibilityInformation: string | null;
+}): event is { accessibilityInformation: string } {
+  return (
+    event.accessibilityInformation !== null &&
+    event.accessibilityInformation.trim() !== "" &&
+    event.accessibilityInformation.trim() !== "<p></p>"
+  );
+}
+
+export function hasPrivacyInformation(event: {
+  privacyInformation: string | null;
+}): event is { privacyInformation: string } {
+  return (
+    event.privacyInformation !== null &&
+    event.privacyInformation.trim() !== "" &&
+    event.privacyInformation.trim() !== "<p></p>"
+  );
 }
 
 export function hasEventTargetGroups(event: { eventTargetGroups: unknown[] }) {

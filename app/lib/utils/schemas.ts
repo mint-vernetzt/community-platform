@@ -9,6 +9,18 @@ type WebAndSocialLocales =
   | OrganizationWebAndSocialLocales
   | ProjectWebAndSocialLocales;
 
+export function transformEmptyToNull(value: string | undefined) {
+  if (
+    typeof value === "undefined" ||
+    value.trim() === "" ||
+    value.trim() === "<p></p>" ||
+    value.trim() === "<p><br></p>"
+  ) {
+    return null;
+  }
+  return value;
+}
+
 export const checkboxSchema = z
   .boolean()
   .optional()
