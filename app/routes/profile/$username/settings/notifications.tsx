@@ -139,6 +139,7 @@ function Notifications() {
             {...getFormProps(form)}
             method="post"
             preventScrollReset
+            replace
             autoComplete="off"
           >
             <div className="flex gap-2 items-center">
@@ -149,7 +150,10 @@ function Notifications() {
                 key="updates"
                 onClick={(event) => {
                   event.preventDefault();
-                  submit(event.currentTarget.form);
+                  submit(event.currentTarget.form, {
+                    preventScrollReset: true,
+                    replace: true,
+                  });
                 }}
               />
               <label htmlFor={fields.updates.id}>
