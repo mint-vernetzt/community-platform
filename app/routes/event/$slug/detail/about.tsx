@@ -31,6 +31,7 @@ import {
   getSearchResponsibleOrganizationsSchema,
   getSearchSpeakersSchema,
   getSearchTeamMembersSchema,
+  hasAccessibilityInformation,
   hasAddress,
   hasConferenceCode,
   hasConferenceLink,
@@ -41,6 +42,7 @@ import {
   hasExperienceLevel,
   hasFocuses,
   hasGeneralInfo,
+  hasPrivacyInformation,
   hasResponsibleOrganizations,
   hasSpeakers,
   hasSubline,
@@ -200,6 +202,26 @@ function About() {
               )}
             </>
           )}
+          {hasAccessibilityInformation(event) ? (
+            <HeadlineAndTagsContainer>
+              <HeadlineChipsAndTags as="h3">
+                {locales.route.accessibilityInformation.label}
+              </HeadlineChipsAndTags>
+              <Tags as="div">
+                <RichText html={event.accessibilityInformation} />
+              </Tags>
+            </HeadlineAndTagsContainer>
+          ) : null}
+          {hasPrivacyInformation(event) ? (
+            <HeadlineAndTagsContainer>
+              <HeadlineChipsAndTags as="h3">
+                {locales.route.privacyInformation.label}
+              </HeadlineChipsAndTags>
+              <Tags as="div">
+                <RichText html={event.privacyInformation} />
+              </Tags>
+            </HeadlineAndTagsContainer>
+          ) : null}
           {hasEventTargetGroups(event) ? (
             <LabelAndChipsContainer>
               <h3 className="mb-0 text-neutral-600 text-xs font-semibold leading-4">
