@@ -1,4 +1,18 @@
 export const locale = {
+  eventLists: {
+    waitinglist: "Waiting list places",
+    seatsFree: "Free seats",
+    unlimitedSeats: "Unlimited seats",
+    more: "Show {{count}} more",
+    less: "Show {{count}} less",
+    parentEvent: {
+      hint: "Your event belongs to this parent event.",
+    },
+    childEvents: {
+      hint_singular: "Your event has a sub-event.",
+      hint_plural: "Your event has sub-events.",
+    },
+  },
   timePeriod: {
     headline: "Is it a one-day or multi-day event?",
     single: {

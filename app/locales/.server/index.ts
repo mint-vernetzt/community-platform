@@ -532,6 +532,7 @@ const de = {
   },
   "next/event/$slug/settings/time-period": {
     route: deNextEventSettingsTimePeriod,
+    stages: deStages,
   },
   // explore routes
   explore: {
@@ -990,6 +991,7 @@ const en = {
   },
   "next/event/$slug/settings/time-period": {
     route: enNextEventSettingsTimePeriod,
+    stages: enStages,
   },
   // explore routes
   explore: {

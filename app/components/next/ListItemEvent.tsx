@@ -25,7 +25,7 @@ function ListItemEvent(props: {
   );
 
   const classes = classNames(
-    "flex gap-4 items-center border border-neutral-200 rounded-lg"
+    "flex gap-4 items-center border border-neutral-200 rounded-lg bg-white"
   );
 
   const validChildren = Children.toArray(children).filter((child) => {
@@ -56,16 +56,24 @@ function ListItemEvent(props: {
     return isValidElement(child) && child.type === ListItemEvent.Control;
   });
 
+  const infoContainerClasses = classNames(
+    "w-full flex flex-col @sm:flex-row justify-center @sm:justify-between @sm:items-center p-4 gap-4",
+    typeof image !== "undefined" ? "@lg:pl-0" : "",
+    typeof control !== "undefined" ? "@sm:h-24" : "h-24"
+  );
+
   if (typeof to === "undefined") {
     return (
       <li className={hideClasses}>
         <div className={classes}>
-          <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
-            <div className="w-36 h-[96px] rounded-l-lg overflow-hidden">
-              {image}
+          {typeof image !== "undefined" ? (
+            <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
+              <div className="w-36 h-[96px] rounded-l-lg overflow-hidden">
+                {image}
+              </div>
             </div>
-          </div>
-          <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
+          ) : null}
+          <div className={infoContainerClasses}>
             <div
               className={classNames(
                 "flex flex-col max-w-[737px]",
@@ -76,11 +84,15 @@ function ListItemEvent(props: {
             >
               {info}
               {headline}
-              <div className="hidden @sm:block">{subline}</div>
+              {typeof subline !== "undefined" ? (
+                <div className="hidden @sm:block">{subline}</div>
+              ) : null}
             </div>
-            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
-              {control}
-            </div>
+            {typeof control !== "undefined" ? (
+              <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+                {control}
+              </div>
+            ) : null}
           </div>
           {flag}
         </div>
@@ -98,12 +110,14 @@ function ListItemEvent(props: {
         )}
         prefetch="intent"
       >
-        <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
-          <div className="w-36 h-[96px] rounded-l-[7px] overflow-hidden">
-            {image}
+        {typeof image !== "undefined" ? (
+          <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
+            <div className="w-36 h-[96px] rounded-l-[7px] overflow-hidden">
+              {image}
+            </div>
           </div>
-        </div>
-        <div className="w-full flex flex-col @sm:flex-row justify-between h-[123px] @sm:h-24 p-4 @lg:pl-0 @sm:gap-4">
+        ) : null}
+        <div className={infoContainerClasses}>
           <div
             className={classNames(
               "flex flex-col max-w-[737px]",
@@ -114,11 +128,15 @@ function ListItemEvent(props: {
           >
             {info}
             {headline}
-            <div className="hidden @sm:block">{subline}</div>
+            {typeof subline !== "undefined" ? (
+              <div className="hidden @sm:block">{subline}</div>
+            ) : null}
           </div>
-          <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
-            {control}
-          </div>
+          {typeof control !== "undefined" ? (
+            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+              {control}
+            </div>
+          ) : null}
         </div>
         {flag}
       </Link>
