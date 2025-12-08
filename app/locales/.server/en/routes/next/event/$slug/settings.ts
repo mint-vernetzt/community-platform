@@ -19,4 +19,10 @@ export const locale = {
     team: "Team",
     timePeriod: "Date and time",
   },
+  errors: {
+    invalidIntent: "This action is not allowed",
+    publishFailed:
+      "Publishing the event failed. Please try again later or contact support.",
+  },
+  publishSuccess: "Event published!",
 } as const;
