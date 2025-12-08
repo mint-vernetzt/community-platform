@@ -178,50 +178,25 @@ export default function Location() {
     })
   );
 
-  const onSiteDefaults = {
-    venueName: loaderData.event.venueName,
-    venueStreet: loaderData.event.venueStreet,
-    venueZipCode: loaderData.event.venueZipCode,
-    venueCity: loaderData.event.venueCity,
-  };
-  const onlineDefaults = {
-    conferenceLink: loaderData.event.conferenceLink,
-    conferenceCode: loaderData.event.conferenceCode,
-  };
-  const generalDefaults = {
-    stage: loaderData.event.stage,
-    accessibilityInformation: loaderData.event.accessibilityInformation,
-    accessibilityInformationRTEState:
-      loaderData.event.accessibilityInformationRTEState,
-    privacyInformation: loaderData.event.privacyInformation,
-    privacyInformationRTEState: loaderData.event.privacyInformationRTEState,
-  };
-
   const [form, fields] = useForm({
     id: `event-location-form-${loaderData.currentTimeStamp}`,
     constraint: getZodConstraint(
       createEventLocationSchema(locales.route.validation)
     ),
-    defaultValue:
-      stage === null
-        ? {
-            ...generalDefaults,
-          }
-        : stage === Stages.OnSite
-          ? {
-              ...onSiteDefaults,
-              ...generalDefaults,
-            }
-          : stage === Stages.Online
-            ? {
-                ...onlineDefaults,
-                ...generalDefaults,
-              }
-            : {
-                ...onSiteDefaults,
-                ...onlineDefaults,
-                ...generalDefaults,
-              },
+    defaultValue: {
+      venueName: loaderData.event.venueName,
+      venueStreet: loaderData.event.venueStreet,
+      venueZipCode: loaderData.event.venueZipCode,
+      venueCity: loaderData.event.venueCity,
+      conferenceLink: loaderData.event.conferenceLink,
+      conferenceCode: loaderData.event.conferenceCode,
+      stage: loaderData.event.stage,
+      accessibilityInformation: loaderData.event.accessibilityInformation,
+      accessibilityInformationRTEState:
+        loaderData.event.accessibilityInformationRTEState,
+      privacyInformation: loaderData.event.privacyInformation,
+      privacyInformationRTEState: loaderData.event.privacyInformationRTEState,
+    },
     shouldValidate: "onBlur",
     onValidate: (values) => {
       const submission = parseWithZod(values.formData, {
