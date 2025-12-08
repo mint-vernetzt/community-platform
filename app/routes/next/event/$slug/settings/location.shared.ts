@@ -51,18 +51,20 @@ export function createEventLocationSchema(locales: {
   return schema;
 }
 
-export function getDefault(value: string | null | undefined): string {
-  if (typeof value === "undefined" || value === null || value.trim() === "") {
-    return "";
-  }
-  return value;
-}
+export function getStageDefaultValue(options: {
+  stageSearchParam: string | null;
+  stageFromDb: string | null;
+}) {
+  const { stageSearchParam, stageFromDb } = options;
 
-export function isSame(
-  valueA: string | null | undefined,
-  valueB: string | null | undefined
-): boolean {
-  const a = valueA === undefined || valueA === null ? "" : valueA.trim();
-  const b = valueB === undefined || valueB === null ? "" : valueB.trim();
-  return a === b;
+  if (stageSearchParam === Stages.OnSite) {
+    return Stages.OnSite;
+  }
+  if (stageSearchParam === Stages.Online) {
+    return Stages.Online;
+  }
+  if (stageSearchParam === Stages.Hybrid) {
+    return Stages.Hybrid;
+  }
+  return stageFromDb as (typeof Stages)[keyof typeof Stages] | null;
 }
