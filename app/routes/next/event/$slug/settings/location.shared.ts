@@ -1,22 +1,11 @@
 import { z } from "zod";
+import { transformEmptyToNull } from "~/lib/utils/schemas";
 
 export const Stages = {
   Online: "online",
   OnSite: "on-site",
   Hybrid: "hybrid",
 } as const;
-
-function transformEmptyToNull(value: string | undefined): string | null {
-  if (
-    typeof value === "undefined" ||
-    value.trim() === "" ||
-    value.trim() === "<p></p>" ||
-    value.trim() === "<p><br></p>"
-  ) {
-    return null;
-  }
-  return value;
-}
 
 export function createEventLocationSchema(locales: {
   stageRequired: string;
