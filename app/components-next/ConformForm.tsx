@@ -1,4 +1,4 @@
-import { getFormProps, useForm } from "@conform-to/react-v1";
+import { getFormProps, useForm } from "@conform-to/react";
 import { createContext, useContext } from "react";
 import { Form, type FormProps } from "react-router";
 

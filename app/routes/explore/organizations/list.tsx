@@ -1,4 +1,4 @@
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import {

@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "./lib/utils/response";
 import { prismaClient } from "./prisma.server";
 import { type OrganizationDetailLocales } from "./routes/organization/$slug/detail.server";
