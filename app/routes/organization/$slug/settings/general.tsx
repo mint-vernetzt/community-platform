@@ -1,5 +1,5 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";

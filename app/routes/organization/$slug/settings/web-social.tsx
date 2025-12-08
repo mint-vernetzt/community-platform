@@ -1,5 +1,5 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   redirect,
   type ActionFunctionArgs,

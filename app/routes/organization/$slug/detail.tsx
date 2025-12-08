@@ -1,4 +1,4 @@
-import { getFormProps, useForm } from "@conform-to/react-v1";
+import { getFormProps, useForm } from "@conform-to/react";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";

@@ -15,4 +15,5 @@ export const locale = {
       label: "Speichern",
     },
   },
+  success: "Benachrichtigungseinstellungen erfolgreich aktualisiert.",
 } as const;

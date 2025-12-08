@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";

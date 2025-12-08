@@ -1,4 +1,4 @@
-import { type FormMetadata } from "@conform-to/react-v1";
+import { type FormMetadata } from "@conform-to/react";
 import {
   Form,
   useBlocker,

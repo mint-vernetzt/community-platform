@@ -15,4 +15,5 @@ export const locale = {
       label: "Save",
     },
   },
+  success: "Notification settings updated successfully.",
 } as const;

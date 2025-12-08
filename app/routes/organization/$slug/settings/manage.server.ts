@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";

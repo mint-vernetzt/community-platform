@@ -1,4 +1,4 @@
-import { getInputProps, type useForm } from "@conform-to/react-v1";
+import { getInputProps, type useForm } from "@conform-to/react";
 import { type FilterSchemes } from "~/routes/explore/all.shared";
 import { useConformForm } from "./ConformForm";
 

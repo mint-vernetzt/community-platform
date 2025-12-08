@@ -1,5 +1,5 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
@@ -319,7 +319,7 @@ export const action = async (args: ActionFunctionArgs) => {
     console.error({ error });
     captureException(error);
     // TODO: How can we add this to the zod ctx?
-    return redirectWithToast(request.url, {
+    return redirectWithToast(`/project/${slug}/detail/about`, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
       message: locales.route.error.onStoring,
@@ -361,9 +361,10 @@ export const action = async (args: ActionFunctionArgs) => {
     });
     submission = result.submission;
     toast = result.toast;
+    redirectUrl = result.redirectUrl || request.url;
   } else {
     // TODO: How can we add this to the zod ctx?
-    return redirectWithToast(request.url, {
+    return redirectWithToast(`/project/${slug}/detail/about`, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
       message: locales.route.error.invalidAction,

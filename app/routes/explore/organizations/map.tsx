@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import mapStyles from "maplibre-gl/dist/maplibre-gl.css?url";

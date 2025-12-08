@@ -6,7 +6,7 @@ import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import {
   createImageUploadSchema,
   disconnectImageSchema,

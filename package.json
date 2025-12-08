@@ -33,10 +33,8 @@
     "lint:clear-cache": "rm -rf ./node_modules/.cache/eslint"
   },
   "dependencies": {
-    "@conform-to/react": "^0.9.1",
-    "@conform-to/react-v1": "npm:@conform-to/react@^1.2.2",
-    "@conform-to/zod": "^0.9.1",
-    "@conform-to/zod-v1": "npm:@conform-to/zod@^1.2.2",
+    "@conform-to/react": "^1.14.1",
+    "@conform-to/zod": "^1.14.1",
     "@hookform/resolvers": "^3.3.2",
     "@lexical/react": "^0.23.1",
     "@mjackson/file-storage": "^0.6.1",

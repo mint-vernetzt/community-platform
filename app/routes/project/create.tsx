@@ -25,8 +25,8 @@ import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
