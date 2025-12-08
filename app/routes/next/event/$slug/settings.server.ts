@@ -62,10 +62,10 @@ export async function getRedirectPathOnProtectedEventRoute(options: {
     return `/login?login_redirect=${url.pathname}`;
   }
 
-  // check if admin of project and redirect to project details if not
+  // check if admin of event and redirect to event details if not
   const isAdmin = await isAdminOfEvent(sessionUser, slug);
   if (isAdmin === false) {
-    return `/organization/${slug}/detail/about`;
+    return `/event/${slug}/detail/about`;
   }
 
   return null;
