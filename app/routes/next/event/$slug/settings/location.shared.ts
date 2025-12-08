@@ -7,7 +7,12 @@ export const Stages = {
 } as const;
 
 function transformEmptyToNull(value: string | undefined): string | null {
-  if (typeof value === "undefined" || value.trim() === "") {
+  if (
+    typeof value === "undefined" ||
+    value.trim() === "" ||
+    value.trim() === "<p></p>" ||
+    value.trim() === "<p><br></p>"
+  ) {
     return null;
   }
   return value;
