@@ -191,8 +191,10 @@ export function getFormattedAddress(event: {
     nameAndAddressLines.push(event.venueName);
   }
   const streetLines = [];
-  if (hasVenueStreetNumber(event) && hasVenueStreet(event)) {
+  if (hasVenueStreet(event)) {
     streetLines.push(event.venueStreet);
+  }
+  if (hasVenueStreetNumber(event)) {
     streetLines.push(event.venueStreetNumber);
   }
   const cityLines = [];
