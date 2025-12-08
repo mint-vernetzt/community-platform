@@ -46,15 +46,22 @@ export const locale = {
       nameMinLength: "Der Name es Events muss mindestens 3 Zeichen lang sein.",
       startDateRequired: "Bitte gib das Startdatum Deines Events an.",
       startDateInPast: "Dein Datum liegt in der Vergangenheit.",
+      startTimeInPast: "Die Startzeit liegt in der Vergangenheit.",
       endDateRequired: "Bitte gib das Enddatum Deines Events an.",
       endDateInPast: "Dein Enddatum liegt in der Vergangenheit.",
+      endTimeInPast: "Die Endzeit liegt in der Vergangenheit.",
       endDateBeforeStartDate: "Dein Enddatum liegt vor dem Startdatum.",
+      endTimeBeforeStartTime: "Die Endzeit liegt vor der Startzeit.",
       startTimeRequired: "Bitte gib die Startzeit an.",
       endTimeRequired: "Bitte gib die Endzeit an.",
+      multiDaySameDay:
+        "Bei mehrtägigen Events müssen Start- und Enddatum unterschiedlich sein.",
     },
   },
   errors: {
     createEventFailed:
       "Beim Erstellen Deines Events ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
+    invalidTimePeriod:
+      "Es ist nur eine ein- oder mehrtägige Veranstaltung zulässig.",
   },
 } as const;

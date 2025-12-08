@@ -1,207 +1,190 @@
 import { zonedTimeToUtc } from "date-fns-tz";
 import { z } from "zod";
+import { type TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 
-export const TIME_PERIOD_SINGLE = "single";
-export const TIME_PERIOD_MULTI = "multi";
-
-export function createEventCreationSchema(locales: {
-  nameRequired: string;
-  nameMinLength: string;
-  startDateRequired: string;
-  startDateInPast: string;
-  endDateRequired: string;
-  endDateInPast: string;
-  endDateBeforeStartDate: string;
-  startTimeRequired: string;
-  endTimeRequired: string;
+export function createEventCreationSchema(options: {
+  locales: {
+    nameRequired: string;
+    nameMinLength: string;
+    startDateRequired: string;
+    startDateInPast: string;
+    startTimeInPast: string;
+    endDateRequired: string;
+    endDateInPast: string;
+    endTimeInPast: string;
+    endDateBeforeStartDate: string;
+    endTimeBeforeStartTime: string;
+    startTimeRequired: string;
+    endTimeRequired: string;
+    multiDaySameDay: string;
+  };
+  timePeriod: typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI;
 }) {
-  const schema = z
-    .object({
-      name: z.string().optional(),
-      timePeriod: z.enum([TIME_PERIOD_SINGLE, TIME_PERIOD_MULTI]),
-      startDate: z.date().optional(),
-      endDate: z.date().optional(),
-      startTime: z.string().optional(),
-      endTime: z.string().optional(),
-    })
-    .superRefine((data, context) => {
-      const todayStart = new Date();
-      todayStart.setUTCHours(0, 0, 0, 0);
+  const { locales, timePeriod } = options;
+  let schema;
 
-      const todayEnd = new Date();
-      todayEnd.setUTCHours(23, 59, 59, 999);
-
-      // Validate event name
-      // required
-      if (typeof data.name === "undefined" || data.name.trim() === "") {
-        context.addIssue({
-          path: ["name"],
-          code: z.ZodIssueCode.custom,
-          message: locales.nameRequired,
-        });
-        // min length 3
-      } else if (data.name.trim().length < 3) {
-        context.addIssue({
-          path: ["name"],
-          code: z.ZodIssueCode.custom,
-          message: locales.nameMinLength,
-        });
-      }
-
-      if (data.timePeriod === TIME_PERIOD_SINGLE) {
-        // Validate start date
-        // required
-        if (typeof data.startDate === "undefined") {
-          context.addIssue({
-            path: ["startDate"],
-            code: z.ZodIssueCode.custom,
-            message: locales.startDateRequired,
-          });
-        } else {
-          // in the past
-          if (data.startDate < todayStart) {
+  if (timePeriod === TIME_PERIOD_SINGLE) {
+    schema = z
+      .object({
+        name: z
+          .string({
+            required_error: locales.nameRequired,
+          })
+          .trim()
+          .min(3, {
+            message: locales.nameMinLength,
+          }),
+        startDate: z.date({
+          required_error: locales.startDateRequired,
+        }),
+        startTime: z.string({
+          required_error: locales.startTimeRequired,
+        }),
+        endTime: z.string({
+          required_error: locales.endTimeRequired,
+        }),
+      })
+      .transform((data, context) => {
+        const today = new Date();
+        const startTime = zonedTimeToUtc(
+          `${data.startDate.toISOString().split("T")[0]} ${data.startTime}`,
+          "Europe/Berlin"
+        );
+        const endTime = zonedTimeToUtc(
+          `${data.startDate.toISOString().split("T")[0]} ${data.endTime}`,
+          "Europe/Berlin"
+        );
+        // start time in the past
+        if (startTime <= today) {
+          if (startTime.getDate() < today.getDate()) {
             context.addIssue({
               path: ["startDate"],
               code: z.ZodIssueCode.custom,
               message: locales.startDateInPast,
             });
+          } else {
+            context.addIssue({
+              path: ["startTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.startTimeInPast,
+            });
           }
+          return z.NEVER;
         }
-        // Validate start time
-        if (typeof data.startTime !== "string" || data.startTime === "") {
-          context.addIssue({
-            path: ["startTime"],
-            code: z.ZodIssueCode.custom,
-            message: locales.startTimeRequired,
-          });
-        }
-        // Validate end time
-        if (typeof data.endTime !== "string" || data.endTime === "") {
+        // end time in the past
+        if (endTime <= today) {
           context.addIssue({
             path: ["endTime"],
             code: z.ZodIssueCode.custom,
-            message: locales.endTimeRequired,
+            message: locales.endTimeInPast,
           });
+          return z.NEVER;
         }
-      }
-
-      if (data.timePeriod === TIME_PERIOD_MULTI) {
-        // Validate start date
-        // required
-        if (typeof data.startDate === "undefined") {
+        // end time before start time
+        if (endTime <= startTime) {
           context.addIssue({
-            path: ["startDate"],
+            path: ["endTime"],
             code: z.ZodIssueCode.custom,
-            message: locales.startDateRequired,
+            message: locales.endTimeBeforeStartTime,
           });
-        } else {
-          // in the past
-          if (data.startDate < todayStart) {
-            context.addIssue({
-              path: ["startDate"],
-              code: z.ZodIssueCode.custom,
-              message: locales.startDateInPast,
-            });
-          }
+          return z.NEVER;
         }
-        // Validate end date
-        // required
-        if (typeof data.endDate === "undefined") {
+
+        const participationUntil = startTime;
+        const oneDayInMillis = 86_400_000;
+        const participationFrom = new Date(
+          startTime.getTime() - oneDayInMillis
+        );
+
+        return {
+          name: data.name,
+          startTime,
+          endTime,
+          participationFrom,
+          participationUntil,
+        };
+      });
+  } else {
+    schema = z
+      .object({
+        name: z
+          .string({
+            required_error: locales.nameRequired,
+          })
+          .trim()
+          .min(3, {
+            message: locales.nameMinLength,
+          }),
+        startDate: z.date({
+          required_error: locales.startDateRequired,
+        }),
+        endDate: z.date({
+          required_error: locales.endDateRequired,
+        }),
+      })
+      .transform((data, context) => {
+        const today = new Date();
+        const startDateISO = data.startDate.toISOString().split("T")[0];
+        const endDateISO = data.endDate.toISOString().split("T")[0];
+
+        // multi day events should not be on the same day
+        if (startDateISO === endDateISO) {
           context.addIssue({
             path: ["endDate"],
             code: z.ZodIssueCode.custom,
-            message: locales.endDateRequired,
+            message: locales.multiDaySameDay,
           });
-        } else {
-          // in the past
-          if (data.endDate < todayEnd) {
-            context.addIssue({
-              path: ["endDate"],
-              code: z.ZodIssueCode.custom,
-              message: locales.endDateInPast,
-            });
-          }
+          return z.NEVER;
         }
-        // end date before start date
-        if (
-          typeof data.endDate !== "undefined" &&
-          typeof data.startDate !== "undefined" &&
-          data.endDate < data.startDate
-        ) {
+
+        const startTime = zonedTimeToUtc(
+          `${startDateISO} 00:00`,
+          "Europe/Berlin"
+        );
+        const endTime = zonedTimeToUtc(`${endDateISO} 23:59`, "Europe/Berlin");
+
+        // start time in the past
+        if (startTime <= today) {
+          context.addIssue({
+            path: ["startDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.startDateInPast,
+          });
+          return z.NEVER;
+        }
+        // end time in the past
+        if (endTime <= today) {
+          context.addIssue({
+            path: ["endDate"],
+            code: z.ZodIssueCode.custom,
+            message: locales.endDateInPast,
+          });
+          return z.NEVER;
+        }
+        // end time before start time
+        if (endTime <= startTime) {
           context.addIssue({
             path: ["endDate"],
             code: z.ZodIssueCode.custom,
             message: locales.endDateBeforeStartDate,
           });
-        }
-      }
-    })
-    .transform((data, context) => {
-      let startTime: Date;
-      let endTime: Date;
-
-      if (typeof data.name === "undefined") {
-        return z.NEVER;
-      }
-
-      if (data.timePeriod === TIME_PERIOD_SINGLE) {
-        if (
-          typeof data.startDate === "undefined" ||
-          typeof data.startTime === "undefined" ||
-          typeof data.endTime === "undefined"
-        ) {
-          console.log({ data });
           return z.NEVER;
         }
 
-        startTime = zonedTimeToUtc(
-          `${data.startDate.toISOString().split("T")[0]} ${data.startTime}`,
-          "Europe/Berlin"
+        const participationUntil = startTime;
+        const oneDayInMillis = 86_400_000;
+        const participationFrom = new Date(
+          startTime.getTime() - oneDayInMillis
         );
-        endTime = zonedTimeToUtc(
-          `${data.startDate.toISOString().split("T")[0]} ${data.endTime}`,
-          "Europe/Berlin"
-        );
-      } else {
-        if (
-          typeof data.startDate === "undefined" ||
-          typeof data.endDate === "undefined"
-        ) {
-          return z.NEVER;
-        }
 
-        startTime = zonedTimeToUtc(
-          `${data.startDate.toISOString().split("T")[0]} 00:00`,
-          "Europe/Berlin"
-        );
-        endTime = zonedTimeToUtc(
-          `${data.endDate.toISOString().split("T")[0]} 23:59`,
-          "Europe/Berlin"
-        );
-      }
-
-      if (startTime >= endTime) {
-        const path =
-          data.timePeriod === TIME_PERIOD_SINGLE ? ["endTime"] : ["endDate"];
-
-        context.addIssue({
-          path,
-          code: z.ZodIssueCode.custom,
-          message: locales.endDateBeforeStartDate,
-        });
-      }
-
-      const participationUntil = startTime;
-      const oneDayInMillis = 86_400_000;
-      const participationFrom = new Date(startTime.getTime() - oneDayInMillis);
-
-      return {
-        name: data.name,
-        startTime,
-        endTime,
-        participationFrom,
-        participationUntil,
-      };
-    });
+        return {
+          name: data.name,
+          startTime,
+          endTime,
+          participationFrom,
+          participationUntil,
+        };
+      });
+  }
   return schema;
 }

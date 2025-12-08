@@ -6,6 +6,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
 } from "react-router";
 import {
@@ -26,11 +27,8 @@ import { extendSearchParams } from "~/lib/utils/searchParams";
 import { useState } from "react";
 import classNames from "classnames";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import {
-  createEventCreationSchema,
-  TIME_PERIOD_MULTI,
-  TIME_PERIOD_SINGLE,
-} from "./create.shared";
+import { createEventCreationSchema } from "./create.shared";
+import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
 import { prismaClient } from "~/prisma.server";
@@ -39,6 +37,7 @@ import { redirectWithToast } from "~/toast.server";
 import { captureException } from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { invariant, invariantResponse } from "~/lib/utils/response";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -75,8 +74,19 @@ export const action = async (args: ActionFunctionArgs) => {
   const locales = languageModuleMap[language]["next/event/create"];
 
   const formData = await request.formData();
+  const timePeriod = formData.get("timePeriod");
+  invariantResponse(
+    timePeriod === TIME_PERIOD_SINGLE || timePeriod === TIME_PERIOD_MULTI,
+    locales.route.errors.invalidTimePeriod,
+    {
+      status: 400,
+    }
+  );
 
-  const schema = createEventCreationSchema(locales.route.form.validation);
+  const schema = createEventCreationSchema({
+    locales: locales.route.form.validation,
+    timePeriod,
+  });
   const submission = await parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
@@ -143,23 +153,36 @@ export default function Create() {
 
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
+  const navigation = useNavigation();
   const [form, fields] = useForm({
     id: "create-event-form",
     constraint: getZodConstraint(
-      createEventCreationSchema(locales.route.form.validation)
+      createEventCreationSchema({
+        locales: locales.route.form.validation,
+        timePeriod,
+      })
     ),
     shouldDirtyConsider(name) {
       return name !== "timePeriod";
     },
     shouldValidate: "onBlur",
     onValidate: (values) => {
+      const formData = values.formData;
+      const timePeriod = formData.get("timePeriod");
+      invariant(
+        timePeriod === TIME_PERIOD_SINGLE || timePeriod === TIME_PERIOD_MULTI,
+        locales.route.errors.invalidTimePeriod
+      );
       const submission = parseWithZod(values.formData, {
-        schema: createEventCreationSchema(locales.route.form.validation),
+        schema: createEventCreationSchema({
+          locales: locales.route.form.validation,
+          timePeriod,
+        }),
       });
       return submission;
     },
     shouldRevalidate: "onInput",
-    lastResult: actionData,
+    lastResult: navigation.state === "idle" ? actionData : undefined,
   });
 
   const timingInputContainerClasses = classNames(
@@ -279,10 +302,7 @@ export default function Create() {
               >
                 {locales.route.timePeriod[TIME_PERIOD_MULTI].label}
               </RadioButtonSettings>
-              <Input
-                {...getInputProps(fields.timePeriod, { type: "hidden" })}
-                value={timePeriod}
-              />
+              <input type="hidden" name="timePeriod" value={timePeriod} />
             </div>
           </BasicStructure.Container>
           <BasicStructure.Container
@@ -390,7 +410,7 @@ export default function Create() {
             <p className="text-neutral-700 text-sm font-normal leading-[18px]">
               {locales.route.requiredHint}
             </p>
-            <div className="w-full md:w-fit flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
               <div className="w-full md:w-fit">
                 <Button
                   type="submit"
