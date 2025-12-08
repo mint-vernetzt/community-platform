@@ -36,6 +36,7 @@ import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
+import { sanitizeUserHtml } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -128,6 +129,10 @@ export async function action(args: ActionFunctionArgs) {
         },
         data: {
           ...data,
+          accessibilityInformation: sanitizeUserHtml(
+            data.accessibilityInformation
+          ),
+          privacyInformation: sanitizeUserHtml(data.privacyInformation),
           stageId: stage.id,
         },
       });
