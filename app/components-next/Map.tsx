@@ -862,7 +862,9 @@ export function MapView(props: {
           <p className="text-2xl font-bold leading-7">
             {locales.components.Map.webGLNotSupported.headline}
           </p>
-          <p>{locales.components.Map.webGLNotSupported.subline}</p>
+          <p className="max-w-[800px]">
+            {locales.components.Map.webGLNotSupported.subline}
+          </p>
           <ul className="flex flex-col gap-2 list-inside list-disc">
             {locales.components.Map.webGLNotSupported.hints.map(
               (hint, index) => {
