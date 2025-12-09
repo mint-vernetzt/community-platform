@@ -24,6 +24,23 @@ export const locale = {
       "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
   },
   Map: {
+    webGLNotSupported: {
+      stackError: "WebGL wird von Deinem Browser nicht unterstützt.",
+      headline: "Hinweis: Karte kann nicht angezeigt werden",
+      subline:
+        "Es tut uns leid – die Karte kann in Deinem Browser gerade nicht angezeigt werden. Dafür wird WebGL benötigt, eine Technologie zur Darstellung von interaktiven Grafiken im Browser. So kannst Du das Problem möglicherweise beheben:",
+      hints: [
+        "Lade die Seite neu oder nutze einen anderen Browser.",
+        "Stelle sicher, dass Dein Browser aktuell ist.",
+        "Schließe Programme oder Tabs, die viel Rechenleistung brauchen.",
+        "Aktiviere WebGL in den Browser-Einstellungen.",
+        "Prüfe, ob Dein Grafiktreiber aktuell ist.",
+        "Aktiviere die Hardwarebeschleunigung in Browser und Betriebssystem.",
+        "Starte Dein Gerät neu oder versuche es auf einem anderen Gerät.",
+      ],
+      greetings:
+        "Wenn Du weiterhin Probleme hast, melde Dich gerne bei uns. Wir unterstützen Dich gerne!",
+    },
     organizationCountHeadline: "Organisationen und Netzwerke",
     openMenu: "Organisationsliste öffnen",
     closeMenu: "Organisationsliste schließen",
