@@ -24,8 +24,23 @@ export const locale = {
       "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
   },
   Map: {
-    webGLNotSupported:
-      "Dein Browser unterstützt aktuell kein WebGL, was für die Kartenanzeige erforderlich ist. Eventuell hilft es die Seite neu zu laden oder einen anderen Browser zu verwenden. Hier sind weitere Optionen die helfen könnten:\n- Stelle sicher, dass Dein Browser auf dem neuesten Stand ist.\n- Überprüfe deine GPU-Auslastung und beende Programme oder schließe Tabs, die viel Leistung beanspruchen.\n- Überprüfe die Grafikeinstellungen Deines Browsers und aktiviere WebGL, falls es deaktiviert ist.\n- Überprüfe, ob Du den aktuellsten Grafiktreiber installiert hast.\n- Überprüfe ob die Hardwarebeschleunigung in den Browsereinstellungen und auf deinem Betriebssystem aktiviert ist.\n- Versuche es gegebenenfalls mit einem anderen Browser oder Gerät oder starte dein Gerät neu.",
+    webGLNotSupported: {
+      stackError: "WebGL wird von Deinem Browser nicht unterstützt.",
+      headline: "Hinweis: Karte kann nicht angezeigt werden",
+      subline:
+        "Es tut uns leid – die Karte kann in Deinem Browser gerade nicht angezeigt werden. Dafür wird WebGL benötigt, eine Technologie zur Darstellung von interaktiven Grafiken im Browser. So kannst Du das Problem möglicherweise beheben:",
+      hints: [
+        "Lade die Seite neu oder nutze einen anderen Browser.",
+        "Stelle sicher, dass Dein Browser aktuell ist.",
+        "Schließe Programme oder Tabs, die viel Rechenleistung brauchen.",
+        "Aktiviere WebGL in den Browser-Einstellungen.",
+        "Prüfe, ob Dein Grafiktreiber aktuell ist.",
+        "Aktiviere die Hardwarebeschleunigung in Browser und Betriebssystem.",
+        "Starte Dein Gerät neu oder versuche es auf einem anderen Gerät.",
+      ],
+      greetings:
+        "Wenn Du weiterhin Probleme hast, melde Dich gerne bei uns. Wir unterstützen Dich gerne!",
+    },
     organizationCountHeadline: "Organisationen und Netzwerke",
     openMenu: "Organisationsliste öffnen",
     closeMenu: "Organisationsliste schließen",

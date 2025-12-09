@@ -2,6 +2,7 @@ import {
   Avatar,
   AvatarList,
 } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { type Organization } from "@prisma/client";
 import maplibreGL from "maplibre-gl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,16 +11,15 @@ import { Link, useSearchParams, useSubmit } from "react-router";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { type ArrayElement } from "~/lib/utils/types";
+import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { type MapLocales } from "~/routes/map.server";
 import { HeaderLogo } from "./HeaderLogo";
 import { ListItem, type ListOrganization } from "./ListItem";
 import { BurgerMenuClosed } from "./icons/BurgerMenuClosed";
 import { BurgerMenuOpen } from "./icons/BurgerMenuOpen";
 import { MapPopupClose } from "./icons/MapPopupClose";
-import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
-function isWebglSupported(locales: { webGLNotSupported: string }) {
+function isWebglSupported(locales: { error: string }) {
   if (window.WebGLRenderingContext) {
     const canvas = document.createElement("canvas");
     try {
@@ -33,11 +33,11 @@ function isWebglSupported(locales: { webGLNotSupported: string }) {
       }
     } catch (error) {
       console.error("Error during WebGL support check:", error);
-      return { error: locales.webGLNotSupported };
+      return { error: locales.error };
     }
-    return { error: locales.webGLNotSupported };
+    return { error: locales.error };
   }
-  return { error: locales.webGLNotSupported };
+  return { error: locales.error };
 }
 
 type MapOrganization = ListOrganization &
@@ -98,6 +98,7 @@ export function MapView(props: {
   const organizationsByCoordinatesRef = useRef(
     new Map<string, MapOrganization[]>()
   );
+  const [notSupported, setNotSupported] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -120,8 +121,11 @@ export function MapView(props: {
   }, [isMobile]);
 
   useEffect(() => {
-    const { error } = isWebglSupported(locales.components.Map);
+    const { error } = isWebglSupported({
+      error: locales.components.Map.webGLNotSupported.stackError,
+    });
     if (error !== null) {
+      setNotSupported(true);
       return;
     }
     if (mapRef.current === null && mapContainer.current !== null) {
@@ -847,6 +851,30 @@ export function MapView(props: {
             : "w-0"
         }`}
       />
+      {notSupported === true ? (
+        <div
+          className={`absolute top-0 bottom-0 right-0 flex flex-col gap-2 overflow-y-scroll p-4 bg-primary-50 text-neutral-700 font-semibold text-sm ${
+            mapMenuIsOpen === true && organizations.length > 0
+              ? "left-0 w-full md:left-[336px] md:w-[calc(100%-336px)] rounded-r-lg"
+              : "w-full rounded-lg pl-16 md:pl-[352px]"
+          }`}
+        >
+          <p className="text-2xl font-bold leading-7">
+            {locales.components.Map.webGLNotSupported.headline}
+          </p>
+          <p>{locales.components.Map.webGLNotSupported.subline}</p>
+          <ul className="flex flex-col gap-2 list-inside list-disc">
+            {locales.components.Map.webGLNotSupported.hints.map(
+              (hint, index) => {
+                return (
+                  <li key={`webgl-not-supported-hint-${index}`}>{hint}</li>
+                );
+              }
+            )}
+          </ul>
+          <p>{locales.components.Map.webGLNotSupported.greetings}</p>
+        </div>
+      ) : null}
       {organizations.length > 0 ? (
         <div
           className={`absolute top-0 bottom-0 left-0 w-fit md:w-[336px] pointer-events-none z-10 ${
