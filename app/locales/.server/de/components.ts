@@ -25,7 +25,7 @@ export const locale = {
   },
   Map: {
     webGLNotSupported:
-      "Dein Browser unterstützt aktuell kein WebGL, was für die Kartenanzeige erforderlich ist. Eventuell hilft es die Seite neu zu laden oder einen anderen Browser zu verwenden. Hier sind weitere Optionen die helfen könnten:\n- Stelle sicher, dass Dein Browser auf dem neuesten Stand ist.\n- Überprüfe deine GPU Auslastung und beende Programme oder schließe Tabs, die viel Leistung beanspruchen.\n- Überprüfe die Grafikeinstellungen Deines Browsers und aktiviere WebGL, falls es deaktiviert ist.\n- Überprüfe ob Du den aktuellsten Grafiktreiber installiert hast.\n- Überprüfe ob die Hardwarebeschleunigung in den Browsereinstellungen und auf deinem Betriebssystem aktiviert ist.\n- Versuche es gegebenenfalls mit einem anderen Browser oder Gerät oder starte dein Gerät neu.",
+      "Dein Browser unterstützt aktuell kein WebGL, was für die Kartenanzeige erforderlich ist. Eventuell hilft es die Seite neu zu laden oder einen anderen Browser zu verwenden. Hier sind weitere Optionen die helfen könnten:\n- Stelle sicher, dass Dein Browser auf dem neuesten Stand ist.\n- Überprüfe deine GPU-Auslastung und beende Programme oder schließe Tabs, die viel Leistung beanspruchen.\n- Überprüfe die Grafikeinstellungen Deines Browsers und aktiviere WebGL, falls es deaktiviert ist.\n- Überprüfe, ob Du den aktuellsten Grafiktreiber installiert hast.\n- Überprüfe ob die Hardwarebeschleunigung in den Browsereinstellungen und auf deinem Betriebssystem aktiviert ist.\n- Versuche es gegebenenfalls mit einem anderen Browser oder Gerät oder starte dein Gerät neu.",
     organizationCountHeadline: "Organisationen und Netzwerke",
     openMenu: "Organisationsliste öffnen",
     closeMenu: "Organisationsliste schließen",
