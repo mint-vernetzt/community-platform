@@ -23,6 +23,8 @@ export const locale = {
     ariaLabel: "Set visibility to private or public. Checkmark means public.",
   },
   Map: {
+    webGLNotSupported:
+      "Your browser does not support WebGL, which is required for displaying the map. Reloading the page or using a different browser might help.",
     organizationCountHeadline: "organizations and networks",
     openMenu: "Open organization list",
     closeMenu: "Close organization list",

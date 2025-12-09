@@ -24,6 +24,8 @@ export const locale = {
       "Sichtbarkeit auf privat oder öffentlich setzen. Haken gesetzt bedeutet öffentlich.",
   },
   Map: {
+    webGLNotSupported:
+      "Dein Browser unterstützt kein WebGL, was für die Kartenanzeige erforderlich ist. Eventuell hilft es die Seite neu zu laden oder einen anderen Browser zu verwenden.",
     organizationCountHeadline: "Organisationen und Netzwerke",
     openMenu: "Organisationsliste öffnen",
     closeMenu: "Organisationsliste schließen",

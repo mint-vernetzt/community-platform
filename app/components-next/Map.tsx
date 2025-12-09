@@ -19,6 +19,27 @@ import { MapPopupClose } from "./icons/MapPopupClose";
 import { type ExploreOrganizationsLocales } from "~/routes/explore/organizations.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
+function isWebglSupported(locales: { webGLNotSupported: string }) {
+  if (window.WebGLRenderingContext) {
+    const canvas = document.createElement("canvas");
+    try {
+      // Note that { failIfMajorPerformanceCaveat: true } can be passed as a second argument
+      // to canvas.getContext(), causing the check to fail if hardware rendering is not available. See
+      // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/getContext
+      // for more details.
+      const context = canvas.getContext("webgl2") || canvas.getContext("webgl");
+      if (context && typeof context.getParameter == "function") {
+        return { error: null };
+      }
+    } catch (error) {
+      console.error("Error during WebGL support check:", error);
+      return { error: locales.webGLNotSupported };
+    }
+    return { error: locales.webGLNotSupported };
+  }
+  return { error: locales.webGLNotSupported };
+}
+
 type MapOrganization = ListOrganization &
   Pick<
     Organization,
@@ -99,6 +120,11 @@ export function MapView(props: {
   }, [isMobile]);
 
   useEffect(() => {
+    const { error } = isWebglSupported(locales.components.Map);
+    if (error !== null) {
+      alert(error);
+      return;
+    }
     if (mapRef.current === null && mapContainer.current !== null) {
       const center = [10.451526, 51.165691] as [number, number];
       const zoom = 5.2;
