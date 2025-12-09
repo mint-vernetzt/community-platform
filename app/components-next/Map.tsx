@@ -122,7 +122,6 @@ export function MapView(props: {
   useEffect(() => {
     const { error } = isWebglSupported(locales.components.Map);
     if (error !== null) {
-      alert(error);
       return;
     }
     if (mapRef.current === null && mapContainer.current !== null) {

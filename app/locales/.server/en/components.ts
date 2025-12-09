@@ -24,7 +24,7 @@ export const locale = {
   },
   Map: {
     webGLNotSupported:
-      "Your browser does not support WebGL, which is required for displaying the map. Reloading the page or using a different browser might help.",
+      "Your browser does not currently support WebGL, which is required to display the map. It may help to reload the page or use a different browser. Here are some other options that might help:\n- Make sure your browser is up to date.\n- Check your GPU usage and close any programs or tabs that are using a lot of power.\n - Check your browser's graphics settings and enable WebGL if it is disabled.\n - Check that you have the latest graphics driver installed.\n - Check that hardware acceleration is enabled in your browser settings and on your operating system.\n - If necessary, try a different browser or device, or restart your device.",
     organizationCountHeadline: "organizations and networks",
     openMenu: "Open organization list",
     closeMenu: "Close organization list",
