@@ -40,6 +40,8 @@ import {
   NAME_MIN_LENGTH,
   SUBLINE_MAX_LENGTH,
 } from "./general.shared";
+import { getCoordinatesFromAddress } from "~/utils.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -143,6 +145,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const project = await prismaClient.project.findUnique({
     select: {
       id: true,
+      street: true,
+      zipCode: true,
+      city: true,
+      longitude: true,
+      latitude: true,
     },
     where: {
       slug: params.slug,
@@ -163,17 +170,52 @@ export async function action({ request, params }: ActionFunctionArgs) {
       submission: submission.reply(),
     };
   }
+  let addressError;
   const submission = await parseWithZod(formData, {
     schema: () =>
       createGeneralSchema(locales).transform(async (data, ctx) => {
-        const { formats, areas, ...rest } = data;
+        const { formats, areas, ...projectData } = data;
+        let longitude = project.longitude;
+        let latitude = project.latitude;
+        if (
+          data.street !== project.street ||
+          data.city !== project.city ||
+          data.zipCode !== project.zipCode
+        ) {
+          const result = await getCoordinatesFromAddress({
+            id: project.id,
+            street: projectData.street,
+            city: projectData.city,
+            zipCode: projectData.zipCode,
+          });
+          if (result.error !== null) {
+            console.error(result.error);
+            addressError = result.error;
+          }
+          longitude = result.longitude;
+          latitude = result.latitude;
+        } else {
+          if (
+            (project.street !== null ||
+              project.city !== null ||
+              project.zipCode !== null) &&
+            project.longitude === null &&
+            project.latitude === null
+          ) {
+            addressError =
+              "Address not changed but coordinates still not found";
+          }
+        }
+
         try {
           await prismaClient.project.update({
             where: {
               slug: params.slug,
             },
             data: {
-              ...rest,
+              ...projectData,
+              longitude,
+              latitude,
               formats: {
                 deleteMany: {},
                 connectOrCreate: formats.map((formatId: string) => {
@@ -229,6 +271,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
       submission: submission.reply(),
       currentTimestamp: Date.now(),
     };
+  }
+
+  if (typeof addressError !== "undefined") {
+    return redirectWithToast(request.url, {
+      key: "address-error-toast",
+      level: "attention",
+      message: insertParametersIntoLocale(
+        locales.route.error.coordinatesNotFound,
+        {
+          street: submission.value.street,
+          city: submission.value.city,
+          zipCode: submission.value.zipCode,
+        }
+      ),
+      isRichtext: true,
+      delayInMillis: 60000,
+    });
   }
 
   return redirectWithToast(request.url, {
