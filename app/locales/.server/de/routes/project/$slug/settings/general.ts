@@ -69,7 +69,7 @@ export const locale = {
         label: "Name",
       },
       street: {
-        label: "Straße",
+        label: "Straße und Hausnummer",
       },
       zipCode: {
         label: "PLZ",
