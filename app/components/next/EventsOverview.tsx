@@ -262,7 +262,6 @@ function Stage(props: {
   slug: string;
   venueName: string | null;
   venueStreet: string | null;
-  venueStreetNumber: string | null;
   venueZipCode: string | null;
   venueCity: string | null;
   stage:
@@ -374,17 +373,14 @@ function Stage(props: {
               : props.locales.route.content.onSite}
           </div>
           {props.venueStreet !== null &&
-            props.venueStreetNumber !== null &&
             props.venueZipCode !== null &&
             props.venueCity !== null && (
               <div className="font-normal line-clamp-1">
-                {props.venueStreet} {props.venueStreetNumber},{" "}
-                {props.venueZipCode} {props.venueCity}
+                {props.venueStreet}, {props.venueZipCode} {props.venueCity}
               </div>
             )}
         </div>
         {props.venueStreet !== null &&
-          props.venueStreetNumber !== null &&
           props.venueZipCode !== null &&
           props.venueCity !== null && (
             <CircleButton
@@ -392,7 +388,7 @@ function Stage(props: {
               variant="ghost"
               target="_blank"
               rel="noopener noreferrer"
-              to={`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${props.venueStreet} ${props.venueStreetNumber} ${props.venueZipCode} ${props.venueCity}`)}`}
+              to={`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${props.venueStreet} ${props.venueZipCode} ${props.venueCity}`)}`}
             >
               <svg
                 width="16"
@@ -479,14 +475,12 @@ function Stage(props: {
               : props.locales.route.content.hybrid}
           </div>
           {props.venueStreet !== null &&
-            props.venueStreetNumber !== null &&
             props.venueZipCode !== null &&
             props.venueCity !== null && (
               <>
                 <div className="font-normal line-clamp-1">
-                  {props.locales.stages.online.title} / {props.venueStreet}{" "}
-                  {props.venueStreetNumber}, {props.venueZipCode}{" "}
-                  {props.venueCity}
+                  {props.locales.stages.online.title} / {props.venueStreet},{" "}
+                  {props.venueZipCode} {props.venueCity}
                 </div>
               </>
             )}
@@ -497,7 +491,6 @@ function Stage(props: {
       props.conferenceLinkToBeAnnounced === true ||
       conferenceLink !== null ||
       (props.venueStreet !== null &&
-        props.venueStreetNumber !== null &&
         props.venueZipCode !== null &&
         props.venueCity !== null)
     ) {

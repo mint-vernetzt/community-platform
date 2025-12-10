@@ -95,9 +95,6 @@ export const locale = {
     venueStreet: {
       label: "Street name",
     },
-    venueStreetNumber: {
-      label: "Street number",
-    },
     venueZipCode: {
       label: "ZIP code",
     },

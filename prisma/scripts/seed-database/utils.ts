@@ -5836,20 +5836,12 @@ export function getEntityData<
     participationUntil: generateParticipationUntil<T>(entityType, index),
     venueName: generateVenueName<T>(entityType, entityStructure),
     venueStreet: generateVenueStreet<T>(entityType, entityStructure),
-    venueStreetNumber: generateVenueStreetNumber<T>(
-      entityType,
-      entityStructure
-    ),
     venueCity: generateVenueCity<T>(entityType, entityStructure),
     venueZipCode: generateVenueZipCode<T>(entityType, entityStructure),
     canceled: generateCanceled<T>(entityType, entityStructure),
     email: generateEmail<T>(entityType, entityStructure, index),
     phone: generatePhone<T>(entityType, entityStructure),
     street: generateStreet<T>(entityType, entityStructure),
-    streetNumber:
-      entityType === "organization"
-        ? null
-        : generateStreetNumber<T>(entityType, entityStructure),
     city: generateCity<T>(entityType, entityStructure),
     zipCode: generateZipCode<T>(entityType, entityStructure),
     website: generateWebsite<T>(entityType, entityStructure),
@@ -6992,36 +6984,14 @@ function generateVenueStreet<
     } else if (entityStructure === "Empty Strings") {
       venueStreet = "";
     } else if (entityStructure === "Unicode") {
-      venueStreet = "Unicodestreet_Γ";
+      venueStreet = "Unicodestreet_Γ 22";
     } else if (entityStructure === "Largest") {
-      venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
+      venueStreet = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet 34";
     } else {
-      venueStreet = faker.location.street();
+      venueStreet = `${faker.location.street()} ${faker.number.int({ min: 1, max: 999 })}`;
     }
   }
   return venueStreet;
-}
-
-function generateVenueStreetNumber<
-  T extends keyof Pick<
-    PrismaClient,
-    "profile" | "organization" | "project" | "event" | "award" | "document"
-  >,
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
-  // event
-  let venueStreetNumber;
-  if (entityType === "event") {
-    if (entityStructure === "Smallest") {
-      venueStreetNumber = null;
-    } else if (entityStructure === "Empty Strings") {
-      venueStreetNumber = "";
-    } else if (entityStructure === "Largest") {
-      venueStreetNumber = faker.number.int({ min: 1000, max: 9999 }).toString();
-    } else {
-      venueStreetNumber = faker.number.int({ min: 1, max: 999 }).toString();
-    }
-  }
-  return venueStreetNumber;
 }
 
 function generateVenueCity<
@@ -7171,42 +7141,15 @@ function generateStreet<
     } else if (entityStructure === "Empty Strings") {
       street = "";
     } else if (entityStructure === "Unicode") {
-      street = "Unicodestreet_Γ";
+      street = "Unicodestreet_Γ 22";
     } else if (entityStructure === "Largest") {
-      street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet";
+      street = "Veeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerylongstreet 34";
     } else {
-      street = faker.location.street();
+      street = `${faker.location.street()} ${faker.number.int({ min: 1, max: 999 })}`;
     }
   }
 
-  if (entityType === "organization") {
-    const streetNumber = generateStreetNumber(entityType, entityStructure);
-    return `${street} ${streetNumber}`;
-  }
   return street;
-}
-
-function generateStreetNumber<
-  T extends keyof Pick<
-    PrismaClient,
-    "profile" | "organization" | "project" | "event" | "award" | "document"
-  >,
->(entityType: T, entityStructure: EntityTypeOnStructure<T>) {
-  // organization, project
-  let streetNumber;
-  if (entityType === "organization" || entityType === "project") {
-    if (entityStructure === "Smallest") {
-      streetNumber = null;
-    } else if (entityStructure === "Empty Strings") {
-      streetNumber = "";
-    } else if (entityStructure === "Largest") {
-      streetNumber = faker.number.int({ min: 1000, max: 9999 }).toString();
-    } else {
-      streetNumber = faker.number.int({ min: 1, max: 999 }).toString();
-    }
-  }
-
-  return streetNumber;
 }
 
 function generateCity<

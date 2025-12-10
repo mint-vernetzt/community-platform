@@ -24,7 +24,6 @@ export async function getEventBySlug(slug: string) {
       canceled: true,
       venueName: true,
       venueStreet: true,
-      venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,

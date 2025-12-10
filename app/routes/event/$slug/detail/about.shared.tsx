@@ -89,7 +89,6 @@ export function hasConferenceCode(event: {
 export function hasGeneralInfo(event: {
   venueName: string | null;
   venueStreet: string | null;
-  venueStreetNumber: string | null;
   venueZipCode: string | null;
   venueCity: string | null;
   eventTargetGroups: unknown[];
@@ -116,14 +115,12 @@ export function hasGeneralInfo(event: {
 export function hasAddress(event: {
   venueName: string | null;
   venueStreet: string | null;
-  venueStreetNumber: string | null;
   venueZipCode: string | null;
   venueCity: string | null;
 }) {
   return (
     hasVenueName(event) ||
     hasVenueStreet(event) ||
-    hasVenueStreetNumber(event) ||
     hasVenueZipCode(event) ||
     hasVenueCity(event)
   );
@@ -136,16 +133,6 @@ export function hasVenueStreet(event: {
     event.venueStreet !== null &&
     event.venueStreet.trim() !== "" &&
     event.venueStreet.trim() !== "<p></p>"
-  );
-}
-
-export function hasVenueStreetNumber(event: {
-  venueStreetNumber: string | null;
-}): event is { venueStreetNumber: string } {
-  return (
-    event.venueStreetNumber !== null &&
-    event.venueStreetNumber.trim() !== "" &&
-    event.venueStreetNumber.trim() !== "<p></p>"
   );
 }
 
@@ -182,7 +169,6 @@ export function hasVenueName(event: {
 export function getFormattedAddress(event: {
   venueName: string | null;
   venueStreet: string | null;
-  venueStreetNumber: string | null;
   venueZipCode: string | null;
   venueCity: string | null;
 }) {
@@ -191,9 +177,8 @@ export function getFormattedAddress(event: {
     nameAndAddressLines.push(event.venueName);
   }
   const streetLines = [];
-  if (hasVenueStreetNumber(event) && hasVenueStreet(event)) {
+  if (hasVenueStreet(event)) {
     streetLines.push(event.venueStreet);
-    streetLines.push(event.venueStreetNumber);
   }
   const cityLines = [];
   if (hasVenueZipCode(event) && hasVenueCity(event)) {

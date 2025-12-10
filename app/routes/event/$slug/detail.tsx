@@ -693,7 +693,6 @@ function Detail() {
                   slug={loaderData.event.slug}
                   venueName={loaderData.event.venueName}
                   venueStreet={loaderData.event.venueStreet}
-                  venueStreetNumber={loaderData.event.venueStreetNumber}
                   venueZipCode={loaderData.event.venueZipCode}
                   venueCity={loaderData.event.venueCity}
                   stage={
