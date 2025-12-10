@@ -383,7 +383,7 @@ function General() {
   const areaFieldList = fields.areas.getFieldList();
   const focusFieldList = fields.focuses.getFieldList();
   const supportedByFieldList = fields.supportedBy.getFieldList();
-  const visibilitiesFieldList = fields.visibilities.getFieldset();
+  const visibilitiesFieldset = fields.visibilities.getFieldset();
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
@@ -448,16 +448,16 @@ function General() {
                   </Input.Label>
                   <Input.Controls>
                     <VisibilityCheckbox
-                      {...getInputProps(visibilitiesFieldList.email, {
+                      {...getInputProps(visibilitiesFieldset.email, {
                         type: "checkbox",
                       })}
                       key={"email-visibility"}
                       errorMessage={
-                        Array.isArray(visibilitiesFieldList.email.errors)
-                          ? visibilitiesFieldList.email.errors.join(", ")
+                        Array.isArray(visibilitiesFieldset.email.errors)
+                          ? visibilitiesFieldset.email.errors.join(", ")
                           : undefined
                       }
-                      errorId={visibilitiesFieldList.email.errorId}
+                      errorId={visibilitiesFieldset.email.errorId}
                       locales={locales}
                     />
                   </Input.Controls>
@@ -482,16 +482,16 @@ function General() {
                   </Input.Label>
                   <Input.Controls>
                     <VisibilityCheckbox
-                      {...getInputProps(visibilitiesFieldList.phone, {
+                      {...getInputProps(visibilitiesFieldset.phone, {
                         type: "checkbox",
                       })}
                       key={"phone-visibility"}
                       errorMessage={
-                        Array.isArray(visibilitiesFieldList.phone.errors)
-                          ? visibilitiesFieldList.phone.errors.join(", ")
+                        Array.isArray(visibilitiesFieldset.phone.errors)
+                          ? visibilitiesFieldset.phone.errors.join(", ")
                           : undefined
                       }
-                      errorId={visibilitiesFieldList.phone.errorId}
+                      errorId={visibilitiesFieldset.phone.errorId}
                       locales={locales}
                     />
                   </Input.Controls>
