@@ -541,6 +541,8 @@ export function filterProjectByVisibility<
         key === "streetNumber" || // legacy
         key === "streetNumberAddition" || // legacy
         key === "zipCode" ||
+        key === "longitude" ||
+        key === "latitude" ||
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||

@@ -1015,6 +1015,8 @@ model Project {
   streetNumber                         String?                            @map("street_number") // legacy
   streetNumberAddition                 String?                            @map("street_number_addition") // legacy
   zipCode                              String?                            @map("zip_code")
+  longitude                            String?
+  latitude                             String?
   facebook                             String?
   linkedin                             String?
   twitter                              String?
@@ -1105,6 +1107,8 @@ model ProjectVisibility {
   streetNumber                         Boolean @default(true) @map("street_number") // legacy
   streetNumberAddition                 Boolean @default(true) @map("street_number_addition") // legacy
   zipCode                              Boolean @default(true) @map("zip_code")
+  longitude                            Boolean @default(true)
+  latitude                             Boolean @default(true)
   facebook                             Boolean @default(true)
   linkedin                             Boolean @default(true)
   twitter                              Boolean @default(true)
