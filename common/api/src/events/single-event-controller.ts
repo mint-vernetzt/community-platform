@@ -71,6 +71,8 @@ export class EventController extends Controller {
         venueStreet: true,
         venueCity: true,
         venueZipCode: true,
+        venueLongitude: true,
+        venueLatitude: true,
         canceled: true,
         parentEventId: true,
         areas: {
@@ -170,6 +172,8 @@ export class EventController extends Controller {
             venueStreet: true,
             venueCity: true,
             venueZipCode: true,
+            venueLongitude: true,
+            venueLatitude: true,
             canceled: true,
             parentEventId: true,
             areas: true,

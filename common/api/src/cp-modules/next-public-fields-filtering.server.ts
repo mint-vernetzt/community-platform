@@ -415,6 +415,8 @@ export function filterEventByVisibility<
         key === "venueStreetNumber" || // legacy
         key === "venueCity" ||
         key === "venueZipCode" ||
+        key === "venueLongitude" ||
+        key === "venueLatitude" ||
         key === "subline" ||
         key === "experienceLevel" ||
         key === "experienceLevelId" ||

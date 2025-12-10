@@ -35,6 +35,8 @@ const exampleResponse = {
       venueStreet: "Gatheringstreet 12",
       venueCity: "City of Happenings",
       venueZipCode: "12345",
+      venueLongitude: "12.345678",
+      venueLatitude: "98.765432",
       canceled: false,
       parentEventId: "some-parent-event-id",
       areas: [
@@ -190,6 +192,8 @@ const exampleResponse = {
       venueStreet: null,
       venueCity: null,
       venueZipCode: null,
+      venueLongitude: null,
+      venueLatitude: null,
       canceled: true,
       parentEventId: null,
       areas: [],

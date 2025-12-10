@@ -501,6 +501,8 @@ model Event {
   venueName                String?                          @map("venue_name")
   venueStreet              String?                          @map("venue_street")
   venueStreetNumber        String?                          @map("venue_street_number") // legacy
+  venueLatitude            String?                          @map("venue_latitude")
+  venueLongitude           String?                          @map("venue_longitude")
   venueCity                String?                          @map("venue_city")
   venueZipCode             String?                          @map("venue_zip_code")
   canceled                 Boolean                          @default(false)
@@ -558,6 +560,8 @@ model EventVisibility {
   venueStreetNumber        Boolean @default(true) @map("venue_street_number") // legacy
   venueCity                Boolean @default(true) @map("venue_city")
   venueZipCode             Boolean @default(true) @map("venue_zip_code")
+  venueLatitude            Boolean @default(true) @map("venue_latitude")
+  venueLongitude           Boolean @default(true) @map("venue_longitude")
   canceled                 Boolean @default(true)
   stageId                  Boolean @default(true) @map("stage_id")
   subline                  Boolean @default(true)

@@ -27,6 +27,8 @@ async function getEvents(request: Request, skip: number, take: number) {
       venueStreet: true,
       venueCity: true,
       venueZipCode: true,
+      venueLongitude: true,
+      venueLatitude: true,
       canceled: true,
       parentEventId: true,
       areas: {
@@ -126,6 +128,8 @@ async function getEvents(request: Request, skip: number, take: number) {
           venueStreet: true,
           venueCity: true,
           venueZipCode: true,
+          venueLongitude: true,
+          venueLatitude: true,
           canceled: true,
           parentEventId: true,
           areas: true,
