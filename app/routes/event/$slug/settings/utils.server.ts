@@ -5,7 +5,7 @@ import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { invariantResponse } from "~/lib/utils/response";
-import { sanitizeUserHtml } from "~/utils.server";
+import { getCoordinatesFromAddress, sanitizeUserHtml } from "~/utils.server";
 import type { FormError } from "~/lib/utils/yup";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
@@ -257,11 +257,22 @@ export async function updateEventById(
       );
     }
   }
+  const { longitude, latitude, error } = await getCoordinatesFromAddress({
+    id,
+    street: eventData.venueStreet,
+    city: eventData.venueCity,
+    zipCode: eventData.venueZipCode,
+  });
+  if (error !== null) {
+    console.error(error);
+  }
   await prismaClient.$transaction([
     prismaClient.event.update({
       where: { id },
       data: {
         ...eventData,
+        venueLongitude: longitude,
+        venueLatitude: latitude,
         description: sanitizeUserHtml(eventData.description),
         updatedAt: new Date(),
         focuses: {

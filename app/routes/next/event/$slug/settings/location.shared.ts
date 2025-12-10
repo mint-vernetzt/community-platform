@@ -45,6 +45,8 @@ export function createEventLocationSchema(locales: {
           venueStreet: null,
           venueZipCode: null,
           venueCity: null,
+          venueLongitude: null,
+          venueLatitude: null,
         };
       }
       if (data.stage === Stages.OnSite) {
