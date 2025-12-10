@@ -30,8 +30,6 @@ import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChanges
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkboxSchema, createPhoneSchema } from "~/lib/utils/schemas";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
@@ -42,167 +40,9 @@ import {
   triggerEntityScore,
 } from "~/utils.server";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
-import {
-  createAreaOptions,
-  type GeneralOrganizationSettingsLocales,
-} from "./general.server";
+import { createAreaOptions } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
-
-const BIO_MAX_LENGTH = 2000;
-
-const createGeneralSchema = (
-  locales: GeneralOrganizationSettingsLocales,
-  organization: {
-    street: string | null;
-    zipCode: string | null;
-    city: string | null;
-  }
-) => {
-  const { street, zipCode, city } = organization;
-  return z.object({
-    name: z
-      .string({
-        required_error: locales.route.validation.name.required,
-      })
-      .trim()
-      .min(
-        NAME_MIN_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.name.min, {
-          min: NAME_MIN_LENGTH,
-        })
-      )
-      .max(
-        NAME_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.name.max, {
-          max: NAME_MAX_LENGTH,
-        })
-      ),
-    email: z
-      .string()
-      .trim()
-      .email(locales.route.validation.email)
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    phone: createPhoneSchema(locales)
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    street:
-      street === null
-        ? z
-            .string()
-            .trim()
-            .optional()
-            .transform((value) => {
-              if (typeof value === "undefined" || value === "") {
-                return null;
-              }
-              return value;
-            })
-        : z
-            .string({
-              required_error: locales.route.validation.street.required,
-            })
-            .trim(),
-    zipCode:
-      zipCode === null
-        ? z
-            .string()
-            .trim()
-            .optional()
-            .transform((value) => {
-              if (typeof value === "undefined" || value === "") {
-                return null;
-              }
-              return value;
-            })
-        : z
-            .string({
-              required_error: locales.route.validation.zipCode.required,
-            })
-            .trim(),
-    city:
-      city === null
-        ? z
-            .string()
-            .trim()
-            .optional()
-            .transform((value) => {
-              if (typeof value === "undefined" || value === "") {
-                return null;
-              }
-              return value;
-            })
-        : z
-            .string({
-              required_error: locales.route.validation.city.required,
-            })
-            .trim(),
-    addressSupplement: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    bio: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            BIO_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.bio.max,
-            { max: BIO_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    bioRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    supportedBy: z.array(z.string().trim()).optional(),
-    areas: z.array(z.string().trim().uuid()),
-    focuses: z.array(z.string().trim().uuid()),
-    visibilities: z.object({
-      email: checkboxSchema,
-      phone: checkboxSchema,
-      bio: checkboxSchema,
-      focuses: checkboxSchema,
-    }),
-  });
-};
+import { BIO_MAX_LENGTH, createGeneralSchema } from "./general.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -222,7 +62,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const organization = await prismaClient.organization.findFirst({
     where: { slug: params.slug },
     select: {
-      // Just selecting id for index performance
       id: true,
       name: true,
       email: true,
@@ -257,8 +96,6 @@ export async function loader(args: LoaderFunctionArgs) {
         select: {
           email: true,
           phone: true,
-          bio: true,
-          focuses: true,
         },
       },
     },
@@ -734,41 +571,24 @@ function General() {
               {locales.route.content.about.headline}
             </h2>
             <p>{locales.route.content.about.intro}</p>
-            <div className="flex gap-2">
-              <TextArea
-                {...getInputProps(fields.bio, { type: "text" })}
-                key="bio"
-                id={fields.bio.id || ""}
-                label={locales.route.content.bio.label}
-                errorMessage={
-                  Array.isArray(fields.bio.errors)
-                    ? fields.bio.errors.join(", ")
-                    : undefined
-                }
-                errorId={fields.bio.errorId}
-                maxLength={BIO_MAX_LENGTH}
-                rte={{
-                  locales: locales,
-                  defaultValue: fields.bioRTEState.initialValue,
-                  isFormDirty: form.dirty,
-                }}
-              />
-              <div className="min-w-[44px] pt-[32px]">
-                <VisibilityCheckbox
-                  {...getInputProps(visibilitiesFieldList.bio, {
-                    type: "checkbox",
-                  })}
-                  key={"bio-visibility"}
-                  errorMessage={
-                    Array.isArray(visibilitiesFieldList.bio.errors)
-                      ? visibilitiesFieldList.bio.errors.join(", ")
-                      : undefined
-                  }
-                  errorId={visibilitiesFieldList.bio.errorId}
-                  locales={locales}
-                />
-              </div>
-            </div>
+            <TextArea
+              {...getInputProps(fields.bio, { type: "text" })}
+              key="bio"
+              id={fields.bio.id || ""}
+              label={locales.route.content.bio.label}
+              errorMessage={
+                Array.isArray(fields.bio.errors)
+                  ? fields.bio.errors.join(", ")
+                  : undefined
+              }
+              errorId={fields.bio.errorId}
+              maxLength={BIO_MAX_LENGTH}
+              rte={{
+                locales: locales,
+                defaultValue: fields.bioRTEState.initialValue,
+                isFormDirty: form.dirty,
+              }}
+            />
 
             <ConformSelect
               id={fields.areas.id}
@@ -864,22 +684,6 @@ function General() {
               <ConformSelect.Label htmlFor={fields.focuses.id}>
                 {locales.route.content.focuses.label}
               </ConformSelect.Label>
-
-              <ConformSelect.Controls>
-                <VisibilityCheckbox
-                  {...getInputProps(visibilitiesFieldList.focuses, {
-                    type: "checkbox",
-                  })}
-                  key={"focuses-visibility"}
-                  errorMessage={
-                    Array.isArray(visibilitiesFieldList.focuses.errors)
-                      ? visibilitiesFieldList.focuses.errors.join(", ")
-                      : undefined
-                  }
-                  errorId={visibilitiesFieldList.focuses.errorId}
-                  locales={locales}
-                />
-              </ConformSelect.Controls>
 
               {typeof fields.focuses.errors !== "undefined" &&
               fields.focuses.errors.length > 0 ? (
