@@ -69,12 +69,6 @@ export const locale = {
       street: {
         label: "Straße",
       },
-      streetNumber: {
-        label: "Hausnummer",
-      },
-      streetNumberAddition: {
-        label: "Zusatz",
-      },
       zipCode: {
         label: "PLZ",
       },

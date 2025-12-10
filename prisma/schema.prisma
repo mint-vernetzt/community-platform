@@ -500,7 +500,7 @@ model Event {
   participationUntil       DateTime                         @map("participation_until")
   venueName                String?                          @map("venue_name")
   venueStreet              String?                          @map("venue_street")
-  venueStreetNumber        String?                          @map("venue_street_number")
+  venueStreetNumber        String?                          @map("venue_street_number") // legacy
   venueCity                String?                          @map("venue_city")
   venueZipCode             String?                          @map("venue_zip_code")
   canceled                 Boolean                          @default(false)
@@ -555,7 +555,7 @@ model EventVisibility {
   participationUntil       Boolean @default(true) @map("participation_until")
   venueName                Boolean @default(true) @map("venue_name")
   venueStreet              Boolean @default(true) @map("venue_street")
-  venueStreetNumber        Boolean @default(true) @map("venue_street_number")
+  venueStreetNumber        Boolean @default(true) @map("venue_street_number") // legacy
   venueCity                Boolean @default(true) @map("venue_city")
   venueZipCode             Boolean @default(true) @map("venue_zip_code")
   canceled                 Boolean @default(true)
@@ -1012,8 +1012,8 @@ model Project {
   website                              String?
   contactName                          String?                            @map("contact_name")
   street                               String?
-  streetNumber                         String?                            @map("street_number")
-  streetNumberAddition                 String?                            @map("street_number_addition")
+  streetNumber                         String?                            @map("street_number") // legacy
+  streetNumberAddition                 String?                            @map("street_number_addition") // legacy
   zipCode                              String?                            @map("zip_code")
   facebook                             String?
   linkedin                             String?
@@ -1102,8 +1102,8 @@ model ProjectVisibility {
   website                              Boolean @default(true)
   contactName                          Boolean @default(true) @map("contact_name")
   street                               Boolean @default(true)
-  streetNumber                         Boolean @default(true) @map("street_number")
-  streetNumberAddition                 Boolean @default(true) @map("street_number_addition")
+  streetNumber                         Boolean @default(true) @map("street_number") // legacy
+  streetNumberAddition                 Boolean @default(true) @map("street_number_addition") // legacy
   zipCode                              Boolean @default(true) @map("zip_code")
   facebook                             Boolean @default(true)
   linkedin                             Boolean @default(true)

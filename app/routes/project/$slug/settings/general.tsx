@@ -1,164 +1,45 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
+  Form,
   redirect,
+  useActionData,
+  useLoaderData,
+  useLocation,
   useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { Form, useActionData, useLoaderData, useLocation } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { ConformSelect } from "~/components-next/ConformSelect";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { invariantResponse } from "~/lib/utils/response";
-import { createPhoneSchema } from "~/lib/utils/schemas";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
-import { ConformSelect } from "~/components-next/ConformSelect";
-import {
-  createAreaOptions,
-  type GeneralProjectSettingsLocales,
-} from "./general.server";
+import { createAreaOptions } from "./general.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { captureException } from "@sentry/node";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 80;
-const SUBLINE_MAX_LENGTH = 90;
-
-const createGeneralSchema = (locales: GeneralProjectSettingsLocales) =>
-  z.object({
-    name: z
-      .string({
-        required_error: locales.route.validation.name.required,
-      })
-      .trim()
-      .min(
-        NAME_MIN_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.name.min, {
-          min: NAME_MIN_LENGTH,
-        })
-      )
-      .max(
-        NAME_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.name.max, {
-          max: NAME_MAX_LENGTH,
-        })
-      ),
-    subline: z
-      .string()
-      .trim()
-      .max(
-        90,
-        insertParametersIntoLocale(locales.route.validation.subline.max, {
-          max: SUBLINE_MAX_LENGTH,
-        })
-      )
-      .optional()
-      .transform((value) => {
-        if (value === undefined || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    formats: z.array(z.string().trim().uuid()),
-    furtherFormats: z.array(z.string().trim()),
-    areas: z.array(z.string().trim().uuid()),
-    email: z
-      .string()
-      .trim()
-      .email(locales.route.validation.email.email)
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    phone: createPhoneSchema(locales)
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    contactName: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    street: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    streetNumber: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    streetNumberAddition: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    zipCode: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    city: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-  });
+import {
+  createGeneralSchema,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  SUBLINE_MAX_LENGTH,
+} from "./general.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -182,8 +63,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       phone: true,
       contactName: true,
       street: true,
-      streetNumber: true,
-      streetNumberAddition: true,
       zipCode: true,
       city: true,
       furtherFormats: true,
@@ -853,73 +732,23 @@ function General() {
                   ))
                 : null}
             </Input>
-            <div className="@lg:flex @lg:gap-4">
-              <div className="w-full @lg:w-1/3">
-                <Input
-                  {...getInputProps(fields.street, { type: "text" })}
-                  key="street"
-                >
-                  <Input.Label htmlFor={fields.street.id}>
-                    {locales.route.content.address.street.label}
-                  </Input.Label>
-                  {typeof fields.street.errors !== "undefined" &&
-                  fields.street.errors.length > 0
-                    ? fields.street.errors.map((error) => (
-                        <Input.Error id={fields.street.errorId} key={error}>
-                          {error}
-                        </Input.Error>
-                      ))
-                    : null}
-                </Input>
-              </div>
-              <div className="flex w-full @lg:w-2/3 gap-4 mt-4 @lg:mt-0">
-                <div className="flex-1">
-                  <Input
-                    {...getInputProps(fields.streetNumber, { type: "text" })}
-                    key="streetNumber"
-                  >
-                    <Input.Label htmlFor={fields.streetNumber.id}>
-                      {locales.route.content.address.streetNumber.label}
-                    </Input.Label>
-                    {typeof fields.streetNumber.errors !== "undefined" &&
-                    fields.streetNumber.errors.length > 0
-                      ? fields.streetNumber.errors.map((error) => (
-                          <Input.Error
-                            id={fields.streetNumber.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-                <div className="flex-1">
-                  <Input
-                    {...getInputProps(fields.streetNumberAddition, {
-                      type: "text",
-                    })}
-                    key="streetNumberAddition"
-                  >
-                    <Input.Label htmlFor={fields.streetNumberAddition.id}>
-                      {locales.route.content.address.streetNumberAddition.label}
-                    </Input.Label>
-                    {typeof fields.streetNumberAddition.errors !==
-                      "undefined" &&
-                    fields.streetNumberAddition.errors.length > 0
-                      ? fields.streetNumberAddition.errors.map((error) => (
-                          <Input.Error
-                            id={fields.streetNumberAddition.errorId}
-                            key={error}
-                          >
-                            {error}
-                          </Input.Error>
-                        ))
-                      : null}
-                  </Input>
-                </div>
-              </div>
-            </div>
+
+            <Input
+              {...getInputProps(fields.street, { type: "text" })}
+              key="street"
+            >
+              <Input.Label htmlFor={fields.street.id}>
+                {locales.route.content.address.street.label}
+              </Input.Label>
+              {typeof fields.street.errors !== "undefined" &&
+              fields.street.errors.length > 0
+                ? fields.street.errors.map((error) => (
+                    <Input.Error id={fields.street.errorId} key={error}>
+                      {error}
+                    </Input.Error>
+                  ))
+                : null}
+            </Input>
 
             <div className="@lg:flex @lg:gap-4">
               <div className="flex-1">
