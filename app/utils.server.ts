@@ -270,7 +270,7 @@ export async function getCoordinatesFromAddress(options: {
   if (street !== null) {
     searchParams.set("street", street);
   }
-  if (city !== null && zipCode === null) {
+  if (city !== null) {
     searchParams.set("city", city);
   }
   if (zipCode !== null) {
@@ -283,6 +283,8 @@ export async function getCoordinatesFromAddress(options: {
       error: null,
     };
   }
+
+  console.log("Fetching coordinates with params:", searchParams.toString());
 
   const response = await fetch(
     `https://nominatim.openstreetmap.org/search?${searchParams.toString()}&format=jsonv2`,
