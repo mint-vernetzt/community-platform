@@ -183,6 +183,8 @@ export async function action(args: ActionFunctionArgs) {
       street: true,
       zipCode: true,
       city: true,
+      longitude: true,
+      latitude: true,
     },
   });
 
@@ -206,16 +208,36 @@ export async function action(args: ActionFunctionArgs) {
       createGeneralSchema(locales, organization).transform(
         async (data, ctx) => {
           const { visibilities, areas, focuses, ...organizationData } = data;
-          const { longitude, latitude, error } =
-            await getCoordinatesFromAddress({
+          let longitude = organization.longitude;
+          let latitude = organization.latitude;
+          if (
+            data.street !== organization.street ||
+            data.city !== organization.city ||
+            data.zipCode !== organization.zipCode
+          ) {
+            const result = await getCoordinatesFromAddress({
               id: organization.id,
               street: organizationData.street,
               city: organizationData.city,
               zipCode: organizationData.zipCode,
             });
-          if (error !== null) {
-            console.error(error);
-            addressError = error;
+            if (result.error !== null) {
+              console.error(result.error);
+              addressError = result.error;
+            }
+            longitude = result.longitude;
+            latitude = result.latitude;
+          } else {
+            if (
+              (organization.street !== null ||
+                organization.city !== null ||
+                organization.zipCode !== null) &&
+              organization.longitude === null &&
+              organization.latitude === null
+            ) {
+              addressError =
+                "Address not changed but coordinates still not found";
+            }
           }
           try {
             await prismaClient.organization.update({
