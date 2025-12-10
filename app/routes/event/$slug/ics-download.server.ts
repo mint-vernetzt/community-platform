@@ -28,7 +28,6 @@ export async function getEventBySlug(slug: string) {
       venueCity: true,
       venueName: true,
       venueStreet: true,
-      venueStreetNumber: true,
       venueZipCode: true,
       conferenceLink: true,
       conferenceCode: true,
@@ -55,7 +54,6 @@ export function createIcsString(
     | "venueCity"
     | "venueName"
     | "venueStreet"
-    | "venueStreetNumber"
     | "venueZipCode"
     | "conferenceLink"
     | "conferenceCode"
@@ -81,13 +79,12 @@ export function createIcsString(
     location.push(`${event.venueName}`);
   }
   if (event.venueStreet) {
-    const fullStreet = `${event.venueStreet} ${event.venueStreetNumber || ""}`;
-    location.push(fullStreet.trim());
+    location.push(event.venueStreet.trim());
   }
   if (event.venueCity) {
     const fullCityAdress = `${
       event.venueZipCode ? `${event.venueZipCode}, ` : ""
-    }${event.venueZipCode}`;
+    }${event.venueCity}`;
     location.push(fullCityAdress.trim());
   }
   const tagTitles = event.tags.map((item) => {

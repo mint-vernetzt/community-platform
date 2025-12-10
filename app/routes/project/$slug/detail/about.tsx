@@ -56,8 +56,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       website: true,
       contactName: true,
       street: true,
-      streetNumber: true,
-      streetNumberAddition: true,
       zipCode: true,
       city: true,
       facebook: true,
@@ -265,22 +263,18 @@ function About() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
 
-  const street = `${
-    loaderData.project.street !== null ? loaderData.project.street : ""
-  } ${
-    loaderData.project.streetNumber !== null
-      ? loaderData.project.streetNumber
-      : ""
-  } ${
-    loaderData.project.streetNumberAddition !== null
-      ? loaderData.project.streetNumberAddition
-      : ""
-  }`.trimEnd();
-  const city = `${
-    loaderData.project.zipCode !== null ? loaderData.project.zipCode : ""
-  } ${
-    loaderData.project.city !== null ? loaderData.project.city : ""
-  }`.trimEnd();
+  const street =
+    loaderData.project.street !== null
+      ? loaderData.project.street.trim()
+      : null;
+  const city =
+    loaderData.project.zipCode === null && loaderData.project.city === null
+      ? null
+      : `${
+          loaderData.project.zipCode !== null ? loaderData.project.zipCode : ""
+        } ${
+          loaderData.project.city !== null ? loaderData.project.city : ""
+        }`.trim();
 
   return (
     <>
@@ -753,18 +747,16 @@ function About() {
             </div>
           )}
           {(loaderData.project.contactName !== null ||
-            loaderData.project.street !== null ||
-            loaderData.project.streetNumber !== null ||
-            loaderData.project.zipCode !== null ||
-            loaderData.project.city !== null) && (
+            street !== null ||
+            city !== null) && (
             <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <House />
               <address className="flex flex-col not-italic">
                 {loaderData.project.contactName !== null && (
                   <span>{loaderData.project.contactName}</span>
                 )}
-                {street !== "" && <span>{street}</span>}
-                {city !== "" && <span>{city}</span>}
+                {street !== null && <span>{street}</span>}
+                {city !== null && <span>{city}</span>}
               </address>
             </div>
           )}

@@ -28,7 +28,6 @@ export async function getEventBySlug(slug: string) {
       endTime: true,
       venueName: true,
       venueStreet: true,
-      venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       participantLimit: true,

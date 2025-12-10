@@ -21,6 +21,8 @@ async function getOrganizations(request: Request, skip: number, take: number) {
       street: true,
       city: true,
       zipCode: true,
+      longitude: true,
+      latitude: true,
       supportedBy: true,
       areas: {
         select: {

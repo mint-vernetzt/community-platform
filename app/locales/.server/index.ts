@@ -511,6 +511,8 @@ const de = {
   },
   "next/event/$slug/settings/location": {
     route: deNextEventSettingsLocation,
+    stages: deStages,
+    rte: deRTE,
   },
   "next/event/$slug/settings/participants": {
     route: deNextEventSettingsParticipants,
@@ -969,6 +971,8 @@ const en = {
   },
   "next/event/$slug/settings/location": {
     route: enNextEventSettingsLocation,
+    stages: enStages,
+    rte: enRTE,
   },
   "next/event/$slug/settings/participants": {
     route: enNextEventSettingsParticipants,

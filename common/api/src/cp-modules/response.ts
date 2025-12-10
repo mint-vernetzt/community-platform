@@ -5,6 +5,8 @@
  * inspired by invariant from 'tiny-invariant' except will still include the
  * message in production.
  *
+ * Reused from epic stack: https://github.com/epicweb-dev/invariant
+ *
  * @example
  * invariant(typeof value === 'string', `value must be a string`)
  *
@@ -30,6 +32,8 @@ export function invariant(
  * Response with the given message.
  *
  * inspired by invariant from 'tiny-invariant'
+ *
+ * Reused from epic stack: https://github.com/epicweb-dev/invariant
  *
  * @example
  * invariantResponse(typeof value === 'string', `value must be a string`)

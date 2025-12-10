@@ -396,23 +396,6 @@ function getEventsSearchWhereClause(
         {
           AND: [
             {
-              venueStreetNumber: {
-                contains: word,
-                mode: "insensitive",
-              },
-            },
-            isLoggedIn === false
-              ? {
-                  eventVisibility: {
-                    venueStreetNumber: true,
-                  },
-                }
-              : {},
-          ],
-        },
-        {
-          AND: [
-            {
               venueCity: {
                 contains: word,
                 mode: "insensitive",
@@ -620,8 +603,8 @@ export async function getEventIds(options: {
             typedFilterKey === "periodOfTime"
               ? "startTime"
               : typedFilterKey === "stage"
-              ? "stage"
-              : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
+                ? "stage"
+                : `${typedFilterKey}${typedFilterKey === "focus" ? "es" : "s"}`
           }`]: true,
         },
       };

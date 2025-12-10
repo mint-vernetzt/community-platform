@@ -106,7 +106,6 @@ export async function getEventBySlug(options: {
       description: true,
       venueName: true,
       venueStreet: true,
-      venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,
@@ -117,6 +116,8 @@ export async function getEventBySlug(options: {
       participationUntil: true,
       participantLimit: true,
       canceled: true,
+      accessibilityInformation: true,
+      privacyInformation: true,
       eventTargetGroups: {
         select: {
           eventTargetGroup: {

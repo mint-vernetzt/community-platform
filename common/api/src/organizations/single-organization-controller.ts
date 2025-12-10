@@ -65,6 +65,8 @@ export class OrganizationController extends Controller {
         street: true,
         city: true,
         zipCode: true,
+        longitude: true,
+        latitude: true,
         supportedBy: true,
         areas: {
           select: {
@@ -107,6 +109,8 @@ export class OrganizationController extends Controller {
             street: true,
             city: true,
             zipCode: true,
+            longitude: true,
+            latitude: true,
             supportedBy: true,
             areas: true,
             types: true,

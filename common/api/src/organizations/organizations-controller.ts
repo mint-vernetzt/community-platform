@@ -27,6 +27,8 @@ const exampleResponse = {
       street: "Freedom Road 22",
       city: "City of Relief",
       zipCode: "12345",
+      longitude: "12.345678",
+      latitude: "98.7654321",
       supportedBy: [
         "Aung San Suu Kyi",
         "Rigoberta Menchú",
@@ -104,6 +106,8 @@ const exampleResponse = {
       street: null,
       city: null,
       zipCode: null,
+      longitude: null,
+      latitude: null,
       supportedBy: [],
       areas: [],
       types: [],

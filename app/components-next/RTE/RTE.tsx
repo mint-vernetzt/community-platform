@@ -54,7 +54,28 @@ export type RTELocales =
   | GeneralOrganizationSettingsLocales
   | ProjectDetailsSettingsLocales
   | ProjectRequirementsSettingsLocales
-  | GeneralEventSettingsLocales;
+  | GeneralEventSettingsLocales
+  | {
+      rte: {
+        title: string;
+        remainingCharacters: string;
+        placeholder: string;
+        toolbar: {
+          undo: string;
+          redo: string;
+          bold: string;
+          italic: string;
+          underline: string;
+          strikethrough: string;
+          link: {
+            title: string;
+            cta: string;
+          };
+          bulletList: string;
+          numberedList: string;
+        };
+      };
+    };
 
 function RTE(
   props: Omit<InputForFormProps, "contentEditableRef"> & {
