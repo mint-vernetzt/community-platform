@@ -84,7 +84,7 @@ export function createIcsString(
   if (event.venueCity) {
     const fullCityAdress = `${
       event.venueZipCode ? `${event.venueZipCode}, ` : ""
-    }${event.venueZipCode}`;
+    }${event.venueCity}`;
     location.push(fullCityAdress.trim());
   }
   const tagTitles = event.tags.map((item) => {
