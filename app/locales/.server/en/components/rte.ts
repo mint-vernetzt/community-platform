@@ -14,5 +14,6 @@ export const locale = {
     },
     bulletList: "List",
     numberedList: "Numbered list",
+    strikethrough: "Strikethrough",
   },
 } as const;

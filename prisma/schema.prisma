@@ -479,55 +479,59 @@ model AreasOnOrganizations {
 }
 
 model Event {
-  id                       String                           @id @default(uuid())
-  name                     String
-  slug                     String                           @unique
-  startTime                DateTime                         @map("start_time")
-  endTime                  DateTime                         @map("end_time")
-  parentEventId            String?                          @map("parent_event_id")
-  description              String?
-  descriptionRTEState      String?                          @map("description_rte_state")
-  published                Boolean                          @default(false)
-  createdAt                DateTime                         @default(now()) @map("created_at")
-  updatedAt                DateTime                         @default(now()) @updatedAt @map("updated_at")
-  experienceLevelId        String?                          @map("experience_level_id")
-  background               String? // legacy
-  backgroundImage          Image?                           @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId        String?                          @map("background_image_id")
-  conferenceLink           String?                          @map("conference_link")
-  conferenceCode           String?                          @map("conference_code")
-  participantLimit         Int?                             @map("participant_limit")
-  participationUntil       DateTime                         @map("participation_until")
-  venueName                String?                          @map("venue_name")
-  venueStreet              String?                          @map("venue_street")
-  venueStreetNumber        String?                          @map("venue_street_number") // legacy
-  venueLatitude            String?                          @map("venue_latitude")
-  venueLongitude           String?                          @map("venue_longitude")
-  venueCity                String?                          @map("venue_city")
-  venueZipCode             String?                          @map("venue_zip_code")
-  canceled                 Boolean                          @default(false)
-  stageId                  String?                          @map("stage_id")
-  subline                  String?
-  participationFrom        DateTime                         @default(now()) @map("participation_from")
-  areas                    AreaOfEvent[] // legacy
-  documents                DocumentOfEvent[]
-  types                    TypeOfEvent[]
-  experienceLevel          ExperienceLevel?                 @relation("experience_level_of_event", fields: [experienceLevelId], references: [id])
-  parentEvent              Event?                           @relation("parent_of_event", fields: [parentEventId], references: [id], onDelete: Cascade)
-  childEvents              Event[]                          @relation("parent_of_event")
-  stage                    Stage?                           @relation("stage_of_event", fields: [stageId], references: [id])
-  focuses                  FocusOfEvent[]
-  participants             ParticipantOfEvent[]
-  responsibleOrganizations ResponsibleOrganizationOfEvent[]
-  speakers                 SpeakerOfEvent[]
-  tags                     TagOfEvent[]
-  targetGroups             TargetGroupOfEvent[] // Legacy
-  eventTargetGroups        EventTargetGroupOfEvent[]
-  teamMembers              TeamMemberOfEvent[]
-  waitingList              WaitingParticipantOfEvent[]
-  eventVisibility          EventVisibility?
-  admins                   AdminOfEvent[]
-  abuseReports             EventAbuseReport[]               @relation("event_of_event_abuse_report")
+  id                               String                           @id @default(uuid())
+  name                             String
+  slug                             String                           @unique
+  startTime                        DateTime                         @map("start_time")
+  endTime                          DateTime                         @map("end_time")
+  parentEventId                    String?                          @map("parent_event_id")
+  description                      String?
+  descriptionRTEState              String?                          @map("description_rte_state")
+  published                        Boolean                          @default(false)
+  createdAt                        DateTime                         @default(now()) @map("created_at")
+  updatedAt                        DateTime                         @default(now()) @updatedAt @map("updated_at")
+  experienceLevelId                String?                          @map("experience_level_id")
+  background                       String? // legacy
+  backgroundImage                  Image?                           @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId                String?                          @map("background_image_id")
+  conferenceLink                   String?                          @map("conference_link")
+  conferenceCode                   String?                          @map("conference_code")
+  participantLimit                 Int?                             @map("participant_limit")
+  participationUntil               DateTime                         @map("participation_until")
+  venueName                        String?                          @map("venue_name")
+  venueStreet                      String?                          @map("venue_street")
+  venueStreetNumber                String?                          @map("venue_street_number") // legacy
+  venueLatitude                    String?                          @map("venue_latitude")
+  venueLongitude                   String?                          @map("venue_longitude")
+  venueCity                        String?                          @map("venue_city")
+  venueZipCode                     String?                          @map("venue_zip_code")
+  accessibilityInformation         String?                          @map("accessibility_information")
+  accessibilityInformationRTEState String?                          @map("accessibility_information_rte_state")
+  privacyInformation               String?                          @map("privacy_information")
+  privacyInformationRTEState       String?                          @map("privacy_information_rte_state")
+  canceled                         Boolean                          @default(false)
+  stageId                          String?                          @map("stage_id")
+  subline                          String?
+  participationFrom                DateTime                         @default(now()) @map("participation_from")
+  areas                            AreaOfEvent[] // legacy
+  documents                        DocumentOfEvent[]
+  types                            TypeOfEvent[]
+  experienceLevel                  ExperienceLevel?                 @relation("experience_level_of_event", fields: [experienceLevelId], references: [id])
+  parentEvent                      Event?                           @relation("parent_of_event", fields: [parentEventId], references: [id], onDelete: Cascade)
+  childEvents                      Event[]                          @relation("parent_of_event")
+  stage                            Stage?                           @relation("stage_of_event", fields: [stageId], references: [id])
+  focuses                          FocusOfEvent[]
+  participants                     ParticipantOfEvent[]
+  responsibleOrganizations         ResponsibleOrganizationOfEvent[]
+  speakers                         SpeakerOfEvent[]
+  tags                             TagOfEvent[]
+  targetGroups                     TargetGroupOfEvent[] // Legacy
+  eventTargetGroups                EventTargetGroupOfEvent[]
+  teamMembers                      TeamMemberOfEvent[]
+  waitingList                      WaitingParticipantOfEvent[]
+  eventVisibility                  EventVisibility?
+  admins                           AdminOfEvent[]
+  abuseReports                     EventAbuseReport[]               @relation("event_of_event_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -536,56 +540,60 @@ model Event {
 }
 
 model EventVisibility {
-  id                       String  @id @default(uuid())
-  name                     Boolean @default(true)
-  slug                     Boolean @default(true)
-  startTime                Boolean @default(true) @map("start_time")
-  endTime                  Boolean @default(true) @map("end_time")
-  parentEventId            Boolean @default(true) @map("parent_event_id")
-  description              Boolean @default(true)
-  descriptionRTEState      Boolean @default(false) @map("description_rte_state")
-  published                Boolean @default(true)
-  createdAt                Boolean @default(true) @map("created_at")
-  updatedAt                Boolean @default(true) @map("updated_at")
-  experienceLevelId        Boolean @default(true) @map("experience_level_id")
-  background               Boolean @default(true) // legacy
-  backgroundImage          Boolean @default(true) @map("background_image")
-  backgroundImageId        Boolean @default(true) @map("background_image_id")
-  conferenceLink           Boolean @default(true) @map("conference_link")
-  conferenceCode           Boolean @default(true) @map("conference_code")
-  participantLimit         Boolean @default(true) @map("participant_limit")
-  participationUntil       Boolean @default(true) @map("participation_until")
-  venueName                Boolean @default(true) @map("venue_name")
-  venueStreet              Boolean @default(true) @map("venue_street")
-  venueStreetNumber        Boolean @default(true) @map("venue_street_number") // legacy
-  venueCity                Boolean @default(true) @map("venue_city")
-  venueZipCode             Boolean @default(true) @map("venue_zip_code")
-  venueLatitude            Boolean @default(true) @map("venue_latitude")
-  venueLongitude           Boolean @default(true) @map("venue_longitude")
-  canceled                 Boolean @default(true)
-  stageId                  Boolean @default(true) @map("stage_id")
-  subline                  Boolean @default(true)
-  participationFrom        Boolean @default(true) @map("participation_from")
-  areas                    Boolean @default(true)
-  documents                Boolean @default(true)
-  types                    Boolean @default(true)
-  experienceLevel          Boolean @default(true)
-  parentEvent              Boolean @default(true)
-  childEvents              Boolean @default(true)
-  stage                    Boolean @default(true)
-  focuses                  Boolean @default(true)
-  participants             Boolean @default(false)
-  responsibleOrganizations Boolean @default(true)
-  speakers                 Boolean @default(true)
-  tags                     Boolean @default(true)
-  targetGroups             Boolean @default(true) // legacy
-  eventTargetGroups        Boolean @default(true)
-  teamMembers              Boolean @default(true)
-  admins                   Boolean @default(false)
-  waitingList              Boolean @default(false)
-  abuseReports             Boolean @default(false)
-  event                    Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId                  String  @unique
+  id                               String  @id @default(uuid())
+  name                             Boolean @default(true)
+  slug                             Boolean @default(true)
+  startTime                        Boolean @default(true) @map("start_time")
+  endTime                          Boolean @default(true) @map("end_time")
+  parentEventId                    Boolean @default(true) @map("parent_event_id")
+  description                      Boolean @default(true)
+  descriptionRTEState              Boolean @default(false) @map("description_rte_state")
+  published                        Boolean @default(true)
+  createdAt                        Boolean @default(true) @map("created_at")
+  updatedAt                        Boolean @default(true) @map("updated_at")
+  experienceLevelId                Boolean @default(true) @map("experience_level_id")
+  background                       Boolean @default(true) // legacy
+  backgroundImage                  Boolean @default(true) @map("background_image")
+  backgroundImageId                Boolean @default(true) @map("background_image_id")
+  conferenceLink                   Boolean @default(true) @map("conference_link")
+  conferenceCode                   Boolean @default(true) @map("conference_code")
+  participantLimit                 Boolean @default(true) @map("participant_limit")
+  participationUntil               Boolean @default(true) @map("participation_until")
+  venueName                        Boolean @default(true) @map("venue_name")
+  venueStreet                      Boolean @default(true) @map("venue_street")
+  venueStreetNumber                Boolean @default(true) @map("venue_street_number") // legacy
+  venueCity                        Boolean @default(true) @map("venue_city")
+  venueZipCode                     Boolean @default(true) @map("venue_zip_code")
+  accessibilityInformation         Boolean @default(true) @map("accessibility_information")
+  accessibilityInformationRTEState Boolean @default(true) @map("accessibility_information_rte_state")
+  privacyInformation               Boolean @default(true) @map("privacy_information")
+  privacyInformationRTEState       Boolean @default(true) @map("privacy_information_rte_state")
+  venueLatitude                    Boolean @default(true) @map("venue_latitude")
+  venueLongitude                   Boolean @default(true) @map("venue_longitude")
+  canceled                         Boolean @default(true)
+  stageId                          Boolean @default(true) @map("stage_id")
+  subline                          Boolean @default(true)
+  participationFrom                Boolean @default(true) @map("participation_from")
+  areas                            Boolean @default(true)
+  documents                        Boolean @default(true)
+  types                            Boolean @default(true)
+  experienceLevel                  Boolean @default(true)
+  parentEvent                      Boolean @default(true)
+  childEvents                      Boolean @default(true)
+  stage                            Boolean @default(true)
+  focuses                          Boolean @default(true)
+  participants                     Boolean @default(false)
+  responsibleOrganizations         Boolean @default(true)
+  speakers                         Boolean @default(true)
+  tags                             Boolean @default(true)
+  targetGroups                     Boolean @default(true) // legacy
+  eventTargetGroups                Boolean @default(true)
+  teamMembers                      Boolean @default(true)
+  admins                           Boolean @default(false)
+  waitingList                      Boolean @default(false)
+  abuseReports                     Boolean @default(false)
+  event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId                          String  @unique
 
   @@map("event_visibilities")
 }
