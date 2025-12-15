@@ -511,6 +511,8 @@ const de = {
   },
   "next/event/$slug/settings/location": {
     route: deNextEventSettingsLocation,
+    stages: deStages,
+    rte: deRTE,
   },
   "next/event/$slug/settings/participants": {
     route: deNextEventSettingsParticipants,
@@ -532,6 +534,7 @@ const de = {
   },
   "next/event/$slug/settings/time-period": {
     route: deNextEventSettingsTimePeriod,
+    stages: deStages,
   },
   // explore routes
   explore: {
@@ -969,6 +972,8 @@ const en = {
   },
   "next/event/$slug/settings/location": {
     route: enNextEventSettingsLocation,
+    stages: enStages,
+    rte: enRTE,
   },
   "next/event/$slug/settings/participants": {
     route: enNextEventSettingsParticipants,
@@ -990,6 +995,7 @@ const en = {
   },
   "next/event/$slug/settings/time-period": {
     route: enNextEventSettingsTimePeriod,
+    stages: enStages,
   },
   // explore routes
   explore: {

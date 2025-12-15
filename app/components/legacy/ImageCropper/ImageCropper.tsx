@@ -7,8 +7,8 @@ import {
   getInputProps,
   type SubmissionResult,
   useForm,
-} from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+} from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import Slider from "rc-slider";
 import { Form, useNavigation, useSubmit } from "react-router";
