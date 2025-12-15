@@ -1,4 +1,5 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
@@ -10,26 +11,20 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-  getSessionUserOrThrow,
-} from "~/auth.server";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import SettingsHeading from "~/components/next/SettingsHeading";
 import SettingsNavigation from "~/components/next/SettingsNavigation";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { deriveEventMode } from "~/routes/event/utils.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getEventBySlug, updateEventBySlug } from "./settings.server";
 import { getRedirectPathOnProtectedEventRoute } from "~/routes/event/$slug/settings/utils.server";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { captureException } from "@sentry/node";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
+import { getEventBySlug, updateEventBySlug } from "./settings.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -38,14 +33,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
-
-  if (sessionUser === null && redirectPath !== null) {
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  const mode = await deriveEventMode(sessionUser, slug);
-  invariantResponse(mode === "admin", "Not authorized", { status: 403 });
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/settings"];
