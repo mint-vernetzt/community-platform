@@ -20,10 +20,13 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import BasicStructure from "~/components/next/BasicStructure";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
@@ -54,7 +57,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, event, currentTimeStamp: Date.now() };
+  return { locales, language, event, currentTimeStamp: Date.now() };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -126,7 +129,8 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function TimePeriod() {
-  const { locales, event, currentTimeStamp } = useLoaderData<typeof loader>();
+  const { locales, language, event, currentTimeStamp } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData();
   const [searchParams] = useSearchParams();
   const timePeriodSearchParam = searchParams.get("timePeriod");
@@ -157,7 +161,7 @@ export default function TimePeriod() {
         locales: locales.route.form.validation,
         timePeriod,
         parentEvent: event.parentEvent,
-        childEvents: event.childEvents,
+        childEvents: event.childEvents.metrics,
       })
     ),
     shouldDirtyConsider(name) {
@@ -176,7 +180,7 @@ export default function TimePeriod() {
           locales: locales.route.form.validation,
           timePeriod,
           parentEvent: event.parentEvent,
-          childEvents: event.childEvents,
+          childEvents: event.childEvents.metrics,
         }),
       });
       return submission;
@@ -208,6 +212,79 @@ export default function TimePeriod() {
       preventScrollReset
       autoComplete="off"
     >
+      {event.parentEvent !== null ? (
+        <div
+          className={classNames(
+            "w-full flex flex-col gap-4 bg-primary-50",
+            event.childEvents.data.length > 0 ? "px-4 pt-4" : "p-4"
+          )}
+        >
+          <p className="text-neutral-700 text-base font-normal leading-5">
+            {locales.route.eventLists.parentEvent.hint}
+          </p>
+          <List id="parent-event-list" locales={locales.route.eventLists}>
+            <ListItemEvent
+              key={event.id}
+              index={0}
+              to={`/event/${event.parentEvent.slug}/detail/about`}
+            >
+              <ListItemEvent.Info
+                {...event.parentEvent}
+                stage={event.parentEvent.stage}
+                participantCount={event.parentEvent._count.participants}
+                locales={{
+                  stages: locales.stages,
+                  ...locales.route.eventLists,
+                }}
+                language={language}
+              ></ListItemEvent.Info>
+              <ListItemEvent.Headline>
+                {event.parentEvent.name}
+              </ListItemEvent.Headline>
+            </ListItemEvent>
+          </List>
+        </div>
+      ) : null}
+      {event.childEvents.data.length > 0 ? (
+        <div className="w-full flex flex-col gap-4 p-4 bg-primary-50">
+          <p className="text-neutral-700 text-base font-normal leading-5">
+            {decideBetweenSingularOrPlural(
+              locales.route.eventLists.childEvents.hint_singular,
+              locales.route.eventLists.childEvents.hint_plural,
+              event.childEvents.data.length
+            )}
+          </p>
+          <List
+            id="child-events-list"
+            hideAfter={1}
+            locales={locales.route.eventLists}
+          >
+            {event.childEvents.data.map((childEvent, index) => {
+              return (
+                <ListItemEvent
+                  key={childEvent.id}
+                  index={index}
+                  to={`/event/${childEvent.slug}/detail/about`}
+                >
+                  <ListItemEvent.Info
+                    {...childEvent}
+                    stage={childEvent.stage}
+                    participantCount={childEvent._count.participants}
+                    locales={{
+                      stages: locales.stages,
+                      ...locales.route.eventLists,
+                    }}
+                    language={language}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>
+                    {childEvent.name}
+                  </ListItemEvent.Headline>
+                </ListItemEvent>
+              );
+            })}
+          </List>
+        </div>
+      ) : null}
       <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
         <BasicStructure.Container
           deflatedUntil="lg"
