@@ -117,6 +117,8 @@ export async function getEventBySlug(options: {
       participationUntil: true,
       participantLimit: true,
       canceled: true,
+      accessibilityInformation: true,
+      privacyInformation: true,
       eventTargetGroups: {
         select: {
           eventTargetGroup: {
