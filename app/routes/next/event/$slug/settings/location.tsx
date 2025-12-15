@@ -82,7 +82,7 @@ export async function action(args: ActionFunctionArgs) {
 
   await checkFeatureAbilitiesOrThrow(authClient, [
     "events",
-    "next_event_create",
+    "next_event_settings",
   ]);
 
   const language = await detectLanguage(request);
