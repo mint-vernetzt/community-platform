@@ -33,9 +33,7 @@ function isWebglSupported(locales: { error: string }) {
       }
     } catch (error) {
       console.error("Error during WebGL support check:", error);
-      return { error: locales.error };
     }
-    return { error: locales.error };
   }
   return { error: locales.error };
 }
