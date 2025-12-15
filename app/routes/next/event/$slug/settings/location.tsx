@@ -137,13 +137,6 @@ export async function action(args: ActionFunctionArgs) {
       data.venueCity !== event.venueCity ||
       data.venueZipCode !== event.venueZipCode
     ) {
-      console.log("Address changed, fetching new coordinates", {
-        data: {
-          venueStreet: data.venueStreet,
-          venueCity: data.venueCity,
-          venueZipCode: data.venueZipCode,
-        },
-      });
       const result = await getCoordinatesFromAddress({
         id: event.id,
         street: data.venueStreet,

@@ -284,8 +284,6 @@ export async function getCoordinatesFromAddress(options: {
     };
   }
 
-  console.log("Fetching coordinates with params:", searchParams.toString());
-
   const response = await fetch(
     `https://nominatim.openstreetmap.org/search?${searchParams.toString()}&format=jsonv2`,
     {
