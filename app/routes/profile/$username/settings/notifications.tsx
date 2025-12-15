@@ -1,35 +1,34 @@
-import { conform, useForm } from "@conform-to/react";
-import { parse } from "@conform-to/zod";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   type ActionFunctionArgs,
+  Form,
   type LoaderFunctionArgs,
   redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+  useSubmit,
 } from "react-router";
-import { Form, useActionData, useLoaderData, useSubmit } from "react-router";
+import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { Checkbox } from "~/components-next/Checkbox";
+import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import { checkboxSchema } from "~/lib/utils/schemas";
+import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { deriveProfileMode } from "../utils.server";
-import { z } from "zod";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 const schema = z.object({
-  updates: z
-    .boolean()
-    .optional()
-    .transform((value) => {
-      if (typeof value === "undefined") {
-        return false;
-      }
-      return value;
-    }),
+  updates: checkboxSchema,
 });
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -63,7 +62,11 @@ export const loader = async (args: LoaderFunctionArgs) => {
     updates: false,
   };
 
-  return { profile: { ...profile, notificationSettings }, locales };
+  return {
+    profile: { ...profile, notificationSettings },
+    locales,
+    currentTimestamp: Date.now(),
+  };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -80,13 +83,9 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   const formData = await request.formData();
-  const submission = parse(formData, { schema });
+  const submission = parseWithZod(formData, { schema });
 
-  if (
-    submission.intent === "submit" &&
-    submission.value !== null &&
-    typeof submission.value !== "undefined"
-  ) {
+  if (submission.status === "success") {
     await prismaClient.profile.update({
       where: {
         id: sessionUser.id,
@@ -99,63 +98,91 @@ export const action = async (args: ActionFunctionArgs) => {
         },
       },
     });
+    return redirectWithToast(request.url, {
+      id: "notifications-success",
+      key: `notifications-success-${Date.now()}`,
+      message: locales.success,
+    });
   }
 
-  return submission;
+  return submission.reply();
 };
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, currentTimestamp } = loaderData;
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const submit = useSubmit();
   const [form, fields] = useForm({
+    id: `notifications-form-${currentTimestamp}`,
+    constraint: getZodConstraint(schema),
     shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
     defaultValue: {
-      updates: loaderData.profile.notificationSettings.updates ? "on" : "off",
+      updates: loaderData.profile.notificationSettings.updates,
     },
     onValidate: (args) => {
       const { formData } = args;
-      const submission = parse(formData, { schema });
-      if (Object.keys(submission.error).length === 0) {
-        // if no errors change intent
-        formData.set("__intent__", "submit");
-        submit(formData, {
-          method: "post",
-        });
-      }
+      const submission = parseWithZod(formData, { schema });
       return submission;
     },
-    // TODO: Remove assertion by using conform v1
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    lastSubmission: actionData,
+    lastResult: navigation.state === "idle" ? actionData : undefined,
   });
 
   return (
     <>
       <h1 className="mb-8">{locales.content.headline}</h1>
       {loaderData.profile.notificationSettings !== null ? (
-        <ul>
-          <Form method="post" {...form.props}>
-            <div className="flex justify-between">
-              <label className="font-semibold" htmlFor={fields.updates.name}>
+        <div>
+          <Form
+            {...getFormProps(form)}
+            method="post"
+            preventScrollReset
+            replace
+            autoComplete="off"
+          >
+            <div className="flex gap-2 items-center">
+              <Checkbox
+                {...getInputProps(fields.updates, {
+                  type: "checkbox",
+                })}
+                key="updates"
+                onClick={(event) => {
+                  event.preventDefault();
+                  submit(event.currentTarget.form, {
+                    preventScrollReset: true,
+                    replace: true,
+                  });
+                }}
+              />
+              <label htmlFor={fields.updates.id}>
                 {locales.form.updates.label}
               </label>
-              <input {...conform.input(fields.updates, { type: "checkbox" })} />
             </div>
-            {fields.updates.error && (
-              <div className="text-negative-700 text-sm">
-                {fields.updates.error}
-              </div>
-            )}
             <noscript>
               <div className="mt-2">
                 <Button variant="outline">{locales.form.submit.label}</Button>
               </div>
             </noscript>
+            {typeof fields.updates.errors !== "undefined" &&
+            fields.updates.errors.length > 0 ? (
+              <div className="mb-10 ml-5">
+                {fields.updates.errors.map((error, index) => {
+                  return (
+                    <div
+                      id={fields.updates.errorId}
+                      key={index}
+                      className="text-sm font-semibold text-negative-700"
+                    >
+                      {error}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </Form>
-        </ul>
+        </div>
       ) : (
         <>{locales.content.empty}</>
       )}

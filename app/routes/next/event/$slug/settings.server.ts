@@ -25,6 +25,19 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
+export async function updateEventBySlug(
+  slug: string,
+  data: {
+    published: boolean;
+  }
+) {
+  const updatedEvent = await prismaClient.event.update({
+    where: { slug },
+    data,
+  });
+  return updatedEvent;
+}
+
 export async function isAdminOfEvent(sessionUser: User | null, slug: string) {
   if (sessionUser === null) {
     return false;

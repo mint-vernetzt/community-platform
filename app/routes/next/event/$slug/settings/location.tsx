@@ -1,5 +1,5 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
@@ -83,7 +83,7 @@ export async function action(args: ActionFunctionArgs) {
 
   await checkFeatureAbilitiesOrThrow(authClient, [
     "events",
-    "next_event_create",
+    "next_event_settings",
   ]);
 
   const language = await detectLanguage(request);
@@ -253,18 +253,7 @@ export default function Location() {
       createEventLocationSchema(locales.route.validation)
     ),
     defaultValue: {
-      venueName: loaderData.event.venueName,
-      venueStreet: loaderData.event.venueStreet,
-      venueZipCode: loaderData.event.venueZipCode,
-      venueCity: loaderData.event.venueCity,
-      conferenceLink: loaderData.event.conferenceLink,
-      conferenceCode: loaderData.event.conferenceCode,
-      stage: loaderData.event.stage,
-      accessibilityInformation: loaderData.event.accessibilityInformation,
-      accessibilityInformationRTEState:
-        loaderData.event.accessibilityInformationRTEState,
-      privacyInformation: loaderData.event.privacyInformation,
-      privacyInformationRTEState: loaderData.event.privacyInformationRTEState,
+      ...loaderData.event,
     },
     shouldValidate: "onBlur",
     onValidate: (values) => {

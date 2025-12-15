@@ -11,7 +11,33 @@ export async function getEventBySlug(slug: string) {
         select: {
           startTime: true,
           endTime: true,
+          name: true,
+          slug: true,
+          participantLimit: true,
+          _count: {
+            select: { participants: true },
+          },
+          stage: {
+            select: { slug: true },
+          },
         },
+      },
+      childEvents: {
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          name: true,
+          slug: true,
+          participantLimit: true,
+          _count: {
+            select: { participants: true },
+          },
+          stage: {
+            select: { slug: true },
+          },
+        },
+        orderBy: { startTime: "asc" },
       },
     },
   });
@@ -32,10 +58,16 @@ export async function getEventBySlug(slug: string) {
       childEventAggregate._min.startTime !== null &&
       childEventAggregate._max.endTime !== null
         ? {
-            earliestStartTime: childEventAggregate._min.startTime,
-            latestEndTime: childEventAggregate._max.endTime,
+            metrics: {
+              earliestStartTime: childEventAggregate._min.startTime,
+              latestEndTime: childEventAggregate._max.endTime,
+            },
+            data: event.childEvents,
           }
-        : null,
+        : {
+            metrics: null,
+            data: event.childEvents,
+          },
   };
 }
 

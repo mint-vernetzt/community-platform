@@ -19,4 +19,10 @@ export const locale = {
     team: "Team",
     timePeriod: "Datum und Uhrzeit",
   },
+  errors: {
+    invalidIntent: "Diese Aktion ist nicht zulässig",
+    publishFailed:
+      "Das Veröffentlichen der Veranstaltung ist fehlgeschlagen. Bitte versuche es später erneut oder kontaktiere den Support.",
+  },
+  publishSuccess: "Event veröffentlicht!",
 } as const;

@@ -1,5 +1,5 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar"; // refactor?
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
@@ -769,7 +769,6 @@ function ReportEvent(props: {
               </svg>
             </span>
           ) : (
-            // TODO: Link to specific faq section/question
             <CircleButton
               as="link"
               to="/help#events-iReportedAnEvent"

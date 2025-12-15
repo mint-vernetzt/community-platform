@@ -1,6 +1,8 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import type { LoaderFunctionArgs } from "react-router";
+import { captureException } from "@sentry/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   Link,
   NavLink,
   Outlet,
@@ -14,14 +16,17 @@ import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import SettingsHeading from "~/components/next/SettingsHeading";
 import SettingsNavigation from "~/components/next/SettingsNavigation";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
 import {
   getEventBySlug,
   getRedirectPathOnProtectedEventRoute,
+  updateEventBySlug,
 } from "./settings.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -52,6 +57,56 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
+};
+
+export const action = async (args: ActionFunctionArgs) => {
+  const { request, params } = args;
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/event/$slug/settings"];
+
+  const formData = await request.formData();
+  const intent = formData.get(INTENT_FIELD_NAME);
+  invariantResponse(intent === "publish", locales.route.errors.invalidIntent, {
+    status: 400,
+  });
+
+  try {
+    await updateEventBySlug(params.slug, {
+      published: true,
+    });
+  } catch (error) {
+    captureException(error);
+    return redirectWithToast(`/event/${params.slug}/settings/time-period`, {
+      id: "publish-error",
+      key: `publish-error-${Date.now()}`,
+      message: locales.route.errors.publishFailed,
+      level: "negative",
+    });
+  }
+
+  return redirectWithToast(`/event/${params.slug}/detail/about`, {
+    id: "publish-success",
+    key: `publish-success-${Date.now()}`,
+    message: locales.route.publishSuccess,
+  });
 };
 
 export default function Settings() {
@@ -159,20 +214,35 @@ export default function Settings() {
               <p className="text-neutral-600 text-base font-normal leading-5">
                 {locales.route.publishHint}
               </p>
-              <div className="w-full md:w-fit">
-                {/* TODO: When implementing action remember to redirect to current leaf route and not this parent route */}
-                <Button variant="outline" fullSize>
-                  {locales.route.publishCta}
-                </Button>
-              </div>
+              <Form method="post">
+                <div className="w-full md:w-fit">
+                  <Button
+                    name={INTENT_FIELD_NAME}
+                    value="publish"
+                    type="submit"
+                    variant="outline"
+                    fullSize
+                  >
+                    {locales.route.publishCta}
+                  </Button>
+                </div>
+              </Form>
             </div>
           </SettingsNavigation.MobileActionSection>
         ) : null}
         {event.published === false ? (
           <SettingsNavigation.DesktopActionSection>
             <span>{locales.route.publishHint}</span>
-            {/* TODO: When implementing action remember to redirect to current leaf route and not this parent route */}
-            <Button variant="outline">{locales.route.publishCta}</Button>
+            <Form method="post">
+              <Button
+                name={INTENT_FIELD_NAME}
+                value="publish"
+                type="submit"
+                variant="outline"
+              >
+                {locales.route.publishCta}
+              </Button>
+            </Form>
           </SettingsNavigation.DesktopActionSection>
         ) : null}
         {links.map((link) => {

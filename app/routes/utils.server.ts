@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { type Organization, type Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import {
@@ -61,7 +61,7 @@ export async function getOrganizationSuggestionsForAutocomplete(
             contains: string;
             mode: Prisma.QueryMode;
           };
-        }
+        },
       ];
     } = {
       OR: [
