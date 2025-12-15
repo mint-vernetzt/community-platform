@@ -26,7 +26,7 @@ import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { redirectWithToast } from "~/toast.server";
 import { z } from "zod";
-import { getFormProps, useForm } from "@conform-to/react-v1";
+import { getFormProps, useForm } from "@conform-to/react";
 import { Modal } from "~/components-next/Modal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { useEffect, useState } from "react";

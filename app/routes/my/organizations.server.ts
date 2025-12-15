@@ -1,4 +1,4 @@
-import { parseWithZod } from "@conform-to/zod-v1";
+import { parseWithZod } from "@conform-to/zod";
 import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
@@ -1462,34 +1462,34 @@ export async function updateOrganizationMemberInvite(options: {
                         "text"
                       )
                   : data.role === "member"
-                  ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-text.hbs">(
-                      "mail-templates/invites/profile-to-join-organization/rejected-text.hbs",
-                      {
-                        firstName: admin.profile.firstName,
-                        profile: {
-                          firstName: invite.profile.firstName,
-                          lastName: invite.profile.lastName,
+                    ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-text.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/rejected-text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
                         },
-                        organization: {
-                          name: invite.organization.name,
+                        "text"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
                         },
-                      },
-                      "text"
-                    )
-                  : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs">(
-                      "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs",
-                      {
-                        firstName: admin.profile.firstName,
-                        profile: {
-                          firstName: invite.profile.firstName,
-                          lastName: invite.profile.lastName,
-                        },
-                        organization: {
-                          name: invite.organization.name,
-                        },
-                      },
-                      "text"
-                    );
+                        "text"
+                      );
               const html =
                 intent === "acceptOrganizationMemberInvite"
                   ? data.role === "member"
@@ -1522,34 +1522,34 @@ export async function updateOrganizationMemberInvite(options: {
                         "html"
                       )
                   : data.role === "member"
-                  ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-html.hbs">(
-                      "mail-templates/invites/profile-to-join-organization/rejected-html.hbs",
-                      {
-                        firstName: admin.profile.firstName,
-                        profile: {
-                          firstName: invite.profile.firstName,
-                          lastName: invite.profile.lastName,
+                    ? getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/rejected-html.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/rejected-html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
                         },
-                        organization: {
-                          name: invite.organization.name,
+                        "html"
+                      )
+                    : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs">(
+                        "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs",
+                        {
+                          firstName: admin.profile.firstName,
+                          profile: {
+                            firstName: invite.profile.firstName,
+                            lastName: invite.profile.lastName,
+                          },
+                          organization: {
+                            name: invite.organization.name,
+                          },
                         },
-                      },
-                      "html"
-                    )
-                  : getCompiledMailTemplate<"mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs">(
-                      "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs",
-                      {
-                        firstName: admin.profile.firstName,
-                        profile: {
-                          firstName: invite.profile.firstName,
-                          lastName: invite.profile.lastName,
-                        },
-                        organization: {
-                          name: invite.organization.name,
-                        },
-                      },
-                      "html"
-                    );
+                        "html"
+                      );
 
               try {
                 await mailer(

@@ -30,9 +30,9 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { useState } from "react";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
