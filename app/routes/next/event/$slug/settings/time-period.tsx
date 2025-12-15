@@ -1,47 +1,48 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import classNames from "classnames";
+import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
+import { useState } from "react";
 import {
   type ActionFunctionArgs,
   Form,
+  type LoaderFunctionArgs,
+  redirect,
   useActionData,
   useLoaderData,
-  useSearchParams,
-  type LoaderFunctionArgs,
   useNavigation,
+  useSearchParams,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import BasicStructure from "~/components/next/BasicStructure";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { invariant, invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
-import { useState } from "react";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react-v1";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod-v1";
-import classNames from "classnames";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import {
-  createTimePeriodSchema,
-  getTimePeriodDefaultValue,
-} from "./time-period.shared";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { deriveEventMode } from "~/routes/event/utils.server";
-import { invariant, invariantResponse } from "~/lib/utils/response";
+import { redirectWithToast } from "~/toast.server";
+import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
+import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   getEventBySlug,
   getEventBySlugForValidation,
   updateEventBySlug,
 } from "./time-period.server";
-import { utcToZonedTime } from "date-fns-tz";
-import { format } from "date-fns";
-import List from "~/components/next/List";
-import ListItemEvent from "~/components/next/ListItemEvent";
-import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import {
+  createTimePeriodSchema,
+  getTimePeriodDefaultValue,
+} from "./time-period.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -70,8 +71,15 @@ export const action = async (args: ActionFunctionArgs) => {
     "next_event_settings",
   ]);
   const sessionUser = await getSessionUserOrThrow(authClient);
-  const mode = await deriveEventMode(sessionUser, params.slug);
-  invariantResponse(mode === "admin", "Not an admin", { status: 403 });
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/time-period"];

@@ -13,6 +13,12 @@ export const locale = {
   conferenceCode: {
     label: "Konferenzcode",
   },
+  accessibilityInformation: {
+    label: "Info Barrierefreiheit",
+  },
+  privacyInformation: {
+    label: "Datenschutzinformationen",
+  },
   eventTargetGroups: {
     label:
       "Das Event wird Zielgruppen aus folgenden Bildungsbereichen empfohlen",
