@@ -19,7 +19,7 @@ export const locale = {
       max: "Die Beschreibung darf maximal {{max}} Zeichen lang sein",
     },
     street: {
-      required: "Bitte gib die Straße Deiner Organisation ein.",
+      required: "Bitte gib die Straße und Hausnummer Deiner Organisation ein.",
     },
     zipCode: {
       required: "Bitte gib die Postleitzahl Deiner Organisation ein.",
@@ -47,7 +47,7 @@ export const locale = {
         label: "Adresszusatz",
       },
       street: {
-        label: "Straße*",
+        label: "Straße und Hausnummer*",
       },
       zipCode: {
         label: "Postleitzahl*",

@@ -145,7 +145,6 @@ const createSchema = (locales: GeneralEventSettingsLocales) => {
     conferenceCode: nullOrString(string().trim()),
     venueName: nullOrString(string().trim()),
     venueStreet: nullOrString(string().trim()),
-    venueStreetNumber: nullOrString(string().trim()),
     venueCity: nullOrString(string().trim()),
     venueZipCode: nullOrString(string().trim()),
     submit: string().trim().required(),
@@ -765,8 +764,8 @@ function General() {
               <div>{errors.venueName.message}</div>
             ) : null}
           </div>
-          <div className="flex flex-col @md:flex-row -mx-4">
-            <div className="basis-full @md:basis-6/12 px-4 mb-6">
+          <div className="flex flex-col -mx-4">
+            <div className="basis-full px-4 mb-6">
               <InputText
                 {...register("venueStreet")}
                 id="venueStreet"
@@ -778,20 +777,6 @@ function General() {
               />
               {errors?.venueStreet?.message ? (
                 <div>{errors.venueStreet.message}</div>
-              ) : null}
-            </div>
-            <div className="basis-full @md:basis-6/12 px-4 mb-6">
-              <InputText
-                {...register("venueStreetNumber")}
-                id="venueStreetNumber"
-                label={locales.route.form.venueStreetNumber.label}
-                defaultValue={event.venueStreetNumber || ""}
-                errorMessage={errors?.venueStreetNumber?.message}
-                withPublicPrivateToggle={false}
-                isPublic={eventVisibilities.venueStreetNumber}
-              />
-              {errors?.venueStreetNumber?.message ? (
-                <div>{errors.venueStreetNumber.message}</div>
               ) : null}
             </div>
           </div>

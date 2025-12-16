@@ -29,13 +29,14 @@ import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
-import { sanitizeUserHtml } from "~/utils.server";
+import { getCoordinatesFromAddress, sanitizeUserHtml } from "~/utils.server";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   createEventLocationSchema,
   getStageDefaultValue,
   Stages,
 } from "./location.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -108,8 +109,57 @@ export async function action(args: ActionFunctionArgs) {
     return submission.reply();
   }
 
+  const event = await prismaClient.event.findUnique({
+    select: {
+      id: true,
+      venueStreet: true,
+      venueZipCode: true,
+      venueCity: true,
+      venueLongitude: true,
+      venueLatitude: true,
+    },
+    where: {
+      slug: params.slug,
+    },
+  });
+  invariantResponse(event !== null, locales.route.errors.notFound, {
+    status: 404,
+  });
+
+  let addressError;
   try {
     const { stage: stageValue, ...data } = submission.value;
+
+    let venueLongitude = event.venueLongitude;
+    let venueLatitude = event.venueLatitude;
+    if (
+      data.venueStreet !== event.venueStreet ||
+      data.venueCity !== event.venueCity ||
+      data.venueZipCode !== event.venueZipCode
+    ) {
+      const result = await getCoordinatesFromAddress({
+        id: event.id,
+        street: data.venueStreet,
+        city: data.venueCity,
+        zipCode: data.venueZipCode,
+      });
+      if (result.error !== null) {
+        console.error(result.error);
+        addressError = result.error;
+      }
+      venueLongitude = result.longitude;
+      venueLatitude = result.latitude;
+    } else {
+      if (
+        (event.venueStreet !== null ||
+          event.venueCity !== null ||
+          event.venueZipCode !== null) &&
+        event.venueLongitude === null &&
+        event.venueLatitude === null
+      ) {
+        addressError = "Address not changed but coordinates still not found";
+      }
+    }
 
     await prismaClient.$transaction(async (client) => {
       const stage = await client.stage.findFirst({
@@ -128,6 +178,8 @@ export async function action(args: ActionFunctionArgs) {
         },
         data: {
           ...data,
+          venueLongitude,
+          venueLatitude,
           accessibilityInformation: sanitizeUserHtml(
             data.accessibilityInformation
           ),
@@ -145,6 +197,23 @@ export async function action(args: ActionFunctionArgs) {
       key: `event-location-save-failed-${Date.now()}`,
       message: locales.route.errors.saveFailed,
       level: "negative",
+    });
+  }
+
+  if (typeof addressError !== "undefined") {
+    return redirectWithToast(request.url, {
+      key: "address-error-toast",
+      level: "attention",
+      message: insertParametersIntoLocale(
+        locales.route.errors.coordinatesNotFound,
+        {
+          street: submission.value.venueStreet,
+          city: submission.value.venueCity,
+          zipCode: submission.value.venueZipCode,
+        }
+      ),
+      isRichtext: true,
+      delayInMillis: 60000,
     });
   }
 

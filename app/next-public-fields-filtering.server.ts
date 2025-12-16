@@ -55,7 +55,7 @@ type ProfileWithRelations = Profile & {
 
 export function filterProfileByVisibility<
   T extends EntitySubset<ProfileWithRelations, T> &
-    Pick<ProfileWithRelations, "profileVisibility">
+    Pick<ProfileWithRelations, "profileVisibility">,
 >(profile: T) {
   // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -199,7 +199,7 @@ type OrganizationWithRelations = Organization & {
 
 export function filterOrganizationByVisibility<
   T extends EntitySubset<OrganizationWithRelations, T> &
-    Pick<OrganizationWithRelations, "organizationVisibility">
+    Pick<OrganizationWithRelations, "organizationVisibility">,
 >(organization: T) {
   // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -276,7 +276,7 @@ export function filterOrganizationByVisibility<
         key === "quoteAuthor" ||
         key === "quoteAuthorInformation" ||
         key === "shadowSource" ||
-        key === "streetNumber" ||
+        key === "streetNumber" || // legacy
         key === "zipCode" ||
         key === "longitude" ||
         key === "latitude" ||
@@ -351,7 +351,7 @@ type EventWithRelations = Event & {
 
 export function filterEventByVisibility<
   T extends EntitySubset<EventWithRelations, T> &
-    Pick<EventWithRelations, "eventVisibility">
+    Pick<EventWithRelations, "eventVisibility">,
 >(event: T) {
   // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -412,9 +412,11 @@ export function filterEventByVisibility<
         key === "participantLimit" ||
         key === "venueName" ||
         key === "venueStreet" ||
-        key === "venueStreetNumber" ||
+        key === "venueStreetNumber" || // legacy
         key === "venueCity" ||
         key === "venueZipCode" ||
+        key === "venueLongitude" ||
+        key === "venueLatitude" ||
         key === "subline" ||
         key === "experienceLevel" ||
         key === "experienceLevelId" ||
@@ -481,7 +483,7 @@ type ProjectWithRelations = Project & {
 
 export function filterProjectByVisibility<
   T extends EntitySubset<ProjectWithRelations, T> &
-    Pick<ProjectWithRelations, "projectVisibility">
+    Pick<ProjectWithRelations, "projectVisibility">,
 >(project: T) {
   // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -538,9 +540,11 @@ export function filterProjectByVisibility<
         key === "website" ||
         key === "contactName" ||
         key === "street" ||
-        key === "streetNumber" ||
-        key === "streetNumberAddition" ||
+        key === "streetNumber" || // legacy
+        key === "streetNumberAddition" || // legacy
         key === "zipCode" ||
+        key === "longitude" ||
+        key === "latitude" ||
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||

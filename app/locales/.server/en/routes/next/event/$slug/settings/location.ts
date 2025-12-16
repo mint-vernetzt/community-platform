@@ -29,6 +29,8 @@ export const locale = {
     notFound: "The event was not found.",
     saveFailed:
       "An error occurred while saving the event location settings. Please try again later.",
+    coordinatesNotFound:
+      'Successfully saved! However, no coordinates could be found for the address entered. Please check your details for spelling mistakes or try adjusting the spelling and address suffix. (Alternatively, check your entries here: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}})</a>)',
   },
   success: "Event location settings saved successfully.",
 } as const;

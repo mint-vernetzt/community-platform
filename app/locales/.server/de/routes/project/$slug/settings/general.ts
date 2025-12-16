@@ -17,6 +17,8 @@ export const locale = {
     projectNotFound: "Project not found",
     storage:
       "Die Daten konnten nicht gespeichert werden. Bitte versuche es erneut oder wende dich an den Support.",
+    coordinatesNotFound:
+      'Erfolgreich gespeichert! Allerdings konnten keine Koordinaten zur eingegebenen Adresse gefunden werden. Bitte überprüfe deine Angaben auf Rechtschreibfehler oder versuche Anpassungen bei Schreibweise und Adresszusatz. (Alternativ Eingaben hier prüfen: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}})</a>',
   },
   content: {
     notFound: "Not Found",
@@ -67,13 +69,7 @@ export const locale = {
         label: "Name",
       },
       street: {
-        label: "Straße",
-      },
-      streetNumber: {
-        label: "Hausnummer",
-      },
-      streetNumberAddition: {
-        label: "Zusatz",
+        label: "Straße und Hausnummer",
       },
       zipCode: {
         label: "PLZ",

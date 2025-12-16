@@ -106,7 +106,6 @@ export async function getEventBySlug(options: {
       description: true,
       venueName: true,
       venueStreet: true,
-      venueStreetNumber: true,
       venueZipCode: true,
       venueCity: true,
       conferenceLink: true,

@@ -21,10 +21,13 @@ import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { getRedirectPathOnProtectedEventRoute } from "~/routes/event/$slug/settings/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
-import { getEventBySlug, updateEventBySlug } from "./settings.server";
+import {
+  getEventBySlug,
+  getRedirectPathOnProtectedEventRoute,
+  updateEventBySlug,
+} from "./settings.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
