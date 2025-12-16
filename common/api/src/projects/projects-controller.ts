@@ -30,7 +30,7 @@ const responseExample = {
         "Welcome to our project where we present and discuss multiple <strong>learning strategies</strong> in the context of computer science. In multiple workshops and keynote speeches we will explore strategies to ...",
       email: "learning@strategies.org",
       phone: "(+49) 176 / 123456789",
-      street: "Learning Avenue",
+      street: "Learning Avenue 35",
       city: "Educationtown",
       zipCode: "12345",
       longitude: "12.345678",
