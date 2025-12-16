@@ -20,7 +20,8 @@ export const locale = {
       "Your organization must have the organizational form network to add network forms",
     networkTypesRequired: "Please select at least one network form.",
     street: {
-      required: "Please enter the street of your organization.",
+      required:
+        "Please enter the street and house number of your organization.",
     },
     zipCode: {
       required: "Please enter the ZIP code of your organization.",
@@ -85,7 +86,7 @@ export const locale = {
         label: "Address supplement",
       },
       street: {
-        label: "Street*",
+        label: "Street and house number*",
       },
       zipCode: {
         label: "ZIP code*",
