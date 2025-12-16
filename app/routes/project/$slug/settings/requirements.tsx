@@ -152,9 +152,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const submission = await parseWithZod(formData, {
       schema: createRequirementsSchema(locales),
     });
-    return {
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
   const submission = await parseWithZod(formData, {
     schema: () =>
@@ -223,10 +221,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   return redirectWithToast(request.url, {
@@ -253,14 +248,12 @@ function Requirements() {
   };
 
   const [form, fields] = useForm({
-    id: `requirements-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `requirements-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createRequirementsSchema(locales)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {

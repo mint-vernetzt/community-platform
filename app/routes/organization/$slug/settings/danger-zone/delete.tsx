@@ -134,10 +134,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      currentTimestamp: Date.now(),
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
 
   return redirectWithAlert(`/dashboard`, {
@@ -156,9 +153,7 @@ function Delete() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-organization-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `delete-organization-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(
       createSchema(locales, loaderData.organization.name)
     ),
@@ -169,7 +164,7 @@ function Delete() {
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
   });
 
   return (

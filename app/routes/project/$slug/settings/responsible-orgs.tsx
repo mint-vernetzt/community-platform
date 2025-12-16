@@ -174,7 +174,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { currentTimestamp: Date.now(), submission: result.submission };
+  return { submission: result.submission };
 };
 
 function Team() {
@@ -200,7 +200,7 @@ function Team() {
       ? searchFetcher.data.searchedOrganizations
       : loaderSearchedOrganizations;
   const [searchForm, searchFields] = useForm({
-    id: "search-organizations",
+    id: `search-organizations-${currentTimestamp}`,
     defaultValue: {
       [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
@@ -217,38 +217,28 @@ function Team() {
 
   // TODO: Remove this when project responsible organization invites are implemented
   const [addResponsibleOrganizationForm] = useForm({
-    id: `add-responsible-organizations-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `add-responsible-organizations-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [addOwnOrganizationForm] = useForm({
-    id: `add-own-organization-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `add-own-organization-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   // TODO: Implement this when project responsible organization invites are implemented
   // const [inviteResponsibleOrganizationForm] = useForm({
-  //   id: `invite-responsible-organization-${
-  //     actionData?.currentTimestamp || currentTimestamp
-  //   }`,
+  //   id: `invite-responsible-organization-${currentTimestamp}`,
   //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
   // });
 
   // const [cancelResponsibleOrganizationInviteForm] = useForm({
-  //   id: `cancel-responsible-organization-invite-${
-  //     actionData?.currentTimestamp || currentTimestamp
-  //   }`,
+  //   id: `cancel-responsible-organization-invite-${currentTimestamp}`,
   //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
   // });
 
   const [removeResponsibleOrganizationForm] = useForm({
-    id: `remove-responsible-organization-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `remove-responsible-organization-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

@@ -323,10 +323,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -349,9 +346,7 @@ function Attachments() {
     SelectedFile[]
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
-    id: `upload-document-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `upload-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createDocumentUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -360,7 +355,7 @@ function Attachments() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -378,9 +373,7 @@ function Attachments() {
     SelectedFile[]
   >([]);
   const [imageUploadForm, imageUploadFields] = useForm({
-    id: `upload-image-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `upload-image-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createImageUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -389,7 +382,7 @@ function Attachments() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -404,13 +397,11 @@ function Attachments() {
 
   // Edit document form
   const [editDocumentForm, editDocumentFields] = useForm({
-    id: `edit-document-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `edit-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createEditDocumentSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -422,13 +413,11 @@ function Attachments() {
 
   // Edit image form
   const [editImageForm, editImageFields] = useForm({
-    id: `edit-image-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `edit-image-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createEditImageSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -442,10 +431,11 @@ function Attachments() {
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
+    id: `disconnect-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -459,10 +449,11 @@ function Attachments() {
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [disconnectImageForm, disconnectImageFields] = useForm({
+    id: `disconnect-image-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {

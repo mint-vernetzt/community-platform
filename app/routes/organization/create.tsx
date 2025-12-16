@@ -235,7 +235,6 @@ export async function action(args: ActionFunctionArgs) {
       ...result.submission,
       error: result.submission.error || undefined,
     },
-    currentTimestamp: Date.now(),
   };
 }
 
@@ -266,7 +265,7 @@ function CreateOrganization() {
 
   const searchFormRef = useRef<HTMLFormElement>(null);
   const [searchForm, searchFields] = useForm({
-    id: "search-organizations",
+    id: `search-organizations-${currentTimestamp}`,
     defaultValue: {
       [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
@@ -282,16 +281,12 @@ function CreateOrganization() {
     lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
   const [createOrganizationMemberOrClaimRequestForm] = useForm({
-    id: `create-organization-member-or-claim-request-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `create-organization-member-or-claim-request-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [createOrganizationForm, createOrganizationFields] = useForm({
-    id: `create-organization-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `create-organization-${currentTimestamp}`,
     constraint: getZodConstraint(createOrganizationSchema(locales)),
     defaultValue: {
       organizationName: searchQuery,

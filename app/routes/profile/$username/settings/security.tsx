@@ -147,7 +147,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 };
 
 export default function Security() {
@@ -161,9 +161,7 @@ export default function Security() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordForm, changePasswordFields] = useForm({
-    id: `change-password-form-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `change-password-form-${currentTimestamp}`,
     constraint: getZodConstraint(changePasswordSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -188,7 +186,7 @@ export default function Security() {
   });
 
   const [changeEmailForm, changeEmailFields] = useForm({
-    id: `change-email-form-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `change-email-form-${currentTimestamp}`,
     constraint: getZodConstraint(changeEmailSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {

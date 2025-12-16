@@ -204,9 +204,7 @@ export async function action(args: ActionFunctionArgs) {
     const submission = await parseWithZod(formData, {
       schema: createGeneralSchema(locales, organization),
     });
-    return {
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
   let addressError;
   const submission = await parseWithZod(formData, {
@@ -319,10 +317,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   if (typeof addressError !== "undefined") {
@@ -368,15 +363,13 @@ function General() {
   };
 
   const [form, fields] = useForm({
-    id: `general-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `general-form-${loaderData.currentTimestamp}`,
     // id: "test",
     constraint: getZodConstraint(createGeneralSchema(locales, organization)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {

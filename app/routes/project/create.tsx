@@ -152,10 +152,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   return redirect(`/project/${submission.value.slug}/settings/general`);
@@ -170,13 +167,11 @@ function Create() {
   const { locales } = loaderData;
 
   const [form, fields] = useForm({
-    id: `create-project-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `create-project-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createSchema(locales)),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {

@@ -95,10 +95,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimeStamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   return redirectWithToast(request.url, {
@@ -118,7 +115,7 @@ function WebSocial() {
 
   const [form, fields] = useForm({
     // Use different ids depending on loaderData to sync dirty state
-    id: `web-social-form-${actionData?.currentTimeStamp || currentTimestamp}`,
+    id: `web-social-form-${currentTimestamp}`,
     defaultValue: {
       ...project,
     },
@@ -130,7 +127,7 @@ function WebSocial() {
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({

@@ -74,10 +74,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   return redirect(
     `/login${
@@ -101,14 +98,14 @@ export default function SetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [setPasswordForm, setPasswordFields] = useForm({
-    id: `set-password-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `set-password-${currentTimestamp}`,
     constraint: getZodConstraint(createSetPasswordSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: createSetPasswordSchema(locales).transform((data, ctx) => {

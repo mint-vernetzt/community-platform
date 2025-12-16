@@ -76,7 +76,6 @@ export const action = async (args: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -91,9 +90,7 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
 
   const [requestPasswordChangeForm, requestPasswordChangeFields] = useForm({
-    id: `request-password-change-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `request-password-change-${currentTimestamp}`,
     constraint: getZodConstraint(createRequestPasswordChangeSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

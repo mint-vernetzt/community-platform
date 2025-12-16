@@ -112,10 +112,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      currentTimestamp: Date.now(),
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
 
   await prismaClient.organization.update({
@@ -142,9 +139,7 @@ function ChangeURL() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `change-url-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `change-url-form-${loaderData.currentTimestamp}`,
     defaultValue: {
       slug: loaderData.slug,
     },
@@ -156,7 +151,7 @@ function ChangeURL() {
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({

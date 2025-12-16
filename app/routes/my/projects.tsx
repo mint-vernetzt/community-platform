@@ -130,7 +130,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(redirectUrl, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 };
 
 function MyProjects() {
@@ -175,7 +175,7 @@ function MyProjects() {
   });
 
   const [quitProjectForm] = useForm({
-    id: `quit-organization-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `quit-organization-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

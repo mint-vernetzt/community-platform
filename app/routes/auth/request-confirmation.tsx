@@ -90,9 +90,7 @@ export default function RequestConfirmation() {
   const type = urlSearchParams.get("type");
 
   const [requestConfirmationForm, requestConfirmationFields] = useForm({
-    id: `request-confirmation-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `request-confirmation-${currentTimestamp}`,
     constraint: getZodConstraint(createRequestConfirmationSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

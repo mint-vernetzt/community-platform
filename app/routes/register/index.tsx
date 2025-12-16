@@ -111,7 +111,6 @@ export const action = async (args: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -127,7 +126,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [registerForm, registerFields] = useForm({
-    id: `register-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `register-${currentTimestamp}`,
     constraint: getZodConstraint(createRegisterSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

@@ -154,7 +154,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { currentTimestamp: Date.now(), submission: result.submission };
+  return { submission: result.submission };
 };
 
 function Team() {
@@ -179,7 +179,7 @@ function Team() {
       ? searchFetcher.data.searchedProfiles
       : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
-    id: "search-profiles",
+    id: `search-profiles-${currentTimestamp}`,
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
@@ -195,23 +195,17 @@ function Team() {
   });
 
   const [inviteTeamMemberForm] = useForm({
-    id: `invite-team-member-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `invite-team-member-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelTeamMemberInviteForm] = useForm({
-    id: `cancel-team-member-invite-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `cancel-team-member-invite-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeTeamMemberForm] = useForm({
-    id: `remove-team-member-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `remove-team-member-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

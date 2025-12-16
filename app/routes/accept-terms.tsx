@@ -71,10 +71,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (typeof submission.value.redirectTo !== "undefined") {
     return redirect(submission.value.redirectTo);
@@ -93,14 +90,14 @@ export default function AcceptTerms() {
   const redirectTo = urlSearchParams.get("redirect_to");
 
   const [acceptTermsForm, acceptTermsFields] = useForm({
-    id: `accept-terms-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `accept-terms-${currentTimestamp}`,
     constraint: getZodConstraint(acceptTermsSchema),
     defaultValue: {
       redirectTo: redirectTo,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: acceptTermsSchema.transform((data, ctx) => {

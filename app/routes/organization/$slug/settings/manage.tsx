@@ -349,7 +349,7 @@ export async function action(args: ActionFunctionArgs) {
     }?${searchParams.toString()}`;
     return redirectWithToast(redirectUrl, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 }
 
 function Manage() {
@@ -397,7 +397,7 @@ function Manage() {
   };
 
   const [manageForm, manageFields] = useForm({
-    id: `manage-form-${actionData?.currentTimestamp || loaderData.currentTimestamp}`,
+    id: `manage-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -434,7 +434,7 @@ function Manage() {
   });
 
   const [searchNetworksForm, searchNetworksFields] = useForm({
-    id: "search-networks",
+    id: `search-networks-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(searchNetworksSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -449,23 +449,17 @@ function Manage() {
   clearNetworkQuerySearchParams.delete(SearchNetworks);
 
   const [requestToJoinNetworkForm] = useForm({
-    id: `request-to-join-network-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `request-to-join-network-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [leaveNetworkForm] = useForm({
-    id: `leave-network-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `leave-network-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelNetworkJoinRequestForm] = useForm({
-    id: `cancel-network-join-request-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `cancel-network-join-request-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -486,23 +480,17 @@ function Manage() {
   clearNetworkMemberQuerySearchParams.delete(SearchNetworks);
 
   const [inviteNetworkMemberForm] = useForm({
-    id: `invite-network-member-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `invite-network-member-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeNetworkMemberForm] = useForm({
-    id: `remove-network-member-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `remove-network-member-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelNetworkJoinInviteForm] = useForm({
-    id: `cancel-network-member-invitation-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `cancel-network-member-invitation-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

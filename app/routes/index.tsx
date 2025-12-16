@@ -82,10 +82,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   if (typeof submission.value.loginRedirect !== "undefined") {
@@ -110,22 +107,22 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, loginFields] = useForm({
-    id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `login-${currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales.route)),
     defaultValue: {
       email:
-        typeof actionData?.submission?.initialValue?.email === "string"
-          ? actionData?.submission?.initialValue?.email
+        typeof actionData?.initialValue?.email === "string"
+          ? actionData?.initialValue?.email
           : "",
       password:
-        typeof actionData?.submission?.initialValue?.password === "string"
-          ? actionData?.submission?.initialValue?.password
+        typeof actionData?.initialValue?.password === "string"
+          ? actionData?.initialValue?.password
           : "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: createLoginSchema(locales.route),
