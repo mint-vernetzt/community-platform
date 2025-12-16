@@ -13,19 +13,16 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import {
-  requestConfirmation,
-  type RequestConfirmationLocales,
-} from "./request-confirmation.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { requestConfirmation } from "./request-confirmation.server";
+import { createRequestConfirmationSchema } from "./request-confirmation.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -40,20 +37,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales = languageModuleMap[language]["auth/request-confirmation"];
 
   return { locales, currentTimestamp: Date.now() };
-};
-
-export const createRequestConfirmationSchema = (
-  locales: RequestConfirmationLocales
-) => {
-  return z.object({
-    type: z.enum(["signup", "email_change", "recovery"]),
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .email(locales.validation.email),
-    loginRedirect: z.string().optional(),
-  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

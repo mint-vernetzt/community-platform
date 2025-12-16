@@ -34,42 +34,8 @@ import {
   changeEmail,
   changePassword,
   getProfileByUsername,
-  type ProfileSecurityLocales,
 } from "./security.server";
-
-export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email.required,
-      })
-      .trim()
-      .min(1, locales.validation.email.min)
-      .email(locales.validation.email.required),
-    confirmEmail: z
-      .string({
-        message: locales.validation.confirmEmail.required,
-      })
-      .trim()
-      .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.required),
-  });
-};
-
-export const changePasswordSchema = (locales: ProfileSecurityLocales) => {
-  return z.object({
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    confirmPassword: z
-      .string({
-        message: locales.validation.confirmPassword.required,
-      })
-      .min(8, locales.validation.confirmPassword.min),
-  });
-};
+import { changeEmailSchema, changePasswordSchema } from "./security.shared";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);

@@ -16,7 +16,6 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 import { MaterialList } from "~/components-next/MaterialList";
@@ -33,7 +32,6 @@ import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
   DOCUMENT_MIME_TYPES,
-  documentSchema,
   FILE_FIELD_NAME,
   MAX_UPLOAD_FILE_SIZE,
   UPLOAD_INTENT_VALUE,
@@ -44,50 +42,15 @@ import {
   editDocument,
   getEventBySlug,
   uploadFile,
-  type EventDocumentsSettingsLocales,
 } from "./documents.server";
 import { publishSchema } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
-
-export const createDocumentUploadSchema = (
-  locales: EventDocumentsSettingsLocales
-) => z.object({ ...documentSchema(locales) });
-
-const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
-
-export const createEditDocumentSchema = (
-  locales: EventDocumentsSettingsLocales
-) =>
-  z.object({
-    id: z.string().trim().uuid(),
-    title: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) =>
-        typeof value === "undefined" || value === "" ? null : value
-      ),
-    description: z
-      .string()
-      .trim()
-      .max(
-        DOCUMENT_DESCRIPTION_MAX_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.document.description.max,
-          {
-            max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
-          }
-        )
-      )
-      .optional()
-      .transform((value) =>
-        typeof value === "undefined" || value === "" ? null : value
-      ),
-  });
-
-export const disconnectAttachmentSchema = z.object({
-  id: z.string().trim().uuid(),
-});
+import {
+  createDocumentUploadSchema,
+  createEditDocumentSchema,
+  disconnectAttachmentSchema,
+  DOCUMENT_DESCRIPTION_MAX_LENGTH,
+} from "./documents.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

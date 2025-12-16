@@ -1,58 +1,35 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Link } from "@mint-vernetzt/components/src/molecules/Link";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
-  redirect,
   useNavigation,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
-import { deriveMode, generateProjectSlug } from "~/utils.server";
-import { type CreateProjectLocales } from "./create.server";
-import { languageModuleMap } from "~/locales/.server";
-import {
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 80;
-
-const createSchema = (locales: CreateProjectLocales) =>
-  z.object({
-    projectName: z
-      .string({
-        required_error: locales.validation.projectName.required,
-      })
-      .trim()
-      .min(
-        NAME_MIN_LENGTH,
-        insertParametersIntoLocale(locales.validation.projectName.min, {
-          min: NAME_MIN_LENGTH,
-        })
-      )
-      .max(
-        NAME_MAX_LENGTH,
-        insertParametersIntoLocale(locales.validation.projectName.max, {
-          max: NAME_MAX_LENGTH,
-        })
-      ),
-  });
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { prismaClient } from "~/prisma.server";
+import { deriveMode, generateProjectSlug } from "~/utils.server";
+import {
+  createSchema,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "./create.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

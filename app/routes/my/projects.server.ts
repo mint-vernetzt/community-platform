@@ -6,7 +6,7 @@ import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { DefaultImages } from "~/images.shared";
-import { quitProjectSchema } from "./projects";
+import { quitProjectSchema } from "./projects.shared";
 import { parseWithZod } from "@conform-to/zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";

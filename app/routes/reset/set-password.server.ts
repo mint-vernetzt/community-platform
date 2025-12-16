@@ -3,7 +3,7 @@ import { type User } from "@supabase/supabase-js";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { createSetPasswordSchema } from "./set-password";
+import { createSetPasswordSchema } from "./set-password.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { z } from "zod";
 import { createAdminAuthClient } from "~/auth.server";

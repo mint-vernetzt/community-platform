@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { createRef, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -11,8 +10,6 @@ import {
   useNavigation,
   useParams,
 } from "react-router";
-import type { InferType } from "yup";
-import { array, object, string } from "yup";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -27,14 +24,7 @@ import { objectListOperationResolver } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import type { FormError } from "~/lib/utils/yup";
-import {
-  getFormDataValidationResultOrThrow,
-  greaterThanDate,
-  greaterThanTimeOnSameDate,
-  multiline,
-  nullOrString,
-  website,
-} from "~/lib/utils/yup";
+import { getFormDataValidationResultOrThrow } from "~/lib/utils/yup";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
@@ -47,113 +37,20 @@ import {
 } from "~/utils.server";
 import { deriveEventMode } from "../../utils.server";
 import { getEventVisibilitiesBySlugOrThrow } from "../utils.server";
-import {
-  type GeneralEventSettingsLocales,
-  getEventBySlug,
-  getEventBySlugForAction,
-} from "./general.server";
+import { getEventBySlug, getEventBySlugForAction } from "./general.server";
 import {
   transformEventToForm,
   transformFormToEvent,
   updateEventById,
   validateTimePeriods,
 } from "./utils.server";
-
-const SUBLINE_MAX_LENGTH = 100;
-const DESCRIPTION_MAX_LENGTH = 2000;
-
-const createSchema = (locales: GeneralEventSettingsLocales) => {
-  return object({
-    name: string().trim().required(locales.route.validation.name.required),
-    startDate: string()
-      .trim()
-      .transform((value) => {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      })
-      .required(locales.route.validation.startDate.required),
-    startTime: string()
-      .trim()
-      .transform((value: string) => {
-        if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value)) {
-          return value;
-        }
-        return undefined;
-      })
-      .required(locales.route.validation.startTime.required),
-    endDate: greaterThanDate(
-      "endDate",
-      "startDate",
-      locales.route.validation.endDate.required,
-      locales.route.validation.endDate.greaterThan
-    ),
-    endTime: greaterThanTimeOnSameDate(
-      "endTime",
-      "startTime",
-      "startDate",
-      "endDate",
-      locales.route.validation.endTime.required,
-      locales.route.validation.endTime.greaterThan
-    ),
-    participationUntilDate: greaterThanDate(
-      "participationUntilDate",
-      "participationFromDate",
-      locales.route.validation.participationUntilDate.required,
-      locales.route.validation.participationUntilDate.greaterThan
-    ),
-    participationUntilTime: greaterThanTimeOnSameDate(
-      "participationUntilTime",
-      "participationFromTime",
-      "participationUntilDate",
-      "participationFromDate",
-      locales.route.validation.participationUntilTime.required,
-      locales.route.validation.participationUntilTime.greaterThan
-    ),
-    participationFromDate: greaterThanDate(
-      "startDate",
-      "participationFromDate",
-      locales.route.validation.participationFromDate.required,
-      locales.route.validation.participationFromDate.greaterThan
-    ),
-    participationFromTime: greaterThanTimeOnSameDate(
-      "startTime",
-      "participationFromTime",
-      "startDate",
-      "participationFromDate",
-      locales.route.validation.participationFromTime.required,
-      locales.route.validation.participationFromTime.greaterThan
-    ),
-    subline: nullOrString(multiline(SUBLINE_MAX_LENGTH)),
-    description: nullOrString(multiline(DESCRIPTION_MAX_LENGTH)),
-    descriptionRTEState: nullOrString(
-      string()
-        .trim()
-        .transform((value: string | null | undefined) => {
-          if (typeof value === "undefined" || value === "") {
-            return null;
-          }
-          return value;
-        })
-    ),
-    focuses: array(string().trim().uuid()).required(),
-    eventTargetGroups: array(string().trim().uuid()).required(),
-    experienceLevel: nullOrString(string().trim().uuid()),
-    stage: nullOrString(string().trim().uuid()),
-    types: array(string().trim().uuid()).required(),
-    tags: array(string().trim().uuid()).required(),
-    conferenceLink: nullOrString(website()),
-    conferenceCode: nullOrString(string().trim()),
-    venueName: nullOrString(string().trim()),
-    venueStreet: nullOrString(string().trim()),
-    venueCity: nullOrString(string().trim()),
-    venueZipCode: nullOrString(string().trim()),
-    submit: string().trim().required(),
-    privateFields: array(string().trim().required()).required(),
-  });
-};
-
-type SchemaType = ReturnType<typeof createSchema>;
-type FormType = InferType<SchemaType>;
+import {
+  DESCRIPTION_MAX_LENGTH,
+  type FormType,
+  SUBLINE_MAX_LENGTH,
+  type SchemaType,
+  createSchema,
+} from "./general.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;

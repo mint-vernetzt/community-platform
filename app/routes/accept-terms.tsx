@@ -21,17 +21,12 @@ import {
 } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
-import { checkboxSchema } from "~/lib/utils/schemas";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { Checkbox } from "~/components-next/Checkbox";
-
-export const acceptTermsSchema = z.object({
-  termsAccepted: checkboxSchema,
-  redirectTo: z.string().optional(),
-});
+import { acceptTermsSchema } from "./accept-terms.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

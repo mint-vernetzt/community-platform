@@ -3,11 +3,11 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { createRegisterSchema } from ".";
 import { invariantResponse } from "~/lib/utils/response";
 import { z } from "zod";
 import { generateUsername } from "~/utils.server";
 import { signUp } from "~/auth.server";
+import { createRegisterSchema } from "./index.shared";
 
 export type RegisterLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES

@@ -13,33 +13,16 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import {
-  requestPasswordChange,
-  type ResetPasswordLocales,
-} from "./index.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-export const createRequestPasswordChangeSchema = (
-  locales: ResetPasswordLocales
-) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
-    loginRedirect: z.string().optional(),
-  });
-};
+import { requestPasswordChange } from "./index.server";
+import { createRequestPasswordChangeSchema } from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

@@ -20,7 +20,7 @@ import {
   createEditImageSchema,
   createImageUploadSchema,
   disconnectAttachmentSchema,
-} from "./attachments";
+} from "./attachments.shared";
 
 export type ProjectAttachmentSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<

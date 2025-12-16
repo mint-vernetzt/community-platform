@@ -14,7 +14,6 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
@@ -23,8 +22,8 @@ import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import { type LandingPageLocales } from "../index.server";
-import { login, type LoginLocales } from "./index.server";
+import { login } from "./index.server";
+import { createLoginSchema } from "./index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -39,25 +38,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales = languageModuleMap[language]["login/index"];
 
   return { locales, currentTimestamp: Date.now() };
-};
-
-export const createLoginSchema = (
-  locales: LoginLocales | LandingPageLocales["route"]
-) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    loginRedirect: z.string().optional(),
-  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

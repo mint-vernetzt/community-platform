@@ -5,8 +5,8 @@ import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { createAdminAuthClient, sendResetPasswordLink } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { createRequestPasswordChangeSchema } from ".";
 import { prismaClient } from "~/prisma.server";
+import { createRequestPasswordChangeSchema } from "./index.shared";
 
 export type ResetPasswordLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES

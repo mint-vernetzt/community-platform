@@ -24,7 +24,6 @@ import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { createLoginSchema } from "./login";
 import { login } from "./login/index.server";
 import {
   getEventCount,
@@ -36,6 +35,7 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { createLoginSchema } from "./login/index.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
