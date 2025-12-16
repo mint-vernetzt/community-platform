@@ -20,41 +20,18 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  createFacebookSchema,
-  createInstagramSchema,
-  createLinkedinSchema,
-  createMastodonSchema,
-  createTiktokSchema,
-  createTwitterSchema,
-  createWebsiteSchema,
-  createXingSchema,
-  createYoutubeSchema,
-} from "~/lib/utils/schemas";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import {
   getProjectWebSocial,
   updateProjectWebSocial,
-  type ProjectWebAndSocialLocales,
 } from "./web-social.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const createWebSocialSchema = (locales: ProjectWebAndSocialLocales) =>
-  z.object({
-    website: createWebsiteSchema(locales),
-    facebook: createFacebookSchema(locales),
-    linkedin: createLinkedinSchema(locales),
-    xing: createXingSchema(locales),
-    twitter: createTwitterSchema(locales),
-    mastodon: createMastodonSchema(locales),
-    tiktok: createTiktokSchema(locales),
-    instagram: createInstagramSchema(locales),
-    youtube: createYoutubeSchema(locales),
-  });
+import { createWebSocialSchema } from "./web-social.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -66,7 +43,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const project = await getProjectWebSocial({ slug, locales });
 
-  const currentTimestamp = new Date().getTime();
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return { project, currentTimestamp, locales };
 };
@@ -152,6 +134,7 @@ function WebSocial() {
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,

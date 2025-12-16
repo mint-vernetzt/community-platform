@@ -43,6 +43,7 @@ import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 import { createAreaOptions } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { BIO_MAX_LENGTH, createGeneralSchema } from "./general.shared";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -146,7 +147,12 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const currentTimestamp = Date.now();
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return {
     organization: filteredOrganization,
@@ -365,6 +371,7 @@ function General() {
     id: `general-form-${
       actionData?.currentTimestamp || loaderData.currentTimestamp
     }`,
+    // id: "test",
     constraint: getZodConstraint(createGeneralSchema(locales, organization)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -389,6 +396,7 @@ function General() {
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,
+    lastTimeStamp: loaderData.currentTimestamp,
   });
 
   const [supportedBy, setSupportedBy] = useState<string>("");

@@ -1,75 +1,38 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
+import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { captureException } from "@sentry/node";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
   useLocation,
   useNavigation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
-import { captureException } from "@sentry/node";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  checkboxSchema,
-  createFacebookSchema,
-  createInstagramSchema,
-  createLinkedinSchema,
-  createMastodonSchema,
-  createTiktokSchema,
-  createTwitterSchema,
-  createWebsiteSchema,
-  createXingSchema,
-  createYoutubeSchema,
-} from "~/lib/utils/schemas";
-import { detectLanguage } from "~/i18n.server";
-import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { redirectWithToast } from "~/toast.server";
 import {
   getOrganizationWebSocial,
-  type OrganizationWebAndSocialLocales,
   updateOrganizationWebSocial,
 } from "./web-social.server";
-import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { languageModuleMap } from "~/locales/.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const createWebSocialSchema = (locales: OrganizationWebAndSocialLocales) =>
-  z.object({
-    website: createWebsiteSchema(locales),
-    facebook: createFacebookSchema(locales),
-    linkedin: createLinkedinSchema(locales),
-    xing: createXingSchema(locales),
-    twitter: createTwitterSchema(locales),
-    mastodon: createMastodonSchema(locales),
-    tiktok: createTiktokSchema(locales),
-    instagram: createInstagramSchema(locales),
-    youtube: createYoutubeSchema(locales),
-    visibilities: z.object({
-      website: checkboxSchema,
-      facebook: checkboxSchema,
-      linkedin: checkboxSchema,
-      xing: checkboxSchema,
-      twitter: checkboxSchema,
-      mastodon: checkboxSchema,
-      tiktok: checkboxSchema,
-      instagram: checkboxSchema,
-      youtube: checkboxSchema,
-    }),
-  });
+import { createWebSocialSchema } from "./web-social.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -81,7 +44,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationWebSocial({ slug, locales });
 
-  const currentTimestamp = new Date().getTime();
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return { organization, currentTimestamp, locales };
 };
@@ -171,6 +139,7 @@ function WebSocial() {
   const visibilities = fields.visibilities.getFieldset();
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,

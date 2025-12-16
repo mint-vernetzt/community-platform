@@ -7,12 +7,10 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
   type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  redirect,
-} from "react-router";
-import {
   Form,
   Link,
+  type LoaderFunctionArgs,
+  redirect,
   useActionData,
   useFetcher,
   useLoaderData,
@@ -23,16 +21,18 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { QuestionMark } from "~/components-next/icons/QuestionMark";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Modal } from "~/components-next/Modal";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import {
   searchNetworkMembersSchema,
   searchNetworksSchema,
 } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import {
   decideBetweenSingularOrPlural,
@@ -42,6 +42,7 @@ import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   Deep,
+  LastTimeStamp,
   SearchNetworkMembers,
   SearchNetworks,
   SearchOrganizations,
@@ -51,26 +52,16 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode, createHashFromObject } from "~/utils.server";
+import { deriveMode } from "~/utils.server";
 import {
-  updateNetworkMemberInvite,
   getOrganizationWithNetworksAndNetworkMembers,
-  updateJoinNetworkRequest,
   leaveNetwork,
   removeNetworkMember,
+  updateJoinNetworkRequest,
+  updateNetworkMemberInvite,
   updateOrganization,
 } from "./manage.server";
-import { QuestionMark } from "~/components-next/icons/QuestionMark";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-export const manageSchema = z.object({
-  organizationTypes: z.array(z.string().trim().uuid()),
-  networkTypes: z.array(z.string().trim().uuid()),
-});
-
-export const updateNetworkSchema = z.object({
-  organizationId: z.string().trim().uuid(),
-});
+import { manageSchema } from "./manage.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -152,9 +143,12 @@ export async function loader(args: LoaderFunctionArgs) {
     mode,
   });
 
-  const currentTimestamp = Date.now();
-
-  const currentHash = createHashFromObject(organization);
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return {
     organization,
@@ -165,7 +159,6 @@ export async function loader(args: LoaderFunctionArgs) {
     searchedNetworkMembers,
     searchNetworkMembersSubmission,
     currentTimestamp,
-    currentHash,
     locales,
   };
 }
@@ -404,7 +397,7 @@ function Manage() {
   };
 
   const [manageForm, manageFields] = useForm({
-    id: `manage-form-${actionData?.currentTimestamp || loaderData.currentHash}`,
+    id: `manage-form-${actionData?.currentTimestamp || loaderData.currentTimestamp}`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -538,6 +531,7 @@ function Manage() {
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: manageForm,
     locales,

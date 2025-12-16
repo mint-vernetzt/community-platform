@@ -42,6 +42,7 @@ import {
 } from "./general.shared";
 import { getCoordinatesFromAddress } from "~/utils.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -114,7 +115,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  const currentTimestamp = Date.now();
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return { project, allFormats, areaOptions, currentTimestamp, locales };
 };
@@ -338,6 +344,7 @@ function General() {
   const areaFieldList = fields.areas.getFieldList();
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,

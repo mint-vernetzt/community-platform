@@ -24,34 +24,30 @@ import {
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { Deep } from "~/lib/utils/searchParams";
+import { Deep, LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { type ChangeOrganizationUrlLocales } from "./change-url.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-function createSchema(locales: ChangeOrganizationUrlLocales) {
-  return z.object({
-    slug: z
-      .string()
-      .min(3, locales.route.validation.slug.min)
-      .max(50, locales.route.validation.slug.max)
-      .regex(/^[-a-z0-9-]+$/i, locales.route.validation.slug.regex),
-  });
-}
+import { createSchema } from "./change-url.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params, request } = args;
   const slug = getParamValueOrThrow(params, "slug");
-  const currentTimestamp = new Date().getTime();
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language][
       "organization/$slug/settings/danger-zone/change-url"
     ];
+
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return {
     slug,
@@ -164,6 +160,7 @@ function ChangeURL() {
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,

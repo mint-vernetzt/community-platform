@@ -5,6 +5,7 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { useState } from "react";
 import {
   Form,
   redirect,
@@ -18,309 +19,34 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { createYoutubeEmbedSchema } from "~/lib/utils/schemas";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { sanitizeUserHtml } from "~/utils.server";
-import { type ProjectDetailsSettingsLocales } from "./details.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const TARGET_GROUP_ADDITIONS_MAX_LENGTH = 200;
-const EXCERPT_MAX_LENGTH = 250;
-const IDEA_MAX_LENGTH = 2000;
-const GOALS_MAX_LENGTH = 2000;
-const IMPLEMENTATION_MAX_LENGTH = 2000;
-const FURTHER_DESCRIPTION_MAX_LENGTH = 8000;
-const TARGETING_MAX_LENGTH = 800;
-const HINTS_MAX_LENGTH = 800;
-const VIDEO_SUBLINE_MAX_LENGTH = 80;
-
-const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
-  z.object({
-    disciplines: z.array(z.string().trim().uuid()),
-    additionalDisciplines: z.array(z.string().trim().uuid()),
-    furtherDisciplines: z.array(z.string().trim()),
-    participantLimit: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    projectTargetGroups: z.array(z.string().trim().uuid()),
-    specialTargetGroups: z.array(z.string().trim().uuid()),
-    targetGroupAdditions: z
-      .string()
-      .trim()
-      .max(
-        TARGET_GROUP_ADDITIONS_MAX_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.targetGroupAdditions.max,
-          { max: TARGET_GROUP_ADDITIONS_MAX_LENGTH }
-        )
-      )
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    excerpt: z
-      .string()
-      .trim()
-      .max(
-        EXCERPT_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.excerpt.max, {
-          max: EXCERPT_MAX_LENGTH,
-        })
-      )
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    idea: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            IDEA_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.idea.message,
-            { max: IDEA_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    ideaRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    goals: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            GOALS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.goals.message,
-            { max: GOALS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    goalsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    implementation: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            IMPLEMENTATION_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.implementation.message,
-            { max: IMPLEMENTATION_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    implementationRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherDescription: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            FURTHER_DESCRIPTION_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.furtherDescription.message,
-            { max: FURTHER_DESCRIPTION_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherDescriptionRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    targeting: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            TARGETING_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.targeting.message,
-            { max: TARGETING_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    targetingRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    hints: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            HINTS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.hints.message,
-            { max: HINTS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    hintsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    video: createYoutubeEmbedSchema(locales),
-    videoSubline: z
-      .string()
-      .trim()
-      .max(
-        VIDEO_SUBLINE_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.videoSubline.max, {
-          max: VIDEO_SUBLINE_MAX_LENGTH,
-        })
-      )
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-  });
+import {
+  createDetailSchema,
+  EXCERPT_MAX_LENGTH,
+  FURTHER_DESCRIPTION_MAX_LENGTH,
+  GOALS_MAX_LENGTH,
+  HINTS_MAX_LENGTH,
+  IDEA_MAX_LENGTH,
+  IMPLEMENTATION_MAX_LENGTH,
+  TARGET_GROUP_ADDITIONS_MAX_LENGTH,
+  TARGETING_MAX_LENGTH,
+  VIDEO_SUBLINE_MAX_LENGTH,
+} from "./details.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -439,7 +165,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  const currentTimestamp = Date.now();
+  let currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  if (lastTimeStampParam !== null) {
+    currentTimestamp = parseInt(lastTimeStampParam);
+  }
 
   return {
     project,
@@ -717,6 +448,7 @@ function Details() {
   const specialTargetGroupFieldList = fields.specialTargetGroups.getFieldList();
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,
