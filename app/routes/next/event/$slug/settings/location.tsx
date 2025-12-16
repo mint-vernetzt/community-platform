@@ -270,50 +270,53 @@ export default function Location() {
     <div className="p-4 lg:p-6">
       <BasicStructure.Container
         deflatedUntil="lg"
-        gaps={{ base: "gap-4", md: "gap-4", xl: "gap-6" }}
+        gaps={{ base: "gap-8", md: "gap-8", xl: "gap-10" }}
+        rounded="rounded-lg"
       >
-        <TitleSection>
-          <TitleSection.Headline>
-            {locales.route.stageSelection.headline}
-          </TitleSection.Headline>
-        </TitleSection>
         <div className="w-full flex flex-col gap-4">
-          <RadioButtonSettings
-            to={`?${extendSearchParams(searchParams, {
-              addOrReplace: { stage: Stages.OnSite },
-            }).toString()}`}
-            active={stage === Stages.OnSite}
-            onClick={(event) => {
-              event.preventDefault();
-              setStage(Stages.OnSite);
-            }}
-          >
-            {locales.stages["on-site"].title}
-          </RadioButtonSettings>
-          <RadioButtonSettings
-            to={`?${extendSearchParams(searchParams, {
-              addOrReplace: { stage: Stages.Online },
-            }).toString()}`}
-            active={stage === Stages.Online}
-            onClick={(event) => {
-              event.preventDefault();
-              setStage(Stages.Online);
-            }}
-          >
-            {locales.stages.online.title}
-          </RadioButtonSettings>
-          <RadioButtonSettings
-            to={`?${extendSearchParams(searchParams, {
-              addOrReplace: { stage: Stages.Hybrid },
-            }).toString()}`}
-            active={stage === Stages.Hybrid}
-            onClick={(event) => {
-              event.preventDefault();
-              setStage(Stages.Hybrid);
-            }}
-          >
-            {locales.stages.hybrid.title}
-          </RadioButtonSettings>
+          <TitleSection>
+            <TitleSection.Headline>
+              {locales.route.stageSelection.headline}
+            </TitleSection.Headline>
+          </TitleSection>
+          <div className="w-full flex flex-col gap-4">
+            <RadioButtonSettings
+              to={`?${extendSearchParams(searchParams, {
+                addOrReplace: { stage: Stages.OnSite },
+              }).toString()}`}
+              active={stage === Stages.OnSite}
+              onClick={(event) => {
+                event.preventDefault();
+                setStage(Stages.OnSite);
+              }}
+            >
+              {locales.stages["on-site"].title}
+            </RadioButtonSettings>
+            <RadioButtonSettings
+              to={`?${extendSearchParams(searchParams, {
+                addOrReplace: { stage: Stages.Online },
+              }).toString()}`}
+              active={stage === Stages.Online}
+              onClick={(event) => {
+                event.preventDefault();
+                setStage(Stages.Online);
+              }}
+            >
+              {locales.stages.online.title}
+            </RadioButtonSettings>
+            <RadioButtonSettings
+              to={`?${extendSearchParams(searchParams, {
+                addOrReplace: { stage: Stages.Hybrid },
+              }).toString()}`}
+              active={stage === Stages.Hybrid}
+              onClick={(event) => {
+                event.preventDefault();
+                setStage(Stages.Hybrid);
+              }}
+            >
+              {locales.stages.hybrid.title}
+            </RadioButtonSettings>
+          </div>
         </div>
         {stage !== null && (
           <Form
