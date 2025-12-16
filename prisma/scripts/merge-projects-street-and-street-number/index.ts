@@ -12,14 +12,14 @@ async function main() {
       await prismaClient.project.update({
         where: { id: project.id },
         data: {
-          street: `${project.street} ${project.streetNumber}${project.streetNumberAddition !== null ? ` ${project.streetNumberAddition}` : ""}`,
+          street: `${project.street} ${project.streetNumber}`,
           streetNumber: null,
         },
       });
     }
   }
 
-  console.log(`Updated ${updatedCount} organizations.`);
+  console.log(`Updated ${updatedCount} projects.`);
 }
 
 main()
