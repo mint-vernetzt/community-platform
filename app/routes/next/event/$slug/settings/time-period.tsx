@@ -213,82 +213,84 @@ export default function TimePeriod() {
       autoComplete="off"
     >
       {event.parentEvent !== null ? (
-        <div
-          className={classNames(
-            "w-full flex flex-col gap-4 bg-primary-50",
-            event.childEvents.data.length > 0 ? "px-4 pt-4" : "p-4"
-          )}
-        >
-          <p className="text-neutral-700 text-base font-normal leading-5">
-            {locales.route.eventLists.parentEvent.hint}
-          </p>
-          <List id="parent-event-list" locales={locales.route.eventLists}>
-            <ListItemEvent
-              key={event.id}
-              index={0}
-              to={`/event/${event.parentEvent.slug}/detail/about`}
-            >
-              <ListItemEvent.Info
-                {...event.parentEvent}
-                stage={event.parentEvent.stage}
-                participantCount={event.parentEvent._count.participants}
-                locales={{
-                  stages: locales.stages,
-                  ...locales.route.eventLists,
-                }}
-                language={language}
-              ></ListItemEvent.Info>
-              <ListItemEvent.Headline>
-                {event.parentEvent.name}
-              </ListItemEvent.Headline>
-            </ListItemEvent>
-          </List>
-        </div>
-      ) : null}
-      {event.childEvents.data.length > 0 ? (
-        <div className="w-full flex flex-col gap-4 p-4 bg-primary-50">
-          <p className="text-neutral-700 text-base font-normal leading-5">
-            {decideBetweenSingularOrPlural(
-              locales.route.eventLists.childEvents.hint_singular,
-              locales.route.eventLists.childEvents.hint_plural,
-              event.childEvents.data.length
-            )}
-          </p>
-          <List
-            id="child-events-list"
-            hideAfter={1}
-            locales={locales.route.eventLists}
-          >
-            {event.childEvents.data.map((childEvent, index) => {
-              return (
-                <ListItemEvent
-                  key={childEvent.id}
-                  index={index}
-                  to={`/event/${childEvent.slug}/detail/about`}
+        <div className="w-full lg:p-6">
+          <div className="w-full flex flex-col gap-4 p-4 lg:p-6 bg-primary-50 lg:rounded-lg">
+            {event.parentEvent !== null ? (
+              <>
+                <p className="text-neutral-700 text-base font-normal leading-5">
+                  {locales.route.eventLists.parentEvent.hint}
+                </p>
+                <List id="parent-event-list" locales={locales.route.eventLists}>
+                  <ListItemEvent
+                    key={event.id}
+                    index={0}
+                    to={`/event/${event.parentEvent.slug}/detail/about`}
+                  >
+                    <ListItemEvent.Info
+                      {...event.parentEvent}
+                      stage={event.parentEvent.stage}
+                      participantCount={event.parentEvent._count.participants}
+                      locales={{
+                        stages: locales.stages,
+                        ...locales.route.eventLists,
+                      }}
+                      language={language}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.parentEvent.name}
+                    </ListItemEvent.Headline>
+                  </ListItemEvent>
+                </List>
+              </>
+            ) : null}
+            {event.childEvents.data.length > 0 ? (
+              <>
+                <p className="text-neutral-700 text-base font-normal leading-5">
+                  {decideBetweenSingularOrPlural(
+                    locales.route.eventLists.childEvents.hint_singular,
+                    locales.route.eventLists.childEvents.hint_plural,
+                    event.childEvents.data.length
+                  )}
+                </p>
+                <List
+                  id="child-events-list"
+                  hideAfter={1}
+                  locales={locales.route.eventLists}
                 >
-                  <ListItemEvent.Info
-                    {...childEvent}
-                    stage={childEvent.stage}
-                    participantCount={childEvent._count.participants}
-                    locales={{
-                      stages: locales.stages,
-                      ...locales.route.eventLists,
-                    }}
-                    language={language}
-                  ></ListItemEvent.Info>
-                  <ListItemEvent.Headline>
-                    {childEvent.name}
-                  </ListItemEvent.Headline>
-                </ListItemEvent>
-              );
-            })}
-          </List>
+                  {event.childEvents.data.map((childEvent, index) => {
+                    return (
+                      <ListItemEvent
+                        key={childEvent.id}
+                        index={index}
+                        to={`/event/${childEvent.slug}/detail/about`}
+                      >
+                        <ListItemEvent.Info
+                          {...childEvent}
+                          stage={childEvent.stage}
+                          participantCount={childEvent._count.participants}
+                          locales={{
+                            stages: locales.stages,
+                            ...locales.route.eventLists,
+                          }}
+                          language={language}
+                        ></ListItemEvent.Info>
+                        <ListItemEvent.Headline>
+                          {childEvent.name}
+                        </ListItemEvent.Headline>
+                      </ListItemEvent>
+                    );
+                  })}
+                </List>
+              </>
+            ) : null}
+          </div>
         </div>
       ) : null}
       <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
         <BasicStructure.Container
           deflatedUntil="lg"
           gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          rounded="rounded-lg"
         >
           <TitleSection>
             <TitleSection.Headline>
@@ -326,6 +328,7 @@ export default function TimePeriod() {
         <BasicStructure.Container
           deflatedUntil="lg"
           gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          rounded="rounded-lg"
         >
           <TitleSection>
             <TitleSection.Headline>

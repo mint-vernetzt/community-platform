@@ -19,33 +19,39 @@ function BasicStructure(props: { children: React.ReactNode }) {
 // TODO: No mobile and tablet size defined for the first Container in source
 // TODO: No tablet and desktop size defined for the second Container in source
 // TODO: Another different container in following usage: https://www.figma.com/design/9aKvb1kUWVYaLDi4xjRaSB/Event-Settings?node-id=67-11724&m=dev
-// Therefore added deflatedUntil and gaps prop
+// Therefore added deflatedUntil, gaps and rounded prop
 function Container(props: {
   children: React.ReactNode;
   deflatedUntil?: "md" | "lg" | "xl";
   gaps?: {
     base: "gap-8" | "gap-4";
-    md: "gap-6" | "gap-4";
-    xl: "gap-6" | "gap-4";
+    md: "gap-8" | "gap-6" | "gap-4";
+    xl: "gap-10" | "gap-6" | "gap-4";
   };
+  rounded?: "rounded-2xl" | "rounded-lg";
 }) {
   const {
     children,
     deflatedUntil = "md",
     gaps = { base: "gap-8", md: "gap-6", xl: "gap-6" },
+    rounded = "rounded-2xl",
   } = props;
 
   const classes = classNames(
-    "w-full flex flex-col bg-white ring-neutral-200 rounded-2xl",
+    "w-full flex flex-col bg-white ring-neutral-200",
     deflatedUntil === "md" ? "md:p-6 md:ring" : "",
     deflatedUntil === "lg" ? "lg:p-6 lg:ring" : "",
     deflatedUntil === "xl" ? "xl:p-6 xl:ring" : "",
+    rounded === "rounded-2xl" ? "rounded-2xl" : "",
+    rounded === "rounded-lg" ? "rounded-lg" : "",
     gaps.base === "gap-4" ? "gap-4" : "",
     gaps.base === "gap-8" ? "gap-8" : "",
     gaps.md === "gap-4" ? "md:gap-4" : "",
     gaps.md === "gap-6" ? "md:gap-6" : "",
+    gaps.md === "gap-8" ? "md:gap-8" : "",
     gaps.xl === "gap-4" ? "xl:gap-4" : "",
-    gaps.xl === "gap-6" ? "xl:gap-6" : ""
+    gaps.xl === "gap-6" ? "xl:gap-6" : "",
+    gaps.xl === "gap-10" ? "xl:gap-10" : ""
   );
 
   return <div className={classes}>{children}</div>;
