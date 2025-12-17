@@ -52,7 +52,7 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   getOrganizationWithNetworksAndNetworkMembers,
   leaveNetwork,
@@ -143,12 +143,9 @@ export async function loader(args: LoaderFunctionArgs) {
     mode,
   });
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     organization,

@@ -40,7 +40,10 @@ import {
   NAME_MIN_LENGTH,
   SUBLINE_MAX_LENGTH,
 } from "./general.shared";
-import { getCoordinatesFromAddress } from "~/utils.server";
+import {
+  getCoordinatesFromAddress,
+  getFormPersistenceTimestamp,
+} from "~/utils.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { LastTimeStamp } from "~/lib/utils/searchParams";
 
@@ -115,12 +118,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return { project, allFormats, areaOptions, currentTimestamp, locales };
 };

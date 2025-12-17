@@ -36,6 +36,7 @@ import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { createLoginSchema } from "./login/index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -57,13 +58,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     profileCount,
     organizationCount,
     eventCount,
     projectCount,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

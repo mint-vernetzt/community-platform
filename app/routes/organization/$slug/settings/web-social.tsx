@@ -33,6 +33,7 @@ import {
   updateOrganizationWebSocial,
 } from "./web-social.server";
 import { createWebSocialSchema } from "./web-social.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -44,12 +45,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationWebSocial({ slug, locales });
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return { organization, currentTimestamp, locales };
 };

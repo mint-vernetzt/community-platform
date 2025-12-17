@@ -43,6 +43,7 @@ import {
   createTimePeriodSchema,
   getTimePeriodDefaultValue,
 } from "./time-period.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -57,7 +58,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, language, event, currentTimeStamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, language, event, currentTimestamp };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -129,7 +132,7 @@ export const action = async (args: ActionFunctionArgs) => {
 };
 
 export default function TimePeriod() {
-  const { locales, language, event, currentTimeStamp } =
+  const { locales, language, event, currentTimestamp } =
     useLoaderData<typeof loader>();
   const actionData = useActionData();
   const [searchParams] = useSearchParams();
@@ -155,7 +158,7 @@ export default function TimePeriod() {
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
   const [form, fields] = useForm({
-    id: `time-period-form-${currentTimeStamp}`,
+    id: `time-period-form-${currentTimestamp}`,
     constraint: getZodConstraint(
       createTimePeriodSchema({
         locales: locales.route.form.validation,

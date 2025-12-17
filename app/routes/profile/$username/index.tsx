@@ -64,6 +64,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export function links() {
   return [
@@ -313,6 +314,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ),
   };
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     mode,
     data: profileWithoutEvents,
@@ -326,7 +329,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     language,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

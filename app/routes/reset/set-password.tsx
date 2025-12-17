@@ -27,6 +27,7 @@ import {
 } from "../../auth.server";
 import { setNewPassword } from "./set-password.server";
 import { createSetPasswordSchema } from "./set-password.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -41,7 +42,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {

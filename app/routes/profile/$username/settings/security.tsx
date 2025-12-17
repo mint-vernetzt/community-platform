@@ -36,6 +36,7 @@ import {
   getProfileByUsername,
 } from "./security.server";
 import { changeEmailSchema, changePasswordSchema } from "./security.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -60,7 +61,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const provider = sessionUser.app_metadata.provider || "email";
 
-  return { provider, locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { provider, locales, currentTimestamp };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {

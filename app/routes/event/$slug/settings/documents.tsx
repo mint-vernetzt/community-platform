@@ -51,6 +51,7 @@ import {
   disconnectAttachmentSchema,
   DOCUMENT_DESCRIPTION_MAX_LENGTH,
 } from "./documents.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -72,10 +73,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(slug);
   invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     event: event,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

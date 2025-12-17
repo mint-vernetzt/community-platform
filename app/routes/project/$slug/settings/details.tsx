@@ -30,7 +30,7 @@ import { LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { sanitizeUserHtml } from "~/utils.server";
+import { getFormPersistenceTimestamp, sanitizeUserHtml } from "~/utils.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
@@ -165,12 +165,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   );
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     project,

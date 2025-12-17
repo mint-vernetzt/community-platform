@@ -28,7 +28,7 @@ import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { searchProfiles } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   addTeamMemberToProject,
   getProjectWithTeamMembers,
@@ -67,13 +67,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     project,
     // pendingTeamMemberInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

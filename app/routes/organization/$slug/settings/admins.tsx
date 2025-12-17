@@ -29,7 +29,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchProfiles } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   cancelOrganizationAdminInvitation,
   getOrganizationWithAdmins,
@@ -69,13 +69,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organization,
     pendingAdminInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

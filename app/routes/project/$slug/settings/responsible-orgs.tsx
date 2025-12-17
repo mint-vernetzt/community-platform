@@ -28,7 +28,7 @@ import { Deep, SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   addResponsibleOrganizationToProject,
   getOwnOrganizationSuggestions,
@@ -74,6 +74,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     project,
     ownOrganizationSuggestions,
@@ -81,7 +83,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchedOrganizations,
     submission,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

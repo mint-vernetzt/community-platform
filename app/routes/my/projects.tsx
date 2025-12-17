@@ -33,6 +33,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { redirectWithToast } from "~/toast.server";
 import { getProjects, quitProject } from "./projects.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -49,7 +50,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const projects = await getProjects({ profileId: sessionUser.id, authClient });
 
-  const currentTimestamp = Date.now();
+  const currentTimestamp = getFormPersistenceTimestamp();
 
   return { projects, locales, currentTimestamp };
 }

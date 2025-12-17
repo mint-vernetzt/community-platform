@@ -1,19 +1,33 @@
+import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { Link as MVLink } from "@mint-vernetzt/components/src/molecules/Link";
+import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
+import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
+import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
+import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import type { Organization, Profile } from "@prisma/client";
+import { captureException } from "@sentry/node";
 import { utcToZonedTime } from "date-fns-tz";
 import Cookies from "js-cookie";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
+import { useEffect, useState } from "react";
+import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  Form,
-  redirect,
-  useActionData,
-  useLoaderData,
-  useLocation,
-} from "react-router";
+import { Form, redirect, useLoaderData, useLocation } from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
+import { Icon } from "~/components-next/icons/Icon";
+import { Modal } from "~/components-next/Modal";
+import { TeaserCard } from "~/components-next/TeaserCard";
+import ImageCropper, {
+  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
+} from "~/components/legacy/ImageCropper/ImageCropper";
+import { DashboardSearch } from "~/components/legacy/Search/DashboardSearch";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
 import {
   DefaultImages,
@@ -21,34 +35,6 @@ import {
   MaxImageSizes,
   MinCropSizes,
 } from "~/images.shared";
-import {
-  detectLanguage,
-  getEntitiesBySearchQuery,
-  getTagsBySearchQuery,
-} from "~/root.server";
-import { getPublicURL, parseMultipartFormData } from "~/storage.server";
-import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { Image } from "@mint-vernetzt/components/src/molecules/Image";
-import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
-import { OrganizationCard } from "@mint-vernetzt/components/src/organisms/cards/OrganizationCard";
-import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
-import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import { captureException } from "@sentry/node";
-import classNames from "classnames";
-import rcSliderStyles from "rc-slider/assets/index.css?url";
-import { useEffect, useState } from "react";
-import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
-import { Icon } from "~/components-next/icons/Icon";
-import { Modal } from "~/components-next/Modal";
-import { TeaserCard, type TeaserIconType } from "~/components-next/TeaserCard";
-import ImageCropper, {
-  IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
-} from "~/components/legacy/ImageCropper/ImageCropper";
-import Search from "~/components/legacy/Search/Search";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { DEFAULT_LANGUAGE } from "~/i18n.shared";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   decideBetweenSingularOrPlural,
@@ -56,10 +42,16 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { type AtLeastOne } from "~/lib/utils/types";
 import { languageModuleMap } from "~/locales/.server";
+import {
+  detectLanguage,
+  getEntitiesBySearchQuery,
+  getTagsBySearchQuery,
+} from "~/root.server";
+import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
   getEventsForCards,
@@ -72,8 +64,12 @@ import {
   getProfilesForCards,
   getProjectsForCards,
   getUpcomingCanceledEvents,
-  type DashboardLocales,
 } from "./dashboard.server";
+import {
+  getDataForNewsTeasers,
+  getDataForUpdateTeasers,
+} from "./dashboard.shared";
+import { viewCookie, viewCookieSchema } from "./explore/organizations.server";
 import { getFeatureAbilities } from "./feature-access.server";
 import { disconnectImage, uploadImage } from "./profile/$username/index.server";
 import {
@@ -82,7 +78,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { viewCookie, viewCookieSchema } from "./explore/organizations.server";
 
 export function links() {
   return [
@@ -603,6 +598,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     communityCounter,
     profiles,
@@ -619,64 +616,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
     abilities,
     profile,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
     tags,
     entities: enhancedEntities,
     preferredExploreOrganizationsView,
   };
 };
-
-function getDataForUpdateTeasers() {
-  type UpdateTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["updateTeasers"]["entries"];
-  type UpdateTeaser = {
-    [key in UpdateTeaserKey]: {
-      link: string;
-      icon: TeaserIconType;
-      external: boolean;
-    };
-  };
-  const teaserData: AtLeastOne<UpdateTeaser> = {
-    resources: {
-      link: "/resources",
-      icon: "box-seam",
-      external: false,
-    },
-    mapView: {
-      link: "/explore/organizations/map",
-      icon: "globe",
-      external: false,
-    },
-  };
-  return teaserData;
-}
-
-function getDataForNewsTeasers() {
-  type NewsTeaserKey = keyof Awaited<
-    ReturnType<typeof useLoaderData<typeof loader>>
-  >["locales"]["route"]["content"]["newsTeaser"]["entries"];
-  type NewsTeaser = {
-    [key in NewsTeaserKey]: {
-      link: string;
-      icon: TeaserIconType;
-      external: boolean;
-    };
-  };
-  const teaserData: AtLeastOne<NewsTeaser> = {
-    tableMedia: {
-      link: "https://table.media/aktion/mint-vernetzt?utm_source=samail&utm_medium=email&utm_campaign=rt_mintvernetzt_koop_email_job&utm_content=lp_1",
-      icon: "lightning-charge",
-      external: true,
-    },
-    annualConference: {
-      link: "/event/mintvernetztjahrestagung2025-lxa5gke3/detail/about",
-      icon: "megaphone",
-      external: false,
-    },
-  };
-  return teaserData;
-}
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
@@ -750,10 +695,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -761,125 +703,8 @@ export const action = async (args: ActionFunctionArgs) => {
   return redirectWithToast(redirectUrl, toast);
 };
 
-function DashboardSearchPlaceholderRotation(props: {
-  locales: DashboardLocales["route"]["content"]["search"]["placeholder"]["rotation"];
-}) {
-  const [count, setCount] = useState(0);
-  const defaultClasses = "text-neutral-700 flex flex-col gap-3 line-clamp-1";
-
-  useEffect(() => {
-    const interval = setInterval(
-      () => {
-        if (count >= props.locales.length + 1) {
-          setCount(0);
-        } else {
-          setCount((prevCount) => prevCount + 1);
-        }
-      },
-      count === 0 ? 2000 : 3000
-    );
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [count, props.locales.length]);
-
-  const [classes, setClasses] = useState(defaultClasses);
-
-  useEffect(() => {
-    const newClasses = classNames(
-      defaultClasses,
-      count === 0 && "mt-0",
-      count === 1 && "mt-[-2.25rem]",
-      count === 2 && "mt-[-4.5rem]",
-      count === 3 && "mt-[-6.75rem]",
-      count === 4 && "mt-[-9rem]",
-      count === 5 && "mt-[-11.25rem]",
-      count <= 5 && count > 0 && "transition-margin duration-1000"
-    );
-    setClasses(newClasses);
-
-    let timeout = null;
-    if (count >= props.locales.length) {
-      timeout = setTimeout(() => {
-        setClasses(defaultClasses);
-        setCount(0);
-      }, 1000);
-    }
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [count, defaultClasses, props.locales.length]);
-
-  return (
-    <div className={classes}>
-      {props.locales.map((item, index) => {
-        return <div key={index}>{item}</div>;
-      })}
-      <div key={props.locales.length}>{props.locales[0]}</div>
-    </div>
-  );
-}
-
-function DashboardSearch(props: {
-  locales: DashboardLocales["route"]["content"]["search"];
-}) {
-  return (
-    <div className="hidden @md:block px-8 mt-12 w-full z-10">
-      <div className="w-full flex flex-col gap-4 p-6 bg-white rounded-2xl shadow-[4px_5px_26px_-8px_rgba(177,111,171,0.95)]">
-        <h2 className="text-2xl font-bold text-primary-500 mb-0">
-          {props.locales.headline}
-        </h2>
-        <Form method="get" action="/explore/all">
-          <Search
-            inputProps={{
-              id: "search-bar",
-              name: "search",
-              placeholder:
-                typeof props.locales === "undefined"
-                  ? DEFAULT_LANGUAGE === "de"
-                    ? "Suche..."
-                    : "Search..."
-                  : props.locales.placeholder.default,
-            }}
-            locales={props.locales}
-          >
-            <label className="">
-              {typeof props.locales === "undefined" ? (
-                DEFAULT_LANGUAGE === "de" ? (
-                  "Suche..."
-                ) : (
-                  "Search..."
-                )
-              ) : (
-                <>
-                  <div className="xl:hidden mt-3 text-neutral-700 font-normal">
-                    {props.locales.placeholder.default}
-                  </div>
-                  <div className="hidden xl:flex gap-1 mt-[0.75rem]">
-                    <div className="text-neutral-700 font-normal">
-                      {props.locales.placeholder.xl}
-                    </div>
-                    <DashboardSearchPlaceholderRotation
-                      locales={props.locales.placeholder.rotation}
-                    />
-                  </div>
-                </>
-              )}
-            </label>
-          </Search>
-        </Form>
-      </div>
-    </div>
-  );
-}
-
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
   const location = useLocation();
   const isSubmitting = useIsSubmitting();
 
@@ -1820,11 +1645,7 @@ function Dashboard() {
             maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
             modalSearchParam="modal-logo"
             locales={loaderData.imageCropperLocales}
-            currentTimestamp={
-              typeof actionData !== "undefined"
-                ? actionData.currentTimestamp
-                : loaderData.currentTimestamp
-            }
+            currentTimestamp={loaderData.currentTimestamp}
           >
             <Avatar
               firstName={loaderData.profile.firstName}

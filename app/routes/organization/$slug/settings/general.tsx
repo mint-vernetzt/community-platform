@@ -36,6 +36,7 @@ import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organizati
 import { redirectWithToast } from "~/toast.server";
 import {
   getCoordinatesFromAddress,
+  getFormPersistenceTimestamp,
   sanitizeUserHtml,
   triggerEntityScore,
 } from "~/utils.server";
@@ -147,12 +148,9 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     organization: filteredOrganization,

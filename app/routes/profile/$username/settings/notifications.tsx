@@ -25,6 +25,7 @@ import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { deriveProfileMode } from "../utils.server";
 import { schema } from "./notifications.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -57,10 +58,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     updates: false,
   };
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     profile: { ...profile, notificationSettings },
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

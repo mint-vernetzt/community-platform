@@ -58,6 +58,7 @@ import {
 } from "./detail.server";
 import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export function links() {
   return [
@@ -284,6 +285,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     blurredLogo,
   };
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     project: enhancedProject,
     mode,
@@ -292,7 +295,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

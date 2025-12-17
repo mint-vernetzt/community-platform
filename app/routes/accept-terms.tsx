@@ -27,6 +27,7 @@ import { acceptTerms } from "./accept-terms.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { Checkbox } from "~/components-next/Checkbox";
 import { acceptTermsSchema } from "./accept-terms.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -45,7 +46,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       }
       const language = await detectLanguage(request);
       const locales = languageModuleMap[language]["accept-terms"];
-      return { profile, locales, currentTimestamp: Date.now() };
+      const currentTimestamp = getFormPersistenceTimestamp();
+      return { profile, locales, currentTimestamp };
     }
   }
   return redirect("/");

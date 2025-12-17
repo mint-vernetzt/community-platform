@@ -68,6 +68,7 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -159,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests
   );
 
-  const currentTimestamp = Date.now();
+  const currentTimestamp = getFormPersistenceTimestamp();
 
   return {
     searchedOrganizations: enhancedSearchedOrganizations,

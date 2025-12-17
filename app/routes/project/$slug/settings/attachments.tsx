@@ -63,6 +63,7 @@ import {
   IMAGE_CREDITS_MAX_LENGTH,
   IMAGE_DESCRIPTION_MAX_LENGTH,
 } from "./attachments.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -160,7 +161,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     images,
   };
 
-  return { project: enhancedProject, locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { project: enhancedProject, locales, currentTimestamp };
 };
 
 export const action = async (args: ActionFunctionArgs) => {

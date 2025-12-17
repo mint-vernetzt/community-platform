@@ -1193,8 +1193,8 @@ function EditBackgroundModal(props: {
     title: string;
     alt: string;
   } & ImageCropperLocales;
+  currentTimestamp: number;
 }) {
-  const timestamp = useRef(Date.now());
   const location = useLocation();
 
   let modalName = "modal-edit-background";
@@ -1220,7 +1220,7 @@ function EditBackgroundModal(props: {
           maxTargetHeight={MaxImageSizes.EventBackground.height}
           modalSearchParam="modal-background"
           locales={props.locales}
-          currentTimestamp={timestamp.current}
+          currentTimestamp={props.currentTimestamp}
           redirectTo={location.pathname}
         >
           <div className="w-full rounded-md overflow-hidden aspect-[3/2]">

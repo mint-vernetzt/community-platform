@@ -29,6 +29,7 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { deleteOrganizationBySlug } from "./delete.server";
 import { createSchema } from "./delete.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -51,10 +52,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organization,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

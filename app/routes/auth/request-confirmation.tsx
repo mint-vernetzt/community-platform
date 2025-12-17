@@ -23,6 +23,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestConfirmation } from "./request-confirmation.server";
 import { createRequestConfirmationSchema } from "./request-confirmation.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -36,7 +37,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/request-confirmation"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -57,7 +60,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 

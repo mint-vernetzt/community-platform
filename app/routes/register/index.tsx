@@ -31,6 +31,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { register } from "./index.server";
 import { createRegisterSchema } from "./index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -43,7 +44,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["register/index"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async (args: ActionFunctionArgs) => {

@@ -61,6 +61,7 @@ import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export function links() {
   return [
@@ -341,6 +342,8 @@ export async function loader(args: LoaderFunctionArgs) {
     "next_event_settings"
   );
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     event: enhancedEvent,
     locales,
@@ -356,6 +359,7 @@ export async function loader(args: LoaderFunctionArgs) {
     hasUserReportedEvent,
     abuseReportReasons,
     abilities,
+    currentTimestamp,
   };
 }
 
@@ -638,6 +642,7 @@ function Detail() {
                   { eventName: loaderData.event.name }
                 ),
               }}
+              currentTimestamp={loaderData.currentTimestamp}
             />
           </>
         )}

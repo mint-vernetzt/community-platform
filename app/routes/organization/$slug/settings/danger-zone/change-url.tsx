@@ -31,6 +31,7 @@ import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organizati
 import { redirectWithToast } from "~/toast.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { createSchema } from "./change-url.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params, request } = args;
@@ -42,12 +43,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "organization/$slug/settings/danger-zone/change-url"
     ];
 
-  let currentTimestamp = Date.now();
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  if (lastTimeStampParam !== null) {
-    currentTimestamp = parseInt(lastTimeStampParam);
-  }
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     slug,

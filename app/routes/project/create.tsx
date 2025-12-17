@@ -24,7 +24,11 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { deriveMode, generateProjectSlug } from "~/utils.server";
+import {
+  deriveMode,
+  generateProjectSlug,
+  getFormPersistenceTimestamp,
+} from "~/utils.server";
 import {
   createSchema,
   NAME_MAX_LENGTH,
@@ -53,7 +57,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/create"];
 
-  const currentTimestamp = Date.now();
+  const currentTimestamp = getFormPersistenceTimestamp();
 
   return { currentTimestamp, locales };
 };

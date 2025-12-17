@@ -56,6 +56,7 @@ import {
   getPendingRequestsToOrganizations,
 } from "./create.server";
 import { createOrganizationSchema } from "./create.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -121,6 +122,8 @@ export async function loader(args: LoaderFunctionArgs) {
     })
   );
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organizations: flattenedOrganizations,
     pendingRequestsToOrganizations,
@@ -129,7 +132,7 @@ export async function loader(args: LoaderFunctionArgs) {
     allOrganizationTypes,
     allNetworkTypes,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 }
 
