@@ -16,7 +16,6 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { FileInput, type SelectedFile } from "~/components-next/FileInput";
 import { MaterialList } from "~/components-next/MaterialList";
@@ -33,7 +32,6 @@ import {
   BUCKET_FIELD_NAME,
   BUCKET_NAME_DOCUMENTS,
   DOCUMENT_MIME_TYPES,
-  documentSchema,
   FILE_FIELD_NAME,
   MAX_UPLOAD_FILE_SIZE,
   UPLOAD_INTENT_VALUE,
@@ -44,50 +42,16 @@ import {
   editDocument,
   getEventBySlug,
   uploadFile,
-  type EventDocumentsSettingsLocales,
 } from "./documents.server";
 import { publishSchema } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
-
-export const createDocumentUploadSchema = (
-  locales: EventDocumentsSettingsLocales
-) => z.object({ ...documentSchema(locales) });
-
-const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
-
-export const createEditDocumentSchema = (
-  locales: EventDocumentsSettingsLocales
-) =>
-  z.object({
-    id: z.string().trim().uuid(),
-    title: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) =>
-        typeof value === "undefined" || value === "" ? null : value
-      ),
-    description: z
-      .string()
-      .trim()
-      .max(
-        DOCUMENT_DESCRIPTION_MAX_LENGTH,
-        insertParametersIntoLocale(
-          locales.route.validation.document.description.max,
-          {
-            max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
-          }
-        )
-      )
-      .optional()
-      .transform((value) =>
-        typeof value === "undefined" || value === "" ? null : value
-      ),
-  });
-
-export const disconnectAttachmentSchema = z.object({
-  id: z.string().trim().uuid(),
-});
+import {
+  createDocumentUploadSchema,
+  createEditDocumentSchema,
+  disconnectAttachmentSchema,
+  DOCUMENT_DESCRIPTION_MAX_LENGTH,
+} from "./documents.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -109,10 +73,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(slug);
   invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     event: event,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -182,10 +148,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -207,9 +170,7 @@ function Documents() {
     SelectedFile[]
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
-    id: `upload-document-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `upload-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createDocumentUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -218,7 +179,7 @@ function Documents() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -233,13 +194,11 @@ function Documents() {
 
   // Edit document form
   const [editDocumentForm, editDocumentFields] = useForm({
-    id: `edit-document-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `edit-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createEditDocumentSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -253,10 +212,11 @@ function Documents() {
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_disconnectDocumentForm, disconnectDocumentFields] = useForm({
+    id: `disconnect-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {

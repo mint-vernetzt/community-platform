@@ -13,19 +13,17 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import {
-  requestConfirmation,
-  type RequestConfirmationLocales,
-} from "./request-confirmation.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { requestConfirmation } from "./request-confirmation.server";
+import { createRequestConfirmationSchema } from "./request-confirmation.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -39,21 +37,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/request-confirmation"];
 
-  return { locales, currentTimestamp: Date.now() };
-};
+  const currentTimestamp = getFormPersistenceTimestamp();
 
-export const createRequestConfirmationSchema = (
-  locales: RequestConfirmationLocales
-) => {
-  return z.object({
-    type: z.enum(["signup", "email_change", "recovery"]),
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .email(locales.validation.email),
-    loginRedirect: z.string().optional(),
-  });
+  return { locales, currentTimestamp };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -74,7 +60,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -90,9 +75,7 @@ export default function RequestConfirmation() {
   const type = urlSearchParams.get("type");
 
   const [requestConfirmationForm, requestConfirmationFields] = useForm({
-    id: `request-confirmation-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `request-confirmation-${currentTimestamp}`,
     constraint: getZodConstraint(createRequestConfirmationSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

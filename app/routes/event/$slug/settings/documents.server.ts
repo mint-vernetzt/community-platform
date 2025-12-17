@@ -8,7 +8,7 @@ import {
   createDocumentUploadSchema,
   createEditDocumentSchema,
   disconnectAttachmentSchema,
-} from "./documents";
+} from "./documents.shared";
 import { uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 import { z } from "zod";

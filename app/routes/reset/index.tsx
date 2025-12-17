@@ -13,33 +13,17 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import {
-  requestPasswordChange,
-  type ResetPasswordLocales,
-} from "./index.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-export const createRequestPasswordChangeSchema = (
-  locales: ResetPasswordLocales
-) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
-    loginRedirect: z.string().optional(),
-  });
-};
+import { requestPasswordChange } from "./index.server";
+import { createRequestPasswordChangeSchema } from "./index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -53,7 +37,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/index"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -76,7 +62,6 @@ export const action = async (args: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -91,9 +76,7 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
 
   const [requestPasswordChangeForm, requestPasswordChangeFields] = useForm({
-    id: `request-password-change-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `request-password-change-${currentTimestamp}`,
     constraint: getZodConstraint(createRequestPasswordChangeSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

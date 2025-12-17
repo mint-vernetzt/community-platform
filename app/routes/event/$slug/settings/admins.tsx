@@ -34,11 +34,6 @@ import {
 import { type action as removeAdminAction } from "./admins/remove-admin";
 import { publishSchema } from "./events/publish";
 
-const i18nNS = ["routes-event-settings-admins"] as const;
-export const handle = {
-  i18n: i18nNS,
-};
-
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
 

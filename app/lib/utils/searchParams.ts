@@ -5,6 +5,7 @@ export const SearchNetworks = "search-networks-query";
 export const SearchNetworkMembers = "search-network-members-query";
 export const Deep = "deep";
 export const UnsavedChangesModal = "modal-unsaved-changes";
+export const LastTimeStamp = "last-timestamp";
 
 export function extendSearchParams(
   params: URLSearchParams,

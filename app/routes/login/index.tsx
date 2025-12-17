@@ -14,7 +14,6 @@ import {
   useSearchParams,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { z } from "zod";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
@@ -23,8 +22,9 @@ import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
-import { type LandingPageLocales } from "../index.server";
-import { login, type LoginLocales } from "./index.server";
+import { login } from "./index.server";
+import { createLoginSchema } from "./index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -38,26 +38,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["login/index"];
 
-  return { locales, currentTimestamp: Date.now() };
-};
+  const currentTimestamp = getFormPersistenceTimestamp();
 
-export const createLoginSchema = (
-  locales: LoginLocales | LandingPageLocales["route"]
-) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    loginRedirect: z.string().optional(),
-  });
+  return { locales, currentTimestamp };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -75,10 +58,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   if (typeof submission.value.loginRedirect !== "undefined") {
@@ -104,22 +84,22 @@ export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [loginForm, loginFields] = useForm({
-    id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `login-${currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales)),
     defaultValue: {
       email:
-        typeof actionData?.submission?.initialValue?.email === "string"
-          ? actionData?.submission?.initialValue?.email
+        typeof actionData?.initialValue?.email === "string"
+          ? actionData?.initialValue?.email
           : "",
       password:
-        typeof actionData?.submission?.initialValue?.password === "string"
-          ? actionData?.submission?.initialValue?.password
+        typeof actionData?.initialValue?.password === "string"
+          ? actionData?.initialValue?.password
           : "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: createLoginSchema(locales),

@@ -18,329 +18,34 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { sanitizeUserHtml } from "~/utils.server";
-import { type ProjectRequirementsSettingsLocales } from "./requirements.server";
+import { getFormPersistenceTimestamp, sanitizeUserHtml } from "~/utils.server";
 import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-const TIMEFRAME_MAX_LENGTH = 200;
-const JOB_FILLINGS_MAX_LENGTH = 800;
-const FURTHER_JOB_FILLINGS_MAX_LENGTH = 200;
-const YEARLY_BUDGET_MAX_LENGTH = 80;
-const FURTHER_FINANCINGS_MAX_LENGTH = 800;
-const TECHNICAL_REQUIREMENTS_MAX_LENGTH = 500;
-const FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH = 500;
-const ROOM_SITUATION_MAX_LENGTH = 200;
-const FURTHER_ROOM_SITUATION_MAX_LENGTH = 200;
-
-const createRequirementsSchema = (
-  locales: ProjectRequirementsSettingsLocales
-) =>
-  z.object({
-    timeframe: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            TIMEFRAME_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.timeframe.length,
-            { max: TIMEFRAME_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    timeframeRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    jobFillings: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            JOB_FILLINGS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.jobFillings.length,
-            { max: JOB_FILLINGS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    jobFillingsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherJobFillings: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            FURTHER_JOB_FILLINGS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.furtherJobFillings.length,
-            { max: FURTHER_JOB_FILLINGS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherJobFillingsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    yearlyBudget: z
-      .string()
-      .trim()
-      .max(
-        YEARLY_BUDGET_MAX_LENGTH,
-        insertParametersIntoLocale(locales.route.validation.yearlyBudget.max, {
-          max: YEARLY_BUDGET_MAX_LENGTH,
-        })
-      )
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    financings: z.array(z.string().trim().uuid()),
-    furtherFinancings: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            FURTHER_FINANCINGS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.furtherFinancings.length,
-            { max: FURTHER_FINANCINGS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherFinancingsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    technicalRequirements: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            TECHNICAL_REQUIREMENTS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.technicalRequirements.length,
-            { max: TECHNICAL_REQUIREMENTS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    technicalRequirementsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherTechnicalRequirements: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.furtherTechnicalRequirements.length,
-            { max: FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherTechnicalRequirementsRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    roomSituation: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            ROOM_SITUATION_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.roomSituation.length,
-            { max: ROOM_SITUATION_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    roomSituationRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherRoomSituation: z
-      .string()
-      .trim()
-      .optional()
-      .refine(
-        (value) => {
-          return (
-            replaceHtmlEntities(removeHtmlTags(value || ""), "x").length <=
-            FURTHER_ROOM_SITUATION_MAX_LENGTH
-          );
-        },
-        {
-          message: insertParametersIntoLocale(
-            locales.route.validation.furtherRoomSituation.length,
-            { max: FURTHER_ROOM_SITUATION_MAX_LENGTH }
-          ),
-        }
-      )
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-    furtherRoomSituationRTEState: z
-      .string()
-      .trim()
-      .optional()
-      .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
-          return null;
-        }
-        return value;
-      }),
-  });
+import {
+  createRequirementsSchema,
+  FURTHER_FINANCINGS_MAX_LENGTH,
+  FURTHER_JOB_FILLINGS_MAX_LENGTH,
+  FURTHER_ROOM_SITUATION_MAX_LENGTH,
+  FURTHER_TECHNICAL_REQUIREMENTS_MAX_LENGTH,
+  JOB_FILLINGS_MAX_LENGTH,
+  ROOM_SITUATION_MAX_LENGTH,
+  TECHNICAL_REQUIREMENTS_MAX_LENGTH,
+  TIMEFRAME_MAX_LENGTH,
+  YEARLY_BUDGET_MAX_LENGTH,
+} from "./requirements.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -394,7 +99,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  const currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return { project, allFinancings, currentTimestamp, locales };
 };
@@ -442,9 +149,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const submission = await parseWithZod(formData, {
       schema: createRequirementsSchema(locales),
     });
-    return {
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
   const submission = await parseWithZod(formData, {
     schema: () =>
@@ -513,10 +218,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   return redirectWithToast(request.url, {
@@ -543,14 +245,12 @@ function Requirements() {
   };
 
   const [form, fields] = useForm({
-    id: `requirements-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `requirements-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(createRequirementsSchema(locales)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -563,6 +263,7 @@ function Requirements() {
   const financingList = fields.financings.getFieldList();
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,

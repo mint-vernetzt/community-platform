@@ -16,7 +16,7 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
-import { changeEmailSchema, changePasswordSchema } from "./security";
+import { changeEmailSchema, changePasswordSchema } from "./security.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export type ProfileSecurityLocales = (typeof languageModuleMap)[ArrayElement<

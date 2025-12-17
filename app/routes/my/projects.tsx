@@ -1,37 +1,39 @@
+import { getFormProps, useForm } from "@conform-to/react";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
+import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { useEffect, useState } from "react";
 import {
   type ActionFunctionArgs,
   Form,
+  Link,
   type LoaderFunctionArgs,
   redirect,
   useActionData,
+  useLoaderData,
   useNavigation,
+  useSearchParams,
 } from "react-router";
-import { Link, useLoaderData, useSearchParams } from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
 } from "~/auth.server";
 import { Add } from "~/components-next/icons/Add";
+import { Modal } from "~/components-next/Modal";
+import { Section } from "~/components-next/MyEventsProjectsSection";
 import { Container } from "~/components-next/MyProjectsCreateOrganizationContainer";
 import { Placeholder } from "~/components-next/Placeholder";
-import { Section } from "~/components-next/MyEventsProjectsSection";
 import { TabBarTitle } from "~/components-next/TabBarTitle";
-import { getProjects, quitProject } from "./projects.server";
-import { languageModuleMap } from "~/locales/.server";
-import { detectLanguage } from "~/i18n.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { redirectWithToast } from "~/toast.server";
-import { z } from "zod";
-import { getFormProps, useForm } from "@conform-to/react";
-import { Modal } from "~/components-next/Modal";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { useEffect, useState } from "react";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { OverlayMenu } from "~/components/next/OverlayMenu";
+import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
+import { getProjects, quitProject } from "./projects.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -48,14 +50,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const projects = await getProjects({ profileId: sessionUser.id, authClient });
 
-  const currentTimestamp = Date.now();
+  const currentTimestamp = getFormPersistenceTimestamp();
 
   return { projects, locales, currentTimestamp };
 }
-
-export const quitProjectSchema = z.object({
-  projectId: z.string(),
-});
 
 export const action = async (args: ActionFunctionArgs) => {
   const { request } = args;
@@ -130,7 +128,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(redirectUrl, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 };
 
 function MyProjects() {
@@ -175,7 +173,7 @@ function MyProjects() {
   });
 
   const [quitProjectForm] = useForm({
-    id: `quit-organization-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `quit-organization-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

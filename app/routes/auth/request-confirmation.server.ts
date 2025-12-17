@@ -5,7 +5,7 @@ import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { createRequestConfirmationSchema } from "./request-confirmation";
+import { createRequestConfirmationSchema } from "./request-confirmation.shared";
 
 export type RequestConfirmationLocales =
   (typeof languageModuleMap)[ArrayElement<

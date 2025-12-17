@@ -60,6 +60,7 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export function links() {
   return [
@@ -253,6 +254,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
     allowedToClaimOrganization = organization.shadow === true;
   }
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organization: enhancedOrganization,
     mode,
@@ -261,7 +264,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
     preferredExploreOrganizationsView,
     alreadyRequestedToClaim,
     allowedToClaimOrganization,

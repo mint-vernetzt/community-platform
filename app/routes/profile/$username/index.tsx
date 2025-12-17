@@ -13,14 +13,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
-import {
-  Form,
-  Link,
-  redirect,
-  useActionData,
-  useLoaderData,
-  useNavigate,
-} from "react-router";
+import { Form, Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
 import { Mastodon } from "~/components-next/icons/Mastodon";
@@ -34,10 +27,10 @@ import ImageCropper, {
 import OrganizationCard from "~/components/legacy/OrganizationCard/OrganizationCard";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import type { ExternalService } from "~/components/legacy/types";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { ImageAspects, MaxImageSizes, MinCropSizes } from "~/images.shared";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import {
   canUserBeAddedToWaitingList,
   canUserParticipate,
@@ -71,6 +64,7 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export function links() {
   return [
@@ -320,6 +314,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ),
   };
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     mode,
     data: profileWithoutEvents,
@@ -333,7 +329,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     language,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -405,10 +401,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -457,7 +450,6 @@ function hasWebsiteOrSocialService(
 export default function Index() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
-  const actionData = useActionData<typeof action>();
 
   const initials = getInitials(loaderData.data);
   const fullName = getFullName(loaderData.data);
@@ -578,10 +570,7 @@ export default function Index() {
                     maxTargetHeight={MaxImageSizes.Background.height}
                     modalSearchParam="modal-background"
                     locales={locales}
-                    currentTimestamp={
-                      actionData?.currentTimestamp ||
-                      loaderData.currentTimestamp
-                    }
+                    currentTimestamp={loaderData.currentTimestamp}
                   >
                     <Background />
                   </ImageCropper>
@@ -636,10 +625,7 @@ export default function Index() {
                           maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                           modalSearchParam="modal-avatar"
                           locales={locales}
-                          currentTimestamp={
-                            actionData?.currentTimestamp ||
-                            loaderData.currentTimestamp
-                          }
+                          currentTimestamp={loaderData.currentTimestamp}
                         >
                           <Avatar />
                         </ImageCropper>

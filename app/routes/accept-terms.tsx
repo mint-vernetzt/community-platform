@@ -21,17 +21,13 @@ import {
 } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
-import { checkboxSchema } from "~/lib/utils/schemas";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { Checkbox } from "~/components-next/Checkbox";
-
-export const acceptTermsSchema = z.object({
-  termsAccepted: checkboxSchema,
-  redirectTo: z.string().optional(),
-});
+import { acceptTermsSchema } from "./accept-terms.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -50,7 +46,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       }
       const language = await detectLanguage(request);
       const locales = languageModuleMap[language]["accept-terms"];
-      return { profile, locales, currentTimestamp: Date.now() };
+      const currentTimestamp = getFormPersistenceTimestamp();
+      return { profile, locales, currentTimestamp };
     }
   }
   return redirect("/");
@@ -71,10 +68,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   if (typeof submission.value.redirectTo !== "undefined") {
     return redirect(submission.value.redirectTo);
@@ -93,14 +87,14 @@ export default function AcceptTerms() {
   const redirectTo = urlSearchParams.get("redirect_to");
 
   const [acceptTermsForm, acceptTermsFields] = useForm({
-    id: `accept-terms-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `accept-terms-${currentTimestamp}`,
     constraint: getZodConstraint(acceptTermsSchema),
     defaultValue: {
       redirectTo: redirectTo,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: acceptTermsSchema.transform((data, ctx) => {

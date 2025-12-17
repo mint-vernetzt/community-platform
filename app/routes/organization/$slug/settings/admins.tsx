@@ -29,7 +29,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchProfiles } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   cancelOrganizationAdminInvitation,
   getOrganizationWithAdmins,
@@ -69,13 +69,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organization,
     pendingAdminInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -150,7 +152,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 };
 
 function Admins() {
@@ -177,7 +179,7 @@ function Admins() {
       ? searchFetcher.data.searchedProfiles
       : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
-    id: "search-profiles",
+    id: `search-profiles-${currentTimestamp}`,
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
@@ -194,19 +196,17 @@ function Admins() {
 
   // Only button forms, dont need special validation logic
   const [inviteAdminForm] = useForm({
-    id: `invite-admins-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `invite-admins-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelAdminInviteForm] = useForm({
-    id: `cancel-admin-invites-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `cancel-admin-invites-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeAdminForm] = useForm({
-    id: `remove-admins-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `remove-admins-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

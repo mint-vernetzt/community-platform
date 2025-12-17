@@ -24,7 +24,6 @@ import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
-import { createLoginSchema } from "./login";
 import { login } from "./login/index.server";
 import {
   getEventCount,
@@ -36,6 +35,8 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
 import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { createLoginSchema } from "./login/index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -57,13 +58,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     profileCount,
     organizationCount,
     eventCount,
     projectCount,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -82,10 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   if (typeof submission.value.loginRedirect !== "undefined") {
@@ -110,22 +110,22 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, loginFields] = useForm({
-    id: `login-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `login-${currentTimestamp}`,
     constraint: getZodConstraint(createLoginSchema(locales.route)),
     defaultValue: {
       email:
-        typeof actionData?.submission?.initialValue?.email === "string"
-          ? actionData?.submission?.initialValue?.email
+        typeof actionData?.initialValue?.email === "string"
+          ? actionData?.initialValue?.email
           : "",
       password:
-        typeof actionData?.submission?.initialValue?.password === "string"
-          ? actionData?.submission?.initialValue?.password
+        typeof actionData?.initialValue?.password === "string"
+          ? actionData?.initialValue?.password
           : "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: createLoginSchema(locales.route),

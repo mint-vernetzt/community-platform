@@ -1,74 +1,33 @@
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { useForm } from "react-hook-form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
   useNavigate,
-  redirect,
 } from "react-router";
-import { format } from "date-fns-tz";
-import { useForm } from "react-hook-form";
-import type { InferType } from "yup";
-import { object, string } from "yup";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
 import Input from "~/components/legacy/FormElements/Input/Input";
+import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
+import type { FormError } from "~/lib/utils/yup";
+import { getFormValues, validateForm } from "~/lib/utils/yup";
+import { languageModuleMap } from "~/locales/.server";
 import {
   checkFeatureAbilitiesOrThrow,
   getFeatureAbilities,
 } from "~/routes/feature-access.server";
-import type { FormError } from "~/lib/utils/yup";
-import {
-  getFormValues,
-  greaterThanDate,
-  greaterThanTimeOnSameDate,
-  nullOrString,
-  validateForm,
-} from "~/lib/utils/yup";
 import { generateEventSlug } from "~/utils.server";
 import { validateTimePeriods } from "./$slug/settings/utils.server";
-import { type CreateEventLocales, getEventById } from "./create.server";
+import { getEventById } from "./create.server";
 import { createEventOnProfile, transformFormToEvent } from "./utils.server";
-import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-
-const createSchema = (locales: CreateEventLocales) => {
-  return object({
-    name: string().trim().required(locales.validation.name.required),
-    startDate: string()
-      .trim()
-      .transform((value) => {
-        const date = new Date(value);
-        return format(date, "yyyy-MM-dd");
-      })
-      .required(locales.validation.startDate.required),
-    startTime: string().trim().required(locales.validation.startTime.required),
-    endDate: greaterThanDate(
-      "endDate",
-      "startDate",
-      locales.validation.endDate.required,
-      locales.validation.endDate.greaterThan
-    ),
-    endTime: greaterThanTimeOnSameDate(
-      "endTime",
-      "startTime",
-      "startDate",
-      "endDate",
-      locales.validation.endTime.required,
-      locales.validation.endTime.greaterThan
-    ),
-    child: nullOrString(string().trim()),
-    parent: nullOrString(string().trim()),
-  });
-};
-
-type SchemaType = ReturnType<typeof createSchema>;
-type FormType = InferType<SchemaType>;
+import { createSchema, type FormType, type SchemaType } from "./create.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;

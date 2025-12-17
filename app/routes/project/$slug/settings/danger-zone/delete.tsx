@@ -2,22 +2,22 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import {
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { captureException } from "@sentry/node";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
@@ -26,25 +26,10 @@ import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import {
-  deleteProjectBySlug,
-  type DeleteProjectLocales,
-} from "./delete.server";
-import { captureException } from "@sentry/node";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-function createSchema(locales: DeleteProjectLocales, name: string) {
-  return z.object({
-    name: z
-      .string({
-        required_error: locales.validation.name.required,
-      })
-      .refine((value) => {
-        return value === name;
-      }, locales.validation.name.noMatch),
-  });
-}
+import { deleteProjectBySlug } from "./delete.server";
+import { createSchema } from "./delete.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -65,10 +50,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     project,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -130,10 +117,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      currentTimestamp: Date.now(),
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
 
   return redirectWithAlert(`/dashboard`, {
@@ -152,9 +136,7 @@ function Delete() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-project-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `delete-project-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(
       createSchema(locales, loaderData.project.name)
     ),
@@ -165,7 +147,7 @@ function Delete() {
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
   });
 
   return (

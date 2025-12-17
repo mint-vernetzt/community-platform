@@ -28,7 +28,7 @@ import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { searchProfiles } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
   addTeamMemberToProject,
   getProjectWithTeamMembers,
@@ -67,13 +67,15 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     project,
     // pendingTeamMemberInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -165,7 +167,7 @@ export const action = async (args: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { currentTimestamp: Date.now(), submission: result.submission };
+  return { submission: result.submission };
 };
 
 function Team() {
@@ -190,7 +192,7 @@ function Team() {
       ? searchFetcher.data.searchedProfiles
       : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
-    id: "search-profiles",
+    id: `search-profiles-${currentTimestamp}`,
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
@@ -207,29 +209,23 @@ function Team() {
 
   // TODO: Remove this when project team member invites are implemented
   const [addTeamMemberForm] = useForm({
-    id: `add-team-members-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `add-team-members-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   // TODO: Implement this when project team member invites are implemented
   // const [inviteTeamMemberForm] = useForm({
-  //   id: `invite-team-member-${
-  //     actionData?.currentTimestamp || currentTimestamp
-  //   }`,
+  //   id: `invite-team-member-${currentTimestamp}`,
   //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
   // });
 
   // const [cancelTeamMemberInviteForm] = useForm({
-  //   id: `cancel-team-member-invite-${
-  //     actionData?.currentTimestamp || currentTimestamp
-  //   }`,
+  //   id: `cancel-team-member-invite-${currentTimestamp}`,
   //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
   // });
 
   const [removeTeamMemberForm] = useForm({
-    id: `remove-team-member-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `remove-team-member-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 

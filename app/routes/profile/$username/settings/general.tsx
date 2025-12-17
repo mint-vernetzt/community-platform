@@ -1,44 +1,38 @@
+import { createRef, useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
+  redirect,
   useActionData,
   useLoaderData,
   useNavigation,
   useParams,
-  redirect,
 } from "react-router";
-import { FormProvider, useForm } from "react-hook-form";
-import type { InferType } from "yup";
-import { array, object, string } from "yup";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { TextArea } from "~/components-next/TextArea";
 import InputAdd from "~/components/legacy/FormElements/InputAdd/InputAdd";
 import InputText from "~/components/legacy/FormElements/InputText/InputText";
 import SelectAdd from "~/components/legacy/FormElements/SelectAdd/SelectAdd";
 import SelectField from "~/components/legacy/FormElements/SelectField/SelectField";
-import { TextArea } from "~/components-next/TextArea";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import { detectLanguage } from "~/i18n.server";
 import {
   createAreaOptionFromData,
   objectListOperationResolver,
 } from "~/lib/utils/components";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
 import type { FormError } from "~/lib/utils/yup";
-import {
-  getFormValues,
-  multiline,
-  nullOrString,
-  phone,
-  social,
-  validateForm,
-  website,
-} from "~/lib/utils/yup";
-import { detectLanguage } from "~/i18n.server";
+import { getFormValues, validateForm } from "~/lib/utils/yup";
+import { languageModuleMap } from "~/locales/.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
 import {
@@ -48,73 +42,15 @@ import {
   updateProfileById,
 } from "../utils.server";
 import {
-  type GeneralProfileSettingsLocales,
   getProfileByUsername,
+  makeFormProfileFromDbProfile,
 } from "./general.server";
-import { languageModuleMap } from "~/locales/.server";
-import { RichText } from "~/components/legacy/Richtext/RichText";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
-import { createRef, useEffect } from "react";
-
-const BIO_MAX_LENGTH = 500;
-
-const createProfileSchema = (locales: GeneralProfileSettingsLocales) => {
-  return object({
-    academicTitle: nullOrString(string().trim()),
-    position: nullOrString(string().trim()),
-    firstName: string()
-      .trim()
-      .required(locales.route.validation.firstName.required),
-    lastName: string()
-      .trim()
-      .required(locales.route.validation.lastName.required),
-    email: string().email().trim().required(),
-    email2: nullOrString(string().email().trim()),
-    phone: nullOrString(phone()),
-    bio: nullOrString(multiline(BIO_MAX_LENGTH)),
-    bioRTEState: nullOrString(
-      string()
-        .trim()
-        .transform((value: string | null | undefined) => {
-          if (typeof value === "undefined" || value === "") {
-            return null;
-          }
-          return value;
-        })
-    ),
-    areas: array(string().trim().uuid()).required(),
-    skills: array(string().trim().required()).required(),
-    offers: array(string().trim().uuid()).required(),
-    interests: array(string().trim().required()).required(),
-    seekings: array(string().trim().uuid()).required(),
-    privateFields: array(string().trim().required()).required(),
-    website: nullOrString(website()),
-    facebook: nullOrString(social("facebook")),
-    linkedin: nullOrString(social("linkedin")),
-    twitter: nullOrString(social("twitter")),
-    youtube: nullOrString(social("youtube")),
-    instagram: nullOrString(social("instagram")),
-    xing: nullOrString(social("xing")),
-    mastodon: nullOrString(social("mastodon")),
-    tiktok: nullOrString(social("tiktok")),
-  });
-};
-
-type ProfileSchemaType = ReturnType<typeof createProfileSchema>;
-export type ProfileFormType = InferType<ProfileSchemaType>;
-
-function makeFormProfileFromDbProfile(
-  dbProfile: NonNullable<
-    Awaited<ReturnType<typeof getWholeProfileFromUsername>>
-  >
-) {
-  return {
-    ...dbProfile,
-    areas: dbProfile.areas.map((area) => area.area.id),
-    offers: dbProfile.offers.map((offer) => offer.offer.id),
-    seekings: dbProfile.seekings.map((seeking) => seeking.offer.id),
-  };
-}
+import {
+  BIO_MAX_LENGTH,
+  createProfileSchema,
+  type ProfileFormType,
+  type ProfileSchemaType,
+} from "./general.shared";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);

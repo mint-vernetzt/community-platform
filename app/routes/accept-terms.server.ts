@@ -2,11 +2,11 @@ import { parseWithZod } from "@conform-to/zod";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
-import { acceptTermsSchema } from "./accept-terms";
 import { z } from "zod";
 import { prismaClient } from "~/prisma.server";
 import { type User } from "@supabase/supabase-js";
 import { invariantResponse } from "~/lib/utils/response";
+import { acceptTermsSchema } from "./accept-terms.shared";
 
 type AcceptTermsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES

@@ -29,7 +29,11 @@ import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
-import { getCoordinatesFromAddress, sanitizeUserHtml } from "~/utils.server";
+import {
+  getCoordinatesFromAddress,
+  getFormPersistenceTimestamp,
+  sanitizeUserHtml,
+} from "~/utils.server";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   createEventLocationSchema,
@@ -72,7 +76,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     stage = event.stage.slug;
   }
 
-  return { locales, event: { ...event, stage }, currentTimeStamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, event: { ...event, stage }, currentTimestamp };
 };
 
 export async function action(args: ActionFunctionArgs) {
@@ -248,7 +254,7 @@ export default function Location() {
   );
 
   const [form, fields] = useForm({
-    id: `event-location-form-${loaderData.currentTimeStamp}`,
+    id: `event-location-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(
       createEventLocationSchema(locales.route.validation)
     ),

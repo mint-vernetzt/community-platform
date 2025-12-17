@@ -7,7 +7,7 @@ import {
   useSubmit,
 } from "react-router";
 import { Modal } from "~/components-next/Modal";
-import { extendSearchParams } from "../utils/searchParams";
+import { extendSearchParams, LastTimeStamp } from "../utils/searchParams";
 import { type ChangeOrganizationUrlLocales } from "~/routes/organization/$slug/settings/danger-zone/change-url.server";
 import { type OrganizationWebAndSocialLocales } from "~/routes/organization/$slug/settings/web-social.server";
 import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
@@ -34,8 +34,9 @@ export function useUnsavedChangesBlockerWithModal(options: {
     | GeneralProjectSettingsLocales
     | ProjectDetailsSettingsLocales
     | ProjectRequirementsSettingsLocales;
+  lastTimeStamp: number;
 }) {
-  const { searchParam, formMetadataToCheck, locales } = options;
+  const { searchParam, formMetadataToCheck, locales, lastTimeStamp } = options;
   let forms = formMetadataToCheck;
   if (Array.isArray(forms) === false) {
     forms = [forms];
@@ -60,7 +61,10 @@ export function useUnsavedChangesBlockerWithModal(options: {
     if (isBlocked) {
       setNextLocationPathname(nextLocation.pathname);
       const newSearchParams = extendSearchParams(searchParams, {
-        addOrReplace: { [searchParam]: "true" },
+        addOrReplace: {
+          [searchParam]: "true",
+          [LastTimeStamp]: `${lastTimeStamp}`,
+        },
       });
       submit(newSearchParams, { method: "get" });
     }

@@ -25,23 +25,9 @@ import {
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "../../auth.server";
-import { setNewPassword, type SetPasswordLocales } from "./set-password.server";
-
-export const createSetPasswordSchema = (locales: SetPasswordLocales) => {
-  return z.object({
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    confirmPassword: z
-      .string({
-        message: locales.validation.confirmPassword.required,
-      })
-      .min(8, locales.validation.confirmPassword.min),
-    loginRedirect: z.string().optional(),
-  });
-};
+import { setNewPassword } from "./set-password.server";
+import { createSetPasswordSchema } from "./set-password.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -56,7 +42,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -74,10 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
   return redirect(
     `/login${
@@ -101,14 +86,14 @@ export default function SetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [setPasswordForm, setPasswordFields] = useForm({
-    id: `set-password-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `set-password-${currentTimestamp}`,
     constraint: getZodConstraint(createSetPasswordSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: createSetPasswordSchema(locales).transform((data, ctx) => {

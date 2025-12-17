@@ -36,6 +36,7 @@ import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organizati
 import { redirectWithToast } from "~/toast.server";
 import {
   getCoordinatesFromAddress,
+  getFormPersistenceTimestamp,
   sanitizeUserHtml,
   triggerEntityScore,
 } from "~/utils.server";
@@ -43,6 +44,7 @@ import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 import { createAreaOptions } from "./general.server";
 import { updateFilterVectorOfOrganization } from "./utils.server";
 import { BIO_MAX_LENGTH, createGeneralSchema } from "./general.shared";
+import { LastTimeStamp } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -146,7 +148,9 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const currentTimestamp = Date.now();
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     organization: filteredOrganization,
@@ -198,9 +202,7 @@ export async function action(args: ActionFunctionArgs) {
     const submission = await parseWithZod(formData, {
       schema: createGeneralSchema(locales, organization),
     });
-    return {
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
   let addressError;
   const submission = await parseWithZod(formData, {
@@ -313,10 +315,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      currentTimestamp: Date.now(),
-    };
+    return submission.reply();
   }
 
   if (typeof addressError !== "undefined") {
@@ -362,14 +361,13 @@ function General() {
   };
 
   const [form, fields] = useForm({
-    id: `general-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `general-form-${loaderData.currentTimestamp}`,
+    // id: "test",
     constraint: getZodConstraint(createGeneralSchema(locales, organization)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -389,6 +387,7 @@ function General() {
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
     locales,
+    lastTimeStamp: loaderData.currentTimestamp,
   });
 
   const [supportedBy, setSupportedBy] = useState<string>("");

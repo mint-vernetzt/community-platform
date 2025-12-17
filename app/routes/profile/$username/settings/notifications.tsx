@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
   type ActionFunctionArgs,
   Form,
@@ -10,7 +11,6 @@ import {
   useNavigation,
   useSubmit,
 } from "react-router";
-import { z } from "zod";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -20,16 +20,12 @@ import { Checkbox } from "~/components-next/Checkbox";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { checkboxSchema } from "~/lib/utils/schemas";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { deriveProfileMode } from "../utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-
-const schema = z.object({
-  updates: checkboxSchema,
-});
+import { deriveProfileMode } from "../utils.server";
+import { schema } from "./notifications.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -62,10 +58,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     updates: false,
   };
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     profile: { ...profile, notificationSettings },
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 

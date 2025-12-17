@@ -28,54 +28,10 @@ import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
-import { checkboxSchema } from "~/lib/utils/schemas";
 import { languageModuleMap } from "~/locales/.server";
-import { register, type RegisterLocales } from "./index.server";
-
-export const createRegisterSchema = (locales: RegisterLocales) => {
-  return z.object({
-    academicTitle: z
-      .enum([
-        locales.form.title.options.none,
-        locales.form.title.options.dr,
-        locales.form.title.options.prof,
-        locales.form.title.options.profdr,
-      ])
-      .optional()
-      .transform((value) => {
-        if (
-          typeof value === "undefined" ||
-          value === locales.form.title.options.none
-        ) {
-          return null;
-        }
-        return value;
-      }),
-    firstName: z
-      .string({
-        message: locales.validation.firstName,
-      })
-      .trim(),
-    lastName: z
-      .string({
-        message: locales.validation.lastName,
-      })
-      .trim(),
-    email: z
-      .string({
-        message: locales.validation.email,
-      })
-      .trim()
-      .email(locales.validation.email),
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    termsAccepted: checkboxSchema,
-    loginRedirect: z.string().optional(),
-  });
-};
+import { register } from "./index.server";
+import { createRegisterSchema } from "./index.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -88,7 +44,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["register/index"];
 
-  return { locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { locales, currentTimestamp };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -111,7 +69,6 @@ export const action = async (args: ActionFunctionArgs) => {
     email: submission.status === "success" ? submission.value.email : null,
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -127,7 +84,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [registerForm, registerFields] = useForm({
-    id: `register-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `register-${currentTimestamp}`,
     constraint: getZodConstraint(createRegisterSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

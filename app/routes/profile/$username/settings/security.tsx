@@ -34,42 +34,9 @@ import {
   changeEmail,
   changePassword,
   getProfileByUsername,
-  type ProfileSecurityLocales,
 } from "./security.server";
-
-export const changeEmailSchema = (locales: ProfileSecurityLocales) => {
-  return z.object({
-    email: z
-      .string({
-        message: locales.validation.email.required,
-      })
-      .trim()
-      .min(1, locales.validation.email.min)
-      .email(locales.validation.email.required),
-    confirmEmail: z
-      .string({
-        message: locales.validation.confirmEmail.required,
-      })
-      .trim()
-      .min(1, locales.validation.confirmEmail.min)
-      .email(locales.validation.confirmEmail.required),
-  });
-};
-
-export const changePasswordSchema = (locales: ProfileSecurityLocales) => {
-  return z.object({
-    password: z
-      .string({
-        message: locales.validation.password.required,
-      })
-      .min(8, locales.validation.password.min),
-    confirmPassword: z
-      .string({
-        message: locales.validation.confirmPassword.required,
-      })
-      .min(8, locales.validation.confirmPassword.min),
-  });
-};
+import { changeEmailSchema, changePasswordSchema } from "./security.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -94,7 +61,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const provider = sessionUser.app_metadata.provider || "email";
 
-  return { provider, locales, currentTimestamp: Date.now() };
+  const currentTimestamp = getFormPersistenceTimestamp();
+
+  return { provider, locales, currentTimestamp };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -147,7 +116,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   ) {
     return redirectWithToast(request.url, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 };
 
 export default function Security() {
@@ -161,9 +130,7 @@ export default function Security() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordForm, changePasswordFields] = useForm({
-    id: `change-password-form-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `change-password-form-${currentTimestamp}`,
     constraint: getZodConstraint(changePasswordSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -188,7 +155,7 @@ export default function Security() {
   });
 
   const [changeEmailForm, changeEmailFields] = useForm({
-    id: `change-email-form-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `change-email-form-${currentTimestamp}`,
     constraint: getZodConstraint(changeEmailSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {

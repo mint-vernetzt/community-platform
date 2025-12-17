@@ -68,6 +68,7 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -159,7 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests
   );
 
-  const currentTimestamp = Date.now();
+  const currentTimestamp = getFormPersistenceTimestamp();
 
   return {
     searchedOrganizations: enhancedSearchedOrganizations,
@@ -454,7 +455,6 @@ export const action = async (args: ActionFunctionArgs) => {
       ...result.submission,
       error: result.submission?.error || undefined,
     },
-    currentTimestamp: Date.now(),
   };
 };
 
@@ -504,23 +504,17 @@ export default function MyOrganizations() {
     lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
   const [createOrganizationMemberOrClaimRequestForm] = useForm({
-    id: `create-organization-member-or-claim-request-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `create-organization-member-or-claim-request-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const [cancelOrganizationMemberRequestForm] = useForm({
-    id: `cancel-organization-member-request-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `cancel-organization-member-request-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   // JS for incoming organization member invites section
   const [acceptOrRejectOrganizationMemberInviteForm] = useForm({
-    id: `accept-or-reject-organization-member-invite-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `accept-or-reject-organization-member-invite-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const [
@@ -553,9 +547,7 @@ export default function MyOrganizations() {
 
   // JS for incoming network invites section
   const [acceptOrRejectNetworkInviteForm] = useForm({
-    id: `accept-or-reject-network-invite-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `accept-or-reject-network-invite-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const [activeNetworkInvitesTab, setActiveNetworkInvitesTab] = useState(
@@ -578,9 +570,7 @@ export default function MyOrganizations() {
 
   // JS for incoming organization member requests section
   const [acceptOrRejectOrganizationMemberRequestForm] = useForm({
-    id: `accept-or-reject-organization-member-request-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `accept-or-reject-organization-member-request-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const [
@@ -610,9 +600,7 @@ export default function MyOrganizations() {
 
   // JS for incoming network requests section
   const [acceptOrRejectNetworkRequestForm] = useForm({
-    id: `accept-or-reject-network-request-${
-      actionData?.currentTimestamp || currentTimestamp
-    }`,
+    id: `accept-or-reject-network-request-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   const [activeNetworkRequestsTab, setActiveNetworkRequestsTab] = useState(
@@ -635,7 +623,7 @@ export default function MyOrganizations() {
 
   // JS for own organizations section
   const [quitOrganizationForm] = useForm({
-    id: `quit-organization-${actionData?.currentTimestamp || currentTimestamp}`,
+    id: `quit-organization-${currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)

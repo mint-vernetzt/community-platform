@@ -7,12 +7,10 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
   type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  redirect,
-} from "react-router";
-import {
   Form,
   Link,
+  type LoaderFunctionArgs,
+  redirect,
   useActionData,
   useFetcher,
   useLoaderData,
@@ -23,16 +21,18 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ConformSelect } from "~/components-next/ConformSelect";
+import { QuestionMark } from "~/components-next/icons/QuestionMark";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Modal } from "~/components-next/Modal";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import {
   searchNetworkMembersSchema,
   searchNetworksSchema,
 } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import {
   decideBetweenSingularOrPlural,
@@ -42,6 +42,7 @@ import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   Deep,
+  LastTimeStamp,
   SearchNetworkMembers,
   SearchNetworks,
   SearchOrganizations,
@@ -51,26 +52,16 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchOrganizations } from "~/routes/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { deriveMode, createHashFromObject } from "~/utils.server";
+import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
 import {
-  updateNetworkMemberInvite,
   getOrganizationWithNetworksAndNetworkMembers,
-  updateJoinNetworkRequest,
   leaveNetwork,
   removeNetworkMember,
+  updateJoinNetworkRequest,
+  updateNetworkMemberInvite,
   updateOrganization,
 } from "./manage.server";
-import { QuestionMark } from "~/components-next/icons/QuestionMark";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-export const manageSchema = z.object({
-  organizationTypes: z.array(z.string().trim().uuid()),
-  networkTypes: z.array(z.string().trim().uuid()),
-});
-
-export const updateNetworkSchema = z.object({
-  organizationId: z.string().trim().uuid(),
-});
+import { manageSchema } from "./manage.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -152,9 +143,9 @@ export async function loader(args: LoaderFunctionArgs) {
     mode,
   });
 
-  const currentTimestamp = Date.now();
-
-  const currentHash = createHashFromObject(organization);
+  const url = new URL(request.url);
+  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
+  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
 
   return {
     organization,
@@ -165,7 +156,6 @@ export async function loader(args: LoaderFunctionArgs) {
     searchedNetworkMembers,
     searchNetworkMembersSubmission,
     currentTimestamp,
-    currentHash,
     locales,
   };
 }
@@ -356,7 +346,7 @@ export async function action(args: ActionFunctionArgs) {
     }?${searchParams.toString()}`;
     return redirectWithToast(redirectUrl, result.toast);
   }
-  return { submission: result.submission, currentTimestamp: Date.now() };
+  return { submission: result.submission };
 }
 
 function Manage() {
@@ -404,7 +394,7 @@ function Manage() {
   };
 
   const [manageForm, manageFields] = useForm({
-    id: `manage-form-${actionData?.currentTimestamp || loaderData.currentHash}`,
+    id: `manage-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -441,7 +431,7 @@ function Manage() {
   });
 
   const [searchNetworksForm, searchNetworksFields] = useForm({
-    id: "search-networks",
+    id: `search-networks-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(searchNetworksSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -456,23 +446,17 @@ function Manage() {
   clearNetworkQuerySearchParams.delete(SearchNetworks);
 
   const [requestToJoinNetworkForm] = useForm({
-    id: `request-to-join-network-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `request-to-join-network-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [leaveNetworkForm] = useForm({
-    id: `leave-network-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `leave-network-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelNetworkJoinRequestForm] = useForm({
-    id: `cancel-network-join-request-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `cancel-network-join-request-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -493,23 +477,17 @@ function Manage() {
   clearNetworkMemberQuerySearchParams.delete(SearchNetworks);
 
   const [inviteNetworkMemberForm] = useForm({
-    id: `invite-network-member-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `invite-network-member-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [removeNetworkMemberForm] = useForm({
-    id: `remove-network-member-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `remove-network-member-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
   const [cancelNetworkJoinInviteForm] = useForm({
-    id: `cancel-network-member-invitation-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `cancel-network-member-invitation-${loaderData.currentTimestamp}`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -538,6 +516,7 @@ function Manage() {
   });
 
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
+    lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: manageForm,
     locales,

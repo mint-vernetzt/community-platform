@@ -17,6 +17,7 @@ import { z } from "zod";
 import { redirectWithAlert } from "~/alert.server";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
@@ -26,23 +27,9 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import {
-  deleteOrganizationBySlug,
-  type DeleteOrganizationLocales,
-} from "./delete.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-
-function createSchema(locales: DeleteOrganizationLocales, name: string) {
-  return z.object({
-    name: z
-      .string({
-        required_error: locales.validation.name.required,
-      })
-      .refine((value) => {
-        return value === name;
-      }, locales.validation.name.noMatch),
-  });
-}
+import { deleteOrganizationBySlug } from "./delete.server";
+import { createSchema } from "./delete.shared";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -65,10 +52,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
+  const currentTimestamp = getFormPersistenceTimestamp();
+
   return {
     organization,
     locales,
-    currentTimestamp: Date.now(),
+    currentTimestamp,
   };
 };
 
@@ -134,10 +123,7 @@ export const action = async (args: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return {
-      currentTimestamp: Date.now(),
-      submission: submission.reply(),
-    };
+    return submission.reply();
   }
 
   return redirectWithAlert(`/dashboard`, {
@@ -156,9 +142,7 @@ function Delete() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-organization-form-${
-      actionData?.currentTimestamp || loaderData.currentTimestamp
-    }`,
+    id: `delete-organization-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(
       createSchema(locales, loaderData.organization.name)
     ),
@@ -169,7 +153,7 @@ function Delete() {
       });
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult: navigation.state === "idle" ? actionData : null,
   });
 
   return (
