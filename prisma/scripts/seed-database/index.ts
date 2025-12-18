@@ -206,6 +206,11 @@ async function main(
     "prisma/scripts/create-filter-vectors/index.ts",
   ]);
 
+  await executeCommand("npx", [
+    "tsx",
+    "prisma/scripts/migrate-rte-fields/index.tsx",
+  ]);
+
   console.log("\n--- Seeding finished ---\n");
   console.log("\n--- User list ---\n");
   for (const email of profileEmails) {
