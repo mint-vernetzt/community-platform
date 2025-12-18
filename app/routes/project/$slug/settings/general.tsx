@@ -340,7 +340,7 @@ function General() {
     lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
   });
 
   const [furtherFormat, setFurtherFormat] = useState<string>("");

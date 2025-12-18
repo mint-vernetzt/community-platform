@@ -266,7 +266,7 @@ function Requirements() {
     lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
   });
 
   return (

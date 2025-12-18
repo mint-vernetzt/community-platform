@@ -132,7 +132,7 @@ function WebSocial() {
     lastTimeStamp: currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
   });
 
   return (

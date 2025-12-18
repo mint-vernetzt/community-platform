@@ -441,7 +441,7 @@ function Details() {
     lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
   });
 
   const hasDisciplines = disciplineFieldList.length > 0;

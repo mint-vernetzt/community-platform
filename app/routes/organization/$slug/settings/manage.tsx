@@ -519,7 +519,7 @@ function Manage() {
     lastTimeStamp: loaderData.currentTimestamp,
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: manageForm,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
   });
 
   return (

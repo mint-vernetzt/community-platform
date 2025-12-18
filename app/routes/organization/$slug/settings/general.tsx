@@ -386,7 +386,7 @@ function General() {
   const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
     searchParam: "modal-unsaved-changes",
     formMetadataToCheck: form,
-    locales,
+    locales: locales.components.UnsavedChangesModal,
     lastTimeStamp: loaderData.currentTimestamp,
   });
 
