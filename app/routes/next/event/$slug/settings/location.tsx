@@ -185,6 +185,22 @@ export async function action(args: ActionFunctionArgs) {
         throw new Error("Stage not found");
       }
 
+      const accessibilityInformation = sanitizeUserHtml(
+        data.accessibilityInformation
+      );
+      const trimmedAccessibilityInformation =
+        accessibilityInformation !== null
+          ? accessibilityInformation
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim()
+          : null;
+      const privacyInformation = sanitizeUserHtml(data.privacyInformation);
+      const trimmedPrivacyInformation =
+        privacyInformation !== null
+          ? privacyInformation
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim()
+          : null;
       const event = await client.event.update({
         where: {
           slug: slug,
@@ -193,10 +209,8 @@ export async function action(args: ActionFunctionArgs) {
           ...data,
           venueLongitude,
           venueLatitude,
-          accessibilityInformation: sanitizeUserHtml(
-            data.accessibilityInformation
-          ),
-          privacyInformation: sanitizeUserHtml(data.privacyInformation),
+          accessibilityInformation: trimmedAccessibilityInformation,
+          privacyInformation: trimmedPrivacyInformation,
           stageId: stage.id,
         },
       });

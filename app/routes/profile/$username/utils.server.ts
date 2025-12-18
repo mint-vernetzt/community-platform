@@ -154,6 +154,11 @@ export async function updateProfileById(
       profileVisibility[visibility] = !privateFields.includes(`${visibility}`);
     }
   }
+  const bio = sanitizeUserHtml(profileData.bio);
+  const trimmedBio =
+    bio !== null
+      ? bio.replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "").trim()
+      : null;
   await prismaClient.$transaction([
     prismaClient.profile.update({
       where: {
@@ -161,7 +166,7 @@ export async function updateProfileById(
       },
       data: {
         ...rest,
-        bio: sanitizeUserHtml(profileData.bio),
+        bio: trimmedBio,
         areas: {
           deleteMany: {},
           connectOrCreate: profileData.areas.map((areaId) => ({
@@ -597,7 +602,7 @@ export function splitEventsIntoFutureAndPast<
     | "teamMemberOfEvents"
     | "participatedEvents"
     | "administeredEvents"
-  >
+  >,
 >(events: T) {
   const futureEvents: Pick<
     ProfileQuery,
@@ -666,7 +671,7 @@ export function sortEvents<
     | "teamMemberOfEvents"
     | "participatedEvents"
     | "administeredEvents"
-  >
+  >,
 >(
   events: Pick<
     ProfileQuery,

@@ -255,6 +255,49 @@ export async function action({ request, params }: ActionFunctionArgs) {
           hints,
           ...rest
         } = data;
+        const sanitizedIdea = sanitizeUserHtml(idea);
+        const trimmedIdea =
+          sanitizedIdea !== null
+            ? sanitizedIdea
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedGoals = sanitizeUserHtml(goals);
+        const trimmedGoals =
+          sanitizedGoals !== null
+            ? sanitizedGoals
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedImplementation = sanitizeUserHtml(implementation);
+        const trimmedImplementation =
+          sanitizedImplementation !== null
+            ? sanitizedImplementation
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedFurtherDescription =
+          sanitizeUserHtml(furtherDescription);
+        const trimmedFurtherDescription =
+          sanitizedFurtherDescription !== null
+            ? sanitizedFurtherDescription
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedTargeting = sanitizeUserHtml(targeting);
+        const trimmedTargeting =
+          sanitizedTargeting !== null
+            ? sanitizedTargeting
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedHints = sanitizeUserHtml(hints);
+        const trimmedHints =
+          sanitizedHints !== null
+            ? sanitizedHints
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
 
         try {
           await prismaClient.project.update({
@@ -263,12 +306,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
             },
             data: {
               ...rest,
-              idea: sanitizeUserHtml(idea),
-              goals: sanitizeUserHtml(goals),
-              implementation: sanitizeUserHtml(implementation),
-              furtherDescription: sanitizeUserHtml(furtherDescription),
-              targeting: sanitizeUserHtml(targeting),
-              hints: sanitizeUserHtml(hints),
+              idea: trimmedIdea,
+              goals: trimmedGoals,
+              implementation: trimmedImplementation,
+              furtherDescription: trimmedFurtherDescription,
+              targeting: trimmedTargeting,
+              hints: trimmedHints,
               disciplines: {
                 deleteMany: {},
                 connectOrCreate: disciplines.map((disciplineId: string) => {
