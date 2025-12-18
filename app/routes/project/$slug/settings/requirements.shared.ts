@@ -36,10 +36,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     timeframeRTEState: z
       .string()
@@ -70,10 +76,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     jobFillingsRTEState: z
       .string()
@@ -104,10 +116,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     furtherJobFillingsRTEState: z
       .string()
@@ -155,10 +173,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     furtherFinancingsRTEState: z
       .string()
@@ -189,10 +213,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     technicalRequirementsRTEState: z
       .string()
@@ -223,10 +253,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     furtherTechnicalRequirementsRTEState: z
       .string()
@@ -257,10 +293,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     roomSituationRTEState: z
       .string()
@@ -291,10 +333,16 @@ export const createRequirementsSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     furtherRoomSituationRTEState: z
       .string()

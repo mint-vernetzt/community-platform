@@ -50,6 +50,8 @@ async function main() {
       select: {
         id: true,
         description: true,
+        accessibilityInformation: true,
+        privacyInformation: true,
       },
     }),
   };
@@ -76,7 +78,15 @@ async function main() {
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
-        newProfile[typedRteField] = sanitizeUserHtml(rteFields[typedRteField]);
+        const sanitizedHtml = sanitizeUserHtml(rteFields[typedRteField]);
+        if (sanitizedHtml === null) {
+          newProfile[typedRteField] = null;
+        } else {
+          const trimmedHtml = sanitizedHtml
+            .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+            .trim();
+          newProfile[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+        }
       }
     }
     changes.new.profiles.push(newProfile);
@@ -89,9 +99,16 @@ async function main() {
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
-        newOrganization[typedRteField] = sanitizeUserHtml(
-          rteFields[typedRteField]
-        );
+        const sanitizedHtml = sanitizeUserHtml(rteFields[typedRteField]);
+        if (sanitizedHtml === null) {
+          newOrganization[typedRteField] = null;
+        } else {
+          const trimmedHtml = sanitizedHtml
+            .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+            .trim();
+          newOrganization[typedRteField] =
+            trimmedHtml === "" ? null : trimmedHtml;
+        }
       }
     }
     changes.new.organizations.push(newOrganization);
@@ -104,7 +121,15 @@ async function main() {
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
-        newProject[typedRteField] = sanitizeUserHtml(rteFields[typedRteField]);
+        const sanitizedHtml = sanitizeUserHtml(rteFields[typedRteField]);
+        if (sanitizedHtml === null) {
+          newProject[typedRteField] = null;
+        } else {
+          const trimmedHtml = sanitizedHtml
+            .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+            .trim();
+          newProject[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+        }
       }
     }
     changes.new.projects.push(newProject);
@@ -117,7 +142,15 @@ async function main() {
     for (const rteField in rteFields) {
       const typedRteField = rteField as keyof typeof rteFields;
       if (rteFields[typedRteField] !== null) {
-        newEvent[typedRteField] = sanitizeUserHtml(rteFields[typedRteField]);
+        const sanitizedHtml = sanitizeUserHtml(rteFields[typedRteField]);
+        if (sanitizedHtml === null) {
+          newEvent[typedRteField] = null;
+        } else {
+          const trimmedHtml = sanitizedHtml
+            .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+            .trim();
+          newEvent[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+        }
       }
     }
     changes.new.events.push(newEvent);

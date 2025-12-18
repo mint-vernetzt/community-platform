@@ -208,10 +208,16 @@ export function transformFormToEvent(form: any) {
   );
 
   const description = sanitizeUserHtml(event.description);
+  const trimmedDescription =
+    description !== null
+      ? description
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim()
+      : null;
 
   return {
     ...event,
-    description,
+    description: trimmedDescription,
     startTime,
     endTime,
     participationUntil,
@@ -266,6 +272,13 @@ export async function updateEventById(
   if (error !== null) {
     console.error(error);
   }
+  const description = sanitizeUserHtml(eventData.description);
+  const trimmedDescription =
+    description !== null
+      ? description
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim()
+      : null;
   await prismaClient.$transaction([
     prismaClient.event.update({
       where: { id },
@@ -273,7 +286,7 @@ export async function updateEventById(
         ...eventData,
         venueLongitude: longitude,
         venueLatitude: latitude,
-        description: sanitizeUserHtml(eventData.description),
+        description: trimmedDescription,
         updatedAt: new Date(),
         focuses: {
           deleteMany: {},

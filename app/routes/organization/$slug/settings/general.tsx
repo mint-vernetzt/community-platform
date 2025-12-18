@@ -244,6 +244,13 @@ export async function action(args: ActionFunctionArgs) {
                 "Address not changed but coordinates still not found";
             }
           }
+          const bio = sanitizeUserHtml(data.bio);
+          const trimmedBio =
+            bio !== null
+              ? bio
+                  .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                  .trim()
+              : null;
           try {
             await prismaClient.organization.update({
               where: {
@@ -253,7 +260,7 @@ export async function action(args: ActionFunctionArgs) {
                 ...organizationData,
                 longitude,
                 latitude,
-                bio: sanitizeUserHtml(organizationData.bio),
+                bio: trimmedBio,
                 areas: {
                   deleteMany: {},
                   connectOrCreate: areas.map((areaId: string) => {

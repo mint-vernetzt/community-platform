@@ -10,15 +10,16 @@ type WebAndSocialLocales =
   | ProjectWebAndSocialLocales;
 
 export function transformEmptyToNull(value: string | undefined) {
-  if (
-    typeof value === "undefined" ||
-    value.trim() === "" ||
-    value.trim() === "<p></p>" ||
-    value.trim() === "<p><br></p>"
-  ) {
+  if (typeof value === "undefined") {
     return null;
   }
-  return value;
+  const trimmedRTEValue = value
+    .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+    .trim();
+  if (trimmedRTEValue === "") {
+    return null;
+  }
+  return trimmedRTEValue;
 }
 
 export const checkboxSchema = z

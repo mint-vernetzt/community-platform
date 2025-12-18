@@ -169,6 +169,68 @@ export async function action({ request, params }: ActionFunctionArgs) {
           furtherRoomSituation,
           ...rest
         } = data;
+        const sanitizedTimeFrame = sanitizeUserHtml(timeframe);
+        const trimmedTimeFrame =
+          sanitizedTimeFrame !== null
+            ? sanitizedTimeFrame
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedJobFillings = sanitizeUserHtml(jobFillings);
+        const trimmedJobFillings =
+          sanitizedJobFillings !== null
+            ? sanitizedJobFillings
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedFurtherJobFillings =
+          sanitizeUserHtml(furtherJobFillings);
+        const trimmedFurtherJobFillings =
+          sanitizedFurtherJobFillings !== null
+            ? sanitizedFurtherJobFillings
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedFurtherFinancings = sanitizeUserHtml(furtherFinancings);
+        const trimmedFurtherFinancings =
+          sanitizedFurtherFinancings !== null
+            ? sanitizedFurtherFinancings
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedTechnicalRequirements = sanitizeUserHtml(
+          technicalRequirements
+        );
+        const trimmedTechnicalRequirements =
+          sanitizedTechnicalRequirements !== null
+            ? sanitizedTechnicalRequirements
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedFurtherTechnicalRequirements = sanitizeUserHtml(
+          furtherTechnicalRequirements
+        );
+        const trimmedFurtherTechnicalRequirements =
+          sanitizedFurtherTechnicalRequirements !== null
+            ? sanitizedFurtherTechnicalRequirements
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedRoomSituation = sanitizeUserHtml(roomSituation);
+        const trimmedRoomSituation =
+          sanitizedRoomSituation !== null
+            ? sanitizedRoomSituation
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
+        const sanitizedFurtherRoomSituation =
+          sanitizeUserHtml(furtherRoomSituation);
+        const trimmedFurtherRoomSituation =
+          sanitizedFurtherRoomSituation !== null
+            ? sanitizedFurtherRoomSituation
+                .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+                .trim()
+            : null;
 
         try {
           await prismaClient.project.update({
@@ -177,16 +239,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
             },
             data: {
               ...rest,
-              timeframe: sanitizeUserHtml(timeframe),
-              jobFillings: sanitizeUserHtml(jobFillings),
-              furtherJobFillings: sanitizeUserHtml(furtherJobFillings),
-              furtherFinancings: sanitizeUserHtml(furtherFinancings),
-              technicalRequirements: sanitizeUserHtml(technicalRequirements),
-              furtherTechnicalRequirements: sanitizeUserHtml(
-                furtherTechnicalRequirements
-              ),
-              roomSituation: sanitizeUserHtml(roomSituation),
-              furtherRoomSituation: sanitizeUserHtml(furtherRoomSituation),
+              timeframe: trimmedTimeFrame,
+              jobFillings: trimmedJobFillings,
+              furtherJobFillings: trimmedFurtherJobFillings,
+              furtherFinancings: trimmedFurtherFinancings,
+              technicalRequirements: trimmedTechnicalRequirements,
+              furtherTechnicalRequirements: trimmedFurtherTechnicalRequirements,
+              roomSituation: trimmedRoomSituation,
+              furtherRoomSituation: trimmedFurtherRoomSituation,
               financings: {
                 deleteMany: {},
                 connectOrCreate: financings.map((financingId: string) => {
