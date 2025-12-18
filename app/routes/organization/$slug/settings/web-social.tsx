@@ -20,20 +20,23 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { LastTimeStamp } from "~/lib/utils/searchParams";
+import {
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
 } from "./web-social.server";
 import { createWebSocialSchema } from "./web-social.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -133,16 +136,14 @@ function WebSocial() {
   });
   const visibilities = fields.visibilities.getFieldset();
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    lastTimeStamp: currentTimestamp,
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales: locales.components.UnsavedChangesModal,
-  });
-
   return (
     <Section>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={currentTimestamp}
+      />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>

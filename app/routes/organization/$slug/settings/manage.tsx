@@ -27,13 +27,13 @@ import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
 import { Modal } from "~/components-next/Modal";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import {
   searchNetworkMembersSchema,
   searchNetworksSchema,
 } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
@@ -46,6 +46,7 @@ import {
   SearchNetworkMembers,
   SearchNetworks,
   SearchOrganizations,
+  UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -515,17 +516,15 @@ function Manage() {
     return relation.id === organizationTypeNetwork.id;
   });
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    lastTimeStamp: loaderData.currentTimestamp,
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: manageForm,
-    locales: locales.components.UnsavedChangesModal,
-  });
-
   return (
     <>
       <Section>
-        {UnsavedChangesBlockerModal}
+        <UnsavedChangesModal
+          searchParam={UnsavedChangesModalParam}
+          formMetadataToCheck={manageForm}
+          locales={locales.components.UnsavedChangesModal}
+          lastTimeStamp={loaderData.currentTimestamp}
+        />
         <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.headline}
         </SettingsMenuBackButton>

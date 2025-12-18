@@ -20,11 +20,17 @@ import { TextArea } from "~/components-next/TextArea";
 import BasicStructure from "~/components/next/BasicStructure";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { extendSearchParams, LastTimeStamp } from "~/lib/utils/searchParams";
+import {
+  extendSearchParams,
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -40,8 +46,6 @@ import {
   getStageDefaultValue,
   Stages,
 } from "./location.shared";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -275,16 +279,14 @@ export default function Location() {
     lastResult: navigation.state === "idle" ? actionData : undefined,
   });
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales: locales.components.UnsavedChangesModal,
-    lastTimeStamp: loaderData.currentTimestamp,
-  });
-
   return (
     <>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={loaderData.currentTimestamp}
+      />
       <div className="p-4 lg:p-6">
         <BasicStructure.Container
           deflatedUntil="lg"

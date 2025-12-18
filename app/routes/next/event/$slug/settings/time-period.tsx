@@ -24,14 +24,20 @@ import List from "~/components/next/List";
 import ListItemEvent from "~/components/next/ListItemEvent";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
-import { extendSearchParams, LastTimeStamp } from "~/lib/utils/searchParams";
+import {
+  extendSearchParams,
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
@@ -43,8 +49,6 @@ import {
   createTimePeriodSchema,
   getTimePeriodDefaultValue,
 } from "./time-period.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -211,16 +215,14 @@ export default function TimePeriod() {
     timePeriod === TIME_PERIOD_SINGLE ? "md:flex-1/3" : "md:flex-1/2"
   );
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales: locales.components.UnsavedChangesModal,
-    lastTimeStamp: currentTimestamp,
-  });
-
   return (
     <>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={currentTimestamp}
+      />
       <Form
         {...getFormProps(form)}
         method="post"

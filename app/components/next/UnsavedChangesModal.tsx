@@ -8,9 +8,9 @@ import {
   useSubmit,
 } from "react-router";
 import { Modal } from "~/components-next/Modal";
-import { extendSearchParams, LastTimeStamp } from "../utils/searchParams";
+import { extendSearchParams, LastTimeStamp } from "~/lib/utils/searchParams";
 
-export function useUnsavedChangesBlockerWithModal(options: {
+export function UnsavedChangesModal(props: {
   searchParam: string;
   // TODO: fix type issue
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,7 +23,7 @@ export function useUnsavedChangesBlockerWithModal(options: {
   };
   lastTimeStamp: number;
 }) {
-  const { searchParam, formMetadataToCheck, locales, lastTimeStamp } = options;
+  const { searchParam, formMetadataToCheck, locales, lastTimeStamp } = props;
   let forms = formMetadataToCheck;
   if (Array.isArray(forms) === false) {
     forms = [forms];

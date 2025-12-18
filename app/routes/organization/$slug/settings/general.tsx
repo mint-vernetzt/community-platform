@@ -24,12 +24,16 @@ import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
+import {
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
@@ -42,9 +46,8 @@ import {
 } from "~/utils.server";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../../create.shared";
 import { createAreaOptions } from "./general.server";
-import { updateFilterVectorOfOrganization } from "./utils.server";
 import { BIO_MAX_LENGTH, createGeneralSchema } from "./general.shared";
-import { LastTimeStamp } from "~/lib/utils/searchParams";
+import { updateFilterVectorOfOrganization } from "./utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -383,13 +386,6 @@ function General() {
   const supportedByFieldList = fields.supportedBy.getFieldList();
   const visibilitiesFieldset = fields.visibilities.getFieldset();
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales: locales.components.UnsavedChangesModal,
-    lastTimeStamp: loaderData.currentTimestamp,
-  });
-
   const [supportedBy, setSupportedBy] = useState<string>("");
   const handleSupportedByInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -399,7 +395,12 @@ function General() {
 
   return (
     <Section>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={loaderData.currentTimestamp}
+      />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
       </SettingsMenuBackButton>
