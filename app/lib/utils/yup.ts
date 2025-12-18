@@ -134,10 +134,16 @@ export function multiline(maxLength: number) {
       );
     })
     .transform((value: string | undefined) => {
-      if (typeof value === "undefined" || value === "") {
+      if (typeof value === "undefined") {
         return null;
       }
-      return value;
+      const trimmedRTEValue = value
+        .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+        .trim();
+      if (trimmedRTEValue === "") {
+        return null;
+      }
+      return trimmedRTEValue;
     });
 }
 
@@ -287,9 +293,8 @@ export async function validateForm<T extends ObjectSchema<AnyObject>>(
               errors: [],
             };
           } else {
-            errors[
-              validationError.path
-            ].message += `, ${validationError.message}`;
+            errors[validationError.path].message +=
+              `, ${validationError.message}`;
           }
 
           errors[validationError.path].errors?.push({
@@ -306,7 +311,7 @@ export async function validateForm<T extends ObjectSchema<AnyObject>>(
 }
 
 export async function getFormDataValidationResultOrThrow<
-  T extends ObjectSchema<AnyObject>
+  T extends ObjectSchema<AnyObject>,
 >(request: Request, schema: T) {
   const parsedFormData = await getFormValues<T>(request, schema);
 

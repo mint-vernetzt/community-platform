@@ -108,15 +108,11 @@ async function getNewValueFromRTE(options: {
               if (contentEditableRef.current !== null) {
                 editor.read(() => {
                   if (contentEditableRef.current !== null) {
-                    const htmlString = contentEditableRef.current.innerHTML;
-                    if (htmlString === "<p><br></p>") {
-                      submissionHTMLValue = "";
-                    } else {
-                      submissionHTMLValue = htmlString.replaceAll(
+                    submissionHTMLValue =
+                      contentEditableRef.current.innerHTML.replaceAll(
                         /^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g,
                         ""
                       );
-                    }
                   }
                 });
               }
@@ -264,6 +260,10 @@ async function main() {
         id: true,
         description: true,
         descriptionRTEState: true,
+        privacyInformation: true,
+        privacyInformationRTEState: true,
+        accessibilityInformation: true,
+        accessibilityInformationRTEState: true,
       },
     }),
   };
@@ -304,12 +304,14 @@ async function main() {
             editorStateValue: string;
           } = JSON.parse(newValue);
           const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
-          newProfile[typedRteField] =
-            sanitizedHtml === null ||
-            sanitizedHtml === "" ||
-            sanitizedHtml === "<p><br></p>"
-              ? null
-              : sanitizedHtml;
+          if (sanitizedHtml === null) {
+            newProfile[typedRteField] = null;
+          } else {
+            const trimmedHtml = sanitizedHtml
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim();
+            newProfile[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+          }
           newProfile[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -339,12 +341,15 @@ async function main() {
             editorStateValue: string;
           } = JSON.parse(newValue);
           const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
-          newOrganization[typedRteField] =
-            sanitizedHtml === null ||
-            sanitizedHtml === "" ||
-            sanitizedHtml === "<p><br></p>"
-              ? null
-              : sanitizedHtml;
+          if (sanitizedHtml === null) {
+            newOrganization[typedRteField] = null;
+          } else {
+            const trimmedHtml = sanitizedHtml
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim();
+            newOrganization[typedRteField] =
+              trimmedHtml === "" ? null : trimmedHtml;
+          }
           newOrganization[
             `${typedRteField}RTEState` as keyof typeof rteFields
           ] = result.editorStateValue;
@@ -375,12 +380,14 @@ async function main() {
             editorStateValue: string;
           } = JSON.parse(newValue);
           const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
-          newProject[typedRteField] =
-            sanitizedHtml === null ||
-            sanitizedHtml === "" ||
-            sanitizedHtml === "<p><br></p>"
-              ? null
-              : sanitizedHtml;
+          if (sanitizedHtml === null) {
+            newProject[typedRteField] = null;
+          } else {
+            const trimmedHtml = sanitizedHtml
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim();
+            newProject[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+          }
           newProject[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -410,12 +417,14 @@ async function main() {
             editorStateValue: string;
           } = JSON.parse(newValue);
           const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
-          newEvent[typedRteField] =
-            sanitizedHtml === null ||
-            sanitizedHtml === "" ||
-            sanitizedHtml === "<p><br></p>"
-              ? null
-              : sanitizedHtml;
+          if (sanitizedHtml === null) {
+            newEvent[typedRteField] = null;
+          } else {
+            const trimmedHtml = sanitizedHtml
+              .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+              .trim();
+            newEvent[typedRteField] = trimmedHtml === "" ? null : trimmedHtml;
+          }
           newEvent[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }

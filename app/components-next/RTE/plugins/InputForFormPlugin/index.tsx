@@ -70,16 +70,12 @@ function InputForFormPlugin(
         editor.read(() => {
           if (contentEditableRef.current !== null) {
             const htmlString = contentEditableRef.current.innerHTML;
-            if (htmlString === "<p><br></p>") {
-              setHtmlValue("");
-            } else {
-              setHtmlValue(
-                htmlString.replaceAll(
-                  /^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g,
-                  ""
-                )
-              );
-            }
+            setHtmlValue(
+              htmlString.replaceAll(
+                /^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g,
+                ""
+              )
+            );
           }
         });
       }

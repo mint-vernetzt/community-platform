@@ -134,10 +134,16 @@ export const createGeneralSchema = (
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     bioRTEState: z
       .string()

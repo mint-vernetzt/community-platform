@@ -83,10 +83,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     ideaRTEState: z
       .string()
@@ -117,10 +123,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     goalsRTEState: z
       .string()
@@ -151,10 +163,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     implementationRTEState: z
       .string()
@@ -185,10 +203,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     furtherDescriptionRTEState: z
       .string()
@@ -219,10 +243,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     targetingRTEState: z
       .string()
@@ -253,10 +283,16 @@ export const createDetailSchema = (locales: ProjectDetailsSettingsLocales) =>
         }
       )
       .transform((value) => {
-        if (typeof value === "undefined" || value === "") {
+        if (typeof value === "undefined") {
           return null;
         }
-        return value;
+        const trimmedRTEValue = value
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim();
+        if (trimmedRTEValue === "") {
+          return null;
+        }
+        return trimmedRTEValue;
       }),
     hintsRTEState: z
       .string()
