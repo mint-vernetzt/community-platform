@@ -14,22 +14,26 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import { Deep, LastTimeStamp } from "~/lib/utils/searchParams";
+import {
+  Deep,
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
+import { getFormPersistenceTimestamp } from "~/utils.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { createSchema } from "./change-url.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params, request } = args;
@@ -150,16 +154,14 @@ function ChangeURL() {
     lastResult: navigation.state === "idle" ? actionData : null,
   });
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    lastTimeStamp: loaderData.currentTimestamp,
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales,
-  });
-
   return (
     <>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={loaderData.currentTimestamp}
+      />
       <p>
         {insertComponentsIntoLocale(
           insertParametersIntoLocale(locales.route.content.reach, {

@@ -22,18 +22,23 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
+import {
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
-import { createAreaOptions } from "./general.server";
 import {
-  getRedirectPathOnProtectedProjectRoute,
-  updateFilterVectorOfProject,
-} from "./utils.server";
+  getCoordinatesFromAddress,
+  getFormPersistenceTimestamp,
+} from "~/utils.server";
+import { createAreaOptions } from "./general.server";
 import {
   createGeneralSchema,
   NAME_MAX_LENGTH,
@@ -41,11 +46,9 @@ import {
   SUBLINE_MAX_LENGTH,
 } from "./general.shared";
 import {
-  getCoordinatesFromAddress,
-  getFormPersistenceTimestamp,
-} from "~/utils.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { LastTimeStamp } from "~/lib/utils/searchParams";
+  getRedirectPathOnProtectedProjectRoute,
+  updateFilterVectorOfProject,
+} from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -336,13 +339,6 @@ function General() {
   const furtherFormatFieldList = fields.furtherFormats.getFieldList();
   const areaFieldList = fields.areas.getFieldList();
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    lastTimeStamp: loaderData.currentTimestamp,
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales,
-  });
-
   const [furtherFormat, setFurtherFormat] = useState<string>("");
   const handleFurtherFormatInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -352,7 +348,12 @@ function General() {
 
   return (
     <Section>
-      {UnsavedChangesBlockerModal}
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+        lastTimeStamp={loaderData.currentTimestamp}
+      />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
       </SettingsMenuBackButton>

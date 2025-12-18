@@ -6,40 +6,28 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore -> This package is not typed
-import { JSDOM } from "jsdom";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
-import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import {
-  AutoLinkPlugin,
-  createLinkMatcherWithRegExp,
-} from "@lexical/react/LexicalAutoLinkPlugin";
-import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
-import { OverflowNode } from "@lexical/overflow";
-import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
-import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
-import { prismaClient } from "~/prisma.server";
 import fs from "fs-extra";
-
-import { fileURLToPath } from "url";
+import { JSDOM } from "jsdom";
+import { prismaClient } from "~/prisma.server";
 import { dirname } from "path";
 import { useEffect, useRef, useState } from "react";
-import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
-import { type InputForFormProps } from "~/components-next/RTE/RTE";
+import { renderToString } from "react-dom/server";
 import { type UseFormRegisterReturn } from "react-hook-form";
+import { fileURLToPath } from "url";
+import { type InputForFormProps } from "~/components-next/RTE/RTE";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { LinkNode, AutoLinkNode } from "@lexical/link";
+import { HorizontalRuleNode } from "@lexical/extension";
+import { OverflowNode } from "@lexical/overflow";
+import { sanitizeUserHtml } from "~/utils.server";
 
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
 // Get the current directory path
 const __dirname = dirname(__filename);
 
+// Note: This component has to differ from the actual RTE component to make it work on node environment
 async function getNewValueFromRTE(options: {
   oldHtmlValue: string | null;
   oldRTEStateValue: string | null;
@@ -74,6 +62,7 @@ async function getNewValueFromRTE(options: {
           reject(error);
         },
       };
+
       const RTEComponent = () => {
         const InputForFormPlugin = (
           props: InputForFormProps & {
@@ -88,10 +77,12 @@ async function getNewValueFromRTE(options: {
             useState(false);
 
           useEffect(() => {
-            // First init the editor state
             editor.update(
               () => {
-                if (typeof rteStateDefaultValue === "string") {
+                if (
+                  typeof rteStateDefaultValue === "string" &&
+                  rteStateDefaultValue !== ""
+                ) {
                   const editorState =
                     editor.parseEditorState(rteStateDefaultValue);
                   if (editorState.isEmpty() === false) {
@@ -111,16 +102,7 @@ async function getNewValueFromRTE(options: {
             if (editorStateInitialized === false) {
               return;
             }
-
-            // Second, synchronize the values of the inputs with the editor content on update
-            // Dont ignore firstUpdate in the script
-            // -> Different behaviour than in the app
-            // let isFirstUpdate = true;
             const onEditorUpdate = () => {
-              // if (isFirstUpdate) {
-              //   isFirstUpdate = false;
-              //   return; // Ignore the first update event
-              // }
               let submissionHTMLValue = "";
               let submissionEditorStateJSON = "";
               if (contentEditableRef.current !== null) {
@@ -166,12 +148,6 @@ async function getNewValueFromRTE(options: {
         };
         const contentEditableRef = useRef<HTMLDivElement | null>(null);
 
-        // Regex to detect URLs and email addresses
-        const URL_REGEX =
-          /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(?<![-.+():%])/;
-        const EMAIL_REGEX =
-          /(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
-
         return (
           <LexicalComposer initialConfig={initialConfig}>
             <RichTextPlugin
@@ -179,40 +155,10 @@ async function getNewValueFromRTE(options: {
               ErrorBoundary={LexicalErrorBoundary}
             />
             <InputForFormPlugin
-              htmlDefaultValue={oldHtmlValue || undefined}
-              rteStateDefaultValue={oldRTEStateValue || undefined}
+              htmlDefaultValue={oldHtmlValue || ""}
+              rteStateDefaultValue={oldRTEStateValue || ""}
               contentEditableRef={contentEditableRef}
             />
-            <HistoryPlugin />
-            <LinkPlugin
-              validateUrl={(url: string) => {
-                const urlRegExp = new RegExp(URL_REGEX);
-                const emailRegExp = new RegExp(EMAIL_REGEX);
-                const isValidUrl =
-                  urlRegExp.test(url) &&
-                  (url.startsWith("http://") || url.startsWith("https://"));
-                const isValidMailTo =
-                  emailRegExp.test(url) && url.startsWith("mailto:");
-                return isValidUrl || isValidMailTo;
-              }}
-              attributes={{ target: "_blank", rel: "noopener noreferrer" }}
-            />
-            <AutoLinkPlugin
-              matchers={[
-                createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-                  return text.startsWith("http") ? text : `https://${text}`;
-                }),
-                createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
-                  return `mailto:${text}`;
-                }),
-              ]}
-            />
-            <ClickableLinkPlugin />
-            <ListPlugin />
-            <MarkdownShortcutPlugin
-              transformers={[UNORDERED_LIST, ORDERED_LIST]}
-            />
-            <HorizontalRulePlugin />
           </LexicalComposer>
         );
       };
@@ -222,14 +168,17 @@ async function getNewValueFromRTE(options: {
       const dom = new JSDOM(
         `<!DOCTYPE html><div id="root">${serverRenderedHTML}</div>`
       );
-      const window: Window = dom.window;
-      const document: Document = window.document;
+      const window = dom.window;
+      const document = window.document;
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       global.window = dom.window;
       global.document = dom.window.document;
       global.DOMParser = dom.window.DOMParser;
       global.MutationObserver = dom.window.MutationObserver;
       global.CustomEvent = dom.window.CustomEvent;
+      global.getComputedStyle = dom.window.getComputedStyle;
       window.addEventListener(EDITOR_VALUE_SET_EVENT, (event) => {
         console.log("Successfully hydrated RTE and read its values");
         resolve(
@@ -354,8 +303,13 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
+          const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
           newProfile[typedRteField] =
-            result.htmlValue === "" ? null : result.htmlValue;
+            sanitizedHtml === null ||
+            sanitizedHtml === "" ||
+            sanitizedHtml === "<p><br></p>"
+              ? null
+              : sanitizedHtml;
           newProfile[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -384,8 +338,13 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
+          const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
           newOrganization[typedRteField] =
-            result.htmlValue === "" ? null : result.htmlValue;
+            sanitizedHtml === null ||
+            sanitizedHtml === "" ||
+            sanitizedHtml === "<p><br></p>"
+              ? null
+              : sanitizedHtml;
           newOrganization[
             `${typedRteField}RTEState` as keyof typeof rteFields
           ] = result.editorStateValue;
@@ -415,8 +374,13 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
+          const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
           newProject[typedRteField] =
-            result.htmlValue === "" ? null : result.htmlValue;
+            sanitizedHtml === null ||
+            sanitizedHtml === "" ||
+            sanitizedHtml === "<p><br></p>"
+              ? null
+              : sanitizedHtml;
           newProject[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }
@@ -445,8 +409,13 @@ async function main() {
             htmlValue: string;
             editorStateValue: string;
           } = JSON.parse(newValue);
+          const sanitizedHtml = sanitizeUserHtml(result.htmlValue);
           newEvent[typedRteField] =
-            result.htmlValue === "" ? null : result.htmlValue;
+            sanitizedHtml === null ||
+            sanitizedHtml === "" ||
+            sanitizedHtml === "<p><br></p>"
+              ? null
+              : sanitizedHtml;
           newEvent[`${typedRteField}RTEState` as keyof typeof rteFields] =
             result.editorStateValue;
         }

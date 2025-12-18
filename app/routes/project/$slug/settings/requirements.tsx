@@ -21,19 +21,18 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { useUnsavedChangesBlockerWithModal } from "~/lib/hooks/useUnsavedChangesBlockerWithModal";
 import { invariantResponse } from "~/lib/utils/response";
-import { LastTimeStamp } from "~/lib/utils/searchParams";
+import {
+  LastTimeStamp,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { redirectWithToast } from "~/toast.server";
 import { getFormPersistenceTimestamp, sanitizeUserHtml } from "~/utils.server";
-import {
-  getRedirectPathOnProtectedProjectRoute,
-  updateFilterVectorOfProject,
-} from "./utils.server";
 import {
   createRequirementsSchema,
   FURTHER_FINANCINGS_MAX_LENGTH,
@@ -46,6 +45,10 @@ import {
   TIMEFRAME_MAX_LENGTH,
   YEARLY_BUDGET_MAX_LENGTH,
 } from "./requirements.shared";
+import {
+  getRedirectPathOnProtectedProjectRoute,
+  updateFilterVectorOfProject,
+} from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -262,17 +265,15 @@ function Requirements() {
 
   const financingList = fields.financings.getFieldList();
 
-  const UnsavedChangesBlockerModal = useUnsavedChangesBlockerWithModal({
-    lastTimeStamp: loaderData.currentTimestamp,
-    searchParam: "modal-unsaved-changes",
-    formMetadataToCheck: form,
-    locales,
-  });
-
   return (
     <>
       <Section>
-        {UnsavedChangesBlockerModal}
+        <UnsavedChangesModal
+          searchParam={UnsavedChangesModalParam}
+          formMetadataToCheck={form}
+          locales={locales.components.UnsavedChangesModal}
+          lastTimeStamp={loaderData.currentTimestamp}
+        />
         <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.back}
         </SettingsMenuBackButton>

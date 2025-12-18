@@ -114,8 +114,12 @@ const TextArea = (
                     id={inputProps.id || label}
                     maxLength={inputProps.maxLength}
                     defaultValue={undefined}
-                    rteStateDefaultValue={rte.defaultValue}
-                    htmlDefaultValue={props.defaultValue}
+                    rteStateDefaultValue={rte.defaultValue || ""}
+                    htmlDefaultValue={
+                      typeof props.defaultValue === "string"
+                        ? props.defaultValue
+                        : ""
+                    }
                     placeholder={rte.locales.rte.placeholder}
                     locales={rte.locales}
                     legacyFormRegister={rte.legacyFormRegister}
