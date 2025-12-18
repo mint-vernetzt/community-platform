@@ -1,21 +1,19 @@
+import { HorizontalRuleNode } from "@lexical/extension";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { ORDERED_LIST, UNORDERED_LIST } from "@lexical/markdown";
 import { OverflowNode } from "@lexical/overflow";
-import {
-  AutoLinkPlugin,
-  createLinkMatcherWithRegExp,
-} from "@lexical/react/LexicalAutoLinkPlugin";
+import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { CharacterLimitPlugin } from "@lexical/react/LexicalCharacterLimitPlugin";
 import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import {
-  type InitialConfigType,
   LexicalComposer,
+  type InitialConfigType,
 } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
+import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { HorizontalRuleNode } from "@lexical/extension";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -27,18 +25,17 @@ import {
   type EditorThemeClasses,
   type LexicalEditor,
 } from "lexical";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
-import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
-import { EditorRefPlugin } from "@lexical/react/LexicalEditorRefPlugin";
-import { InputForFormPlugin } from "./plugins/InputForFormPlugin";
-import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
-import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
-import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
-import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
-import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
 import { useRef } from "react";
 import { type UseFormRegisterReturn } from "react-hook-form";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { type GeneralEventSettingsLocales } from "~/routes/event/$slug/settings/general.server";
+import { type GeneralOrganizationSettingsLocales } from "~/routes/organization/$slug/settings/general.server";
+import { type GeneralProfileSettingsLocales } from "~/routes/profile/$username/settings/general.server";
+import { type ProjectDetailsSettingsLocales } from "~/routes/project/$slug/settings/details.server";
+import { type ProjectRequirementsSettingsLocales } from "~/routes/project/$slug/settings/requirements.server";
+import { InputForFormPlugin } from "./plugins/InputForFormPlugin";
+import { MaxLengthPlugin } from "./plugins/MaxLengthPlugin";
+import { LoadingToolbar, ToolbarPlugin } from "./plugins/ToolbarPlugin";
 
 export type InputForFormProps = Omit<
   React.HTMLProps<HTMLInputElement>,
@@ -208,12 +205,38 @@ function RTE(
             />
             <AutoLinkPlugin
               matchers={[
-                createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-                  return text.startsWith("http") ? text : `https://${text}`;
-                }),
-                createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
-                  return `mailto:${text}`;
-                }),
+                (text: string) => {
+                  const index = text.search(URL_REGEX);
+                  const match = text.match(URL_REGEX);
+                  if (match !== null && index !== -1) {
+                    return {
+                      index: index,
+                      length: match[0].length,
+                      text: match[0],
+                      url: match[0].startsWith("http")
+                        ? match[0]
+                        : `https://${match[0]}`,
+                      attributes: {
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                      },
+                    };
+                  }
+                  return null;
+                },
+                (text: string) => {
+                  const index = text.search(EMAIL_REGEX);
+                  const match = text.match(EMAIL_REGEX);
+                  if (match !== null && index !== -1) {
+                    return {
+                      index: index,
+                      length: match[0].length,
+                      text: match[0],
+                      url: `mailto:${match[0]}`,
+                    };
+                  }
+                  return null;
+                },
               ]}
             />
             <ClickableLinkPlugin />
