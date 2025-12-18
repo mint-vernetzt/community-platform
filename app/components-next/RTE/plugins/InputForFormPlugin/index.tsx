@@ -2,7 +2,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { type UseFormRegisterReturn } from "react-hook-form";
 import { type InputForFormProps } from "../../RTE";
 import { useEffect, useState } from "react";
-import { $getSelection } from "lexical";
+import { $getSelection, type EditorState } from "lexical";
 
 function InputForFormPlugin(
   props: InputForFormProps & {
@@ -21,27 +21,33 @@ function InputForFormPlugin(
     ...rest
   } = props;
   const [editor] = useLexicalComposerContext();
-  const [htmlValue, setHtmlValue] = useState(
-    typeof htmlDefaultValue === "string" ? htmlDefaultValue : ""
-  );
-  const [editorStateValue, setEditorStateValue] = useState(
-    typeof rteStateDefaultValue === "string" ? rteStateDefaultValue : ""
-  );
-  const [editorStateInitialized, setEditorStateInitialized] = useState(false);
+  const [htmlValue, setHtmlValue] = useState(htmlDefaultValue);
+  const [editorStateValue, setEditorStateValue] =
+    useState(rteStateDefaultValue);
+  const [initialEditorState, setInitialEditorState] =
+    useState<EditorState | null>(null);
+
+  useEffect(() => {
+    editor.read(() => {
+      const currentEditorState = editor.getEditorState();
+      setInitialEditorState(currentEditorState);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
 
   useEffect(() => {
     if (isFormDirty === false || typeof isFormDirty === "undefined") {
-      setEditorStateInitialized(true);
-      // First init the editor state
       editor.update(
         () => {
-          if (typeof rteStateDefaultValue === "string") {
-            const editorState = editor.parseEditorState(rteStateDefaultValue);
-            if (editorState.isEmpty() === false) {
-              editor.setEditorState(editorState);
-            }
+          let editorState = initialEditorState;
+          if (rteStateDefaultValue !== "") {
+            editorState = editor.parseEditorState(rteStateDefaultValue);
           }
-          setEditorStateInitialized(true);
+          if (editorState !== null) {
+            editor.setEditorState(editorState);
+          }
+          setEditorStateValue(rteStateDefaultValue);
+          setHtmlValue(htmlDefaultValue);
         },
         {
           discrete: true,
@@ -52,10 +58,6 @@ function InputForFormPlugin(
   }, [isFormDirty]);
 
   useEffect(() => {
-    if (editorStateInitialized === false) {
-      return;
-    }
-    // Second, synchronize the values of the inputs with the editor content on update
     const onEditorUpdate = () => {
       let selection = null;
       editor.read(() => {
@@ -88,7 +90,7 @@ function InputForFormPlugin(
       });
     };
     return editor.registerUpdateListener(onEditorUpdate);
-  }, [editorStateInitialized, contentEditableRef, editor]);
+  }, [contentEditableRef, editor]);
 
   return (
     <>

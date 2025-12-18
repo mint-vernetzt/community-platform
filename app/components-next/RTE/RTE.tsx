@@ -15,7 +15,7 @@ import {
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
+import { HorizontalRuleNode } from "@lexical/extension";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -45,8 +45,8 @@ export type InputForFormProps = Omit<
   "value" | "onChange" | "className" | "readOnly" | "tabIndex"
 > & {
   contentEditableRef: React.RefObject<HTMLDivElement | null>;
-  htmlDefaultValue?: string | number | readonly string[];
-  rteStateDefaultValue?: string;
+  htmlDefaultValue: string;
+  rteStateDefaultValue: string;
 };
 
 export type RTELocales =
@@ -174,11 +174,9 @@ function RTE(
                   ref={contentEditableRef}
                   className="p-2 rounded-bl-lg rounded-br-lg h-48 w-full overflow-y-scroll focus:outline-hidden"
                   placeholder={
-                    placeholder !== undefined ? (
-                      <div className="absolute top-12 left-2 pointer-events-none">
-                        {placeholder}
-                      </div>
-                    ) : null
+                    <div className="absolute top-12 left-2 pointer-events-none">
+                      {placeholder || locales.rte.placeholder}
+                    </div>
                   }
                   aria-placeholder={placeholder || ""}
                   title={locales.rte.title}
