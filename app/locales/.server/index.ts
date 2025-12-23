@@ -75,6 +75,7 @@ import { locale as deNextEventSettings } from "./de/routes/next/event/$slug/sett
 import { locale as deNextEventSettingsAdmins } from "./de/routes/next/event/$slug/settings/admins";
 import { locale as deNextEventSettingsDangerZone } from "./de/routes/next/event/$slug/settings/danger-zone";
 import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$slug/settings/danger-zone/change-url";
+import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
 import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
 import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
@@ -259,6 +260,7 @@ import { locale as enNextEventSettings } from "./en/routes/next/event/$slug/sett
 import { locale as enNextEventSettingsAdmins } from "./en/routes/next/event/$slug/settings/admins";
 import { locale as enNextEventSettingsDangerZone } from "./en/routes/next/event/$slug/settings/danger-zone";
 import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$slug/settings/danger-zone/change-url";
+import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
 import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
 import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
@@ -508,6 +510,9 @@ const de = {
   "next/event/$slug/settings/danger-zone/change-url": {
     route: deNextEventSettingsChangeURL,
     components: deComponents,
+  },
+  "next/event/$slug/settings/danger-zone/cancel": {
+    route: deNextEventSettingsCancel,
   },
   "next/event/$slug/settings/details": {
     route: deNextEventSettingsDetails,
@@ -974,6 +979,9 @@ const en = {
   "next/event/$slug/settings/danger-zone/change-url": {
     route: enNextEventSettingsChangeURL,
     components: enComponents,
+  },
+  "next/event/$slug/settings/danger-zone/cancel": {
+    route: enNextEventSettingsCancel,
   },
   "next/event/$slug/settings/details": {
     route: enNextEventSettingsDetails,

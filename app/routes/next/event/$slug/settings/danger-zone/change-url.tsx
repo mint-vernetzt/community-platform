@@ -34,6 +34,7 @@ import {
   UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
 import { getFormPersistenceTimestamp } from "~/utils.server";
+import Hint from "~/components/next/Hint";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -171,11 +172,11 @@ function ChangeURL() {
           [<span key="strong" className="font-semibold" />]
         )}
       </p>
-      <p className="p-4 rounded-lg bg-primary-50 text-neutral-600">
+      <Hint>
         {insertComponentsIntoLocale(locales.route.hint, [
           <span key="strong" className="font-semibold" />,
         ])}
-      </p>
+      </Hint>
       <Form
         {...getFormProps(form)}
         method="post"

@@ -11,20 +11,28 @@ import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { getEventBySlug } from "./danger-zone.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export const loader = async (args: LoaderFunctionArgs) => {
-  const { request } = args;
+  const { params, request } = args;
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/danger-zone"];
 
-  return { locales };
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  return { locales, event };
 };
 
 export default function DangerZone() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, event } = loaderData;
 
   const location = useLocation();
   const { pathname } = location;
@@ -53,6 +61,24 @@ export default function DangerZone() {
                 {locales.route.tabbar.changeURL}
               </TabBar.Item.Title>
             </Link>
+          </TabBar.Item>
+          <TabBar.Item active={pathname.endsWith("/cancel")}>
+            {event.published && event.canceled === false ? (
+              <Link
+                to={`./cancel?${Deep}=${deep}`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/cancel"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabbar.cancelEvent}
+                </TabBar.Item.Title>
+              </Link>
+            ) : (
+              <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                {locales.route.tabbar.cancelEvent}
+              </h2>
+            )}
           </TabBar.Item>
         </TabBar>
         <Outlet />
