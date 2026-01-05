@@ -1,5 +1,4 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
   redirect,
@@ -8,6 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -167,7 +167,7 @@ function Participants() {
         fetcher={addToWaitingListFetcher}
         action={`/event/${slug}/settings/waiting-list/add-to-waiting-list`}
         onSubmit={() => {
-          submit({
+          void submit({
             method: "get",
             action: `/event/${slug}/settings/waiting-list`,
           });

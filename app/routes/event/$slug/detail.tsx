@@ -613,7 +613,7 @@ function Detail() {
               previousLocation.pathname === "/explore/events"
             ) {
               event.preventDefault();
-              navigate(-1);
+              void navigate(-1);
             }
           }}
           prefetch="intent"

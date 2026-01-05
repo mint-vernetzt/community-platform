@@ -405,7 +405,10 @@ export default function ExploreFundings() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset, method: "get" });
+            void submit(event.currentTarget, {
+              preventScrollReset,
+              method: "get",
+            });
           }}
         >
           <HiddenFilterInputs

@@ -258,7 +258,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             },
           });
 
-          updateFilterVectorOfProject(project.id);
+          void updateFilterVectorOfProject(project.id);
         } catch (error) {
           captureException(error);
           ctx.addIssue({

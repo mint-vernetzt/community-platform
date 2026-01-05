@@ -8,12 +8,16 @@ import { utcToZonedTime } from "date-fns-tz";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import { useCallback } from "react";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
+import {
+  Form,
+  Link,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+  type MetaFunction,
 } from "react-router";
-import { Form, Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { BackButton } from "~/components-next/BackButton";
 import { Mastodon } from "~/components-next/icons/Mastodon";
@@ -537,7 +541,7 @@ export default function Index() {
               previousLocation.pathname === "/explore/profiles"
             ) {
               event.preventDefault();
-              navigate(-1);
+              void navigate(-1);
             }
           }}
           prefetch="intent"

@@ -11,10 +11,6 @@ beforeEach(() => {
 });
 
 export const createServerClient =
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockDeep<SupabaseClient<any, "public", any>>();
 
-// TODO: fix type issue
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createClient = mockDeep<SupabaseClient<any, "public", any>>();

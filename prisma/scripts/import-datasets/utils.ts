@@ -84,13 +84,11 @@ export function entriesOnlyExistingOnDatabase(
 export async function importDataset(dataset: Dataset, tableName: TableName) {
   console.log(`create entries for ${tableName}`);
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> to much abstraction -> either less abstraction or runtime checks to verify this
   const existingEntries = await prismaClient[tableName].findMany();
   const missingData = filterMissingData(dataset, existingEntries);
 
   if (missingData.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> to much abstraction -> either less abstraction or runtime checks to verify this
     await prismaClient[tableName].createMany({ data: missingData });
     console.log(`added "${tableName}s": `, missingData);
@@ -99,7 +97,6 @@ export async function importDataset(dataset: Dataset, tableName: TableName) {
   const entriesToUpdate = dataToBeUpdated(dataset, existingEntries);
   if (entriesToUpdate.length > 0) {
     for (const entry of entriesToUpdate) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore -> to much abstraction -> either less abstraction or runtime checks to verify this
       await prismaClient[tableName].update({
         where: {

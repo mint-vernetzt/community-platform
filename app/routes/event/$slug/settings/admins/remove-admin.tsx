@@ -1,5 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
-import { redirect } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { makeDomainFunction } from "domain-functions";
 import { performMutation } from "remix-forms";
 import { z } from "zod";

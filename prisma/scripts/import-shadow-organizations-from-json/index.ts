@@ -36,7 +36,6 @@ const schema = z.array(
 );
 
 async function main() {
-  // eslint-disable-next-line import/no-named-as-default-member
   const data = await fs.readJson(options.file);
 
   const parsedData = schema.safeParse(data);

@@ -32,7 +32,6 @@ function InputForFormPlugin(
       const currentEditorState = editor.getEditorState();
       setInitialEditorState(currentEditorState);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   useEffect(() => {

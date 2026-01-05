@@ -167,7 +167,6 @@ async function getNewValueFromRTE(options: {
       const window = dom.window;
       const document = window.document;
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       global.window = dom.window;
       global.document = dom.window.document;
@@ -179,10 +178,8 @@ async function getNewValueFromRTE(options: {
         console.log("Successfully hydrated RTE and read its values");
         resolve(
           JSON.stringify({
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             htmlValue: event.detail.htmlValue,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             editorStateValue: event.detail.editorStateValue,
           })
@@ -436,8 +433,7 @@ async function main() {
   console.log("Writing changes JSON...                            [xxx-]");
   // Save changes in json file
   const currentTimestamp = new Date().toISOString();
-  // eslint-disable-next-line import/no-named-as-default-member
-  fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
+  await fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
     spaces: 4,
     encoding: "utf8",
   });

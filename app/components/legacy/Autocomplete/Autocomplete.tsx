@@ -112,7 +112,7 @@ function Autocomplete(
       const searchParams = {
         [searchParameter]: event.target.value,
       };
-      submit(searchParams, {
+      void submit(searchParams, {
         method: "get",
         action: suggestionsLoaderPath,
         preventScrollReset: true,
@@ -122,7 +122,7 @@ function Autocomplete(
         const searchParams = {
           [searchParameter]: "",
         };
-        submit(searchParams, {
+        void submit(searchParams, {
           method: "get",
           action: suggestionsLoaderPath,
           preventScrollReset: true,

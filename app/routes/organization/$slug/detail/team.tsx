@@ -1,11 +1,10 @@
-import { type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { detectLanguage } from "~/i18n.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { addImgUrls, filterOrganization, getOrganization } from "./team.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { useLoaderData } from "react-router";
+import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";

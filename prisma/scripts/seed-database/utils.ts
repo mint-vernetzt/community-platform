@@ -1,7 +1,6 @@
 import { Faker, faker } from "@faker-js/faker";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { fileTypeFromBuffer } from "file-type";
 import fs from "fs-extra";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
@@ -231,8 +230,6 @@ export function setFakerSeed(seed: number) {
 }
 
 export async function uploadImageBucketData(
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   numberOfImages: number
 ) {
@@ -298,20 +295,25 @@ export async function uploadImageBucketData(
         );
       }
     }
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
+  } catch (e) {
     console.log(e);
     console.error(
       "\nCould not fetch images from pravatar.cc. Continueing with one fallback image.\n"
     );
-    if (e.cause.code === "ENOTFOUND") {
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      "cause" in e &&
+      typeof e.cause === "object" &&
+      e.cause !== null &&
+      "code" in e.cause &&
+      e.cause.code === "ENOTFOUND"
+    ) {
       console.error(
         "Either you have no internet connection or the faker image server is down. Skipped fetching and uploading images to bucket."
       );
     }
     try {
-      // eslint-disable-next-line import/no-named-as-default-member
       const data = await fs.readFile(
         "./public/images/default-event-background.jpg"
       );
@@ -386,8 +388,6 @@ function getImageUrl(imageType?: ImageType) {
 }
 
 export async function uploadDocumentBucketData(
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   numberOfDocuments: number
 ) {
@@ -470,8 +470,6 @@ export async function uploadDocumentBucketData(
 export async function seedAllEntities(
   imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   documentBucketData: Awaited<ReturnType<typeof uploadDocumentBucketData>>,
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string,
   useRealNames: boolean,
@@ -5894,8 +5892,6 @@ export async function seedEntity<
 >(
   entityType: T,
   entity: EntityTypeOnData<T>,
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string
 ) {
@@ -5970,8 +5966,6 @@ export async function seedEntity<
       select: { id: true },
     });
   } else {
-    // TODO: Seed script with less abstraction
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> Union type issue -> To much abstraction
     result = await prismaClient[entityType].create({
       data: entity,

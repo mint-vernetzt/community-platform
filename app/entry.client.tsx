@@ -58,7 +58,7 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
       error,
       Object.getOwnPropertyNames(error)
     );
-    fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+    void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
       method: "GET",
     });
   }

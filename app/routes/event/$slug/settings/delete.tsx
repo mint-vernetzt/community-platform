@@ -1,6 +1,12 @@
 import { makeDomainFunction } from "domain-functions";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Link, redirect, useLoaderData, useParams } from "react-router";
+import {
+  Link,
+  redirect,
+  useLoaderData,
+  useParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import {

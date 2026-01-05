@@ -347,8 +347,6 @@ function Attachments() {
   });
 
   // Disconnect document form
-  // eslint ignore is intended
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
     id: `disconnect-document-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(disconnectAttachmentSchema),
@@ -365,8 +363,6 @@ function Attachments() {
   });
 
   // Disconnect image form
-  // eslint ignore is intended
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [disconnectImageForm, disconnectImageFields] = useForm({
     id: `disconnect-image-form-${loaderData.currentTimestamp}`,
     constraint: getZodConstraint(disconnectAttachmentSchema),

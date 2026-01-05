@@ -221,7 +221,7 @@ async function main(
   // TODO: Collect all silent errors in above functions and log them at the end of the script.
 }
 
-main(
+await main(
   options.force,
   options.numberOfImages,
   options.numberOfDocuments,

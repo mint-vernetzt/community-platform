@@ -1,5 +1,4 @@
-import type { Event } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import { Prisma, type Event } from "@prisma/client";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const eventRelations = Prisma.validator<Prisma.EventDefaultArgs>()({
