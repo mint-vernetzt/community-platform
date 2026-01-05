@@ -45,10 +45,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (
-    (event.published && event.canceled === false) ||
-    event.published === false
-  ) {
+  if (event.published && event.canceled === false) {
     const url = new URL(request.url);
     url.pathname = `/next/event/${params.slug}/settings/danger-zone/change-url`;
     return redirect(url.toString());
