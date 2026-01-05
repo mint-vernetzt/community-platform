@@ -355,7 +355,7 @@ export const ErrorBoundary = () => {
         {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
@@ -657,7 +657,7 @@ export default function App() {
         {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
