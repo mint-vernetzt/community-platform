@@ -68,9 +68,9 @@ export function links() {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-  const { data } = args;
+  const { loaderData } = args;
 
-  if (typeof data === "undefined" || data === null) {
+  if (typeof loaderData === "undefined" || loaderData === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -82,12 +82,12 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     ];
   }
   if (
-    data.project.excerpt === null &&
-    typeof data.project.background === "undefined"
+    loaderData.project.excerpt === null &&
+    typeof loaderData.project.background === "undefined"
   ) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
       },
       {
         name: "description",
@@ -98,22 +98,24 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:image:secure_url",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
-  if (data.project.excerpt === null) {
+  if (loaderData.project.excerpt === null) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
       },
       {
         name: "description",
@@ -124,64 +126,66 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content: data.project.background,
+        content: loaderData.project.background,
       },
       {
         property: "og:image:secure_url",
-        content: data.project.background,
+        content: loaderData.project.background,
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
-  if (data.project.background === null) {
+  if (loaderData.project.background === null) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
       },
       {
         name: "description",
         property: "og:description",
-        content: data.project.excerpt,
+        content: loaderData.project.excerpt,
       },
       {
         name: "image",
         property: "og:image",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:image:secure_url",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
   return [
     {
-      title: `MINTvernetzt Community Plattform | ${data.project.name}`,
+      title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
     },
     {
       name: "description",
       property: "og:description",
-      content: data.project.excerpt,
+      content: loaderData.project.excerpt,
     },
     {
       name: "image",
       property: "og:image",
-      content: data.project.background,
+      content: loaderData.project.background,
     },
     {
       property: "og:image:secure_url",
-      content: data.project.background,
+      content: loaderData.project.background,
     },
     {
       property: "og:url",
-      content: data.meta.url,
+      content: loaderData.meta.url,
     },
   ];
 };

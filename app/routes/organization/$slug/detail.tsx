@@ -70,9 +70,9 @@ export function links() {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-  const { data } = args;
+  const { loaderData } = args;
 
-  if (typeof data === "undefined" || data === null) {
+  if (typeof loaderData === "undefined" || loaderData === null) {
     return [
       { title: "MINTvernetzt Community Plattform" },
       {
@@ -83,10 +83,13 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (data.organization.bio === null && data.organization.background === null) {
+  if (
+    loaderData.organization.bio === null &&
+    loaderData.organization.background === null
+  ) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
       },
       {
         name: "description",
@@ -97,22 +100,24 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:image:secure_url",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
-  if (data.organization.bio === null) {
+  if (loaderData.organization.bio === null) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
       },
       {
         name: "description",
@@ -123,64 +128,66 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       {
         name: "image",
         property: "og:image",
-        content: data.organization.background,
+        content: loaderData.organization.background,
       },
       {
         property: "og:image:secure_url",
-        content: data.organization.background,
+        content: loaderData.organization.background,
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
-  if (data.organization.background === null) {
+  if (loaderData.organization.background === null) {
     return [
       {
-        title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+        title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
       },
       {
         name: "description",
         property: "og:description",
-        content: removeHtmlTags(data.organization.bio),
+        content: removeHtmlTags(loaderData.organization.bio),
       },
       {
         name: "image",
         property: "og:image",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:image:secure_url",
-        content: data.meta.baseUrl + "/images/default-event-background.jpg",
+        content:
+          loaderData.meta.baseUrl + "/images/default-event-background.jpg",
       },
       {
         property: "og:url",
-        content: data.meta.url,
+        content: loaderData.meta.url,
       },
     ];
   }
   return [
     {
-      title: `MINTvernetzt Community Plattform | ${data.organization.name}`,
+      title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
     },
     {
       name: "description",
       property: "og:description",
-      content: removeHtmlTags(data.organization.bio),
+      content: removeHtmlTags(loaderData.organization.bio),
     },
     {
       name: "image",
       property: "og:image",
-      content: data.organization.background,
+      content: loaderData.organization.background,
     },
     {
       property: "og:image:secure_url",
-      content: data.organization.background,
+      content: loaderData.organization.background,
     },
     {
       property: "og:url",
-      content: data.meta.url,
+      content: loaderData.meta.url,
     },
   ];
 };
