@@ -240,6 +240,10 @@ export default [
             "/next/event/:slug/settings/danger-zone/cancel",
             "./routes/next/event/$slug/settings/danger-zone/cancel.tsx"
           ),
+          route(
+            "/next/event/:slug/settings/danger-zone/delete",
+            "./routes/next/event/$slug/settings/danger-zone/delete.tsx"
+          ),
         ]
       ),
       route(

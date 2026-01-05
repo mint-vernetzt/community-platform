@@ -80,6 +80,25 @@ export default function DangerZone() {
               </h2>
             )}
           </TabBar.Item>
+          <TabBar.Item active={pathname.endsWith("/delete")}>
+            {(event.published && event.canceled) ||
+            event.published === false ? (
+              <Link
+                to={`./delete?${Deep}=${deep}`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/delete"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabbar.deleteEvent}
+                </TabBar.Item.Title>
+              </Link>
+            ) : (
+              <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                {locales.route.tabbar.deleteEvent}
+              </h2>
+            )}
+          </TabBar.Item>
         </TabBar>
         <Outlet />
       </BasicStructure.Container>
