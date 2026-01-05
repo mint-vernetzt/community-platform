@@ -482,7 +482,7 @@ function CreateOrganization() {
                 </Button>
               </Input.Controls>
               <Input.SearchIcon />
-              <Input.ClearIcon />
+              <Input.ClearIcon fetcher={searchFetcher} />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&
