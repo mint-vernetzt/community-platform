@@ -229,7 +229,22 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/danger-zone",
-        "./routes/next/event/$slug/settings/danger-zone.tsx"
+        "./routes/next/event/$slug/settings/danger-zone.tsx",
+        [
+          index("./routes/next/event/$slug/settings/danger-zone/index.tsx"),
+          route(
+            "/next/event/:slug/settings/danger-zone/change-url",
+            "./routes/next/event/$slug/settings/danger-zone/change-url.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/danger-zone/cancel",
+            "./routes/next/event/$slug/settings/danger-zone/cancel.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/danger-zone/delete",
+            "./routes/next/event/$slug/settings/danger-zone/delete.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/details",

@@ -86,7 +86,7 @@ function Button(
     !isDisabled &&
       variant === "normal" &&
       level === "negative" &&
-      "bg-negative-600 text-white hover:bg-negative-700 active:bg-negative-800 focus:ring-2 focus:ring-negative-900 focus:outline-hidden",
+      "bg-negative-700 text-white hover:bg-negative-700 active:bg-negative-700 focus:ring-2 focus:ring-negative-900 focus:outline-hidden",
     // button primary outline disabled
     isDisabled &&
       variant === "outline" &&

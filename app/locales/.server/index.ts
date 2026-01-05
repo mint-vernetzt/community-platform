@@ -74,6 +74,9 @@ import { locale as deNextCreateEvent } from "./de/routes/next/event/create";
 import { locale as deNextEventSettings } from "./de/routes/next/event/$slug/settings";
 import { locale as deNextEventSettingsAdmins } from "./de/routes/next/event/$slug/settings/admins";
 import { locale as deNextEventSettingsDangerZone } from "./de/routes/next/event/$slug/settings/danger-zone";
+import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$slug/settings/danger-zone/change-url";
+import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
+import { locale as deNextEventSettingsDelete } from "./de/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
 import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
 import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
@@ -84,7 +87,6 @@ import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/e
 import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
 import { locale as deNextEventSettingsTeam } from "./de/routes/next/event/$slug/settings/team";
 import { locale as deNextEventSettingsTimePeriod } from "./de/routes/next/event/$slug/settings/time-period";
-
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
 import { locale as deExploreIndex } from "./de/routes/explore/index";
@@ -257,6 +259,9 @@ import { locale as enNextCreateEvent } from "./en/routes/next/event/create";
 import { locale as enNextEventSettings } from "./en/routes/next/event/$slug/settings";
 import { locale as enNextEventSettingsAdmins } from "./en/routes/next/event/$slug/settings/admins";
 import { locale as enNextEventSettingsDangerZone } from "./en/routes/next/event/$slug/settings/danger-zone";
+import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$slug/settings/danger-zone/change-url";
+import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
+import { locale as enNextEventSettingsDelete } from "./en/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
 import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
 import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
@@ -502,6 +507,16 @@ const de = {
   },
   "next/event/$slug/settings/danger-zone": {
     route: deNextEventSettingsDangerZone,
+  },
+  "next/event/$slug/settings/danger-zone/change-url": {
+    route: deNextEventSettingsChangeURL,
+    components: deComponents,
+  },
+  "next/event/$slug/settings/danger-zone/cancel": {
+    route: deNextEventSettingsCancel,
+  },
+  "next/event/$slug/settings/danger-zone/delete": {
+    route: deNextEventSettingsDelete,
   },
   "next/event/$slug/settings/details": {
     route: deNextEventSettingsDetails,
@@ -964,6 +979,16 @@ const en = {
   },
   "next/event/$slug/settings/danger-zone": {
     route: enNextEventSettingsDangerZone,
+  },
+  "next/event/$slug/settings/danger-zone/change-url": {
+    route: enNextEventSettingsChangeURL,
+    components: enComponents,
+  },
+  "next/event/$slug/settings/danger-zone/cancel": {
+    route: enNextEventSettingsCancel,
+  },
+  "next/event/$slug/settings/danger-zone/delete": {
+    route: enNextEventSettingsDelete,
   },
   "next/event/$slug/settings/details": {
     route: enNextEventSettingsDetails,

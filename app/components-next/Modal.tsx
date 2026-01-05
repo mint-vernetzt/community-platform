@@ -10,6 +10,7 @@ import {
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { ModalClose as ModalCloseIcon } from "./icons/ModalClose";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
+import classNames from "classnames";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
@@ -56,19 +57,30 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
 }
 
 function ModalSubmitButton(
-  props: React.InputHTMLAttributes<HTMLButtonElement>
+  props: React.InputHTMLAttributes<HTMLButtonElement> & {
+    level?: "primary" | "negative";
+  }
 ) {
-  const { children, ...inputProps } = props;
+  const { children, level = "primary", ...inputProps } = props;
   const isSubmitting = useIsSubmitting();
+
+  const classes = classNames(
+    "inline-flex h-12 min-h-12 shrink-0 cursor-pointer select-none flex-wrap items-center justify-center rounded-lg border-transparent px-4 font-semibold whitespace-nowrap w-full text-sm text-center leading-[1em] py-2.5 border",
+    {
+      "bg-neutral-200 text-neutral-400 pointer-events-none":
+        inputProps.disabled === true,
+      "bg-primary text-neutral-50 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700":
+        inputProps.disabled !== true && level === "primary",
+      "bg-negative-700 text-white hover:bg-negative-700 focus:bg-negative-700 active:bg-negative-700":
+        inputProps.disabled !== true && level === "negative",
+    }
+  );
+
   return (
     <button
       {...inputProps}
       type="submit"
-      className={`inline-flex h-12 min-h-12 shrink-0 cursor-pointer select-none flex-wrap items-center justify-center rounded-lg border-transparent px-4 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 font-semibold whitespace-nowrap w-full text-sm text-center leading-[1em] py-2.5 border ${
-        inputProps.disabled === true
-          ? "bg-neutral-200 text-neutral-400 pointer-events-none"
-          : "bg-primary text-neutral-50"
-      }`}
+      className={classes}
       disabled={inputProps.disabled || isSubmitting}
     >
       {children}
