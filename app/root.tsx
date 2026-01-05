@@ -63,13 +63,13 @@ import { combineHeaders, deriveMode } from "./utils.server";
 import { PreviousLocationContext } from "./components/next/PreviousLocationContext";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-  const { data } = args;
+  const { loaderData } = args;
 
   if (
-    typeof data === "undefined" ||
-    data === null ||
-    typeof data.meta === "undefined" ||
-    data.meta === null
+    typeof loaderData === "undefined" ||
+    loaderData === null ||
+    typeof loaderData.meta === "undefined" ||
+    loaderData.meta === null
   ) {
     return [
       { title: "MINTvernetzt Community Plattform" },
@@ -93,15 +93,15 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     {
       name: "image",
       property: "og:image",
-      content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
     },
     {
       property: "og:image:secure_url",
-      content: data.meta.baseUrl + "/images/default-event-background.jpg",
+      content: loaderData.meta.baseUrl + "/images/default-event-background.jpg",
     },
     {
       property: "og:url",
-      content: data.meta.url,
+      content: loaderData.meta.url,
     },
   ];
 };
@@ -355,7 +355,7 @@ export const ErrorBoundary = () => {
         {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
@@ -657,7 +657,7 @@ export default function App() {
         {ENV.ALLOW_INDEXING === "false" ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
-        <Links />
+        <Links nonce={nonce} />
       </head>
 
       <body id="top" className={bodyClasses}>
