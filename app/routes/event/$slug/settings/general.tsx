@@ -1,6 +1,5 @@
 import { createRef, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -9,6 +8,8 @@ import {
   useLoaderData,
   useNavigation,
   useParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -23,8 +24,10 @@ import { detectLanguage } from "~/i18n.server";
 import { objectListOperationResolver } from "~/lib/utils/components";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import type { FormError } from "~/lib/utils/yup";
-import { getFormDataValidationResultOrThrow } from "~/lib/utils/yup";
+import {
+  getFormDataValidationResultOrThrow,
+  type FormError,
+} from "~/lib/utils/yup";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {

@@ -43,7 +43,6 @@ export const createPhoneSchema = (
     .trim()
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-      // eslint-disable-next-line no-useless-escape
       /^$|^(\+?[0-9 \-\(\)]{3,}\/?[0-9 \-\(\)]{4,})$/,
       locales.schemas.validation.phone.regex
     );
@@ -61,7 +60,6 @@ export const createWebsiteSchema = (locales: WebAndSocialLocales) =>
     .trim()
     .regex(
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-      // eslint-disable-next-line no-useless-escape
       /^(https:\/\/)(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
       {
         message: locales.schemas.validation.website.regex,

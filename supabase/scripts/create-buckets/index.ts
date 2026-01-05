@@ -26,9 +26,8 @@ async function main() {
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-  const { data: imageBucketData } = await authClient.storage.getBucket(
-    "images"
-  );
+  const { data: imageBucketData } =
+    await authClient.storage.getBucket("images");
   if (imageBucketData !== null) {
     console.log(`Bucket "images" already exists. Skipping creation.`);
   } else {
@@ -43,9 +42,8 @@ async function main() {
       console.log(`Successfully created bucket "images"`);
     }
   }
-  const { data: documentBucketData } = await authClient.storage.getBucket(
-    "documents"
-  );
+  const { data: documentBucketData } =
+    await authClient.storage.getBucket("documents");
   if (documentBucketData !== null) {
     console.log(`Bucket "documents" already exists. Skipping creation.`);
   } else {
@@ -62,4 +60,4 @@ async function main() {
   }
 }
 
-main();
+await main();

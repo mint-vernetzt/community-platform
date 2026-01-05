@@ -280,7 +280,7 @@ export async function uploadImage(options: {
             id: true,
           },
         });
-        triggerEntityScore({
+        void triggerEntityScore({
           entity: "organization",
           where: { id: organization.id },
         });
@@ -353,7 +353,7 @@ export async function disconnectImage(options: {
             id: true,
           },
         });
-        triggerEntityScore({
+        void triggerEntityScore({
           entity: "organization",
           where: { id: organization.id },
         });

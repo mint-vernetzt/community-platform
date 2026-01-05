@@ -67,7 +67,7 @@ function OverlayMenu(
           searchParams.toString()
         );
         enhancedSearchParams.delete(searchParam);
-        submit(enhancedSearchParams, {
+        void submit(enhancedSearchParams, {
           method: "get",
           replace: true,
           preventScrollReset: true,

@@ -1,6 +1,5 @@
 import { makeDomainFunction } from "domain-functions";
-import type { ActionFunctionArgs } from "react-router";
-import { useFetcher } from "react-router";
+import { useFetcher, type ActionFunctionArgs } from "react-router";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";

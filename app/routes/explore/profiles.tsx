@@ -10,7 +10,6 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProfileCard } from "@mint-vernetzt/components/src/organisms/cards/ProfileCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
@@ -18,6 +17,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -458,7 +458,7 @@ export default function ExploreProfiles() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, {
+            void submit(event.currentTarget, {
               preventScrollReset,
               method: "get",
             });

@@ -10,7 +10,6 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useEffect, useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   NavLink,
@@ -20,6 +19,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -459,7 +459,7 @@ export default function ExploreOrganizations() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, {
+            void submit(event.currentTarget, {
               preventScrollReset,
               method: "get",
             });

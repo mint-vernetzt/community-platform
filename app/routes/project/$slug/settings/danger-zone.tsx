@@ -1,7 +1,12 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
-import { type LoaderFunctionArgs } from "react-router";
-import { Link, Outlet, useLoaderData, useLocation } from "react-router";
+import {
+  Link,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  type LoaderFunctionArgs,
+} from "react-router";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";

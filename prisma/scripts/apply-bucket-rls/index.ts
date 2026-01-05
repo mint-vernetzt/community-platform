@@ -30,17 +30,15 @@ async function main() {
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-  const { data: imageBucketData } = await authClient.storage.getBucket(
-    "images"
-  );
+  const { data: imageBucketData } =
+    await authClient.storage.getBucket("images");
   if (imageBucketData === null) {
     console.log(
       `Bucket "images" does not exists. Cannot apply RLS. Please run "create-buckets" script located in "/supabase/scripts/create-buckets/index.ts" first.`
     );
   }
-  const { data: documentBucketData } = await authClient.storage.getBucket(
-    "documents"
-  );
+  const { data: documentBucketData } =
+    await authClient.storage.getBucket("documents");
   if (documentBucketData !== null) {
     console.log(
       `Bucket "documents" does not exists. Cannot apply RLS. Please run "create-buckets" script located in "/supabase/scripts/create-buckets/index.ts" first.`
@@ -56,8 +54,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "anyone can access images" to bucket "images".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -83,8 +79,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can upload images" to bucket "images".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -110,8 +104,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can update images" to bucket "images".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -137,8 +129,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can access documents" to bucket "documents".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -164,8 +154,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS policy "authenticated user can upload documents" to bucket "documents".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -191,8 +179,6 @@ async function main() {
     console.log(
       'Succesfully applied RLS "authenticated user can update documents" to bucket "documents".'
     );
-    // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const error: PrismaClientKnownRequestError = e;
     if (
@@ -211,4 +197,4 @@ async function main() {
   await prismaClient.$disconnect();
 }
 
-main();
+await main();

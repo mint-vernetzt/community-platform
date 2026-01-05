@@ -138,7 +138,7 @@ function Admins() {
         fetcher={addAdminFetcher}
         action={`/event/${slug}/settings/admins/add-admin`}
         onSubmit={() => {
-          submit({
+          void submit({
             method: "get",
             action: `/event/${slug}/settings/admins`,
           });

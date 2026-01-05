@@ -130,7 +130,6 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id, ...rest } = organization;
   const filteredOrganization = rest;
 
@@ -304,8 +303,8 @@ export async function action(args: ActionFunctionArgs) {
                 ...visibilities,
               },
             });
-            updateFilterVectorOfOrganization(organization.id);
-            triggerEntityScore({
+            void updateFilterVectorOfOrganization(organization.id);
+            void triggerEntityScore({
               entity: "organization",
               where: { id: organization.id },
             });

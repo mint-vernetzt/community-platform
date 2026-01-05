@@ -97,7 +97,7 @@ main()
     console.error(event);
     process.exit(1);
   })
-  .finally(() => {
-    prismaClient.$disconnect();
+  .finally(async () => {
+    await prismaClient.$disconnect();
     console.log("Done.");
   });

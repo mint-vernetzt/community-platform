@@ -40,7 +40,6 @@ const schema = z.array(
 type Funding = z.infer<typeof schema>[0];
 
 async function main() {
-  // eslint-disable-next-line import/no-named-as-default-member
   let data = await fs.readJson(options.file);
 
   if (options.overwrite) {

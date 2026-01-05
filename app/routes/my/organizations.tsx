@@ -831,7 +831,7 @@ export default function MyOrganizations() {
               onChange={(event) => {
                 searchForm.validate();
                 if (searchForm.valid) {
-                  searchFetcher.submit(event.currentTarget, {
+                  void searchFetcher.submit(event.currentTarget, {
                     preventScrollReset: true,
                   });
                 }
@@ -849,7 +849,7 @@ export default function MyOrganizations() {
                   {locales.route.requestOrganizationMembership.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon />
+                <Input.ClearIcon fetcher={searchFetcher} />
 
                 {typeof searchFields[SearchOrganizations].errors !==
                   "undefined" &&
@@ -867,16 +867,6 @@ export default function MyOrganizations() {
                     {locales.route.requestOrganizationMembership.helperText}
                   </Input.HelperText>
                 )}
-                <Input.ClearIcon
-                  onClick={() => {
-                    setTimeout(() => {
-                      searchForm.reset();
-                      searchFetcher.submit(null, {
-                        preventScrollReset: true,
-                      });
-                    }, 0);
-                  }}
-                />
                 <Input.Controls>
                   <noscript>
                     <Button type="submit" variant="outline">

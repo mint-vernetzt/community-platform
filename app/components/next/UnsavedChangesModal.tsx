@@ -12,8 +12,6 @@ import { extendSearchParams, LastTimeStamp } from "~/lib/utils/searchParams";
 
 export function UnsavedChangesModal(props: {
   searchParam: string;
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formMetadataToCheck: FormMetadata<any> | FormMetadata<any>[];
   locales: {
     title: string;
@@ -53,7 +51,7 @@ export function UnsavedChangesModal(props: {
           [LastTimeStamp]: `${lastTimeStamp}`,
         },
       });
-      submit(newSearchParams, { method: "get" });
+      void submit(newSearchParams, { method: "get" });
     }
     return isBlocked;
   });

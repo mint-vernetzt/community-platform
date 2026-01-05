@@ -1,6 +1,5 @@
 import { createRef, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -9,6 +8,8 @@ import {
   useLoaderData,
   useNavigation,
   useParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -30,8 +31,7 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { createSocialMediaServices } from "~/lib/utils/socialMediaServices";
-import type { FormError } from "~/lib/utils/yup";
-import { getFormValues, validateForm } from "~/lib/utils/yup";
+import { getFormValues, validateForm, type FormError } from "~/lib/utils/yup";
 import { languageModuleMap } from "~/locales/.server";
 import { getAllOffers } from "~/routes/utils.server";
 import { getAreas } from "~/utils.server";
@@ -138,7 +138,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     if (errors === null) {
       try {
         const { privateFields, ...profileData } = data;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore TODO: fix type issue
         await updateProfileById(profile.id, profileData, privateFields);
         updated = true;

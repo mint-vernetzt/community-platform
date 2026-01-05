@@ -72,8 +72,6 @@ export async function detectLanguage(request: Request) {
     return lngSearchParam as ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   } else {
     const cookieHeader = request.headers.get("Cookie");
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cookieLng = (await localeCookie.parse(cookieHeader)) as null | any;
     if (cookieLng === null) {
       const acceptLanguageHeaderLng =

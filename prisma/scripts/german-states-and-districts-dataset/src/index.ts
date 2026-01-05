@@ -13,15 +13,9 @@ export async function main(
 ) {
   if (apiUrl) {
     // Makes a http request to the corona API and passes on the response body to evaluateJsonObject()
-    await // TODO: fix any type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get(apiUrl, async (res: any) => {
-      // TODO: fix any type
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await get(apiUrl, async (res: any) => {
       const data: any = [];
 
-      // TODO: fix any type
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       res.on("data", (chunk: any) => {
         data.push(chunk);
       });
@@ -194,12 +188,9 @@ function hashFunction(slug: string) {
   return `${slug}-${stringFromRandom}`;
 }
 
-// TODO: fix any type
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getAreas(districts: any, states: any, countries: any) {
   const areas: Area[] = [];
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> comes from any type above
   districts.forEach((district) => {
     const area = {
@@ -208,11 +199,9 @@ export function getAreas(districts: any, states: any, countries: any) {
       type: "district",
       stateId: district.stateAgsPrefix,
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> comes from any type above
     areas.push(area);
   });
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> comes from any type above
   states.forEach((state) => {
     const area = {
@@ -221,11 +210,9 @@ export function getAreas(districts: any, states: any, countries: any) {
       type: "state",
       stateId: state.agsPrefix,
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> comes from any type above
     areas.push(area);
   });
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> comes from any type above
   countries.forEach((country) => {
     const area = {
@@ -234,12 +221,10 @@ export function getAreas(districts: any, states: any, countries: any) {
       type: "country",
       stateId: null,
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> comes from any type above
     areas.push(area);
   });
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> comes from any type above
   areas.push({
     name: "Bundesweit",
@@ -248,7 +233,6 @@ export function getAreas(districts: any, states: any, countries: any) {
     stateId: null,
   });
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore -> comes from any type above
   areas.push({
     name: "International",
@@ -262,11 +246,7 @@ export function getAreas(districts: any, states: any, countries: any) {
 
 // Prepare the data for writeToDatabase() so that it can efficiently be written to with bulk insert, update, or delete
 export function prepareQueries(
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   current: { states: any[]; districts: any[]; areas: Area[] },
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { states: any[]; districts: any[] }
 ) {
   const currentDistricts = current.districts;
@@ -344,8 +324,6 @@ export function prepareQueries(
 
 // Intelligently write the states and districts to the database
 export async function writeToDatabase(
-  // TODO: fix any type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: { states: any[]; districts: any[] },
   verbose = false
 ) {

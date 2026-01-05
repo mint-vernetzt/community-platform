@@ -39,7 +39,6 @@ const TextArea = (
     helperText,
     ...inputProps
   } = props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { value, className, readOnly, tabIndex, ...rteInputProps } = inputProps;
 
   const [characterCount, updateCharacterCount] = useState(

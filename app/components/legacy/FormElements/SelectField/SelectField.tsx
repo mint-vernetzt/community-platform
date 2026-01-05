@@ -70,7 +70,7 @@ function SelectField(
                 {"value" in option && (
                   <option
                     onClick={(event) => {
-                      submit(event.currentTarget.form, {
+                      void submit(event.currentTarget.form, {
                         method: "post",
                       });
                     }}
@@ -89,7 +89,7 @@ function SelectField(
                     {option.options.map((groupOption, groupOptionIndex) => (
                       <option
                         onClick={(event) => {
-                          submit(event.currentTarget.form, {
+                          void submit(event.currentTarget.form, {
                             method: "post",
                           });
                         }}

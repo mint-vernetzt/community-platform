@@ -1,6 +1,5 @@
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import { utcToZonedTime } from "date-fns-tz";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
   redirect,
@@ -9,6 +8,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -216,7 +216,7 @@ function Events() {
         fetcher={setParentFetcher}
         action={`/event/${slug}/settings/events/set-parent`}
         onSubmit={() => {
-          submit({
+          void submit({
             method: "get",
             action: `/event/${slug}/settings/events`,
           });
@@ -429,7 +429,7 @@ function Events() {
         fetcher={addChildFetcher}
         action={`/event/${slug}/settings/events/add-child`}
         onSubmit={() => {
-          submit({
+          void submit({
             method: "get",
             action: `/event/${slug}/settings/events`,
           });
@@ -614,7 +614,7 @@ function Events() {
                           title={locales.route.form.remove.label}
                           onClick={() => {
                             if (removeChildFetcher.state === "idle") {
-                              removeChildFetcher.submit(
+                              void removeChildFetcher.submit(
                                 { childEventId: childEvent.id },
                                 {
                                   method: "post",

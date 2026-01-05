@@ -1,13 +1,14 @@
 import { format } from "date-fns";
-import type {
-  AnyObject,
-  Asserts,
-  InferType,
-  ObjectSchema,
-  StringSchema,
-  TestContext,
+import {
+  type AnyObject,
+  type Asserts,
+  type InferType,
+  type ObjectSchema,
+  type StringSchema,
+  type TestContext,
+  ValidationError,
+  string,
 } from "yup";
-import { ValidationError, string } from "yup";
 import { invariantResponse } from "./response";
 import { removeHtmlTags, replaceHtmlEntities } from "./transformHtml";
 
@@ -32,7 +33,6 @@ const phoneValidation = {
 const websiteValidation = {
   match:
     // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-    // eslint-disable-next-line no-useless-escape
     /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
   error:
     "Deine Eingabe entspricht nicht dem Format einer Webseiten URL https://domain.tld/...).",
@@ -72,7 +72,6 @@ const socialValidation = {
   mastodon: {
     match:
       // Escape in following regex -> See: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/pattern#overview
-      // eslint-disable-next-line no-useless-escape
       /^(https?:\/\/)?(www\.)?[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9\(\)]{1,9}\b([\-a-zA-Z0-9\(\)@:%_+.~#?&\/\/=]*)/gi,
     error:
       "Deine Eingabe entspricht nicht dem Format einer Mastodon Seite https://domain.tld/...).",
@@ -254,8 +253,6 @@ export async function getFormValues<T extends ObjectSchema<AnyObject>>(
   // TODO: Find better solution if this is not the best
   const parsedFormData: AnyObject = {};
   for (const key in schema.fields) {
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (schema.fields[key].type === "array") {
       // TODO: can this type assertion be removed and proofen by code?

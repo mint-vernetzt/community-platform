@@ -1,6 +1,5 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -10,6 +9,8 @@ import {
   useLoaderData,
   useLocation,
   useSearchParams,
+  type LoaderFunctionArgs,
+  type ActionFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import BackButton from "~/components/next/BackButton";

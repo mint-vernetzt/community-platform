@@ -3,7 +3,6 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -12,6 +11,8 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
@@ -181,7 +182,6 @@ export default function Register() {
                     </Dropdown.Label>
                     <Dropdown.List>
                       {Object.entries(locales.form.title.options).map(
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         ([_key, title]) => {
                           return (
                             <FormControl

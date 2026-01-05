@@ -11,7 +11,6 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { ProjectCard } from "@mint-vernetzt/components/src/organisms/cards/ProjectCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { useEffect, useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
@@ -19,6 +18,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -598,7 +598,10 @@ export default function ExploreProjects() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset, method: "get" });
+            void submit(event.currentTarget, {
+              preventScrollReset,
+              method: "get",
+            });
           }}
           onReset={() => setVisibleAreas(loaderData.areas)}
         >

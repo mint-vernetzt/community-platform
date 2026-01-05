@@ -7,10 +7,8 @@ export function useDebounceEffect(
 ) {
   useEffect(() => {
     const t = setTimeout(() => {
-      // TODO: fix type issue and fix eslint error
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      fn.apply(undefined, deps); // eslint-disable-line prefer-spread
+      fn.apply(undefined, deps);
     }, waitTime);
 
     return () => {

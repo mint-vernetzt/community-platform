@@ -601,8 +601,6 @@ export async function getProfileFilterVectorForAttribute(options: {
           },
         }
       );
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error({ error });
       invariantResponse(false, "Server error", { status: 500 });

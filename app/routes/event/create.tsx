@@ -1,12 +1,13 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { useForm } from "react-hook-form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
   useActionData,
   useLoaderData,
   useNavigate,
+  type LoaderFunctionArgs,
+  type ActionFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -16,8 +17,7 @@ import {
 import Input from "~/components/legacy/FormElements/Input/Input";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
-import type { FormError } from "~/lib/utils/yup";
-import { getFormValues, validateForm } from "~/lib/utils/yup";
+import { getFormValues, validateForm, type FormError } from "~/lib/utils/yup";
 import { languageModuleMap } from "~/locales/.server";
 import {
   checkFeatureAbilitiesOrThrow,

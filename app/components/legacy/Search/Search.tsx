@@ -49,7 +49,7 @@ function Search(props: SearchProps) {
     setValue(query);
 
     if (query.length >= minLength) {
-      fetcher.submit({ method: "get", search: query });
+      void fetcher.submit({ method: "get", search: query });
     }
   };
 

@@ -311,7 +311,7 @@ function Team() {
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                searchFetcher.submit(event.currentTarget, {
+                void searchFetcher.submit(event.currentTarget, {
                   preventScrollReset: true,
                 });
               }
@@ -330,7 +330,6 @@ function Team() {
                 {locales.route.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.ClearIcon />
 
               {typeof searchFields[SearchProfiles].errors !== "undefined" &&
               searchFields[SearchProfiles].errors.length > 0 ? (
@@ -347,16 +346,7 @@ function Team() {
                   {locales.route.content.add.criteria}
                 </Input.HelperText>
               )}
-              <Input.ClearIcon
-                onClick={() => {
-                  setTimeout(() => {
-                    searchForm.reset();
-                    searchFetcher.submit(null, {
-                      preventScrollReset: true,
-                    });
-                  }, 0);
-                }}
-              />
+              <Input.ClearIcon fetcher={searchFetcher} />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">

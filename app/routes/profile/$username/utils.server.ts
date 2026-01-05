@@ -130,7 +130,6 @@ export async function updateProfileById(
   },
   privateFields: string[]
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { email: _email, ...rest } = profileData;
 
   const profileVisibility = await prismaClient.profileVisibility.findFirst({
@@ -211,9 +210,9 @@ export async function updateProfileById(
     }),
   ]);
 
-  triggerEntityScore({ entity: "profile", where: { id } });
+  void triggerEntityScore({ entity: "profile", where: { id } });
 
-  updateFilterVectorOfProfile(id);
+  void updateFilterVectorOfProfile(id);
 }
 
 export async function updateFilterVectorOfProfile(profileId: string) {

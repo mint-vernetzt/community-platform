@@ -14,8 +14,6 @@ export type MyEventsLocales = (typeof languageModuleMap)[ArrayElement<
 export async function getEvents(options: {
   profileId: string;
   authClient: SupabaseClient;
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   where?: { [key: string]: any };
   orderBy?: { [key: string]: "asc" | "desc" };
 }) {

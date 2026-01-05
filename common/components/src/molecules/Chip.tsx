@@ -63,8 +63,6 @@ function Chip(props: ChipProps) {
       const clone = cloneElement(
         child,
         {
-          // TODO: fix type issue
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - We should look at our cloneElement implementation.
           disabled: disabled,
           className: `${"className" in child.props && typeof child.props.className === "string" ? `${child.props.className} ` : ""}line-clamp-1`,
@@ -98,8 +96,6 @@ function Chip(props: ChipProps) {
     const chipDeleteClone = cloneElement(
       chipDelete,
       {
-        // TODO: fix type issue
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
         responsive: props.responsive,
         interactive: props.interactive,
@@ -151,8 +147,6 @@ function ChipDelete(
     clone = cloneElement(
       element,
       // TODO: i18n of title and aria-label
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       { className: classes, disabled, title: "Delete", "aria-label": "Delete" },
       <svg

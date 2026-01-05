@@ -10,7 +10,6 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { EventCard } from "@mint-vernetzt/components/src/organisms/cards/EventCard";
 import { CardContainer } from "@mint-vernetzt/components/src/organisms/containers/CardContainer";
 import { utcToZonedTime } from "date-fns-tz";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
@@ -18,6 +17,7 @@ import {
   useNavigation,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
@@ -369,7 +369,10 @@ export default function ExploreEvents() {
             ) {
               preventScrollReset = false;
             }
-            submit(event.currentTarget, { preventScrollReset, method: "get" });
+            void submit(event.currentTarget, {
+              preventScrollReset,
+              method: "get",
+            });
           }}
         >
           <HiddenFilterInputs

@@ -5,7 +5,6 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { useRef } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -15,6 +14,8 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
@@ -403,7 +404,7 @@ function CreateOrganization() {
                   SearchOrganizations,
                   event.currentTarget.value.trim()
                 );
-                searchFetcher.submit(searchSearchParams, {
+                void searchFetcher.submit(searchSearchParams, {
                   preventScrollReset: true,
                 });
               }
@@ -481,7 +482,7 @@ function CreateOrganization() {
                 </Button>
               </Input.Controls>
               <Input.SearchIcon />
-              <Input.ClearIcon />
+              <Input.ClearIcon fetcher={searchFetcher} />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&

@@ -1,5 +1,4 @@
-import type { ActionFunctionArgs } from "react-router";
-import { redirect } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { signOut } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 

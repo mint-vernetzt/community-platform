@@ -185,8 +185,7 @@ export async function exportPossibleOrganizationDuplicates() {
   }
 
   const now = new Date();
-  // eslint-disable-next-line import/no-named-as-default-member
-  fs.writeJSON(
+  await fs.writeJSON(
     `${currentDirectory}/data/duplicate-organizations-${now
       .toISOString()
       .replaceAll(":", "-")
@@ -322,8 +321,7 @@ export async function exportPossibleProfileDuplicates() {
   }
 
   const now = new Date();
-  // eslint-disable-next-line import/no-named-as-default-member
-  fs.writeJSON(
+  await fs.writeJSON(
     `${currentDirectory}/data/duplicate-profiles-${now
       .toISOString()
       .replaceAll(":", "-")

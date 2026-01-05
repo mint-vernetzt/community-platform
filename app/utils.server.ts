@@ -1,6 +1,5 @@
 import { type User } from "@supabase/supabase-js";
-import type { BinaryToTextEncoding } from "crypto";
-import { createHash, createHmac } from "crypto";
+import { createHash, createHmac, type BinaryToTextEncoding } from "crypto";
 import sanitizeHtml from "sanitize-html";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
@@ -119,8 +118,6 @@ export async function triggerEntityScore(options: {
   }
   if (entity !== null) {
     const score = getScoreOfEntity(entity);
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore -> Either less abstraction or runtime check
     await prismaClient[options.entity].update({
       where: { id: entity.id },
@@ -169,8 +166,6 @@ function defaultHashFunction(slug: string): string {
 
 export function generateValidSlug(
   string: string,
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: { hashFunction?: (options: any) => string }
 ) {
   const { hashFunction = defaultHashFunction } = options || {};

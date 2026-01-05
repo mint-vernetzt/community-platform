@@ -444,13 +444,13 @@ function ProjectDetail() {
               ? `${previousLocation.pathname}${previousLocation.search}`
               : "/explore/projects"
           }
-          onClick={(event) => {
+          onClick={async (event) => {
             if (
               previousLocation !== null &&
               previousLocation.pathname === "/explore/projects"
             ) {
               event.preventDefault();
-              navigate(-1);
+              void navigate(-1);
             }
           }}
           prefetch="intent"

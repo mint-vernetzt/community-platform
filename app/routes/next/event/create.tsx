@@ -1,5 +1,4 @@
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   Link,
@@ -8,6 +7,8 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  type LoaderFunctionArgs,
+  type ActionFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,

@@ -4,59 +4,34 @@ import type { EntitySubset } from "./lib/utils/types";
 import { prismaClient } from "./prisma.server";
 
 type ProfileWithRelations = Profile & {
-  // TODO: fix type issues
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   areas: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memberOf: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   offers: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   participatedEvents: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   seekings: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contributedEvents: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   teamMemberOfEvents: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   teamMemberOfProjects: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   waitingForEvents: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileVisibility: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   notificationSettings: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   administeredEvents: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   administeredOrganizations: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   administeredProjects: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   backgroundImage: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileAbuseReport: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   organizationAbuseReport: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   eventAbuseReport: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   projectAbuseReport: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abuseReports: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   joinOrganizationRequests: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   joinOrganizationInvites: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   claimOrganizationRequests: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _count: any;
 };
 
 export async function filterProfileByVisibility<
-  T extends EntitySubset<ProfileWithRelations, T>
+  T extends EntitySubset<ProfileWithRelations, T>,
 >(profile: T) {
   const profileVisibility = await prismaClient.profileVisibility.findFirst({
     where: {
@@ -79,8 +54,7 @@ export async function filterProfileByVisibility<
       );
     }
   }
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const filteredFields: { [key: string]: any } = {};
   for (const key in profileVisibility) {
     if (key !== "id" && key !== "profileId") {

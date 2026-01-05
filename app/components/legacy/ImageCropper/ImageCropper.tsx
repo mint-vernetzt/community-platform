@@ -1,6 +1,11 @@
 import { default as Pica } from "pica";
-import type { Crop, PixelCrop } from "react-image-crop";
-import { centerCrop, makeAspectCrop, ReactCrop } from "react-image-crop";
+import {
+  centerCrop,
+  makeAspectCrop,
+  ReactCrop,
+  type Crop,
+  type PixelCrop,
+} from "react-image-crop";
 
 import {
   getFormProps,
@@ -284,7 +289,7 @@ function ImageCropper(props: ImageCropperProps) {
         imgRef.current &&
         previewCanvasRef.current
       ) {
-        canvasPreview(
+        void canvasPreview(
           imgRef.current,
           previewCanvasRef.current,
           completedCrop,
@@ -366,7 +371,7 @@ function ImageCropper(props: ImageCropperProps) {
             formData.set(BUCKET_FIELD_NAME, BUCKET_NAME_IMAGES);
             formData.set(INTENT_FIELD_NAME, UPLOAD_INTENT_VALUE);
             formData.set("uploadKey", uploadKey);
-            submit(formData, {
+            void submit(formData, {
               preventScrollReset: true,
               method: "POST",
               encType: "multipart/form-data",
@@ -440,7 +445,7 @@ function ImageCropper(props: ImageCropperProps) {
                     ) {
                       e.preventDefault();
                     } else {
-                      submit(e.currentTarget);
+                      void submit(e.currentTarget);
                     }
                   }}
                   disabled={isSubmitting}
