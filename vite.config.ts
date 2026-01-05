@@ -18,12 +18,6 @@ export default defineConfig({
       typeof process.env.SENTRY_AUTH_TOKEN !== "undefined",
     target: "es2022",
   },
-  optimizeDeps: {
-    // This fixes an issue with vites optimizeDeps triggering sudden reloads on dev and restarting the server on navigation which lets the app hang
-    // for now below fix is mentioned in following discussion see https://github.com/remix-run/remix/discussions/8917
-    // currently the remix team works on that with future flag unstable_optimizeDeps -> https://remix.run/docs/en/main/guides/dependency-optimization
-    entries: ["./app/entry-client.tsx", "./app/root.tsx", "./app/routes/**/*"],
-  },
   plugins: [
     tailwindcss(),
     reactRouter(),
