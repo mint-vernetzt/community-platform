@@ -31,16 +31,6 @@ async function getEvents(request: Request, skip: number, take: number) {
       venueLatitude: true,
       canceled: true,
       parentEventId: true,
-      areas: {
-        select: {
-          area: {
-            select: {
-              name: true,
-              slug: true,
-            },
-          },
-        },
-      },
       types: {
         select: {
           eventType: {
@@ -132,7 +122,6 @@ async function getEvents(request: Request, skip: number, take: number) {
           venueLatitude: true,
           canceled: true,
           parentEventId: true,
-          areas: true,
           types: true,
           focuses: true,
           tags: true,
