@@ -45,6 +45,15 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
+  if (
+    (event.published && event.canceled === false) ||
+    event.published === false
+  ) {
+    const url = new URL(request.url);
+    url.pathname = `/next/event/${params.slug}/settings/danger-zone/change-url`;
+    return redirect(url.toString());
+  }
+
   const url = new URL(request.url);
   const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
   const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
@@ -79,6 +88,11 @@ export async function action(args: ActionFunctionArgs) {
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+  invariantResponse(
+    event.published === false || (event.published && event.canceled),
+    "Event should be canceled before deletion",
+    { status: 400 }
+  );
 
   const formData = await request.formData();
   const schema = createDeleteSchema({

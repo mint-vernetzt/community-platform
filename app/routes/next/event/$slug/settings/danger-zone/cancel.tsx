@@ -37,9 +37,9 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event.canceled || event.published === false) {
-    return redirect(
-      `/next/event/${params.slug}/settings/danger-zone/change-url`
-    );
+    const url = new URL(request.url);
+    url.pathname = `/next/event/${params.slug}/settings/danger-zone/change-url`;
+    return redirect(url.toString());
   }
 
   return { locales, event };
