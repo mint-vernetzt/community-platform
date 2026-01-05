@@ -65,10 +65,17 @@ export async function action(args: ActionFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/danger-zone/cancel"];
+
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+  invariantResponse(
+    event.canceled === false || event.published,
+    "Event already canceled",
+    { status: 400 }
+  );
 
   try {
     await cancelEventBySlug(params.slug);
