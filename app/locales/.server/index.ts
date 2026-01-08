@@ -73,6 +73,9 @@ import { locale as deCreateEvent } from "./de/routes/event/create";
 import { locale as deNextCreateEvent } from "./de/routes/next/event/create";
 import { locale as deNextEventSettings } from "./de/routes/next/event/$slug/settings";
 import { locale as deNextEventSettingsAdmins } from "./de/routes/next/event/$slug/settings/admins";
+import { locale as deNextEventSettingsAdminsList } from "./de/routes/next/event/$slug/settings/admins/list";
+import { locale as deNextEventSettingsAdminsAdd } from "./de/routes/next/event/$slug/settings/admins/add";
+import { locale as deNextEventSettingsAdminsInvites } from "./de/routes/next/event/$slug/settings/admins/invites";
 import { locale as deNextEventSettingsDangerZone } from "./de/routes/next/event/$slug/settings/danger-zone";
 import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$slug/settings/danger-zone/change-url";
 import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
@@ -258,6 +261,9 @@ import { locale as enCreateEvent } from "./en/routes/event/create";
 import { locale as enNextCreateEvent } from "./en/routes/next/event/create";
 import { locale as enNextEventSettings } from "./en/routes/next/event/$slug/settings";
 import { locale as enNextEventSettingsAdmins } from "./en/routes/next/event/$slug/settings/admins";
+import { locale as enNextEventSettingsAdminsList } from "./en/routes/next/event/$slug/settings/admins/list";
+import { locale as enNextEventSettingsAdminsAdd } from "./en/routes/next/event/$slug/settings/admins/add";
+import { locale as enNextEventSettingsAdminsInvites } from "./en/routes/next/event/$slug/settings/admins/invites";
 import { locale as enNextEventSettingsDangerZone } from "./en/routes/next/event/$slug/settings/danger-zone";
 import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$slug/settings/danger-zone/change-url";
 import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
@@ -504,6 +510,15 @@ const de = {
   },
   "next/event/$slug/settings/admins": {
     route: deNextEventSettingsAdmins,
+  },
+  "next/event/$slug/settings/admins/add": {
+    route: deNextEventSettingsAdminsAdd,
+  },
+  "next/event/$slug/settings/admins/list": {
+    route: deNextEventSettingsAdminsList,
+  },
+  "next/event/$slug/settings/admins/invites": {
+    route: deNextEventSettingsAdminsInvites,
   },
   "next/event/$slug/settings/danger-zone": {
     route: deNextEventSettingsDangerZone,
@@ -976,6 +991,15 @@ const en = {
   },
   "next/event/$slug/settings/admins": {
     route: enNextEventSettingsAdmins,
+  },
+  "next/event/$slug/settings/admins/add": {
+    route: enNextEventSettingsAdminsAdd,
+  },
+  "next/event/$slug/settings/admins/list": {
+    route: enNextEventSettingsAdminsList,
+  },
+  "next/event/$slug/settings/admins/invites": {
+    route: enNextEventSettingsAdminsInvites,
   },
   "next/event/$slug/settings/danger-zone": {
     route: enNextEventSettingsDangerZone,

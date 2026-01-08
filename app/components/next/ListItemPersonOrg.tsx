@@ -38,6 +38,9 @@ function ListItemPersonOrg(props: {
   const subline = validChildren.find((child) => {
     return isValidElement(child) && child.type === ListItemPersonOrg.Subline;
   });
+  const controls = validChildren.find((child) => {
+    return isValidElement(child) && child.type === ListItemPersonOrg.Controls;
+  });
 
   if (typeof to === "undefined") {
     return (
@@ -50,6 +53,7 @@ function ListItemPersonOrg(props: {
             {headline}
             {subline}
           </div>
+          <div className="grow flex justify-end">{controls}</div>
         </div>
       </li>
     );
@@ -57,22 +61,25 @@ function ListItemPersonOrg(props: {
 
   return (
     <li className={hideClasses}>
-      <Link
-        to={to}
-        className={classNames(
-          classes,
-          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
-        )}
-        prefetch="intent"
-      >
-        <div className="flex gap-1">
-          <div className="w-12 h-12">{avatar}</div>
-        </div>
-        <div className="flex flex-col self-center text-neutral-700">
-          {headline}
-          {subline}
-        </div>
-      </Link>
+      <div className={classes}>
+        <Link
+          to={to}
+          className={classNames(
+            "flex gap-4 items-center grow text-neutral-700",
+            "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+          )}
+          prefetch="intent"
+        >
+          <div className="flex gap-1">
+            <div className="w-12 h-12">{avatar}</div>
+          </div>
+          <div className="flex flex-col self-center text-neutral-700">
+            {headline}
+            {subline}
+          </div>
+        </Link>
+        <div className="grow flex justify-end">{controls}</div>
+      </div>
     </li>
   );
 }
@@ -85,8 +92,13 @@ function ListItemSubline(props: { children: React.ReactNode }) {
   return <div className="font-normal line-clamp-1">{props.children}</div>;
 }
 
+function ListItemControls(props: { children: React.ReactNode }) {
+  return <div className="ml-auto flex gap-2">{props.children}</div>;
+}
+
 ListItemPersonOrg.Subline = ListItemSubline;
 ListItemPersonOrg.Headline = ListItemHeadline;
+ListItemPersonOrg.Controls = ListItemControls;
 ListItemPersonOrg.Avatar = Avatar;
 
 export default ListItemPersonOrg;

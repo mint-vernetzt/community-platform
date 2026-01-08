@@ -8,6 +8,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import classNames from "classnames";
+import { count } from "console";
 import { Children, createContext, isValidElement, useContext } from "react";
 import { Form, useNavigation, useSearchParams } from "react-router";
 import { type z } from "zod";
@@ -180,6 +181,8 @@ function List(props: {
   const otherChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child) && child.type !== Search;
   });
+
+  console.log({ count: otherChildren.length, hideAfter });
 
   return (
     <ListContext value={{ hideAfter }}>
