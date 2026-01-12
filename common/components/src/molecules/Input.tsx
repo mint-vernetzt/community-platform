@@ -94,6 +94,9 @@ function InputClearIcon(
     <button
       {...props}
       onClick={(event) => {
+        if (props.onClick !== undefined) {
+          props.onClick(event);
+        }
         setCharacterCount(0);
         event.currentTarget.form?.reset();
         if (typeof props.fetcher !== "undefined") {
