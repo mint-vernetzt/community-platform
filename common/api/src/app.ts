@@ -1,8 +1,9 @@
-import express, { json, urlencoded } from "express";
-import type {
-  Response as ExResponse,
-  Request as ExRequest,
-  NextFunction,
+import express, {
+  json,
+  urlencoded,
+  type Response as ExResponse,
+  type Request as ExRequest,
+  type NextFunction,
 } from "express";
 import { RegisterRoutes } from "./routes";
 import swaggerDocument from "../swagger.json";

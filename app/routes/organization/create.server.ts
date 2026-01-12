@@ -513,8 +513,8 @@ export async function createOrganization(options: {
             { ...data, latitude, longitude },
             slug
           );
-          updateFilterVectorOfOrganization(organization.id);
-          triggerEntityScore({
+          void updateFilterVectorOfOrganization(organization.id);
+          void triggerEntityScore({
             entity: "organization",
             where: { id: organization.id },
           });

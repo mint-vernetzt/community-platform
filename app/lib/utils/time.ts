@@ -1,14 +1,10 @@
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "./types";
 
-// TODO: fix type issue
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const transformParts = (parts: DateTimeRangeFormatPart[]): string => {
   const mapped = parts
     .map(
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       (p: DateTimeRangeFormatPart): string => {
         if (["hour", "minute", "day", "month"].includes(p.type))
@@ -67,15 +63,11 @@ export const getDuration = (
   const formatter = new Intl.DateTimeFormat(language, format);
 
   const formattedString = transformParts(
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     formatter.formatRangeToParts(start, end)
   );
 
   const result = formattedString
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     .replaceAll(" a", " AM")
     .replaceAll(" p", " PM");
@@ -107,8 +99,6 @@ export function getDateDuration(
   const format = sameMonth && sameYear ? formatLong : formatShort;
   const formatter = new Intl.DateTimeFormat(language, format);
 
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   return transformParts(formatter.formatRangeToParts(startTime, endTime));
 }
@@ -125,8 +115,6 @@ export function getTimeDuration(
 
   const formatter = new Intl.DateTimeFormat(language, format);
   const result = formatter
-    // TODO: fix type issue
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     .formatRange(startTime, endTime)
     .replaceAll(" a", " AM")

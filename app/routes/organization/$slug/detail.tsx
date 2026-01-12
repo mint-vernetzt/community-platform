@@ -223,8 +223,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let preferredExploreOrganizationsView: "map" | "list" = "map";
 
   const cookieHeader = request.headers.get("Cookie");
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
   if (cookie !== null) {
     try {
@@ -417,7 +415,7 @@ function OrganizationDetail() {
               `/explore/organizations/${preferredExploreOrganizationsView}`
           ) {
             event.preventDefault();
-            navigate(-1);
+            void navigate(-1);
           }
         }}
         prefetch="intent"

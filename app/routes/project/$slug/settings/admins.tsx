@@ -303,7 +303,7 @@ function Admins() {
             onChange={(event) => {
               searchForm.validate();
               if (searchForm.valid) {
-                searchFetcher.submit(event.currentTarget, {
+                void searchFetcher.submit(event.currentTarget, {
                   preventScrollReset: true,
                 });
               }
@@ -322,7 +322,7 @@ function Admins() {
                 {locales.route.content.add.search}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.ClearIcon />
+              <Input.ClearIcon fetcher={searchFetcher} />
 
               {typeof searchFields[SearchProfiles].errors !== "undefined" &&
               searchFields[SearchProfiles].errors.length > 0 ? (
@@ -339,16 +339,6 @@ function Admins() {
                   {locales.route.content.add.criteria}
                 </Input.HelperText>
               )}
-              <Input.ClearIcon
-                onClick={() => {
-                  setTimeout(() => {
-                    searchForm.reset();
-                    searchFetcher.submit(null, {
-                      preventScrollReset: true,
-                    });
-                  }, 0);
-                }}
-              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">

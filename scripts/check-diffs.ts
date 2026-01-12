@@ -1,6 +1,5 @@
 import inquirer from "inquirer";
-import type { SimpleGit } from "simple-git";
-import { simpleGit } from "simple-git";
+import { simpleGit, type SimpleGit } from "simple-git";
 import { executeCommand } from "./utils";
 
 const git: SimpleGit = simpleGit();

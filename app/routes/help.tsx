@@ -1,9 +1,8 @@
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { Accordion } from "~/components-next/Accordion";
 import { Link as StyledLink } from "@mint-vernetzt/components/src/molecules/Link";
-import { useLoaderData } from "react-router";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs } from "react-router";
+import { type LoaderFunctionArgs, useLoaderData } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { getFeatureAbilities } from "./feature-access.server";
@@ -57,10 +56,8 @@ export default function Help() {
                   if (qAndAkey in typedTopicValue.qAndAs) {
                     if (
                       // TODO: fix type issues -> caused by nested loops
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       // @ts-ignore
                       "featureFlag" in typedTopicValue.qAndAs[qAndAkey] &&
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                       // @ts-ignore
                       abilities[typedTopicValue.qAndAs[qAndAkey].featureFlag]
                         .hasAccess === false
@@ -72,12 +69,10 @@ export default function Help() {
                         id={`${typedTopicKey}-${qAndAkey}`}
                         key={`${typedTopicKey}-${qAndAkey}`}
                       >
-                        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                         {/* @ts-ignore */}
                         {typedTopicValue.qAndAs[qAndAkey].question}
                         <RichText
                           id="faq-content"
-                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                           // @ts-ignore
                           html={typedTopicValue.qAndAs[qAndAkey].answer}
                         />

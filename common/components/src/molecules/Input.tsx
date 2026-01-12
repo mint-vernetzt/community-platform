@@ -7,6 +7,7 @@ import {
   useContext,
   useState,
 } from "react";
+import { type FetcherWithComponents } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
@@ -69,7 +70,7 @@ function InputSearchIcon() {
 
 function InputClearIcon(
   props: React.HTMLProps<HTMLButtonElement> & {
-    onClick?: Pick<React.HTMLProps<HTMLButtonElement>, "onClick">["onClick"];
+    fetcher?: FetcherWithComponents<any>;
   }
 ) {
   const isHydrated = useHydrated();
@@ -98,6 +99,11 @@ function InputClearIcon(
         }
         setCharacterCount(0);
         event.currentTarget.form?.reset();
+        if (typeof props.fetcher !== "undefined") {
+          void props.fetcher.submit(event.currentTarget.form, {
+            preventScrollReset: true,
+          });
+        }
       }}
       type="reset"
     >

@@ -4,11 +4,6 @@ import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { captureException } from "@sentry/react";
 import classNames from "classnames";
 import { useEffect } from "react";
-import type {
-  HeadersArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from "react-router";
 import {
   data,
   isRouteErrorResponse,
@@ -24,6 +19,9 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
+  type LoaderFunctionArgs,
+  type HeadersArgs,
+  type MetaFunction,
 } from "react-router";
 import { Footer } from "~/components-next/Footer";
 import { NavBar } from "~/components-next/NavBar";
@@ -222,8 +220,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   let preferredExploreOrganizationsView: "map" | "list" = "list";
 
   const cookieHeader = request.headers.get("Cookie");
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cookie = (await viewCookie.parse(cookieHeader)) as null | any;
   if (cookie !== null) {
     try {
@@ -306,7 +302,7 @@ export const ErrorBoundary = () => {
         error,
         Object.getOwnPropertyNames(error)
       );
-      fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+      void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
         method: "GET",
       });
     }
@@ -552,7 +548,7 @@ export default function App() {
           error,
           Object.getOwnPropertyNames(error)
         );
-        fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+        void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
           method: "GET",
         });
       }
@@ -571,7 +567,7 @@ export default function App() {
           error,
           Object.getOwnPropertyNames(error)
         );
-        fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
+        void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
           method: "GET",
         });
       }

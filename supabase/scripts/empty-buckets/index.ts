@@ -26,12 +26,10 @@ async function main() {
   }
   const authClient = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-  const { error: imageBucketError } = await authClient.storage.emptyBucket(
-    "images"
-  );
-  const { error: documentBucketError } = await authClient.storage.emptyBucket(
-    "documents"
-  );
+  const { error: imageBucketError } =
+    await authClient.storage.emptyBucket("images");
+  const { error: documentBucketError } =
+    await authClient.storage.emptyBucket("documents");
   if (imageBucketError !== null) {
     console.error(
       "The image bucket could not be emptied. Please try to manually empty it (f.e. via Supabase Studio). If you don't have a bucket named 'images', please run the create-buckets script located in ./supabase/create-buckets/index.ts."
@@ -45,4 +43,4 @@ async function main() {
   console.log(`Successfully emptied buckets: "images", "documents"`);
 }
 
-main();
+await main();

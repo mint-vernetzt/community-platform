@@ -1,7 +1,6 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
 import { makeDomainFunction } from "domain-functions";
 import { useState } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Link,
   redirect,
@@ -11,6 +10,8 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { performMutation } from "remix-forms";
 import { z } from "zod";
@@ -301,7 +302,7 @@ function Participants() {
           fetcher={addParticipantFetcher}
           action={`/event/${slug}/settings/participants/add-participant`}
           onSubmit={() => {
-            submit({
+            void submit({
               method: "get",
               action: `/event/${slug}/settings/participants`,
             });

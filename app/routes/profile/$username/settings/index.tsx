@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 
 // handle "/general" as default route

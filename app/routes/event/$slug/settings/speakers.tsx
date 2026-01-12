@@ -1,5 +1,4 @@
 import { Avatar } from "@mint-vernetzt/components/src/molecules/Avatar";
-import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
   redirect,
@@ -8,6 +7,7 @@ import {
   useParams,
   useSearchParams,
   useSubmit,
+  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -140,7 +140,7 @@ function Speakers() {
         fetcher={addSpeakerFetcher}
         action={`/event/${slug}/settings/speakers/add-speaker`}
         onSubmit={() => {
-          submit({
+          void submit({
             method: "get",
             action: `/event/${slug}/settings/speakers`,
           });
