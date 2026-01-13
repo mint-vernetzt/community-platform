@@ -2,9 +2,9 @@ export const locale = {
   error: {
     notFound: "Datenbankeintrag nicht gefunden",
     lastAdmin:
-      "Du kannst das Projekt nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder das Projekt zu löschen.",
+      "Du kannst das Projekt nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder um das Projekt zu löschen.",
     lastTeamMember:
-      "Du kannst das Projekt nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder das Projekt zu löschen.",
+      "Du kannst das Projekt nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder um das Projekt zu löschen.",
   },
   overlayMenu: {
     close: "Schließen",

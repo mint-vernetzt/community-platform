@@ -10,9 +10,9 @@ export const locale = {
     acceptRequestFailed: "Beitrittsanfrage konnte nicht angenommen werden",
     rejectRequestFailed: "Beitrittsanfrage konnte nicht abgelehnt werden",
     lastAdmin:
-      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder die Organisation zu löschen.",
+      "Du kannst die Organisation nicht verlassen, da Du der letzte Admin bist. Drücke auf bearbeiten, um einen anderen Admin zu bestimmen oder um die Organisation zu löschen.",
     lastTeamMember:
-      "Du kannst die Organisation nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder die Organisation zu löschen.",
+      "Du kannst die Organisation nicht verlassen, da Du das letzte Teammitglied bist. Wende dich an die Admins, um ein anderes Teammitglied zu bestimmen oder um die Organisation zu löschen.",
     notShadow: "Organization cannot be claimed",
     alreadyClaimed:
       "Die Übernahme der Organisation wurde bereits angefragt oder von uns geprüft",

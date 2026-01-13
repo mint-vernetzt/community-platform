@@ -37,8 +37,7 @@ function ModalClose(props: { route: string }) {
 }
 
 type ModalCloseButtonProps = React.PropsWithChildren<{ route?: string }> &
-  LinkProps &
-  React.RefAttributes<HTMLAnchorElement>;
+  Omit<LinkProps & React.RefAttributes<HTMLAnchorElement>, "to">;
 
 function ModalCloseButton(props: ModalCloseButtonProps) {
   const { route, children, ...anchorProps } = props;
@@ -54,8 +53,8 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
       preventScrollReset
       prefetch="intent"
       fullSize
-      {...anchorProps}
       to={route}
+      {...anchorProps}
     >
       {props.children}
     </Button>
