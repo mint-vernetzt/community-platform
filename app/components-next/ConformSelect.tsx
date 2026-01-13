@@ -90,7 +90,7 @@ function ConformSelectInput(props: {
           height="21"
           fill="none"
           viewBox="0 0 20 21"
-          className="group-has-[:checked]/conform-select:rotate-180"
+          className="group-has-checked/conform-select:rotate-180"
         >
           <path
             stroke="#262D38"
@@ -103,7 +103,7 @@ function ConformSelectInput(props: {
       </label>
       <ul
         ref={listRef}
-        className="absolute top-[64px] w-full hidden group-has-[:checked]/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
+        className="absolute top-16 w-full hidden group-has-checked/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
       >
         {listItems.map((button) => {
           if (isValidElement(button)) {
