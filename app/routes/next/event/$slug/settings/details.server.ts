@@ -61,6 +61,61 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
+export async function getAllEventTypes() {
+  const eventTypes = await prismaClient.eventType.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  return eventTypes;
+}
+
+export async function getAllTags() {
+  const tags = await prismaClient.tag.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  return tags;
+}
+
+export async function getAllEventTargetGroups() {
+  const eventTargetGroups = await prismaClient.eventTargetGroup.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  return eventTargetGroups;
+}
+
+export async function getAllExperienceLevels() {
+  const experienceLevels = await prismaClient.experienceLevel.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  return experienceLevels;
+}
+
+export async function getAllFocuses() {
+  const focuses = await prismaClient.focus.findMany({
+    select: {
+      id: true,
+      slug: true,
+    },
+  });
+
+  return focuses;
+}
+
 export async function getEventBySlugForAction(slug: string) {
   const event = await prismaClient.event.findUnique({
     where: { slug },

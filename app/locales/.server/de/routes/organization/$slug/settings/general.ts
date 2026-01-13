@@ -66,12 +66,12 @@ export const locale = {
     },
     areas: {
       label: "Aktiviätsgebiete",
-      helper: "Mehrfachauswahl möglich",
+      helper: "Mehrfachauswahl ist möglich.",
       option: "Bitte auswählen",
     },
     focuses: {
       label: "Schwerpunkte",
-      helper: "Mehrfachauswahl möglich",
+      helper: "Mehrfachauswahl ist möglich.",
       option: "Bitte auswählen",
     },
     supportedBy: {

@@ -21,7 +21,7 @@ export const locale = {
   },
   eventTargetGroups: {
     label:
-      "Das Event wird Zielgruppen aus folgenden Bildungsbereichen empfohlen",
+      "Das Event wird Praktizierenden aus folgenden Bildungsbereichen empfohlen",
   },
   focuses: {
     label: "MINT-Schwerpunkte",

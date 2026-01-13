@@ -520,6 +520,13 @@ const de = {
   },
   "next/event/$slug/settings/details": {
     route: deNextEventSettingsDetails,
+    types: deEventTypes,
+    tags: deTags,
+    eventTargetGroups: deEventTargetGroups,
+    experienceLevels: deExperienceLevels,
+    focuses: deFocuses,
+    components: deComponents,
+    rte: deRTE,
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
@@ -992,6 +999,13 @@ const en = {
   },
   "next/event/$slug/settings/details": {
     route: enNextEventSettingsDetails,
+    types: enEventTypes,
+    tags: enTags,
+    eventTargetGroups: enEventTargetGroups,
+    experienceLevels: enExperienceLevels,
+    focuses: enFocuses,
+    components: enComponents,
+    rte: enRTE,
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,

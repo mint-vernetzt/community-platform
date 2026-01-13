@@ -53,13 +53,13 @@ export const locale = {
     disciplines: {
       headline: "STEM disciplines",
       intro: "Which STEM disciplines play a role in your project?",
-      helper: "Multiple entries are possible.",
+      helper: "Multiple selection is possible.",
       choose: "Please select",
     },
     additionalDisciplines: {
       headline:
         "Which additional STEM+ disciplines play a role in your project?",
-      helper: "Multiple entries are possible.",
+      helper: "Multiple selection is possible.",
       helperWithoutDisciplines:
         "Please select a main discipline first to add additional disciplines.",
       choose: "Please select",
@@ -78,13 +78,13 @@ export const locale = {
     },
     projectTargetGroups: {
       intro: "Which target groups does the project address?",
-      helper: "Multiple entries are possible.",
+      helper: "Multiple selection is possible.",
       choose: "Please select",
     },
     specialTargetGroups: {
       intro:
         "Is a specific (gender, social, cultural or demographic, etc.) group within the target group addressed?",
-      helper: "Multiple entries are possible.",
+      helper: "Multiple selection is possible.",
       choose: "Please select",
     },
     targetGroupAdditions: {

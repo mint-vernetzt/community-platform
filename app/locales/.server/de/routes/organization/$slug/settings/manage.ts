@@ -25,7 +25,7 @@ export const locale = {
     types: {
       headline: "Organisationsform",
       label: "Wähle die Art Deiner Organisation",
-      helper: "Mehrfachauswahl möglich",
+      helper: "Mehrfachauswahl ist möglich.",
       option: "Bitte auswählen",
       doubleCheck: {
         title: 'Organisationsform "Netzwerk" entfernen',
@@ -38,7 +38,7 @@ export const locale = {
     networkTypes: {
       headline: "Netzwerkform",
       label: "Wähle die Art Deines Netzwerkes aus",
-      helper: "Mehrfachauswahl möglich",
+      helper: "Mehrfachauswahl ist möglich.",
       helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
       option: "Bitte auswählen",
     },

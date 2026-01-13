@@ -65,7 +65,7 @@ export const locale = {
       cta: "Please select",
       headline: "What type of organization is it?",
       label: "Organization type",
-      helperText: "Multiple selection is possible",
+      helperText: "Multiple selection is possible.",
       notFound:
         "The type of organization could not be found. Please contact support.",
     },
@@ -73,7 +73,7 @@ export const locale = {
       cta: "Please select",
       headline: "What type of network is it?",
       label: "Network type",
-      helper: "Multiple selection is possible",
+      helper: "Multiple selection is possible.",
       helperWithoutNetwork: 'Requires organizational form "Network"',
       notFound:
         "The type of network could not be found. Please contact support.",
