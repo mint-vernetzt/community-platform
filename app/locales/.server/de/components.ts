@@ -13,11 +13,11 @@ export const locale = {
     less: "{{count}} weniger anzeigen",
   },
   UnsavedChangesModal: {
-    title: "Ungespeicherte Änderungen",
+    title: "Du hast ungespeicherte Änderungen",
     description:
-      "Du hast ungespeicherte Änderungen. Diese gehen verloren, wenn Du jetzt einen Schritt weiter gehst.",
+      "Deine ungespeicherten Änderungen gehen verloren, wenn Du sie nicht speicherst, bevor Du zur nächsten Seite wechselst.",
     proceed: "Änderungen verwerfen",
-    cancel: "Abbrechen",
+    cancel: "Zurück zur Bearbeitung",
   },
   VisibilityCheckbox: {
     ariaLabel:
