@@ -20,8 +20,9 @@ function ConformSelectInput(props: {
   disabled?: boolean;
   cta: string;
   listItems: React.ReactNode[];
+  closeOnSelect: boolean;
 }) {
-  const { id, disabled = false, cta, listItems } = props;
+  const { id, disabled = false, cta, listItems, closeOnSelect } = props;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(disabled);
@@ -33,16 +34,17 @@ function ConformSelectInput(props: {
     const handleClickOutside = (event: MouseEvent) => {
       const { target } = event;
       if (
-        isOpen === true &&
-        inputRef.current !== null &&
-        listRef.current !== null &&
-        labelRef.current !== null &&
-        inputRef.current !== target &&
-        listRef.current !== target &&
-        labelRef.current !== target &&
-        inputRef.current.contains(target as Node) === false &&
-        listRef.current.contains(target as Node) === false &&
-        labelRef.current.contains(target as Node) === false
+        closeOnSelect === true ||
+        (isOpen === true &&
+          inputRef.current !== null &&
+          listRef.current !== null &&
+          labelRef.current !== null &&
+          inputRef.current !== target &&
+          listRef.current !== target &&
+          labelRef.current !== target &&
+          inputRef.current.contains(target as Node) === false &&
+          listRef.current.contains(target as Node) === false &&
+          labelRef.current.contains(target as Node) === false)
       ) {
         setIsOpen(false);
       }
@@ -111,7 +113,7 @@ function ConformSelectInput(props: {
               return (
                 <li
                   key={button.key}
-                  className="border-2 border-transparent hover:bg-neutral-100 focus-within:border-primary-200 last:rounded-b-lg"
+                  className="ring-2 ring-inset ring-transparent hover:bg-neutral-100 focus-within:ring-primary-200 last:rounded-b-lg"
                 >
                   {button}
                 </li>
@@ -135,11 +137,12 @@ type ConformSelectProps = React.PropsWithChildren<
   Pick<React.HTMLProps<HTMLLabelElement>, "id"> & {
     cta: string;
     disabled?: boolean;
+    closeOnSelect?: boolean;
   }
 >;
 
 function ConformSelect(props: ConformSelectProps) {
-  const { children, disabled = false } = props;
+  const { children, disabled = false, closeOnSelect = false } = props;
   const validChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child) || typeof child === "string";
   });
@@ -210,6 +213,7 @@ function ConformSelect(props: ConformSelectProps) {
                 disabled={disabled}
                 cta={props.cta}
                 listItems={listItems}
+                closeOnSelect={closeOnSelect}
               />
             </div>
             {controls}
@@ -222,6 +226,7 @@ function ConformSelect(props: ConformSelectProps) {
             disabled={disabled}
             cta={props.cta}
             listItems={listItems}
+            closeOnSelect={closeOnSelect}
           />
         </div>
       )}
@@ -234,7 +239,7 @@ function ConformSelect(props: ConformSelectProps) {
 function getListItemChildrenStyles() {
   return {
     className:
-      "w-full appearance-none px-3.5 py-2.5 text-start text-neutral-700 leading-5 focus:outline-hidden",
+      "w-full appearance-none px-4 py-3 text-start text-neutral-700 leading-5 focus:outline-hidden",
   };
 }
 
