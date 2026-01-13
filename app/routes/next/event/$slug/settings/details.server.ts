@@ -1,4 +1,5 @@
 import { prismaClient } from "~/prisma.server";
+import { sanitizeUserHtml } from "~/utils.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -9,6 +10,7 @@ export async function getEventBySlug(slug: string) {
         select: {
           eventType: {
             select: {
+              id: true,
               slug: true,
             },
           },
@@ -21,6 +23,7 @@ export async function getEventBySlug(slug: string) {
         select: {
           tag: {
             select: {
+              id: true,
               slug: true,
             },
           },
@@ -30,6 +33,7 @@ export async function getEventBySlug(slug: string) {
         select: {
           eventTargetGroup: {
             select: {
+              id: true,
               slug: true,
             },
           },
@@ -37,6 +41,7 @@ export async function getEventBySlug(slug: string) {
       },
       experienceLevel: {
         select: {
+          id: true,
           slug: true,
         },
       },
@@ -44,6 +49,7 @@ export async function getEventBySlug(slug: string) {
         select: {
           focus: {
             select: {
+              id: true,
               slug: true,
             },
           },
@@ -53,4 +59,115 @@ export async function getEventBySlug(slug: string) {
   });
 
   return event;
+}
+
+export async function getEventBySlugForAction(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+    },
+  });
+
+  return event;
+}
+
+export async function updateEventBySlug(
+  slug: string,
+  id: string,
+  data: {
+    name: string;
+    types: string[];
+    subline: string | null;
+    description: string | null;
+    descriptionRTEState: string | null;
+    tags: string[];
+    eventTargetGroups: string[];
+    experienceLevel: string | null;
+    focuses: string[];
+  }
+) {
+  const description = sanitizeUserHtml(data.description);
+  const trimmedDescription =
+    description !== null
+      ? description
+          .replaceAll(/^(?:<p><br><\/p>)+|(?:<p><br><\/p>)+$/g, "")
+          .trim()
+      : null;
+  const updatedEvent = await prismaClient.event.update({
+    where: { slug },
+    data: {
+      ...data,
+      description: trimmedDescription,
+      experienceLevel:
+        data.experienceLevel !== null
+          ? { connect: { id: data.experienceLevel } }
+          : { disconnect: true },
+      types: {
+        deleteMany: {},
+        connectOrCreate: data.types.map((eventTypeId) => {
+          return {
+            where: {
+              eventTypeId_eventId: {
+                eventTypeId,
+                eventId: id,
+              },
+            },
+            create: {
+              eventTypeId,
+            },
+          };
+        }),
+      },
+      tags: {
+        deleteMany: {},
+        connectOrCreate: data.tags.map((tagId) => {
+          return {
+            where: {
+              tagId_eventId: {
+                tagId,
+                eventId: id,
+              },
+            },
+            create: {
+              tagId,
+            },
+          };
+        }),
+      },
+      eventTargetGroups: {
+        deleteMany: {},
+        connectOrCreate: data.eventTargetGroups.map((eventTargetGroupId) => {
+          return {
+            where: {
+              eventTargetGroupId_eventId: {
+                eventTargetGroupId,
+                eventId: id,
+              },
+            },
+            create: {
+              eventTargetGroupId,
+            },
+          };
+        }),
+      },
+      focuses: {
+        deleteMany: {},
+        connectOrCreate: data.focuses.map((focusId) => {
+          return {
+            where: {
+              eventId_focusId: {
+                focusId,
+                eventId: id,
+              },
+            },
+            create: {
+              focusId,
+            },
+          };
+        }),
+      },
+    },
+  });
+  return updatedEvent;
 }
