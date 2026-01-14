@@ -1,7 +1,7 @@
 export const locale = {
   name: {
-    headline: "Wie heißt Dein Event?",
-    label: "Titel des Events*",
+    headline: "Titel des Events",
+    label: "Name*",
     helperText:
       "Mit max. 55 Zeichen im Titel kann Dein Event in der Übersicht gut dargestellt werden.",
   },
