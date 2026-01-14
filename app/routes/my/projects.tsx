@@ -359,20 +359,24 @@ function MyProjects() {
                           )}
                         </Modal.Section>
                         <Modal.Section>
-                          {typeof quitProjectForm.errors !== "undefined" &&
-                          quitProjectForm.errors.length > 0 ? (
+                          {navigation.state === "idle" &&
+                          typeof actionData?.submission.error !== "undefined" &&
+                          "" in actionData.submission.error &&
+                          actionData.submission.error[""] !== null ? (
                             <div>
-                              {quitProjectForm.errors.map((error, index) => {
-                                return (
-                                  <div
-                                    id={quitProjectForm.errorId}
-                                    key={index}
-                                    className="text-sm font-semibold text-negative-700"
-                                  >
-                                    {error}
-                                  </div>
-                                );
-                              })}
+                              {actionData.submission.error[""].map(
+                                (error, index) => {
+                                  return (
+                                    <div
+                                      id={quitProjectForm.errorId}
+                                      key={index}
+                                      className="text-sm font-semibold text-negative-700"
+                                    >
+                                      {error}
+                                    </div>
+                                  );
+                                }
+                              )}
                             </div>
                           ) : null}
                         </Modal.Section>

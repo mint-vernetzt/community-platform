@@ -430,17 +430,16 @@ function General() {
                 {locales.route.content.formats.label}
               </ConformSelect.Label>
               {typeof fields.formats.errors !== "undefined" &&
-              fields.formats.errors.length > 0 ? (
-                fields.formats.errors.map((error) => (
-                  <ConformSelect.Error id={fields.formats.errorId} key={error}>
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.formats.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.formats.errors.length > 0
+                ? fields.formats.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.formats.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {allFormats
                 .filter((format) => {
                   return !formatFieldList.some((listFormat) => {
@@ -641,17 +640,13 @@ function General() {
                 {locales.route.content.areas.label}
               </ConformSelect.Label>
               {typeof fields.areas.errors !== "undefined" &&
-              fields.areas.errors.length > 0 ? (
-                fields.areas.errors.map((error) => (
-                  <ConformSelect.Error id={fields.areas.errorId} key={error}>
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.areas.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.areas.errors.length > 0
+                ? fields.areas.errors.map((error) => (
+                    <ConformSelect.Error id={fields.areas.errorId} key={error}>
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list

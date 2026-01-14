@@ -20,7 +20,7 @@ export type InputLabelProps = {
 
 function InputLabel(props: React.PropsWithChildren<InputLabelProps>) {
   const classes = classNames(
-    "text-sm font-semibold mb-1 flex items-center justify-between",
+    "text-sm font-semibold mb-1 flex items-center justify-between leading-5",
     typeof props.hidden !== "undefined" && props.hidden !== false && "hidden",
     typeof props.disabled !== "undefined" && props.disabled !== false
       ? "text-neutral-300"
@@ -307,7 +307,7 @@ function Input(props: InputProps) {
     >
       <div className="w-full">
         <div className="flex gap-2">
-          <div className="relative flex flex-col gap-2 flex-nowrap grow">
+          <div className="relative flex flex-col flex-nowrap grow">
             {label}
             <div className="relative">
               <input

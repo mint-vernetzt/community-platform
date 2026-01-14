@@ -83,14 +83,14 @@ const TextArea = (
   return (
     <>
       <div className="flex flex-col w-full">
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-row items-center mb-2">
+        <div className="flex flex-col w-full">
+          <div className="flex flex-row items-center mb-1">
             <label
               htmlFor={inputProps.id || label}
-              className="font-semibold flex-auto"
+              className="text-sm font-semibold leading-5 flex-auto"
             >
               {props.label}
-              {props.required === true ? " *" : ""}
+              {props.required === true ? "*" : ""}
             </label>
 
             {withPublicPrivateToggle !== undefined &&
@@ -136,7 +136,7 @@ const TextArea = (
                           "\n"
                         )
                       )}
-                      className="relative w-full h-[194px] p-2 border border-gray-200 rounded-b-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
+                      className="relative w-full h-48.5 p-2 border border-gray-200 rounded-b-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
                     />
                     <input
                       type="hidden"
@@ -159,7 +159,7 @@ const TextArea = (
                       ? handleTextAreaChange
                       : undefined
                   }
-                  className="relative w-full h-[234px] p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400"
+                  className="relative w-full h-58.5 p-2 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400 active-within:ring-2 active-within:ring-blue-400 active-within:border-blue-400 placeholder:text-neutral-700"
                 />
               ) : null}
             </div>

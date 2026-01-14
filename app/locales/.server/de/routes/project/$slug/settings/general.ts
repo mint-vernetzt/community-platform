@@ -40,7 +40,6 @@ export const locale = {
     formats: {
       headline: "Projektformat",
       label: "In welchem Format findet das Projekt statt?",
-      helper: "Mehrfachnennungen sind möglich.",
       choose: "Bitte auswählen",
     },
     furtherFormats: {
@@ -51,7 +50,6 @@ export const locale = {
     areas: {
       headline: "Aktivitätsgebiete",
       label: "Wo wird das Projekt/Bildungsangebot durchgeführt?",
-      helper: "Mehrfachnennungen sind möglich.",
       option: "Bitte auswählen",
     },
     contact: {

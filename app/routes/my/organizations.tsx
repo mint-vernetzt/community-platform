@@ -434,6 +434,8 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
+  console.log(result.submission);
+
   if (
     typeof result.submission !== "undefined" &&
     result.submission !== null &&
@@ -1813,11 +1815,13 @@ export default function MyOrganizations() {
                                     </p>
                                   </Modal.Section>
                                   <Modal.Section>
-                                    {typeof quitOrganizationForm.errors !==
+                                    {navigation.state === "idle" &&
+                                    typeof actionData?.submission.error !==
                                       "undefined" &&
-                                    quitOrganizationForm.errors.length > 0 ? (
+                                    "" in actionData.submission.error &&
+                                    actionData.submission.error[""] !== null ? (
                                       <div>
-                                        {quitOrganizationForm.errors.map(
+                                        {actionData.submission.error[""].map(
                                           (error, index) => {
                                             return (
                                               <div

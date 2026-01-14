@@ -528,20 +528,16 @@ function Details() {
                 {locales.route.content.disciplines.intro}
               </ConformSelect.Label>
               {typeof fields.disciplines.errors !== "undefined" &&
-              fields.disciplines.errors.length > 0 ? (
-                fields.disciplines.errors.map((error) => (
-                  <ConformSelect.Error
-                    id={fields.disciplines.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.disciplines.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.disciplines.errors.length > 0
+                ? fields.disciplines.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.disciplines.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {allDisciplines
                 .filter((discipline) => {
                   return !disciplineFieldList.some((listDiscipline) => {
@@ -641,20 +637,16 @@ function Details() {
                     {error}
                   </ConformSelect.Error>
                 ))
-              ) : (
+              ) : hasDisciplines === false ? (
                 <ConformSelect.HelperText>
-                  <span
-                    className={
-                      hasDisciplines === false ? "text-neutral-300" : ""
+                  <span className="text-neutral-300">
+                    {
+                      locales.route.content.additionalDisciplines
+                        .helperWithoutDisciplines
                     }
-                  >
-                    {hasDisciplines === false
-                      ? locales.route.content.additionalDisciplines
-                          .helperWithoutDisciplines
-                      : locales.route.content.additionalDisciplines.helper}
                   </span>
                 </ConformSelect.HelperText>
-              )}
+              ) : null}
               {allAdditionalDisciplines
                 .filter((additionalDiscipline) => {
                   return !additionalDisciplineFieldList.some(
@@ -909,20 +901,16 @@ function Details() {
                 {locales.route.content.projectTargetGroups.intro}
               </ConformSelect.Label>
               {typeof fields.projectTargetGroups.errors !== "undefined" &&
-              fields.projectTargetGroups.errors.length > 0 ? (
-                fields.projectTargetGroups.errors.map((error) => (
-                  <ConformSelect.Error
-                    id={fields.projectTargetGroups.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.projectTargetGroups.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.projectTargetGroups.errors.length > 0
+                ? fields.projectTargetGroups.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.projectTargetGroups.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {allProjectTargetGroups
                 .filter((targetGroup) => {
                   return !targetGroupFieldList.some((listTargetGroup) => {
@@ -1014,20 +1002,16 @@ function Details() {
                 {locales.route.content.specialTargetGroups.intro}
               </ConformSelect.Label>
               {typeof fields.specialTargetGroups.errors !== "undefined" &&
-              fields.specialTargetGroups.errors.length > 0 ? (
-                fields.specialTargetGroups.errors.map((error) => (
-                  <ConformSelect.Error
-                    id={fields.specialTargetGroups.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.specialTargetGroups.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.specialTargetGroups.errors.length > 0
+                ? fields.specialTargetGroups.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.specialTargetGroups.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {allSpecialTargetGroups
                 .filter((specialTargetGroup) => {
                   return !specialTargetGroupFieldList.some(

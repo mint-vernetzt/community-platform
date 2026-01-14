@@ -73,21 +73,18 @@ export function UnsavedChangesModal(props: {
             : `${location.pathname}?${searchParamsWithoutModal.toString()}`
         }
         hidden
-        preventScrollReset
       />
       <Modal searchParam={`modal-unsaved-changes`}>
         <Modal.Title>{locales.title}</Modal.Title>
         <Modal.Section>{locales.description}</Modal.Section>
-        <Modal.SubmitButton form="discard-changes-and-proceed">
-          {locales.proceed}
-        </Modal.SubmitButton>
-        <Modal.CloseButton
-          route={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
-          // onClick={() => {
-          //   setNextLocationPathname(null);
-          // }}
+        <Modal.SubmitButton
+          as="link"
+          to={`${location.pathname}?${searchParamsWithoutModal.toString()}`}
         >
           {locales.cancel}
+        </Modal.SubmitButton>
+        <Modal.CloseButton as="button" form="discard-changes-and-proceed">
+          {locales.proceed}
         </Modal.CloseButton>
       </Modal>
     </>

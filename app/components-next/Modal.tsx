@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { type LinkProps, useSearchParams } from "react-router";
 import { createPortal } from "react-dom";
 import {
   Children,
@@ -10,7 +10,8 @@ import {
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { ModalClose as ModalCloseIcon } from "./icons/ModalClose";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
-import classNames from "classnames";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 
 function ModalSection(props: { children: React.ReactNode }) {
   return (
@@ -20,77 +21,106 @@ function ModalSection(props: { children: React.ReactNode }) {
 
 function ModalClose(props: { route: string }) {
   return (
-    <Link
+    <CircleButton
+      as="link"
+      variant="ghost"
+      size="small"
       id="modal-close-top"
-      className="text-primary"
       to={props.route}
       preventScrollReset
       aria-label="Close modal"
       prefetch="intent"
     >
       <ModalCloseIcon />
-    </Link>
+    </CircleButton>
   );
 }
 
-type ModalCloseButtonProps = React.PropsWithChildren<{ route?: string }> &
-  React.InputHTMLAttributes<HTMLAnchorElement>;
+type ModalCloseButtonProps = React.PropsWithChildren<{
+  route?: string;
+  as?: "button" | "link";
+}> &
+  Omit<LinkProps & React.RefAttributes<HTMLAnchorElement>, "to"> &
+  React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 function ModalCloseButton(props: ModalCloseButtonProps) {
-  const { route, children, ...anchorProps } = props;
+  const { route, children, as = "link", ...anchorOrButtonProps } = props;
   if (typeof route === "undefined") {
     return <>{children}</>;
   }
 
-  return (
-    <Link
-      {...anchorProps}
+  return as === "link" ? (
+    <Button
+      as="link"
+      variant="outline"
       id="modal-close-bottom"
-      to={route}
-      className="inline-flex min-h-12 cursor-pointer select-none rounded-lg border-transparent text-center leading-4 flex-wrap items-center justify-center text-primary hover:text-primary-700 hover:bg-neutral-50 focus:text-primary-700 focus:bg-neutral-50 active:bg-neutral-100 font-semibold whitespace-nowrap w-full h-10 text-sm px-6 py-2.5 border"
       preventScrollReset
       prefetch="intent"
+      fullSize
+      to={route}
+      {...anchorOrButtonProps}
     >
       {props.children}
-    </Link>
+    </Button>
+  ) : (
+    <Button
+      type="submit"
+      variant="outline"
+      id="modal-close-bottom"
+      fullSize
+      {...anchorOrButtonProps}
+    >
+      {props.children}
+    </Button>
   );
 }
 
 function ModalSubmitButton(
-  props: React.InputHTMLAttributes<HTMLButtonElement> & {
+  props: {
     level?: "primary" | "negative";
-  }
+    as?: "button" | "link";
+  } & (
+    | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+    | React.ButtonHTMLAttributes<HTMLButtonElement>
+  )
 ) {
-  const { children, level = "primary", ...inputProps } = props;
+  const {
+    children,
+    level = "primary",
+    as = "button",
+    ...anchorOrButtonProps
+  } = props;
   const isSubmitting = useIsSubmitting();
 
-  const classes = classNames(
-    "inline-flex h-12 min-h-12 shrink-0 cursor-pointer select-none flex-wrap items-center justify-center rounded-lg border-transparent px-4 font-semibold whitespace-nowrap w-full text-sm text-center leading-[1em] py-2.5 border",
-    {
-      "bg-neutral-200 text-neutral-400 pointer-events-none":
-        inputProps.disabled === true,
-      "bg-primary text-neutral-50 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700":
-        inputProps.disabled !== true && level === "primary",
-      "bg-negative-700 text-white hover:bg-negative-700 focus:bg-negative-700 active:bg-negative-700":
-        inputProps.disabled !== true && level === "negative",
-    }
-  );
-
-  return (
-    <button
-      {...inputProps}
+  return as === "button" &&
+    "to" in anchorOrButtonProps === false &&
+    "disabled" in anchorOrButtonProps ? (
+    <Button
       type="submit"
-      className={classes}
-      disabled={inputProps.disabled || isSubmitting}
+      level={level}
+      disabled={anchorOrButtonProps.disabled || isSubmitting}
+      fullSize
+      {...anchorOrButtonProps}
     >
       {children}
-    </button>
+    </Button>
+  ) : (
+    <Button
+      as="link"
+      level={level}
+      fullSize
+      preventScrollReset
+      prefetch="intent"
+      {...anchorOrButtonProps}
+    >
+      {children}
+    </Button>
   );
 }
 
 function ModalTitle(props: { children: React.ReactNode }) {
   return (
-    <h2 className="text-3xl text-primary font-bold m-0 p-0">
+    <h2 className="text-2xl text-primary font-bold m-0 leading-6.5">
       {props.children}
     </h2>
   );
@@ -176,7 +206,7 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
       <div
         id="modal"
         tabIndex={-1}
-        className="relative max-w-[31rem] rounded-2xl bg-white p-6 flex flex-col gap-6"
+        className="relative max-w-124 rounded-lg bg-white p-6 flex flex-col gap-6"
       >
         <div className="flex justify-between items-baseline gap-4">
           {title}
@@ -184,7 +214,7 @@ function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
         </div>
         {sections}
         {(submitButton !== null || closeButtonClone !== null) && (
-          <div className="w-full text-sm leading-1 flex flex-col gap-2">
+          <div className="w-full flex flex-col gap-2">
             {submitButton !== null && submitButton}
             {closeButtonClone !== null && closeButtonClone}
           </div>

@@ -13,11 +13,11 @@ export const locale = {
     less: "Show {{count}} less",
   },
   UnsavedChangesModal: {
-    title: "Unsaved changes",
+    title: "You have unsaved changes",
     description:
-      "You have unsaved changes. These will be lost if you go one step further now.",
+      "Your unsaved changes will be lost if you do not save them before navigating to the next page.",
     proceed: "Discard changes",
-    cancel: "Cancel",
+    cancel: "Back to editing",
   },
   VisibilityCheckbox: {
     ariaLabel: "Set visibility to private or public. Checkmark means public.",

@@ -563,20 +563,16 @@ function Manage() {
                   </ConformSelect.Label>
                   {typeof manageFields.organizationTypes.errors !==
                     "undefined" &&
-                  manageFields.organizationTypes.errors.length > 0 ? (
-                    manageFields.organizationTypes.errors.map((error) => (
-                      <ConformSelect.Error
-                        id={manageFields.organizationTypes.errorId}
-                        key={error}
-                      >
-                        {error}
-                      </ConformSelect.Error>
-                    ))
-                  ) : (
-                    <ConformSelect.HelperText>
-                      {locales.route.content.types.helper}
-                    </ConformSelect.HelperText>
-                  )}
+                  manageFields.organizationTypes.errors.length > 0
+                    ? manageFields.organizationTypes.errors.map((error) => (
+                        <ConformSelect.Error
+                          id={manageFields.organizationTypes.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </ConformSelect.Error>
+                      ))
+                    : null}
                   {allOrganizationTypes
                     .filter((organizationType) => {
                       return !organizationTypeList.some((field) => {
@@ -706,14 +702,11 @@ function Manage() {
                         {error}
                       </ConformSelect.Error>
                     ))
-                  ) : (
+                  ) : hasSelectedNetwork === false ? (
                     <ConformSelect.HelperText>
-                      {hasSelectedNetwork === false
-                        ? locales.route.content.networkTypes
-                            .helperWithoutNetwork
-                        : locales.route.content.networkTypes.helper}
+                      {locales.route.content.networkTypes.helperWithoutNetwork}
                     </ConformSelect.HelperText>
-                  )}
+                  ) : null}
                   {allNetworkTypes
                     .filter((networkType) => {
                       return !networkTypeList.some((field) => {

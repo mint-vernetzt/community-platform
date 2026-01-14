@@ -2,6 +2,8 @@ import { zonedTimeToUtc } from "date-fns-tz";
 import { z } from "zod";
 import { type TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
 
+export const NAME_MIN_LENGTH = 3;
+
 export function createEventCreationSchema(options: {
   locales: {
     nameRequired: string;
@@ -31,7 +33,7 @@ export function createEventCreationSchema(options: {
             required_error: locales.nameRequired,
           })
           .trim()
-          .min(3, {
+          .min(NAME_MIN_LENGTH, {
             message: locales.nameMinLength,
           }),
         startDate: z.date({
