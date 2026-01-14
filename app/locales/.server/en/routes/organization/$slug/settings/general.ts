@@ -66,12 +66,10 @@ export const locale = {
     },
     areas: {
       label: "Areas of activity",
-      helper: "Multiple selection is possible.",
       option: "Please select",
     },
     focuses: {
       label: "Focuses",
-      helper: "Multiple selection is possible.",
       option: "Please select",
     },
     supportedBy: {

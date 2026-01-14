@@ -9,7 +9,6 @@ export const locale = {
     headline: "Infos über Dein Event",
     types: {
       label: "Veranstaltungstyp",
-      helperText: "Mehrfachauswahl ist möglich.",
       cta: "Bitte auswählen",
       notFound: "Veranstaltungstyp nicht gefunden",
     },
@@ -28,14 +27,12 @@ export const locale = {
     headline: "Beschreibende Stichwörter",
     tags: {
       label: "Schlagworte",
-      helperText: "Mehrfachauswahl ist möglich.",
       cta: "Bitte auswählen",
       notFound: "Schlagwort nicht gefunden",
     },
     eventTargetGroups: {
       label:
         "Das Event wird Praktizierenden aus folgenden Bildungsbereichen empfohlen",
-      helperText: "Mehrfachauswahl ist möglich.",
       cta: "Bitte auswählen",
       notFound: "Zielgruppe nicht gefunden",
     },
@@ -46,7 +43,6 @@ export const locale = {
     },
     focuses: {
       label: "MINT-Schwerpunkte",
-      helperText: "Mehrfachauswahl ist möglich.",
       cta: "Bitte auswählen",
       notFound: "MINT-Schwerpunkt nicht gefunden",
     },

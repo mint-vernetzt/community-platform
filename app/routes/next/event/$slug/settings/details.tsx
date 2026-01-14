@@ -266,17 +266,16 @@ export default function Details() {
                   {locales.route.infos.types.label}
                 </ConformSelect.Label>
                 {typeof fields.types.errors !== "undefined" &&
-                fields.types.errors.length > 0 ? (
-                  fields.types.errors.map((error) => (
-                    <ConformSelect.Error id={fields.types.errorId} key={error}>
-                      {error}
-                    </ConformSelect.Error>
-                  ))
-                ) : (
-                  <ConformSelect.HelperText>
-                    {locales.route.infos.types.helperText}
-                  </ConformSelect.HelperText>
-                )}
+                fields.types.errors.length > 0
+                  ? fields.types.errors.map((error) => (
+                      <ConformSelect.Error
+                        id={fields.types.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  : null}
                 {allEventTypes
                   .filter((eventType) => {
                     return !eventTypesList.some((field) => {
@@ -405,17 +404,13 @@ export default function Details() {
                   {locales.route.keywords.tags.label}
                 </ConformSelect.Label>
                 {typeof fields.tags.errors !== "undefined" &&
-                fields.tags.errors.length > 0 ? (
-                  fields.tags.errors.map((error) => (
-                    <ConformSelect.Error id={fields.tags.errorId} key={error}>
-                      {error}
-                    </ConformSelect.Error>
-                  ))
-                ) : (
-                  <ConformSelect.HelperText>
-                    {locales.route.keywords.tags.helperText}
-                  </ConformSelect.HelperText>
-                )}
+                fields.tags.errors.length > 0
+                  ? fields.tags.errors.map((error) => (
+                      <ConformSelect.Error id={fields.tags.errorId} key={error}>
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  : null}
                 {allTags
                   .filter((tag) => {
                     return !tagsList.some((field) => {
@@ -484,20 +479,16 @@ export default function Details() {
                   {locales.route.keywords.eventTargetGroups.label}
                 </ConformSelect.Label>
                 {typeof fields.eventTargetGroups.errors !== "undefined" &&
-                fields.eventTargetGroups.errors.length > 0 ? (
-                  fields.eventTargetGroups.errors.map((error) => (
-                    <ConformSelect.Error
-                      id={fields.eventTargetGroups.errorId}
-                      key={error}
-                    >
-                      {error}
-                    </ConformSelect.Error>
-                  ))
-                ) : (
-                  <ConformSelect.HelperText>
-                    {locales.route.keywords.eventTargetGroups.helperText}
-                  </ConformSelect.HelperText>
-                )}
+                fields.eventTargetGroups.errors.length > 0
+                  ? fields.eventTargetGroups.errors.map((error) => (
+                      <ConformSelect.Error
+                        id={fields.eventTargetGroups.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  : null}
                 {allEventTargetGroups
                   .filter((targetGroup) => {
                     return !eventTargetGroupsList.some((field) => {
@@ -575,7 +566,6 @@ export default function Details() {
                 locales.route.keywords.experienceLevels.cta
               }
               closeOnSelect
-              dimmed={selectedExperienceLevelId === null}
             >
               <ConformSelect.Label htmlFor={fields.experienceLevelList.id}>
                 {locales.route.keywords.experienceLevels.label}
@@ -601,17 +591,17 @@ export default function Details() {
                       </ConformSelect.Error>
                     ))
                   : null}
-              <button
-                {...form.insert.getButtonProps({
-                  name: fields.experienceLevelList.name,
-                  defaultValue: null,
-                })}
-                {...ConformSelect.getListItemChildrenStyles({
-                  deemphasized: true,
-                })}
-              >
-                {locales.route.keywords.experienceLevels.cta}
-              </button>
+              {selectedExperienceLevelId !== null ? (
+                <button
+                  {...form.insert.getButtonProps({
+                    name: fields.experienceLevelList.name,
+                    defaultValue: null,
+                  })}
+                  {...ConformSelect.getListItemChildrenStyles()}
+                >
+                  -- {locales.route.keywords.experienceLevels.cta} --
+                </button>
+              ) : null}
               {allExperienceLevels
                 .filter(
                   (experienceLevel) =>
@@ -645,20 +635,16 @@ export default function Details() {
                   {locales.route.keywords.focuses.label}
                 </ConformSelect.Label>
                 {typeof fields.focuses.errors !== "undefined" &&
-                fields.focuses.errors.length > 0 ? (
-                  fields.focuses.errors.map((error) => (
-                    <ConformSelect.Error
-                      id={fields.focuses.errorId}
-                      key={error}
-                    >
-                      {error}
-                    </ConformSelect.Error>
-                  ))
-                ) : (
-                  <ConformSelect.HelperText>
-                    {locales.route.keywords.focuses.helperText}
-                  </ConformSelect.HelperText>
-                )}
+                fields.focuses.errors.length > 0
+                  ? fields.focuses.errors.map((error) => (
+                      <ConformSelect.Error
+                        id={fields.focuses.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </ConformSelect.Error>
+                    ))
+                  : null}
                 {allFocuses
                   .filter((focus) => {
                     return !focusesList.some((field) => {

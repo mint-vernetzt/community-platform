@@ -36,16 +36,20 @@ function ModalClose(props: { route: string }) {
   );
 }
 
-type ModalCloseButtonProps = React.PropsWithChildren<{ route?: string }> &
-  Omit<LinkProps & React.RefAttributes<HTMLAnchorElement>, "to">;
+type ModalCloseButtonProps = React.PropsWithChildren<{
+  route?: string;
+  as?: "button" | "link";
+}> &
+  Omit<LinkProps & React.RefAttributes<HTMLAnchorElement>, "to"> &
+  React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 function ModalCloseButton(props: ModalCloseButtonProps) {
-  const { route, children, ...anchorProps } = props;
+  const { route, children, as = "link", ...anchorOrButtonProps } = props;
   if (typeof route === "undefined") {
     return <>{children}</>;
   }
 
-  return (
+  return as === "link" ? (
     <Button
       as="link"
       variant="outline"
@@ -54,7 +58,17 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
       prefetch="intent"
       fullSize
       to={route}
-      {...anchorProps}
+      {...anchorOrButtonProps}
+    >
+      {props.children}
+    </Button>
+  ) : (
+    <Button
+      type="submit"
+      variant="outline"
+      id="modal-close-bottom"
+      fullSize
+      {...anchorOrButtonProps}
     >
       {props.children}
     </Button>
@@ -62,20 +76,42 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
 }
 
 function ModalSubmitButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  props: {
     level?: "primary" | "negative";
-  }
+    as?: "button" | "link";
+  } & (
+    | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+    | React.ButtonHTMLAttributes<HTMLButtonElement>
+  )
 ) {
-  const { children, level = "primary", ...buttonProps } = props;
+  const {
+    children,
+    level = "primary",
+    as = "button",
+    ...anchorOrButtonProps
+  } = props;
   const isSubmitting = useIsSubmitting();
 
-  return (
+  return as === "button" &&
+    "to" in anchorOrButtonProps === false &&
+    "disabled" in anchorOrButtonProps ? (
     <Button
       type="submit"
       level={level}
-      disabled={buttonProps.disabled || isSubmitting}
+      disabled={anchorOrButtonProps.disabled || isSubmitting}
       fullSize
-      {...buttonProps}
+      {...anchorOrButtonProps}
+    >
+      {children}
+    </Button>
+  ) : (
+    <Button
+      as="link"
+      level={level}
+      fullSize
+      preventScrollReset
+      prefetch="intent"
+      {...anchorOrButtonProps}
     >
       {children}
     </Button>

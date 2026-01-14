@@ -65,7 +65,6 @@ export const locale = {
       cta: "Bitte auswählen",
       headline: "Um welche Art von Organisation handelt es sich?",
       label: "Organisationsform",
-      helperText: "Mehrfachauswahl ist möglich.",
       notFound:
         "Die Organisationsform konnte nicht gefunden werden. Bitte kontaktiere den Support.",
     },
@@ -73,7 +72,6 @@ export const locale = {
       cta: "Bitte auswählen",
       headline: "Um welche Art von Netzwerk handelt es sich?",
       label: "Netzwerkform",
-      helper: "Mehrfachauswahl ist möglich.",
       helperWithoutNetwork: 'Benötigt Organisationsform "Netzwerk"',
       notFound:
         "Die Netzwerkform konnte nicht gefunden werden. Bitte kontaktiere den Support.",
