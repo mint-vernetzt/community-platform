@@ -16,6 +16,7 @@ import {
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
 import { getChildEventCount } from "../utils.server";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -104,11 +105,12 @@ function Participants() {
                   : ""}
                 {participant.firstName} {participant.lastName}
               </ListItemPersonOrg.Headline>
-              {participant.position !== null ? (
+              {participant.position !== null && (
                 <ListItemPersonOrg.Subline>
                   {participant.position}
                 </ListItemPersonOrg.Subline>
-              ) : null}
+              )}
+              <Button>Test</Button>
             </ListItemPersonOrg>
           );
         })}

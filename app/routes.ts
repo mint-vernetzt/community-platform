@@ -225,7 +225,22 @@ export default [
       index("./routes/next/event/$slug/settings/index.tsx"),
       route(
         "/next/event/:slug/settings/admins",
-        "./routes/next/event/$slug/settings/admins.tsx"
+        "./routes/next/event/$slug/settings/admins.tsx",
+        [
+          index("./routes/next/event/$slug/settings/admins/index.tsx"),
+          route(
+            "/next/event/:slug/settings/admins/list",
+            "./routes/next/event/$slug/settings/admins/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/admins/add",
+            "./routes/next/event/$slug/settings/admins/add.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/admins/invites",
+            "./routes/next/event/$slug/settings/admins/invites.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/danger-zone",
