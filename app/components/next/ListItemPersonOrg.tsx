@@ -21,7 +21,7 @@ function ListItemPersonOrg(props: {
 
   const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:block"
+      ? "hidden group-has-checked:block"
       : "block"
   );
 
