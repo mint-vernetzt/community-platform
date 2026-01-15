@@ -9,8 +9,9 @@ import {
   Request,
   Query,
   Res,
+  type TsoaResponse,
+  type ValidateError,
 } from "tsoa";
-import type { ValidateError, TsoaResponse } from "tsoa";
 
 import { getAllEvents } from "./events-service";
 import type { Request as ExpressRequest } from "express";
@@ -39,26 +40,6 @@ const exampleResponse = {
       venueLatitude: "98.765432",
       canceled: false,
       parentEventId: "some-parent-event-id",
-      areas: [
-        {
-          area: {
-            name: "India",
-            slug: "india",
-          },
-        },
-        {
-          area: {
-            name: "Bavaria",
-            slug: "bavaria",
-          },
-        },
-        {
-          area: {
-            name: "New York City",
-            slug: "new_york_city",
-          },
-        },
-      ],
       types: [
         {
           eventType: {
@@ -196,7 +177,6 @@ const exampleResponse = {
       venueLatitude: null,
       canceled: true,
       parentEventId: null,
-      areas: [],
       types: [],
       focuses: [],
       tags: [],

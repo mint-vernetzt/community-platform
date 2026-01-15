@@ -1729,7 +1729,7 @@ export async function updateNetworkInvite(options: {
                   networkMemberId: data.organizationId,
                 },
               });
-              updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
+              void updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
             }
           }
 
@@ -2226,7 +2226,7 @@ export async function updateNetworkRequest(options: {
                   networkMemberId: data.organizationId,
                 },
               });
-              updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
+              void updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
             }
           }
 

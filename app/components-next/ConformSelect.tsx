@@ -2,6 +2,7 @@ import {
   Input,
   type InputLabelProps,
 } from "@mint-vernetzt/components/src/molecules/Input";
+import classNames from "classnames";
 import {
   Children,
   cloneElement,
@@ -20,8 +21,10 @@ function ConformSelectInput(props: {
   disabled?: boolean;
   cta: string;
   listItems: React.ReactNode[];
+  closeOnSelect: boolean;
+  dimmed: boolean;
 }) {
-  const { id, disabled = false, cta, listItems } = props;
+  const { id, disabled = false, cta, listItems, closeOnSelect, dimmed } = props;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(disabled);
@@ -33,16 +36,20 @@ function ConformSelectInput(props: {
     const handleClickOutside = (event: MouseEvent) => {
       const { target } = event;
       if (
-        isOpen === true &&
-        inputRef.current !== null &&
-        listRef.current !== null &&
-        labelRef.current !== null &&
-        inputRef.current !== target &&
-        listRef.current !== target &&
-        labelRef.current !== target &&
-        inputRef.current.contains(target as Node) === false &&
-        listRef.current.contains(target as Node) === false &&
-        labelRef.current.contains(target as Node) === false
+        (closeOnSelect === true &&
+          labelRef.current !== null &&
+          labelRef.current !== target &&
+          labelRef.current.contains(target as Node) === false) ||
+        (isOpen === true &&
+          inputRef.current !== null &&
+          listRef.current !== null &&
+          labelRef.current !== null &&
+          inputRef.current !== target &&
+          listRef.current !== target &&
+          labelRef.current !== target &&
+          inputRef.current.contains(target as Node) === false &&
+          listRef.current.contains(target as Node) === false &&
+          labelRef.current.contains(target as Node) === false)
       ) {
         setIsOpen(false);
       }
@@ -63,6 +70,15 @@ function ConformSelectInput(props: {
     }
   }, [listItems, disabled]);
 
+  const labelClasses = classNames(
+    "relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-semibold peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none",
+    isDisabled === true
+      ? "text-neutral-300"
+      : dimmed === true
+        ? "text-neutral-400"
+        : "text-neutral-700"
+  );
+
   return (
     <>
       <input
@@ -76,13 +92,7 @@ function ConformSelectInput(props: {
           setIsOpen((prev) => !prev);
         }}
       />
-      <label
-        ref={labelRef}
-        className={`relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-semibold peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none ${
-          isDisabled === true ? "text-neutral-300" : "text-neutral-600"
-        }`}
-        htmlFor={id}
-      >
+      <label ref={labelRef} className={labelClasses} htmlFor={id}>
         <span>{cta}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +100,7 @@ function ConformSelectInput(props: {
           height="21"
           fill="none"
           viewBox="0 0 20 21"
-          className="group-has-[:checked]/conform-select:rotate-180"
+          className="group-has-checked/conform-select:rotate-180"
         >
           <path
             stroke="#262D38"
@@ -103,7 +113,7 @@ function ConformSelectInput(props: {
       </label>
       <ul
         ref={listRef}
-        className="absolute top-[64px] w-full hidden group-has-[:checked]/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
+        className="absolute top-16 w-full hidden group-has-checked/conform-select:flex flex-col bg-white z-10 max-h-96 overflow-y-auto rounded-b-lg border border-neutral-300 border-t-transparent peer-focus:border-t-primary-200"
       >
         {listItems.map((button) => {
           if (isValidElement(button)) {
@@ -111,7 +121,7 @@ function ConformSelectInput(props: {
               return (
                 <li
                   key={button.key}
-                  className="border-2 border-transparent hover:bg-neutral-100 focus-within:border-primary-200 last:rounded-b-lg"
+                  className="ring-2 ring-inset ring-transparent hover:bg-neutral-100 focus-within:ring-primary-200 last:rounded-b-lg"
                 >
                   {button}
                 </li>
@@ -135,11 +145,18 @@ type ConformSelectProps = React.PropsWithChildren<
   Pick<React.HTMLProps<HTMLLabelElement>, "id"> & {
     cta: string;
     disabled?: boolean;
+    closeOnSelect?: boolean;
+    dimmed?: boolean;
   }
 >;
 
 function ConformSelect(props: ConformSelectProps) {
-  const { children, disabled = false } = props;
+  const {
+    children,
+    disabled = false,
+    closeOnSelect = false,
+    dimmed = true,
+  } = props;
   const validChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child) || typeof child === "string";
   });
@@ -210,6 +227,8 @@ function ConformSelect(props: ConformSelectProps) {
                 disabled={disabled}
                 cta={props.cta}
                 listItems={listItems}
+                closeOnSelect={closeOnSelect}
+                dimmed={dimmed}
               />
             </div>
             {controls}
@@ -222,6 +241,8 @@ function ConformSelect(props: ConformSelectProps) {
             disabled={disabled}
             cta={props.cta}
             listItems={listItems}
+            closeOnSelect={closeOnSelect}
+            dimmed={dimmed}
           />
         </div>
       )}
@@ -231,10 +252,17 @@ function ConformSelect(props: ConformSelectProps) {
   );
 }
 
-function getListItemChildrenStyles() {
+function getListItemChildrenStyles(options?: { deemphasized: boolean }) {
+  const { deemphasized } = options || {};
+  const classes = classNames(
+    "w-full appearance-none px-4 py-3 text-start leading-5 focus:outline-hidden",
+    typeof deemphasized === "undefined" || deemphasized === false
+      ? "text-neutral-700"
+      : "text-neutral-400"
+  );
+
   return {
-    className:
-      "w-full appearance-none px-3.5 py-2.5 text-start text-neutral-700 leading-5 focus:outline-hidden",
+    className: classes,
   };
 }
 

@@ -1015,7 +1015,7 @@ function Manage() {
               onChange={(event) => {
                 searchNetworkMembersForm.validate();
                 if (searchNetworkMembersForm.valid) {
-                  searchNetworkMembersFetcher.submit(event.currentTarget, {
+                  void searchNetworkMembersFetcher.submit(event.currentTarget, {
                     preventScrollReset: true,
                   });
                 }
@@ -1049,7 +1049,7 @@ function Manage() {
                   {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon />
+                <Input.ClearIcon fetcher={searchNetworkMembersFetcher} />
 
                 {typeof searchNetworkMembersFields[SearchNetworkMembers]
                   .errors !== "undefined" &&
@@ -1076,17 +1076,6 @@ function Manage() {
                           .helperWithoutNetwork}
                   </Input.HelperText>
                 )}
-                <Input.ClearIcon
-                  onClick={() => {
-                    setTimeout(() => {
-                      searchNetworkMembersForm.reset();
-                      searchNetworkMembersFetcher.submit(null, {
-                        preventScrollReset: true,
-                      });
-                    }, 0);
-                  }}
-                  disabled={isNetwork === false}
-                />
                 {isHydrated === false ? (
                   <Input.Controls>
                     <noscript>
@@ -1339,7 +1328,7 @@ function Manage() {
               onChange={(event) => {
                 searchNetworksForm.validate();
                 if (searchNetworksForm.valid) {
-                  searchNetworksFetcher.submit(event.currentTarget, {
+                  void searchNetworksFetcher.submit(event.currentTarget, {
                     preventScrollReset: true,
                   });
                 }
@@ -1366,6 +1355,7 @@ function Manage() {
                   {locales.route.content.networks.requestToJoin.label}
                 </Input.Label>
                 <Input.SearchIcon />
+                <Input.ClearIcon fetcher={searchNetworksFetcher} />
 
                 {typeof searchNetworksFields[SearchNetworks].errors !==
                   "undefined" &&
@@ -1383,16 +1373,6 @@ function Manage() {
                     {locales.route.content.networks.requestToJoin.helper}
                   </Input.HelperText>
                 )}
-                <Input.ClearIcon
-                  onClick={() => {
-                    setTimeout(() => {
-                      searchNetworksForm.reset();
-                      searchNetworksFetcher.submit(null, {
-                        preventScrollReset: true,
-                      });
-                    }, 0);
-                  }}
-                />
                 {isHydrated === false ? (
                   <Input.Controls>
                     <noscript>

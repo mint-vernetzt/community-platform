@@ -30,4 +30,4 @@ async function main() {
   await prismaClient.$disconnect();
 }
 
-main();
+await main();

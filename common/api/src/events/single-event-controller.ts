@@ -75,16 +75,6 @@ export class EventController extends Controller {
         venueLatitude: true,
         canceled: true,
         parentEventId: true,
-        areas: {
-          select: {
-            area: {
-              select: {
-                name: true,
-                slug: true,
-              },
-            },
-          },
-        },
         types: {
           select: {
             eventType: {
@@ -176,7 +166,6 @@ export class EventController extends Controller {
             venueLatitude: true,
             canceled: true,
             parentEventId: true,
-            areas: true,
             types: true,
             focuses: true,
             tags: true,

@@ -2,8 +2,11 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
-import type { EntryContext, HandleErrorFunction } from "react-router";
-import { ServerRouter } from "react-router";
+import {
+  ServerRouter,
+  type EntryContext,
+  type HandleErrorFunction,
+} from "react-router";
 import { getEnv, init as initEnv } from "./env.server";
 import { NonceProvider } from "./nonce-provider";
 import { captureException } from "@sentry/node";

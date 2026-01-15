@@ -148,7 +148,7 @@ function Notifications() {
                 key="updates"
                 onClick={(event) => {
                   event.preventDefault();
-                  submit(event.currentTarget.form, {
+                  void submit(event.currentTarget.form, {
                     preventScrollReset: true,
                     replace: true,
                   });

@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -> This package is not typed
 import fs from "fs-extra";
 import { prismaClient } from "../../../app/prisma.server";
@@ -72,7 +71,6 @@ async function main() {
   // Send all rte fields through the new hydrated RTE component, which transforms the old HTML to the new HTML
   // Did each entity on its own to get typescript support. Typescript cannot resolve the type on the third nested for loop.
   for (const oldProfile of changes.old.profiles) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rteFields } = oldProfile;
     const newProfile = { ...oldProfile };
     for (const rteField in rteFields) {
@@ -93,7 +91,6 @@ async function main() {
   }
 
   for (const oldOrganization of changes.old.organizations) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rteFields } = oldOrganization;
     const newOrganization = { ...oldOrganization };
     for (const rteField in rteFields) {
@@ -115,7 +112,6 @@ async function main() {
   }
 
   for (const oldProject of changes.old.projects) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rteFields } = oldProject;
     const newProject = { ...oldProject };
     for (const rteField in rteFields) {
@@ -136,7 +132,6 @@ async function main() {
   }
 
   for (const oldEvent of changes.old.events) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...rteFields } = oldEvent;
     const newEvent = { ...oldEvent };
     for (const rteField in rteFields) {
@@ -159,8 +154,7 @@ async function main() {
   console.log("Writing changes JSON...                            [xxx-]");
   // Save changes in json file
   const currentTimestamp = new Date().toISOString();
-  // eslint-disable-next-line import/no-named-as-default-member
-  fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
+  await fs.writeJSON(`${__dirname}/changes_${currentTimestamp}.json`, changes, {
     spaces: 4,
     encoding: "utf8",
   });

@@ -3,7 +3,6 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
@@ -11,6 +10,8 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";

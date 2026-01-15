@@ -1,7 +1,12 @@
 import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { type LoaderFunctionArgs, redirect } from "react-router";
-import { Link, useLoaderData, useSearchParams } from "react-router";
+import {
+  Link,
+  useLoaderData,
+  useSearchParams,
+  redirect,
+  type LoaderFunctionArgs,
+} from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -67,13 +72,11 @@ function MyEvents() {
   const { locales, language } = loaderData;
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([_key, value]) => {
       return value > 0;
     }
   ) || ["adminEvents", 0];
   const firstPast = Object.entries(loaderData.pastEvents.count).find(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ([_key, value]) => {
       return value > 0;
     }

@@ -16,8 +16,7 @@ import { eventTargetGroups } from "./data/eventTargetGroups";
 import { projectTargetGroups } from "./data/projectTargetGroups";
 import { specialTargetGroups } from "./data/specialTargetGroups";
 import { eventAbuseReportReasonSuggestions } from "./data/eventAbuseReportReasonSuggestions";
-import type { TableName } from "./utils";
-import { importDataset } from "./utils";
+import { importDataset, type TableName } from "./utils";
 
 export type Dataset =
   | typeof disciplines
@@ -56,40 +55,40 @@ export type ExplicitDataset<
     | "eventTargetGroups"
     | "projectTargetGroups"
     | "specialTargetGroups"
-    | "eventAbuseReportReasonSuggestions"
+    | "eventAbuseReportReasonSuggestions",
 > = T extends "disciplines"
   ? typeof disciplines
   : T extends "additionalDisciplines"
-  ? typeof additionalDisciplines
-  : T extends "eventTypes"
-  ? typeof eventTypes
-  : T extends "experienceLevels"
-  ? typeof experienceLevels
-  : T extends "focuses"
-  ? typeof focuses
-  : T extends "offers"
-  ? typeof offers
-  : T extends "organizationTypes"
-  ? typeof organizationTypes
-  : T extends "networkTypes"
-  ? typeof networkTypes
-  : T extends "stages"
-  ? typeof stages
-  : T extends "tags"
-  ? typeof tags
-  : T extends "formats"
-  ? typeof formats
-  : T extends "financings"
-  ? typeof financings
-  : T extends "targetGroups_legacy"
-  ? typeof targetGroups_legacy
-  : T extends "eventTargetGroups"
-  ? typeof eventTargetGroups
-  : T extends "projectTargetGroups"
-  ? typeof projectTargetGroups
-  : T extends "specialTargetGroups"
-  ? typeof specialTargetGroups
-  : typeof eventAbuseReportReasonSuggestions;
+    ? typeof additionalDisciplines
+    : T extends "eventTypes"
+      ? typeof eventTypes
+      : T extends "experienceLevels"
+        ? typeof experienceLevels
+        : T extends "focuses"
+          ? typeof focuses
+          : T extends "offers"
+            ? typeof offers
+            : T extends "organizationTypes"
+              ? typeof organizationTypes
+              : T extends "networkTypes"
+                ? typeof networkTypes
+                : T extends "stages"
+                  ? typeof stages
+                  : T extends "tags"
+                    ? typeof tags
+                    : T extends "formats"
+                      ? typeof formats
+                      : T extends "financings"
+                        ? typeof financings
+                        : T extends "targetGroups_legacy"
+                          ? typeof targetGroups_legacy
+                          : T extends "eventTargetGroups"
+                            ? typeof eventTargetGroups
+                            : T extends "projectTargetGroups"
+                              ? typeof projectTargetGroups
+                              : T extends "specialTargetGroups"
+                                ? typeof specialTargetGroups
+                                : typeof eventAbuseReportReasonSuggestions;
 
 const staticDatasets: Array<{
   tableName: TableName;
@@ -120,8 +119,8 @@ const staticDatasets: Array<{
 Promise.all(
   staticDatasets.map(
     (dataset) =>
-      new Promise((resolve) => {
-        importDataset(dataset.data, dataset.tableName).then(resolve);
+      new Promise(async (resolve) => {
+        await importDataset(dataset.data, dataset.tableName).then(resolve);
       })
   )
 )

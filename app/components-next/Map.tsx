@@ -131,7 +131,7 @@ export function MapView(props: {
       const zoom = 5.2;
       const minZoom = 2;
       const maxZoom = 18;
-      // eslint-disable-next-line import/no-named-as-default-member
+
       mapRef.current = new maplibreGL.Map({
         container: mapContainer.current,
         style: `${ENV.COMMUNITY_BASE_URL}/map-style`,
@@ -153,7 +153,6 @@ export function MapView(props: {
         },
       });
       mapRef.current.addControl(
-        // eslint-disable-next-line import/no-named-as-default-member
         new maplibreGL.NavigationControl({
           visualizePitch: true,
           visualizeRoll: true,
@@ -256,7 +255,7 @@ export function MapView(props: {
         popup.remove();
       }
       popupClosedByHandlerRef.current = false;
-      // eslint-disable-next-line import/no-named-as-default-member
+
       const popup = new maplibreGL.Popup()
         .setLngLat([
           parseFloat(organizationsOnFeature[0].longitude),
@@ -317,7 +316,7 @@ export function MapView(props: {
         }
       };
       mapRef.current.on("move", onMove);
-      mapRef.current.once("moveend", () => {
+      void mapRef.current.once("moveend", () => {
         if (mapRef.current !== null) {
           mapRef.current.off("move", onMove);
         }
@@ -476,7 +475,6 @@ export function MapView(props: {
           for (const popup of hoverPopupsRef.current) {
             popup.remove();
           }
-          // eslint-disable-next-line import/no-named-as-default-member
           const popup = new maplibreGL.Popup()
             .setLngLat([
               parseFloat(organizationsOnFeature[0].longitude),
@@ -940,7 +938,7 @@ export function MapView(props: {
                         event.stopPropagation();
                         if (isMobile === true) {
                           setMapMenuIsOpen(false);
-                          submit(closeMenuSearchParams, {
+                          void submit(closeMenuSearchParams, {
                             preventScrollReset: true,
                             replace: true,
                           });
@@ -956,7 +954,6 @@ export function MapView(props: {
                         ) {
                           return;
                         }
-                        // eslint-disable-next-line import/no-named-as-default-member
                         const mapEvent = new maplibreGL.MapMouseEvent(
                           "click",
                           mapRef.current,

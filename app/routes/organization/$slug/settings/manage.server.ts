@@ -456,8 +456,8 @@ export async function updateOrganization(options: {
               networkMembers: networkMemberQuery,
             },
           });
-          updateFilterVectorOfOrganization(organization.id);
-          triggerEntityScore({
+          void updateFilterVectorOfOrganization(organization.id);
+          void triggerEntityScore({
             entity: "organization",
             where: { id: organization.id },
           });
@@ -1041,7 +1041,7 @@ export async function removeNetworkMember(options: {
               },
             },
           });
-          updateFilterVectorOfOrganization(organizationId); // no promise because not blocking
+          void updateFilterVectorOfOrganization(organizationId); // no promise resolve or await because not blocking -> Thats why void is used
         } catch (error) {
           captureException(error);
           ctx.addIssue({

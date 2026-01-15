@@ -28,8 +28,7 @@ export async function deriveEventMode(
   }
   return mode;
 }
-// TODO: fix type issue
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function transformFormToEvent(form: any) {
   const { startDate, endDate, ...event } = form;
 
@@ -67,8 +66,6 @@ export async function createEventOnProfile(
     parent: string | null;
   }
 ) {
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const relations: { parentEvent?: any; childEvents?: any } = {};
   if (relationOptions !== undefined) {
     if (relationOptions.parent !== null) {

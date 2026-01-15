@@ -102,16 +102,12 @@ function ListItemInfo(props: React.PropsWithChildren<{ size?: Size }>) {
 
   if (typeof title !== "undefined") {
     titleClone = cloneElement(title as React.ReactElement, {
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = cloneElement(subtitle as React.ReactElement, {
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
@@ -180,8 +176,6 @@ function ListItem(
     let infoClone: React.ReactElement | undefined;
     if (typeof info !== "undefined") {
       infoClone = cloneElement(info as React.ReactElement, {
-        // TODO: fix type issue
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - We should look at our cloneElement implementation.
         size,
       });
@@ -221,8 +215,6 @@ function ListItem(
 
   if (typeof info !== "undefined") {
     infoClone = cloneElement(info as React.ReactElement, {
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
@@ -240,16 +232,12 @@ function ListItem(
 
   if (typeof title !== "undefined") {
     titleClone = cloneElement(title as React.ReactElement, {
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });
   }
   if (typeof subtitle !== "undefined") {
     subtitleClone = cloneElement(subtitle as React.ReactElement, {
-      // TODO: fix type issue
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - We should look at our cloneElement implementation.
       size,
     });

@@ -37,8 +37,6 @@ export async function getRedirectPathOnProtectedEventRoute(args: {
 }
 
 export function validateTimePeriods(
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newEventData: any,
   parentEvent: { startTime: Date; endTime: Date } | null,
   childEvents: { startTime: Date; endTime: Date }[],
@@ -80,15 +78,11 @@ export function validateTimePeriods(
       } else {
         earliestStartTime =
           earliestStartTime !== undefined &&
-          // TODO: fix type issue
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           childEvent.startTime < earliestStartTime
             ? childEvent.startTime
             : earliestStartTime;
         latestEndTime =
-          // TODO: fix type issue
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           latestEndTime !== undefined && childEvent.endTime > latestEndTime
             ? childEvent.endTime
@@ -170,17 +164,11 @@ export function transformEventToForm(
   };
 }
 
-// TODO: fix type issue
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transformFormToEvent(form: any) {
   const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     userId: _userId,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     submit: _submit,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     participantCount: _participantCount,
-    // experienceLevel: _experienceLevel,
     startDate,
     endDate,
     participationUntilDate,
@@ -227,8 +215,6 @@ export function transformFormToEvent(form: any) {
 
 export async function updateEventById(
   id: string,
-  // TODO: fix type issue
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   eventData: any,
   privateFields: string[]
 ) {
@@ -372,7 +358,7 @@ export async function updateEventById(
     }),
   ]);
 
-  updateFilterVectorOfEvent(id);
+  void updateFilterVectorOfEvent(id);
 }
 
 export async function updateFilterVectorOfEvent(eventId: string) {

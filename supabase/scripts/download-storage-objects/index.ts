@@ -5,7 +5,6 @@ import fs from "fs-extra";
 config({ path: "./supabase/scripts/download-storage-objects/.env" });
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface ProcessEnv {
       PROJECT_URL: string;
@@ -50,7 +49,6 @@ async function main() {
       const arrayBuffer = await data.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      // eslint-disable-next-line import/no-named-as-default-member
       await fs.outputFile(
         `./supabase/storage/${timestamp}/${object.bucket_id}/${object.name}`,
         buffer

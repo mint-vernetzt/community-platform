@@ -9,8 +9,9 @@ import {
   Request,
   Query,
   Res,
+  type TsoaResponse,
+  type ValidateError,
 } from "tsoa";
-import type { TsoaResponse, ValidateError } from "tsoa";
 import type { Request as ExpressRequest } from "express";
 import { getAllProjects } from "./projects-service";
 
