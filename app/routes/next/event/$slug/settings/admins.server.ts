@@ -15,3 +15,18 @@ export async function getEventBySlug(slug: string) {
 
   return event;
 }
+
+export async function getEventIdBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+    },
+  });
+
+  if (event === null) {
+    return null;
+  }
+
+  return event.id;
+}
