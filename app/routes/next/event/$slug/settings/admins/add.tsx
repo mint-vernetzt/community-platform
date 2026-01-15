@@ -224,14 +224,25 @@ function Add() {
   const handleChange = (event: React.ChangeEvent<HTMLFormElement>) => {
     searchForm.validate();
     if (searchForm.valid) {
-      searchFetcher.submit(event.currentTarget, { preventScrollReset: true });
+      void searchFetcher.submit(event.currentTarget, {
+        preventScrollReset: true,
+      });
     }
   };
 
-  const searchedProfiles =
-    typeof searchFetcher.data !== "undefined"
-      ? searchFetcher.data.searchedProfiles
-      : loaderData.searchedProfiles;
+  const [searchedProfiles, setSearchedProfiles] = useState(
+    loaderData.searchedProfiles
+  );
+
+  useEffect(() => {
+    setSearchedProfiles(loaderData.searchedProfiles);
+  }, [loaderData.searchedProfiles]);
+
+  useEffect(() => {
+    if (typeof searchFetcher.data !== "undefined") {
+      setSearchedProfiles(searchFetcher.data.searchedProfiles);
+    }
+  }, [searchFetcher.data]);
 
   const [teamMembers, setTeamMembers] = useState(loaderData.teamMembers);
 
@@ -241,71 +252,68 @@ function Add() {
 
   return (
     <>
-      {teamMembers.length > 0 && (
-        <>
-          <div>
-            <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-              {locales.route.team.title}
-            </h3>
-            <p>{locales.route.team.instruction}</p>
-          </div>
-          <List
-            locales={locales.route.search}
-            id="admin-search-results"
-            hideAfter={1}
-          >
-            <List.Search
-              defaultItems={loaderData.teamMembers}
-              setValues={setTeamMembers}
-              searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
-              locales={{
-                placeholder: locales.route.team.search.placeholder,
-                label: locales.route.team.search.label,
-              }}
-              hideUntil={1}
-              label={locales.route.team.search.label}
-              submission={loaderData.teamMembersSearchSubmission}
-              schema={createSearchTeamMembersSchema(locales.route.team.search)}
-              hideLabel={false}
-            />
-            {loaderData.teamMembers.map((teamMember, index) => {
-              return (
-                <ListItemPersonOrg key={teamMember.id} index={index}>
-                  <ListItemPersonOrg.Avatar size="full" {...teamMember} />
-                  <ListItemPersonOrg.Headline>
-                    {teamMember.academicTitle !== null &&
-                    teamMember.academicTitle.length > 0
-                      ? `${teamMember.academicTitle} `
-                      : ""}
-                    {teamMember.firstName} {teamMember.lastName}
-                  </ListItemPersonOrg.Headline>
-                  <ListItemPersonOrg.Controls>
-                    <Form
-                      id={`add-team-member-as-admin-${teamMember.id}`}
-                      method="post"
-                      preventScrollReset
+      <>
+        <div>
+          <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+            {locales.route.team.title}
+          </h3>
+          <p>{locales.route.team.instruction}</p>
+        </div>
+        <List
+          locales={locales.route.search}
+          id="admin-search-results"
+          hideAfter={1}
+        >
+          <List.Search
+            defaultItems={loaderData.teamMembers}
+            setValues={setTeamMembers}
+            searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
+            locales={{
+              placeholder: locales.route.team.search.placeholder,
+              label: locales.route.team.search.label,
+            }}
+            label={locales.route.team.search.label}
+            submission={loaderData.teamMembersSearchSubmission}
+            schema={createSearchTeamMembersSchema(locales.route.team.search)}
+            hideLabel={false}
+          />
+          {teamMembers.map((teamMember, index) => {
+            return (
+              <ListItemPersonOrg key={teamMember.id} index={index}>
+                <ListItemPersonOrg.Avatar size="full" {...teamMember} />
+                <ListItemPersonOrg.Headline>
+                  {teamMember.academicTitle !== null &&
+                  teamMember.academicTitle.length > 0
+                    ? `${teamMember.academicTitle} `
+                    : ""}
+                  {teamMember.firstName} {teamMember.lastName}
+                </ListItemPersonOrg.Headline>
+                <ListItemPersonOrg.Controls>
+                  <Form
+                    id={`add-team-member-as-admin-${teamMember.id}`}
+                    method="post"
+                    preventScrollReset
+                  >
+                    <Input
+                      type="hidden"
+                      name={PROFILE_ID_FIELD}
+                      value={teamMember.id}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      name={INTENT_FIELD_NAME}
+                      value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
                     >
-                      <Input
-                        type="hidden"
-                        name={PROFILE_ID_FIELD}
-                        value={teamMember.id}
-                      />
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        name={INTENT_FIELD_NAME}
-                        value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
-                      >
-                        {locales.route.team.list.add}
-                      </Button>
-                    </Form>
-                  </ListItemPersonOrg.Controls>
-                </ListItemPersonOrg>
-              );
-            })}
-          </List>
-        </>
-      )}
+                      {locales.route.team.list.add}
+                    </Button>
+                  </Form>
+                </ListItemPersonOrg.Controls>
+              </ListItemPersonOrg>
+            );
+          })}
+        </List>
+      </>
       <div>
         <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
           {locales.route.search.title}

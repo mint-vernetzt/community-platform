@@ -114,7 +114,8 @@ export async function action(args: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  const searchParams = new URL(request.url).searchParams;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
   const confirm = searchParams.get(CONFIRM_MODAL_SEARCH_PARAM);
 
   if (sessionUser.id === submission.value.adminId && confirm !== "true") {
