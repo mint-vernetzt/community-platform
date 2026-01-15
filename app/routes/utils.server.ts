@@ -253,11 +253,13 @@ export async function searchProfiles(options: {
   searchParams: URLSearchParams;
   idsToExclude?: string[];
   authClient: SupabaseClient;
-  locales:
-    | OrganizationAdminSettingsLocales
-    | OrganizationTeamSettingsLocales
-    | ProjectAdminSettingsLocales
-    | ProjectTeamSettingsLocales;
+  locales: {
+    searchProfilesSchema: {
+      validation: {
+        min: string;
+      };
+    };
+  };
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, locales, mode } = options;
