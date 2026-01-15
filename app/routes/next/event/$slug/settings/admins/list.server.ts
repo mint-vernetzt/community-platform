@@ -51,7 +51,7 @@ export async function getAdminsOfEvent(options: {
             OR: [
               { firstName: { contains: term, mode: "insensitive" } },
               { lastName: { contains: term, mode: "insensitive" } },
-              { username: { contains: term, mode: "insensitive" } },
+              { email: { contains: term, mode: "insensitive" } },
             ],
           };
         }),
