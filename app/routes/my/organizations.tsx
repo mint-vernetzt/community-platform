@@ -851,7 +851,13 @@ export default function MyOrganizations() {
                   {locales.route.requestOrganizationMembership.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon fetcher={searchFetcher} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    void searchFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }}
+                />
 
                 {typeof searchFields[SearchOrganizations].errors !==
                   "undefined" &&

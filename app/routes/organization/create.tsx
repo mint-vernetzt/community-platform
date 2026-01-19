@@ -482,7 +482,13 @@ function CreateOrganization() {
                 </Button>
               </Input.Controls>
               <Input.SearchIcon />
-              <Input.ClearIcon fetcher={searchFetcher} />
+              <Input.ClearIcon
+                onClick={() => {
+                  void searchFetcher.submit(null, {
+                    preventScrollReset: true,
+                  });
+                }}
+              />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&

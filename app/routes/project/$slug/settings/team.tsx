@@ -346,7 +346,13 @@ function Team() {
                   {locales.route.content.add.criteria}
                 </Input.HelperText>
               )}
-              <Input.ClearIcon fetcher={searchFetcher} />
+              <Input.ClearIcon
+                onClick={() => {
+                  void searchFetcher.submit(null, {
+                    preventScrollReset: true,
+                  });
+                }}
+              />
               <Input.Controls>
                 <noscript>
                   <Button type="submit" variant="outline">

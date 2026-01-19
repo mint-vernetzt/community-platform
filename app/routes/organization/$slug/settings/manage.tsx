@@ -1042,7 +1042,13 @@ function Manage() {
                   {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon fetcher={searchNetworkMembersFetcher} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    void searchNetworkMembersFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }}
+                />
 
                 {typeof searchNetworkMembersFields[SearchNetworkMembers]
                   .errors !== "undefined" &&
@@ -1348,7 +1354,13 @@ function Manage() {
                   {locales.route.content.networks.requestToJoin.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon fetcher={searchNetworksFetcher} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    void searchNetworksFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }}
+                />
 
                 {typeof searchNetworksFields[SearchNetworks].errors !==
                   "undefined" &&
