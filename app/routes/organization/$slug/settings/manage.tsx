@@ -818,7 +818,7 @@ function Manage() {
                       form={manageForm.id}
                       type="reset"
                       onClick={() => {
-                        setTimeout(() => manageForm.reset(), 0);
+                        manageForm.reset();
                       }}
                       variant="outline"
                       fullSize

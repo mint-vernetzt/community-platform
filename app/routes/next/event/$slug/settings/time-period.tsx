@@ -480,7 +480,7 @@ export default function TimePeriod() {
                           ? TIME_PERIOD_SINGLE
                           : TIME_PERIOD_MULTI
                       );
-                      setTimeout(() => form.reset(), 0);
+                      form.reset();
                     }}
                     variant="outline"
                     fullSize
