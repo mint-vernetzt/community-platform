@@ -59,7 +59,7 @@ make imgproxy_stop
 Run the script
 
 ```shell
-npx ts-node prisma/scripts/seed-database/index.ts -s 2 -r -e 1 -i 1 -d 1
+npx tsx prisma/scripts/seed-database/index.ts -s 2 -r -e 1 -i 1 -d 1
 ```
 
 this will seed the database with random but reasonably data.

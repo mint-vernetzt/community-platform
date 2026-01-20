@@ -14,11 +14,12 @@
     "@types/swagger-ui-express": "^4.1.8",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.11",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
+    "watch": "tsc --watch --preserveWatchOutput",
+    "dev": "concurrently \"npm:watch\" \"nodemon\"",
     "build": "tsoa spec-and-routes && tsc --experimentalDecorators",
     "start": "node build/src/server.js"
   }
