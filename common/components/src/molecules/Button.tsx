@@ -61,7 +61,7 @@ function Button(
     size === "x-small" && "text-xs p-2 leading-4",
     size === "small" && "text-xs px-4 py-2 leading-4",
     size === "medium" && "h-10 text-sm px-4 py-2.5 leading-5",
-    size === "large" && "h-12 text-base px-6 py-2.5 leading-[22px]",
+    size === "large" && "h-12 text-base px-6 py-2.5 leading-5.5",
     // button border
     variant === "outline" && size !== "large" && "border",
     variant === "outline" && size === "large" && "border-2",

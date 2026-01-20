@@ -516,7 +516,7 @@ export default function Location() {
                       | (typeof Stages)[keyof typeof Stages]
                       | null
                   );
-                  setTimeout(() => form.reset(), 0);
+                  form.reset();
                 }}
                 variant="outline"
                 fullSize

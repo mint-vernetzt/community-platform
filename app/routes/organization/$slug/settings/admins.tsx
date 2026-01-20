@@ -307,7 +307,13 @@ function Admins() {
                 {locales.route.content.invite.search}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.ClearIcon fetcher={searchFetcher} />
+              <Input.ClearIcon
+                onClick={() => {
+                  void searchFetcher.submit(null, {
+                    preventScrollReset: true,
+                  });
+                }}
+              />
 
               {typeof searchFields[SearchProfiles].errors !== "undefined" &&
               searchFields[SearchProfiles].errors.length > 0 ? (

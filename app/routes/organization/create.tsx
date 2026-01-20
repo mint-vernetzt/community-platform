@@ -383,7 +383,7 @@ function CreateOrganization() {
       <Section>
         <div className="w-full flex flex-col gap-4">
           {/* Organization name Section */}
-          <h2 className="mb-0 text-2xl font-bold leading-[26px]">
+          <h2 className="mb-0 text-2xl font-bold leading-6.5">
             {locales.route.form.organizationName.headline}
           </h2>
           <searchFetcher.Form
@@ -482,7 +482,13 @@ function CreateOrganization() {
                 </Button>
               </Input.Controls>
               <Input.SearchIcon />
-              <Input.ClearIcon fetcher={searchFetcher} />
+              <Input.ClearIcon
+                onClick={() => {
+                  void searchFetcher.submit(null, {
+                    preventScrollReset: true,
+                  });
+                }}
+              />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&
@@ -556,7 +562,7 @@ function CreateOrganization() {
                             }
                           </div>
                         ) : searchedOrganization.allowedToClaimOrganization ? (
-                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-[4px]">
+                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-sm">
                             <p>
                               {searchedOrganization.alreadyRequestedToClaim
                                 ? locales.route.claimRequest.alreadyRequested
@@ -649,7 +655,7 @@ function CreateOrganization() {
         </div>
         {/* Organization types section */}
         <div className="w-full flex flex-col gap-4">
-          <h2 className="mb-0 text-2xl font-bold leading-[26px]">
+          <h2 className="mb-0 text-2xl font-bold leading-6.5">
             {locales.route.form.organizationTypes.headline}
           </h2>
           <ConformSelect
@@ -664,20 +670,18 @@ function CreateOrganization() {
 
             {typeof createOrganizationFields.organizationTypes.errors !==
               "undefined" &&
-            createOrganizationFields.organizationTypes.errors.length > 0 ? (
-              createOrganizationFields.organizationTypes.errors.map((error) => (
-                <ConformSelect.Error
-                  id={createOrganizationFields.organizationTypes.errorId}
-                  key={error}
-                >
-                  {error}
-                </ConformSelect.Error>
-              ))
-            ) : (
-              <ConformSelect.HelperText>
-                {locales.route.form.organizationTypes.helperText}
-              </ConformSelect.HelperText>
-            )}
+            createOrganizationFields.organizationTypes.errors.length > 0
+              ? createOrganizationFields.organizationTypes.errors.map(
+                  (error) => (
+                    <ConformSelect.Error
+                      id={createOrganizationFields.organizationTypes.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  )
+                )
+              : null}
             {allOrganizationTypes
               .filter((organizationType) => {
                 return !organizationTypeList.some((listOrganizationType) => {
@@ -773,7 +777,7 @@ function CreateOrganization() {
         {/* Network types section */}
         <div className="w-full flex flex-col gap-4">
           <h2
-            className={`mb-0 text-2xl font-bold leading-[26px] ${
+            className={`mb-0 text-2xl font-bold leading-6.5 ${
               isNetwork === false ? "text-neutral-300" : "text-primary"
             }`}
           >
@@ -802,15 +806,13 @@ function CreateOrganization() {
                   {error}
                 </ConformSelect.Error>
               ))
-            ) : (
+            ) : isNetwork === false ? (
               <ConformSelect.HelperText>
-                <span className={isNetwork === false ? "text-neutral-300" : ""}>
-                  {isNetwork === false
-                    ? locales.route.form.networkTypes.helperWithoutNetwork
-                    : locales.route.form.networkTypes.helper}
+                <span className="text-neutral-300">
+                  {locales.route.form.networkTypes.helperWithoutNetwork}
                 </span>
               </ConformSelect.HelperText>
-            )}
+            ) : null}
             {allNetworkTypes
               .filter((networkType) => {
                 return !networkTypeList.some((listNetworkType) => {
@@ -898,7 +900,7 @@ function CreateOrganization() {
       </Section>
       <Section>
         <div>
-          <h2 className="w-full text-2xl font-bold leading-[26px] mb-2 @md:mb-4">
+          <h2 className="w-full text-2xl font-bold leading-6.5 mb-2 @md:mb-4">
             {locales.route.form.address.headline}
           </h2>
           <p className="w-full text-neutral-700 mb-2 @md:mb-4">

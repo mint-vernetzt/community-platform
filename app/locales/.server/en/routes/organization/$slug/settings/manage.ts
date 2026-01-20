@@ -24,7 +24,6 @@ export const locale = {
     types: {
       headline: "Organizational form",
       label: "Choose the type of your organization",
-      helper: "Multiple selection possible",
       option: "Please select",
       doubleCheck: {
         title: 'Remove organizational form "Network"',
@@ -37,7 +36,6 @@ export const locale = {
     networkTypes: {
       headline: "Network form",
       label: "Choose the type of your network",
-      helper: "Multiple selection possible",
       helperWithoutNetwork: 'Requires organizational form "Network"',
       option: "Please select",
     },

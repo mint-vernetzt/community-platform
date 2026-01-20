@@ -29,7 +29,7 @@ function Headline(props: { children: React.ReactNode }) {
   const { children } = props;
 
   return (
-    <h2 className="mb-0 text-primary text-2xl font-bold leading-[26px]">
+    <h2 className="mb-0 text-primary text-2xl font-bold leading-6.5">
       {children}
     </h2>
   );

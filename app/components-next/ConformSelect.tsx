@@ -22,9 +22,8 @@ function ConformSelectInput(props: {
   cta: string;
   listItems: React.ReactNode[];
   closeOnSelect: boolean;
-  dimmed: boolean;
 }) {
-  const { id, disabled = false, cta, listItems, closeOnSelect, dimmed } = props;
+  const { id, disabled = false, cta, listItems, closeOnSelect } = props;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(disabled);
@@ -71,12 +70,8 @@ function ConformSelectInput(props: {
   }, [listItems, disabled]);
 
   const labelClasses = classNames(
-    "relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-semibold peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none",
-    isDisabled === true
-      ? "text-neutral-300"
-      : dimmed === true
-        ? "text-neutral-400"
-        : "text-neutral-700"
+    "relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-normal peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none",
+    isDisabled === true ? "text-neutral-300" : "text-neutral-700"
   );
 
   return (
@@ -146,17 +141,11 @@ type ConformSelectProps = React.PropsWithChildren<
     cta: string;
     disabled?: boolean;
     closeOnSelect?: boolean;
-    dimmed?: boolean;
   }
 >;
 
 function ConformSelect(props: ConformSelectProps) {
-  const {
-    children,
-    disabled = false,
-    closeOnSelect = false,
-    dimmed = true,
-  } = props;
+  const { children, disabled = false, closeOnSelect = false } = props;
   const validChildren = Children.toArray(children).filter((child) => {
     return isValidElement(child) || typeof child === "string";
   });
@@ -228,7 +217,6 @@ function ConformSelect(props: ConformSelectProps) {
                 cta={props.cta}
                 listItems={listItems}
                 closeOnSelect={closeOnSelect}
-                dimmed={dimmed}
               />
             </div>
             {controls}
@@ -242,7 +230,6 @@ function ConformSelect(props: ConformSelectProps) {
             cta={props.cta}
             listItems={listItems}
             closeOnSelect={closeOnSelect}
-            dimmed={dimmed}
           />
         </div>
       )}
@@ -252,17 +239,10 @@ function ConformSelect(props: ConformSelectProps) {
   );
 }
 
-function getListItemChildrenStyles(options?: { deemphasized: boolean }) {
-  const { deemphasized } = options || {};
-  const classes = classNames(
-    "w-full appearance-none px-4 py-3 text-start leading-5 focus:outline-hidden",
-    typeof deemphasized === "undefined" || deemphasized === false
-      ? "text-neutral-700"
-      : "text-neutral-400"
-  );
-
+function getListItemChildrenStyles() {
   return {
-    className: classes,
+    className:
+      "w-full appearance-none px-4 py-3 text-start leading-5 focus:outline-hidden text-neutral-700",
   };
 }
 

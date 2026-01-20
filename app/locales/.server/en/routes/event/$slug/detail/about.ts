@@ -20,7 +20,7 @@ export const locale = {
   },
   eventTargetGroups: {
     label:
-      "The event is recommended for target groups from the following educational sectors",
+      "The event is recommended for practitioners from the following educational sectors",
   },
   focuses: {
     label: "STEM focuses",

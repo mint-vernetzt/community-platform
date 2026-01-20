@@ -701,7 +701,7 @@ function Requirements() {
                     <Button
                       type="reset"
                       onClick={() => {
-                        setTimeout(() => form.reset(), 0);
+                        form.reset();
                       }}
                       variant="outline"
                       fullSize

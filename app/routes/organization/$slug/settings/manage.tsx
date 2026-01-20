@@ -563,20 +563,16 @@ function Manage() {
                   </ConformSelect.Label>
                   {typeof manageFields.organizationTypes.errors !==
                     "undefined" &&
-                  manageFields.organizationTypes.errors.length > 0 ? (
-                    manageFields.organizationTypes.errors.map((error) => (
-                      <ConformSelect.Error
-                        id={manageFields.organizationTypes.errorId}
-                        key={error}
-                      >
-                        {error}
-                      </ConformSelect.Error>
-                    ))
-                  ) : (
-                    <ConformSelect.HelperText>
-                      {locales.route.content.types.helper}
-                    </ConformSelect.HelperText>
-                  )}
+                  manageFields.organizationTypes.errors.length > 0
+                    ? manageFields.organizationTypes.errors.map((error) => (
+                        <ConformSelect.Error
+                          id={manageFields.organizationTypes.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </ConformSelect.Error>
+                      ))
+                    : null}
                   {allOrganizationTypes
                     .filter((organizationType) => {
                       return !organizationTypeList.some((field) => {
@@ -706,14 +702,11 @@ function Manage() {
                         {error}
                       </ConformSelect.Error>
                     ))
-                  ) : (
+                  ) : hasSelectedNetwork === false ? (
                     <ConformSelect.HelperText>
-                      {hasSelectedNetwork === false
-                        ? locales.route.content.networkTypes
-                            .helperWithoutNetwork
-                        : locales.route.content.networkTypes.helper}
+                      {locales.route.content.networkTypes.helperWithoutNetwork}
                     </ConformSelect.HelperText>
-                  )}
+                  ) : null}
                   {allNetworkTypes
                     .filter((networkType) => {
                       return !networkTypeList.some((field) => {
@@ -825,7 +818,7 @@ function Manage() {
                       form={manageForm.id}
                       type="reset"
                       onClick={() => {
-                        setTimeout(() => manageForm.reset(), 0);
+                        manageForm.reset();
                       }}
                       variant="outline"
                       fullSize
@@ -1049,7 +1042,13 @@ function Manage() {
                   {locales.route.content.networkMembers.invite.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon fetcher={searchNetworkMembersFetcher} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    void searchNetworkMembersFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }}
+                />
 
                 {typeof searchNetworkMembersFields[SearchNetworkMembers]
                   .errors !== "undefined" &&
@@ -1355,7 +1354,13 @@ function Manage() {
                   {locales.route.content.networks.requestToJoin.label}
                 </Input.Label>
                 <Input.SearchIcon />
-                <Input.ClearIcon fetcher={searchNetworksFetcher} />
+                <Input.ClearIcon
+                  onClick={() => {
+                    void searchNetworksFetcher.submit(null, {
+                      preventScrollReset: true,
+                    });
+                  }}
+                />
 
                 {typeof searchNetworksFields[SearchNetworks].errors !==
                   "undefined" &&

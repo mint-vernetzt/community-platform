@@ -450,7 +450,7 @@ export default function TimePeriod() {
           </BasicStructure.Container>
 
           <div className="w-full flex flex-col md:flex-row md:justify-between gap-4">
-            <p className="text-neutral-700 text-sm font-normal leading-[18px]">
+            <p className="text-neutral-700 text-sm font-normal leading-4.5">
               {locales.route.requiredHint}
             </p>
             <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
@@ -480,7 +480,7 @@ export default function TimePeriod() {
                           ? TIME_PERIOD_SINGLE
                           : TIME_PERIOD_MULTI
                       );
-                      setTimeout(() => form.reset(), 0);
+                      form.reset();
                     }}
                     variant="outline"
                     fullSize

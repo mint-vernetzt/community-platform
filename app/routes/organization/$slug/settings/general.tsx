@@ -627,17 +627,13 @@ function General() {
               </ConformSelect.Label>
 
               {typeof fields.areas.errors !== "undefined" &&
-              fields.areas.errors.length > 0 ? (
-                fields.areas.errors.map((error) => (
-                  <ConformSelect.Error id={fields.areas.errorId} key={error}>
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.areas.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.areas.errors.length > 0
+                ? fields.areas.errors.map((error) => (
+                    <ConformSelect.Error id={fields.areas.errorId} key={error}>
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {areaOptions
                 .filter((option) => {
                   // All options that have a value should only be shown if they are not inside the current selected area list
@@ -714,17 +710,16 @@ function General() {
               </ConformSelect.Label>
 
               {typeof fields.focuses.errors !== "undefined" &&
-              fields.focuses.errors.length > 0 ? (
-                fields.focuses.errors.map((error) => (
-                  <ConformSelect.Error id={fields.focuses.errorId} key={error}>
-                    {error}
-                  </ConformSelect.Error>
-                ))
-              ) : (
-                <ConformSelect.HelperText>
-                  {locales.route.content.focuses.helper}
-                </ConformSelect.HelperText>
-              )}
+              fields.focuses.errors.length > 0
+                ? fields.focuses.errors.map((error) => (
+                    <ConformSelect.Error
+                      id={fields.focuses.errorId}
+                      key={error}
+                    >
+                      {error}
+                    </ConformSelect.Error>
+                  ))
+                : null}
               {allFocuses
                 .filter((focus) => {
                   return !focusFieldList.some((listFocus) => {
@@ -972,7 +967,7 @@ function General() {
                   <Button
                     type="reset"
                     onClick={() => {
-                      setTimeout(() => form.reset(), 0);
+                      form.reset();
                     }}
                     variant="outline"
                     fullSize

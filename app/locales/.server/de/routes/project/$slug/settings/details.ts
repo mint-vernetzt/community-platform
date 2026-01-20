@@ -53,13 +53,11 @@ export const locale = {
     disciplines: {
       headline: "MINT-Disziplinen",
       intro: "Welche MINT-Disziplinen spielen in Deinem Projekt eine Rolle?",
-      helper: "Mehrfachnennungen sind möglich.",
       choose: "Bitte auswählen",
     },
     additionalDisciplines: {
       headline:
         "Welche zusätzlichen Disziplinen spielen in Deinem Projekt eine Rolle?",
-      helper: "Mehrfachnennungen sind möglich.",
       helperWithoutDisciplines:
         "Wähle mindestens eine Hauptdisziplin aus um zusätzliche Disziplinen hinzuzufügen.",
       choose: "Bitte auswählen",
@@ -79,13 +77,11 @@ export const locale = {
     },
     projectTargetGroups: {
       intro: "Welche Zielgruppe spricht das Projekt an?",
-      helper: "Mehrfachnennungen sind möglich.",
       choose: "Bitte auswählen",
     },
     specialTargetGroups: {
       intro:
         "Wird eine bestimmte (geschlechtsspezifische, soziale, kulturelle oder demografische etc.) Gruppe innerhalb der Zielgruppe angesprochen?",
-      helper: "Mehrfachnennungen sind möglich.",
       choose: "Bitte auswählen",
     },
     targetGroupAdditions: {

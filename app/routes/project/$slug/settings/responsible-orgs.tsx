@@ -432,7 +432,13 @@ function Team() {
                 {locales.route.content.addOther.search.label}
               </Input.Label>
               <Input.SearchIcon />
-              <Input.ClearIcon fetcher={searchFetcher} />
+              <Input.ClearIcon
+                onClick={() => {
+                  void searchFetcher.submit(null, {
+                    preventScrollReset: true,
+                  });
+                }}
+              />
 
               {typeof searchFields[SearchOrganizations].errors !==
                 "undefined" &&

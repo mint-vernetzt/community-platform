@@ -43,7 +43,8 @@ export const locale = {
   form: {
     validation: {
       nameRequired: "Bitte gib einen Titel ein.",
-      nameMinLength: "Der Name es Events muss mindestens 3 Zeichen lang sein.",
+      nameMinLength:
+        "Der Titel des Events muss mindestens 3 Zeichen lang sein.",
       startDateRequired: "Bitte gib das Startdatum Deines Events an.",
       startDateInPast: "Dein Datum liegt in der Vergangenheit.",
       startTimeInPast: "Die Startzeit liegt in der Vergangenheit.",
