@@ -110,7 +110,6 @@ function Participants() {
                   {participant.position}
                 </ListItemPersonOrg.Subline>
               )}
-              <Button>Test</Button>
             </ListItemPersonOrg>
           );
         })}
