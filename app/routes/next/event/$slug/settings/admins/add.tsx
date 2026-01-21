@@ -274,25 +274,35 @@ function Add() {
                   {teamMember.firstName} {teamMember.lastName}
                 </ListItemPersonOrg.Headline>
                 <ListItemPersonOrg.Controls>
-                  <Form
-                    id={`add-team-member-as-admin-${teamMember.id}`}
-                    method="post"
-                    preventScrollReset
-                  >
-                    <Input
-                      type="hidden"
-                      name={PROFILE_ID_FIELD}
-                      value={teamMember.id}
-                    />
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      name={INTENT_FIELD_NAME}
-                      value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
+                  {teamMember.alreadyAdmin ? (
+                    <p className="text-sm font-semibold text-positive-600">
+                      {locales.route.search.alreadyAdmin}
+                    </p>
+                  ) : teamMember.alreadyInvited ? (
+                    <p className="text-sm font-semibold text-neutral-700">
+                      {locales.route.search.alreadyInvited}
+                    </p>
+                  ) : (
+                    <Form
+                      id={`add-team-member-as-admin-${teamMember.id}`}
+                      method="post"
+                      preventScrollReset
                     >
-                      {locales.route.team.list.add}
-                    </Button>
-                  </Form>
+                      <Input
+                        type="hidden"
+                        name={PROFILE_ID_FIELD}
+                        value={teamMember.id}
+                      />
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        name={INTENT_FIELD_NAME}
+                        value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
+                      >
+                        {locales.route.team.list.add}
+                      </Button>
+                    </Form>
+                  )}
                 </ListItemPersonOrg.Controls>
               </ListItemPersonOrg>
             );

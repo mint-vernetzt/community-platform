@@ -32,7 +32,6 @@ import {
   removeAdminFromEvent,
 } from "./list.server";
 import {
-  ADMIN_ID_SEARCH_PARAM,
   CONFIRM_MODAL_SEARCH_PARAM,
   getRemoveAdminSchema,
   getSearchAdminsSchema,
@@ -46,6 +45,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUserOrThrow(authClient);
 
   const language = await detectLanguage(request);
   const locales =
@@ -60,7 +60,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchParams,
   });
 
-  return { locales, admins, submission };
+  return { locales, admins, submission, userId: sessionUser.id };
 };
 
 export async function action(args: ActionFunctionArgs) {
@@ -107,17 +107,6 @@ export async function action(args: ActionFunctionArgs) {
 
   if (submission.status !== "success") {
     return submission.reply();
-  }
-
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  const confirm = searchParams.get(CONFIRM_MODAL_SEARCH_PARAM);
-
-  if (sessionUser.id === submission.value.adminId && confirm !== "true") {
-    const url = new URL(request.url);
-    url.searchParams.set(CONFIRM_MODAL_SEARCH_PARAM, "true");
-    url.searchParams.set(ADMIN_ID_SEARCH_PARAM, submission.value.adminId);
-    return redirect(url.toString());
   }
 
   try {
@@ -168,6 +157,9 @@ function AdminsList() {
     setAdmins(loaderData.admins);
   }, [loaderData.admins]);
 
+  const removeSelfSearchParams = new URLSearchParams(searchParams.toString());
+  removeSelfSearchParams.set(CONFIRM_MODAL_SEARCH_PARAM, "true");
+
   return (
     <>
       <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
@@ -209,35 +201,60 @@ function AdminsList() {
               </ListItemPersonOrg.Headline>
               {loaderData.admins.length > 1 && (
                 <ListItemPersonOrg.Controls>
-                  <Form
-                    id={`remove-admin-form-${admin.id}`}
-                    method="post"
-                    preventScrollReset
-                  >
-                    <input type="hidden" name="adminId" value={admin.id} />
-                    <Button type="submit" variant="outline">
-                      {locales.route.list.remove}
-                    </Button>
-                  </Form>
+                  {loaderData.userId === admin.id ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        as="link"
+                        to={`?${removeSelfSearchParams.toString()}`}
+                        preventScrollReset
+                      >
+                        {locales.route.list.remove}
+                      </Button>
+                      <Form
+                        id={`remove-admin-form-${admin.id}`}
+                        method="POST"
+                        preventScrollReset
+                        hidden
+                      >
+                        <input name="adminId" value={admin.id} />
+                      </Form>
+                      <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
+                        <Modal.Title>
+                          {locales.route.confirmation.title}
+                        </Modal.Title>
+                        <Modal.Section>
+                          {locales.route.confirmation.description}
+                        </Modal.Section>
+                        <Modal.SubmitButton
+                          form={`remove-admin-form-${admin.id}`}
+                          level="negative"
+                        >
+                          {locales.route.confirmation.confirm}
+                        </Modal.SubmitButton>
+                        <Modal.CloseButton route={location.pathname}>
+                          {locales.route.confirmation.abort}
+                        </Modal.CloseButton>
+                      </Modal>
+                    </>
+                  ) : (
+                    <Form
+                      id={`remove-admin-form-${admin.id}`}
+                      method="POST"
+                      preventScrollReset
+                    >
+                      <input type="hidden" name="adminId" value={admin.id} />
+                      <Button type="submit" variant="outline">
+                        {locales.route.list.remove}
+                      </Button>
+                    </Form>
+                  )}
                 </ListItemPersonOrg.Controls>
               )}
             </ListItemPersonOrg>
           );
         })}
       </List>
-      <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
-        <Modal.Title>{locales.route.confirmation.title}</Modal.Title>
-        <Modal.Section>{locales.route.confirmation.description}</Modal.Section>
-        <Modal.SubmitButton
-          form={`remove-admin-form-${searchParams.get(ADMIN_ID_SEARCH_PARAM)}`}
-          level="negative"
-        >
-          {locales.route.confirmation.confirm}
-        </Modal.SubmitButton>
-        <Modal.CloseButton route={location.pathname}>
-          {locales.route.confirmation.abort}
-        </Modal.CloseButton>
-      </Modal>
     </>
   );
 }

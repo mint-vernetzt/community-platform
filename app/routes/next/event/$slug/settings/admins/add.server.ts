@@ -113,18 +113,7 @@ export async function getTeamMembersOfEventToAddAsAdmins(options: {
     },
   });
 
-  const filteredTeamMembers = teamMembers.filter((relation) => {
-    const alreadyAdmin = admins.some((admin) => {
-      return admin.profileId === relation.profile.id;
-    });
-    const alreadyInvited = invites.some((invite) => {
-      return invite.profileId === relation.profile.id;
-    });
-
-    return alreadyAdmin === false && alreadyInvited === false;
-  });
-
-  const enhancedProfiles = filteredTeamMembers.map((relation) => {
+  const enhancedProfiles = teamMembers.map((relation) => {
     let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
@@ -146,10 +135,19 @@ export async function getTeamMembersOfEventToAddAsAdmins(options: {
       }
     }
 
+    const alreadyAdmin = admins.some((admin) => {
+      return admin.profileId === relation.profile.id;
+    });
+    const alreadyInvited = invites.some((invite) => {
+      return invite.profileId === relation.profile.id;
+    });
+
     return {
       ...relation.profile,
       avatar,
       blurredAvatar,
+      alreadyAdmin,
+      alreadyInvited,
     };
   });
 
