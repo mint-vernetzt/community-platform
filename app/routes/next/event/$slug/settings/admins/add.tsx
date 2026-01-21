@@ -225,19 +225,10 @@ function Add() {
     }
   };
 
-  const [searchedProfiles, setSearchedProfiles] = useState(
-    loaderData.searchedProfiles
-  );
-
-  useEffect(() => {
-    setSearchedProfiles(loaderData.searchedProfiles);
-  }, [loaderData.searchedProfiles]);
-
-  useEffect(() => {
-    if (typeof searchFetcher.data !== "undefined") {
-      setSearchedProfiles(searchFetcher.data.searchedProfiles);
-    }
-  }, [searchFetcher.data]);
+  const searchedProfiles =
+    typeof searchFetcher.data !== "undefined"
+      ? searchFetcher.data.searchedProfiles
+      : loaderData.searchedProfiles;
 
   const [teamMembers, setTeamMembers] = useState(loaderData.teamMembers);
 
@@ -334,7 +325,12 @@ function Add() {
             {locales.route.search.label}
           </Input.Label>
           <Input.SearchIcon />
-          <Input.ClearIcon />
+          <Input.ClearIcon
+            onClick={() => {
+              searchForm.reset();
+              void searchFetcher.submit(null, { preventScrollReset: true });
+            }}
+          />
 
           {typeof searchFields[SEARCH_ADMINS_SEARCH_PARAM].errors !==
             "undefined" &&
@@ -350,11 +346,6 @@ function Add() {
           ) : (
             <Input.HelperText>{locales.route.search.hint}</Input.HelperText>
           )}
-          <Input.ClearIcon
-            onClick={() => {
-              searchForm.reset();
-            }}
-          />
           <Input.Controls>
             <noscript>
               <Button type="submit" variant="outline">
