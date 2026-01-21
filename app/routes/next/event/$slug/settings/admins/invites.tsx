@@ -1,5 +1,5 @@
 import {
-  ActionFunctionArgs,
+  type ActionFunctionArgs,
   Form,
   redirect,
   useLoaderData,
