@@ -1,6 +1,5 @@
 {
-  "exec": "ts-node src/server.ts",
-  "watch": ["src"],
-  "ignore": ["src/routes.ts"],
-  "ext": "ts"
+  "exec": "tsoa spec-and-routes && node build/src/server.js",
+  "watch": ["build"],
+  "ext": "js"
 }
