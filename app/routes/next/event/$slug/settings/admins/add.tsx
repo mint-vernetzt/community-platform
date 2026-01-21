@@ -61,10 +61,6 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
   const { authClient } = createAuthClient(request);
   const { result: searchedProfiles } = await searchProfiles({
     eventId: event.id,
@@ -83,7 +79,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     locales,
-    currentTimestamp,
     searchedProfiles,
     teamMembers,
     teamMembersSearchSubmission,
@@ -200,14 +195,14 @@ export async function action(args: ActionFunctionArgs) {
 
 function Add() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
 
   const [searchParams] = useSearchParams();
   const searchAdminsParam = searchParams.get(SEARCH_ADMINS_SEARCH_PARAM);
 
   const searchFetcher = useFetcher<typeof loader>();
   const [searchForm, searchFields] = useForm({
-    id: `search-admins-form-${currentTimestamp}`,
+    id: "search-admins-form",
     defaultValue: {
       [SEARCH_ADMINS_SEARCH_PARAM]:
         searchAdminsParam !== null ? searchAdminsParam : "",

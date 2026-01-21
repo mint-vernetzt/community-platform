@@ -62,10 +62,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchParams,
   });
 
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { locales, admins, submission, currentTimestamp };
+  return { locales, admins, submission };
 };
 
 export async function action(args: ActionFunctionArgs) {
