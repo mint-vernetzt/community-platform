@@ -7,6 +7,7 @@ import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { getChildEventCount } from "../utils.server";
 import {
   getFullDepthParticipantIds,
   getParticipantsOfEvent,
@@ -15,8 +16,6 @@ import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
-import { getChildEventCount } from "../utils.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
