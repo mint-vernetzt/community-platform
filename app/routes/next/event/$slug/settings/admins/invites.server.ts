@@ -126,13 +126,31 @@ export async function revokeInviteOfProfileToJoinEventAsAdmin(options: {
 }) {
   const { eventId, profileId } = options;
 
-  const result = await prismaClient.inviteForProfileToJoinEvent.delete({
+  const invite = await prismaClient.inviteForProfileToJoinEvent.findUnique({
     where: {
       profileId_eventId_role: {
         eventId,
         profileId,
         role: "admin",
       },
+      status: "pending",
+    },
+  });
+
+  if (invite === null) {
+    return null;
+  }
+
+  const result = await prismaClient.inviteForProfileToJoinEvent.update({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId,
+        role: "admin",
+      },
+    },
+    data: {
+      status: "canceled",
     },
   });
 

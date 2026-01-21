@@ -7,7 +7,12 @@ export async function getEventBySlug(slug: string) {
       _count: {
         select: {
           admins: true,
-          profileJoinInvites: true,
+          profileJoinInvites: {
+            where: {
+              role: "admin",
+              status: "pending",
+            },
+          },
         },
       },
     },

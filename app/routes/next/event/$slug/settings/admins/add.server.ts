@@ -107,6 +107,7 @@ export async function getTeamMembersOfEventToAddAsAdmins(options: {
     where: {
       eventId: eventId,
       role: "admin",
+      status: "pending",
     },
     select: {
       profileId: true,
@@ -217,6 +218,7 @@ export async function searchProfiles(options: {
     where: {
       eventId: eventId,
       role: "admin",
+      status: "pending",
     },
     select: {
       profileId: true,
@@ -264,23 +266,18 @@ export async function inviteProfileToJoinEventAsAdmin(options: {
 }) {
   const { eventId, profileId } = options;
 
-  const existingInvite =
-    await prismaClient.inviteForProfileToJoinEvent.findUnique({
-      where: {
-        profileId_eventId_role: {
-          eventId,
-          profileId,
-          role: "admin",
-        },
+  const result = await prismaClient.inviteForProfileToJoinEvent.upsert({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId,
+        role: "admin",
       },
-    });
-
-  if (existingInvite !== null) {
-    return existingInvite;
-  }
-
-  const result = await prismaClient.inviteForProfileToJoinEvent.create({
-    data: {
+    },
+    update: {
+      status: "pending",
+    },
+    create: {
       eventId,
       profileId,
       role: "admin",
