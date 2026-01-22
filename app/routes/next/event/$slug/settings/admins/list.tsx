@@ -215,7 +215,7 @@ function AdminsList() {
                         preventScrollReset
                         hidden
                       >
-                        <input name="adminId" value={admin.id} />
+                        <input name="adminId" defaultValue={admin.id} />
                       </Form>
                       <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
                         <Modal.Title>
