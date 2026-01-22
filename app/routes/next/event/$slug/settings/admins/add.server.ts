@@ -93,7 +93,6 @@ export async function getTeamMembersOfEventToAddAsAdmins(options: {
     });
   }
 
-  // Prevent state issues by filtering for team members who are still admins and have not been invited yet
   const admins = await prismaClient.adminOfEvent.findMany({
     where: {
       eventId: eventId,
