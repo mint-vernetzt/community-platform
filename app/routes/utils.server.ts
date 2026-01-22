@@ -14,14 +14,10 @@ import {
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
-import { type OrganizationAdminSettingsLocales } from "./organization/$slug/settings/admins.server";
-import { type ManageOrganizationSettingsLocales } from "./organization/$slug/settings/manage.server";
-import { type OrganizationTeamSettingsLocales } from "./organization/$slug/settings/team.server";
-import { type ProjectAdminSettingsLocales } from "./project/$slug/settings/admins.server";
-import { type ProjectTeamSettingsLocales } from "./project/$slug/settings/team.server";
-import { type ProjectResponsibleOrganizationsSettingsLocales } from "./project/$slug/settings/responsible-orgs.server";
 import { type MyOrganizationsLocales } from "./my/organizations.server";
+import { type ManageOrganizationSettingsLocales } from "./organization/$slug/settings/manage.server";
 import { type CreateOrganizationLocales } from "./organization/create.server";
+import { type ProjectResponsibleOrganizationsSettingsLocales } from "./project/$slug/settings/responsible-orgs.server";
 
 export async function getProfileCount() {
   return await prismaClient.profile.count();
@@ -253,11 +249,13 @@ export async function searchProfiles(options: {
   searchParams: URLSearchParams;
   idsToExclude?: string[];
   authClient: SupabaseClient;
-  locales:
-    | OrganizationAdminSettingsLocales
-    | OrganizationTeamSettingsLocales
-    | ProjectAdminSettingsLocales
-    | ProjectTeamSettingsLocales;
+  locales: {
+    searchProfilesSchema: {
+      validation: {
+        min: string;
+      };
+    };
+  };
   mode: Mode;
 }) {
   const { searchParams, idsToExclude, authClient, locales, mode } = options;

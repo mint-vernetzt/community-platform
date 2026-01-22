@@ -5,11 +5,7 @@ import {
   SearchOrganizations,
   SearchProfiles,
 } from "./lib/utils/searchParams";
-import { type OrganizationAdminSettingsLocales } from "./routes/organization/$slug/settings/admins.server";
 import { type ManageOrganizationSettingsLocales } from "./routes/organization/$slug/settings/manage.server";
-import { type OrganizationTeamSettingsLocales } from "./routes/organization/$slug/settings/team.server";
-import { type ProjectAdminSettingsLocales } from "./routes/project/$slug/settings/admins.server";
-import { type ProjectTeamSettingsLocales } from "./routes/project/$slug/settings/team.server";
 import { type ProjectResponsibleOrganizationsSettingsLocales } from "./routes/project/$slug/settings/responsible-orgs.server";
 import { type MyOrganizationsLocales } from "./routes/my/organizations.server";
 import { type CreateOrganizationLocales } from "./routes/organization/create.server";
@@ -18,13 +14,13 @@ import { type CreateOrganizationLocales } from "./routes/organization/create.ser
 export const INTENT_FIELD_NAME = "intent";
 
 // List of schemas
-export const searchProfilesSchema = (
-  locales:
-    | OrganizationAdminSettingsLocales
-    | OrganizationTeamSettingsLocales
-    | ProjectAdminSettingsLocales
-    | ProjectTeamSettingsLocales
-) => {
+export const searchProfilesSchema = (locales: {
+  searchProfilesSchema: {
+    validation: {
+      min: string;
+    };
+  };
+}) => {
   return z.object({
     [SearchProfiles]: z
       .string()

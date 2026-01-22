@@ -38,12 +38,13 @@ function Search<
   defaultItems: T[];
   setValues: React.Dispatch<React.SetStateAction<T[]>>;
   hideUntil?: number;
-  locales: { placeholder: string };
+  locales: { placeholder: string; label?: string };
   label: string;
   submission: SubmissionResult<unknown>;
   schema: z.ZodTypeAny;
+  hideLabel?: boolean; // TODO: refactor: label should be passed as component
 }) {
-  const { id = "search-form", submission, schema } = props;
+  const { id = "search-form", submission, schema, hideLabel = true } = props;
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
 
@@ -135,14 +136,20 @@ function Search<
         standalone
         aria-label={props.label}
       >
-        <Input.Label htmlFor={fields[props.searchParam].id} hidden>
-          {props.locales.placeholder}
+        <Input.Label htmlFor={fields[props.searchParam].id} hidden={hideLabel}>
+          {typeof props.locales.label === "string"
+            ? props.locales.label
+            : props.locales.placeholder}
         </Input.Label>
         <Input.SearchIcon />
         <Input.ClearIcon />
         <noscript>
           <Input.Controls>
-            <Button type="submit">{props.locales.placeholder}</Button>
+            <Button type="submit">
+              {typeof props.locales.label === "string"
+                ? props.locales.label
+                : props.locales.placeholder}
+            </Button>
           </Input.Controls>
         </noscript>
       </Input>
@@ -193,17 +200,17 @@ function List(props: {
               htmlFor={`show-more-${id}`}
               className="flex gap-2 cursor-pointer w-fit"
             >
-              <div className="group-has-[:checked]:hidden">
+              <div className="group-has-checked:hidden">
                 {insertParametersIntoLocale(locales.more, {
                   count: otherChildren.length - hideAfter,
                 })}
               </div>
-              <div className="hidden group-has-[:checked]:block">
+              <div className="hidden group-has-checked:block">
                 {insertParametersIntoLocale(locales.less, {
                   count: otherChildren.length - hideAfter,
                 })}
               </div>
-              <div className="rotate-90 group-has-[:checked]:-rotate-90">
+              <div className="rotate-90 group-has-checked:-rotate-90">
                 <svg
                   width="20"
                   height="20"

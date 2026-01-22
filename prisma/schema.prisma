@@ -63,6 +63,7 @@ model Profile {
   abuseReports              ProfileAbuseReport[]                 @relation("profile_of_profile_abuse_report")
   joinOrganizationRequests  RequestToOrganizationToAddProfile[]
   joinOrganizationInvites   InviteForProfileToJoinOrganization[]
+  joinEventInvites          InviteForProfileToJoinEvent[]
   claimOrganizationRequests OrganizationClaimRequest[]           @relation("claimer_of_organization_claim_request")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
@@ -531,6 +532,7 @@ model Event {
   waitingList                      WaitingParticipantOfEvent[]
   eventVisibility                  EventVisibility?
   admins                           AdminOfEvent[]
+  profileJoinInvites               InviteForProfileToJoinEvent[]
   abuseReports                     EventAbuseReport[]               @relation("event_of_event_abuse_report")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
@@ -1583,6 +1585,13 @@ enum OrganizationRole {
   @@map("organization_roles")
 }
 
+enum EventRole {
+  admin
+  member
+
+  @@map("event_roles")
+}
+
 enum JoinStatus {
   pending
   accepted
@@ -1604,6 +1613,20 @@ model InviteForProfileToJoinOrganization {
 
   @@id([profileId, organizationId, role])
   @@map("invites_for_profiles_to_join_organizations")
+}
+
+model InviteForProfileToJoinEvent {
+  profileId String     @map("profile_id")
+  profile   Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  eventId   String     @map("event_id")
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  role      EventRole
+  status    JoinStatus
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@id([profileId, eventId, role])
+  @@map("invites_for_profiles_to_join_events")
 }
 
 model RequestToOrganizationToAddProfile {
