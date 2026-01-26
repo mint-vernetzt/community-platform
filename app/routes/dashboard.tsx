@@ -742,9 +742,9 @@ function Dashboard() {
     <>
       {/* Welcome Section */}
       {
-        <section className="w-full bg-gradient-to-b from-neutral-50 to-white h-[480px] @md:h-[571px] mb-10 relative">
+        <section className="w-full bg-linear-to-b from-neutral-50 to-white h-120 @md:h-142.75 mb-10 relative">
           {/* svg top */}
-          <div className="absolute top-0 w-[304px] @md:w-[607px] h-[169px] @md:h-[339px]">
+          <div className="absolute top-0 w-76 @md:w-151.75 h-42.25 @md:h-84.75">
             <svg
               width="100%"
               height="100%"
@@ -763,7 +763,7 @@ function Dashboard() {
             </svg>
           </div>
           {/* svg bottom */}
-          <div className="absolute bottom-0 right-0 w-[400px] @md:w-[800px] h-[207px] @md:h-[415px]">
+          <div className="absolute bottom-0 right-0 w-100 @md:w-200 h-51.75 @md:h-103.75">
             <svg
               width="100%"
               height="100%"
@@ -783,7 +783,7 @@ function Dashboard() {
           </div>
           <div className="flex flex-col items-center">
             <div className="relative mt-14 flex flex-col items-center">
-              <div className="w-[136px] h-[136px] rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
+              <div className="w-34 h-34 rounded-full shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]">
                 <div className="relative">
                   <Avatar
                     avatar={loaderData.profile.avatar}
@@ -804,7 +804,7 @@ function Dashboard() {
                     disabled={isSubmitting}
                   >
                     <div className="flex flex-col items-center gap-1">
-                      <div className="w-8 h-8 rounded-full bg-neutral-50/100 flex items-center justify-center border border-primary">
+                      <div className="w-8 h-8 rounded-full bg-neutral-50 flex items-center justify-center border border-primary">
                         <svg
                           width="16"
                           height="16"
@@ -834,7 +834,7 @@ function Dashboard() {
                 </div>
               </div>
               <div className="flex flex-col mt-2 mb-4 text-center gap-2">
-                <h1 className="text-[2.25rem] @md:text-[2.5rem] font-black text-primary-500 leading-[3.25rem] mb-0">
+                <h1 className="text-[2.25rem] @md:text-[2.5rem] font-black text-primary-500 leading-13 mb-0">
                   {insertParametersIntoLocale(
                     loaderData.locales.route.content.header.welcome,
                     {
@@ -864,17 +864,17 @@ function Dashboard() {
       }
       {/* Organization Member Invites Section */}
       {loaderData.organizationMemberInvites.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
-              <div className="flex pl-[46px] *:-ml-[46px]">
+              <div className="flex pl-11.5 *:-ml-11.5">
                 {loaderData.organizationMemberInvites
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`organization-invite-${organization.slug}-${index}`}
-                        className="w-[72px] h-[72px]"
+                        className="w-18 h-18"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -893,7 +893,7 @@ function Dashboard() {
               )}
             </div>
             <div className="flex-1 text-neutral-700">
-              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.invites.headline_one,
@@ -928,17 +928,17 @@ function Dashboard() {
       )}
       {/* Organization Member Requests Section */}
       {loaderData.organizationMemberRequests.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
-              <div className="flex pl-[46px] *:-ml-[46px]">
+              <div className="flex pl-11.5 *:-ml-11.5">
                 {loaderData.organizationMemberRequests
                   .slice(0, 3)
                   .map((profile, index) => {
                     return (
                       <div
                         key={`organization-request-${profile.username}-${index}`}
-                        className="w-[72px] h-[72px]"
+                        className="w-18 h-18"
                       >
                         <Avatar
                           to={`/profile/${profile.username}`}
@@ -957,7 +957,7 @@ function Dashboard() {
               )}
             </div>
             <div className="flex-1 text-neutral-700">
-              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.requests.headline_one,
@@ -992,17 +992,17 @@ function Dashboard() {
       )}
       {/* Network Invites Section */}
       {loaderData.networkInvites.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
-              <div className="flex pl-[46px] *:-ml-[46px]">
+              <div className="flex pl-11.5 *:-ml-11.5">
                 {loaderData.networkInvites
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`network-invite-${organization.slug}-${index}`}
-                        className="w-[72px] h-[72px]"
+                        className="w-18 h-18"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -1021,7 +1021,7 @@ function Dashboard() {
               )}
             </div>
             <div className="flex-1 text-neutral-700">
-              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkInvites
@@ -1058,17 +1058,17 @@ function Dashboard() {
       )}
       {/* Network Requests Section */}
       {loaderData.networkRequests.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
-              <div className="flex pl-[46px] *:-ml-[46px]">
+              <div className="flex pl-11.5 *:-ml-11.5">
                 {loaderData.networkRequests
                   .slice(0, 3)
                   .map((organization, index) => {
                     return (
                       <div
                         key={`network-request-${organization.slug}-${index}`}
-                        className="w-[72px] h-[72px]"
+                        className="w-18 h-18"
                       >
                         <Avatar
                           to={`/organization/${organization.slug}/detail/about`}
@@ -1087,7 +1087,7 @@ function Dashboard() {
               )}
             </div>
             <div className="flex-1 text-neutral-700">
-              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] text-center @lg:max-w-fit">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
                 {insertParametersIntoLocale(
                   decideBetweenSingularOrPlural(
                     loaderData.locales.route.content.networkRequests
@@ -1169,15 +1169,15 @@ function Dashboard() {
       {/* Notifications Section */}
       {loaderData.upcomingCanceledEvents.length > 0 ||
       loaderData.profile.claimOrganizationRequests.length > 0 ? (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
           <div className="w-full flex justify-between gap-8 mb-4 items-end group">
-            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
+            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
               {loaderData.locales.route.content.notifications.headline}
             </h2>
             <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
               <label
                 htmlFor="hide-notifications"
-                className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-[:focus]/hide-show:ring-2 group-has-[:focus]/hide-show:ring-primary-200"
+                className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-focus/hide-show:ring-2 group-has-focus/hide-show:ring-primary-200"
               >
                 {hideNotifications === false
                   ? loaderData.locales.route.content.notifications.hide
@@ -1206,16 +1206,16 @@ function Dashboard() {
             </div>
           </div>
           {hideNotifications === false ? (
-            <ul className="flex flex-col gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden group">
+            <ul className="flex flex-col gap-4 @xl:gap-6 w-full group-has-checked:hidden group">
               {loaderData.upcomingCanceledEvents.map((event, index) => {
                 return (
                   <li
                     key={`canceled-event-${event.slug}`}
-                    className={`w-full min-h-[110px] overflow-hidden p-4 @md:p-0 @md:pr-4 @lg:pr-6 bg-negative-50 rounded-r-lg rounded-l-lg @sm:rounded-r-xl @md:rounded-r-2xl gap-4 @sm:gap-6 flex-col @sm:flex-row @sm:items-center ${
-                      index > 1 ? "hidden group-has-[:checked]:flex" : "flex"
+                    className={`w-full min-h-27.5 overflow-hidden p-4 @md:p-0 @md:pr-4 @lg:pr-6 bg-negative-50 rounded-r-lg rounded-l-lg @sm:rounded-r-xl @md:rounded-r-2xl gap-4 @sm:gap-6 flex-col @sm:flex-row @sm:items-center ${
+                      index > 1 ? "hidden group-has-checked:flex" : "flex"
                     }`}
                   >
-                    <div className="hidden @md:block w-[165px] h-[110px] shrink-0 bg-neutral-200">
+                    <div className="hidden @md:block w-41.25 h-27.5 shrink-0 bg-neutral-200">
                       <Image
                         alt={event.name}
                         src={event.background}
@@ -1229,7 +1229,7 @@ function Dashboard() {
                             .cancelledEvents.cancelled
                         }
                       </h3>
-                      <p className="line-clamp-2 text-neutral-700 text-2xl font-bold leading-[26px]">
+                      <p className="line-clamp-2 text-neutral-700 text-2xl font-bold leading-6.5">
                         {event.name}
                       </p>
                     </div>
@@ -1257,8 +1257,8 @@ function Dashboard() {
                     className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="flex pl-[46px] *:-ml-[46px]">
-                        <div className="w-[72px] h-[72px]">
+                      <div className="flex pl-11.5 *:-ml-11.5">
+                        <div className="w-18 h-18">
                           <Avatar
                             to={`/organization/${request.organization.slug}/detail/about`}
                             size="full"
@@ -1269,7 +1269,7 @@ function Dashboard() {
                       </div>
                     </div>
                     <div className="flex-1 text-neutral-700">
-                      <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-[1.625rem] @lg:text-left text-center @lg:max-w-fit">
+                      <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 @lg:text-left text-center @lg:max-w-fit">
                         {
                           loaderData.locales.route.content.notifications
                             .acceptedClaimRequests.headline
@@ -1318,13 +1318,13 @@ function Dashboard() {
                     htmlFor="show-more-notifications"
                     className="flex gap-2 cursor-pointer w-fit"
                   >
-                    <div className="group-has-[:checked]:hidden">
+                    <div className="group-has-checked:hidden">
                       {loaderData.locales.route.content.notifications.showMore}
                     </div>
-                    <div className="hidden group-has-[:checked]:block">
+                    <div className="hidden group-has-checked:block">
                       {loaderData.locales.route.content.notifications.showLess}
                     </div>
-                    <div className="rotate-90 group-has-[:checked]:-rotate-90">
+                    <div className="rotate-90 group-has-checked:-rotate-90">
                       <Icon type="chevron-right" />
                     </div>
                   </label>
@@ -1340,15 +1340,15 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Updates Section */}
-      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl group">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl group">
         <div className="group/hide-show w-full flex justify-between gap-8 mb-4 items-end">
-          <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
+          <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
             {loaderData.locales.route.content.updateTeasers.headline}
           </h2>
           <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
             <label
               htmlFor="hide-updates"
-              className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-[:focus]/hide-show:ring-2 group-has-[:focus]/hide-show:ring-primary-200"
+              className="text-nowrap cursor-pointer text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline group-has-focus/hide-show:ring-2 group-has-focus/hide-show:ring-primary-200"
             >
               {hideUpdates === false
                 ? loaderData.locales.route.content.updateTeasers.hide
@@ -1371,7 +1371,7 @@ function Dashboard() {
           </div>
         </div>
         {hideUpdates === false ? (
-          <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden">
+          <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-checked:hidden">
             {Object.entries(updateTeasers).map(([key, value]) => {
               // Runtime check to safely use type assertion below
               if (
@@ -1414,9 +1414,9 @@ function Dashboard() {
       </section>
       {/* News Section */}
       {loaderData.abilities.news_section.hasAccess ? (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl group">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl group">
           <div className="w-full flex justify-between gap-8 mb-4 items-end">
-            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-[26px] font-semibold shrink">
+            <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
               {loaderData.locales.route.content.newsTeaser.headline}
             </h2>
             <div className="text-nowrap text-primary text-sm @sm:text-lg @xl:text-xl font-semibold leading-5 @xl:leading-normal hover:underline">
@@ -1445,7 +1445,7 @@ function Dashboard() {
             </div>
           </div>
           {hideNews === false ? (
-            <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-[:checked]:hidden">
+            <ul className="flex flex-col @xl:grid @xl:grid-cols-2 @xl:grid-rows-1 gap-4 @xl:gap-6 w-full group-has-checked:hidden">
               {Object.entries(newsTeasers).map(([key, value]) => {
                 // Runtime check to safely use type assertion below
                 if (
@@ -1488,7 +1488,7 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Community Counter */}
-      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
         <div className="flex flex-col w-full items-center gap-6 py-6 bg-white border border-neutral-200 rounded-lg">
           <h2 className="appearance-none w-full text-primary text-center text-3xl font-semibold leading-7 @lg:leading-8 px-11 @lg:px-6">
             {loaderData.locales.route.content.communityCounter.headline}
@@ -1527,7 +1527,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Project Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.projects}
@@ -1557,7 +1557,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Profile Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.profiles}
@@ -1587,7 +1587,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Organization Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.organizations}
@@ -1621,7 +1621,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Event Card Section */}
-      <section className="w-full mb-24 mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl">
+      <section className="w-full mb-24 mx-auto @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.events}
