@@ -37,6 +37,7 @@ import {
   getSearchAdminsSchema,
   SEARCH_ADMINS_SEARCH_PARAM,
 } from "./list.shared";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -157,9 +158,6 @@ function AdminsList() {
     setAdmins(loaderData.admins);
   }, [loaderData.admins]);
 
-  const removeSelfSearchParams = new URLSearchParams(searchParams.toString());
-  removeSelfSearchParams.set(CONFIRM_MODAL_SEARCH_PARAM, "true");
-
   return (
     <>
       <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
@@ -206,7 +204,7 @@ function AdminsList() {
                       <Button
                         variant="outline"
                         as="link"
-                        to={`?${removeSelfSearchParams.toString()}`}
+                        to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
                         preventScrollReset
                       >
                         {locales.route.list.remove}
@@ -217,7 +215,7 @@ function AdminsList() {
                         preventScrollReset
                         hidden
                       >
-                        <input name="adminId" value={admin.id} />
+                        <input name="adminId" defaultValue={admin.id} />
                       </Form>
                       <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
                         <Modal.Title>
