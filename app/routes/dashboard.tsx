@@ -60,6 +60,7 @@ import { redirectWithToast } from "~/toast.server";
 import { getFormPersistenceTimestamp } from "~/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
+  getEventAdminInvites,
   getEventsForCards,
   getNetworkInvites,
   getNetworkRequests,
@@ -544,6 +545,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const networkRequests = await getNetworkRequests(authClient, sessionUser.id);
 
+  const eventAdminInvites = await getEventAdminInvites(sessionUser.id);
+
   const upcomingCanceledEvents = await getUpcomingCanceledEvents(
     authClient,
     sessionUser
@@ -614,6 +617,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizationMemberRequests,
     networkInvites,
     networkRequests,
+    eventAdminInvites,
     upcomingCanceledEvents,
     locales,
     imageCropperLocales,
@@ -1114,6 +1118,50 @@ function Dashboard() {
               prefetch="intent"
             >
               {loaderData.locales.route.content.networkRequests.linkDescription}
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Event Admin Invites Section */}
+      {loaderData.eventAdminInvites.length > 0 && (
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.eventAdminInvites
+                      .headline_one,
+                    loaderData.locales.route.content.eventAdminInvites
+                      .headline_other,
+                    loaderData.eventAdminInvites.length
+                  ),
+                  { count: loaderData.eventAdminInvites.length }
+                )}
+              </h3>
+              <p className="@lg:text-left text-sm text-center">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.eventAdminInvites
+                    .description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button
+              as="link"
+              to="/my/events"
+              className="w-full @lg:w-fit"
+              prefetch="intent"
+            >
+              {
+                loaderData.locales.route.content.eventAdminInvites
+                  .linkDescription
+              }
             </Button>
           </div>
         </section>

@@ -193,5 +193,14 @@ export const locale = {
         "Wenn Du Anfragen bestätigst, werden die Organisationen als <0>Netzwerkmitglieder</0> sichtbar.",
       linkDescription: "Zu meinen Organisationen",
     },
+    eventAdminInvites: {
+      headline_one:
+        "Du hast {{count}} offene Administrator:innen-Einladung für ein Event.",
+      headline_other:
+        "Du hast {{count}} offene Administrator:innen-Einladungen für Events.",
+      description:
+        "Wenn Du Einladungen bestätigst, wirst du als <0>Event-Administrator:in</0> sichtbar.",
+      linkDescription: "Zu meinen Events",
+    },
   },
 } as const;

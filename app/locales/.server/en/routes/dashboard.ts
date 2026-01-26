@@ -189,5 +189,14 @@ export const locale = {
         "When you confirm requests, organizations become visible as <0>network members</0>.",
       linkDescription: "To my organizations",
     },
+    eventAdminInvites: {
+      headline_one:
+        "You have {{count}} open administrator invitation for an event.",
+      headline_other:
+        "You have {{count}} open administrator invitations for events.",
+      description:
+        "When you confirm invitations, you become visible as an <0>event administrator</0>.",
+      linkDescription: "To my events",
+    },
   },
 } as const;
