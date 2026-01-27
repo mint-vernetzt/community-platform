@@ -18,7 +18,7 @@ import { EventListItem } from "~/components-next/EventListItem";
 import { Placeholder } from "~/components-next/Placeholder";
 import { Section } from "~/components-next/MyEventsProjectsSection";
 import { TabBarTitle } from "~/components-next/TabBarTitle";
-import { getEvents } from "./events.server";
+import { getEventInvites, getEvents } from "./events.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import {
@@ -27,6 +27,10 @@ import {
 } from "~/lib/utils/i18n";
 import { getFeatureAbilities } from "../feature-access.server";
 import { useEffect, useState } from "react";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
+import { hasDescription, hasSubline } from "~/events.utils.shared";
+import { RichText } from "~/components/legacy/Richtext/RichText";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -57,10 +61,16 @@ export async function loader(args: LoaderFunctionArgs) {
     return event.canceled;
   });
 
+  const invites = await getEventInvites({
+    profileId: sessionUser.id,
+    authClient,
+  });
+
   return {
     upcomingEvents,
     pastEvents,
     canceledEvents,
+    invites,
     abilities,
     locales,
     language,
@@ -82,12 +92,19 @@ function MyEvents() {
     }
   ) || ["adminEvents", 0];
 
+  const firstInvites = Object.entries(loaderData.invites.count).find(
+    ([_key, value]) => {
+      return value > 0;
+    }
+  ) || ["adminInvites", 0];
+
   const [upcoming, setUpcoming] = useState(firstUpcoming[0]);
   const [past, setPast] = useState(firstPast[0]);
-
+  const [invites, setInvites] = useState(firstInvites[0]);
   const [searchParams, setSearchParams] = useSearchParams({
     upcoming: firstUpcoming[0],
     past: firstPast[0],
+    invites: firstInvites[0],
   });
 
   useEffect(() => {
@@ -101,6 +118,12 @@ function MyEvents() {
       const newValue = searchParams.get("past") as string;
       if (newValue !== past) {
         setPast(newValue);
+      }
+    }
+    if (searchParams.has("invites")) {
+      const newValue = searchParams.get("invites") as string;
+      if (newValue !== invites) {
+        setInvites(newValue);
       }
     }
     // This eslint error is intentional to make the tab changes work
@@ -123,6 +146,14 @@ function MyEvents() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [past]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("invites", invites);
+    setSearchParams(params, { preventScrollReset: true });
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invites]);
+
   const upcomingEventsCount = Object.values(
     loaderData.upcomingEvents.count
   ).reduce((previousValue, currentValue) => {
@@ -136,8 +167,10 @@ function MyEvents() {
     },
     0
   );
+
   const hasPastEvents = pastEventsCount > 0;
   const hasCanceledEvents = loaderData.canceledEvents.length > 0;
+  const hasAdminInvites = loaderData.invites.count.adminInvites > 0;
 
   return (
     <Container>
@@ -150,6 +183,96 @@ function MyEvents() {
           </Button>
         ) : null}
       </Container.Header>
+      {hasAdminInvites && (
+        <Container.Section>
+          <Section.Title>{locales.route.invites.title}</Section.Title>
+          <Section.Text>{locales.route.invites.description}</Section.Text>
+          <Section.TabBar>
+            {Object.entries(loaderData.invites.count).map(([key, value]) => {
+              if (value === 0) {
+                return null;
+              }
+              const typedKey = key as keyof typeof loaderData.invites.count;
+
+              const searchParamsCopy = new URLSearchParams(searchParams);
+              searchParamsCopy.set("invites", key);
+
+              return (
+                <TabBar.Item key={`invites-${key}`} active={invites === key}>
+                  <Link
+                    to={`./?${searchParamsCopy.toString()}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setInvites(key);
+                    }}
+                    preventScrollReset
+                  >
+                    <TabBarTitle>
+                      {(() => {
+                        let title;
+                        if (key in locales.route.tabBar) {
+                          type LocaleKey = keyof typeof locales.route.tabBar;
+                          title = locales.route.tabBar[key as LocaleKey];
+                        } else {
+                          console.error(
+                            `Tab bar title ${key} not found in locales`
+                          );
+                          title = key;
+                        }
+                        return title;
+                      })()}
+                      <TabBar.Counter active={invites === key}>
+                        {loaderData.invites.count[typedKey]}
+                      </TabBar.Counter>
+                    </TabBarTitle>
+                  </Link>
+                </TabBar.Item>
+              );
+            })}
+          </Section.TabBar>
+          <List id="invites" hideAfter={3} locales={locales.route.list}>
+            {loaderData.invites[invites as "adminInvites"].map(
+              (invite, index) => {
+                const { event } = invite;
+                return (
+                  <ListItemEvent
+                    key={`past-${event.slug}`}
+                    to={`/event/${event.slug}/detail/about`}
+                    index={index}
+                  >
+                    <ListItemEvent.Image
+                      src={event.background}
+                      blurredSrc={event.blurredBackground}
+                      alt={event.name}
+                    />
+                    <ListItemEvent.Info
+                      {...event}
+                      stage={event.stage}
+                      locales={{
+                        stages: loaderData.locales.stages,
+                        ...loaderData.locales.route.list,
+                      }}
+                      language={loaderData.language}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.name}
+                    </ListItemEvent.Headline>
+                    {hasSubline(event) || hasDescription(event) ? (
+                      <ListItemEvent.Subline>
+                        {hasSubline(event) ? (
+                          event.subline
+                        ) : (
+                          <RichText html={event.description as string} />
+                        )}
+                      </ListItemEvent.Subline>
+                    ) : null}
+                  </ListItemEvent>
+                );
+              }
+            )}
+          </List>
+        </Container.Section>
+      )}
       {hasUpcomingEvents === false && hasPastEvents === false ? (
         <Placeholder>
           <Placeholder.Title>
