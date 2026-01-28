@@ -53,7 +53,11 @@ function ListItemEvent(props: {
   });
 
   const control = validChildren.find((child) => {
-    return isValidElement(child) && child.type === ListItemEvent.Control;
+    return (
+      isValidElement(child) &&
+      (child.type === ListItemEvent.Control ||
+        child.type === ListItemEvent.Controls)
+    );
   });
 
   const infoContainerClasses = classNames(
@@ -133,7 +137,7 @@ function ListItemEvent(props: {
             ) : null}
           </div>
           {typeof control !== "undefined" ? (
-            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center gap-4">
               {control}
             </div>
           ) : null}
@@ -308,6 +312,11 @@ function ListItemControl(props: {
   );
 }
 
+function ListItemEventControls(props: { children: React.ReactNode }) {
+  return <>{props.children}</>;
+}
+
+ListItemEvent.Controls = ListItemEventControls;
 ListItemEvent.Control = ListItemControl;
 ListItemEvent.Flag = ListItemFlag;
 ListItemEvent.Image = Image;
