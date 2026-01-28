@@ -40,5 +40,15 @@ export const locale = {
     seatsFree: "seats free",
     unlimitedSeats: "Unlimited seats",
     participate: "Participate",
+    accept: "Accept invite",
+    reject: "Reject invite",
+  },
+  errors: {
+    acceptInviteAsAdmin: "Error accepting invite as admin for the event.",
+    rejectInviteAsAdmin: "Error rejecting invite as admin for the event.",
+  },
+  success: {
+    acceptInviteAsAdmin: "Invite accepted as admin for the event.",
+    rejectInviteAsAdmin: "Invite rejected as admin for the event.",
   },
 } as const;

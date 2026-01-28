@@ -350,3 +350,80 @@ export async function getEventInvites(options: {
     count: { adminInvites: enhancedAdminInvites.length },
   };
 }
+
+export async function acceptInviteAsAdmin(options: {
+  userId: string;
+  eventId: string;
+}) {
+  const { userId, eventId } = options;
+
+  // check if invite exists
+  const invite = await prismaClient.inviteForProfileToJoinEvent.findUnique({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId: userId,
+        role: "admin",
+      },
+    },
+  });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  await prismaClient.adminOfEvent.create({
+    data: {
+      eventId,
+      profileId: userId,
+    },
+  });
+
+  await prismaClient.inviteForProfileToJoinEvent.update({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId: userId,
+        role: "admin",
+      },
+    },
+    data: {
+      status: "accepted",
+    },
+  });
+}
+
+export async function rejectInviteAsAdmin(options: {
+  userId: string;
+  eventId: string;
+}) {
+  const { userId, eventId } = options;
+
+  // check if invite exists
+  const invite = await prismaClient.inviteForProfileToJoinEvent.findUnique({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId: userId,
+        role: "admin",
+      },
+    },
+  });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  await prismaClient.inviteForProfileToJoinEvent.update({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId: userId,
+        role: "admin",
+      },
+    },
+    data: {
+      status: "rejected",
+    },
+  });
+}

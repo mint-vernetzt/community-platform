@@ -1,36 +1,58 @@
-import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { TabBar } from "@mint-vernetzt/components/src/organisms/TabBar";
+import { captureException } from "@sentry/node";
+import { useEffect, useState } from "react";
 import {
+  type ActionFunctionArgs,
+  Form,
   Link,
+  redirect,
   useLoaderData,
   useSearchParams,
-  redirect,
   type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
+  getSessionUserOrThrow,
 } from "~/auth.server";
-import { ListContainer } from "~/components-next/ListContainer";
-import { Add } from "~/components-next/icons/Add";
-import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { EventListItem } from "~/components-next/EventListItem";
-import { Placeholder } from "~/components-next/Placeholder";
+import { Add } from "~/components-next/icons/Add";
+import { ListContainer } from "~/components-next/ListContainer";
+import { Container } from "~/components-next/MyEventsOrganizationDetailContainer";
 import { Section } from "~/components-next/MyEventsProjectsSection";
+import { Placeholder } from "~/components-next/Placeholder";
 import { TabBarTitle } from "~/components-next/TabBarTitle";
-import { getEventInvites, getEvents } from "./events.server";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
+import { hasDescription, hasSubline } from "~/events.utils.shared";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { languageModuleMap } from "~/locales/.server";
 import {
   decideBetweenSingularOrPlural,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
-import { getFeatureAbilities } from "../feature-access.server";
-import { useEffect, useState } from "react";
-import List from "~/components/next/List";
-import ListItemEvent from "~/components/next/ListItemEvent";
-import { hasDescription, hasSubline } from "~/events.utils.shared";
-import { RichText } from "~/components/legacy/Richtext/RichText";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { redirectWithToast } from "~/toast.server";
+import {
+  checkFeatureAbilitiesOrThrow,
+  getFeatureAbilities,
+} from "../feature-access.server";
+import {
+  acceptInviteAsAdmin,
+  getEventInvites,
+  getEvents,
+  rejectInviteAsAdmin,
+} from "./events.server";
+import {
+  ACCEPT_ADMIN_INVITE_INTENT,
+  createAcceptOrRejectInviteAsAdminSchema,
+  EVENT_ID,
+  REJECT_ADMIN_INVITE_INTENT,
+} from "./events.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -75,6 +97,80 @@ export async function loader(args: LoaderFunctionArgs) {
     locales,
     language,
   };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request } = args;
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["my/events"];
+
+  const formData = await request.formData();
+  const intent = formData.get(INTENT_FIELD_NAME);
+
+  invariantResponse(typeof intent === "string", "intent is not defined", {
+    status: 400,
+  });
+  invariantResponse(
+    intent === ACCEPT_ADMIN_INVITE_INTENT ||
+      intent === REJECT_ADMIN_INVITE_INTENT,
+    "invalid intent",
+    { status: 400 }
+  );
+  const submission = await parseWithZod(formData, {
+    schema: createAcceptOrRejectInviteAsAdminSchema(),
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  if (intent === ACCEPT_ADMIN_INVITE_INTENT) {
+    try {
+      await acceptInviteAsAdmin({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-admin-invite-error",
+        key: `accept-admin-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsAdmin,
+        level: "negative",
+      });
+    }
+  } else {
+    try {
+      await rejectInviteAsAdmin({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-admin-invite-error",
+        key: `reject-admin-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsAdmin,
+        level: "negative",
+      });
+    }
+  }
+
+  return redirectWithToast(request.url, {
+    id: "admin-invite-success",
+    key: `admin-invite-success-${Date.now()}`,
+    message:
+      intent === "reject-admin-invite"
+        ? locales.route.success.rejectInviteAsAdmin
+        : locales.route.success.acceptInviteAsAdmin,
+    level: "positive",
+  });
 }
 
 function MyEvents() {
@@ -266,6 +362,49 @@ function MyEvents() {
                         )}
                       </ListItemEvent.Subline>
                     ) : null}
+                    <ListItemEvent.Controls>
+                      <Form
+                        id={`reject-admin-invite-form-${event.id}`}
+                        method="POST"
+                        preventScrollReset
+                      >
+                        <input type="hidden" name={EVENT_ID} value={event.id} />
+                        <Button
+                          type="submit"
+                          size="small"
+                          variant="outline"
+                          name={INTENT_FIELD_NAME}
+                          value={REJECT_ADMIN_INVITE_INTENT}
+                          onClick={(
+                            event: React.MouseEvent<HTMLButtonElement>
+                          ) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {locales.route.list.reject}
+                        </Button>
+                      </Form>
+                      <Form
+                        id={`accept-admin-invite-form-${event.id}`}
+                        method="POST"
+                        preventScrollReset
+                      >
+                        <input type="hidden" name={EVENT_ID} value={event.id} />
+                        <Button
+                          type="submit"
+                          size="small"
+                          name={INTENT_FIELD_NAME}
+                          value={ACCEPT_ADMIN_INVITE_INTENT}
+                          onClick={(
+                            event: React.MouseEvent<HTMLButtonElement>
+                          ) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {locales.route.list.accept}
+                        </Button>
+                      </Form>
+                    </ListItemEvent.Controls>
                   </ListItemEvent>
                 );
               }

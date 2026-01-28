@@ -42,5 +42,17 @@ export const locale = {
     seatsFree: "Plätzen frei",
     unlimitedSeats: "Unbegrenzte Plätze",
     participate: "Teilnehmen",
+    accept: "Einladung annehmen",
+    reject: "Einladung ablehnen",
+  },
+  errors: {
+    acceptInviteAsAdmin:
+      "Fehler beim Akzeptieren der Einladung als Admin für das Event.",
+    rejectInviteAsAdmin:
+      "Fehler beim Ablehnen der Einladung als Admin für das Event.",
+  },
+  success: {
+    acceptInviteAsAdmin: "Einladung als Admin für das Event angenommen.",
+    rejectInviteAsAdmin: "Einladung als Admin für das Event abgelehnt.",
   },
 } as const;
