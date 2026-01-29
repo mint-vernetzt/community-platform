@@ -9,6 +9,11 @@ import {
 import { getPublicURL } from "~/storage.server";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -262,6 +267,12 @@ export async function searchProfiles(options: {
 export async function inviteProfileToJoinEventAsAdmin(options: {
   eventId: string;
   profileId: string;
+  locales: {
+    mail: {
+      buttonText: string;
+      subject: string;
+    };
+  };
 }) {
   const { eventId, profileId } = options;
 
@@ -282,9 +293,55 @@ export async function inviteProfileToJoinEventAsAdmin(options: {
       role: "admin",
       status: "pending",
     },
+    select: {
+      profile: {
+        select: {
+          firstName: true,
+          email: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 
-  return result;
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+      button: {
+        url: `${process.env.COMMUNITY_BASE_URL}/my/events`,
+        text: options.locales.mail.buttonText,
+      },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+      button: {
+        url: `${process.env.COMMUNITY_BASE_URL}/my/events`,
+        text: options.locales.mail.buttonText,
+      },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 }
 
 export async function addTeamMemberAsAdminToEvent(options: {
