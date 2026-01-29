@@ -361,6 +361,7 @@ function MyEvents() {
                         <Button
                           type="submit"
                           size="small"
+                          fullSize
                           variant="outline"
                           name={INTENT_FIELD_NAME}
                           value={REJECT_ADMIN_INVITE_INTENT}
@@ -382,6 +383,7 @@ function MyEvents() {
                         <Button
                           type="submit"
                           size="small"
+                          fullSize
                           name={INTENT_FIELD_NAME}
                           value={ACCEPT_ADMIN_INVITE_INTENT}
                           onClick={(

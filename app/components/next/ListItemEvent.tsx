@@ -61,9 +61,9 @@ function ListItemEvent(props: {
   });
 
   const infoContainerClasses = classNames(
-    "w-full flex flex-col @sm:flex-row justify-center @sm:justify-between @sm:items-center p-4 gap-4",
+    "w-full flex flex-col @md:flex-row justify-center @md:justify-between @md:items-center p-4 gap-4",
     typeof image !== "undefined" ? "@lg:pl-0" : "",
-    typeof control !== "undefined" ? "@sm:h-24" : "h-24"
+    typeof control !== "undefined" ? "@md:h-24" : "h-24"
   );
 
   if (typeof to === "undefined") {
@@ -89,11 +89,11 @@ function ListItemEvent(props: {
               {info}
               {headline}
               {typeof subline !== "undefined" ? (
-                <div className="hidden @sm:block">{subline}</div>
+                <div className="hidden @md:block">{subline}</div>
               ) : null}
             </div>
             {typeof control !== "undefined" ? (
-              <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center">
+              <div className="w-full @md:w-auto flex justify-center @md:justify-end items-center">
                 {control}
               </div>
             ) : null}
@@ -133,11 +133,11 @@ function ListItemEvent(props: {
             {info}
             {headline}
             {typeof subline !== "undefined" ? (
-              <div className="hidden @sm:block">{subline}</div>
+              <div className="hidden @md:block">{subline}</div>
             ) : null}
           </div>
           {typeof control !== "undefined" ? (
-            <div className="w-full @sm:w-auto flex justify-center @md:justify-end items-center gap-4">
+            <div className="w-full @md:w-auto flex justify-center @md:justify-end items-center gap-4">
               {control}
             </div>
           ) : null}
@@ -230,7 +230,7 @@ function ListItemFlag(props: {
   locales: { draft: string; canceled: string };
 }) {
   const classes = classNames(
-    "flex font-semibold items-center ml-auto border-r-8 pr-4 h-[123px] @sm:h-24 rounded-r-[7px]"
+    "flex font-semibold items-center ml-auto border-r-8 pr-4 h-[123px] @md:h-24 rounded-r-[7px]"
   );
 
   if (props.canceled) {
@@ -313,7 +313,11 @@ function ListItemControl(props: {
 }
 
 function ListItemEventControls(props: { children: React.ReactNode }) {
-  return <>{props.children}</>;
+  return (
+    <div className="w-full flex flex-col @md:flex-row gap-4">
+      {props.children}
+    </div>
+  );
 }
 
 ListItemEvent.Controls = ListItemEventControls;
