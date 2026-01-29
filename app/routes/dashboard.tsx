@@ -864,7 +864,7 @@ function Dashboard() {
       }
       {/* Organization Member Invites Section */}
       {loaderData.organizationMemberInvites.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
               <div className="flex pl-11.5 *:-ml-11.5">
@@ -928,7 +928,7 @@ function Dashboard() {
       )}
       {/* Organization Member Requests Section */}
       {loaderData.organizationMemberRequests.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
               <div className="flex pl-11.5 *:-ml-11.5">
@@ -992,7 +992,7 @@ function Dashboard() {
       )}
       {/* Network Invites Section */}
       {loaderData.networkInvites.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
               <div className="flex pl-11.5 *:-ml-11.5">
@@ -1058,7 +1058,7 @@ function Dashboard() {
       )}
       {/* Network Requests Section */}
       {loaderData.networkRequests.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex items-center gap-2">
               <div className="flex pl-11.5 *:-ml-11.5">
@@ -1124,7 +1124,7 @@ function Dashboard() {
       )}
       {/* Event Admin Invites Section */}
       {loaderData.eventAdminInvites.length > 0 && (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
             <div className="flex-1 text-neutral-700">
               <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
@@ -1169,7 +1169,7 @@ function Dashboard() {
       {/* Notifications Section */}
       {loaderData.upcomingCanceledEvents.length > 0 ||
       loaderData.profile.claimOrganizationRequests.length > 0 ? (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
           <div className="w-full flex justify-between gap-8 mb-4 items-end group">
             <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
               {loaderData.locales.route.content.notifications.headline}
@@ -1340,7 +1340,7 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Updates Section */}
-      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl group">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl group">
         <div className="group/hide-show w-full flex justify-between gap-8 mb-4 items-end">
           <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
             {loaderData.locales.route.content.updateTeasers.headline}
@@ -1414,7 +1414,7 @@ function Dashboard() {
       </section>
       {/* News Section */}
       {loaderData.abilities.news_section.hasAccess ? (
-        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl group">
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl group">
           <div className="w-full flex justify-between gap-8 mb-4 items-end">
             <h2 className="appearance-none w-full text-neutral-700 text-2xl leading-6.5 font-semibold shrink">
               {loaderData.locales.route.content.newsTeaser.headline}
@@ -1488,7 +1488,7 @@ function Dashboard() {
         </section>
       ) : null}
       {/* Community Counter */}
-      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+      <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
         <div className="flex flex-col w-full items-center gap-6 py-6 bg-white border border-neutral-200 rounded-lg">
           <h2 className="appearance-none w-full text-primary text-center text-3xl font-semibold leading-7 @lg:leading-8 px-11 @lg:px-6">
             {loaderData.locales.route.content.communityCounter.headline}
@@ -1527,7 +1527,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Project Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.projects}
@@ -1557,7 +1557,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Profile Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.profiles}
@@ -1587,7 +1587,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Organization Card Section */}
-      <section className="w-full mx-auto mb-8 @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+      <section className="w-full mx-auto mb-8 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.organizations}
@@ -1621,7 +1621,7 @@ function Dashboard() {
         </div>
       </section>
       {/* Event Card Section */}
-      <section className="w-full mb-24 mx-auto @md:max-w-screen-container-md @lg:max-w-lg @xl:max-w-screen-container-xl @2xl:max-w-2xl">
+      <section className="w-full mb-24 mx-auto @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
         <div className="flex mb-2 px-4 @xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
           <h2 className="mb-0 font-bold text-gray-700 text-2xl leading-7 @lg:text-5xl @lg:leading-9">
             {loaderData.locales.route.content.events}

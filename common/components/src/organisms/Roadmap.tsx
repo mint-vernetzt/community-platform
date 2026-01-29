@@ -105,7 +105,7 @@ function Roadmap(props: { locales: LandingPageLocales }) {
       <p className="text-center mb-16 text-2xl font-semibold leading-[26px] text-primary-600">
         {locales.roadmap.subline}
       </p>
-      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
         <div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3 gap-y-8 @md:gap-y-12 @md:gap-x-4 @xl:gap-x-4">
           <RoadmapColumn
             locales={locales}

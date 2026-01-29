@@ -97,7 +97,7 @@ function ProjectSettings() {
   );
 
   return (
-    <div className="w-full max-w-none px-0 mx-auto @md:px-4 @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl @md:mt-2">
+    <div className="w-full max-w-none px-0 mx-auto @md:px-4 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl @md:mt-2">
       <div className="hidden @md:block mb-8">
         <div className="flex flex-col gap-8 @lg:gap-14">
           <BackButton

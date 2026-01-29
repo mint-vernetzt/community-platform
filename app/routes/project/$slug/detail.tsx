@@ -436,7 +436,7 @@ function ProjectDetail() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl mb-2 @md:mb-4 @md:mt-2">
         <BackButton
           to={
             previousLocation !== null &&
@@ -458,7 +458,7 @@ function ProjectDetail() {
           {locales.route.content.back}
         </BackButton>
       </section>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl">
+      <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
         <Header>
           {mode === "admin" && project.published === false && (
             <Status>{locales.route.content.draft}</Status>
@@ -479,7 +479,7 @@ function ProjectDetail() {
             <Controls>
               <Form method="get" action={location.pathname} preventScrollReset>
                 <input hidden name="modal-background" defaultValue="true" />
-                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl */}
+                {/* // TODO: Only the label is clickable in this scenario, but does not fill the entire CircleButton w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl */}
                 <CircleButton
                   type="submit"
                   variant="outline"
@@ -651,7 +651,7 @@ function ProjectDetail() {
       )}
       <section
         id="tab-bar-container"
-        className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl overflow-hidden mb-24"
+        className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl overflow-hidden mb-24"
       >
         <div className="@md:flex @xl:justify-center mt-6">
           <div className="flex flex-col gap-8 @xl:w-2/3">

@@ -2,15 +2,10 @@
 
 @theme {
   --breakpoint-sm: 600px;
-  --breakpoint-container-sm: 600px;
   --breakpoint-md: 768px;
-  --breakpoint-container-md: 768px;
   --breakpoint-lg: 1024px;
-  --breakpoint-container-lg: 965px;
   --breakpoint-xl: 1280px;
-  --breakpoint-container-xl: 1280px;
   --breakpoint-2xl: 1536px;
-  --breakpoint-container-2xl: 1536px;
 
   --container-sm: 600px;
   --container-md: 768px;

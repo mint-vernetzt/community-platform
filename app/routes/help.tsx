@@ -26,7 +26,7 @@ export default function Help() {
 
   return (
     <>
-      <section className="w-full mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl px-4 @md:px-6 @xl:px-8 pt-16 pb-8 @md:pb-12 @xl:pb-16">
+      <section className="w-full mx-auto @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl px-4 @md:px-6 @xl:px-8 pt-16 pb-8 @md:pb-12 @xl:pb-16">
         <h1 className="w-full text-center text-5xl @sm:text-6xl @md:text-7xl @xl:text-8xl font-[900] leading-9 @sm:leading-10 @md:leading-[64px] @xl:leading-[80px]">
           {locales.headline}
         </h1>
@@ -44,7 +44,7 @@ export default function Help() {
           </p>
         </div>
       </section>
-      <section className="w-full mx-auto @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @2xl:max-w-screen-container-2xl px-4 @md:px-6 @xl:px-8 py-6 mb-6 @md:mb-8 @xl:mb-12">
+      <section className="w-full mx-auto @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl px-4 @md:px-6 @xl:px-8 py-6 mb-6 @md:mb-8 @xl:mb-12">
         <Accordion>
           {Object.entries(locales.faq).map(([topicKey]) => {
             const typedTopicKey = topicKey as keyof typeof locales.faq;

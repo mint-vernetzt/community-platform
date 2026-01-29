@@ -165,7 +165,7 @@ function Create() {
 
   return (
     <>
-      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative pt-20 pb-44">
+      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative pt-20 pb-44">
         <div className="flex justify-center">
           <div className="flex flex-col w-[480px] gap-6 p-8 border rounded-lg border-gray-200">
             <div className="flex justify-between items-center gap-4">

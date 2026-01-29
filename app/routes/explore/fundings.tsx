@@ -394,7 +394,7 @@ export default function ExploreFundings() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -673,10 +673,10 @@ export default function ExploreFundings() {
               : undefined
           }
         >
-          <div className="w-full mx-auto 2xl:max-w-screen-container-2xl mb-4">
+          <div className="w-full mx-auto 2xl:max-w-2xl mb-4">
             <hr className="border-t border-gray-200 mt-4" />
           </div>
-          <section className="w-full mx-auto px-4 xl:px-6 2xl:max-w-screen-container-2xl mb-6">
+          <section className="w-full mx-auto px-4 xl:px-6 2xl:max-w-2xl mb-6">
             {(loaderData.selectedFundingTypes.length > 0 ||
               loaderData.selectedFundingAreas.length > 0 ||
               loaderData.selectedRegions.length > 0 ||

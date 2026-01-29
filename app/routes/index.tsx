@@ -167,7 +167,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+          <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
             <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
               <div className="@md:col-start-1 @md:col-span-7 @xl:col-start-2 @xl:col-span-5 @md:flex @md:items-center">
                 <div>
@@ -410,7 +410,7 @@ export default function Index() {
 
       <section className="py-16 @lg:py-24 relative bg-accent-100">
         <div id="intro" className="absolute -top-[76px] xl:-top-20" />
-        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
             <div className="@md:col-start-2 @md:col-span-10 @xl:col-start-3 @xl:col-span-8">
               <h2 className="text-center font-semibold subpixel-antialiased mb-12 text-primary-600 text-4xl leading-9 uppercase">
@@ -448,7 +448,7 @@ export default function Index() {
       </section>
 
       <section className="pt-16 pb-10 @md:pt-20 @md:pb-[50px] @lg:pt-24 @lg:pb-[60px] relative bg-primary-600">
-        <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+        <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="w-full flex flex-col items-center gap-12">
             <h2 className="text-center mb-0 text-4xl font-semibold leading-9 text-neutral-50 subpixel-antialiased uppercase">
               {locales.route.content.growth.headline}

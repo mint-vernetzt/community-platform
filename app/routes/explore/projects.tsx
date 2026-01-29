@@ -587,7 +587,7 @@ export default function ExploreProjects() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -1428,10 +1428,10 @@ export default function ExploreProjects() {
             : undefined
         }
       >
-        <div className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
+        <div className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-4">
           <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-6">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-6">
           {(loaderData.selectedDisciplines.length > 0 ||
             loaderData.selectedAdditionalDisciplines.length > 0 ||
             loaderData.selectedTargetGroups.length > 0 ||
@@ -1913,7 +1913,7 @@ export default function ExploreProjects() {
           )}
         </section>
 
-        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-10 @lg:mb-12 @xl:mb-14">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-10 @lg:mb-12 @xl:mb-14">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !== loaderData.projectsCount ? (
             <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">
