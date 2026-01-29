@@ -6,6 +6,12 @@ import { getPublicURL } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
+import { captureException } from "@sentry/node";
 
 export type MyEventsLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -354,6 +360,11 @@ export async function getEventInvites(options: {
 export async function acceptInviteAsAdmin(options: {
   userId: string;
   eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
 }) {
   const { userId, eventId } = options;
 
@@ -380,7 +391,7 @@ export async function acceptInviteAsAdmin(options: {
     },
   });
 
-  await prismaClient.inviteForProfileToJoinEvent.update({
+  const result = await prismaClient.inviteForProfileToJoinEvent.update({
     where: {
       profileId_eventId_role: {
         eventId,
@@ -391,12 +402,84 @@ export async function acceptInviteAsAdmin(options: {
     data: {
       status: "accepted",
     },
+    select: {
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+          admins: {
+            select: {
+              profile: {
+                select: {
+                  firstName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-accepted-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs";
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    result.event.admins.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
 }
 
 export async function rejectInviteAsAdmin(options: {
   userId: string;
   eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
 }) {
   const { userId, eventId } = options;
 
@@ -416,7 +499,7 @@ export async function rejectInviteAsAdmin(options: {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.inviteForProfileToJoinEvent.update({
+  const result = await prismaClient.inviteForProfileToJoinEvent.update({
     where: {
       profileId_eventId_role: {
         eventId,
@@ -427,5 +510,72 @@ export async function rejectInviteAsAdmin(options: {
     data: {
       status: "rejected",
     },
+    select: {
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+          admins: {
+            select: {
+              profile: {
+                select: {
+                  firstName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-rejected-html.hbs";
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    result.event.admins.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
 }
