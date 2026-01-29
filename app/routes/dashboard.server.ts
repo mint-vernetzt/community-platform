@@ -690,3 +690,22 @@ export async function getUpcomingCanceledEvents(
 
   return enhancedEvents;
 }
+
+export async function getEventAdminInvites(profileId: string) {
+  const eventAdminInvites =
+    await prismaClient.inviteForProfileToJoinEvent.findMany({
+      where: {
+        profileId: profileId,
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+  return eventAdminInvites;
+}

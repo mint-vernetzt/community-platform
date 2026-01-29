@@ -72,7 +72,7 @@ export default function Confirm() {
 
   return (
     <>
-      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
         <div className="flex flex-col w-full items-center">
           <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
             <div className="mb-6 mt-12"> </div>

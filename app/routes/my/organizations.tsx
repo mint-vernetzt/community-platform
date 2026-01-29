@@ -434,8 +434,6 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  console.log(result.submission);
-
   if (
     typeof result.submission !== "undefined" &&
     result.submission !== null &&

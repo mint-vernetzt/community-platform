@@ -358,7 +358,7 @@ export default function ExploreEvents() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
+      <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-4">
         <Form
           {...getFormProps(form)}
           method="get"
@@ -759,10 +759,10 @@ export default function ExploreEvents() {
             : undefined
         }
       >
-        <div className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-4">
+        <div className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-4">
           <hr className="border-t border-gray-200 mt-4" />
         </div>
-        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-6">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-6">
           {(loaderData.selectedFocuses.length > 0 ||
             loaderData.selectedTargetGroups.length > 0) && (
             <div className="flex flex-col gap-2">
@@ -917,7 +917,7 @@ export default function ExploreEvents() {
           )}
         </section>
 
-        <section className="w-full mx-auto px-4 xl:px-6 max-w-screen-container-2xl mb-10 @lg:mb-12 @xl:mb-14">
+        <section className="w-full mx-auto px-4 xl:px-6 max-w-2xl mb-10 @lg:mb-12 @xl:mb-14">
           {typeof loaderData.filteredByVisibilityCount !== "undefined" &&
           loaderData.filteredByVisibilityCount !== loaderData.eventsCount ? (
             <p className="text-center text-gray-700 mb-4 mx-4 @md:mx-0">

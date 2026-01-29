@@ -92,9 +92,7 @@ function ModalSubmitButton(
   } = props;
   const isSubmitting = useIsSubmitting();
 
-  return as === "button" &&
-    "to" in anchorOrButtonProps === false &&
-    "disabled" in anchorOrButtonProps ? (
+  return as === "button" && "to" in anchorOrButtonProps === false ? (
     <Button
       type="submit"
       level={level}

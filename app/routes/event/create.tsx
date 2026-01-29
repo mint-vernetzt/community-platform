@@ -114,7 +114,7 @@ export default function Create() {
 
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl @md:mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl @md:mt-2">
         <div className="font-semibold text-neutral-600 flex items-center">
           {abilities["next_event_create"].hasAccess ? (
             <Button as="link" to="/next/event/create" prefetch="intent">
@@ -140,7 +140,7 @@ export default function Create() {
           </button>
         </div>
       </section>
-      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
         <div className="flex -mx-4 justify-center w-full">
           <div className="@lg:shrink-0 @lg:grow-0 @lg:basis-1/2 px-4 pt-10 w-full">
             <h4 className="font-semibold">{locales.content.headline}</h4>

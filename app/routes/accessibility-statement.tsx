@@ -21,7 +21,7 @@ export default function Imprint() {
   const { locales, baseUrl, supportMail } = useLoaderData<typeof loader>();
 
   return (
-    <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl my-8 @md:my-10 @lg:my-20">
+    <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl my-8 @md:my-10 @lg:my-20">
       <h1>{locales.title}</h1>
       <p>{locales.date}</p>
       <section className="mt-6">

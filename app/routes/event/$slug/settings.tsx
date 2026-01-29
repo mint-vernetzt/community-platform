@@ -47,7 +47,7 @@ function Settings() {
     }  hover:text-primary py-3`;
   return (
     <>
-      <section className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl mb-2 @md:mb-4 @md:mt-2">
+      <section className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl mb-2 @md:mb-4 @md:mt-2">
         <BackButton
           to={`/event/${loaderData.slug}/detail/about`}
           prefetch="intent"
@@ -55,7 +55,7 @@ function Settings() {
           {locales.back}
         </BackButton>
       </section>
-      <div className="w-full mx-auto px-4 @sm:max-w-screen-container-sm @md:max-w-screen-container-md @lg:max-w-screen-container-lg @xl:max-w-screen-container-xl @xl:px-6 @2xl:max-w-screen-container-2xl relative">
+      <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
         <div className="flex flex-col items-stretch @lg:flex-row -mx-4 pt-10 @lg:pt-0 mb-8">
           <div className="basis-4/12 px-4">
             <div className="px-4 py-8 @lg:p-8 pb-15 rounded-lg bg-neutral-50 shadow-lg relative mb-8">

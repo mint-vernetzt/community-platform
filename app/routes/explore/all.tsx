@@ -609,7 +609,7 @@ export default function ExploreAll() {
     <>
       {/* Profile Card Section */}
       {loaderData.profiles.length > 0 ? (
-        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+        <section className="w-full mx-auto mb-8 max-w-2xl">
           <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.profiles}
@@ -646,7 +646,7 @@ export default function ExploreAll() {
       ) : null}
       {/* Organization Card Section */}
       {loaderData.organizations.length > 0 ? (
-        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+        <section className="w-full mx-auto mb-8 max-w-2xl">
           <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.organizations}
@@ -685,7 +685,7 @@ export default function ExploreAll() {
       ) : null}
       {/* Event Card Section */}
       {loaderData.events.length > 0 ? (
-        <section className="w-full mb-8 mx-auto max-w-screen-container-2xl">
+        <section className="w-full mb-8 mx-auto max-w-2xl">
           <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.events}
@@ -741,7 +741,7 @@ export default function ExploreAll() {
       ) : null}
       {/* Project Card Section */}
       {loaderData.projects.length > 0 ? (
-        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+        <section className="w-full mx-auto mb-8 max-w-2xl">
           <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.projects}
@@ -778,7 +778,7 @@ export default function ExploreAll() {
       ) : null}
       {/* Funding Card Section */}
       {loaderData.fundings.length > 0 ? (
-        <section className="w-full mx-auto mb-8 max-w-screen-container-2xl">
+        <section className="w-full mx-auto mb-8 max-w-2xl">
           <div className="flex mb-4 px-4 xl:px-6 @lg:mb-6 flex-nowrap items-center justify-between">
             <h2 className="font-bold text-gray-700 text-2xl leading-7 mb-0">
               {loaderData.locales.index.content.fundings}
