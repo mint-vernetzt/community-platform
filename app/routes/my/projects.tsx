@@ -143,22 +143,15 @@ function MyProjects() {
       return value > 0;
     }
   ) || ["admin", 0];
-  const [projects, setProjects] = useState(firstProject[0]);
 
   const [searchParams, setSearchParams] = useSearchParams({
     projects: firstProject[0],
   });
-
-  useEffect(() => {
-    if (searchParams.has("projects")) {
-      const newValue = searchParams.get("projects") as string;
-      if (newValue !== projects) {
-        setProjects(newValue);
-      }
-    }
-    // This eslint error is intentional to make the tab changes work
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  const [projects, setProjects] = useState(
+    searchParams.has("projects")
+      ? (searchParams.get("projects") as string)
+      : firstProject[0]
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);

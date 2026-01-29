@@ -7,10 +7,10 @@ import {
   type ActionFunctionArgs,
   Form,
   Link,
+  type LoaderFunctionArgs,
   redirect,
   useLoaderData,
   useSearchParams,
-  type LoaderFunctionArgs,
 } from "react-router";
 import {
   createAuthClient,
@@ -194,37 +194,26 @@ function MyEvents() {
     }
   ) || ["adminInvites", 0];
 
-  const [upcoming, setUpcoming] = useState(firstUpcoming[0]);
-  const [past, setPast] = useState(firstPast[0]);
-  const [invites, setInvites] = useState(firstInvites[0]);
   const [searchParams, setSearchParams] = useSearchParams({
     upcoming: firstUpcoming[0],
     past: firstPast[0],
     invites: firstInvites[0],
   });
-
-  useEffect(() => {
-    if (searchParams.has("upcoming")) {
-      const newValue = searchParams.get("upcoming") as string;
-      if (newValue !== upcoming) {
-        setUpcoming(newValue);
-      }
-    }
-    if (searchParams.has("past")) {
-      const newValue = searchParams.get("past") as string;
-      if (newValue !== past) {
-        setPast(newValue);
-      }
-    }
-    if (searchParams.has("invites")) {
-      const newValue = searchParams.get("invites") as string;
-      if (newValue !== invites) {
-        setInvites(newValue);
-      }
-    }
-    // This eslint error is intentional to make the tab changes work
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  const [upcoming, setUpcoming] = useState(
+    searchParams.has("upcoming")
+      ? (searchParams.get("upcoming") as string)
+      : firstUpcoming[0]
+  );
+  const [past, setPast] = useState(
+    searchParams.has("past")
+      ? (searchParams.get("past") as string)
+      : firstPast[0]
+  );
+  const [invites, setInvites] = useState(
+    searchParams.has("invites")
+      ? (searchParams.get("invites") as string)
+      : firstInvites[0]
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
