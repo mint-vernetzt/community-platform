@@ -83,10 +83,22 @@ export async function loader(args: LoaderFunctionArgs) {
     return event.canceled;
   });
 
-  const invites = await getEventInvites({
-    profileId: sessionUser.id,
-    authClient,
-  });
+  const featureAbilities = await getFeatureAbilities(authClient, ["events"]);
+
+  let invites;
+  if (featureAbilities["events"].hasAccess) {
+    invites = await getEventInvites({
+      profileId: sessionUser.id,
+      authClient,
+    });
+  } else {
+    invites = {
+      adminInvites: [],
+      count: {
+        adminInvites: 0,
+      },
+    };
+  }
 
   return {
     upcomingEvents,
@@ -102,10 +114,7 @@ export async function loader(args: LoaderFunctionArgs) {
 export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
+  await checkFeatureAbilitiesOrThrow(authClient, ["events"]);
   const sessionUser = await getSessionUserOrThrow(authClient);
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["my/events"];
