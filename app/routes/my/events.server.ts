@@ -365,6 +365,7 @@ export async function acceptInviteAsAdmin(options: {
         profileId: userId,
         role: "admin",
       },
+      status: "pending",
     },
   });
 
@@ -407,6 +408,7 @@ export async function rejectInviteAsAdmin(options: {
         profileId: userId,
         role: "admin",
       },
+      status: "pending",
     },
   });
 
