@@ -13,9 +13,14 @@ export const locale = {
     },
   },
   email: {
-    subject: "You have received an invitation!",
-    button: {
-      text: "To the community platform",
+    inviteAsTeamMember: {
+      subject: "You have received an invitation!",
+      button: {
+        text: "To the community platform",
+      },
+    },
+    cancelledInvitation: {
+      subject: "The invitation has been withdrawn",
     },
   },
   content: {

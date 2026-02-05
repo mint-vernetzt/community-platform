@@ -118,7 +118,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await inviteProfileToBeOrganizationAdmin({
       formData: inviteFormData,
       slug,
-      locales,
+      locales: {
+        ...locales.route,
+        mail: {
+          subject: locales.route.email.inviteAsAdmin.subject,
+          button: {
+            text: locales.route.email.inviteAsAdmin.button.text,
+          },
+        },
+      },
     });
   } else if (intent.startsWith("cancel-admin-invite-")) {
     const cancelAdminInviteFormData = new FormData();
@@ -129,7 +137,12 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await cancelOrganizationAdminInvitation({
       formData: cancelAdminInviteFormData,
       slug,
-      locales,
+      locales: {
+        ...locales.route,
+        mail: {
+          subject: locales.route.email.cancelledInvitation.subject,
+        },
+      },
     });
   } else if (intent.startsWith("remove-admin-")) {
     const removeAdminFormData = new FormData();

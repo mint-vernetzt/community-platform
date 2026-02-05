@@ -153,7 +153,23 @@ export async function getPendingAdminInvitesOfOrganization(
 export async function inviteProfileToBeOrganizationAdmin(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationAdminSettingsLocales;
+  locales: {
+    mail: {
+      subject: string;
+      button: {
+        text: string;
+      };
+    };
+    error: {
+      invariant: {
+        entitiesForInviteNotFound: string;
+        alreadyAdmin: string;
+      };
+    };
+    content: {
+      profileInvited: string;
+    };
+  };
 }) {
   const { formData, slug, locales } = options;
 
@@ -189,7 +205,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
 
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    locales.error.invariant.entitiesForInviteNotFound,
     {
       status: 404,
     }
@@ -197,7 +213,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   invariantResponse(
     organization.admins.some((admin) => admin.profileId === profile.id) ===
       false,
-    locales.route.error.invariant.alreadyAdmin,
+    locales.error.invariant.alreadyAdmin,
     {
       status: 400,
     }
@@ -223,7 +239,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = locales.route.email.subject;
+  const subject = locales.mail.subject;
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/as-admin-text.hbs";
@@ -236,7 +252,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     },
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-      text: locales.route.email.button.text,
+      text: locales.mail.button.text,
     },
   };
 
@@ -265,13 +281,10 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     toast: {
       id: "invite-admin-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.profileInvited,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: insertParametersIntoLocale(locales.content.profileInvited, {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }
@@ -279,7 +292,20 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
 export async function cancelOrganizationAdminInvitation(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationAdminSettingsLocales;
+  locales: {
+    mail: {
+      subject: string;
+    };
+    error: {
+      invariant: {
+        entitiesForInviteNotFound: string;
+        alreadyAdmin: string;
+      };
+    };
+    content: {
+      inviteCancelled: string;
+    };
+  };
 }) {
   const { formData, slug, locales } = options;
 
@@ -294,6 +320,7 @@ export async function cancelOrganizationAdminInvitation(options: {
     where: { slug },
     select: {
       id: true,
+      name: true,
       admins: {
         select: {
           profileId: true,
@@ -307,17 +334,18 @@ export async function cancelOrganizationAdminInvitation(options: {
       id: true,
       firstName: true,
       lastName: true,
+      email: true,
     },
   });
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    locales.error.invariant.entitiesForInviteNotFound,
     { status: 404 }
   );
   invariantResponse(
     organization.admins.some((admin) => admin.profileId === profile.id) ===
       false,
-    locales.route.error.invariant.alreadyAdmin,
+    locales.error.invariant.alreadyAdmin,
     {
       status: 400,
     }
@@ -336,18 +364,42 @@ export async function cancelOrganizationAdminInvitation(options: {
     },
   });
 
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-organization/as-admin-canceled-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: profile.firstName,
+      organization: { name: organization.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: profile.firstName,
+      organization: { name: organization.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+
   return {
     submission: submission.reply(),
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.inviteCancelled,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: insertParametersIntoLocale(locales.content.inviteCancelled, {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }

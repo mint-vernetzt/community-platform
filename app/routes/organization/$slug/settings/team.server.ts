@@ -153,7 +153,23 @@ export async function getPendingTeamMemberInvitesOfOrganization(
 export async function inviteProfileToBeOrganizationTeamMember(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationTeamSettingsLocales;
+  locales: {
+    mail: {
+      subject: string;
+      button: {
+        text: string;
+      };
+    };
+    content: {
+      profileInvited: string;
+    };
+    error: {
+      invariant: {
+        entitiesForInviteNotFound: string;
+        alreadyMember: string;
+      };
+    };
+  };
 }) {
   const { formData, slug, locales } = options;
 
@@ -189,7 +205,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
 
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    locales.error.invariant.entitiesForInviteNotFound,
     {
       status: 404,
     }
@@ -198,7 +214,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     organization.teamMembers.some(
       (teamMember) => teamMember.profileId === submission.value.profileId
     ) === false,
-    locales.route.error.invariant.alreadyMember,
+    locales.error.invariant.alreadyMember,
     { status: 400 }
   );
 
@@ -222,7 +238,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   });
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
-  const subject = locales.route.email.subject;
+  const subject = locales.mail.subject;
   const recipient = profile.email;
   const textTemplatePath =
     "mail-templates/invites/profile-to-join-organization/text.hbs";
@@ -235,7 +251,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     },
     button: {
       url: `${process.env.COMMUNITY_BASE_URL}/my/organizations`,
-      text: locales.route.email.button.text,
+      text: locales.mail.button.text,
     },
   };
 
@@ -264,13 +280,10 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     toast: {
       id: "invite-team-member-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.profileInvited,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: insertParametersIntoLocale(locales.content.profileInvited, {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }
@@ -278,7 +291,20 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
 export async function cancelOrganizationTeamMemberInvitation(options: {
   formData: FormData;
   slug: string;
-  locales: OrganizationTeamSettingsLocales;
+  locales: {
+    mail: {
+      subject: string;
+    };
+    error: {
+      invariant: {
+        entitiesForInviteNotFound: string;
+        alreadyMember: string;
+      };
+    };
+    content: {
+      inviteCancelled: string;
+    };
+  };
 }) {
   const { formData, slug, locales } = options;
 
@@ -293,6 +319,7 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     where: { slug },
     select: {
       id: true,
+      name: true,
       teamMembers: {
         select: {
           profileId: true,
@@ -306,18 +333,19 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
       id: true,
       firstName: true,
       lastName: true,
+      email: true,
     },
   });
   invariantResponse(
     organization !== null && profile !== null,
-    locales.route.error.invariant.entitiesForInviteNotFound,
+    locales.error.invariant.entitiesForInviteNotFound,
     { status: 404 }
   );
   invariantResponse(
     organization.teamMembers.some(
       (teamMember) => teamMember.profileId === submission.value.profileId
     ) === false,
-    locales.route.error.invariant.alreadyMember,
+    locales.error.invariant.alreadyMember,
     { status: 400 }
   );
 
@@ -334,18 +362,42 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     },
   });
 
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-organization/canceled-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-organization/canceled-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: profile.firstName,
+      organization: { name: organization.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: profile.firstName,
+      organization: { name: organization.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+
   return {
     submission: submission.reply(),
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
-      message: insertParametersIntoLocale(
-        locales.route.content.inviteCancelled,
-        {
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-        }
-      ),
+      message: insertParametersIntoLocale(locales.content.inviteCancelled, {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      }),
     },
   };
 }

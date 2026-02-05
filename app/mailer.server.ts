@@ -183,6 +183,11 @@ type RequestCanceledNetworkContent = {
   network: { name: string };
 };
 
+type InviteProfileToJoinOrganizationContent = {
+  firstName: string;
+  organization: { name: string };
+};
+
 type InviteNetworkContent = {
   firstName: string;
   organization: { name: string };
@@ -238,6 +243,10 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-organization/rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-html.hbs"
   | "mail-templates/invites/profile-to-join-organization/as-admin-rejected-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-text.hbs"
+  | "mail-templates/invites/profile-to-join-organization/canceled-html.hbs"
+  | "mail-templates/invites/profile-to-join-organization/canceled-text.hbs"
   | "mail-templates/requests/network-to-add-organization/html.hbs"
   | "mail-templates/requests/network-to-add-organization/text.hbs"
   | "mail-templates/requests/network-to-add-organization/accepted-html.hbs"
@@ -353,7 +362,13 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-admin-rejected-html.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs"
                                       ? InviteAcceptedOrRejectedContent
-                                      : never;
+                                      : TemplatePath extends
+                                            | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs"
+                                            | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-text.hbs"
+                                            | "mail-templates/invites/profile-to-join-organization/canceled-html.hbs"
+                                            | "mail-templates/invites/profile-to-join-organization/canceled-text.hbs"
+                                        ? InviteProfileToJoinOrganizationContent
+                                        : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
