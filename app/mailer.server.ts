@@ -2,6 +2,7 @@ import type Mail from "nodemailer/lib/mailer";
 import fs from "fs-extra";
 import Handlebars from "handlebars";
 import { createTransport } from "nodemailer";
+import type { OneOf } from "./lib/utils/types";
 
 // Mailer configuration
 type MailerOptions = {
@@ -124,7 +125,7 @@ type InviteContent = {
     url: string;
     text: string;
   };
-} & ({ organization: { name: string } } | { event: { name: string } });
+} & OneOf<{ organization: { name: string }; event: { name: string } }>;
 
 type InviteAcceptedOrRejectedContent = {
   firstName: string;
@@ -132,7 +133,7 @@ type InviteAcceptedOrRejectedContent = {
     firstName: string;
     lastName: string;
   };
-} & ({ organization: { name: string } } | { event: { name: string } });
+} & OneOf<{ organization: { name: string }; event: { name: string } }>;
 
 type RequestContent = {
   firstName: string;

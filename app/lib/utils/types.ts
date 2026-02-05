@@ -13,3 +13,10 @@ export type EntitySubset<T extends { id: string }, U> = {
 // At least one of type t should be present in the object
 export type AtLeastOne<T, Keys extends keyof T = keyof T> = Partial<T> &
   { [K in Keys]: Required<Pick<T, K>> }[Keys];
+
+// Extracting a type with only one of the properties of T
+export type OneOf<T> = {
+  [K in keyof T]: { [P in K]: T[K] } & Partial<
+    Record<Exclude<keyof T, K>, never>
+  >;
+}[keyof T];
