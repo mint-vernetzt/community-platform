@@ -49,6 +49,7 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
+import { captureException } from "@sentry/node";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -265,7 +266,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
               },
             },
           });
-          void updateFilterVectorOfProject(project.id);
+          updateFilterVectorOfProject(project.id).catch((error) => {
+            captureException(error);
+          });
         } catch (e) {
           console.warn(e);
           ctx.addIssue({

@@ -18,6 +18,7 @@ import {
   type Mode,
 } from "~/utils.server";
 import { type ProfileQuery } from "./index.server";
+import { captureException } from "@sentry/node";
 
 type ProfileMode = Mode | "owner";
 
@@ -210,9 +211,13 @@ export async function updateProfileById(
     }),
   ]);
 
-  void triggerEntityScore({ entity: "profile", where: { id } });
+  triggerEntityScore({ entity: "profile", where: { id } }).catch((error) => {
+    captureException(error);
+  });
 
-  void updateFilterVectorOfProfile(id);
+  updateFilterVectorOfProfile(id).catch((error) => {
+    captureException(error);
+  });
 }
 
 export async function updateFilterVectorOfProfile(profileId: string) {

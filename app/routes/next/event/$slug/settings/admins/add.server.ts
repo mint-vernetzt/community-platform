@@ -341,8 +341,7 @@ export async function inviteProfileToJoinEventAsAdmin(options: {
     "html"
   );
 
-  // Do not block main thread while sending the mail
-  void mailer(mailerOptions, sender, recipient, subject, text, html);
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 }
 
 export async function addTeamMemberAsAdminToEvent(options: {

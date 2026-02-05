@@ -11,6 +11,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type getEventBySlug } from "./general.server";
 import { deriveEventMode } from "../../utils.server";
+import { captureException } from "@sentry/node";
 
 export async function getRedirectPathOnProtectedEventRoute(args: {
   request: Request;
@@ -358,7 +359,9 @@ export async function updateEventById(
     }),
   ]);
 
-  void updateFilterVectorOfEvent(id);
+  updateFilterVectorOfEvent(id).catch((error) => {
+    captureException(error);
+  });
 }
 
 export async function updateFilterVectorOfEvent(eventId: string) {

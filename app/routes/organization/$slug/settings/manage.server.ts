@@ -456,10 +456,14 @@ export async function updateOrganization(options: {
               networkMembers: networkMemberQuery,
             },
           });
-          void updateFilterVectorOfOrganization(organization.id);
-          void triggerEntityScore({
+          updateFilterVectorOfOrganization(organization.id).catch((error) => {
+            captureException(error);
+          });
+          triggerEntityScore({
             entity: "organization",
             where: { id: organization.id },
+          }).catch((error) => {
+            captureException(error);
           });
         } catch (error) {
           captureException(error);
@@ -755,6 +759,9 @@ export async function leaveNetwork(options: {
               },
             },
           });
+          updateFilterVectorOfOrganization(networkId).catch((error) => {
+            captureException(error);
+          });
         } catch (error) {
           captureException(error);
           ctx.addIssue({
@@ -1041,7 +1048,9 @@ export async function removeNetworkMember(options: {
               },
             },
           });
-          void updateFilterVectorOfOrganization(organizationId); // no promise resolve or await because not blocking -> Thats why void is used
+          updateFilterVectorOfOrganization(organizationId).catch((error) => {
+            captureException(error);
+          });
         } catch (error) {
           captureException(error);
           ctx.addIssue({

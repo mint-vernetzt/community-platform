@@ -1729,7 +1729,11 @@ export async function updateNetworkInvite(options: {
                   networkMemberId: data.organizationId,
                 },
               });
-              void updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
+              updateFilterVectorOfOrganization(data.organizationId).catch(
+                (error) => {
+                  captureException(error);
+                }
+              );
             }
           }
 
@@ -2226,7 +2230,11 @@ export async function updateNetworkRequest(options: {
                   networkMemberId: data.organizationId,
                 },
               });
-              void updateFilterVectorOfOrganization(data.organizationId); // no promise because not blocking
+              updateFilterVectorOfOrganization(data.organizationId).catch(
+                (error) => {
+                  captureException(error);
+                }
+              );
             }
           }
 
