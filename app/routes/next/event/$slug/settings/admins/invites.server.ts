@@ -7,6 +7,11 @@ import {
   createSearchInvitedProfilesSchema,
   INVITED_PROFILES_SEARCH_PARAM,
 } from "./invites.shared";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export async function getInvitedProfilesToJoinEventAsAdmin(options: {
   request: Request;
@@ -123,6 +128,11 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
 export async function revokeInviteOfProfileToJoinEventAsAdmin(options: {
   eventId: string;
   profileId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
 }) {
   const { eventId, profileId } = options;
 
@@ -152,7 +162,47 @@ export async function revokeInviteOfProfileToJoinEventAsAdmin(options: {
     data: {
       status: "canceled",
     },
+    select: {
+      profile: {
+        select: {
+          email: true,
+          firstName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-admin-canceled-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 
   return result;
 }

@@ -14,6 +14,11 @@ export const locale = {
       min: "Bitte gib mindestens 3 Zeichen ein, um zu suchen.",
     },
   },
+  mail: {
+    cancelledInvitation: {
+      subject: "Die Einladung wurde zurückgezogen",
+    },
+  },
   errors: {
     revokeInviteFailed: "Das Zurückziehen der Einladung ist fehlgeschlagen.",
   },

@@ -183,10 +183,12 @@ type RequestCanceledNetworkContent = {
   network: { name: string };
 };
 
-type InviteProfileToJoinOrganizationContent = {
+type InviteProfileToJoinContent = {
   firstName: string;
+} & OneOf<{
   organization: { name: string };
-};
+  event: { name: string };
+}>;
 
 type InviteNetworkContent = {
   firstName: string;
@@ -268,7 +270,9 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-accepted-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-rejected-html.hbs"
-  | "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs";
+  | "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-admin-canceled-html.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -367,7 +371,9 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-text.hbs"
                                             | "mail-templates/invites/profile-to-join-organization/canceled-html.hbs"
                                             | "mail-templates/invites/profile-to-join-organization/canceled-text.hbs"
-                                        ? InviteProfileToJoinOrganizationContent
+                                            | "mail-templates/invites/profile-to-join-event/as-admin-canceled-html.hbs"
+                                            | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs"
+                                        ? InviteProfileToJoinContent
                                         : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(

@@ -117,6 +117,9 @@ export async function action(args: ActionFunctionArgs) {
     await revokeInviteOfProfileToJoinEventAsAdmin({
       eventId: event,
       profileId: submission.value[PROFILE_ID_FIELD],
+      locales: {
+        mail: locales.route.mail.cancelledInvitation,
+      },
     });
   } catch (error) {
     captureException(error);
