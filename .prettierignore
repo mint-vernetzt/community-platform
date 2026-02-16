@@ -6,3 +6,4 @@ public/static
 public/favicon.ico
 .cache
 build
+*.hbs

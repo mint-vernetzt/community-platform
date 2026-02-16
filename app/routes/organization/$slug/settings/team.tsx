@@ -119,7 +119,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await inviteProfileToBeOrganizationTeamMember({
       formData: inviteFormData,
       slug,
-      locales,
+      locales: {
+        ...locales.route,
+        mail: {
+          subject: locales.route.email.inviteAsTeamMember.subject,
+          button: {
+            text: locales.route.email.inviteAsTeamMember.button.text,
+          },
+        },
+      },
     });
   } else if (intent.startsWith("cancel-team-member-invite-")) {
     const cancelAdminInviteFormData = new FormData();
@@ -130,7 +138,12 @@ export const action = async (args: ActionFunctionArgs) => {
     result = await cancelOrganizationTeamMemberInvitation({
       formData: cancelAdminInviteFormData,
       slug,
-      locales,
+      locales: {
+        ...locales.route,
+        mail: {
+          subject: locales.route.email.cancelledInvitation.subject,
+        },
+      },
     });
   } else if (intent.startsWith("remove-team-member-")) {
     const removeAdminFormData = new FormData();

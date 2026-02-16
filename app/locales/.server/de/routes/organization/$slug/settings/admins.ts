@@ -13,9 +13,14 @@ export const locale = {
     },
   },
   email: {
-    subject: "Du hast eine Einladung zum Admin erhalten!",
-    button: {
-      text: "Zur Community Plattform",
+    inviteAsAdmin: {
+      subject: "Du hast eine Einladung zum Admin erhalten!",
+      button: {
+        text: "Zur Community Plattform",
+      },
+    },
+    cancelledInvitation: {
+      subject: "Die Einladung zum Admin wurde zurückgezogen",
     },
   },
   content: {

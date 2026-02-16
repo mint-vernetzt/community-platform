@@ -144,6 +144,9 @@ export async function action(args: ActionFunctionArgs) {
       await acceptInviteAsAdmin({
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsAdminAccepted,
+        },
       });
     } catch (error) {
       captureException(error);
@@ -159,13 +162,16 @@ export async function action(args: ActionFunctionArgs) {
       await rejectInviteAsAdmin({
         userId: sessionUser.id,
         eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsAdminRejected,
+        },
       });
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
         id: "reject-admin-invite-error",
         key: `reject-admin-invite-error-${Date.now()}`,
-        message: locales.route.errors.acceptInviteAsAdmin,
+        message: locales.route.errors.rejectInviteAsAdmin,
         level: "negative",
       });
     }

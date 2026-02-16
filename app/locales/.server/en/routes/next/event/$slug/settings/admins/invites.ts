@@ -14,6 +14,11 @@ export const locale = {
       min: "Please enter at least 3 characters to search.",
     },
   },
+  mail: {
+    cancelledInvitation: {
+      subject: "The invitation has been withdrawn",
+    },
+  },
   errors: {
     revokeInviteFailed: "Failed to revoke the invite.",
   },

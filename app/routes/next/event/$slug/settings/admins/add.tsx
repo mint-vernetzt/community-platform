@@ -142,6 +142,7 @@ export async function action(args: ActionFunctionArgs) {
       await inviteProfileToJoinEventAsAdmin({
         eventId: event.id,
         profileId: submission.value[PROFILE_ID_FIELD],
+        locales: locales.route,
       });
     } catch (error) {
       captureException(error);

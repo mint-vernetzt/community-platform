@@ -513,10 +513,14 @@ export async function createOrganization(options: {
             { ...data, latitude, longitude },
             slug
           );
-          void updateFilterVectorOfOrganization(organization.id);
-          void triggerEntityScore({
+          updateFilterVectorOfOrganization(organization.id).catch((error) => {
+            captureException(error);
+          });
+          triggerEntityScore({
             entity: "organization",
             where: { id: organization.id },
+          }).catch((error) => {
+            captureException(error);
           });
         } catch (error) {
           captureException(error);

@@ -55,4 +55,12 @@ export const locale = {
     acceptInviteAsAdmin: "Einladung als Admin für das Event angenommen.",
     rejectInviteAsAdmin: "Einladung als Admin für das Event abgelehnt.",
   },
+  mail: {
+    inviteAsAdminAccepted: {
+      subject: "Die Einladung zum Admin eines Events wurde angenommen",
+    },
+    inviteAsAdminRejected: {
+      subject: "Die Einladung zum Admin eines Events wurde abgelehnt",
+    },
+  },
 } as const;

@@ -280,9 +280,11 @@ export async function uploadImage(options: {
             id: true,
           },
         });
-        void triggerEntityScore({
+        triggerEntityScore({
           entity: "organization",
           where: { id: organization.id },
+        }).catch((error) => {
+          captureException(error);
         });
       } catch (error) {
         console.error({ error });
@@ -353,9 +355,11 @@ export async function disconnectImage(options: {
             id: true,
           },
         });
-        void triggerEntityScore({
+        triggerEntityScore({
           entity: "organization",
           where: { id: organization.id },
+        }).catch((error) => {
+          captureException(error);
         });
       } catch (error) {
         console.error({ error });

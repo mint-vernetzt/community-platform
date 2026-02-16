@@ -46,4 +46,8 @@ export const locale = {
     inviteProfileAsAdmin: "The invitation was sent successfully.",
     addTeamMemberAsAdmin: "The team member was successfully added as an admin.",
   },
+  mail: {
+    buttonText: "Zur Community Plattform",
+    subject: "Du wurdest als Admin zu einem Event eingeladen",
+  },
 } as const;

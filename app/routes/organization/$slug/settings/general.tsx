@@ -303,10 +303,14 @@ export async function action(args: ActionFunctionArgs) {
                 ...visibilities,
               },
             });
-            void updateFilterVectorOfOrganization(organization.id);
-            void triggerEntityScore({
+            updateFilterVectorOfOrganization(organization.id).catch((error) => {
+              captureException(error);
+            });
+            triggerEntityScore({
               entity: "organization",
               where: { id: organization.id },
+            }).catch((error) => {
+              captureException(error);
             });
           } catch (error) {
             captureException(error);
