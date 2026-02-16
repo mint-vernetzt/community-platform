@@ -46,6 +46,7 @@ import {
   getStageDefaultValue,
   Stages,
 } from "./location.shared";
+import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -216,6 +217,9 @@ export async function action(args: ActionFunctionArgs) {
       });
 
       return event;
+    });
+    updateFilterVectorOfEvent(event.id).catch((error) => {
+      captureException(error);
     });
   } catch (error) {
     captureException(error);
