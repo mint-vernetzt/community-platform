@@ -1,4 +1,6 @@
+import { captureException } from "@sentry/node";
 import { prismaClient } from "~/prisma.server";
+import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
 import { sanitizeUserHtml } from "~/utils.server";
 
 export async function getEventBySlug(slug: string) {
@@ -223,6 +225,9 @@ export async function updateEventBySlug(
         }),
       },
     },
+  });
+  updateFilterVectorOfEvent(id).catch((error) => {
+    captureException(error);
   });
   return updatedEvent;
 }
