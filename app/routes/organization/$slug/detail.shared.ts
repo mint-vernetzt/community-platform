@@ -1,4 +1,5 @@
 import { type Organization } from "@prisma/client";
+import { hasContent } from "~/utils.shared";
 
 export function hasAboutData(
   organization: Pick<
@@ -25,54 +26,24 @@ export function hasAboutData(
   }
 ) {
   return (
-    (organization.bio !== null &&
-      organization.bio.trim() !== "" &&
-      organization.bio.trim() !== "<p></p>") ||
-    (organization.email !== null &&
-      organization.email.trim() !== "" &&
-      organization.email.trim() !== "<p></p>") ||
-    (organization.phone !== null &&
-      organization.phone.trim() !== "" &&
-      organization.phone.trim() !== "<p></p>") ||
-    (organization.website !== null &&
-      organization.website.trim() !== "" &&
-      organization.website.trim() !== "<p></p>") ||
-    (organization.city !== null &&
-      organization.city.trim() !== "" &&
-      organization.city.trim() !== "<p></p>") ||
-    (organization.street !== null &&
-      organization.street.trim() !== "" &&
-      organization.street.trim() !== "<p></p>") ||
-    (organization.zipCode !== null &&
-      organization.zipCode.trim() !== "" &&
-      organization.zipCode.trim() !== "<p></p>") ||
-    (organization.facebook !== null &&
-      organization.facebook.trim() !== "" &&
-      organization.facebook.trim() !== "<p></p>") ||
-    (organization.linkedin !== null &&
-      organization.linkedin.trim() !== "" &&
-      organization.linkedin.trim() !== "<p></p>") ||
-    (organization.twitter !== null &&
-      organization.twitter.trim() !== "" &&
-      organization.twitter.trim() !== "<p></p>") ||
-    (organization.xing !== null &&
-      organization.xing.trim() !== "" &&
-      organization.xing.trim() !== "<p></p>") ||
-    (organization.instagram !== null &&
-      organization.instagram.trim() !== "" &&
-      organization.instagram.trim() !== "<p></p>") ||
-    (organization.youtube !== null &&
-      organization.youtube.trim() !== "" &&
-      organization.youtube.trim() !== "<p></p>") ||
-    (organization.mastodon !== null &&
-      organization.mastodon.trim() !== "" &&
-      organization.mastodon.trim() !== "<p></p>") ||
-    (organization.tiktok !== null &&
-      organization.tiktok.trim() !== "" &&
-      organization.tiktok.trim() !== "<p></p>") ||
-    organization.areas.length > 0 ||
-    organization.focuses.length > 0 ||
-    organization.supportedBy.length > 0
+    hasContent(organization.bio) ||
+    hasContent(organization.email) ||
+    hasContent(organization.phone) ||
+    hasContent(organization.website) ||
+    hasContent(organization.city) ||
+    hasContent(organization.street) ||
+    hasContent(organization.zipCode) ||
+    hasContent(organization.facebook) ||
+    hasContent(organization.linkedin) ||
+    hasContent(organization.twitter) ||
+    hasContent(organization.xing) ||
+    hasContent(organization.instagram) ||
+    hasContent(organization.youtube) ||
+    hasContent(organization.mastodon) ||
+    hasContent(organization.tiktok) ||
+    hasContent(organization.areas) ||
+    hasContent(organization.focuses) ||
+    hasContent(organization.supportedBy)
   );
 }
 

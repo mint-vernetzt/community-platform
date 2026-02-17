@@ -13,6 +13,7 @@ import {
   getOrganization,
 } from "./projects.server";
 import { languageModuleMap } from "~/locales/.server";
+import { hasContent } from "~/utils.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -55,7 +56,7 @@ function Projects() {
 
   return (
     <Container.Section className="-mt-4 @md:-mt-6 @lg:-mt-8 pt-10 @sm:py-8 @sm:px-4 @lg:px-6 flex flex-col gap-10 @sm:border-b @sm:border-x @sm:border-neutral-200 bg-white @sm:rounded-b-2xl">
-      {organization.responsibleForProject.length > 0 ? (
+      {hasContent(organization.responsibleForProject) ? (
         <div className="flex flex-col gap-4">
           <h2 className="mb-0 text-neutral-700 text-xl font-bold leading-6">
             {locales.route.headlines.responsibleForProject}

@@ -1,3 +1,5 @@
+import { hasContent } from "~/utils.shared";
+
 export function hasGeneralInformation(organization: {
   bio: string | null;
   areas: Array<{ area: { slug: string; name: string } }>;
@@ -5,12 +7,10 @@ export function hasGeneralInformation(organization: {
   supportedBy: string[];
 }) {
   return (
-    (organization.bio !== null &&
-      organization.bio.trim() !== "" &&
-      organization.bio.trim() !== "<p></p>") ||
-    organization.areas.length > 0 ||
-    organization.focuses.length > 0 ||
-    organization.supportedBy.length > 0
+    hasContent(organization.bio) ||
+    hasContent(organization.areas) ||
+    hasContent(organization.focuses) ||
+    hasContent(organization.supportedBy)
   );
 }
 
@@ -44,15 +44,9 @@ export function hasContactInformation(organization: {
   addressSupplement: string | null;
 }) {
   return (
-    (organization.email !== null &&
-      organization.email.trim() !== "" &&
-      organization.email.trim() !== "<p></p>") ||
-    (organization.phone !== null &&
-      organization.phone.trim() !== "" &&
-      organization.phone.trim() !== "<p></p>") ||
-    (organization.website !== null &&
-      organization.website.trim() !== "" &&
-      organization.website.trim() !== "<p></p>") ||
+    hasContent(organization.email) ||
+    hasContent(organization.phone) ||
+    hasContent(organization.website) ||
     hasAddress(organization)
   );
 }
@@ -74,21 +68,13 @@ export function hasAddress(organization: {
 export function hasAddressSupplement(organization: {
   addressSupplement: string | null;
 }): organization is { addressSupplement: string } {
-  return (
-    organization.addressSupplement !== null &&
-    organization.addressSupplement.trim() !== "" &&
-    organization.addressSupplement.trim() !== "<p></p>"
-  );
+  return hasContent(organization.addressSupplement);
 }
 
 export function hasStreet(organization: {
   street: string | null;
 }): organization is { street: string } {
-  return (
-    organization.street !== null &&
-    organization.street.trim() !== "" &&
-    organization.street.trim() !== "<p></p>"
-  );
+  return hasContent(organization.street);
 }
 
 export function hasCityOrZipCode(organization: {
@@ -101,21 +87,13 @@ export function hasCityOrZipCode(organization: {
 export function hasCity(organization: {
   city: string | null;
 }): organization is { city: string } {
-  return (
-    organization.city !== null &&
-    organization.city.trim() !== "" &&
-    organization.city.trim() !== "<p></p>"
-  );
+  return hasContent(organization.city);
 }
 
 export function hasZipCode(organization: {
   zipCode: string | null;
 }): organization is { zipCode: string } {
-  return (
-    organization.zipCode !== null &&
-    organization.zipCode.trim() !== "" &&
-    organization.zipCode.trim() !== "<p></p>"
-  );
+  return hasContent(organization.zipCode);
 }
 
 export function hasSocialService(organization: {
@@ -129,30 +107,14 @@ export function hasSocialService(organization: {
   xing: string | null;
 }) {
   return (
-    (organization.facebook !== null &&
-      organization.facebook.trim() !== "" &&
-      organization.facebook.trim() !== "<p></p>") ||
-    (organization.linkedin !== null &&
-      organization.linkedin.trim() !== "" &&
-      organization.linkedin.trim() !== "<p></p>") ||
-    (organization.twitter !== null &&
-      organization.twitter.trim() !== "" &&
-      organization.twitter.trim() !== "<p></p>") ||
-    (organization.instagram !== null &&
-      organization.instagram.trim() !== "" &&
-      organization.instagram.trim() !== "<p></p>") ||
-    (organization.youtube !== null &&
-      organization.youtube.trim() !== "" &&
-      organization.youtube.trim() !== "<p></p>") ||
-    (organization.mastodon !== null &&
-      organization.mastodon.trim() !== "" &&
-      organization.mastodon.trim() !== "<p></p>") ||
-    (organization.tiktok !== null &&
-      organization.tiktok.trim() !== "" &&
-      organization.tiktok.trim() !== "<p></p>") ||
-    (organization.xing !== null &&
-      organization.xing.trim() !== "" &&
-      organization.xing.trim() !== "<p></p>")
+    hasContent(organization.facebook) ||
+    hasContent(organization.linkedin) ||
+    hasContent(organization.twitter) ||
+    hasContent(organization.instagram) ||
+    hasContent(organization.youtube) ||
+    hasContent(organization.mastodon) ||
+    hasContent(organization.tiktok) ||
+    hasContent(organization.xing)
   );
 }
 

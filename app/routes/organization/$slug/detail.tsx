@@ -61,6 +61,7 @@ import {
   hasTeamData,
 } from "./detail.shared";
 import { getFormPersistenceTimestamp } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -84,8 +85,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     ];
   }
   if (
-    loaderData.organization.bio === null &&
-    loaderData.organization.background === null
+    hasContent(loaderData.organization.bio) === false &&
+    hasContent(loaderData.organization.background) === false
   ) {
     return [
       {
@@ -114,7 +115,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.organization.bio === null) {
+  if (hasContent(loaderData.organization.bio) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
@@ -140,7 +141,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.organization.background === null) {
+  if (hasContent(loaderData.organization.background) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.organization.name}`,
@@ -341,8 +342,6 @@ export const action = async (args: ActionFunctionArgs) => {
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
   } else {
-    // TODO: How can we add this to the zod ctx?
-    // When this happens somebody is messing arround so we can throw here
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
@@ -424,10 +423,10 @@ function OrganizationDetail() {
       </BackButton>
       {/* Header Section */}
       <Container.Section className="relative flex flex-col items-center border border-neutral-200 bg-white rounded-2xl overflow-hidden">
-        <div className="w-full h-[200px]">
+        <div className="w-full h-50">
           <Image
             alt={`${locales.route.header.image.alt} ${organization.name}`}
-            src={organization.background || undefined}
+            src={organization.background}
             blurredSrc={organization.blurredBackground}
             resizeType="fill"
           />
@@ -465,7 +464,7 @@ function OrganizationDetail() {
               <h1 className="mb-0 text-3xl @sm:text-4xl @md:text-5xl font-bold leading-7 @sm:leading-8 @md:leading-9">
                 {organization.name}
               </h1>
-              {organization.types.length > 0 ? (
+              {hasContent(organization.types) ? (
                 <p className="px-8 @lg:px-0 text-neutral-600 text-lg font-semibold leading-6">
                   {organization.types
                     .map((relation) => {
@@ -509,9 +508,9 @@ function OrganizationDetail() {
                 </p>
               ) : null}
             </div>
-            {organization.networkMembers.length > 0 ? (
+            {hasContent(organization.networkMembers) ? (
               <div className="flex items-center gap-2">
-                <div className="flex pl-[16px] *:-ml-[16px]">
+                <div className="flex pl-4 *:-ml-4">
                   {organization.networkMembers.slice(0, 3).map((relation) => {
                     return (
                       <Avatar
@@ -527,7 +526,7 @@ function OrganizationDetail() {
                   })}
                 </div>
                 {organization.networkMembers.length > 3 && (
-                  <div className="font-semibold text-primary leading-[22px]">
+                  <div className="font-semibold text-primary leading-5.5">
                     +{organization.networkMembers.length - 3}
                   </div>
                 )}
@@ -586,7 +585,7 @@ function OrganizationDetail() {
           ) : null}
         </div>
         {mode === "admin" ? (
-          <div className="hidden @lg:grid absolute top-0 w-full h-[200px] opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center">
+          <div className="hidden @lg:grid absolute top-0 w-full h-50 opacity-0 hover:opacity-100 focus-within:opacity-100 hover:bg-neutral-700/70 focus-within:bg-neutral-700/70 transition-all bg-neutral-700/0 grid-rows-1 grid-cols-1 place-items-center">
             <div className="flex flex-col items-center gap-4">
               <p className="text-white text-lg font-bold">
                 {locales.route.header.controls.backgroundLong}
@@ -631,7 +630,7 @@ function OrganizationDetail() {
                 disabled={isSubmitting}
               >
                 <div className="flex flex-col items-center gap-1">
-                  <div className="w-8 h-8 rounded-full bg-neutral-50/100 flex items-center justify-center border border-primary">
+                  <div className="w-8 h-8 rounded-full bg-neutral-50 flex items-center justify-center border border-primary">
                     <svg
                       width="16"
                       height="16"
@@ -663,8 +662,8 @@ function OrganizationDetail() {
         </div>
         {allowedToClaimOrganization ? (
           <div className="w-full px-4 pb-6">
-            <div className="w-full p-4 flex flex-col @md:flex-row @md:justify-between items-center gap-4 rounded-[4px] bg-primary-50">
-              <p className="text-primary-700 @md:max-w-[800px]">
+            <div className="w-full p-4 flex flex-col @md:flex-row @md:justify-between items-center gap-4 rounded-sm bg-primary-50">
+              <p className="text-primary-700 @md:max-w-200">
                 {alreadyRequestedToClaim
                   ? locales.route.claimRequest.alreadyRequested.description
                   : insertComponentsIntoLocale(
@@ -785,14 +784,14 @@ function OrganizationDetail() {
                 currentTimestamp={loaderData.currentTimestamp}
                 redirectTo={location.pathname}
               >
-                {organization.background !== null ? (
+                {hasContent(loaderData.organization.background) ? (
                   <Image
                     src={organization.background || undefined}
                     alt={`${locales.route.header.image.alt} ${organization.name}`}
                     blurredSrc={organization.blurredBackground}
                   />
                 ) : (
-                  <div className="w-[300px] min-h-[108px] bg-attention-400 rounded-md" />
+                  <div className="w-75 min-h-27 bg-attention-400 rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
