@@ -83,8 +83,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     ];
   }
   if (
-    loaderData.project.excerpt === null &&
-    typeof loaderData.project.background === "undefined"
+    hasContent(loaderData.project.excerpt) === false &&
+    hasContent(loaderData.project.background) === false
   ) {
     return [
       {
@@ -113,7 +113,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.project.excerpt === null) {
+  if (hasContent(loaderData.project.excerpt) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
@@ -139,7 +139,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.project.background === null) {
+  if (hasContent(loaderData.project.background) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
