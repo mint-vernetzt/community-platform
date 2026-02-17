@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hasContent } from "~/utils.shared";
 
 export const SEARCH_SPEAKERS_SEARCH_PARAM = "search_speakers";
 export const SEARCH_TEAM_MEMBERS_SEARCH_PARAM = "search_team_members";
@@ -49,41 +50,25 @@ export function hasTypes(event: { types: unknown[] }) {
 export function hasSubline(event: {
   subline: string | null;
 }): event is { subline: string } {
-  return (
-    event.subline !== null &&
-    event.subline.trim() !== "" &&
-    event.subline.trim() !== "<p></p>"
-  );
+  return hasContent(event.subline);
 }
 
 export function hasDescription(event: {
   description: string | null;
 }): event is { description: string } {
-  return (
-    event.description !== null &&
-    event.description.trim() !== "" &&
-    event.description.trim() !== "<p></p>"
-  );
+  return hasContent(event.description);
 }
 
 export function hasConferenceLink(event: {
   conferenceLink: string | null;
 }): event is { conferenceLink: string } {
-  return (
-    event.conferenceLink !== null &&
-    event.conferenceLink.trim() !== "" &&
-    event.conferenceLink.trim() !== "<p></p>"
-  );
+  return hasContent(event.conferenceLink);
 }
 
 export function hasConferenceCode(event: {
   conferenceCode: string | null;
 }): event is { conferenceCode: string } {
-  return (
-    event.conferenceCode !== null &&
-    event.conferenceCode.trim() !== "" &&
-    event.conferenceCode.trim() !== "<p></p>"
-  );
+  return hasContent(event.conferenceCode);
 }
 
 export function hasGeneralInfo(event: {
@@ -133,41 +118,25 @@ export function hasAddress(event: {
 export function hasVenueStreet(event: {
   venueStreet: string | null;
 }): event is { venueStreet: string } {
-  return (
-    event.venueStreet !== null &&
-    event.venueStreet.trim() !== "" &&
-    event.venueStreet.trim() !== "<p></p>"
-  );
+  return hasContent(event.venueStreet);
 }
 
 export function hasVenueZipCode(event: {
   venueZipCode: string | null;
 }): event is { venueZipCode: string } {
-  return (
-    event.venueZipCode !== null &&
-    event.venueZipCode.trim() !== "" &&
-    event.venueZipCode.trim() !== "<p></p>"
-  );
+  return hasContent(event.venueZipCode);
 }
 
 export function hasVenueCity(event: {
   venueCity: string | null;
 }): event is { venueCity: string } {
-  return (
-    event.venueCity !== null &&
-    event.venueCity.trim() !== "" &&
-    event.venueCity.trim() !== "<p></p>"
-  );
+  return hasContent(event.venueCity);
 }
 
 export function hasVenueName(event: {
   venueName: string | null;
 }): event is { venueName: string } {
-  return (
-    event.venueName !== null &&
-    event.venueName.trim() !== "" &&
-    event.venueName.trim() !== "<p></p>"
-  );
+  return hasContent(event.venueName);
 }
 
 export function getFormattedAddress(event: {
@@ -205,51 +174,43 @@ export function getFormattedAddress(event: {
 export function hasAccessibilityInformation(event: {
   accessibilityInformation: string | null;
 }): event is { accessibilityInformation: string } {
-  return (
-    event.accessibilityInformation !== null &&
-    event.accessibilityInformation.trim() !== "" &&
-    event.accessibilityInformation.trim() !== "<p></p>"
-  );
+  return hasContent(event.accessibilityInformation);
 }
 
 export function hasPrivacyInformation(event: {
   privacyInformation: string | null;
 }): event is { privacyInformation: string } {
-  return (
-    event.privacyInformation !== null &&
-    event.privacyInformation.trim() !== "" &&
-    event.privacyInformation.trim() !== "<p></p>"
-  );
+  return hasContent(event.privacyInformation);
 }
 
 export function hasEventTargetGroups(event: { eventTargetGroups: unknown[] }) {
-  return event.eventTargetGroups.length > 0;
+  return hasContent(event.eventTargetGroups);
 }
 
 export function hasFocuses(event: { focuses: unknown[] }) {
-  return event.focuses.length > 0;
+  return hasContent(event.focuses);
 }
 
 export function hasExperienceLevel(event: {
   experienceLevel: { slug: string } | null;
 }): event is { experienceLevel: { slug: string } } {
-  return event.experienceLevel !== null;
+  return hasContent(event.experienceLevel);
 }
 
 export function hasTags(event: { tags: unknown[] }) {
-  return event.tags.length > 0;
+  return hasContent(event.tags);
 }
 
 export function hasDocuments(event: { documents: unknown[] }) {
-  return event.documents.length > 0;
+  return hasContent(event.documents);
 }
 
 export function hasSpeakers(event: { speakers: unknown[] }) {
-  return event.speakers.length > 0;
+  return hasContent(event.speakers);
 }
 
 export function hasResponsibleOrganizations(event: {
   responsibleOrganizations: unknown[];
 }) {
-  return event.responsibleOrganizations.length > 0;
+  return hasContent(event.responsibleOrganizations);
 }

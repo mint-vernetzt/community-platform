@@ -16,6 +16,7 @@ import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
+import { hasContent } from "~/utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -98,13 +99,12 @@ function Participants() {
             >
               <ListItemPersonOrg.Avatar size="full" {...participant} />
               <ListItemPersonOrg.Headline>
-                {participant.academicTitle !== null &&
-                participant.academicTitle.length > 0
+                {hasContent(participant.academicTitle)
                   ? `${participant.academicTitle} `
                   : ""}
                 {participant.firstName} {participant.lastName}
               </ListItemPersonOrg.Headline>
-              {participant.position !== null && (
+              {hasContent(participant.position) && (
                 <ListItemPersonOrg.Subline>
                   {participant.position}
                 </ListItemPersonOrg.Subline>
