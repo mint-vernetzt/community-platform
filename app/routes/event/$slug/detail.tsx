@@ -62,6 +62,7 @@ import { filterEventConferenceLink } from "./utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { getFormPersistenceTimestamp } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -100,7 +101,10 @@ export function meta(
     meta: { url },
   } = rootLoaderData.loaderData;
 
-  if (loaderData.event.description === null) {
+  if (
+    hasContent(loaderData.event.description) === false &&
+    hasContent(loaderData.event.background) === false
+  ) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
@@ -128,7 +132,7 @@ export function meta(
       },
     ];
   }
-  if (loaderData.event.description === null) {
+  if (hasContent(loaderData.event.description) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
@@ -154,7 +158,7 @@ export function meta(
       },
     ];
   }
-  if (loaderData.event.background === null) {
+  if (hasContent(loaderData.event.background) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.event.name}`,
@@ -589,7 +593,7 @@ function Detail() {
           Zu den neuen Event-Einstellungen
         </Button>
       ) : null}
-      {loaderData.event.parentEvent !== null ? (
+      {hasContent(loaderData.event.parentEvent) ? (
         <BreadCrump>
           <BreadCrump.Link
             to={`/event/${loaderData.event.parentEvent.slug}/detail/about`}
@@ -691,26 +695,24 @@ function Detail() {
               endTime={loaderData.event.endTime}
               language={loaderData.language}
             />
-            {loaderData.event.stage !== null &&
-              loaderData.event.stage.slug.trim() !== "" &&
-              loaderData.event.stage.slug.trim() !== "<p></p>" && (
-                <EventsOverview.Stage
-                  slug={loaderData.event.slug}
-                  venueName={loaderData.event.venueName}
-                  venueStreet={loaderData.event.venueStreet}
-                  venueZipCode={loaderData.event.venueZipCode}
-                  venueCity={loaderData.event.venueCity}
-                  stage={
-                    loaderData.event.stage
-                      .slug as keyof typeof loaderData.locales.stages
-                  }
-                  conferenceLink={loaderData.event.conferenceLink}
-                  conferenceLinkToBeAnnounced={
-                    loaderData.event.conferenceLinkToBeAnnounced
-                  }
-                  locales={loaderData.locales}
-                />
-              )}
+            {hasContent(loaderData.event.stage) && (
+              <EventsOverview.Stage
+                slug={loaderData.event.slug}
+                venueName={loaderData.event.venueName}
+                venueStreet={loaderData.event.venueStreet}
+                venueZipCode={loaderData.event.venueZipCode}
+                venueCity={loaderData.event.venueCity}
+                stage={
+                  loaderData.event.stage
+                    .slug as keyof typeof loaderData.locales.stages
+                }
+                conferenceLink={loaderData.event.conferenceLink}
+                conferenceLinkToBeAnnounced={
+                  loaderData.event.conferenceLinkToBeAnnounced
+                }
+                locales={loaderData.locales}
+              />
+            )}
             <EventsOverview.FreeSeats
               participantLimit={loaderData.event.participantLimit}
               participantsCount={loaderData.event._count.participants}

@@ -54,6 +54,7 @@ import {
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
+import { hasContent } from "~/utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -334,7 +335,7 @@ function About() {
                         ? `${Math.round(relation.document.sizeInMB * 1024)} KB)`
                         : `${Math.round(relation.document.sizeInMB)} MB)`}
                     </ListItemMaterial.HeadlineSuffix>
-                    {/* {relation.document.credits !== null && (
+                    {/* {hasContent(relation.document.credits) && (
                       <ListItemMaterial.Subline>
                         © {relation.document.credits}
                       </ListItemMaterial.Subline>
@@ -397,13 +398,12 @@ function About() {
                 >
                   <ListItemPersonOrg.Avatar size="full" {...speaker} />
                   <ListItemPersonOrg.Headline>
-                    {speaker.academicTitle !== null &&
-                    speaker.academicTitle.length > 0
+                    {hasContent(speaker.academicTitle)
                       ? `${speaker.academicTitle} `
                       : ""}
                     {speaker.firstName} {speaker.lastName}
                   </ListItemPersonOrg.Headline>
-                  {speaker.position !== null ? (
+                  {hasContent(speaker.position) ? (
                     <ListItemPersonOrg.Subline>
                       {speaker.position}
                     </ListItemPersonOrg.Subline>
@@ -446,13 +446,12 @@ function About() {
               >
                 <ListItemPersonOrg.Avatar size="full" {...member} />
                 <ListItemPersonOrg.Headline>
-                  {member.academicTitle !== null &&
-                  member.academicTitle.length > 0
+                  {hasContent(member.academicTitle)
                     ? `${member.academicTitle} `
                     : ""}
                   {member.firstName} {member.lastName}
                 </ListItemPersonOrg.Headline>
-                {member.position !== null ? (
+                {hasContent(member.position) ? (
                   <ListItemPersonOrg.Subline>
                     {member.position}
                   </ListItemPersonOrg.Subline>
@@ -501,8 +500,8 @@ function About() {
                   <ListItemPersonOrg.Headline>
                     {organization.name}
                   </ListItemPersonOrg.Headline>
-                  {organization.types.length > 0 ||
-                  organization.networkTypes.length > 0 ? (
+                  {hasContent(organization.types) ||
+                  hasContent(organization.networkTypes) ? (
                     <ListItemPersonOrg.Subline>
                       {[
                         ...organization.types.map((relation) => {

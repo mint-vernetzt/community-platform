@@ -11,6 +11,7 @@ import { MaterialList } from "~/components-next/MaterialList";
 import { deriveProjectMode } from "../../utils.server";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
+import { hasContent } from "~/utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -118,7 +119,7 @@ function Attachments() {
         {loaderData.mode === "anon" ? (
           <p>{locales.content.documents.anonHint}</p>
         ) : null}
-        {loaderData.project.documents.length > 0 ? (
+        {hasContent(loaderData.project.documents) ? (
           <>
             <MaterialList>
               {loaderData.project.documents.map((relation) => {
@@ -180,7 +181,7 @@ function Attachments() {
         <h2 className="text-neutral-700 text-lg font-bold mb-0">
           {locales.content.images.title}
         </h2>
-        {loaderData.project.images.length > 0 ? (
+        {hasContent(loaderData.project.images) ? (
           <>
             <MaterialList>
               {loaderData.project.images.map((relation) => {

@@ -5,6 +5,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { hasContent } from "~/utils.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -65,21 +66,21 @@ function Requirements() {
         {locales.route.content.information}
       </p>
 
-      {project.timeframe === null &&
-        project.jobFillings === null &&
-        project.furtherJobFillings === null &&
-        project.yearlyBudget === null &&
-        project.financings.length === 0 &&
-        project.furtherFinancings === null &&
-        project.technicalRequirements === null &&
-        project.furtherTechnicalRequirements === null &&
-        project.roomSituation === null &&
-        project.furtherRoomSituation === null && (
+      {hasContent(project.timeframe) === false &&
+        hasContent(project.jobFillings) === false &&
+        hasContent(project.furtherJobFillings) === false &&
+        hasContent(project.yearlyBudget) === false &&
+        hasContent(project.financings) === false &&
+        hasContent(project.furtherFinancings) === false &&
+        hasContent(project.technicalRequirements) === false &&
+        hasContent(project.furtherTechnicalRequirements) === false &&
+        hasContent(project.roomSituation) === false &&
+        hasContent(project.furtherRoomSituation) === false && (
           <p className="font-normal text-neutral-800">
             {locales.route.content.confirmation}
           </p>
         )}
-      {project.timeframe !== null && (
+      {hasContent(project.timeframe) && (
         <>
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.timeFrame.headline}
@@ -90,38 +91,39 @@ function Requirements() {
           <RichText html={project.timeframe} />
         </>
       )}
-      {(project.jobFillings !== null ||
-        project.furtherJobFillings !== null) && (
-        <>
-          <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
-            {locales.route.content.jobFillings.headline}
-          </h2>
-          {project.jobFillings !== null && (
-            <>
-              <h3 className="text-neutral-700 text-lg font-bold mb-0">
-                {locales.route.content.jobFillings.intro}
-              </h3>
-              <RichText html={project.jobFillings} />
-            </>
-          )}
-          {project.furtherJobFillings !== null && (
-            <>
-              <h3 className="text-neutral-700 text-lg font-bold mb-0">
-                {locales.route.content.furtherJobFillings.headline}
-              </h3>
-              <RichText html={project.furtherJobFillings} />
-            </>
-          )}
-        </>
-      )}
-      {(project.yearlyBudget !== null ||
-        project.financings.length > 0 ||
-        project.furtherFinancings !== null) && (
+      {(hasContent(project.jobFillings) ||
+        hasContent(project.furtherJobFillings)) &&
+        project.furtherJobFillings !== null && (
+          <>
+            <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
+              {locales.route.content.jobFillings.headline}
+            </h2>
+            {project.jobFillings !== null && (
+              <>
+                <h3 className="text-neutral-700 text-lg font-bold mb-0">
+                  {locales.route.content.jobFillings.intro}
+                </h3>
+                <RichText html={project.jobFillings} />
+              </>
+            )}
+            {project.furtherJobFillings !== null && (
+              <>
+                <h3 className="text-neutral-700 text-lg font-bold mb-0">
+                  {locales.route.content.furtherJobFillings.headline}
+                </h3>
+                <RichText html={project.furtherJobFillings} />
+              </>
+            )}
+          </>
+        )}
+      {(hasContent(project.yearlyBudget) ||
+        hasContent(project.financings) ||
+        hasContent(project.furtherFinancings)) && (
         <>
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.finance.headline}
           </h2>
-          {project.yearlyBudget !== null && (
+          {hasContent(project.yearlyBudget) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.yearlyBudget}
@@ -131,7 +133,7 @@ function Requirements() {
               </p>
             </>
           )}
-          {project.financings.length > 0 && (
+          {hasContent(project.financings) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.financings}
@@ -159,7 +161,7 @@ function Requirements() {
               </Chip.Container>
             </div>
           )}
-          {project.furtherFinancings !== null && (
+          {hasContent(project.furtherFinancings) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.finance.moreInformation}
@@ -169,13 +171,13 @@ function Requirements() {
           )}
         </>
       )}
-      {(project.technicalRequirements !== null ||
-        project.furtherTechnicalRequirements !== null) && (
+      {(hasContent(project.technicalRequirements) ||
+        hasContent(project.furtherTechnicalRequirements)) && (
         <>
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.technical.headline}
           </h2>
-          {project.technicalRequirements !== null && (
+          {hasContent(project.technicalRequirements) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.technical.technicalRequirements}
@@ -183,7 +185,7 @@ function Requirements() {
               <RichText html={project.technicalRequirements} />
             </>
           )}
-          {project.furtherTechnicalRequirements !== null && (
+          {hasContent(project.furtherTechnicalRequirements) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.technical.furtherTechnicalRequirements}
@@ -193,13 +195,13 @@ function Requirements() {
           )}
         </>
       )}
-      {(project.roomSituation !== null ||
-        project.furtherRoomSituation !== null) && (
+      {(hasContent(project.roomSituation) ||
+        hasContent(project.furtherRoomSituation)) && (
         <>
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.rooms.headline}
           </h2>
-          {project.roomSituation !== null && (
+          {hasContent(project.roomSituation) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.rooms.roomSituation}
@@ -207,7 +209,7 @@ function Requirements() {
               <RichText html={project.roomSituation} />
             </>
           )}
-          {project.furtherRoomSituation !== null && (
+          {hasContent(project.furtherRoomSituation) && (
             <>
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.rooms.furtherRoomSituation}

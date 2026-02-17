@@ -28,6 +28,7 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
+import { hasContent } from "~/utils.shared";
 
 // Design:
 // Name: Events_Overview
@@ -38,7 +39,7 @@ function EventsOverview(props: { children: React.ReactNode }) {
 
 function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
   return (
-    <div className="relative h-full md:h-[400px] aspect-[3/2] border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
+    <div className="relative h-full md:h-100 aspect-3/2 border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
       <ImageComponent
         alt={props.alt}
         src={props.src}
@@ -67,8 +68,8 @@ function InfoContainer(props: { children: React.ReactNode }) {
 
 function EventName(props: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center order-1 w-full xl:w-auto xl:grow-1">
-      <h1 className="text-primary font-bold text-3xl/7 m-0 max-w-[800px]">
+    <div className="flex items-center order-1 w-full xl:w-auto xl:grow">
+      <h1 className="text-primary font-bold text-3xl/7 m-0 max-w-200">
         {props.children}
       </h1>
     </div>
@@ -88,7 +89,7 @@ function ResponsibleOrganizations(props: {
 }) {
   const { organizations, locales } = props;
 
-  if (organizations.length === 0) {
+  if (hasContent(organizations) === false) {
     return null;
   }
 
@@ -225,7 +226,7 @@ function PeriodOfTime(props: {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col self-center text-neutral-700 grow-1">
+      <div className="flex flex-col self-center text-neutral-700 grow">
         <div className="font-semibold line-clamp-1">{dateDuration}</div>
         {isSameDay ? (
           <div className="font-normal line-clamp-1">{timeDuration}</div>
@@ -276,7 +277,7 @@ function Stage(props: {
   >]["event/$slug/detail"];
 }) {
   const { stage, conferenceLinkToBeAnnounced, conferenceLink, slug } = props;
-  if (stage === null) {
+  if (hasContent(stage) === false) {
     return null;
   }
 
@@ -285,7 +286,7 @@ function Stage(props: {
     "border-0 md:border border-neutral-200 rounded-lg",
     "order-3 md:order-last",
     (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced === true || conferenceLink !== null)
+      (conferenceLinkToBeAnnounced === true || hasContent(conferenceLink))
       ? "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
       : ""
   );
@@ -293,7 +294,7 @@ function Stage(props: {
   const iconClasses = classNames(
     "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700",
     (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced === true || conferenceLink !== null)
+      (conferenceLinkToBeAnnounced === true || hasContent(conferenceLink))
       ? "group-hover:bg-white"
       : ""
   );
@@ -320,7 +321,10 @@ function Stage(props: {
         </div>
       </>
     );
-    if (props.conferenceLinkToBeAnnounced === true || conferenceLink !== null) {
+    if (
+      props.conferenceLinkToBeAnnounced === true ||
+      hasContent(conferenceLink)
+    ) {
       return (
         <Link
           to={`/event/${slug}/detail/about#address-and-conference-link`}
@@ -366,23 +370,23 @@ function Stage(props: {
             />
           </svg>
         </div>
-        <div className="self-center text-neutral-700 flex flex-col grow-1">
+        <div className="self-center text-neutral-700 flex flex-col grow">
           <div className=" font-semibold line-clamp-1">
-            {props.venueName !== null && props.venueName.trim() !== ""
+            {hasContent(props.venueName)
               ? props.venueName
               : props.locales.route.content.onSite}
           </div>
-          {props.venueStreet !== null &&
-            props.venueZipCode !== null &&
-            props.venueCity !== null && (
+          {hasContent(props.venueStreet) &&
+            hasContent(props.venueZipCode) &&
+            hasContent(props.venueCity) && (
               <div className="font-normal line-clamp-1">
                 {props.venueStreet}, {props.venueZipCode} {props.venueCity}
               </div>
             )}
         </div>
-        {props.venueStreet !== null &&
-          props.venueZipCode !== null &&
-          props.venueCity !== null && (
+        {hasContent(props.venueStreet) &&
+          hasContent(props.venueZipCode) &&
+          hasContent(props.venueCity) && (
             <CircleButton
               as="link"
               variant="ghost"
@@ -427,7 +431,7 @@ function Stage(props: {
   if (stage === "hybrid") {
     const children = (
       <>
-        <div className={`${iconClasses} gap-[0.0625rem]`}>
+        <div className={`${iconClasses} gap-px`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -470,13 +474,13 @@ function Stage(props: {
         </div>
         <div className="self-center text-neutral-700 flex flex-col">
           <div className=" font-semibold line-clamp-1">
-            {props.venueName !== null
+            {hasContent(props.venueName)
               ? props.venueName
               : props.locales.route.content.hybrid}
           </div>
-          {props.venueStreet !== null &&
-            props.venueZipCode !== null &&
-            props.venueCity !== null && (
+          {hasContent(props.venueStreet) &&
+            hasContent(props.venueZipCode) &&
+            hasContent(props.venueCity) && (
               <>
                 <div className="font-normal line-clamp-1">
                   {props.locales.stages.online.title} / {props.venueStreet},{" "}
@@ -489,10 +493,10 @@ function Stage(props: {
     );
     if (
       props.conferenceLinkToBeAnnounced === true ||
-      conferenceLink !== null ||
-      (props.venueStreet !== null &&
-        props.venueZipCode !== null &&
-        props.venueCity !== null)
+      hasContent(conferenceLink) ||
+      (hasContent(props.venueStreet) &&
+        hasContent(props.venueZipCode) &&
+        hasContent(props.venueCity))
     ) {
       return (
         <Link
@@ -549,15 +553,16 @@ function FreeSeats(props: {
       </div>
       <div className="flex flex-col self-center text-neutral-700">
         <div className="font-semibold line-clamp-1">
-          {participantLimit === null
+          {hasContent(participantLimit) === false
             ? locales.route.content.unlimitedSeats
             : `${participantsCount > participantLimit ? 0 : participantLimit - participantsCount} / ${participantLimit} ${locales.route.content.seatsFree}`}
         </div>
-        {participantLimit !== null && participantsCount >= participantLimit && (
-          <div className="line-clamp-1">
-            {locales.route.content.waitingListAvailable}
-          </div>
-        )}
+        {hasContent(participantLimit) &&
+          participantsCount >= participantLimit && (
+            <div className="line-clamp-1">
+              {locales.route.content.waitingListAvailable}
+            </div>
+          )}
       </div>
     </div>
   );
@@ -588,7 +593,7 @@ function StateFlag(props: {
     <div className="absolute top-0 left-0 w-full h-40 rounded-t-2xl text-white font-semibold overflow-hidden">
       <div
         className={classNames(
-          "w-full h-[2.4375rem] flex items-center justify-center shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)]",
+          "w-full h-9.75 flex items-center justify-center shadow-[0_8px_24px_-4px_rgba(0,0,0,0.16)]",
           tint === "primary" && "bg-primary-400",
           tint === "negative" && "bg-negative-700"
         )}
@@ -778,7 +783,7 @@ function ReportEvent(props: {
               aria-label={props.locales.reportFaq}
               prefetch="intent"
             >
-              <div aria-hidden="true" className="flex flex-col gap-[1px]">
+              <div aria-hidden="true" className="flex flex-col gap-px">
                 <div className="w-0.5 h-0.5 bg-primary rounded-lg" />
                 <div className="w-0.5 h-2 bg-primary rounded-lg" />
               </div>
@@ -897,7 +902,7 @@ function AbuseReportModal(props: {
                       height="20"
                       fill="none"
                       viewBox="0 0 20 20"
-                      className="block group-has-[:checked]:hidden"
+                      className="block group-has-checked:hidden"
                     >
                       <path
                         fill="currentColor"
@@ -910,7 +915,7 @@ function AbuseReportModal(props: {
                       height="20"
                       fill="none"
                       viewBox="0 0 20 20"
-                      className="hidden group-has-[:checked]:block"
+                      className="hidden group-has-checked:block"
                     >
                       <path
                         fill="currentColor"
@@ -935,8 +940,7 @@ function AbuseReportModal(props: {
               <Input.Label htmlFor={fields.otherReason.id}>
                 {props.locales.otherReason}
               </Input.Label>
-              {typeof fields.reasons.errors !== "undefined" &&
-              fields.reasons.errors.length > 0
+              {hasContent(fields.reasons.errors)
                 ? fields.reasons.errors.map((error) => (
                     <Input.Error id={fields.reasons.errorId} key={error}>
                       {error}
@@ -1113,8 +1117,8 @@ function EditBackground(props: {
   }
 
   return (
-    <div className="absolute top-0 left-0 w-full h-[239px] md:h-[400px] rounded-t-2xl overflow-hidden">
-      <div className="relative w-full h-full xl:aspect-[3/2] xl:w-auto xl:m-auto opacity-0 hover:opacity-100">
+    <div className="absolute top-0 left-0 w-full h-59.75 md:h-100 rounded-t-2xl overflow-hidden">
+      <div className="relative w-full h-full xl:aspect-3/2 xl:w-auto xl:m-auto opacity-0 hover:opacity-100">
         <div className="absolute w-full h-full bg-neutral-700 opacity-70" />
         <div className="absolute flex m-auto w-full h-full items-start xl:items-end justify-end p-4">
           <Form method="get" preventScrollReset action={location.pathname}>
@@ -1212,7 +1216,7 @@ function EditBackgroundModal(props: {
       <Modal.Section>
         <ImageCropper
           uploadKey="background"
-          image={props.background !== null ? props.background : undefined}
+          image={props.background}
           aspect={ImageAspects.EventBackground}
           minCropWidth={MinCropSizes.EventBackground.width}
           minCropHeight={MinCropSizes.EventBackground.height}
@@ -1223,7 +1227,7 @@ function EditBackgroundModal(props: {
           currentTimestamp={props.currentTimestamp}
           redirectTo={location.pathname}
         >
-          <div className="w-full rounded-md overflow-hidden aspect-[3/2]">
+          <div className="w-full rounded-md overflow-hidden aspect-3/2">
             <ImageComponent
               alt={props.locales.alt}
               src={props.background}

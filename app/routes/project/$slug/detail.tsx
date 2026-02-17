@@ -59,6 +59,7 @@ import {
 import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 import { getFormPersistenceTimestamp } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -82,8 +83,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     ];
   }
   if (
-    loaderData.project.excerpt === null &&
-    typeof loaderData.project.background === "undefined"
+    hasContent(loaderData.project.excerpt) === false &&
+    hasContent(loaderData.project.background) === false
   ) {
     return [
       {
@@ -112,7 +113,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.project.excerpt === null) {
+  if (hasContent(loaderData.project.excerpt) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
@@ -138,7 +139,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.project.background === null) {
+  if (hasContent(loaderData.project.background) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${loaderData.project.name}`,
@@ -615,7 +616,7 @@ function ProjectDetail() {
                     blurredSrc={project.blurredBackground}
                   />
                 ) : (
-                  <div className="w-[300px] min-h-[108px] bg-attention-400 rounded-md" />
+                  <div className="w-75 min-h-27 bg-attention-400 rounded-md" />
                 )}
               </ImageCropper>
             </Modal.Section>
@@ -661,16 +662,16 @@ function ProjectDetail() {
                   {locales.route.content.about}
                 </Link>
               </TabBar.Item>
-              {(project.timeframe !== null ||
-                project.jobFillings !== null ||
-                project.furtherJobFillings !== null ||
-                project.yearlyBudget !== null ||
-                project.financings.length !== 0 ||
-                project.furtherFinancings !== null ||
-                project.technicalRequirements !== null ||
-                project.furtherTechnicalRequirements !== null ||
-                project.roomSituation !== null ||
-                project.furtherRoomSituation !== null) && (
+              {(hasContent(project.timeframe) ||
+                hasContent(project.jobFillings) ||
+                hasContent(project.furtherJobFillings) ||
+                hasContent(project.yearlyBudget) ||
+                hasContent(project.financings) ||
+                hasContent(project.furtherFinancings) ||
+                hasContent(project.technicalRequirements) ||
+                hasContent(project.furtherTechnicalRequirements) ||
+                hasContent(project.roomSituation) ||
+                hasContent(project.furtherRoomSituation)) && (
                 <TabBar.Item active={pathname.endsWith("/requirements")}>
                   <Link
                     to="./requirements"
@@ -681,7 +682,8 @@ function ProjectDetail() {
                   </Link>
                 </TabBar.Item>
               )}
-              {(project.documents.length > 0 || project.images.length > 0) && (
+              {(hasContent(project.documents) ||
+                hasContent(project.images)) && (
                 <TabBar.Item active={pathname.endsWith("/attachments")}>
                   <Link to="./attachments" preventScrollReset prefetch="intent">
                     {locales.route.content.material}

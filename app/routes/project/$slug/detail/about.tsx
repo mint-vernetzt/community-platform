@@ -25,6 +25,7 @@ import { YouTube } from "~/components-next/icons/YouTube";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
+import { hasContent } from "~/utils.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -285,7 +286,7 @@ function About() {
           {loaderData.project.excerpt}
         </p>
       )}
-      {loaderData.project.formats.length > 0 && (
+      {hasContent(loaderData.project.formats) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.formats}
@@ -312,7 +313,7 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {loaderData.project.furtherFormats.length > 0 && (
+      {hasContent(loaderData.project.furtherFormats) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.furtherFormats}
@@ -328,14 +329,14 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {(loaderData.project.disciplines.length > 0 ||
-        loaderData.project.additionalDisciplines.length > 0) && (
+      {(hasContent(loaderData.project.disciplines) ||
+        hasContent(loaderData.project.additionalDisciplines)) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.disciplines}
           </h3>
           <Chip.Container>
-            {loaderData.project.disciplines.length > 0 &&
+            {hasContent(loaderData.project.disciplines) &&
               loaderData.project.disciplines.map((relation) => {
                 let title;
                 if (relation.discipline.slug in locales.disciplines) {
@@ -355,7 +356,7 @@ function About() {
                   </Chip>
                 );
               })}
-            {loaderData.project.additionalDisciplines.length > 0 &&
+            {hasContent(loaderData.project.additionalDisciplines) &&
               loaderData.project.additionalDisciplines.map((relation) => {
                 let title;
                 if (
@@ -385,7 +386,7 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {loaderData.project.furtherDisciplines.length > 0 && (
+      {hasContent(loaderData.project.furtherDisciplines) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.furtherDisciplines}
@@ -399,7 +400,7 @@ function About() {
           </div>
         </div>
       )}
-      {loaderData.project.projectTargetGroups.length > 0 && (
+      {hasContent(loaderData.project.projectTargetGroups) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.projectTargetGroups}
@@ -430,7 +431,7 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {loaderData.project.specialTargetGroups.length > 0 && (
+      {hasContent(loaderData.project.specialTargetGroups) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.specialTargetGroups}
@@ -461,7 +462,7 @@ function About() {
           </Chip.Container>
         </div>
       )}
-      {loaderData.project.targetGroupAdditions !== null && (
+      {hasContent(loaderData.project.targetGroupAdditions) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.targetGroupAdditions}
@@ -471,7 +472,7 @@ function About() {
           </p>
         </div>
       )}
-      {loaderData.project.participantLimit !== null && (
+      {hasContent(loaderData.project.participantLimit) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.participantLimit}
@@ -481,7 +482,7 @@ function About() {
           </p>
         </div>
       )}
-      {loaderData.project.areas.length > 0 && (
+      {hasContent(loaderData.project.areas) && (
         <div className="flex flex-col gap-4">
           <h3 className="text-neutral-700 text-lg font-bold mb-0">
             {locales.route.content.areas}
@@ -493,26 +494,26 @@ function About() {
           </p>
         </div>
       )}
-      {(loaderData.project.furtherDescription !== null ||
-        loaderData.project.idea !== null ||
-        loaderData.project.goals !== null ||
-        loaderData.project.implementation !== null ||
-        loaderData.project.targeting !== null ||
-        loaderData.project.hints !== null) && (
+      {(hasContent(loaderData.project.furtherDescription) ||
+        hasContent(loaderData.project.idea) ||
+        hasContent(loaderData.project.goals) ||
+        hasContent(loaderData.project.implementation) ||
+        hasContent(loaderData.project.targeting) ||
+        hasContent(loaderData.project.hints)) && (
         <>
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.furtherDescription}
           </h2>
           {/* only further description */}
-          {loaderData.project.furtherDescription !== null &&
-            loaderData.project.idea === null &&
-            loaderData.project.goals === null &&
-            loaderData.project.implementation === null &&
-            loaderData.project.targeting === null &&
-            loaderData.project.hints === null && (
+          {hasContent(loaderData.project.furtherDescription) &&
+            !hasContent(loaderData.project.idea) &&
+            !hasContent(loaderData.project.goals) &&
+            !hasContent(loaderData.project.implementation) &&
+            !hasContent(loaderData.project.targeting) &&
+            !hasContent(loaderData.project.hints) && (
               <RichText html={loaderData.project.furtherDescription} />
             )}
-          {loaderData.project.idea !== null && (
+          {hasContent(loaderData.project.idea) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.idea}
@@ -523,7 +524,7 @@ function About() {
               />
             </div>
           )}
-          {loaderData.project.goals !== null && (
+          {hasContent(loaderData.project.goals) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.goals}
@@ -534,7 +535,7 @@ function About() {
               />
             </div>
           )}
-          {loaderData.project.implementation !== null && (
+          {hasContent(loaderData.project.implementation) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.implementation}
@@ -545,7 +546,7 @@ function About() {
               />
             </div>
           )}
-          {loaderData.project.targeting !== null && (
+          {hasContent(loaderData.project.targeting) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.targeting}
@@ -556,7 +557,7 @@ function About() {
               />
             </div>
           )}
-          {loaderData.project.hints !== null && (
+          {hasContent(loaderData.project.hints) && (
             <div className="flex flex-col gap-4">
               <h3 className="text-neutral-700 text-lg font-bold mb-0">
                 {locales.route.content.hints}
@@ -568,12 +569,12 @@ function About() {
             </div>
           )}
           {/* not only further description */}
-          {loaderData.project.furtherDescription !== null &&
-            (loaderData.project.idea !== null ||
-              loaderData.project.goals !== null ||
-              loaderData.project.implementation !== null ||
-              loaderData.project.targeting !== null ||
-              loaderData.project.hints !== null) && (
+          {hasContent(loaderData.project.furtherDescription) &&
+            (hasContent(loaderData.project.idea) ||
+              hasContent(loaderData.project.goals) ||
+              hasContent(loaderData.project.implementation) ||
+              hasContent(loaderData.project.targeting) ||
+              hasContent(loaderData.project.hints)) && (
               <div className="flex flex-col gap-4">
                 <h3 className="text-neutral-700 text-lg font-bold mb-0">
                   {locales.route.content.furtherDescription2}
@@ -586,14 +587,14 @@ function About() {
             )}
         </>
       )}
-      {loaderData.project.video !== null && (
+      {hasContent(loaderData.project.video) && (
         <Video src={loaderData.project.video} locales={locales}>
-          {loaderData.project.videoSubline !== null && (
+          {hasContent(loaderData.project.videoSubline) && (
             <Video.Subline>{loaderData.project.videoSubline}</Video.Subline>
           )}
         </Video>
       )}
-      {loaderData.project.teamMembers.length > 0 && (
+      {hasContent(loaderData.project.teamMembers) && (
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {locales.route.content.team}
@@ -634,11 +635,11 @@ function About() {
           </List>
         </div>
       )}
-      {loaderData.project.responsibleOrganizations.length > 0 && (
+      {hasContent(loaderData.project.responsibleOrganizations) && (
         <div className="flex flex-col gap-2 relative">
           <div
             id="responsible-organizations"
-            className="absolute -top-[76px] xl:-top-20"
+            className="absolute -top-19 xl:-top-20"
           />
           <h2 className="text-2xl @md:text-5xl font-bold text-primary mb-0">
             {decideBetweenSingularOrPlural(
@@ -717,7 +718,7 @@ function About() {
           </h4>
         </div>
         <div className="w-full flex flex-col gap-2">
-          {loaderData.project.email !== null && (
+          {hasContent(loaderData.project.email) && (
             <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Envelope />
               <Link to={`mailto:${loaderData.project.email}`}>
@@ -725,7 +726,7 @@ function About() {
               </Link>
             </div>
           )}
-          {loaderData.project.phone !== null && (
+          {hasContent(loaderData.project.phone) && (
             <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Phone />
               <Link to={`tel:${loaderData.project.phone}`}>
@@ -733,7 +734,7 @@ function About() {
               </Link>
             </div>
           )}
-          {loaderData.project.website !== null && (
+          {hasContent(loaderData.project.website) && (
             <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <Globe />
               <Link
@@ -745,30 +746,30 @@ function About() {
               </Link>
             </div>
           )}
-          {(loaderData.project.contactName !== null ||
-            street !== null ||
-            city !== null) && (
+          {(hasContent(loaderData.project.contactName) ||
+            hasContent(street) ||
+            hasContent(city)) && (
             <div className="px-4 py-3 bg-white rounded-lg flex gap-4 no-wrap">
               <House />
               <address className="flex flex-col not-italic">
-                {loaderData.project.contactName !== null && (
+                {hasContent(loaderData.project.contactName) && (
                   <span>{loaderData.project.contactName}</span>
                 )}
-                {street !== null && <span>{street}</span>}
-                {city !== null && <span>{city}</span>}
+                {hasContent(street) && <span>{street}</span>}
+                {hasContent(city) && <span>{city}</span>}
               </address>
             </div>
           )}
-          {(loaderData.project.facebook !== null ||
-            loaderData.project.linkedin !== null ||
-            loaderData.project.twitter !== null ||
-            loaderData.project.youtube !== null ||
-            loaderData.project.instagram !== null ||
-            loaderData.project.xing !== null ||
-            loaderData.project.mastodon !== null ||
-            loaderData.project.tiktok !== null) && (
+          {(hasContent(loaderData.project.facebook) ||
+            hasContent(loaderData.project.linkedin) ||
+            hasContent(loaderData.project.twitter) ||
+            hasContent(loaderData.project.youtube) ||
+            hasContent(loaderData.project.instagram) ||
+            hasContent(loaderData.project.xing) ||
+            hasContent(loaderData.project.mastodon) ||
+            hasContent(loaderData.project.tiktok)) && (
             <div className="flex flex-row flex-wrap gap-2">
-              {loaderData.project.facebook !== null && (
+              {hasContent(loaderData.project.facebook) && (
                 <Link
                   to={loaderData.project.facebook}
                   target="_blank"
@@ -778,7 +779,7 @@ function About() {
                   <Facebook />
                 </Link>
               )}
-              {loaderData.project.linkedin !== null && (
+              {hasContent(loaderData.project.linkedin) && (
                 <Link
                   to={loaderData.project.linkedin}
                   target="_blank"
@@ -788,7 +789,7 @@ function About() {
                   <LinkedIn />
                 </Link>
               )}
-              {loaderData.project.twitter !== null && (
+              {hasContent(loaderData.project.twitter) && (
                 <Link
                   to={loaderData.project.twitter}
                   target="_blank"
@@ -798,7 +799,7 @@ function About() {
                   <Twitter />
                 </Link>
               )}
-              {loaderData.project.youtube !== null && (
+              {hasContent(loaderData.project.youtube) && (
                 <Link
                   to={loaderData.project.youtube}
                   target="_blank"
@@ -808,7 +809,7 @@ function About() {
                   <YouTube />
                 </Link>
               )}
-              {loaderData.project.instagram !== null && (
+              {hasContent(loaderData.project.instagram) && (
                 <Link
                   to={loaderData.project.instagram}
                   target="_blank"
@@ -818,7 +819,7 @@ function About() {
                   <Instagram />
                 </Link>
               )}
-              {loaderData.project.xing !== null && (
+              {hasContent(loaderData.project.xing) && (
                 <Link
                   to={loaderData.project.xing}
                   target="_blank"
@@ -828,7 +829,7 @@ function About() {
                   <Xing />
                 </Link>
               )}
-              {loaderData.project.mastodon !== null && (
+              {hasContent(loaderData.project.mastodon) && (
                 <Link
                   to={loaderData.project.mastodon}
                   target="_blank"
@@ -838,7 +839,7 @@ function About() {
                   <Mastodon />
                 </Link>
               )}
-              {loaderData.project.tiktok !== null && (
+              {hasContent(loaderData.project.tiktok) && (
                 <Link
                   to={loaderData.project.tiktok}
                   target="_blank"
