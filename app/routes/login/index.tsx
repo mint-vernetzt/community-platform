@@ -25,7 +25,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -39,9 +38,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["login/index"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { locales, currentTimestamp };
+  return { locales };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -59,7 +56,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return submission.reply();
+    const reply = submission.reply();
+    const replyWithoutPassword = {
+      ...reply,
+      initialValue: {
+        loginRedirect: submission.payload.loginRedirect.toString(),
+        email: submission.payload.email.toString(),
+        password: "", // Don't return password to client
+      },
+    };
+    return replyWithoutPassword;
   }
 
   if (typeof submission.value.loginRedirect !== "undefined") {
@@ -76,7 +82,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -85,17 +91,14 @@ export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [loginForm, loginFields] = useForm({
-    id: `login-${currentTimestamp}`,
+    id: "login-form",
     constraint: getZodConstraint(createLoginSchema(locales)),
     defaultValue: {
       email:
         typeof actionData?.initialValue?.email === "string"
           ? actionData?.initialValue?.email
           : "",
-      password:
-        typeof actionData?.initialValue?.password === "string"
-          ? actionData?.initialValue?.password
-          : "",
+      password: "",
       loginRedirect: loginRedirect,
     },
     shouldValidate: "onBlur",

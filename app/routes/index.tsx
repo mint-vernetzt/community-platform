@@ -2,6 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { Roadmap } from "@mint-vernetzt/components/src/organisms/Roadmap";
 import { useState } from "react";
 import {
@@ -19,6 +20,9 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Accordion } from "~/components-next/Accordion";
 import { CountUp } from "~/components-next/CountUp";
+import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
+import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
+import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
 import { H1 } from "~/components/legacy/Heading/Heading";
 import { RichText } from "~/components/legacy/Richtext/RichText";
 import { detectLanguage } from "~/i18n.server";
@@ -26,18 +30,13 @@ import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { login } from "./login/index.server";
+import { createLoginSchema } from "./login/index.shared";
 import {
   getEventCount,
   getOrganizationCount,
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
-import { ShowPasswordButton } from "~/components-next/ShowPasswordButton";
-import { PublicVisibility } from "~/components-next/icons/PublicVisibility";
-import { PrivateVisibility } from "~/components-next/icons/PrivateVisibility";
-import { createLoginSchema } from "./login/index.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -59,15 +58,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventCount = await getEventCount();
   const projectCount = await getProjectCount();
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     profileCount,
     organizationCount,
     eventCount,
     projectCount,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -86,7 +82,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (submission.status !== "success") {
-    return submission.reply();
+    const reply = submission.reply();
+    const replyWithoutPassword = {
+      ...reply,
+      initialValue: {
+        loginRedirect: submission.payload.loginRedirect.toString(),
+        email: submission.payload.email.toString(),
+        password: "", // Don't return password to client
+      },
+    };
+    return replyWithoutPassword;
   }
 
   if (typeof submission.value.loginRedirect !== "undefined") {
@@ -103,15 +108,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const [urlSearchParams] = useSearchParams();
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
+
   const [loginForm, loginFields] = useForm({
-    id: `login-${currentTimestamp}`,
+    id: "login-form",
     constraint: getZodConstraint(createLoginSchema(locales.route)),
     defaultValue: {
       email:
@@ -137,9 +143,9 @@ export default function Index() {
 
   return (
     <>
-      <section className="bg-[linear-gradient(358.45deg,_#FFFFFF_12.78%,_rgba(255,255,255,0.4)_74.48%,_rgba(255,255,255,0.4)_98.12%)]">
+      <section className="bg-[linear-gradient(358.45deg,#FFFFFF_12.78%,rgba(255,255,255,0.4)_74.48%,rgba(255,255,255,0.4)_98.12%)]">
         <div className="py-16 @lg:py-20 relative overflow-hidden min-h-[calc(100dvh-76px)] lg:min-h-[calc(100dvh-80px)] @md:flex @md:items-center">
-          <div className="absolute top-[50%] left-0 -ml-[250px] mt-[200px] hidden @lg:block">
+          <div className="absolute top-[50%] left-0 -ml-62.5 mt-50 hidden @lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="579"
@@ -153,7 +159,7 @@ export default function Index() {
             </svg>
           </div>
 
-          <div className="absolute top-[-80px] left-1/2 ml-[400px] hidden @lg:block">
+          <div className="absolute -top-20 left-1/2 ml-100 hidden @lg:block">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="945"
@@ -171,7 +177,7 @@ export default function Index() {
             <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
               <div className="@md:col-start-1 @md:col-span-7 @xl:col-start-2 @xl:col-span-5 @md:flex @md:items-center">
                 <div>
-                  <H1 className="text-center @sm:text-left text-primary-600 text-7xl font-black leading-[52px]">
+                  <H1 className="text-center @sm:text-left text-primary-600 text-7xl font-black leading-13">
                     {locales.route.welcome}
                   </H1>
                   <p className="mt-8 mb-8 @lg:mb-0 text-primary-600 font-semibold leading-5">
@@ -409,7 +415,7 @@ export default function Index() {
       </section>
 
       <section className="py-16 @lg:py-24 relative bg-accent-100">
-        <div id="intro" className="absolute -top-[76px] xl:-top-20" />
+        <div id="intro" className="absolute -top-19 xl:-top-20" />
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="@md:grid @md:grid-cols-12 @md:gap-6 @lg:gap-8">
             <div className="@md:col-start-2 @md:col-span-10 @xl:col-start-3 @xl:col-span-8">
@@ -447,7 +453,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className="pt-16 pb-10 @md:pt-20 @md:pb-[50px] @lg:pt-24 @lg:pb-[60px] relative bg-primary-600">
+      <section className="pt-16 pb-10 @md:pt-20 @md:pb-12.5 @lg:pt-24 @lg:pb-15 relative bg-primary-600">
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="w-full flex flex-col items-center gap-12">
             <h2 className="text-center mb-0 text-4xl font-semibold leading-9 text-neutral-50 subpixel-antialiased uppercase">
@@ -455,7 +461,7 @@ export default function Index() {
             </h2>
             <div className="flex flex-col @md:flex-row gap-8 @lg:gap-24 @xl:gap-44">
               <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
+                <p className="text-neutral-50 text-[54px] font-bold leading-13">
                   <CountUp
                     end={loaderData.profileCount}
                     enableScrollSpy={true}
@@ -464,12 +470,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.profiles}
                 </p>
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
+                <p className="text-neutral-50 text-[54px] font-bold leading-13">
                   <CountUp
                     end={loaderData.organizationCount}
                     enableScrollSpy={true}
@@ -478,12 +484,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.organizations}
                 </p>
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
+                <p className="text-neutral-50 text-[54px] font-bold leading-13">
                   <CountUp
                     end={loaderData.eventCount}
                     enableScrollSpy={true}
@@ -492,12 +498,12 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.events}
                 </p>
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
-                <p className="text-neutral-50 text-[54px] font-bold leading-[52px]">
+                <p className="text-neutral-50 text-[54px] font-bold leading-13">
                   <CountUp
                     end={loaderData.projectCount}
                     enableScrollSpy={true}
@@ -506,7 +512,7 @@ export default function Index() {
                     separator="."
                   />
                 </p>
-                <p className="text-neutral-50 text-2xl font-bold leading-[26px]">
+                <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.projects}
                 </p>
               </div>
@@ -521,7 +527,7 @@ export default function Index() {
       <Roadmap locales={locales} />
 
       <section className="flex flex-col items-center gap-12 w-full py-16 @md:py-24 @xl:py-32 px-4 @md:px-20 @xl:px-36 bg-accent-100">
-        <div className="max-w-[852px]">
+        <div className="max-w-213">
           <h2 className="mb-12 text-center subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9 uppercase">
             {locales.route.content.more.headline}
           </h2>
@@ -573,7 +579,7 @@ export default function Index() {
         </Button>
       </section>
       <section className="w-full flex flex-col items-center bg-neutral-50 py-16 px-4 @md:px-10 @xl:px-16 relative">
-        <div className="absolute -top-[420px] right-0 hidden @xl:block">
+        <div className="absolute -top-105 right-0 hidden @xl:block">
           <svg
             width="174"
             height="665"
@@ -587,7 +593,7 @@ export default function Index() {
             />
           </svg>
         </div>
-        <div className="absolute -top-[436px] right-0 hidden @xl:block">
+        <div className="absolute -top-109 right-0 hidden @xl:block">
           <svg
             width="186"
             height="722"
@@ -602,10 +608,10 @@ export default function Index() {
             />
           </svg>
         </div>
-        <h2 className="mb-[42px] subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9 uppercase">
+        <h2 className="mb-10.5 subpixel-antialiased text-primary-600 text-4xl font-semibold leading-9 uppercase">
           {locales.route.content.faq.headline}
         </h2>
-        <div className="w-full mb-8 @md:mb-14 @xl:mb-[88px]">
+        <div className="w-full mb-8 @md:mb-14 @xl:mb-22">
           <Accordion>
             <Accordion.Item id="whatIsStem" key="whatIsStem">
               {locales.faq.stemEducation.qAndAs.whatIsStem.question}
