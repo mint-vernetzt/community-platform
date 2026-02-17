@@ -69,6 +69,7 @@ import {
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
 import { getFormPersistenceTimestamp } from "~/utils.server";
+import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -91,7 +92,10 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.data.bio === null && loaderData.data.background === null) {
+  if (
+    hasContent(loaderData.data.bio) === false &&
+    hasContent(loaderData.data.background) === false
+  ) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${
@@ -123,7 +127,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.data.bio === null) {
+  if (hasContent(loaderData.data.bio) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${
@@ -153,7 +157,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
       },
     ];
   }
-  if (loaderData.data.background === null) {
+  if (hasContent(loaderData.data.background) === false) {
     return [
       {
         title: `MINTvernetzt Community Plattform | ${
@@ -369,7 +373,6 @@ export const action = async (args: ActionFunctionArgs) => {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
@@ -405,7 +408,6 @@ export const action = async (args: ActionFunctionArgs) => {
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
   } else {
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
@@ -475,7 +477,7 @@ export default function Index() {
   const Avatar = useCallback(
     () => (
       <div className="h-36 w-36 bg-neutral-600 text-white text-6xl flex items-center justify-center overflow-hidden rounded-full">
-        {avatar !== null ? (
+        {hasContent(avatar) ? (
           <MVAvatar
             avatar={avatar}
             blurredAvatar={blurredAvatar}
@@ -497,14 +499,14 @@ export default function Index() {
   const Background = useCallback(
     () => (
       <div className="w-full bg-yellow-100 rounded-md overflow-hidden">
-        {background !== null ? (
+        {hasContent(background) ? (
           <Image
             src={background}
             alt={locales.route.images.currentBackground}
             blurredSrc={blurredBackground}
           />
         ) : (
-          <div className="w-[300px] min-h-[108px]" />
+          <div className="w-75 min-h-27" />
         )}
       </div>
     ),
@@ -512,15 +514,15 @@ export default function Index() {
   );
 
   const hasFutureEvents =
-    loaderData.futureEvents.teamMemberOfEvents.length > 0 ||
-    loaderData.futureEvents.contributedEvents.length > 0 ||
-    loaderData.futureEvents.participatedEvents.length > 0 ||
-    loaderData.futureEvents.administeredEvents.length > 0;
+    hasContent(loaderData.futureEvents.teamMemberOfEvents) ||
+    hasContent(loaderData.futureEvents.contributedEvents) ||
+    hasContent(loaderData.futureEvents.participatedEvents) ||
+    hasContent(loaderData.futureEvents.administeredEvents);
   const hasPastEvents =
-    loaderData.pastEvents.teamMemberOfEvents.length > 0 ||
-    loaderData.pastEvents.contributedEvents.length > 0 ||
-    loaderData.pastEvents.participatedEvents.length > 0 ||
-    loaderData.pastEvents.administeredEvents.length > 0;
+    hasContent(loaderData.pastEvents.teamMemberOfEvents) ||
+    hasContent(loaderData.pastEvents.contributedEvents) ||
+    hasContent(loaderData.pastEvents.participatedEvents) ||
+    hasContent(loaderData.pastEvents.administeredEvents);
 
   const previousLocation = usePreviousLocation();
   const navigate = useNavigate();
@@ -550,9 +552,9 @@ export default function Index() {
         </BackButton>
       </section>
       <section className="hidden @md:block w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl">
-        <div className="rounded-3xl relative overflow-hidden bg-yellow-100 w-full aspect-[31/10]">
+        <div className="rounded-3xl relative overflow-hidden bg-yellow-100 w-full aspect-31/10">
           <div className="w-full h-full">
-            {background !== null ? (
+            {hasContent(background) ? (
               <Image
                 src={background}
                 alt={fullName}
@@ -766,8 +768,7 @@ export default function Index() {
                         <li key={service} className="flex-auto px-1 mb-2">
                           <ExternalServiceIcon
                             service={service}
-                            // TODO: can this type assertion be removed and proofen by code?
-                            url={loaderData.data[service] as string}
+                            url={loaderData.data[service]}
                           />
                         </li>
                       );
@@ -778,27 +779,20 @@ export default function Index() {
                 </ul>
               ) : null}
 
-              {loaderData.data.createdAt !== undefined ? (
-                <>
-                  <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
+              <hr className="divide-y divide-neutral-400 mt-8 mb-6" />
 
-                  <p className="text-xs mb-4 text-center">
-                    {insertParametersIntoLocale(
-                      locales.route.profile.existsSince,
-                      {
-                        timestamp: utcToZonedTime(
-                          loaderData.data.createdAt,
-                          "Europe/Berlin"
-                        ).toLocaleDateString("de-De", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        }),
-                      }
-                    )}
-                  </p>
-                </>
-              ) : null}
+              <p className="text-xs mb-4 text-center">
+                {insertParametersIntoLocale(locales.route.profile.existsSince, {
+                  timestamp: utcToZonedTime(
+                    loaderData.data.createdAt,
+                    "Europe/Berlin"
+                  ).toLocaleDateString("de-De", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  }),
+                })}
+              </p>
             </div>
           </div>
 
@@ -834,7 +828,7 @@ export default function Index() {
                 additionalClassNames="mb-6"
               />
             ) : null}
-            {loaderData.data.areas.length > 0 ? (
+            {hasContent(loaderData.data.areas) ? (
               <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
                 <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 mb-2 @lg:mb-0 @lg:leading-6">
                   {locales.route.profile.activityAreas}
@@ -846,7 +840,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.skills.length > 0 ? (
+            {hasContent(loaderData.data.skills) ? (
               <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
                 <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 mb-2 @lg:mb-0">
                   {locales.route.profile.competences}
@@ -858,7 +852,7 @@ export default function Index() {
               </div>
             ) : null}
 
-            {loaderData.data.interests.length > 0 ? (
+            {hasContent(loaderData.data.interests) ? (
               <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
                 <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 mb-2 @lg:mb-0">
                   {locales.route.profile.interests}
@@ -868,7 +862,7 @@ export default function Index() {
                 </div>
               </div>
             ) : null}
-            {loaderData.data.offers.length > 0 ? (
+            {hasContent(loaderData.data.offers) ? (
               <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
                 <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 my-2 @lg:mb-0">
                   {locales.route.profile.offer}
@@ -898,7 +892,7 @@ export default function Index() {
                 </Chip.Container>
               </div>
             ) : null}
-            {loaderData.data.seekings.length > 0 ? (
+            {hasContent(loaderData.data.seekings) ? (
               <div className="flex mb-6 font-semibold flex-col @lg:flex-row">
                 <div className="@lg:basis-32 @lg:shrink-0 @lg:grow-0 text-xs @lg:text-sm leading-4 @lg:leading-6 my-2 @lg:mb-0">
                   {locales.route.profile.lookingFor}
@@ -929,13 +923,13 @@ export default function Index() {
               </div>
             ) : null}
 
-            {loaderData.data.memberOf.length > 0 ||
+            {hasContent(loaderData.data.memberOf) ||
             loaderData.mode === "owner" ? (
               <>
                 <div className="flex flex-row flex-nowrap mb-6 mt-14 items-center relative">
                   <div
                     id="organizations"
-                    className="absolute -top-[76px] xl:-top-20"
+                    className="absolute -top-19 xl:-top-20"
                   />
                   <div className="flex-auto pr-4">
                     <h3 className="mb-0 font-bold">
@@ -954,7 +948,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.memberOf.length > 0 ? (
+                {hasContent(loaderData.data.memberOf) ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.memberOf.map((relation) => (
                       <OrganizationCard
@@ -973,7 +967,7 @@ export default function Index() {
                 ) : null}
               </>
             ) : null}
-            {loaderData.data.teamMemberOfProjects.length > 0 ||
+            {hasContent(loaderData.data.teamMemberOfProjects) ||
             loaderData.mode === "owner" ? (
               <>
                 <div
@@ -997,10 +991,9 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.data.teamMemberOfProjects.length > 0 ? (
+                {hasContent(loaderData.data.teamMemberOfProjects) ? (
                   <div className="flex flex-wrap -mx-3 items-stretch">
                     {loaderData.data.teamMemberOfProjects.map((relation) => (
-                      // TODO: Project Card
                       <div
                         key={relation.project.slug}
                         data-testid="gridcell"
@@ -1012,8 +1005,7 @@ export default function Index() {
                           prefetch="intent"
                         >
                           <div className="w-full flex items-center flex-row">
-                            {relation.project.logo !== "" &&
-                            relation.project.logo !== null ? (
+                            {hasContent(relation.project.logo) ? (
                               <div className="h-16 w-16 flex flex-initial items-center justify-center relative shrink-0 rounded-full overflow-hidden">
                                 <MVAvatar
                                   logo={relation.project.logo}
@@ -1031,8 +1023,9 @@ export default function Index() {
                               <H3 like="h4" className="text-xl mb-1">
                                 {relation.project.name}
                               </H3>
-                              {relation.project.responsibleOrganizations
-                                .length > 0 ? (
+                              {hasContent(
+                                relation.project.responsibleOrganizations
+                              ) ? (
                                 <p className="font-bold text-sm">
                                   {relation.project.responsibleOrganizations
                                     .map(
@@ -1079,7 +1072,7 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {loaderData.futureEvents.administeredEvents.length > 0 ? (
+                {hasContent(loaderData.futureEvents.administeredEvents) ? (
                   <>
                     <h6 id="admin-future-events" className="mb-4 font-bold">
                       {locales.route.section.event.admin}
@@ -1105,7 +1098,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1116,8 +1109,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1140,9 +1132,10 @@ export default function Index() {
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
 
-                                    {event.participantLimit === null &&
+                                    {hasContent(event.participantLimit) ===
+                                      false &&
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                       event.participantLimit -
                                         event._count.participants >
                                         0 &&
@@ -1153,7 +1146,7 @@ export default function Index() {
                                         locales.route.section.event.seatsFree
                                       }`}
 
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                     event.participantLimit -
                                       event._count.participants <=
                                       0 ? (
@@ -1173,7 +1166,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -1266,7 +1259,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.futureEvents.teamMemberOfEvents.length > 0 ? (
+                {hasContent(loaderData.futureEvents.teamMemberOfEvents) ? (
                   <>
                     <h6
                       id="team-member-future-events"
@@ -1295,7 +1288,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1306,8 +1299,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1329,9 +1321,10 @@ export default function Index() {
                                         })() + " | "
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
-                                    {event.participantLimit === null &&
+                                    {hasContent(event.participantLimit) ===
+                                      false &&
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                       event.participantLimit -
                                         event._count.participants >
                                         0 &&
@@ -1342,7 +1335,7 @@ export default function Index() {
                                         locales.route.section.event.seatsFree
                                       }`}
 
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                     event.participantLimit -
                                       event._count.participants <=
                                       0 ? (
@@ -1362,7 +1355,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -1441,7 +1434,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.futureEvents.contributedEvents.length > 0 ? (
+                {hasContent(loaderData.futureEvents.contributedEvents) ? (
                   <>
                     <h6
                       id="future-contributed-events"
@@ -1470,7 +1463,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1481,8 +1474,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1504,9 +1496,10 @@ export default function Index() {
                                         })() + " | "
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
-                                    {event.participantLimit === null &&
+                                    {hasContent(event.participantLimit) ===
+                                      false &&
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                       event.participantLimit -
                                         event._count.participants >
                                         0 &&
@@ -1517,7 +1510,7 @@ export default function Index() {
                                         locales.route.section.event.seatsFree
                                       }`}
 
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                     event.participantLimit -
                                       event._count.participants <=
                                       0 ? (
@@ -1537,7 +1530,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -1610,7 +1603,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.futureEvents.participatedEvents.length > 0 ? (
+                {hasContent(loaderData.futureEvents.participatedEvents) ? (
                   <>
                     <h6
                       id="future-participated-events"
@@ -1639,7 +1632,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1650,8 +1643,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1673,9 +1665,10 @@ export default function Index() {
                                         })() + " | "
                                       : ""}
                                     {getDuration(startTime, endTime, language)}
-                                    {event.participantLimit === null &&
+                                    {hasContent(event.participantLimit) ===
+                                      false &&
                                       ` | ${locales.route.section.event.unlimitedSeats}`}
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                       event.participantLimit -
                                         event._count.participants >
                                         0 &&
@@ -1686,7 +1679,7 @@ export default function Index() {
                                         locales.route.section.event.seatsFree
                                       }`}
 
-                                    {event.participantLimit !== null &&
+                                    {hasContent(event.participantLimit) &&
                                     event.participantLimit -
                                       event._count.participants <=
                                       0 ? (
@@ -1706,7 +1699,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -1785,7 +1778,7 @@ export default function Index() {
                     </h3>
                   </div>
                 </div>
-                {loaderData.pastEvents.administeredEvents.length > 0 ? (
+                {hasContent(loaderData.pastEvents.administeredEvents) ? (
                   <>
                     <h6 id="past-admin-events" className="mb-4 font-bold">
                       {locales.route.section.event.admin}
@@ -1811,7 +1804,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1822,8 +1815,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1849,7 +1841,7 @@ export default function Index() {
                                   <h4 className="line-clamp-1 font-bold text-base m-0">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="@lg:line-clamp-1 text-xs mt-1">
                                       {event.subline}
                                     </p>
@@ -1915,7 +1907,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.pastEvents.teamMemberOfEvents.length > 0 ? (
+                {hasContent(loaderData.pastEvents.teamMemberOfEvents) ? (
                   <>
                     <h6 id="past-team-member-events" className="mb-4 font-bold">
                       {locales.route.section.event.team}
@@ -1941,7 +1933,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -1952,8 +1944,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -1979,7 +1970,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -2030,7 +2021,7 @@ export default function Index() {
                   </>
                 ) : null}
 
-                {loaderData.pastEvents.contributedEvents.length > 0 ? (
+                {hasContent(loaderData.pastEvents.contributedEvents) ? (
                   <>
                     <h6 id="past-contributed-events" className="mb-4 font-bold">
                       {locales.route.section.event.speaker}
@@ -2056,7 +2047,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -2067,8 +2058,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -2094,7 +2084,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
@@ -2141,7 +2131,7 @@ export default function Index() {
                     </div>
                   </>
                 ) : null}
-                {loaderData.pastEvents.participatedEvents.length > 0 ? (
+                {hasContent(loaderData.pastEvents.participatedEvents) ? (
                   <>
                     <h6
                       id="past-participated-events"
@@ -2170,7 +2160,7 @@ export default function Index() {
                                 to={`/event/${event.slug}/detail/about`}
                                 prefetch="intent"
                               >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-[3/2]">
+                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
                                   <div className="w-36 h-full relative">
                                     <Image
                                       src={event.background}
@@ -2181,8 +2171,7 @@ export default function Index() {
                                 </div>
                                 <div className="px-4 py-4">
                                   <p className="text-xs mb-1">
-                                    {/* TODO: Display icons (see figma) */}
-                                    {event.stage !== null
+                                    {hasContent(event.stage)
                                       ? (() => {
                                           let title;
                                           if (
@@ -2208,7 +2197,7 @@ export default function Index() {
                                   <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
                                     {event.name}
                                   </h4>
-                                  {event.subline !== null ? (
+                                  {hasContent(event.subline) ? (
                                     <p className="text-xs mt-1 @lg:line-clamp-1">
                                       {event.subline}
                                     </p>
