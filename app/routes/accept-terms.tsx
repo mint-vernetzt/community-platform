@@ -27,7 +27,6 @@ import { acceptTerms } from "./accept-terms.server";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { Checkbox } from "~/components-next/Checkbox";
 import { acceptTermsSchema } from "./accept-terms.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -46,8 +45,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       }
       const language = await detectLanguage(request);
       const locales = languageModuleMap[language]["accept-terms"];
-      const currentTimestamp = getFormPersistenceTimestamp();
-      return { profile, locales, currentTimestamp };
+      return { profile, locales };
     }
   }
   return redirect("/");
@@ -79,7 +77,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function AcceptTerms() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -87,7 +85,7 @@ export default function AcceptTerms() {
   const redirectTo = urlSearchParams.get("redirect_to");
 
   const [acceptTermsForm, acceptTermsFields] = useForm({
-    id: `accept-terms-${currentTimestamp}`,
+    id: "accept-terms-form",
     constraint: getZodConstraint(acceptTermsSchema),
     defaultValue: {
       redirectTo: redirectTo,
