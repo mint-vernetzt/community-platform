@@ -317,7 +317,7 @@ export const ErrorBoundary = () => {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "flex min-h-dvh break-words antialiased overflow-x-hidden",
+    "flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
     mainMenuIsOpen !== null &&
       mainMenuIsOpen !== "false" &&
       "overflow-y-hidden xl:overflow-y-visible"
@@ -393,7 +393,7 @@ export const ErrorBoundary = () => {
             />
             <main className="w-full h-full @md:bg-neutral-50">
               {/* Content */}
-              <section className="mx-auto @lg:px-6 max-w-screen-2xl mb-8 @lg:mb-16">
+              <section className="mx-auto @lg:px-6 max-w-2xl mb-8 @lg:mb-16">
                 <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
                   {hasRootLoaderData
                     ? rootLoaderData.locales.route.root.errorBoundary.title
@@ -467,7 +467,7 @@ export const ErrorBoundary = () => {
                     </Button>
                   </div>
                   <div className="py-6 px-4 @lg:px-6 flex flex-col gap-4 @sm:border border-neutral-200 @sm:bg-white rounded-2xl w-full @sm:w-fit @sm:max-w-96">
-                    <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                    <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                       {hasRootLoaderData
                         ? rootLoaderData.locales.route.root.errorBoundary
                             .errorDetails.headline
