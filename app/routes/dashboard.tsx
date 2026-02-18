@@ -57,7 +57,6 @@ import {
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 import {
   enhanceEventsWithParticipationStatus,
   getEventAdminInvites,
@@ -605,8 +604,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     communityCounter,
     profiles,
@@ -624,7 +621,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
     abilities,
     profile,
-    currentTimestamp,
     tags,
     entities: enhancedEntities,
     preferredExploreOrganizationsView,
@@ -655,7 +651,6 @@ export const action = async (args: ActionFunctionArgs) => {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
@@ -693,7 +688,6 @@ export const action = async (args: ActionFunctionArgs) => {
     toast = result.toast;
     redirectUrl = result.redirectUrl || request.url;
   } else {
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
@@ -1697,7 +1691,6 @@ function Dashboard() {
             maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
             modalSearchParam="modal-logo"
             locales={loaderData.imageCropperLocales}
-            currentTimestamp={loaderData.currentTimestamp}
           >
             <Avatar
               firstName={loaderData.profile.firstName}

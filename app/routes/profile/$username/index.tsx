@@ -55,6 +55,7 @@ import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { hasContent } from "~/utils.shared";
 import {
   disconnectImage,
   getProfileByUsername,
@@ -68,8 +69,6 @@ import {
   sortEvents,
   splitEventsIntoFutureAndPast,
 } from "./utils.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -332,8 +331,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       ),
   };
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     mode,
     data: profileWithoutEvents,
@@ -347,7 +344,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
     locales,
     language,
-    currentTimestamp,
   };
 };
 
@@ -586,7 +582,6 @@ export default function Index() {
                     maxTargetHeight={MaxImageSizes.Background.height}
                     modalSearchParam="modal-background"
                     locales={locales}
-                    currentTimestamp={loaderData.currentTimestamp}
                   >
                     <Background />
                   </ImageCropper>
@@ -641,7 +636,6 @@ export default function Index() {
                           maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                           modalSearchParam="modal-avatar"
                           locales={locales}
-                          currentTimestamp={loaderData.currentTimestamp}
                         >
                           <Avatar />
                         </ImageCropper>

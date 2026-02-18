@@ -50,6 +50,7 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { hasContent } from "~/utils.shared";
 import { deriveProjectMode } from "../utils.server";
 import {
   disconnectImage,
@@ -58,8 +59,6 @@ import {
 } from "./detail.server";
 import { publishSchema } from "./detail.shared";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -290,8 +289,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     blurredLogo,
   };
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     project: enhancedProject,
     mode,
@@ -300,7 +297,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
-    currentTimestamp,
   };
 };
 
@@ -419,7 +415,7 @@ function ProjectDetail() {
   }
 
   const [publishForm, publishFields] = useForm({
-    id: `publish-form-${loaderData.currentTimestamp}`,
+    id: "publish-form",
     constraint: getZodConstraint(publishSchema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -606,7 +602,6 @@ function ProjectDetail() {
                 maxTargetHeight={MaxImageSizes.Background.height}
                 modalSearchParam="modal-background"
                 locales={locales}
-                currentTimestamp={loaderData.currentTimestamp}
                 redirectTo={location.pathname}
               >
                 {project.background !== undefined ? (
@@ -635,7 +630,6 @@ function ProjectDetail() {
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 modalSearchParam="modal-logo"
                 locales={locales}
-                currentTimestamp={loaderData.currentTimestamp}
                 redirectTo={location.pathname}
               >
                 <Avatar
