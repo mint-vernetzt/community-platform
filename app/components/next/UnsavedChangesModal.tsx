@@ -8,7 +8,7 @@ import {
   useSubmit,
 } from "react-router";
 import { Modal } from "~/components-next/Modal";
-import { extendSearchParams, LastTimeStamp } from "~/lib/utils/searchParams";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export function UnsavedChangesModal(props: {
   searchParam: string;
@@ -19,9 +19,8 @@ export function UnsavedChangesModal(props: {
     proceed: string;
     cancel: string;
   };
-  lastTimeStamp: number;
 }) {
-  const { searchParam, formMetadataToCheck, locales, lastTimeStamp } = props;
+  const { searchParam, formMetadataToCheck, locales } = props;
   let forms = formMetadataToCheck;
   if (Array.isArray(forms) === false) {
     forms = [forms];
@@ -48,7 +47,6 @@ export function UnsavedChangesModal(props: {
       const newSearchParams = extendSearchParams(searchParams, {
         addOrReplace: {
           [searchParam]: "true",
-          [LastTimeStamp]: `${lastTimeStamp}`,
         },
       });
       void submit(newSearchParams, { method: "get" });
@@ -73,6 +71,7 @@ export function UnsavedChangesModal(props: {
             : `${location.pathname}?${searchParamsWithoutModal.toString()}`
         }
         hidden
+        preventScrollReset
       />
       <Modal searchParam={`modal-unsaved-changes`}>
         <Modal.Title>{locales.title}</Modal.Title>

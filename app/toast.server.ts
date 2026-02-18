@@ -74,36 +74,22 @@ export async function redirectWithToast(
     ...redirectOptions?.init,
     headers: combineHeaders(
       redirectOptions?.init?.headers,
-      await createToastHeaders(
-        toast.message,
-        toast.key,
-        toast.id,
-        toast.level,
-        toast.isRichtext,
-        toast.delayInMillis
-      )
+      await createToastHeaders(toast)
     ),
   });
 }
 
-async function createToastHeaders(
-  message: string,
-  key: string,
-  id?: string,
-  level?: ToastLevel,
-  isRichtext?: boolean,
-  delayInMillis?: number
-) {
+export async function createToastHeaders(toast: Toast) {
   const session = await TOAST_SESSION_STORAGE.getSession();
-  const toast = {
-    message,
-    id,
-    key,
-    level: level ?? "positive",
-    isRichtext: isRichtext ?? false,
-    delayInMillis: delayInMillis ?? 5000,
+  const transformedToast = {
+    message: toast.message,
+    id: toast.id,
+    key: toast.key,
+    level: toast.level ?? "positive",
+    isRichtext: toast.isRichtext ?? false,
+    delayInMillis: toast.delayInMillis ?? 5000,
   };
-  session.flash(TOAST_KEY, toast);
+  session.flash(TOAST_KEY, transformedToast);
   const cookie = await TOAST_SESSION_STORAGE.commitSession(session);
   return new Headers({ "set-cookie": cookie });
 }
