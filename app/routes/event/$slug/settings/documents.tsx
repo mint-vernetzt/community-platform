@@ -52,7 +52,6 @@ import {
   disconnectAttachmentSchema,
   DOCUMENT_DESCRIPTION_MAX_LENGTH,
 } from "./documents.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -74,12 +73,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(slug);
   invariantResponse(event, locales.route.error.eventNotFound, { status: 404 });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     event: event,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -97,7 +93,7 @@ export const action = async (args: ActionFunctionArgs) => {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
+  // TODO: Above function should assert the session user is not null to avoid below check that has already been done -> The function itself cannot know if we actually redirected afterwards, so the type is imho correct. If the redirect would happen inside the function asserting would be correct (maybe even happens automatically)
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/documents"];
@@ -106,7 +102,6 @@ export const action = async (args: ActionFunctionArgs) => {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
@@ -139,7 +134,6 @@ export const action = async (args: ActionFunctionArgs) => {
     submission = result.submission;
     toast = result.toast;
   } else {
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
@@ -171,7 +165,7 @@ function Documents() {
     SelectedFile[]
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
-    id: `upload-document-form-${loaderData.currentTimestamp}`,
+    id: "upload-document-form",
     constraint: getZodConstraint(createDocumentUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -195,7 +189,7 @@ function Documents() {
 
   // Edit document form
   const [editDocumentForm, editDocumentFields] = useForm({
-    id: `edit-document-form-${loaderData.currentTimestamp}`,
+    id: "edit-document-form",
     constraint: getZodConstraint(createEditDocumentSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
@@ -213,7 +207,7 @@ function Documents() {
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_disconnectDocumentForm, disconnectDocumentFields] = useForm({
-    id: `disconnect-document-form-${loaderData.currentTimestamp}`,
+    id: "disconnect-document-form",
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
