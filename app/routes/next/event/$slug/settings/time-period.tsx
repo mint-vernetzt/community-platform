@@ -213,7 +213,7 @@ export default function TimePeriod() {
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      actionData,
+      submissionResult: actionData,
       form,
     },
     skipRevalidation:

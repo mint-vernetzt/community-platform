@@ -156,7 +156,7 @@ function ChangeURL() {
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      actionData,
+      submissionResult: actionData,
       form,
     },
     skipRevalidation:

@@ -186,7 +186,7 @@ export default function Details() {
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      actionData,
+      submissionResult: actionData,
       form,
     },
     skipRevalidation:

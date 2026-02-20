@@ -303,7 +303,7 @@ export default function Location() {
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      actionData,
+      submissionResult: actionData,
       form,
     },
     skipRevalidation:

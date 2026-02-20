@@ -7,7 +7,7 @@ export function useFormRevalidationAfterSuccess<
 >(options: {
   deps: {
     navigation: Navigation;
-    actionData: T;
+    submissionResult: T;
     form: FormMetadata<any, string[]>;
   };
   skipRevalidation?: boolean;
@@ -18,19 +18,19 @@ export function useFormRevalidationAfterSuccess<
     redirectToSameRouteOnDifferentURL = false,
     deps,
   } = options;
-  const { navigation, actionData, form } = deps;
+  const { navigation, submissionResult, form } = deps;
 
   useEffect(() => {
     if (
       navigation.state === "idle" &&
       (redirectToSameRouteOnDifferentURL ||
-        (typeof actionData !== "undefined" &&
-          actionData.status === "success")) &&
+        (typeof submissionResult !== "undefined" &&
+          submissionResult.status === "success")) &&
       skipRevalidation === false
     ) {
       console.log("Revalidating form after successful submission");
       form.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation.state, actionData, skipRevalidation]);
+  }, [navigation.state, submissionResult, skipRevalidation]);
 }
