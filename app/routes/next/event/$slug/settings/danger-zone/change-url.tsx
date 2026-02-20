@@ -26,7 +26,7 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
+import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -118,7 +118,7 @@ export async function action(args: ActionFunctionArgs) {
   const url = new URL(request.url);
   url.pathname = `/next/event/${submission.value.slug}/settings/danger-zone/change-url`;
 
-  return redirectWithToast(url.toString(), {
+  return redirectWithToast(`${url.pathname}?${Deep}=true`, {
     id: "change-url-success",
     key: `change-url-success-${Date.now()}`,
     message: locales.route.success,
