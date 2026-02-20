@@ -6,6 +6,7 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { captureException } from "@sentry/node";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -20,18 +21,16 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
 import {
   getOrganizationWebSocial,
   updateOrganizationWebSocial,
@@ -48,11 +47,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const organization = await getOrganizationWebSocial({ slug, locales });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { organization, currentTimestamp, locales };
+  return { organization, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -100,17 +95,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "update-web-social-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 }
 
 function WebSocial() {
-  const location = useLocation();
-  const { organization, currentTimestamp, locales } =
-    useLoaderData<typeof loader>();
+  const { organization, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -118,8 +114,7 @@ function WebSocial() {
 
   const { organizationVisibility, ...rest } = organization;
   const [form, fields] = useForm({
-    // Use different ids depending on loaderData to sync dirty state
-    id: `web-social-form-${currentTimestamp}`,
+    id: "web-social-form",
     defaultValue: {
       ...rest,
       visibilities: organizationVisibility,
@@ -136,13 +131,26 @@ function WebSocial() {
   });
   const visibilities = fields.visibilities.getFieldset();
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <Section>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={currentTimestamp}
       />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
