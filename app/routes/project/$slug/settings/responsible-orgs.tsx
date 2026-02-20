@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -16,19 +17,20 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { searchOrganizationsSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { Deep, SearchOrganizations } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { searchOrganizations } from "~/routes/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
 import {
   addResponsibleOrganizationToProject,
   getOwnOrganizationSuggestions,
@@ -36,7 +38,6 @@ import {
   removeResponsibleOrganizationFromProject,
 } from "./responsible-orgs.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -74,8 +75,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     project,
     ownOrganizationSuggestions,
@@ -83,7 +82,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     searchedOrganizations,
     submission,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -174,9 +172,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    const toastHeaders = await createToastHeaders(result.toast);
+    return data(
+      { submission: result.submission.reply(), intent: intent },
+      {
+        headers: toastHeaders,
+      }
+    );
   }
-  return { submission: result.submission };
+  return { submission: result.submission.reply(), intent: intent };
 };
 
 function Team() {
@@ -187,7 +191,6 @@ function Team() {
     searchedOrganizations: loaderSearchedOrganizations,
     submission: loaderSubmission,
     locales,
-    currentTimestamp,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
@@ -202,7 +205,7 @@ function Team() {
       ? searchFetcher.data.searchedOrganizations
       : loaderSearchedOrganizations;
   const [searchForm, searchFields] = useForm({
-    id: `search-organizations-${currentTimestamp}`,
+    id: "search-organizations-form",
     defaultValue: {
       [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
@@ -219,29 +222,41 @@ function Team() {
 
   // TODO: Remove this when project responsible organization invites are implemented
   const [addResponsibleOrganizationForm] = useForm({
-    id: `add-responsible-organizations-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "add-responsible-organizations-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("add-responsible-organization-")
+        ? actionData?.submission
+        : null,
   });
 
   const [addOwnOrganizationForm] = useForm({
-    id: `add-own-organization-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "add-own-organization-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("add-responsible-organization-")
+        ? actionData?.submission
+        : null,
   });
 
   // TODO: Implement this when project responsible organization invites are implemented
   // const [inviteResponsibleOrganizationForm] = useForm({
-  //   id: `invite-responsible-organization-${currentTimestamp}`,
-  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  //   id: "invite-responsible-organization-form",
+  //   lastResult: navigation.state === "idle" && actionData?.intent.startsWith("invite-responsible-organization-") ? actionData?.submission : null,
   // });
 
   // const [cancelResponsibleOrganizationInviteForm] = useForm({
-  //   id: `cancel-responsible-organization-invite-${currentTimestamp}`,
-  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  //   id: "cancel-responsible-organization-invite-form",
+  //   lastResult: navigation.state === "idle" && actionData?.intent.startsWith("cancel-responsible-organization-invite-") ? actionData?.submission : null,
   // });
 
   const [removeResponsibleOrganizationForm] = useForm({
-    id: `remove-responsible-organization-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "remove-responsible-organization-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("remove-responsible-organization-")
+        ? actionData?.submission
+        : null,
   });
 
   return (
