@@ -32,7 +32,6 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { register } from "./index.server";
 import { createRegisterSchema } from "./index.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -45,9 +44,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["register/index"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { locales, currentTimestamp };
+  return { locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -76,7 +73,7 @@ export const action = async (args: ActionFunctionArgs) => {
 export default function Register() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -85,7 +82,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [registerForm, registerFields] = useForm({
-    id: `register-${currentTimestamp}`,
+    id: "register-form",
     constraint: getZodConstraint(createRegisterSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,
