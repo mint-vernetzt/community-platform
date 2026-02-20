@@ -29,7 +29,6 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { deleteOrganizationBySlug } from "./delete.server";
 import { createSchema } from "./delete.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -52,12 +51,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     organization,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -142,7 +138,7 @@ function Delete() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-organization-form-${loaderData.currentTimestamp}`,
+    id: "delete-organization-form",
     constraint: getZodConstraint(
       createSchema(locales, loaderData.organization.name)
     ),
