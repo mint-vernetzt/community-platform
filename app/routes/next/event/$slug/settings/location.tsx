@@ -6,11 +6,13 @@ import { captureException } from "@sentry/node";
 import { useState } from "react";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   type LoaderFunctionArgs,
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
   useSearchParams,
 } from "react-router";
@@ -18,35 +20,32 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { TextArea } from "~/components-next/TextArea";
 import BasicStructure from "~/components/next/BasicStructure";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   extendSearchParams,
-  LastTimeStamp,
   UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { redirectWithToast } from "~/toast.server";
-import {
-  getCoordinatesFromAddress,
-  getFormPersistenceTimestamp,
-  sanitizeUserHtml,
-} from "~/utils.server";
+import { createToastHeaders, redirectWithToast } from "~/toast.server";
+import { getCoordinatesFromAddress, sanitizeUserHtml } from "~/utils.server";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   createEventLocationSchema,
   getStageDefaultValue,
   Stages,
 } from "./location.shared";
-import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -82,11 +81,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     stage = event.stage.slug;
   }
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { locales, event: { ...event, stage }, currentTimestamp };
+  return { locales, event: { ...event, stage } };
 };
 
 export async function action(args: ActionFunctionArgs) {
@@ -232,7 +227,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (typeof addressError !== "undefined") {
-    return redirectWithToast(request.url, {
+    const toastHeaders = await createToastHeaders({
       key: "address-error-toast",
       level: "attention",
       message: insertParametersIntoLocale(
@@ -246,13 +241,19 @@ export async function action(args: ActionFunctionArgs) {
       isRichtext: true,
       delayInMillis: 60000,
     });
+    return data(submission.reply(), {
+      headers: toastHeaders,
+    });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "event-location-saved",
     key: `event-location-saved-${Date.now()}`,
     message: locales.route.success,
     level: "positive",
+  });
+  return data(submission.reply(), {
+    headers: toastHeaders,
   });
 }
 
@@ -279,7 +280,7 @@ export default function Location() {
   );
 
   const [form, fields] = useForm({
-    id: `event-location-form-${loaderData.currentTimestamp}`,
+    id: "event-location-form",
     constraint: getZodConstraint(
       createEventLocationSchema(locales.route.validation)
     ),
@@ -297,13 +298,26 @@ export default function Location() {
     lastResult: navigation.state === "idle" ? actionData : undefined,
   });
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={loaderData.currentTimestamp}
       />
       <div className="p-4 lg:p-6">
         <BasicStructure.Container
