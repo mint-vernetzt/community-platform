@@ -28,7 +28,6 @@ export function useFormRevalidationAfterSuccess<
           submissionResult.status === "success")) &&
       skipRevalidation === false
     ) {
-      console.log("Revalidating form after successful submission");
       form.reset();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

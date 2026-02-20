@@ -9,6 +9,7 @@ import { captureException } from "@sentry/node";
 import { useState } from "react";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   type LoaderFunctionArgs,
   redirect,
@@ -24,23 +25,21 @@ import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
 import { VisibilityCheckbox } from "~/components-next/VisibilityCheckbox";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
-import { redirectWithToast } from "~/toast.server";
+import { createToastHeaders } from "~/toast.server";
 import {
   getCoordinatesFromAddress,
-  getFormPersistenceTimestamp,
   sanitizeUserHtml,
   triggerEntityScore,
 } from "~/utils.server";
@@ -150,15 +149,10 @@ export async function loader(args: LoaderFunctionArgs) {
     },
   });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
   return {
     organization: filteredOrganization,
     areaOptions,
     allFocuses,
-    currentTimestamp,
     locales,
   };
 }
@@ -332,7 +326,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   if (typeof addressError !== "undefined") {
-    return redirectWithToast(request.url, {
+    const toastHeaders = await createToastHeaders({
       key: "address-error-toast",
       level: "attention",
       message: insertParametersIntoLocale(
@@ -346,17 +340,22 @@ export async function action(args: ActionFunctionArgs) {
       isRichtext: true,
       delayInMillis: 60000,
     });
+    return data(submission.reply(), {
+      headers: toastHeaders,
+    });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "update-general-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 }
 
 function General() {
-  const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -374,8 +373,7 @@ function General() {
   };
 
   const [form, fields] = useForm({
-    id: `general-form-${loaderData.currentTimestamp}`,
-    // id: "test",
+    id: "general-form",
     constraint: getZodConstraint(createGeneralSchema(locales, organization)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -403,13 +401,26 @@ function General() {
     setSupportedBy(event.currentTarget.value);
   };
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <Section>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={loaderData.currentTimestamp}
       />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.headline}
