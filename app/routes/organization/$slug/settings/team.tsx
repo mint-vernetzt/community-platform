@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -16,11 +17,12 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { searchProfilesSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -28,8 +30,8 @@ import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchProfiles } from "~/routes/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
 import {
   cancelOrganizationTeamMemberInvitation,
   getOrganizationWithTeamMembers,
@@ -37,7 +39,6 @@ import {
   inviteProfileToBeOrganizationTeamMember,
   removeTeamMemberFromOrganization,
 } from "./team.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -70,15 +71,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     organization,
     pendingTeamMemberInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -167,9 +165,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    const toastHeaders = await createToastHeaders(result.toast);
+    return data(
+      { submission: result.submission.reply(), intent: intent },
+      {
+        headers: toastHeaders,
+      }
+    );
   }
-  return { submission: result.submission };
+  return { submission: result.submission.reply(), intent: intent };
 };
 
 function Team() {
@@ -179,7 +183,6 @@ function Team() {
     searchedProfiles: loaderSearchedProfiles,
     submission: loaderSubmission,
     locales,
-    currentTimestamp,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
@@ -194,7 +197,7 @@ function Team() {
       ? searchFetcher.data.searchedProfiles
       : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
-    id: `search-profiles-${currentTimestamp}`,
+    id: "search-profiles-form",
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
@@ -210,18 +213,30 @@ function Team() {
   });
 
   const [inviteTeamMemberForm] = useForm({
-    id: `invite-team-member-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "invite-team-member-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("invite-team-member-")
+        ? actionData?.submission
+        : null,
   });
 
   const [cancelTeamMemberInviteForm] = useForm({
-    id: `cancel-team-member-invite-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "cancel-team-member-invite-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("cancel-team-member-invite-")
+        ? actionData?.submission
+        : null,
   });
 
   const [removeTeamMemberForm] = useForm({
-    id: `remove-team-member-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "remove-team-member-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("remove-team-member-")
+        ? actionData?.submission
+        : null,
   });
 
   return (
