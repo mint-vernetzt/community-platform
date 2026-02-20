@@ -143,7 +143,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   if (submission !== null) {
-    return submission.reply();
+    return { submission: submission.reply(), intent: intent };
   }
   if (toast === null) {
     return redirect(redirectUrl);
@@ -174,7 +174,10 @@ function Documents() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === UPLOAD_INTENT_VALUE
+        ? actionData.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -193,7 +196,10 @@ function Documents() {
     constraint: getZodConstraint(createEditDocumentSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "edit-document"
+        ? actionData.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -211,7 +217,11 @@ function Documents() {
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent === "disconnect-document"
+        ? actionData.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
