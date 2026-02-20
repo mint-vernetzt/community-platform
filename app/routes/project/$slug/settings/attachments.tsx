@@ -52,7 +52,6 @@ import {
   editImage,
   uploadFile,
 } from "./attachments.server";
-import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import {
   createDocumentUploadSchema,
   createEditDocumentSchema,
@@ -63,7 +62,7 @@ import {
   IMAGE_CREDITS_MAX_LENGTH,
   IMAGE_DESCRIPTION_MAX_LENGTH,
 } from "./attachments.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -161,9 +160,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     images,
   };
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { project: enhancedProject, locales, currentTimestamp };
+  return { project: enhancedProject, locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -180,7 +177,7 @@ export const action = async (args: ActionFunctionArgs) => {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-  // TODO: Above function should assert the session user is not null to avoid below check that has already been done
+  // TODO: Above function should assert the session user is not null to avoid below check that has already been done -> The function itself cannot know if we actually redirected afterwards, so the type is imho correct. If the redirect would happen inside the function asserting would be correct (maybe even happens automatically)
   invariantResponse(sessionUser !== null, "Forbidden", { status: 403 });
   const language = await detectLanguage(request);
   const locales =
@@ -190,7 +187,6 @@ export const action = async (args: ActionFunctionArgs) => {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
@@ -232,7 +228,6 @@ export const action = async (args: ActionFunctionArgs) => {
     submission = result.submission;
     toast = result.toast;
   } else {
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "invalid-action",
       key: `${new Date().getTime()}`,
@@ -240,12 +235,18 @@ export const action = async (args: ActionFunctionArgs) => {
       level: "negative",
     });
   }
+  if (submission === null) {
+    if (toast === null) {
+      return redirect(redirectUrl);
+    }
+    return redirectWithToast(redirectUrl, toast);
+  }
 
-  if (submission !== null) {
-    return submission.reply();
+  if (submission.status !== "success") {
+    return { submission: submission.reply(), intent: intent };
   }
   if (toast === null) {
-    return redirect(redirectUrl);
+    return { submission: submission.reply(), intent: intent };
   }
   return redirectWithToast(redirectUrl, toast);
 };
@@ -265,7 +266,7 @@ function Attachments() {
     SelectedFile[]
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
-    id: `upload-document-form-${loaderData.currentTimestamp}`,
+    id: "upload-document-form",
     constraint: getZodConstraint(createDocumentUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -274,7 +275,10 @@ function Attachments() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === UPLOAD_INTENT_VALUE
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -292,7 +296,7 @@ function Attachments() {
     SelectedFile[]
   >([]);
   const [imageUploadForm, imageUploadFields] = useForm({
-    id: `upload-image-form-${loaderData.currentTimestamp}`,
+    id: "upload-image-form",
     constraint: getZodConstraint(createImageUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -301,7 +305,10 @@ function Attachments() {
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === UPLOAD_INTENT_VALUE
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -316,11 +323,14 @@ function Attachments() {
 
   // Edit document form
   const [editDocumentForm, editDocumentFields] = useForm({
-    id: `edit-document-form-${loaderData.currentTimestamp}`,
+    id: "edit-document-form-",
     constraint: getZodConstraint(createEditDocumentSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "edit-document"
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -332,11 +342,14 @@ function Attachments() {
 
   // Edit image form
   const [editImageForm, editImageFields] = useForm({
-    id: `edit-image-form-${loaderData.currentTimestamp}`,
+    id: "edit-image-form",
     constraint: getZodConstraint(createEditImageSchema(locales)),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "edit-image"
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -348,11 +361,15 @@ function Attachments() {
 
   // Disconnect document form
   const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
-    id: `disconnect-document-form-${loaderData.currentTimestamp}`,
+    id: "disconnect-document-form",
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent === "disconnect-document"
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -364,11 +381,14 @@ function Attachments() {
 
   // Disconnect image form
   const [disconnectImageForm, disconnectImageFields] = useForm({
-    id: `disconnect-image-form-${loaderData.currentTimestamp}`,
+    id: "disconnect-image-form",
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "disconnect-image"
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
