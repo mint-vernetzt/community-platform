@@ -481,11 +481,11 @@ export async function updateOrganization(options: {
 
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "manage-organization-toast",
       key: `${new Date().getTime()}`,
@@ -709,11 +709,11 @@ export async function updateJoinNetworkRequest(options: {
 
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "request-to-join-network-toast",
       key: `${new Date().getTime()}`,
@@ -778,14 +778,14 @@ export async function leaveNetwork(options: {
 
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "leave-network-toast",
-      level: "neutral",
+      level: "neutral" as const,
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         locales.route.content.networks.current.leave.success,
@@ -1007,11 +1007,11 @@ export async function updateNetworkMemberInvite(options: {
 
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "add-network-member-toast",
       key: `${new Date().getTime()}`,
@@ -1067,14 +1067,14 @@ export async function removeNetworkMember(options: {
 
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-network-member-toast",
-      level: "neutral",
+      level: "neutral" as const,
       key: `${new Date().getTime()}`,
       message: insertParametersIntoLocale(
         locales.route.content.networkMembers.current.remove.success,
