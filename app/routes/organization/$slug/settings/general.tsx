@@ -193,13 +193,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   const formData = await request.formData();
-  const conformIntent = formData.get("__intent__");
-  if (conformIntent !== null) {
-    const submission = await parseWithZod(formData, {
-      schema: createGeneralSchema(locales, organization),
-    });
-    return submission.reply();
-  }
+
   let addressError;
   const submission = await parseWithZod(formData, {
     schema: () =>

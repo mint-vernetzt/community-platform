@@ -227,14 +227,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let result;
   const formData = await request.formData();
-  // This intent is used for field list manipulation by conform
-  // const conformIntent = formData.get("__intent__");
-  // if (conformIntent !== null) {
-  //   const submission = await parseWithZod(formData, { schema: manageSchema });
-  //   return {
-  //     submission: submission.reply(),
-  //   };
-  // }
+
   const intent = formData.get("intent");
   invariantResponse(
     typeof intent === "string",

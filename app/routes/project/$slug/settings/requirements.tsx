@@ -144,13 +144,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   // Validation
   const formData = await request.formData();
-  const conformIntent = formData.get("__intent__");
-  if (conformIntent !== null) {
-    const submission = await parseWithZod(formData, {
-      schema: createRequirementsSchema(locales),
-    });
-    return submission.reply();
-  }
+
   const submission = await parseWithZod(formData, {
     schema: () =>
       createRequirementsSchema(locales).transform(async (data, ctx) => {
