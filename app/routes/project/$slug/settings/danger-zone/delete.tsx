@@ -29,7 +29,6 @@ import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
 import { deleteProjectBySlug } from "./delete.server";
 import { createSchema } from "./delete.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -50,12 +49,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     status: 404,
   });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     project,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -136,7 +132,7 @@ function Delete() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-project-form-${loaderData.currentTimestamp}`,
+    id: "delete-project-form",
     constraint: getZodConstraint(
       createSchema(locales, loaderData.project.name)
     ),
@@ -161,12 +157,7 @@ function Delete() {
         )}
       </p>
       <p>{locales.content.explanation}</p>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        preventScrollReset
-        autoComplete="off"
-      >
+      <Form {...getFormProps(form)} method="post" autoComplete="off">
         <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <Input
             {...getInputProps(fields.name, { type: "text" })}

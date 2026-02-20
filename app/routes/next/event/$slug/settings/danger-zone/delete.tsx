@@ -159,12 +159,7 @@ function Delete() {
           <span key="strong" className="font-semibold" />,
         ])}
       </Hint>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        preventScrollReset
-        autoComplete="off"
-      >
+      <Form {...getFormProps(form)} method="post" autoComplete="off">
         <Input {...getInputProps(fields.name, { type: "text" })} key="slug">
           <Input.Label htmlFor={fields.name.id}>
             {locales.route.label}

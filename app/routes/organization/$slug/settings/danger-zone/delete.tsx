@@ -163,12 +163,7 @@ function Delete() {
         )}
       </p>
       <p>{locales.content.explanation}</p>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        preventScrollReset
-        autoComplete="off"
-      >
+      <Form {...getFormProps(form)} method="post" autoComplete="off">
         <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <Input
             {...getInputProps(fields.name, { type: "text" })}
