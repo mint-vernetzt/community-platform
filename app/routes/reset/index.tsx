@@ -24,7 +24,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestPasswordChange } from "./index.server";
 import { createRequestPasswordChangeSchema } from "./index.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -38,9 +37,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/index"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { locales, currentTimestamp };
+  return { locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -69,7 +66,7 @@ export const action = async (args: ActionFunctionArgs) => {
 export default function Index() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -77,7 +74,7 @@ export default function Index() {
   const loginRedirect = urlSearchParams.get("login_redirect");
 
   const [requestPasswordChangeForm, requestPasswordChangeFields] = useForm({
-    id: `request-password-change-${currentTimestamp}`,
+    id: "request-password-change-form",
     constraint: getZodConstraint(createRequestPasswordChangeSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,
