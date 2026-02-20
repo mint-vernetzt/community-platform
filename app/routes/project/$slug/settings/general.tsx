@@ -8,6 +8,7 @@ import { Section } from "@mint-vernetzt/components/src/organisms/containers/Sect
 import { captureException } from "@sentry/node";
 import { useState } from "react";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -22,22 +23,18 @@ import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
-import {
-  getCoordinatesFromAddress,
-  getFormPersistenceTimestamp,
-} from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { getCoordinatesFromAddress } from "~/utils.server";
 import { createAreaOptions } from "./general.server";
 import {
   createGeneralSchema,
@@ -121,11 +118,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   const areaOptions = await createAreaOptions(allAreas);
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { project, allFormats, areaOptions, currentTimestamp, locales };
+  return { project, allFormats, areaOptions, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -170,13 +163,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // Validation
   const formData = await request.formData();
-  const conformIntent = formData.get("__intent__");
-  if (conformIntent !== null) {
-    const submission = await parseWithZod(formData, {
-      schema: createGeneralSchema(locales),
-    });
-    return submission.reply();
-  }
   let addressError;
   const submission = await parseWithZod(formData, {
     schema: () =>
@@ -280,7 +266,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (typeof addressError !== "undefined") {
-    return redirectWithToast(request.url, {
+    const toastHeaders = await createToastHeaders({
       key: "address-error-toast",
       level: "attention",
       message: insertParametersIntoLocale(
@@ -294,17 +280,22 @@ export async function action({ request, params }: ActionFunctionArgs) {
       isRichtext: true,
       delayInMillis: 60000,
     });
+    return data(submission.reply(), {
+      headers: toastHeaders,
+    });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "update-general-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.feedback,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 }
 
 function General() {
-  const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -321,7 +312,7 @@ function General() {
   };
 
   const [form, fields] = useForm({
-    id: `general-form-${loaderData.currentTimestamp}`,
+    id: "general-form",
     constraint: getZodConstraint(createGeneralSchema(locales)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -348,13 +339,26 @@ function General() {
     setFurtherFormat(event.currentTarget.value);
   };
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <Section>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={loaderData.currentTimestamp}
       />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}
