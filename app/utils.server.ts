@@ -375,14 +375,3 @@ export function createCSPHeaderOptions(
     .join("; ");
   return `${cspOptions};`;
 }
-
-export function getFormPersistenceTimestamp(lastTimestamp?: string | null) {
-  let timestamp = Date.now();
-  if (lastTimestamp !== undefined && lastTimestamp !== null) {
-    const parsedTimestamp = parseInt(lastTimestamp);
-    if (!isNaN(parsedTimestamp)) {
-      timestamp = parsedTimestamp;
-    }
-  }
-  return timestamp;
-}
