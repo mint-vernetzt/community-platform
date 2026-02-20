@@ -3,6 +3,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   type LoaderFunctionArgs,
   redirect,
@@ -22,10 +23,10 @@ import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
+import { createToastHeaders } from "~/toast.server";
 import { deriveProfileMode } from "../utils.server";
 import { schema } from "./notifications.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -58,12 +59,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     updates: false,
   };
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     profile: { ...profile, notificationSettings },
     locales,
-    currentTimestamp,
   };
 };
 
@@ -96,10 +94,13 @@ export const action = async (args: ActionFunctionArgs) => {
         },
       },
     });
-    return redirectWithToast(request.url, {
+    const toastHeaders = await createToastHeaders({
       id: "notifications-success",
       key: `notifications-success-${Date.now()}`,
       message: locales.success,
+    });
+    return data(submission.reply(), {
+      headers: toastHeaders,
     });
   }
 
@@ -108,12 +109,12 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
   const [form, fields] = useForm({
-    id: `notifications-form-${currentTimestamp}`,
+    id: "notifications-form",
     constraint: getZodConstraint(schema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -126,6 +127,13 @@ function Notifications() {
       return submission;
     },
     lastResult: navigation.state === "idle" ? actionData : undefined,
+  });
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
   });
 
   return (
