@@ -148,11 +148,11 @@ export async function changeEmail(options: {
   });
 
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "change-email-toast",
       key: `${new Date().getTime()}`,
@@ -244,11 +244,11 @@ export async function changePassword(options: {
   });
 
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "change-password-toast",
       key: `${new Date().getTime()}`,

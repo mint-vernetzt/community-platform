@@ -4,14 +4,15 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { useState } from "react";
 import {
+  data,
   Form,
   Link,
   redirect,
   useActionData,
   useLoaderData,
   useNavigation,
-  type LoaderFunctionArgs,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
@@ -29,7 +30,7 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
-import { redirectWithToast } from "~/toast.server";
+import { createToastHeaders } from "~/toast.server";
 import { deriveProfileMode } from "../utils.server";
 import {
   changeEmail,
@@ -37,7 +38,7 @@ import {
   getProfileByUsername,
 } from "./security.server";
 import { changeEmailSchema, changePasswordSchema } from "./security.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { authClient } = createAuthClient(request);
@@ -62,9 +63,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const provider = sessionUser.app_metadata.provider || "email";
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { provider, locales, currentTimestamp };
+  return { provider, locales };
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -115,14 +114,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    const toastHeaders = await createToastHeaders(result.toast);
+    return data(
+      { submission: result.submission.reply(), intent: intent },
+      {
+        headers: toastHeaders,
+      }
+    );
   }
-  return { submission: result.submission };
+  return { submission: result.submission.reply(), intent: intent };
 };
 
 export default function Security() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -131,7 +136,7 @@ export default function Security() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordForm, changePasswordFields] = useForm({
-    id: `change-password-form-${currentTimestamp}`,
+    id: "change-password-form",
     constraint: getZodConstraint(changePasswordSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -152,11 +157,24 @@ export default function Security() {
       return submission;
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "change-password"
+        ? actionData?.submission
+        : null,
+  });
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult:
+        actionData?.intent === "change-password"
+          ? actionData?.submission
+          : undefined,
+      form: changePasswordForm,
+    },
   });
 
   const [changeEmailForm, changeEmailFields] = useForm({
-    id: `change-email-form-${currentTimestamp}`,
+    id: "change-email-form",
     constraint: getZodConstraint(changeEmailSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -177,7 +195,20 @@ export default function Security() {
       return submission;
     },
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "change-email"
+        ? actionData?.submission
+        : null,
+  });
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult:
+        actionData?.intent === "change-email"
+          ? actionData?.submission
+          : undefined,
+      form: changeEmailForm,
+    },
   });
 
   return (
