@@ -488,7 +488,8 @@ export default function MyOrganizations() {
     lastResult:
       navigation.state === "idle" &&
       (actionData?.intent.startsWith("create-organization-member-request-") ||
-        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.create))
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.create) ||
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.withdraw))
         ? actionData?.submission
         : null,
   });

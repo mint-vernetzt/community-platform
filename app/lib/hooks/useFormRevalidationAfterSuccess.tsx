@@ -21,11 +21,6 @@ export function useFormRevalidationAfterSuccess<
   const { navigation, actionData, form } = deps;
 
   useEffect(() => {
-    console.log("Checking if form revalidation is needed...", {
-      navigationState: navigation.state,
-      actionData,
-      skipRevalidation,
-    });
     if (
       navigation.state === "idle" &&
       (redirectToSameRouteOnDifferentURL ||

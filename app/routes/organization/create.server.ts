@@ -441,11 +441,11 @@ export async function createOrganizationMemberRequest(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "create-organization-member-request-toast",
       key: `${new Date().getTime()}`,
@@ -536,11 +536,11 @@ export async function createOrganization(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     redirectUrl: `/organization/${submission.value.slug}/detail/about`,
     alert: {
       message: insertParametersIntoLocale(locales.route.successAlert, {

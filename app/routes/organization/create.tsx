@@ -19,7 +19,6 @@ import {
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
-import { redirectWithAlert } from "~/alert.server";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
@@ -57,7 +56,6 @@ import {
   getPendingRequestsToOrganizations,
 } from "./create.server";
 import { createOrganizationSchema } from "./create.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -123,8 +121,6 @@ export async function loader(args: LoaderFunctionArgs) {
     })
   );
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     organizations: flattenedOrganizations,
     pendingRequestsToOrganizations,
@@ -133,7 +129,6 @@ export async function loader(args: LoaderFunctionArgs) {
     allOrganizationTypes,
     allNetworkTypes,
     locales,
-    currentTimestamp,
   };
 }
 
@@ -210,36 +205,13 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  if (
-    typeof result.submission !== "undefined" &&
-    result.submission.status === "success" &&
-    typeof result.toast !== "undefined" &&
-    result.toast !== null
-  ) {
+  if (result.submission.status !== "success") {
+    return { submission: result.submission.reply(), intent: intent };
+  }
+  if (typeof result.toast !== "undefined" && result.toast !== null) {
     return redirectWithToast(redirectUrl, result.toast);
   }
-  if (
-    typeof result.submission !== "undefined" &&
-    result.submission !== null &&
-    result.submission.status === "success" &&
-    typeof result.alert !== "undefined" &&
-    result.alert !== null
-  ) {
-    return redirectWithAlert(redirectUrl, result.alert);
-  }
-  if (
-    typeof result.submission !== "undefined" &&
-    result.submission !== null &&
-    result.submission.status === "success"
-  ) {
-    return redirect(redirectUrl);
-  }
-  return {
-    submission: {
-      ...result.submission,
-      error: result.submission.error || undefined,
-    },
-  };
+  return redirect(redirectUrl);
 }
 
 function CreateOrganization() {
@@ -251,7 +223,6 @@ function CreateOrganization() {
     allOrganizationTypes,
     allNetworkTypes,
     locales,
-    currentTimestamp,
     submission: loaderSubmission,
   } = loaderData;
   const actionData = useActionData<typeof action>();
@@ -269,7 +240,7 @@ function CreateOrganization() {
 
   const searchFormRef = useRef<HTMLFormElement>(null);
   const [searchForm, searchFields] = useForm({
-    id: `search-organizations-${currentTimestamp}`,
+    id: "search-organizations",
     defaultValue: {
       [SearchOrganizations]: searchParams.get(SearchOrganizations) || undefined,
     },
@@ -285,12 +256,18 @@ function CreateOrganization() {
     lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
   const [createOrganizationMemberOrClaimRequestForm] = useForm({
-    id: `create-organization-member-or-claim-request-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "create-organization-member-or-claim-request",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("create-organization-member-request-") ||
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.create) ||
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.withdraw))
+        ? actionData?.submission
+        : null,
   });
 
   const [createOrganizationForm, createOrganizationFields] = useForm({
-    id: `create-organization-${currentTimestamp}`,
+    id: "create-organization",
     constraint: getZodConstraint(createOrganizationSchema(locales)),
     defaultValue: {
       organizationName: searchQuery,
@@ -299,7 +276,11 @@ function CreateOrganization() {
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent === "create-organization"
+        ? actionData?.submission
+        : null,
     onValidate({ formData }) {
       const submission = parseWithZod(formData, {
         schema: () =>
@@ -357,7 +338,6 @@ function CreateOrganization() {
       <Form
         {...getFormProps(createOrganizationForm)}
         method="post"
-        preventScrollReset
         autoComplete="off"
         className="absolute"
       />
