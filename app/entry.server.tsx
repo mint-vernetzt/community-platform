@@ -91,7 +91,7 @@ export default async function handleRequest(
     "img-src": imgSrc.join(" "),
     "worker-src": "blob:",
     "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
-    "base-uri": "'self'",
+    "base-uri": "'none'",
     "frame-ancestors": isMap ? false : "'none'",
     "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
     "report-to": "csp-endpoint",
