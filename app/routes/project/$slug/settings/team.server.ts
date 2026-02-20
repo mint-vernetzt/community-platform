@@ -94,7 +94,7 @@ export async function addTeamMemberToProject(options: {
     schema: addTeamMeberToProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -137,7 +137,7 @@ export async function addTeamMemberToProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "add-team-member-toast",
       key: `${new Date().getTime()}`,
@@ -218,7 +218,7 @@ export async function addTeamMemberToProject(options: {
 //     schema: inviteProfileToBeProjectTeamMemberSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 // const project = await prismaClient.project.findFirst({
@@ -318,7 +318,7 @@ export async function addTeamMemberToProject(options: {
 //   }
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "invite-team-member-toast",
 //       key: `${new Date().getTime()}`,
@@ -344,7 +344,7 @@ export async function addTeamMemberToProject(options: {
 //     schema: cancelProjectTeamMemberInvitationSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 //   const project = await prismaClient.project.findFirst({
@@ -394,7 +394,7 @@ export async function addTeamMemberToProject(options: {
 //   });
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "cancel-invite-toast",
 //       key: `${new Date().getTime()}`,
@@ -420,7 +420,7 @@ export async function removeTeamMemberFromProject(options: {
     schema: removeTeamMemberFromProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -465,7 +465,7 @@ export async function removeTeamMemberFromProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-team-member-toast",
       key: `${new Date().getTime()}`,

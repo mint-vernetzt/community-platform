@@ -183,7 +183,7 @@ export const action = async (args: ActionFunctionArgs) => {
   return { submission: result.submission.reply(), intent: intent };
 };
 
-function Team() {
+function ResponsibleOrgs() {
   const {
     project,
     ownOrganizationSuggestions,
@@ -761,4 +761,4 @@ function Team() {
   );
 }
 
-export default Team;
+export default ResponsibleOrgs;
