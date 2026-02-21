@@ -54,12 +54,14 @@ if (ENV.MODE === "production" && typeof ENV.SENTRY_DSN !== "undefined") {
     });
   } catch (error) {
     console.warn("Sentry initialization failed");
-    const stringifiedError = JSON.stringify(
-      error,
-      Object.getOwnPropertyNames(error)
+    const formData = new FormData();
+    formData.append(
+      "error",
+      JSON.stringify(error, Object.getOwnPropertyNames(error))
     );
-    void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-      method: "GET",
+    void fetch("/error", {
+      method: "POST",
+      body: formData,
     });
   }
 }

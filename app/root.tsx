@@ -298,12 +298,14 @@ export const ErrorBoundary = () => {
       captureException(error);
     } catch (error) {
       console.warn("Sentry Sentry.captureException failed");
-      const stringifiedError = JSON.stringify(
-        error,
-        Object.getOwnPropertyNames(error)
+      const formData = new FormData();
+      formData.append(
+        "error",
+        JSON.stringify(error, Object.getOwnPropertyNames(error))
       );
-      void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-        method: "GET",
+      void fetch("/error", {
+        method: "POST",
+        body: formData,
       });
     }
   }, [error, isResponse]);
@@ -544,12 +546,14 @@ export default function App() {
         }
       } catch (error) {
         console.warn(`Matomo initialization failed.`);
-        const stringifiedError = JSON.stringify(
-          error,
-          Object.getOwnPropertyNames(error)
+        const formData = new FormData();
+        formData.append(
+          "error",
+          JSON.stringify(error, Object.getOwnPropertyNames(error))
         );
-        void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-          method: "GET",
+        void fetch("/error", {
+          method: "POST",
+          body: formData,
         });
       }
     }
@@ -563,12 +567,14 @@ export default function App() {
         window._paq.push(["trackPageView"]);
       } catch (error) {
         console.warn(`Matomo tracking failed.`);
-        const stringifiedError = JSON.stringify(
-          error,
-          Object.getOwnPropertyNames(error)
+        const formData = new FormData();
+        formData.append(
+          "error",
+          JSON.stringify(error, Object.getOwnPropertyNames(error))
         );
-        void fetch(`/error?error=${encodeURIComponent(stringifiedError)}`, {
-          method: "GET",
+        void fetch("/error", {
+          method: "POST",
+          body: formData,
         });
       }
     }
