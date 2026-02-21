@@ -28,7 +28,6 @@ import {
 } from "../../auth.server";
 import { setNewPassword } from "./set-password.server";
 import { createSetPasswordSchema } from "./set-password.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -43,9 +42,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["reset/set-password"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { locales, currentTimestamp };
+  return { locales };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -77,7 +74,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function SetPassword() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -87,7 +84,7 @@ export default function SetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [setPasswordForm, setPasswordFields] = useForm({
-    id: `set-password-${currentTimestamp}`,
+    id: "set-password-form",
     constraint: getZodConstraint(createSetPasswordSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,
@@ -208,7 +205,7 @@ export default function SetPassword() {
                               : locales.form.showPassword
                           }
                         >
-                          {showPassword ? (
+                          {showConfirmPassword ? (
                             <PublicVisibility aria-hidden="true" />
                           ) : (
                             <PrivateVisibility aria-hidden="true" />

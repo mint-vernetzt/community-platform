@@ -23,11 +23,9 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { LastTimeStamp } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { deleteEventBySlug, getEventBySlug } from "./delete.server";
 import { createDeleteSchema } from "./delete.shared";
@@ -51,11 +49,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(url.toString());
   }
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { locales, event, currentTimestamp };
+  return { locales, event };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -127,13 +121,13 @@ export async function action(args: ActionFunctionArgs) {
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { locales, event, currentTimestamp } = loaderData;
+  const { locales, event } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `delete-form-${currentTimestamp}`,
+    id: "delete-form",
     constraint: getZodConstraint(
       createDeleteSchema({ locales: locales.route, name: event.name })
     ),
@@ -165,12 +159,7 @@ function Delete() {
           <span key="strong" className="font-semibold" />,
         ])}
       </Hint>
-      <Form
-        {...getFormProps(form)}
-        method="post"
-        preventScrollReset
-        autoComplete="off"
-      >
+      <Form {...getFormProps(form)} method="post" autoComplete="off">
         <Input {...getInputProps(fields.name, { type: "text" })} key="slug">
           <Input.Label htmlFor={fields.name.id}>
             {locales.route.label}

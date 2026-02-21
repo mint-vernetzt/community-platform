@@ -5,7 +5,9 @@ import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Controls";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
+import { captureException } from "@sentry/node";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -21,18 +23,17 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { ConformSelect } from "~/components-next/ConformSelect";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { TextArea } from "~/components-next/TextArea";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp, sanitizeUserHtml } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { sanitizeUserHtml } from "~/utils.server";
 import {
   createRequirementsSchema,
   FURTHER_FINANCINGS_MAX_LENGTH,
@@ -49,7 +50,6 @@ import {
   getRedirectPathOnProtectedProjectRoute,
   updateFilterVectorOfProject,
 } from "./utils.server";
-import { captureException } from "@sentry/node";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -103,11 +103,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     },
   });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { project, allFinancings, currentTimestamp, locales };
+  return { project, allFinancings, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -148,13 +144,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   // Validation
   const formData = await request.formData();
-  const conformIntent = formData.get("__intent__");
-  if (conformIntent !== null) {
-    const submission = await parseWithZod(formData, {
-      schema: createRequirementsSchema(locales),
-    });
-    return submission.reply();
-  }
+
   const submission = await parseWithZod(formData, {
     schema: () =>
       createRequirementsSchema(locales).transform(async (data, ctx) => {
@@ -287,15 +277,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "update-requirements-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 }
 
 function Requirements() {
-  const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -311,7 +303,7 @@ function Requirements() {
   };
 
   const [form, fields] = useForm({
-    id: `requirements-form-${loaderData.currentTimestamp}`,
+    id: "requirements-form",
     constraint: getZodConstraint(createRequirementsSchema(locales)),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
@@ -328,6 +320,20 @@ function Requirements() {
 
   const financingList = fields.financings.getFieldList();
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <>
       <Section>
@@ -335,7 +341,6 @@ function Requirements() {
           searchParam={UnsavedChangesModalParam}
           formMetadataToCheck={form}
           locales={locales.components.UnsavedChangesModal}
-          lastTimeStamp={loaderData.currentTimestamp}
         />
         <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.back}

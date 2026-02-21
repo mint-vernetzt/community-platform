@@ -177,7 +177,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
     schema: inviteProfileToBeOrganizationAdminSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -277,7 +277,7 @@ export async function inviteProfileToBeOrganizationAdmin(options: {
   }
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "invite-admin-toast",
       key: `${new Date().getTime()}`,
@@ -313,7 +313,7 @@ export async function cancelOrganizationAdminInvitation(options: {
     schema: cancelOrganizationAdminInvitationSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -392,7 +392,7 @@ export async function cancelOrganizationAdminInvitation(options: {
   await mailer(mailerOptions, sender, recipient, subject, text, html);
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
@@ -415,7 +415,7 @@ export async function removeAdminFromOrganization(options: {
     schema: removeAdminFromOrganizationSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -460,7 +460,7 @@ export async function removeAdminFromOrganization(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-admin-toast",
       key: `${new Date().getTime()}`,

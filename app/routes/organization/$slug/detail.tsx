@@ -47,6 +47,7 @@ import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server
 import { parseMultipartFormData } from "~/storage.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
+import { hasContent } from "~/utils.shared";
 import {
   addImgUrls,
   disconnectImage,
@@ -60,8 +61,6 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -260,8 +259,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     allowedToClaimOrganization = organization.shadow === true;
   }
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     organization: enhancedOrganization,
     mode,
@@ -270,7 +267,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
       url: request.url,
     },
     locales,
-    currentTimestamp,
     preferredExploreOrganizationsView,
     alreadyRequestedToClaim,
     allowedToClaimOrganization,
@@ -387,7 +383,7 @@ function OrganizationDetail() {
   const isSubmitting = useIsSubmitting();
 
   const [claimRequestForm] = useForm({
-    id: `claim-request-${loaderData.currentTimestamp}`,
+    id: "claim-request-form",
   });
 
   const previousLocation = usePreviousLocation();
@@ -703,6 +699,7 @@ function OrganizationDetail() {
                       {...getFormProps(claimRequestForm)}
                       method="post"
                       hidden
+                      preventScrollReset
                     />
                     <input
                       form={claimRequestForm.id}
@@ -729,6 +726,7 @@ function OrganizationDetail() {
                       {...getFormProps(claimRequestForm)}
                       method="post"
                       hidden
+                      preventScrollReset
                     />
                     <input
                       form={claimRequestForm.id}
@@ -781,7 +779,6 @@ function OrganizationDetail() {
                 maxTargetHeight={MaxImageSizes.Background.height}
                 modalSearchParam="modal-background"
                 locales={locales}
-                currentTimestamp={loaderData.currentTimestamp}
                 redirectTo={location.pathname}
               >
                 {hasContent(loaderData.organization.background) ? (
@@ -819,7 +816,6 @@ function OrganizationDetail() {
                 maxTargetHeight={MaxImageSizes.AvatarAndLogo.height}
                 modalSearchParam="modal-logo"
                 locales={locales}
-                currentTimestamp={loaderData.currentTimestamp}
                 redirectTo={location.pathname}
               >
                 <Avatar

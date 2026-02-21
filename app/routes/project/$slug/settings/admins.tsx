@@ -4,6 +4,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -16,26 +17,26 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
-import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { ListContainer } from "~/components-next/ListContainer";
 import { ListItem } from "~/components-next/ListItem";
+import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { searchProfilesSchema } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { Deep, SearchProfiles } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { searchProfiles } from "~/routes/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
 import {
   addAdminToProject,
   getProjectWithAdmins,
   removeAdminFromProject,
 } from "./admins.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -67,15 +68,12 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
   });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     project,
     // pendingAdminInvites,
     searchedProfiles,
     submission,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -158,9 +156,15 @@ export const action = async (args: ActionFunctionArgs) => {
     result.submission.status === "success" &&
     result.toast !== undefined
   ) {
-    return redirectWithToast(request.url, result.toast);
+    const toastHeaders = await createToastHeaders(result.toast);
+    return data(
+      { submission: result.submission.reply(), intent: intent },
+      {
+        headers: toastHeaders,
+      }
+    );
   }
-  return { submission: result.submission };
+  return { submission: result.submission.reply(), intent: intent };
 };
 
 function Admins() {
@@ -170,7 +174,6 @@ function Admins() {
     searchedProfiles: loaderSearchedProfiles,
     submission: loaderSubmission,
     locales,
-    currentTimestamp,
   } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
@@ -187,7 +190,7 @@ function Admins() {
       ? searchFetcher.data.searchedProfiles
       : loaderSearchedProfiles;
   const [searchForm, searchFields] = useForm({
-    id: `search-profiles-${currentTimestamp}`,
+    id: "search-profiles",
     defaultValue: {
       [SearchProfiles]: searchParams.get(SearchProfiles) || undefined,
     },
@@ -204,24 +207,31 @@ function Admins() {
 
   // TODO: Remove this when project admin invites are implemented
   const [addAdminForm] = useForm({
-    id: `add-admins-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "add-admins",
+    lastResult:
+      navigation.state === "idle" && actionData?.intent.startsWith("add-admin-")
+        ? actionData?.submission
+        : null,
   });
 
   // TODO: Implement this when project admin invites are implemented
   // const [inviteAdminForm] = useForm({
-  //   id: `invite-admins-${currentTimestamp}`,
-  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  //   id: "invite-admins",
+  //   lastResult: navigation.state === "idle" && actionData?.intent.startsWith("invite-admin-") ? actionData?.submission : null,
   // });
 
   // const [cancelAdminInviteForm] = useForm({
-  //   id: `cancel-admin-invites-${currentTimestamp}`,
-  //   lastResult: navigation.state === "idle" ? actionData?.submission : null,
+  //   id: "cancel-admin-invites",
+  //   lastResult: navigation.state === "idle" && actionData?.intent.startsWith("cancel-admin-invite-") ? actionData?.submission : null,
   // });
 
   const [removeAdminForm] = useForm({
-    id: `remove-admins-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "remove-admins",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("remove-admin-")
+        ? actionData?.submission
+        : null,
   });
 
   return (
@@ -232,6 +242,7 @@ function Admins() {
       <p className="my-6 @md:mt-0">{locales.route.content.intro}</p>
 
       {/* Current Admins and Remove Section */}
+      {/* TODO: Double check modal when removing yourself (blueprint: organizations, events) */}
       <div className="flex flex-col gap-6 @md:gap-4">
         <div className="flex flex-col gap-4 @md:p-4 @md:border @md:rounded-lg @md:border-gray-200">
           <h2 className="text-primary text-lg font-semibold mb-0">

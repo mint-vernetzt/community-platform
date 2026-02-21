@@ -236,7 +236,7 @@ export async function addResponsibleOrganizationToProject(options: {
     schema: addResponsibleOrganizationToProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -278,7 +278,7 @@ export async function addResponsibleOrganizationToProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "add-responsible-organization-toast",
       key: `${new Date().getTime()}`,
@@ -368,7 +368,7 @@ export async function addResponsibleOrganizationToProject(options: {
 //     schema: inviteOrganizationToBeResponsibleForProjectSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 //   const project = await prismaClient.project.findFirst({
@@ -468,7 +468,7 @@ export async function addResponsibleOrganizationToProject(options: {
 //   }
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "invite-organization-toast",
 //       key: `${new Date().getTime()}`,
@@ -493,7 +493,7 @@ export async function addResponsibleOrganizationToProject(options: {
 //     schema: cancelResponsibleOrganizationForProjectInvitationSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 //   const project = await prismaClient.project.findFirst({
@@ -542,7 +542,7 @@ export async function addResponsibleOrganizationToProject(options: {
 //   });
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "cancel-invite-toast",
 //       key: `${new Date().getTime()}`,
@@ -567,7 +567,7 @@ export async function removeResponsibleOrganizationFromProject(options: {
     schema: removeResponsibleOrganizationFromProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -599,7 +599,7 @@ export async function removeResponsibleOrganizationFromProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-responsible-organization-toast",
       key: `${new Date().getTime()}`,

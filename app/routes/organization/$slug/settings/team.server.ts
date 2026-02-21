@@ -177,7 +177,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
     schema: inviteProfileToBeOrganizationTeamMemberSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -276,7 +276,7 @@ export async function inviteProfileToBeOrganizationTeamMember(options: {
   }
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "invite-team-member-toast",
       key: `${new Date().getTime()}`,
@@ -312,7 +312,7 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
     schema: cancelOrganizationTeamMemberInvitationSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -390,7 +390,7 @@ export async function cancelOrganizationTeamMemberInvitation(options: {
   await mailer(mailerOptions, sender, recipient, subject, text, html);
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "cancel-invite-toast",
       key: `${new Date().getTime()}`,
@@ -413,7 +413,7 @@ export async function removeTeamMemberFromOrganization(options: {
     schema: removeTeamMemberFromOrganizationSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const organization = await prismaClient.organization.findFirst({
@@ -458,7 +458,7 @@ export async function removeTeamMemberFromOrganization(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-team-member-toast",
       key: `${new Date().getTime()}`,

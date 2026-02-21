@@ -68,7 +68,6 @@ import {
   updateNetworkRequest,
   updateOrganizationMemberInvite,
 } from "./organizations.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -160,8 +159,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests
   );
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     searchedOrganizations: enhancedSearchedOrganizations,
     submission,
@@ -172,7 +169,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests: enhancedNetworkRequests,
     organizations: flattenedOrganizations,
     locales,
-    currentTimestamp,
   };
 };
 
@@ -434,28 +430,13 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  if (
-    typeof result.submission !== "undefined" &&
-    result.submission !== null &&
-    result.submission.status === "success" &&
-    typeof result.toast !== "undefined" &&
-    result.toast !== null
-  ) {
+  if (result.submission.status !== "success") {
+    return { submission: result.submission.reply(), intent: intent };
+  }
+  if (typeof result.toast !== "undefined" && result.toast !== null) {
     return redirectWithToast(redirectUrl, result.toast);
   }
-  if (
-    typeof result.submission !== "undefined" &&
-    result.submission !== null &&
-    result.submission.status === "success"
-  ) {
-    return redirect(redirectUrl);
-  }
-  return {
-    submission: {
-      ...result.submission,
-      error: result.submission?.error || undefined,
-    },
-  };
+  return redirect(redirectUrl);
 };
 
 export default function MyOrganizations() {
@@ -469,7 +450,6 @@ export default function MyOrganizations() {
     networkRequests: networkRequestsFromLoader,
     organizations: organizationsFromLoader,
     locales,
-    currentTimestamp,
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
@@ -504,18 +484,33 @@ export default function MyOrganizations() {
     lastResult: navigation.state === "idle" ? loaderSubmission : null,
   });
   const [createOrganizationMemberOrClaimRequestForm] = useForm({
-    id: `create-organization-member-or-claim-request-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "create-organization-member-or-claim-request",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("create-organization-member-request-") ||
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.create) ||
+        actionData?.intent.startsWith(CLAIM_REQUEST_INTENTS.withdraw))
+        ? actionData?.submission
+        : null,
   });
   const [cancelOrganizationMemberRequestForm] = useForm({
-    id: `cancel-organization-member-request-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "cancel-organization-member-request",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("cancel-organization-member-request-")
+        ? actionData?.submission
+        : null,
   });
 
   // JS for incoming organization member invites section
   const [acceptOrRejectOrganizationMemberInviteForm] = useForm({
-    id: `accept-or-reject-organization-member-invite-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "accept-or-reject-organization-member-invite",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("accept-organization-invite-") ||
+        actionData?.intent.startsWith("reject-organization-invite-"))
+        ? actionData?.submission
+        : null,
   });
   const [
     activeOrganizationMemberInvitesTab,
@@ -547,8 +542,13 @@ export default function MyOrganizations() {
 
   // JS for incoming network invites section
   const [acceptOrRejectNetworkInviteForm] = useForm({
-    id: `accept-or-reject-network-invite-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "accept-or-reject-network-invite",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("accept-network-invite-") ||
+        actionData?.intent.startsWith("reject-network-invite-"))
+        ? actionData?.submission
+        : null,
   });
   const [activeNetworkInvitesTab, setActiveNetworkInvitesTab] = useState(
     searchParams.get("network-invites-tab") !== null &&
@@ -570,8 +570,13 @@ export default function MyOrganizations() {
 
   // JS for incoming organization member requests section
   const [acceptOrRejectOrganizationMemberRequestForm] = useForm({
-    id: `accept-or-reject-organization-member-request-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "accept-or-reject-organization-member-request",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("accept-organization-member-request-") ||
+        actionData?.intent.startsWith("reject-organization-member-request-"))
+        ? actionData?.submission
+        : null,
   });
   const [
     activeOrganizationMemberRequestsTab,
@@ -600,8 +605,13 @@ export default function MyOrganizations() {
 
   // JS for incoming network requests section
   const [acceptOrRejectNetworkRequestForm] = useForm({
-    id: `accept-or-reject-network-request-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "accept-or-reject-network-request",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("accept-network-request-") ||
+        actionData?.intent.startsWith("reject-network-request-"))
+        ? actionData?.submission
+        : null,
   });
   const [activeNetworkRequestsTab, setActiveNetworkRequestsTab] = useState(
     searchParams.get("network-requests-tab") !== null &&
@@ -623,8 +633,13 @@ export default function MyOrganizations() {
 
   // JS for own organizations section
   const [quitOrganizationForm] = useForm({
-    id: `quit-organization-${currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "quit-organization",
+    lastResult:
+      navigation.state === "idle" &&
+      (actionData?.intent.startsWith("quit-organization-admin-") ||
+        actionData?.intent.startsWith("quit-organization-teamMember-"))
+        ? actionData?.submission
+        : null,
   });
   // SearchParams as fallback when javascript is disabled (See <Links> in <TabBar>)
   const [activeOrganizationsTab, setActiveOrganizationsTab] = useState(
@@ -655,7 +670,7 @@ export default function MyOrganizations() {
   return (
     <>
       <div className="w-full h-full flex justify-center">
-        <div className="w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-[72px] @lg:mb-16 max-w-screen-2xl">
+        <div className="w-full py-6 px-4 @lg:py-8 @md:px-6 @lg:px-8 flex flex-col gap-6 mb-10 @sm:mb-18 @lg:mb-16 max-w-2xl">
           <div className="flex flex-col @sm:flex-row gap-8 @md:gap-6 @lg:gap-8 items-center justify-between mb-6 @sm:mb-0">
             <h1 className="mb-0 text-5xl text-primary font-bold leading-9">
               {locales.route.headline}
@@ -679,10 +694,10 @@ export default function MyOrganizations() {
           {/* Information about organization type network Section */}
           <Section additionalClassNames="group">
             <div className="w-full flex flex-col gap-6">
-              <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+              <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                 {locales.route.networkInfo.headline}
               </h2>
-              <div className="text-neutral-700 text-lg leading-[22px] -mt-2">
+              <div className="text-neutral-700 text-lg leading-5.5 -mt-2">
                 <p className="font-semibold">
                   {locales.route.networkInfo.sublineOne}
                 </p>
@@ -699,12 +714,12 @@ export default function MyOrganizations() {
                 </p>
               </div>
             </div>
-            <h3 className="mb-0 text-neutral-700 text-lg font-bold leading-6 hidden group-has-[:checked]:block">
+            <h3 className="mb-0 text-neutral-700 text-lg font-bold leading-6 hidden group-has-checked:block">
               {locales.route.networkInfo.steps.headline}
             </h3>
-            <ol className="w-full flex-col gap-6 list-none pr-6 max-w-[964px] hidden group-has-[:checked]:flex">
+            <ol className="w-full flex-col gap-6 list-none pr-6 max-w-241 hidden group-has-checked:flex">
               <li className="w-full flex gap-2">
-                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-4.5">
                   1
                 </span>
                 <div className="w-full flex flex-col gap-5">
@@ -725,7 +740,7 @@ export default function MyOrganizations() {
                 </div>
               </li>
               <li className="w-full flex gap-2">
-                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-4.5">
                   2
                 </span>
                 <div className="w-full flex flex-col gap-4">
@@ -755,7 +770,7 @@ export default function MyOrganizations() {
                 </div>
               </li>
               <li className="w-full flex gap-2">
-                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-[18px]">
+                <span className="text-center align-middle w-5 h-5 rounded-full bg-primary-50 text-sm text-primary font-semibold leading-4.5">
                   3
                 </span>
                 <div className="w-full flex flex-col gap-5">
@@ -777,7 +792,7 @@ export default function MyOrganizations() {
                 </div>
               </li>
             </ol>
-            <div className="hidden group-has-[:checked]:block mb-2 ml-7">
+            <div className="hidden group-has-checked:block mb-2 ml-7">
               <p className="pb-2">{locales.route.networkInfo.faq.info}</p>
               <Link
                 to={"/help#organizations"}
@@ -798,13 +813,13 @@ export default function MyOrganizations() {
                   htmlFor="show-more-network-info"
                   className="flex gap-2 cursor-pointer w-fit"
                 >
-                  <div className="group-has-[:checked]:hidden">
+                  <div className="group-has-checked:hidden">
                     {locales.route.networkInfo.more}
                   </div>
-                  <div className="hidden group-has-[:checked]:block">
+                  <div className="hidden group-has-checked:block">
                     {locales.route.networkInfo.less}
                   </div>
-                  <div className="rotate-90 group-has-[:checked]:-rotate-90">
+                  <div className="rotate-90 group-has-checked:-rotate-90">
                     <Icon type="chevron-right" />
                   </div>
                 </label>
@@ -944,7 +959,7 @@ export default function MyOrganizations() {
                             }
                           </div>
                         ) : searchedOrganization.allowedToClaimOrganization ? (
-                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-[4px]">
+                          <div className="flex w-full flex-col @lg:flex-row items-center gap-4 p-4 bg-primary-50 rounded-sm">
                             <p>
                               {searchedOrganization.alreadyRequestedToClaim
                                 ? locales.route.claimRequest.alreadyRequested
@@ -1122,7 +1137,7 @@ export default function MyOrganizations() {
           organizationMemberInvites.admin.invites.length > 0 ? (
             <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                   {locales.route.organizationMemberInvites.headline}
                 </h2>
                 <p className="text-sm text-neutral-700">
@@ -1263,7 +1278,7 @@ export default function MyOrganizations() {
           {networkInvites.length > 0 ? (
             <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                   {locales.route.networkInvites.headline}
                 </h2>
                 <p className="text-sm text-neutral-700">
@@ -1386,7 +1401,7 @@ export default function MyOrganizations() {
           {organizationMemberRequests.length > 0 ? (
             <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                   {locales.route.organizationMemberRequests.headline}
                 </h2>
                 <p className="text-sm text-neutral-700">
@@ -1522,7 +1537,7 @@ export default function MyOrganizations() {
           {networkRequests.length > 0 ? (
             <section className="py-6 px-4 @lg:px-6 flex flex-col gap-4 border border-neutral-200 bg-white rounded-2xl">
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-bold text-primary leading-[26px] mb-0">
+                <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
                   {locales.route.networkRequests.headline}
                 </h2>
                 <p className="text-sm text-neutral-700">
@@ -1819,13 +1834,11 @@ export default function MyOrganizations() {
                                     </p>
                                   </Modal.Section>
                                   <Modal.Section>
-                                    {navigation.state === "idle" &&
-                                    typeof actionData?.submission.error !==
+                                    {typeof quitOrganizationForm.errors !==
                                       "undefined" &&
-                                    "" in actionData.submission.error &&
-                                    actionData.submission.error[""] !== null ? (
+                                    quitOrganizationForm.errors.length > 0 ? (
                                       <div>
-                                        {actionData.submission.error[""].map(
+                                        {quitOrganizationForm.errors.map(
                                           (error, index) => {
                                             return (
                                               <div

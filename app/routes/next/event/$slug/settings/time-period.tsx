@@ -9,11 +9,13 @@ import { utcToZonedTime } from "date-fns-tz";
 import { useState } from "react";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   type LoaderFunctionArgs,
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
   useSearchParams,
 } from "react-router";
@@ -22,22 +24,22 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import BasicStructure from "~/components/next/BasicStructure";
 import List from "~/components/next/List";
 import ListItemEvent from "~/components/next/ListItemEvent";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 import {
   extendSearchParams,
-  LastTimeStamp,
   UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "../../utils.shared";
 import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
@@ -63,11 +65,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { locales, language, event, currentTimestamp };
+  return { locales, language, event };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -131,17 +129,21 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "time-period-success",
     key: `time-period-success-${Date.now()}`,
     message: locales.route.success,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 };
 
 export default function TimePeriod() {
-  const { locales, language, event, currentTimestamp } =
-    useLoaderData<typeof loader>();
-  const actionData = useActionData();
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales, language, event } = loaderData;
+
+  const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   const timePeriodSearchParam = searchParams.get("timePeriod");
   const startTimeZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
@@ -164,8 +166,9 @@ export default function TimePeriod() {
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
+
   const [form, fields] = useForm({
-    id: `time-period-form-${currentTimestamp}`,
+    id: `time-period-form`,
     constraint: getZodConstraint(
       createTimePeriodSchema({
         locales: locales.route.form.validation,
@@ -195,19 +198,28 @@ export default function TimePeriod() {
       });
       return submission;
     },
-    defaultValue:
-      timePeriod === TIME_PERIOD_SINGLE
-        ? {
-            startDate: formattedStartDate,
-            startTime: formattedStartTime,
-            endTime: formattedEndTime,
-          }
-        : {
-            startDate: formattedStartDate,
-            endDate: formattedEndDate,
-          },
+    defaultValue: {
+      startDate: formattedStartDate,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      endDate: formattedEndDate,
+    },
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData : undefined,
+  });
+
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
   });
 
   const timingInputContainerClasses = classNames(
@@ -221,7 +233,6 @@ export default function TimePeriod() {
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={currentTimestamp}
       />
       <Form
         {...getFormProps(form)}

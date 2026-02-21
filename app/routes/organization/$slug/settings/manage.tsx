@@ -7,6 +7,7 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   Link,
   type LoaderFunctionArgs,
@@ -42,7 +43,6 @@ import { invariant, invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
   Deep,
-  LastTimeStamp,
   SearchNetworkMembers,
   SearchNetworks,
   SearchOrganizations,
@@ -52,8 +52,8 @@ import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { searchOrganizations } from "~/routes/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { deriveMode, getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
+import { deriveMode } from "~/utils.server";
 import {
   getOrganizationWithNetworksAndNetworkMembers,
   leaveNetwork,
@@ -63,6 +63,8 @@ import {
   updateOrganization,
 } from "./manage.server";
 import { manageSchema } from "./manage.shared";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -144,10 +146,6 @@ export async function loader(args: LoaderFunctionArgs) {
     mode,
   });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
   return {
     organization,
     allOrganizationTypes,
@@ -156,7 +154,6 @@ export async function loader(args: LoaderFunctionArgs) {
     searchNetworksSubmission,
     searchedNetworkMembers,
     searchNetworkMembersSubmission,
-    currentTimestamp,
     locales,
   };
 }
@@ -230,14 +227,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let result;
   const formData = await request.formData();
-  // This intent is used for field list manipulation by conform
-  const conformIntent = formData.get("__intent__");
-  if (conformIntent !== null) {
-    const submission = await parseWithZod(formData, { schema: manageSchema });
-    return {
-      submission: submission.reply(),
-    };
-  }
+
   const intent = formData.get("intent");
   invariantResponse(
     typeof intent === "string",
@@ -332,22 +322,28 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  if (
-    result.submission !== undefined &&
-    result.submission.status === "success" &&
-    result.toast !== undefined
-  ) {
-    const url = new URL(request.url);
-    const searchParams = url.searchParams;
-    if (searchParams.get("modal-network-remove") === "true") {
-      searchParams.delete("modal-network-remove");
-    }
-    const redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
-      url.pathname
-    }?${searchParams.toString()}`;
-    return redirectWithToast(redirectUrl, result.toast);
+  if (result.submission.status !== "success") {
+    return { submission: result.submission.reply(), intent: intent };
   }
-  return { submission: result.submission };
+
+  // const url = new URL(request.url);
+  // const searchParams = url.searchParams;
+  // if (searchParams.get("modal-network-remove") === "true") {
+  //   searchParams.delete("modal-network-remove");
+  // }
+  // const redirectUrl = `${process.env.COMMUNITY_BASE_URL}${
+  //   url.pathname
+  // }?${searchParams.toString()}`;
+  if (typeof result.toast !== "undefined") {
+    const toastHeaders = await createToastHeaders(result.toast);
+    return data(
+      { submission: result.submission.reply(), intent: intent },
+      {
+        headers: toastHeaders,
+      }
+    );
+  }
+  return { submission: result.submission.reply(), intent: intent };
 }
 
 function Manage() {
@@ -372,7 +368,6 @@ function Manage() {
       ? searchNetworkMembersFetcher.data.searchedNetworkMembers
       : loaderData.searchedNetworkMembers;
 
-  const location = useLocation();
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -395,12 +390,15 @@ function Manage() {
   };
 
   const [manageForm, manageFields] = useForm({
-    id: `manage-form-${loaderData.currentTimestamp}`,
+    id: "manage-form",
     constraint: getZodConstraint(manageSchema),
     defaultValue: defaultValues,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    lastResult:
+      navigation.state === "idle" && actionData?.intent === "submit"
+        ? actionData?.submission
+        : null,
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
@@ -430,9 +428,23 @@ function Manage() {
       return submission;
     },
   });
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult:
+        actionData?.intent === "submit" ? actionData?.submission : undefined,
+      form: manageForm,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
 
   const [searchNetworksForm, searchNetworksFields] = useForm({
-    id: `search-networks-${loaderData.currentTimestamp}`,
+    id: "search-networks-form",
     constraint: getZodConstraint(searchNetworksSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -447,22 +459,34 @@ function Manage() {
   clearNetworkQuerySearchParams.delete(SearchNetworks);
 
   const [requestToJoinNetworkForm] = useForm({
-    id: `request-to-join-network-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "request-to-join-network-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("request-to-join-network-")
+        ? actionData?.submission
+        : null,
   });
 
   const [leaveNetworkForm] = useForm({
-    id: `leave-network-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "leave-network-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("leave-network-")
+        ? actionData?.submission
+        : null,
   });
 
   const [cancelNetworkJoinRequestForm] = useForm({
-    id: `cancel-network-join-request-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "cancel-network-join-request-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("cancel-network-join-request-")
+        ? actionData?.submission
+        : null,
   });
 
   const [searchNetworkMembersForm, searchNetworkMembersFields] = useForm({
-    id: "search-network-members",
+    id: "search-network-members-form",
     constraint: getZodConstraint(searchNetworkMembersSchema(locales)),
     shouldValidate: "onBlur",
     onValidate: (values) => {
@@ -478,18 +502,30 @@ function Manage() {
   clearNetworkMemberQuerySearchParams.delete(SearchNetworks);
 
   const [inviteNetworkMemberForm] = useForm({
-    id: `invite-network-member-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "invite-network-member-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("invite-network-member-")
+        ? actionData?.submission
+        : null,
   });
 
   const [removeNetworkMemberForm] = useForm({
-    id: `remove-network-member-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "remove-network-member-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("remove-network-member-")
+        ? actionData?.submission
+        : null,
   });
 
   const [cancelNetworkJoinInviteForm] = useForm({
-    id: `cancel-network-member-invitation-${loaderData.currentTimestamp}`,
-    lastResult: navigation.state === "idle" ? actionData?.submission : null,
+    id: "cancel-network-member-invitation-form",
+    lastResult:
+      navigation.state === "idle" &&
+      actionData?.intent.startsWith("cancel-network-member-invitation-")
+        ? actionData?.submission
+        : null,
   });
 
   const organizationTypeList = manageFields.organizationTypes.getFieldList();
@@ -523,7 +559,6 @@ function Manage() {
           searchParam={UnsavedChangesModalParam}
           formMetadataToCheck={manageForm}
           locales={locales.components.UnsavedChangesModal}
-          lastTimeStamp={loaderData.currentTimestamp}
         />
         <SettingsMenuBackButton to={location.pathname} prefetch="intent">
           {locales.route.content.headline}

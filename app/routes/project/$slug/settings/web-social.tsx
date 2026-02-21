@@ -6,6 +6,7 @@ import { Controls } from "@mint-vernetzt/components/src/organisms/containers/Con
 import { Section } from "@mint-vernetzt/components/src/organisms/containers/Section";
 import { captureException } from "@sentry/node";
 import {
+  data,
   Form,
   redirect,
   useActionData,
@@ -19,17 +20,15 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { redirectWithToast } from "~/toast.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { createToastHeaders } from "~/toast.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import {
   getProjectWebSocial,
@@ -47,11 +46,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const project = await getProjectWebSocial({ slug, locales });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
-  return { project, currentTimestamp, locales };
+  return { project, locales };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -99,24 +94,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "update-web-social-toast",
     key: `${new Date().getTime()}`,
     message: locales.route.content.success,
   });
+  return data(submission.reply(), {
+    headers: toastHeaders,
+  });
 }
 
 function WebSocial() {
-  const location = useLocation();
-  const { project, currentTimestamp, locales } = useLoaderData<typeof loader>();
+  const { project, locales } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
   const isHydrated = useHydrated();
 
   const [form, fields] = useForm({
-    // Use different ids depending on loaderData to sync dirty state
-    id: `web-social-form-${currentTimestamp}`,
+    id: "web-social-form",
     defaultValue: {
       ...project,
     },
@@ -131,13 +127,26 @@ function WebSocial() {
     lastResult: navigation.state === "idle" ? actionData : null,
   });
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+  });
+
   return (
     <Section>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={currentTimestamp}
       />
       <SettingsMenuBackButton to={location.pathname} prefetch="intent">
         {locales.route.content.back}

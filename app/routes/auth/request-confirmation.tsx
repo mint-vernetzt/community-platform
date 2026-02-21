@@ -24,7 +24,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestConfirmation } from "./request-confirmation.server";
 import { createRequestConfirmationSchema } from "./request-confirmation.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request } = args;
@@ -38,9 +37,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/request-confirmation"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { locales, currentTimestamp };
+  return { locales };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -56,6 +53,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     locales,
   });
 
+  console.log(submission.status);
+
   return {
     submission: submission.reply(),
     email: submission.status === "success" ? submission.value.email : null,
@@ -67,7 +66,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function RequestConfirmation() {
   const actionData = useActionData<typeof action>();
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
@@ -76,7 +75,7 @@ export default function RequestConfirmation() {
   const type = urlSearchParams.get("type");
 
   const [requestConfirmationForm, requestConfirmationFields] = useForm({
-    id: `request-confirmation-${currentTimestamp}`,
+    id: "request-confirmation-form",
     constraint: getZodConstraint(createRequestConfirmationSchema(locales)),
     defaultValue: {
       loginRedirect: loginRedirect,

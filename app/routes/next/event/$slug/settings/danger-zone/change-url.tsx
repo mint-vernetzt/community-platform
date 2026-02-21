@@ -2,39 +2,38 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
 import {
   Form,
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
   useParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import Hint from "~/components/next/Hint";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
+import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
-import { createChangeURLSchema } from "./change-url.shared";
-import { getEventBySlug, updateEventBySlug } from "./change-url.server";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
-import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import Hint from "~/components/next/Hint";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { getEventBySlug, updateEventBySlug } from "./change-url.server";
+import { createChangeURLSchema } from "./change-url.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -51,12 +50,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
   const baseURL = process.env.COMMUNITY_BASE_URL;
 
-  return { locales, currentTimestamp, baseURL, event };
+  return { locales, baseURL, event };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -122,7 +118,7 @@ export async function action(args: ActionFunctionArgs) {
   const url = new URL(request.url);
   url.pathname = `/next/event/${submission.value.slug}/settings/danger-zone/change-url`;
 
-  return redirectWithToast(url.toString(), {
+  return redirectWithToast(`${url.pathname}?${Deep}=true`, {
     id: "change-url-success",
     key: `change-url-success-${Date.now()}`,
     message: locales.route.success,
@@ -133,13 +129,13 @@ export async function action(args: ActionFunctionArgs) {
 function ChangeURL() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { locales, currentTimestamp, baseURL } = loaderData;
+  const { locales, baseURL } = loaderData;
   const params = useParams();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
   const [form, fields] = useForm({
-    id: `change-url-form-${currentTimestamp}`,
+    id: "change-url-form",
     constraint: getZodConstraint(
       createChangeURLSchema({ locales: locales.route })
     ),
@@ -155,13 +151,27 @@ function ChangeURL() {
     lastResult: navigation.state === "idle" ? actionData : null,
   });
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+    redirectToSameRouteOnDifferentURL: true,
+  });
+
   return (
     <>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={loaderData.currentTimestamp}
       />
       <p>
         {insertComponentsIntoLocale(
@@ -219,6 +229,9 @@ function ChangeURL() {
             <div className="relative w-full">
               <Button
                 type="reset"
+                onClick={() => {
+                  form.reset();
+                }}
                 variant="outline"
                 fullSize
                 // Don't disable button when js is disabled

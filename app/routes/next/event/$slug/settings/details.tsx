@@ -1,20 +1,39 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
 import {
+  data,
   Form,
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { ConformSelect } from "~/components-next/ConformSelect";
+import { TextArea } from "~/components-next/TextArea";
+import BasicStructure from "~/components/next/BasicStructure";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import TitleSection from "~/components/next/TitleSection";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { getLocaleFromSlug } from "~/i18n.shared";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import {
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { createToastHeaders, redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   getAllEventTargetGroups,
   getAllEventTypes,
@@ -25,30 +44,11 @@ import {
   getEventBySlugForAction,
   updateEventBySlug,
 } from "./details.server";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
 import {
   createEventDetailsSchema,
   DESCRIPTION_MAX_LENGTH,
   SUBLINE_MAX_LENGTH,
 } from "./details.shared";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
-import BasicStructure from "~/components/next/BasicStructure";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import TitleSection from "~/components/next/TitleSection";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { ConformSelect } from "~/components-next/ConformSelect";
-import { getLocaleFromSlug } from "~/i18n.shared";
-import { Chip } from "@mint-vernetzt/components/src/molecules/Chip";
-import { TextArea } from "~/components-next/TextArea";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -69,10 +69,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const allExperienceLevels = await getAllExperienceLevels();
   const allFocuses = await getAllFocuses();
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
   return {
     locales,
     event,
@@ -81,7 +77,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     allEventTargetGroups,
     allExperienceLevels,
     allFocuses,
-    currentTimestamp,
   };
 };
 
@@ -134,10 +129,13 @@ export const action = async (args: ActionFunctionArgs) => {
     });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "event-details-success",
     key: `event-details-success-${Date.now()}`,
     message: locales.route.success,
+  });
+  return data(submission.reply(), {
+    headers: toastHeaders,
   });
 };
 
@@ -150,15 +148,14 @@ export default function Details() {
     allEventTargetGroups,
     allExperienceLevels,
     allFocuses,
-    currentTimestamp,
   } = useLoaderData<typeof loader>();
-  const actionData = useActionData();
+  const actionData = useActionData<typeof action>();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
   const navigation = useNavigation();
 
   const [form, fields] = useForm({
-    id: `event-details-form-${currentTimestamp}`,
+    id: "event-details-form",
     constraint: getZodConstraint(
       createEventDetailsSchema(locales.route.form.validation)
     ),
@@ -182,6 +179,20 @@ export default function Details() {
     },
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? actionData : undefined,
+  });
+
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
   });
 
   const eventTypesList = fields.types.getFieldList();
@@ -209,7 +220,6 @@ export default function Details() {
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={currentTimestamp}
       />
       <Form
         {...getFormProps(form)}

@@ -4,36 +4,34 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import {
   Form,
+  redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
-  redirect,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
-import {
-  Deep,
-  LastTimeStamp,
-  UnsavedChangesModalParam,
-} from "~/lib/utils/searchParams";
+import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { createSchema } from "./change-url.shared";
-import { getFormPersistenceTimestamp } from "~/utils.server";
-import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { params, request } = args;
@@ -45,13 +43,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "organization/$slug/settings/danger-zone/change-url"
     ];
 
-  const url = new URL(request.url);
-  const lastTimeStampParam = url.searchParams.get(LastTimeStamp);
-  const currentTimestamp = getFormPersistenceTimestamp(lastTimeStampParam);
-
   return {
     slug,
-    currentTimestamp,
     baseURL: process.env.COMMUNITY_BASE_URL,
     locales,
   };
@@ -139,7 +132,7 @@ function ChangeURL() {
   const isSubmitting = useIsSubmitting();
 
   const [form, fields] = useForm({
-    id: `change-url-form-${loaderData.currentTimestamp}`,
+    id: "change-url-form",
     defaultValue: {
       slug: loaderData.slug,
     },
@@ -154,13 +147,27 @@ function ChangeURL() {
     lastResult: navigation.state === "idle" ? actionData : null,
   });
 
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
+    redirectToSameRouteOnDifferentURL: true,
+  });
+
   return (
     <>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
         formMetadataToCheck={form}
         locales={locales.components.UnsavedChangesModal}
-        lastTimeStamp={loaderData.currentTimestamp}
       />
       <p>
         {insertComponentsIntoLocale(

@@ -25,11 +25,7 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
-import {
-  deriveMode,
-  generateProjectSlug,
-  getFormPersistenceTimestamp,
-} from "~/utils.server";
+import { deriveMode, generateProjectSlug } from "~/utils.server";
 import {
   createSchema,
   NAME_MAX_LENGTH,
@@ -58,9 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/create"];
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { currentTimestamp, locales };
+  return { locales };
 };
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -149,7 +143,7 @@ function Create() {
   const { locales } = loaderData;
 
   const [form, fields] = useForm({
-    id: `create-project-form-${loaderData.currentTimestamp}`,
+    id: "create-project-form",
     constraint: getZodConstraint(createSchema(locales)),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -167,7 +161,7 @@ function Create() {
     <>
       <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative pt-20 pb-44">
         <div className="flex justify-center">
-          <div className="flex flex-col w-[480px] gap-6 p-8 border rounded-lg border-gray-200">
+          <div className="flex flex-col w-120 gap-6 p-8 border rounded-lg border-gray-200">
             <div className="flex justify-between items-center gap-4">
               <h1 className="text-primary text-5xl font-bold mb-0">
                 {locales.content.headline}

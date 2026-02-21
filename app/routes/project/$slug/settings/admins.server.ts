@@ -94,7 +94,7 @@ export async function addAdminToProject(options: {
     schema: addAdminToProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -137,7 +137,7 @@ export async function addAdminToProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "add-admin-toast",
       key: `${new Date().getTime()}`,
@@ -218,7 +218,7 @@ export async function addAdminToProject(options: {
 //     schema: inviteProfileToBeProjectAdminSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 //   const project = await prismaClient.project.findFirst({
@@ -318,7 +318,7 @@ export async function addAdminToProject(options: {
 //   }
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "invite-admin-toast",
 //       key: `${new Date().getTime()}`,
@@ -344,7 +344,7 @@ export async function addAdminToProject(options: {
 //     schema: cancelProjectAdminInvitationSchema,
 //   });
 //   if (submission.status !== "success") {
-//     return { submission: submission.reply() };
+//     return { submission: submission };
 //   }
 
 //   const project = await prismaClient.project.findFirst({
@@ -393,7 +393,7 @@ export async function addAdminToProject(options: {
 //   });
 
 //   return {
-//     submission: submission.reply(),
+//     submission: submission,
 //     toast: {
 //       id: "cancel-invite-toast",
 //       key: `${new Date().getTime()}`,
@@ -419,7 +419,7 @@ export async function removeAdminFromProject(options: {
     schema: removeAdminFromProjectSchema,
   });
   if (submission.status !== "success") {
-    return { submission: submission.reply() };
+    return { submission: submission };
   }
 
   const project = await prismaClient.project.findFirst({
@@ -464,7 +464,7 @@ export async function removeAdminFromProject(options: {
   });
 
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "remove-admin-toast",
       key: `${new Date().getTime()}`,

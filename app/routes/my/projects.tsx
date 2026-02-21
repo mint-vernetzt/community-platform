@@ -33,7 +33,6 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { redirectWithToast } from "~/toast.server";
 import { getProjects, quitProject } from "./projects.server";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -50,9 +49,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const projects = await getProjects({ profileId: sessionUser.id, authClient });
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
-  return { projects, locales, currentTimestamp };
+  return { projects, locales };
 }
 
 export const action = async (args: ActionFunctionArgs) => {
@@ -133,7 +130,7 @@ export const action = async (args: ActionFunctionArgs) => {
 
 function MyProjects() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, currentTimestamp } = loaderData;
+  const { locales } = loaderData;
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
@@ -166,7 +163,7 @@ function MyProjects() {
   });
 
   const [quitProjectForm] = useForm({
-    id: `quit-organization-${currentTimestamp}`,
+    id: `quit-organization-form`,
     lastResult: navigation.state === "idle" ? actionData?.submission : null,
   });
 
@@ -352,24 +349,20 @@ function MyProjects() {
                           )}
                         </Modal.Section>
                         <Modal.Section>
-                          {navigation.state === "idle" &&
-                          typeof actionData?.submission.error !== "undefined" &&
-                          "" in actionData.submission.error &&
-                          actionData.submission.error[""] !== null ? (
+                          {typeof quitProjectForm.errors !== "undefined" &&
+                          quitProjectForm.errors.length > 0 ? (
                             <div>
-                              {actionData.submission.error[""].map(
-                                (error, index) => {
-                                  return (
-                                    <div
-                                      id={quitProjectForm.errorId}
-                                      key={index}
-                                      className="text-sm font-semibold text-negative-700"
-                                    >
-                                      {error}
-                                    </div>
-                                  );
-                                }
-                              )}
+                              {quitProjectForm.errors.map((error, index) => {
+                                return (
+                                  <div
+                                    id={quitProjectForm.errorId}
+                                    key={index}
+                                    className="text-sm font-semibold text-negative-700"
+                                  >
+                                    {error}
+                                  </div>
+                                );
+                              })}
                             </div>
                           ) : null}
                         </Modal.Section>

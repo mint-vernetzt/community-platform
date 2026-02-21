@@ -77,7 +77,6 @@ export interface ImageCropperProps {
   circularCrop?: boolean;
   modalSearchParam?: string;
   locales: ImageCropperLocales;
-  currentTimestamp: number;
   redirectTo?: string;
 }
 
@@ -211,7 +210,6 @@ function ImageCropper(props: ImageCropperProps) {
     maxTargetHeight,
     circularCrop = false,
     locales,
-    currentTimestamp,
     redirectTo,
   } = props;
 
@@ -219,7 +217,7 @@ function ImageCropper(props: ImageCropperProps) {
     SelectedFile[]
   >([]);
   const [imageUploadForm, imageUploadFields] = useForm({
-    id: `upload-${uploadKey}-form-${currentTimestamp}`,
+    id: `upload-${uploadKey}-form-`,
     constraint: getZodConstraint(createImageUploadSchema(locales)),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
@@ -243,7 +241,7 @@ function ImageCropper(props: ImageCropperProps) {
   }, [lastSubmission]);
 
   const [disconnectImageForm, disconnectImageFields] = useForm({
-    id: `disconnect-${uploadKey}-form-${currentTimestamp}`,
+    id: `disconnect-${uploadKey}-form`,
     constraint: getZodConstraint(disconnectImageSchema),
     defaultValue: {
       uploadKey: uploadKey,
@@ -330,8 +328,7 @@ function ImageCropper(props: ImageCropperProps) {
   }
 
   async function scaleDown(canvas: HTMLCanvasElement, width: number) {
-    // TODO: can this type assertion be removed and proofen by code?
-    const targetCanvas = document.createElement("canvas") as HTMLCanvasElement;
+    const targetCanvas = document.createElement("canvas");
     targetCanvas.className = "hidden";
     const canvasAspect = canvas.width / canvas.height;
     const isLandScape = canvas.width > canvas.height;
@@ -478,7 +475,7 @@ function ImageCropper(props: ImageCropperProps) {
               aspect={aspect ?? undefined}
               minWidth={minCropWidth}
               minHeight={minCropHeight}
-              className="max-h-[288px]"
+              className="max-h-72"
               circularCrop={circularCrop}
             >
               <img
@@ -606,15 +603,21 @@ function ImageCropper(props: ImageCropperProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-[250px] py-2 hidden md:block md:w-[calc(50%-2rem)] md:px-2">
+            <div className="w-62.5 py-2 hidden md:block md:w-[calc(50%-2rem)] md:px-2">
               <Slider
                 min={0.1}
                 max={DEFAULT_SCALE * 2}
                 step={0.05}
                 value={scale}
-                // TODO: can this type assertion be removed and proofen by code?
                 onChange={(v) => {
-                  return setScale(v as number);
+                  if (Array.isArray(v)) {
+                    if (v.length > 0) {
+                      return setScale(v[0]);
+                    } else {
+                      return setScale(DEFAULT_SCALE);
+                    }
+                  }
+                  return setScale(v);
                 }}
               />
             </div>

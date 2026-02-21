@@ -118,7 +118,7 @@ export async function uploadFile(options: {
   }
 
   return {
-    submission: null,
+    submission,
     toast: {
       id: "upload-file",
       key: `${new Date().getTime()}`,
@@ -178,7 +178,7 @@ export async function editDocument(options: {
   const redirectUrl = new URL(request.url);
   redirectUrl.searchParams.delete(`modal-edit-${submission.value.id}`);
   return {
-    submission: null,
+    submission,
     toast: {
       id: "edit-document",
       key: `${new Date().getTime()}`,
@@ -237,7 +237,7 @@ export async function editImage(options: {
   const redirectUrl = new URL(request.url);
   redirectUrl.searchParams.delete(`modal-edit-${submission.value.id}`);
   return {
-    submission: null,
+    submission,
     toast: {
       id: "edit-image",
       key: `${new Date().getTime()}`,
@@ -287,7 +287,7 @@ export async function disconnectDocument(options: {
     return { submission, toast: null };
   }
   return {
-    submission: null,
+    submission,
     toast: {
       id: "delete-document",
       key: `${new Date().getTime()}`,
@@ -341,7 +341,7 @@ export async function disconnectImage(options: {
     return { submission, toast: null };
   }
   return {
-    submission: null,
+    submission,
     toast: {
       id: "delete-image",
       key: `${new Date().getTime()}`,

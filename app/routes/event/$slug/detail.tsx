@@ -61,7 +61,6 @@ import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { getFormPersistenceTimestamp } from "~/utils.server";
 import { hasContent } from "~/utils.shared";
 
 export function links() {
@@ -346,8 +345,6 @@ export async function loader(args: LoaderFunctionArgs) {
     "next_event_settings"
   );
 
-  const currentTimestamp = getFormPersistenceTimestamp();
-
   return {
     event: enhancedEvent,
     locales,
@@ -363,7 +360,6 @@ export async function loader(args: LoaderFunctionArgs) {
     hasUserReportedEvent,
     abuseReportReasons,
     abilities,
-    currentTimestamp,
   };
 }
 
@@ -391,7 +387,6 @@ export async function action(args: ActionFunctionArgs) {
   if (error !== null || formData === null) {
     console.error({ error });
     captureException(error);
-    // TODO: How can we add this to the zod ctx?
     return redirectWithToast(request.url, {
       id: "upload-failed",
       key: `${new Date().getTime()}`,
@@ -646,7 +641,6 @@ function Detail() {
                   { eventName: loaderData.event.name }
                 ),
               }}
-              currentTimestamp={loaderData.currentTimestamp}
             />
           </>
         )}

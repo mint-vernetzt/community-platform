@@ -6,7 +6,7 @@ export const locale = assertSpecialTargetGroupLocales({
     description: null,
   },
   women_and_girls: {
-    title: "Madchen und / oder Frauen",
+    title: "Mädchen und / oder Frauen",
     description: null,
   },
   trans_inter_and_non_binary: {

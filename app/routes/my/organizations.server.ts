@@ -1273,11 +1273,11 @@ export async function createOrCancelOrganizationMemberRequest(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "create-or-cancel-organization-member-request-toast",
       key: `${new Date().getTime()}`,
@@ -1591,11 +1591,11 @@ export async function updateOrganizationMemberInvite(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "update-organization-member-invite-toast",
       key: `${new Date().getTime()}`,
@@ -1847,11 +1847,11 @@ export async function updateNetworkInvite(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "update-network-invite-toast",
       key: `${new Date().getTime()}`,
@@ -2088,11 +2088,11 @@ export async function acceptOrRejectOrganizationMemberRequest(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "accept-or-reject-organization-member-request-toast",
       key: `${new Date().getTime()}`,
@@ -2335,11 +2335,11 @@ export async function updateNetworkRequest(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "accept-or-reject-organization-member-request-toast",
       key: `${new Date().getTime()}`,
@@ -2438,11 +2438,11 @@ export async function quitOrganization(options: {
   });
   if (submission.status !== "success") {
     return {
-      submission: submission.reply(),
+      submission: submission,
     };
   }
   return {
-    submission: submission.reply(),
+    submission: submission,
     toast: {
       id: "quit-organization-toast",
       key: `${new Date().getTime()}`,
