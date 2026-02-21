@@ -1,4 +1,5 @@
 import { createReadableStreamFromReadable } from "@react-router/node";
+import { captureException } from "@sentry/node";
 import * as isbotModule from "isbot";
 import { PassThrough } from "node:stream";
 import { renderToPipeableStream } from "react-dom/server";
@@ -9,9 +10,7 @@ import {
 } from "react-router";
 import { getEnv, init as initEnv } from "./env.server";
 import { NonceProvider } from "./nonce-provider";
-import { captureException } from "@sentry/node";
 import { createCSPHeaderOptions } from "./utils.server";
-import { invariantResponse } from "./lib/utils/response";
 
 // Reject/cancel all pending promises after 5 seconds
 export const streamTimeout = 5000;
@@ -91,7 +90,7 @@ export default async function handleRequest(
     "img-src": imgSrc.join(" "),
     "worker-src": "blob:",
     "frame-src": `'self' www.youtube.com www.youtube-nocookie.com 'nonce-${nonce}'`,
-    "base-uri": "'self'",
+    "base-uri": "'none'",
     "frame-ancestors": isMap ? false : "'none'",
     "report-uri": `${process.env.COMMUNITY_BASE_URL}/csp-reports`,
     "report-to": "csp-endpoint",
@@ -114,10 +113,6 @@ export default async function handleRequest(
   }
 
   const isBot = isBotRequest(request.headers.get("user-agent"));
-
-  if (process.env.ALLOW_INDEXING === "false") {
-    invariantResponse(isBot === false, "Forbidden", { status: 403 });
-  }
 
   const prohibitOutOfOrderStreaming = isBot || reactRouterContext.isSpaMode;
 
