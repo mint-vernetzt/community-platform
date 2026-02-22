@@ -7,6 +7,12 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 
+  --breakpoint-container-sm: 600px;
+  --breakpoint-container-md: 768px;
+  --breakpoint-container-lg: 965px;
+  --breakpoint-container-xl: 1280px;
+  --breakpoint-container-2xl: 1536px;
+
   --container-sm: 600px;
   --container-md: 768px;
   --container-lg: 965px;
