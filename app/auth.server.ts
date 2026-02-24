@@ -4,6 +4,8 @@ import {
   createServerClient,
   parseCookieHeader,
   serializeCookieHeader,
+  type CookieOptions,
+  type CookieMethodsServer,
 } from "@supabase/ssr";
 import {
   createClient,
@@ -18,39 +20,44 @@ const SESSION_NAME = "sb2";
 
 export const createAuthClient = (request: Request) => {
   const headers = new Headers();
+  const cookies: CookieMethodsServer = {
+    getAll() {
+      const cookieHeader = request.headers.get("Cookie");
+      if (!cookieHeader) {
+        return null;
+      }
+      return parseCookieHeader(cookieHeader).map(({ name, value }) => ({
+        name,
+        value: value ?? "",
+      }));
+    },
+    setAll(
+      cookiesToSet: {
+        name: string;
+        value: string;
+        options: CookieOptions;
+      }[]
+    ) {
+      cookiesToSet.forEach(({ name, value, options }) => {
+        headers.append(
+          "Set-Cookie",
+          serializeCookieHeader(name, value, options)
+        );
+      });
+    },
+  };
   const authClient = createServerClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     {
-      cookies: {
-        getAll() {
-          const parsedCookieHeader = parseCookieHeader(
-            request.headers.get("Cookie") || ""
-          );
-          const filteredCookies = parsedCookieHeader.filter(
-            (cookie) =>
-              typeof cookie.value !== "undefined" && cookie.value !== undefined
-          ) as {
-            name: string;
-            value: string;
-          }[];
-          return filteredCookies;
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            headers.append(
-              "Set-Cookie",
-              serializeCookieHeader(name, value, options)
-            )
-          );
-        },
-      },
+      cookies,
       cookieOptions: {
         name: SESSION_NAME,
         // normally you want this to be `secure: true`
         // but that doesn't work on localhost for Safari
         // https://web.dev/when-to-use-local-https/
         secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
         sameSite: "lax",
         path: "/",
       },
