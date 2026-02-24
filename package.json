@@ -6,9 +6,6 @@
   "description": "",
   "license": "",
   "sideEffects": false,
-  "workspaces": [
-    "common/api"
-  ],
   "scripts": {
     "prepare": "husky install",
     "build": "react-router build",
@@ -25,10 +22,7 @@
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700,900}-normal.woff public/fonts",
     "make": "make",
     "typecheck": "react-router typegen && tsc",
-    "typecheck:api": "npx tsc -p ./common/api",
     "typegen": "react-router typegen",
-    "build:api": "npm run build -w api",
-    "start:api": "npm start -w api",
     "lint": "eslint ."
   },
   "dependencies": {
