@@ -453,10 +453,7 @@ export default function ExploreOrganizations() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
-            if (
-              (event.target as HTMLInputElement).name ===
-              fields.showFilters.name
-            ) {
+            if (event.target.name === fields.showFilters.name) {
               preventScrollReset = false;
             }
             void submit(event.currentTarget, {
@@ -1042,7 +1039,7 @@ export default function ExploreOrganizations() {
                 <NavLink
                   to={`/explore/organizations/list?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `px-4 py-2 flex gap-2 rounded-[4px] hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
+                    `px-4 py-2 flex gap-2 rounded-sm hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
                       isActive
                         ? "bg-primary-50 text-primary"
                         : "bg-white text-neutral-700"
@@ -1059,7 +1056,7 @@ export default function ExploreOrganizations() {
                 <NavLink
                   to={`/explore/organizations/map?${searchParams.toString()}`}
                   className={({ isActive }) =>
-                    `px-4 py-2 flex gap-2 rounded-[4px] hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
+                    `px-4 py-2 flex gap-2 rounded-sm hover:bg-neutral-100 hover:text-neutral-700 focus:ring-2 focus:ring-primary-200 active:bg-primary-100 active:text-primary text-xs font-semibold leading-4 text-center ${
                       isActive
                         ? "bg-primary-50 text-primary"
                         : "bg-white text-neutral-700"

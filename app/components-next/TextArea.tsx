@@ -45,7 +45,7 @@ const TextArea = (
     props.defaultValue?.toString().length || 0
   );
 
-  const handleTextAreaChange: React.FormEventHandler<HTMLTextAreaElement> = (
+  const handleTextAreaChange: React.ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => {
     event.preventDefault();

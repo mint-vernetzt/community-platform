@@ -1,5 +1,0 @@
-{
-  "exec": "tsoa spec-and-routes && node build/src/server.js",
-  "watch": ["build"],
-  "ext": "js"
-}
