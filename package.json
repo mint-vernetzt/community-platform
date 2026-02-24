@@ -20,6 +20,8 @@
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "node -r dotenv/config node_modules/.bin/prisma migrate dev",
     "prisma:format": "npx prisma format",
+    "supabase:stop": "npx supabase stop",
+    "supabase:start": "npx supabase start",
     "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700,900}-normal.woff public/fonts",
     "make": "make",
     "typecheck": "react-router typegen && tsc",
