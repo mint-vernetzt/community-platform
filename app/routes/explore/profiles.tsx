@@ -452,10 +452,7 @@ export default function ExploreProfiles() {
           method="get"
           onChange={(event) => {
             let preventScrollReset = true;
-            if (
-              (event.target as HTMLInputElement).name ===
-              fields.showFilters.name
-            ) {
+            if (event.target.name === fields.showFilters.name) {
               preventScrollReset = false;
             }
             void submit(event.currentTarget, {
