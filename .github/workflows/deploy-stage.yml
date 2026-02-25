@@ -25,11 +25,10 @@ jobs:
           key: ${{ secrets.KEY_STAGE }}
           port: ${{ secrets.PORT_STAGE }}
           envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
-          script_stop: true
           script: |
             eval `ssh-agent`
             ssh-add ~/.ssh/github-dk
-            cd repository/
+            cd community-platform/
             git fetch --all
             git checkout main
             git reset --hard origin/main
