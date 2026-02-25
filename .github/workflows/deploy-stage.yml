@@ -2,7 +2,7 @@ name: Platform Stage
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   # allow trigger manually
   workflow_dispatch:
 
@@ -30,11 +30,13 @@ jobs:
             eval `ssh-agent`
             ssh-add ~/.ssh/github-dk
             cd repository/
-            git pull
+            git fetch --all
+            git checkout main
+            git reset --hard origin/main
+            git clean -fd
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             nvm use
             npm install
             npm run build
-            pm2 restart npm
-
+            pm2 restart community-platform

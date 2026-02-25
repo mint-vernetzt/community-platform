@@ -102,7 +102,6 @@ export default async function handleRequest(
   if (isMap === false) {
     responseHeaders.set("X-Frame-Options", "SAMEORIGIN");
   }
-  responseHeaders.set("Referrer-Policy", "same-origin");
 
   // Appending profiling policy header to the response when sentry is enabled
   if (
