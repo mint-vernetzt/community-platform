@@ -26,8 +26,6 @@ jobs:
           port: ${{ secrets.PORT_STAGE }}
           envs: SUPABASE_ANON_KEY,SUPABASE_URL,SESSION_SECRET,DATABASE_URL
           script: |
-            eval `ssh-agent`
-            ssh-add ~/.ssh/github-dk
             cd community-platform/
             git fetch --all
             git checkout main
