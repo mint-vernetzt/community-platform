@@ -33,9 +33,12 @@ jobs:
             git checkout main
             git reset --hard origin/main
             git clean -fd
+            git pull
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             nvm use
+            rm -rf node_modules
+            rm package-lock.json
             npm install
             npm run build
             pm2 restart community-platform
