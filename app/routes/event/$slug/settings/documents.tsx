@@ -212,7 +212,7 @@ function Documents() {
   // Disconnect document form
   // eslint ignore is intended
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_disconnectDocumentForm, disconnectDocumentFields] = useForm({
+  const [disconnectDocumentForm, disconnectDocumentFields] = useForm({
     id: "disconnect-document-form",
     constraint: getZodConstraint(disconnectAttachmentSchema),
     shouldValidate: "onInput",
