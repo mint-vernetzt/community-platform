@@ -174,7 +174,6 @@ function Settings() {
                   <Link
                     to={`${navLink.to}?${Deep}=true`}
                     className={linkClasses}
-                    preventScrollReset
                     prefetch="intent"
                   >
                     <span className="text-wrap">{navLink.label}</span>
