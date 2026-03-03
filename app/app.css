@@ -147,31 +147,6 @@
 }
 
 @layer base {
-  @font-face {
-    font-family: "Source Sans Pro";
-    font-style: normal;
-    font-weight: 400;
-    src: url("/fonts/source-sans-pro-latin-400-normal.woff");
-  }
-  @font-face {
-    font-family: "Source Sans Pro";
-    font-style: normal;
-    font-weight: 600;
-    src: url("/fonts/source-sans-pro-latin-600-normal.woff");
-  }
-  @font-face {
-    font-family: "Source Sans Pro";
-    font-style: normal;
-    font-weight: 700;
-    src: url("/fonts/source-sans-pro-latin-700-normal.woff");
-  }
-  @font-face {
-    font-family: "Source Sans Pro";
-    font-style: normal;
-    font-weight: 900;
-    src: url("/fonts/source-sans-pro-latin-900-normal.woff");
-  }
-
   html {
     scroll-behavior: smooth;
   }

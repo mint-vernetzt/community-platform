@@ -22,7 +22,6 @@
     "prisma:format": "npx prisma format",
     "supabase:stop": "npx supabase stop",
     "supabase:start": "npx supabase start",
-    "copy:fonts": "rsync node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-{400,600,700,900}-normal.woff public/fonts",
     "make": "make",
     "typecheck": "react-router typegen && tsc",
     "typegen": "react-router typegen",
@@ -31,6 +30,7 @@
   "dependencies": {
     "@conform-to/react": "^1.14.1",
     "@conform-to/zod": "^1.14.1",
+    "@fontsource/source-sans-pro": "^5.2.5",
     "@hookform/resolvers": "^3.3.2",
     "@lexical/react": "^0.39.0",
     "@mjackson/file-storage": "^0.6.1",
@@ -74,7 +74,6 @@
   "devDependencies": {
     "@epic-web/config": "^1.21.3",
     "@faker-js/faker": "^8.3.1",
-    "@fontsource/source-sans-pro": "^5.0.8",
     "@react-router/dev": "^7.12.0",
     "@sentry/vite-plugin": "^3.4.0",
     "@tailwindcss/vite": "^4.1.18",

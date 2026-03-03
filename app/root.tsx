@@ -1,3 +1,7 @@
+import "@fontsource/source-sans-pro/latin-400.css";
+import "@fontsource/source-sans-pro/latin-600.css";
+import "@fontsource/source-sans-pro/latin-700.css";
+import "@fontsource/source-sans-pro/latin-900.css";
 import { Alert } from "@mint-vernetzt/components/src/molecules/Alert";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
@@ -19,8 +23,8 @@ import {
   useRouteError,
   useRouteLoaderData,
   useSearchParams,
-  type LoaderFunctionArgs,
   type HeadersArgs,
+  type LoaderFunctionArgs,
   type MetaFunction,
 } from "react-router";
 import { Footer } from "~/components-next/Footer";
@@ -34,6 +38,7 @@ import { ModalRoot } from "./components-next/ModalRoot";
 import { ScrollToTopButton } from "./components-next/ScrollToTopButton";
 import { ToastContainer } from "./components-next/ToastContainer";
 import { RichText } from "./components/legacy/Richtext/RichText";
+import { PreviousLocationContext } from "./components/next/PreviousLocationContext";
 import { getEnv } from "./env.server";
 import { detectLanguage, localeCookie } from "./i18n.server";
 import { DEFAULT_LANGUAGE } from "./i18n.shared";
@@ -58,7 +63,6 @@ import {
 import { getPublicURL } from "./storage.server";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { PreviousLocationContext } from "./components/next/PreviousLocationContext";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -319,7 +323,7 @@ export const ErrorBoundary = () => {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
+    "font-sans flex min-h-dvh wrap-break-word antialiased overflow-x-hidden",
     mainMenuIsOpen !== null &&
       mainMenuIsOpen !== "false" &&
       "overflow-y-hidden xl:overflow-y-visible"
@@ -639,7 +643,7 @@ export default function App() {
   const mainMenuIsOpen = searchParams.get(openMainMenuKey);
 
   const bodyClasses = classNames(
-    "flex min-h-dvh break-words antialiased overflow-x-hidden",
+    "font-sans flex min-h-dvh break-words antialiased overflow-x-hidden",
     modal && "overflow-y-hidden",
     overlayMenu && "overflow-y-hidden container-lg:overflow-y-visible",
     showFilters !== null &&
