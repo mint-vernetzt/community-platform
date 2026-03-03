@@ -14,7 +14,6 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       include: ["./app/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-      all: true,
     },
   },
 });
