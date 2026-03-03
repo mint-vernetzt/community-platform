@@ -262,7 +262,6 @@ export default function Settings() {
                     critical: link.to.includes("danger-zone"),
                   }).className;
                 }}
-                preventScrollReset={true}
               >
                 <SettingsNavigation.Item.Label>
                   <span>{link.label}</span>
