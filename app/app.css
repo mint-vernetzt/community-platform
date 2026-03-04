@@ -230,7 +230,7 @@
 }
 
 #faq-content {
-  @apply leading-[22px];
+  @apply leading-5.5;
   ul {
     @apply list-disc flex flex-col gap-1;
   }
