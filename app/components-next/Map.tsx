@@ -839,10 +839,10 @@ export function MapView(props: {
     <>
       <div
         ref={mapContainer}
-        className={`absolute h-full min-h-[284px] overflow-hidden ${
+        className={`absolute h-full min-h-71 overflow-hidden ${
           mapLoaded === true
             ? mapMenuIsOpen === true && organizations.length > 0
-              ? "left-0 w-full md:left-[336px] md:w-[calc(100%-336px)]"
+              ? "left-0 w-full md:left-84 md:w-[calc(100%-336px)]"
               : "w-full"
             : "w-0"
         }`}
@@ -851,14 +851,14 @@ export function MapView(props: {
         <div
           className={`absolute top-0 bottom-0 right-0 flex flex-col gap-2 overflow-y-scroll p-4 bg-primary-50 text-neutral-700 font-semibold text-sm ${
             mapMenuIsOpen === true && organizations.length > 0
-              ? "left-0 w-full md:left-[336px] md:w-[calc(100%-336px)] rounded-r-lg"
-              : "w-full rounded-lg pl-16 md:pl-[352px]"
+              ? "left-0 w-full md:left-84 md:w-[calc(100%-336px)] rounded-r-lg"
+              : "w-full rounded-lg pl-16 md:pl-88"
           }`}
         >
           <p className="text-2xl font-bold leading-7">
             {locales.components.Map.webGLNotSupported.headline}
           </p>
-          <p className="max-w-[800px]">
+          <p className="max-w-200">
             {locales.components.Map.webGLNotSupported.subline}
           </p>
           <ul className="flex flex-col gap-2 list-inside list-disc">
@@ -875,10 +875,8 @@ export function MapView(props: {
       ) : null}
       {organizations.length > 0 ? (
         <div
-          className={`absolute top-0 bottom-0 left-0 w-fit md:w-[336px] pointer-events-none z-10 ${
-            mapMenuIsOpen === true
-              ? "w-full md:w-[336px]"
-              : "w-fit md:w-[336px]"
+          className={`absolute top-0 bottom-0 left-0 w-fit md:w-84 pointer-events-none z-10 ${
+            mapMenuIsOpen === true ? "w-full md:w-84" : "w-fit md:w-84"
           }`}
         >
           <div

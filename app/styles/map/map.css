@@ -1,14 +1,3 @@
-.maplibregl-map {
-  font: unset !important;
-  font-family: "Source Sans Pro" !important;
-  font-style: normal !important;
-  font-weight: 400 !important;
-  src: url("/fonts/source-sans-pro-latin-400-normal.woff") !important;
-  overflow: hidden !important;
-  position: relative !important;
-  -webkit-tap-highlight-color: rgb(0, 0, 0, 0) !important;
-}
-
 .maplibregl-popup-anchor-bottom,
 .maplibregl-popup-anchor-top,
 .maplibregl-popup-anchor-left,
