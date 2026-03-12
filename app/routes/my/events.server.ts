@@ -416,6 +416,7 @@ export async function acceptInviteAsAdmin(options: {
             select: {
               profile: {
                 select: {
+                  id: true,
                   firstName: true,
                   email: true,
                 },
@@ -434,9 +435,13 @@ export async function acceptInviteAsAdmin(options: {
   const htmlTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs";
 
+  const recipents = result.event.admins.filter((admin) => {
+    return admin.profile.id !== userId;
+  });
+
   // Do not block main thread while sending the mail
   void Promise.all(
-    result.event.admins.map(async (admin) => {
+    recipents.map(async (admin) => {
       try {
         const recipient = admin.profile.email;
         const text = getCompiledMailTemplate<typeof textTemplatePath>(
