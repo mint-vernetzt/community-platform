@@ -247,7 +247,7 @@ function Add() {
         </div>
         <List
           locales={locales.route.search}
-          id="admin-search-results"
+          id="team-member-list"
           hideAfter={1}
         >
           <List.Search
