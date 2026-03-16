@@ -295,7 +295,22 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/team",
-        "./routes/next/event/$slug/settings/team.tsx"
+        "./routes/next/event/$slug/settings/team.tsx",
+        [
+          index("./routes/next/event/$slug/settings/team/index.tsx"),
+          route(
+            "/next/event/:slug/settings/team/list",
+            "./routes/next/event/$slug/settings/team/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/team/add",
+            "./routes/next/event/$slug/settings/team/add.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/team/invites",
+            "./routes/next/event/$slug/settings/team/invites.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/time-period",

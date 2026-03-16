@@ -139,7 +139,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 }
 
-function Invites() {
+function AdminInvites() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
 
@@ -208,4 +208,4 @@ function Invites() {
   );
 }
 
-export default Invites;
+export default AdminInvites;
