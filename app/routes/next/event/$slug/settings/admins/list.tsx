@@ -114,6 +114,7 @@ export async function action(args: ActionFunctionArgs) {
     await removeAdminFromEvent({
       adminId: submission.value.adminId,
       eventId: event.id,
+      locales: locales.route,
     });
   } catch (error) {
     captureException(error);

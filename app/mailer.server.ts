@@ -212,6 +212,13 @@ type InviteCanceledNetworkContent = {
   network: { name: string };
 };
 
+type GeneralNotificationRemovedAsAdminFromEventContent = {
+  firstName: string;
+  event: {
+    name: string;
+  };
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -272,7 +279,9 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-event/as-admin-rejected-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-canceled-html.hbs"
-  | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs";
+  | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs"
+  | "mail-templates/general-notification/remove-admin-from-event-html.hbs"
+  | "mail-templates/general-notification/remove-admin-from-event-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -374,7 +383,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-event/as-admin-canceled-html.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs"
                                         ? InviteProfileToJoinContent
-                                        : never;
+                                        : TemplatePath extends
+                                              | "mail-templates/general-notification/remove-admin-from-event-html.hbs"
+                                              | "mail-templates/general-notification/remove-admin-from-event-text.hbs"
+                                          ? GeneralNotificationRemovedAsAdminFromEventContent
+                                          : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
