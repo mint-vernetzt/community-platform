@@ -7,6 +7,11 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export async function getAdminsOfEvent(options: {
   slug: string;
@@ -126,6 +131,11 @@ export async function getEventBySlug(slug: string) {
 export async function removeAdminFromEvent(options: {
   eventId: string;
   adminId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
 }) {
   const { eventId, adminId } = options;
 
@@ -136,7 +146,47 @@ export async function removeAdminFromEvent(options: {
         profileId: adminId,
       },
     },
+    select: {
+      profile: {
+        select: {
+          email: true,
+          firstName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/general-notification/remove-admin-from-event-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/general-notification/remove-admin-from-event-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
 
   return result;
 }

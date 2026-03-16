@@ -23,4 +23,7 @@ export const locale = {
       "You have successfully removed yourself as an admin from the event {{eventName}}.",
     removeAdmin: "The admin has been successfully removed.",
   },
+  mail: {
+    subject: "Du wurdest als Admin eines Events entfernt",
+  },
 } as const;
