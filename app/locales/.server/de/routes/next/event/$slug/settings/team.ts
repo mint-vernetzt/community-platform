@@ -1,6 +1,6 @@
 export const locale = {
   explanation:
-    "Teammitglieder können Events im Entwurf einsehen, diese aber nicht bearbeiten. Sie werden auf der Eventseite dargestellt. Du kannst unter den Team-mitgliedern Ansprechpartner:innen für Dein Event bestimmen.",
+    "Teammitglieder können Events im Entwurf einsehen, diese aber nicht bearbeiten. Sie werden auf der Eventseite dargestellt. Du kannst unter den Teammitgliedern Ansprechpartner:innen für Dein Event bestimmen.",
   tabbar: {
     list: "Team",
     add: "Mitglieder hinzufügen",
