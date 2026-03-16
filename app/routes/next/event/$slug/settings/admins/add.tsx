@@ -193,7 +193,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 }
 
-function Add() {
+function AddAdmin() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales } = loaderData;
 
@@ -450,4 +450,4 @@ function Add() {
   );
 }
 
-export default Add;
+export default AddAdmin;

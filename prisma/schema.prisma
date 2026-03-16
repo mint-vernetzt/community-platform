@@ -49,6 +49,7 @@ model Profile {
   seekings                  SeekingsOnProfiles[]
   contributedEvents         SpeakerOfEvent[]
   teamMemberOfEvents        TeamMemberOfEvent[]
+  contactPersonsOfEvents    ContactPersonOfEvent[]
   teamMemberOfProjects      TeamMemberOfProject[]
   waitingForEvents          WaitingParticipantOfEvent[]
   profileVisibility         ProfileVisibility?
@@ -111,6 +112,7 @@ model ProfileVisibility {
   seekings                  Boolean @default(false)
   contributedEvents         Boolean @default(true)
   teamMemberOfEvents        Boolean @default(true)
+  contactPersonsOfEvents    Boolean @default(true)
   teamMemberOfProjects      Boolean @default(true)
   waitingForEvents          Boolean @default(false)
   profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -529,6 +531,7 @@ model Event {
   targetGroups                     TargetGroupOfEvent[] // Legacy
   eventTargetGroups                EventTargetGroupOfEvent[]
   teamMembers                      TeamMemberOfEvent[]
+  contactPersons                   ContactPersonOfEvent[]
   waitingList                      WaitingParticipantOfEvent[]
   eventVisibility                  EventVisibility?
   admins                           AdminOfEvent[]
@@ -591,6 +594,7 @@ model EventVisibility {
   targetGroups                     Boolean @default(true) // legacy
   eventTargetGroups                Boolean @default(true)
   teamMembers                      Boolean @default(true)
+  contactPersons                   Boolean @default(true)
   admins                           Boolean @default(false)
   waitingList                      Boolean @default(false)
   abuseReports                     Boolean @default(false)
@@ -719,6 +723,16 @@ model TeamMemberOfEvent {
 
   @@id([eventId, profileId])
   @@map("team_members_of_events")
+}
+
+model ContactPersonOfEvent {
+  eventId   String  @map("event_id")
+  profileId String  @map("profile_id")
+  event     Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, profileId])
+  @@map("contact_persons_of_events")
 }
 
 model ParticipantOfEvent {
