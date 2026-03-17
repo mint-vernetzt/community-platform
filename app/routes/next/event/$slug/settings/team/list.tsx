@@ -1,4 +1,6 @@
+import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
 import { useEffect, useState } from "react";
 import {
   Form,
@@ -9,7 +11,7 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
@@ -23,6 +25,8 @@ import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
   getTeamMembersOfEvent,
@@ -35,19 +39,28 @@ import {
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
   TEAM_MEMBER_ID,
 } from "./list.shared";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { redirectWithToast } from "~/toast.server";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  const { slug } = params;
+
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
 
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  invariantResponse(sessionUser !== null, "Unauthorized", { status: 401 }); // Needed for type narrowing
 
   const language = await detectLanguage(request);
   const locales =
@@ -57,7 +70,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const searchParams = url.searchParams;
 
   const { teamMembers, submission } = await getTeamMembersOfEvent({
-    slug: params.slug,
+    slug,
     authClient,
     searchParams,
   });
@@ -67,7 +80,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  const { slug } = params;
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
@@ -75,10 +89,10 @@ export async function action(args: ActionFunctionArgs) {
     "events",
     "next_event_settings",
   ]);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -90,7 +104,7 @@ export async function action(args: ActionFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/team/list"];
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event._count.teamMembers <= 1) {
