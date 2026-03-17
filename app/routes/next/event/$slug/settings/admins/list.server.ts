@@ -50,7 +50,7 @@ export async function getAdminsOfEvent(options: {
 
     admins = await prismaClient.profile.findMany({
       where: {
-        participatedEvents: { some: { event: { slug } } },
+        administeredEvents: { some: { event: { slug } } },
         OR: query.map((term) => {
           return {
             OR: [

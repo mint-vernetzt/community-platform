@@ -50,7 +50,7 @@ export async function getTeamMembersOfEvent(options: {
 
     teamMembers = await prismaClient.profile.findMany({
       where: {
-        participatedEvents: { some: { event: { slug } } },
+        teamMemberOfEvents: { some: { event: { slug } } },
         OR: query.map((term) => {
           return {
             OR: [
