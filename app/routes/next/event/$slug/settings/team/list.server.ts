@@ -1,10 +1,10 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { prismaClient } from "~/prisma.server";
+import { parseWithZod } from "node_modules/@conform-to/zod/dist/default/parse";
 import {
-  getSearchAdminsSchema,
-  SEARCH_ADMINS_SEARCH_PARAM,
+  getSearchTeamMembersSchema,
+  SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./list.shared";
-import { parseWithZod } from "@conform-to/zod";
+import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
@@ -13,7 +13,7 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 
-export async function getAdminsOfEvent(options: {
+export async function getTeamMembersOfEvent(options: {
   slug: string;
   authClient: SupabaseClient;
   searchParams: URLSearchParams;
@@ -21,18 +21,18 @@ export async function getAdminsOfEvent(options: {
   const { slug, authClient, searchParams } = options;
 
   const submission = parseWithZod(searchParams, {
-    schema: getSearchAdminsSchema(),
+    schema: getSearchTeamMembersSchema(),
   });
 
-  let admins = [];
+  let teamMembers = [];
 
   if (
     submission.status !== "success" ||
-    typeof submission.value[SEARCH_ADMINS_SEARCH_PARAM] === "undefined"
+    typeof submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM] === "undefined"
   ) {
-    admins = await prismaClient.profile.findMany({
+    teamMembers = await prismaClient.profile.findMany({
       where: {
-        administeredEvents: { some: { event: { slug } } },
+        teamMemberOfEvents: { some: { event: { slug } } },
       },
       select: {
         id: true,
@@ -46,11 +46,11 @@ export async function getAdminsOfEvent(options: {
     });
   } else {
     const query =
-      submission.value[SEARCH_ADMINS_SEARCH_PARAM].trim().split(" ");
+      submission.value[SEARCH_TEAM_MEMBERS_SEARCH_PARAM].trim().split(" ");
 
-    admins = await prismaClient.profile.findMany({
+    teamMembers = await prismaClient.profile.findMany({
       where: {
-        administeredEvents: { some: { event: { slug } } },
+        teamMemberOfEvents: { some: { event: { slug } } },
         OR: query.map((term) => {
           return {
             OR: [
@@ -84,8 +84,8 @@ export async function getAdminsOfEvent(options: {
     });
   }
 
-  const enhancedAdmins = admins.map((admin) => {
-    let avatar = admin.avatar;
+  const enhancedTeamMembers = teamMembers.map((teamMember) => {
+    let avatar = teamMember.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -106,10 +106,10 @@ export async function getAdminsOfEvent(options: {
       }
     }
 
-    return { ...admin, avatar, blurredAvatar };
+    return { ...teamMember, avatar, blurredAvatar };
   });
 
-  return { submission: submission.reply(), admins: enhancedAdmins };
+  return { submission: submission.reply(), teamMembers: enhancedTeamMembers };
 }
 
 export async function getEventBySlug(slug: string) {
@@ -120,7 +120,7 @@ export async function getEventBySlug(slug: string) {
       name: true,
       _count: {
         select: {
-          admins: true,
+          teamMembers: true,
         },
       },
     },
@@ -128,22 +128,22 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
-export async function removeAdminFromEvent(options: {
+export async function removeTeamMemberFromEvent(options: {
   eventId: string;
-  adminId: string;
+  teamMemberId: string;
   locales: {
     mail: {
       subject: string;
     };
   };
 }) {
-  const { eventId, adminId } = options;
+  const { eventId, teamMemberId } = options;
 
-  const result = await prismaClient.adminOfEvent.delete({
+  const result = await prismaClient.teamMemberOfEvent.delete({
     where: {
-      profileId_eventId: {
+      eventId_profileId: {
         eventId: eventId,
-        profileId: adminId,
+        profileId: teamMemberId,
       },
     },
     select: {
@@ -165,9 +165,9 @@ export async function removeAdminFromEvent(options: {
   const recipient = result.profile.email;
   const subject = options.locales.mail.subject;
   const textTemplatePath =
-    "mail-templates/general-notification/remove-admin-from-event-text.hbs";
+    "mail-templates/general-notification/remove-team-member-from-event-text.hbs";
   const htmlTemplatePath =
-    "mail-templates/general-notification/remove-admin-from-event-html.hbs";
+    "mail-templates/general-notification/remove-team-member-from-event-html.hbs";
 
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,
