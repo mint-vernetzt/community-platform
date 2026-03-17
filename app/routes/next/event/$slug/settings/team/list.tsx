@@ -17,10 +17,7 @@ import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { detectLanguage } from "~/i18n.server";
-import {
-  insertComponentsIntoLocale,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
