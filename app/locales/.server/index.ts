@@ -89,6 +89,9 @@ import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/eve
 import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
 import { locale as deNextEventSettingsTeam } from "./de/routes/next/event/$slug/settings/team";
+import { locale as deNextEventSettingsTeamList } from "./de/routes/next/event/$slug/settings/team/list";
+import { locale as deNextEventSettingsTeamAdd } from "./de/routes/next/event/$slug/settings/team/add";
+import { locale as deNextEventSettingsTeamInvites } from "./de/routes/next/event/$slug/settings/team/invites";
 import { locale as deNextEventSettingsTimePeriod } from "./de/routes/next/event/$slug/settings/time-period";
 // explore routes
 import { locale as deExplore } from "./de/routes/explore";
@@ -277,6 +280,9 @@ import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/eve
 import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as enNextEventSettingsSpeakers } from "./en/routes/next/event/$slug/settings/speakers";
 import { locale as enNextEventSettingsTeam } from "./en/routes/next/event/$slug/settings/team";
+import { locale as enNextEventSettingsTeamList } from "./en/routes/next/event/$slug/settings/team/list";
+import { locale as enNextEventSettingsTeamAdd } from "./en/routes/next/event/$slug/settings/team/add";
+import { locale as enNextEventSettingsTeamInvites } from "./en/routes/next/event/$slug/settings/team/invites";
 import { locale as enNextEventSettingsTimePeriod } from "./en/routes/next/event/$slug/settings/time-period";
 // explore routes
 import { locale as enExplore } from "./en/routes/explore";
@@ -569,6 +575,15 @@ const de = {
   },
   "next/event/$slug/settings/team": {
     route: deNextEventSettingsTeam,
+  },
+  "next/event/$slug/settings/team/add": {
+    route: deNextEventSettingsTeamAdd,
+  },
+  "next/event/$slug/settings/team/list": {
+    route: deNextEventSettingsTeamList,
+  },
+  "next/event/$slug/settings/team/invites": {
+    route: deNextEventSettingsTeamInvites,
   },
   "next/event/$slug/settings/time-period": {
     route: deNextEventSettingsTimePeriod,
@@ -1057,6 +1072,15 @@ const en = {
   },
   "next/event/$slug/settings/team": {
     route: enNextEventSettingsTeam,
+  },
+  "next/event/$slug/settings/team/add": {
+    route: enNextEventSettingsTeamAdd,
+  },
+  "next/event/$slug/settings/team/list": {
+    route: enNextEventSettingsTeamList,
+  },
+  "next/event/$slug/settings/team/invites": {
+    route: enNextEventSettingsTeamInvites,
   },
   "next/event/$slug/settings/time-period": {
     route: enNextEventSettingsTimePeriod,
