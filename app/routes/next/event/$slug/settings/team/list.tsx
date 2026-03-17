@@ -141,18 +141,6 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  if (sessionUser.id === submission.value.teamMemberId) {
-    return redirectWithToast("/dashboard", {
-      id: "remove-self-as-team-member-success",
-      key: `remove-self-as-team-member-success-${Date.now()}`,
-      message: insertParametersIntoLocale(
-        locales.route.success.removeSelfAsTeamMember,
-        { eventName: event.name }
-      ),
-      level: "positive",
-    });
-  }
-
   return redirectWithToast(request.url, {
     id: "remove-team-member-success",
     key: `remove-team-member-success-${Date.now()}`,

@@ -22,8 +22,6 @@ export const locale = {
       "Das Entfernen des Teammitglieds ist fehlgeschlagen.",
   },
   success: {
-    removeSelfAsTeamMember:
-      "Du hast Dich erfolgreich als Teammitglied vom Event {{eventName}} entfernt.",
     removeTeamMember: "Das Teammitglied wurde erfolgreich entfernt.",
   },
   mail: {

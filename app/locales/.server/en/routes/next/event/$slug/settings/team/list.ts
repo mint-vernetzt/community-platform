@@ -21,8 +21,6 @@ export const locale = {
     removeTeamMemberFailed: "Removing the team member has failed.",
   },
   success: {
-    removeSelfAsTeamMember:
-      "You have successfully removed yourself as a team member from the event {{eventName}}.",
     removeTeamMember: "The team member has been successfully removed.",
   },
   mail: {
