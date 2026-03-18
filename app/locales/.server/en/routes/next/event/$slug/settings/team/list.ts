@@ -1,5 +1,3 @@
-import { remove } from "jszip";
-
 export const locale = {
   title: "Current Team",
   explanation:
