@@ -212,7 +212,7 @@ type InviteCanceledNetworkContent = {
   network: { name: string };
 };
 
-type GeneralNotificationRemovedFromEventContent = {
+type GeneralNotificationAddOrRemovedFromEventContent = {
   firstName: string;
   event: {
     name: string;
@@ -283,7 +283,11 @@ type TemplatePath =
   | "mail-templates/general-notification/remove-admin-from-event-html.hbs"
   | "mail-templates/general-notification/remove-admin-from-event-text.hbs"
   | "mail-templates/general-notification/remove-team-member-from-event-html.hbs"
-  | "mail-templates/general-notification/remove-team-member-from-event-text.hbs";
+  | "mail-templates/general-notification/remove-team-member-from-event-text.hbs"
+  | "mail-templates/general-notification/remove-contact-person-from-event-html.hbs"
+  | "mail-templates/general-notification/remove-contact-person-from-event-text.hbs"
+  | "mail-templates/general-notification/add-contact-person-from-event-html.hbs"
+  | "mail-templates/general-notification/add-contact-person-from-event-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -390,7 +394,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                               | "mail-templates/general-notification/remove-admin-from-event-text.hbs"
                                               | "mail-templates/general-notification/remove-team-member-from-event-html.hbs"
                                               | "mail-templates/general-notification/remove-team-member-from-event-text.hbs"
-                                          ? GeneralNotificationRemovedFromEventContent
+                                              | "mail-templates/general-notification/remove-contact-person-from-event-html.hbs"
+                                              | "mail-templates/general-notification/remove-contact-person-from-event-text.hbs"
+                                              | "mail-templates/general-notification/add-contact-person-from-event-html.hbs"
+                                              | "mail-templates/general-notification/add-contact-person-from-event-text.hbs"
+                                          ? GeneralNotificationAddOrRemovedFromEventContent
                                           : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(

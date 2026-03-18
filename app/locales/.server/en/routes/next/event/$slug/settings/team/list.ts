@@ -1,3 +1,5 @@
+import { remove } from "jszip";
+
 export const locale = {
   title: "Current Team",
   explanation:
@@ -6,7 +8,9 @@ export const locale = {
     more: "Show {{count}} more",
     less: "Show {{count}} less",
     searchPlaceholder: "Search for team members...",
-    remove: "Remove",
+    remove: "Remove as team member",
+    removeContactPerson: "Remove as contact person",
+    addContactPerson: "Add as contact person",
   },
   confirmation: {
     title: "Do you really want to remove yourself as a team member?",
@@ -19,11 +23,20 @@ export const locale = {
     removeLastTeamMember:
       "You cannot remove the last team member of the event.",
     removeTeamMemberFailed: "Removing the team member has failed.",
+    addContactPersonFailed: "Adding the contact person has failed.",
+    removeContactPersonFailed: "Removing the contact person has failed.",
   },
   success: {
     removeTeamMember: "The team member has been successfully removed.",
+    addContactPerson: "The contact person has been successfully added.",
+    removeContactPerson: "The contact person has been successfully removed.",
   },
   mail: {
-    subject: "Du wurdest als Teammitglied eines Events entfernt",
+    removeTeamMemberSubject:
+      "Du wurdest als Teammitglied eines Events entfernt",
+    removeContactPersonSubject:
+      "Du wurdest als Ansprechpartner:in eines Events entfernt",
+    addContactPersonSubject:
+      "Du wurdest als Ansprechpartner:in eines Events hinzugefügt",
   },
 } as const;
