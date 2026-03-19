@@ -10,6 +10,7 @@ const schema = z.object({
   IMGPROXY_URL: z.string(),
   IMGPROXY_KEY: z.string(),
   IMGPROXY_SALT: z.string(),
+  KEYCLOAK_URL: z.string(),
   COMMUNITY_BASE_URL: z.string(),
   DATABASE_URL: z.string(),
   SERVICE_ROLE_KEY: z.string(),
