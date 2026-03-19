@@ -50,5 +50,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     { status: 500 }
   );
 
-  return redirect(data.url, { headers });
+  return redirect(keycloakUrl, { headers });
 };
