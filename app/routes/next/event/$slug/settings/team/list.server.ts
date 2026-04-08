@@ -1,5 +1,4 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
-import { parseWithZod } from "node_modules/@conform-to/zod/dist/default/parse";
 import {
   getSearchTeamMembersSchema,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
@@ -12,6 +11,7 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { parseWithZod } from "@conform-to/zod";
 
 export async function getTeamMembersOfEvent(options: {
   slug: string;

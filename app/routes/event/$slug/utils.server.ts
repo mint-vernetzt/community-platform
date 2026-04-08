@@ -1,9 +1,9 @@
-import { stages } from "prisma/scripts/import-datasets/data/stages";
 import { prismaClient } from "~/prisma.server";
 import { type deriveModeForEvent } from "./detail.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Prisma, type Profile, type Event } from "@prisma/client";
 import { type ArrayElement } from "~/lib/utils/types";
+import { stages } from "../../../../prisma/scripts/import-datasets/data/stages";
 
 export function getChildEventCount(slug: string) {
   return prismaClient.event.count({
