@@ -13,7 +13,6 @@
     "resolveJsonModule": true,
     "target": "ES2022",
     "strict": true,
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
       "@mint-vernetzt/components/*": ["./common/components/*"]

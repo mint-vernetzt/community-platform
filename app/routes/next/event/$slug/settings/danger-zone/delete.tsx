@@ -2,8 +2,6 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
-import { getZodConstraint } from "node_modules/@conform-to/zod/dist/default/constraint";
-import { parseWithZod } from "node_modules/@conform-to/zod/dist/default/parse";
 import {
   Form,
   redirect,
@@ -29,6 +27,7 @@ import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { deleteEventBySlug, getEventBySlug } from "./delete.server";
 import { createDeleteSchema } from "./delete.shared";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
