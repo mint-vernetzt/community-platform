@@ -74,6 +74,7 @@ export function getEnv() {
     SUPPORT_MAIL: process.env.SUPPORT_MAIL,
     SENTRY_DSN: process.env.SENTRY_DSN,
     ALLOW_INDEXING: process.env.ALLOW_INDEXING,
+    MATOMO_URL: process.env.MATOMO_URL,
   };
 }
 

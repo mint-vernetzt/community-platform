@@ -565,10 +565,11 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (matomoSiteId !== "" && matomoUrl !== "" && window._paq !== undefined) {
+    if (matomoSiteId !== "" && matomoUrl !== "") {
       try {
-        window._paq.push(["setCustomUrl", window.location.href]);
-        window._paq.push(["trackPageView"]);
+        const _paq = (window._paq = window._paq || []);
+        _paq.push(["setCustomUrl", window.location.href]);
+        _paq.push(["trackPageView"]);
       } catch (error) {
         console.warn(`Matomo tracking failed.`);
         const formData = new FormData();

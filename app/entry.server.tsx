@@ -44,20 +44,18 @@ export default async function handleRequest(
   const isMap = url.pathname === "/map";
 
   const connectSrc = ["'self'"];
-  if (process.env.NODE_ENV === "production") {
-    if (process.env.MATOMO_URL !== "") {
-      connectSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
-    }
-    if (
-      typeof process.env.SENTRY_DSN !== "undefined" &&
-      process.env.SENTRY_DSN !== ""
-    ) {
-      connectSrc.push(
-        process.env.SENTRY_DSN.replace(/https?:\/\//, "")
-          .replace(/sentry\.io.*/, "sentry.io")
-          .replace(/^.*@/, "")
-      );
-    }
+  if (process.env.MATOMO_URL !== "") {
+    connectSrc.push(process.env.MATOMO_URL.replace(/https?:\/\//, ""));
+  }
+  if (
+    typeof process.env.SENTRY_DSN !== "undefined" &&
+    process.env.SENTRY_DSN !== ""
+  ) {
+    connectSrc.push(
+      process.env.SENTRY_DSN.replace(/https?:\/\//, "")
+        .replace(/sentry\.io.*/, "sentry.io")
+        .replace(/^.*@/, "")
+    );
   }
 
   const styleSrcElem = ["'self'"];

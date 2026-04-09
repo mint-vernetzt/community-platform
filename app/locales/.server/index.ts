@@ -171,8 +171,12 @@ import { locale as deImprint } from "./de/routes/imprint";
 import { locale as deLanding } from "./de/routes/index";
 // map route
 import { locale as deMap } from "./de/routes/map";
+// privacy-policy route
+import { locale as dePrivacyPolicy } from "./de/routes/privacy-policy";
 // resources route
 import { locale as deResources } from "./de/routes/resources";
+// terms-of-service route
+import { locale as deTermsOfService } from "./de/routes/terms-of-service";
 // splat routes
 import { locale as deSplat } from "./de/routes/$";
 // schemas
@@ -362,8 +366,12 @@ import { locale as enImprint } from "./en/routes/imprint";
 import { locale as enLanding } from "./en/routes/index";
 // map route
 import { locale as enMap } from "./en/routes/map";
+// privacy-policy route
+import { locale as enPrivacyPolicy } from "./en/routes/privacy-policy";
 // resources route
 import { locale as enResources } from "./en/routes/resources";
+// terms-of-service route
+import { locale as enTermsOfService } from "./en/routes/terms-of-service";
 // splat routes
 import { locale as enSplat } from "./en/routes/$";
 // schemas
@@ -873,8 +881,12 @@ const de = {
     networkTypes: deNetworkTypes,
     components: deComponents,
   },
+  // privacy-policy route
+  "privacy-policy": dePrivacyPolicy,
   // resources route
   resources: deResources,
+  // terms-of-service route
+  "terms-of-service": deTermsOfService,
   // splat routes
   $: deSplat,
   // datasets
@@ -1370,8 +1382,12 @@ const en = {
     networkTypes: enNetworkTypes,
     components: enComponents,
   },
+  // privacy-policy route
+  "privacy-policy": enPrivacyPolicy,
   // resources route
   resources: enResources,
+  // terms-of-service route
+  "terms-of-service": enTermsOfService,
   // splat routes
   $: enSplat,
   // datasets
