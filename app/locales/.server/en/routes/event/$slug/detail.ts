@@ -32,6 +32,7 @@ export const locale = {
     overlayMenu: {
       close: "Close",
     },
+    contactPerson: "Contact person",
   },
   errors: {
     invalidProfileId: "Invalid profile ID",

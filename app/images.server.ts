@@ -59,6 +59,20 @@ export const ImageSizes = {
         height: 4,
       },
     },
+    Event: {
+      Detail: {
+        ListItem: {
+          Avatar: {
+            width: 64,
+            height: 64,
+          },
+          BlurredAvatar: {
+            width: 4,
+            height: 4,
+          },
+        },
+      },
+    },
     Card: {
       Background: { width: 589, height: 190 },
       BlurredBackground: { width: 31, height: 10 },
