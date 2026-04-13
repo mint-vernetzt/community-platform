@@ -84,6 +84,21 @@ export async function getTeamMembersOfEvent(options: {
     });
   }
 
+  const contactPersons = await prismaClient.contactPersonOfEvent.findMany({
+    where: { event: { slug } },
+    select: {
+      profile: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  const contactPersonIds = contactPersons.map((contactPerson) => {
+    return contactPerson.profile.id;
+  });
+
   const enhancedTeamMembers = teamMembers.map((teamMember) => {
     let avatar = teamMember.avatar;
     let blurredAvatar;
@@ -106,7 +121,9 @@ export async function getTeamMembersOfEvent(options: {
       }
     }
 
-    return { ...teamMember, avatar, blurredAvatar };
+    const isContactPerson = contactPersonIds.includes(teamMember.id);
+
+    return { ...teamMember, avatar, blurredAvatar, isContactPerson };
   });
 
   return { submission: submission.reply(), teamMembers: enhancedTeamMembers };
@@ -168,6 +185,130 @@ export async function removeTeamMemberFromEvent(options: {
     "mail-templates/general-notification/remove-team-member-from-event-text.hbs";
   const htmlTemplatePath =
     "mail-templates/general-notification/remove-team-member-from-event-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+
+  return result;
+}
+
+export async function addContactPersonToEvent(options: {
+  eventId: string;
+  teamMemberId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { eventId, teamMemberId } = options;
+
+  const result = await prismaClient.contactPersonOfEvent.create({
+    data: {
+      eventId,
+      profileId: teamMemberId,
+    },
+    select: {
+      profile: {
+        select: {
+          email: true,
+          firstName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/general-notification/add-contact-person-from-event-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/general-notification/add-contact-person-from-event-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+
+  return result;
+}
+
+export async function removeContactPersonFromEvent(options: {
+  eventId: string;
+  teamMemberId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { eventId, teamMemberId } = options;
+
+  const result = await prismaClient.contactPersonOfEvent.delete({
+    where: {
+      eventId_profileId: {
+        eventId,
+        profileId: teamMemberId,
+      },
+    },
+    select: {
+      profile: {
+        select: {
+          email: true,
+          firstName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/general-notification/remove-contact-person-from-event-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/general-notification/remove-contact-person-from-event-html.hbs";
 
   const text = getCompiledMailTemplate<typeof textTemplatePath>(
     textTemplatePath,

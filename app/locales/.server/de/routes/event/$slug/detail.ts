@@ -32,6 +32,7 @@ export const locale = {
     overlayMenu: {
       close: "Schließen",
     },
+    contactPerson: "Ansprechpartner:in",
   },
   errors: {
     invalidProfileId: "Ungültige Profil-ID",
