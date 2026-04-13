@@ -460,8 +460,36 @@ export default function PrivacyPolicy() {
 
       <h3>{locales.individualProcessingSteps.videoEmbedding.title}</h3>
       <div className="w-full flex flex-col gap-2 mb-4">
-        <p>{locales.individualProcessingSteps.videoEmbedding.subline}</p>
-        <p>{locales.individualProcessingSteps.videoEmbedding.description}</p>
+        <p>
+          {insertComponentsIntoLocale(
+            locales.individualProcessingSteps.videoEmbedding.subline,
+            [
+              <TextButton
+                key="mintvernetzt-privacy-policy"
+                as="link"
+                to="https://www.mint-vernetzt.de/privacy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex"
+              />,
+            ]
+          )}
+        </p>
+        <p>
+          {insertComponentsIntoLocale(
+            locales.individualProcessingSteps.videoEmbedding.description,
+            [
+              <TextButton
+                key="youtube-extended-privacy"
+                as="link"
+                to="https://support.google.com/youtube/answer/171780?hl=de#zippy=%2Cerweiterten-datenschutzmodus-aktivieren"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex"
+              />,
+            ]
+          )}
+        </p>
       </div>
 
       <h4>{locales.individualProcessingSteps.videoEmbedding.purposes.title}</h4>
@@ -558,7 +586,24 @@ export default function PrivacyPolicy() {
 
       <h3>{locales.individualProcessingSteps.contactSupport.title}</h3>
       <div className="w-full flex flex-col gap-2 mb-4">
-        <p>{locales.individualProcessingSteps.contactSupport.description}</p>
+        <p>
+          {insertComponentsIntoLocale(
+            insertParametersIntoLocale(
+              locales.individualProcessingSteps.contactSupport.description,
+              {
+                supportMail: ENV.SUPPORT_MAIL,
+              }
+            ),
+            [
+              <TextButton
+                key="support-mail"
+                as="link"
+                to={`mailto:${ENV.SUPPORT_MAIL}`}
+                className="inline-flex"
+              />,
+            ]
+          )}
+        </p>
       </div>
 
       <h4>{locales.individualProcessingSteps.contactSupport.purposes.title}</h4>
@@ -709,6 +754,159 @@ export default function PrivacyPolicy() {
           {locales.individualProcessingSteps.matomo.matomoNotConfigured}
         </p>
       )}
+
+      <h2>{locales.rightsOfAffectedIndividuals.title}</h2>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>{locales.rightsOfAffectedIndividuals.intro}</p>
+        <address className="not-italic pl-4">
+          <p>{locales.rightsOfAffectedIndividuals.contactInformation.name}</p>
+          <p>{locales.rightsOfAffectedIndividuals.contactInformation.street}</p>
+          <p>
+            {locales.rightsOfAffectedIndividuals.contactInformation.addition}
+          </p>
+          <p>
+            {
+              locales.rightsOfAffectedIndividuals.contactInformation
+                .zipCodeAndCity
+            }
+          </p>
+          <p>
+            {insertComponentsIntoLocale(
+              insertParametersIntoLocale(
+                locales.rightsOfAffectedIndividuals.contactInformation.phone,
+                {
+                  phone: "+49 (0) 211 – 75707910",
+                }
+              ),
+              [
+                <TextButton
+                  key="data-protection-officer-phone-2"
+                  as="link"
+                  to="tel:+4921175707910"
+                  className="inline-flex"
+                />,
+              ]
+            )}
+          </p>
+          <p>
+            {insertComponentsIntoLocale(
+              insertParametersIntoLocale(
+                locales.rightsOfAffectedIndividuals.contactInformation.email,
+                {
+                  email: "info@matrix-ggmbh.de",
+                }
+              ),
+              [
+                <TextButton
+                  key="data-protection-officer-email-2"
+                  as="link"
+                  to="mailto:info@matrix-ggmbh.de"
+                  className="inline-flex"
+                />,
+              ]
+            )}
+          </p>
+        </address>
+        <p>{locales.rightsOfAffectedIndividuals.rights.prefix}</p>
+      </div>
+
+      <h3>{locales.rightsOfAffectedIndividuals.rights.information.title}</h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {locales.rightsOfAffectedIndividuals.rights.information.description}
+        </p>
+        <ul className="list-disc list-inside pl-4">
+          {locales.rightsOfAffectedIndividuals.rights.information.data.map(
+            (data, index) => (
+              <li key={index}>{data}</li>
+            )
+          )}
+        </ul>
+      </div>
+
+      <h3>{locales.rightsOfAffectedIndividuals.rights.correction.title}</h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {locales.rightsOfAffectedIndividuals.rights.correction.description}
+        </p>
+      </div>
+
+      <h3>{locales.rightsOfAffectedIndividuals.rights.deletion.title}</h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        {locales.rightsOfAffectedIndividuals.rights.deletion.description.map(
+          (paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          )
+        )}
+      </div>
+
+      <h3>{locales.rightsOfAffectedIndividuals.rights.restriction.title}</h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {locales.rightsOfAffectedIndividuals.rights.restriction.description}
+        </p>
+      </div>
+
+      <h3>
+        {locales.rightsOfAffectedIndividuals.rights.dataPortability.title}
+      </h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {
+            locales.rightsOfAffectedIndividuals.rights.dataPortability
+              .description
+          }
+        </p>
+      </div>
+
+      <h3>
+        {locales.rightsOfAffectedIndividuals.rights.withdrawalOfConsent.title}
+      </h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {
+            locales.rightsOfAffectedIndividuals.rights.withdrawalOfConsent
+              .description
+          }
+        </p>
+      </div>
+
+      <h3>
+        {
+          locales.rightsOfAffectedIndividuals.rights
+            .complaintToARegulatoryAuthority.title
+        }
+      </h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {
+            locales.rightsOfAffectedIndividuals.rights
+              .complaintToARegulatoryAuthority.description
+          }
+        </p>
+      </div>
+
+      <h3>{locales.rightsOfAffectedIndividuals.rights.objection.title}</h3>
+      <div className="w-full flex flex-col gap-2 mb-4">
+        <p>
+          {insertComponentsIntoLocale(
+            insertParametersIntoLocale(
+              locales.rightsOfAffectedIndividuals.rights.objection.description,
+              {
+                email: "info@matrix-ggmbh.de",
+              }
+            ),
+            [
+              <TextButton
+                key="data-protection-officer-email-3"
+                as="link"
+                to="mailto:info@matrix-ggmbh.de"
+                className="inline-flex"
+              />,
+            ]
+          )}
+        </p>
+      </div>
     </section>
   );
 }

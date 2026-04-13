@@ -325,69 +325,69 @@ export const locale = {
       matomoNotConfigured:
         "Der Matomo Tracking Code ist nicht konfiguriert. Deshalb werden derzeit keine Daten erhoben.",
     },
-    rightsOfAffectedIndividuals: {
-      title: "Betroffenenrechte",
-      intro:
-        "Dir stehen einige Rechte nach der DSGVO zu. Diese kannst Du gegenüber allen Verbundpartner:innen geltend machen. Du kannst Dich auch direkt an die folgende Gesellschaft wenden:",
-      contactInformation: {
-        name: "matrix gGmbH,",
-        street: "Düsseldorfer Str. 16,",
-        addition: "Rittergut Haus Morp,",
-        zipCodeAndCity: "40699 Erkrath bei Düsseldorf",
-        phone: "Telefon: <0>{{phone}}</0>",
-        email: "E-Mail: <0>{{email}}</0>",
+  },
+  rightsOfAffectedIndividuals: {
+    title: "Betroffenenrechte",
+    intro:
+      "Dir stehen einige Rechte nach der DSGVO zu. Diese kannst Du gegenüber allen Verbundpartner:innen geltend machen. Du kannst Dich auch direkt an die folgende Gesellschaft wenden:",
+    contactInformation: {
+      name: "matrix gGmbH,",
+      street: "Düsseldorfer Str. 16,",
+      addition: "Rittergut Haus Morp,",
+      zipCodeAndCity: "40699 Erkrath bei Düsseldorf",
+      phone: "Telefon: <0>{{phone}}</0>",
+      email: "E-Mail: <0>{{email}}</0>",
+    },
+    rights: {
+      prefix: "Deine Rechte lauten:",
+      information: {
+        title: "1. Recht auf Auskunft",
+        description:
+          "Du hast gemäß Art. 15 DSGVO jederzeit das Recht, von uns Auskunft über alle Daten zu verlangen, die wir über Dich speichern. Das beinhaltet insbesondere die Auskunft über",
+        data: [
+          "die Zwecke, zu denen wir Deine Daten verarbeiten,",
+          "die Kategorien von Daten, die wir von Dir verarbeiten,",
+          "die konkreten Empfänger oder, sollten diese nicht bekannt sein, die Kategorien von Empfängern, an die wir Deine Daten übermitteln,",
+          "die Dauer, für die wir Deine Daten speichern oder, sollte diese nicht bestimmbar sein, die Kriterien unter denen wir Deine Daten speichern und",
+          "gegebenenfalls die Herkunft der Daten, falls wir diese nicht bei Dir erhoben haben.",
+        ],
       },
-      rights: {
-        prefix: "Deine Rechte lauten:",
-        information: {
-          title: "1. Recht auf Auskunft",
-          description:
-            "Du hast gemäß Art. 15 DSGVO jederzeit das Recht, von uns Auskunft über alle Daten zu verlangen, die wir über Dich speichern. Das beinhaltet insbesondere die Auskunft über",
-          data: [
-            "die Zwecke, zu denen wir Deine Daten verarbeiten,",
-            "die Kategorien von Daten, die wir von Dir verarbeiten,",
-            "die konkreten Empfänger oder, sollten diese nicht bekannt sein, die Kategorien von Empfängern, an die wir Deine Daten übermitteln,",
-            "die Dauer, für die wir Deine Daten speichern oder, sollte diese nicht bestimmbar sein, die Kriterien unter denen wir Deine Daten speichern und",
-            "gegebenenfalls die Herkunft der Daten, falls wir diese nicht bei Dir erhoben haben.",
-          ],
-        },
-        correction: {
-          title: "2. Recht auf Berichtigung",
-          description:
-            "Sollten Deine Daten, die bei uns verarbeitet werden, unrichtig oder unvollständig sein, so kannst Du von uns jederzeit die Berichtigung oder Vervollständigung dieser Daten nach Art. 16 DSGVO verlangen.",
-        },
-        deletion: {
-          title: "3. Recht auf Löschung (Vergessenwerden)",
-          description: [
-            "Sollte die ursprüngliche Rechtsgrundlage für die Datenverarbeitung nicht mehr greifen oder hast Du Deine Einwilligung widerrufen oder der Verarbeitung widersprochen oder dürfen wir Deine Daten aus einem anderen der in Art. 17 Abs. 1 DSGVO genannten Gründe nicht weiter verarbeiten, so kannst Du von uns nach Art. 17 DSGVO die Löschung der Dich betreffenden personenbezogenen Daten verlangen.",
-            "Dieses Recht steht Dir nicht zu, wenn die Verarbeitung zur Ausübung der Meinungs- und Informationsfreiheit oder zur Wahrung öffentlicher Interessen erforderlich ist, eine dahingehende Rechtspflicht besteht oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen notwendig ist.",
-          ],
-        },
-        restriction: {
-          title: "4. Recht auf Einschränkung",
-          description:
-            "Gemäß Art. 18 DSGVO kannst Du auch die Einschränkung der Verarbeitung verlangen. Dieses Recht steht Dir zu, wenn Du die Richtigkeit der Daten bestreiten, die Verarbeitung unrechtmäßig ist, wir die Daten für die angegebenen Zwecke nicht mehr benötigen oder Du der Verarbeitung widersprochen haben und wir die Daten in den beiden letztgenannten Fällen nicht anderweitig rechtmäßig weiterverarbeiten dürfen.",
-        },
-        dataPortability: {
-          title: "5. Recht auf Datenübertragbarkeit",
-          description:
-            "Außerdem kannst Du von uns nach Art. 20 DSGVO die Übertragung Deiner Daten in einem strukturierten, gängigen und maschinenlesbaren Format an sich selbst oder einen anderen Verantwortlichen verlangen.",
-        },
-        withdrawalOfConsent: {
-          title: "6. Recht auf Widerruf der Einwilligung",
-          description:
-            "Hast Du als Rechtsgrundlage für die Verarbeitung Deiner Daten durch uns Deine Einwilligung zum Beispiel nach Art. 6 Abs. 1 S. 1 lit. a oder Art. 9 Abs. 2 lit. a DSGVO erklärt, so kannst Du gemäß Art. 7 Abs. 3 DSGVO diese Einwilligung jederzeit widerrufen. Wenn Du dies tust, stellen wir die Verarbeitung Deiner Daten ein, allerdings bleibt die Rechtmäßigkeit der Verarbeitung bis zum Widerruf von dem Widerruf unberührt.",
-        },
-        complaintToARegulatoryAuthority: {
-          title: "7. Recht auf Beschwerde bei einer Aufsichtsbehörde",
-          description:
-            "Du kannst Dich gemäß Art. 77 DSGVO auch mit einer Beschwerde an eine Aufsichtsbehörde wenden. In der Regel sollte dies die Aufsichtsbehörde Deines üblichen Aufenthaltsortes oder Arbeitsplatzes sein; wahlweise kannst Du Deine Beschwerde auch an die Aufsichtsbehörde des Unternehmenssitzes des Verantwortlichen richten.",
-        },
-        objection: {
-          title: "8. WIDERSPRUCHSRECHT",
-          description:
-            "NACH ART. 21 DSGVO STEHT DIR DAS RECHT ZU, WIDERSPRUCH GEGEN DIE VERARBEITUNG DEINER PERSONENBEZOGENEN DATEN EINZULEGEN, WENN WIR DEINE PERSONENBEZOGENEN DATEN LEDIGLICH AUF GRUNDLAGE UNSERER BERECHTIGTEN INTERESSEN VERARBEITEN UND SICH AUS DEINER BESONDEREN SITUATION ERGEBENDE GRÜNDE DAFÜR SPRECHEN. SOLLTE SICH DEIN WIDERSPRUCH GEGEN DIREKTWERBUNG RICHTEN, STEHT DIR EIN GENERELLES WIDERSPRUCHSRECHT OHNE ANGABE VON BESONDEREN GRÜNDEN ZU. DEINEN WIDERSPRUCH KANNST DU DURCH E-MAIL AN <0>{{email}}</0> ERKLÄREN.",
-        },
+      correction: {
+        title: "2. Recht auf Berichtigung",
+        description:
+          "Sollten Deine Daten, die bei uns verarbeitet werden, unrichtig oder unvollständig sein, so kannst Du von uns jederzeit die Berichtigung oder Vervollständigung dieser Daten nach Art. 16 DSGVO verlangen.",
+      },
+      deletion: {
+        title: "3. Recht auf Löschung (Vergessenwerden)",
+        description: [
+          "Sollte die ursprüngliche Rechtsgrundlage für die Datenverarbeitung nicht mehr greifen oder hast Du Deine Einwilligung widerrufen oder der Verarbeitung widersprochen oder dürfen wir Deine Daten aus einem anderen der in Art. 17 Abs. 1 DSGVO genannten Gründe nicht weiter verarbeiten, so kannst Du von uns nach Art. 17 DSGVO die Löschung der Dich betreffenden personenbezogenen Daten verlangen.",
+          "Dieses Recht steht Dir nicht zu, wenn die Verarbeitung zur Ausübung der Meinungs- und Informationsfreiheit oder zur Wahrung öffentlicher Interessen erforderlich ist, eine dahingehende Rechtspflicht besteht oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen notwendig ist.",
+        ],
+      },
+      restriction: {
+        title: "4. Recht auf Einschränkung",
+        description:
+          "Gemäß Art. 18 DSGVO kannst Du auch die Einschränkung der Verarbeitung verlangen. Dieses Recht steht Dir zu, wenn Du die Richtigkeit der Daten bestreiten, die Verarbeitung unrechtmäßig ist, wir die Daten für die angegebenen Zwecke nicht mehr benötigen oder Du der Verarbeitung widersprochen haben und wir die Daten in den beiden letztgenannten Fällen nicht anderweitig rechtmäßig weiterverarbeiten dürfen.",
+      },
+      dataPortability: {
+        title: "5. Recht auf Datenübertragbarkeit",
+        description:
+          "Außerdem kannst Du von uns nach Art. 20 DSGVO die Übertragung Deiner Daten in einem strukturierten, gängigen und maschinenlesbaren Format an sich selbst oder einen anderen Verantwortlichen verlangen.",
+      },
+      withdrawalOfConsent: {
+        title: "6. Recht auf Widerruf der Einwilligung",
+        description:
+          "Hast Du als Rechtsgrundlage für die Verarbeitung Deiner Daten durch uns Deine Einwilligung zum Beispiel nach Art. 6 Abs. 1 S. 1 lit. a oder Art. 9 Abs. 2 lit. a DSGVO erklärt, so kannst Du gemäß Art. 7 Abs. 3 DSGVO diese Einwilligung jederzeit widerrufen. Wenn Du dies tust, stellen wir die Verarbeitung Deiner Daten ein, allerdings bleibt die Rechtmäßigkeit der Verarbeitung bis zum Widerruf von dem Widerruf unberührt.",
+      },
+      complaintToARegulatoryAuthority: {
+        title: "7. Recht auf Beschwerde bei einer Aufsichtsbehörde",
+        description:
+          "Du kannst Dich gemäß Art. 77 DSGVO auch mit einer Beschwerde an eine Aufsichtsbehörde wenden. In der Regel sollte dies die Aufsichtsbehörde Deines üblichen Aufenthaltsortes oder Arbeitsplatzes sein; wahlweise kannst Du Deine Beschwerde auch an die Aufsichtsbehörde des Unternehmenssitzes des Verantwortlichen richten.",
+      },
+      objection: {
+        title: "8. WIDERSPRUCHSRECHT",
+        description:
+          "NACH ART. 21 DSGVO STEHT DIR DAS RECHT ZU, WIDERSPRUCH GEGEN DIE VERARBEITUNG DEINER PERSONENBEZOGENEN DATEN EINZULEGEN, WENN WIR DEINE PERSONENBEZOGENEN DATEN LEDIGLICH AUF GRUNDLAGE UNSERER BERECHTIGTEN INTERESSEN VERARBEITEN UND SICH AUS DEINER BESONDEREN SITUATION ERGEBENDE GRÜNDE DAFÜR SPRECHEN. SOLLTE SICH DEIN WIDERSPRUCH GEGEN DIREKTWERBUNG RICHTEN, STEHT DIR EIN GENERELLES WIDERSPRUCHSRECHT OHNE ANGABE VON BESONDEREN GRÜNDEN ZU. DEINEN WIDERSPRUCH KANNST DU DURCH E-MAIL AN <0>{{email}}</0> ERKLÄREN.",
       },
     },
   },

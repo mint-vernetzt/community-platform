@@ -406,30 +406,32 @@ export function MainMenu(
                   ? "Impressum"
                   : "Imprint"}
             </NavLink>
-            <Link
-              className="hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-              to="https://mint-vernetzt.de/privacy-policy-community-platform/"
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "underline" : "hover:underline"
+              }
+              to="/privacy-policy"
+              prefetch="intent"
             >
               {locales !== undefined
                 ? locales.route.root.menu.privacy
                 : DEFAULT_LANGUAGE === "de"
                   ? "Datenschutz"
                   : "Privacy policy"}
-            </Link>
-            <Link
-              className="hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-              to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+            </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "underline" : "hover:underline"
+              }
+              to="/terms-of-use"
+              prefetch="intent"
             >
               {locales !== undefined
                 ? locales.route.root.menu.terms
                 : DEFAULT_LANGUAGE === "de"
                   ? "Nutzungsbedingungen"
                   : "Terms of use"}
-            </Link>
+            </NavLink>
             <NavLink
               className={({ isActive }) =>
                 isActive ? "underline" : "hover:underline"

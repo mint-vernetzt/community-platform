@@ -2,6 +2,7 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import { useState } from "react";
 import {
   Form,
@@ -336,24 +337,22 @@ export default function Register() {
                   />
                   <label htmlFor={registerFields.termsAccepted.id}>
                     {insertComponentsIntoLocale(locales.form.confirmation, [
-                      <Link
+                      <TextButton
                         key="terms-of-use-confirmation"
-                        to="https://mint-vernetzt.de/terms-of-use-community-platform"
+                        as="link"
+                        to="/terms-of-use"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-primary font-semibold hover:underline"
-                      >
-                        {" "}
-                      </Link>,
-                      <Link
+                        className="inline-flex"
+                      />,
+                      <TextButton
                         key="privacy-policy-confirmation"
-                        to="https://mint-vernetzt.de/privacy-policy-community-platform"
+                        as="link"
+                        to="/privacy-policy"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-primary font-semibold hover:underline"
-                      >
-                        {" "}
-                      </Link>,
+                        className="inline-flex"
+                      />,
                     ])}
                   </label>
                 </div>

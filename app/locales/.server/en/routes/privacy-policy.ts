@@ -322,69 +322,69 @@ export const locale = {
       matomoNotConfigured:
         "Matomo is not yet configured, so no data is currently being collected.",
     },
-    rightsOfAffectedIndividuals: {
-      title: "Data Subject Rights",
-      intro:
-        "You are entitled to certain rights under the GDPR. You can assert these rights against all consortium partners. You can also contact the following company directly:",
-      contactInformation: {
-        name: "matrix gGmbH,",
-        street: "Düsseldorfer Str. 16,",
-        addition: "Rittergut Haus Morp,",
-        zipCodeAndCity: "40699 Erkrath bei Düsseldorf",
-        phone: "Phone: <0>{{phone}}</0>",
-        email: "Email: <0>{{email}}</0>",
+  },
+  rightsOfAffectedIndividuals: {
+    title: "Data Subject Rights",
+    intro:
+      "You are entitled to certain rights under the GDPR. You can assert these rights against all consortium partners. You can also contact the following company directly:",
+    contactInformation: {
+      name: "matrix gGmbH,",
+      street: "Düsseldorfer Str. 16,",
+      addition: "Rittergut Haus Morp,",
+      zipCodeAndCity: "40699 Erkrath bei Düsseldorf",
+      phone: "Phone: <0>{{phone}}</0>",
+      email: "Email: <0>{{email}}</0>",
+    },
+    rights: {
+      prefix: "Your rights are as follows:",
+      information: {
+        title: "1. Right of Access",
+        description:
+          "Pursuant to Art. 15 GDPR, you have the right at any time to request information from us about all data we store about you. This includes in particular information about",
+        data: [
+          "the purposes for which we process your data,",
+          "the categories of data we process about you,",
+          "the specific recipients or, if these are not known, the categories of recipients to whom we transmit your data,",
+          "the duration for which we store your data or, if this cannot be determined, the criteria under which we store your data, and",
+          "where applicable, the origin of the data, if we have not collected it directly from you.",
+        ],
       },
-      rights: {
-        prefix: "Your rights are as follows:",
-        information: {
-          title: "1. Right of Access",
-          description:
-            "Pursuant to Art. 15 GDPR, you have the right at any time to request information from us about all data we store about you. This includes in particular information about",
-          data: [
-            "the purposes for which we process your data,",
-            "the categories of data we process about you,",
-            "the specific recipients or, if these are not known, the categories of recipients to whom we transmit your data,",
-            "the duration for which we store your data or, if this cannot be determined, the criteria under which we store your data, and",
-            "where applicable, the origin of the data, if we have not collected it directly from you.",
-          ],
-        },
-        correction: {
-          title: "2. Right to Rectification",
-          description:
-            "Should the data processed by us about you be inaccurate or incomplete, you may at any time request the rectification or completion of this data from us pursuant to Art. 16 GDPR.",
-        },
-        deletion: {
-          title: "3. Right to Erasure (Right to be Forgotten)",
-          description: [
-            "Should the original legal basis for data processing no longer apply, or should you have withdrawn your consent, objected to the processing, or should we be prohibited from further processing your data for any other reason stated in Art. 17 para. 1 GDPR, you may request the erasure of your personal data from us pursuant to Art. 17 GDPR.",
-            "This right does not apply if the processing is necessary for the exercise of the right to freedom of expression and information, for safeguarding public interests, if a corresponding legal obligation exists, or if it is necessary for the establishment, exercise, or defense of legal claims.",
-          ],
-        },
-        restriction: {
-          title: "4. Right to Restriction of Processing",
-          description:
-            "Pursuant to Art. 18 GDPR, you may also request the restriction of processing. This right applies if you contest the accuracy of the data, the processing is unlawful, we no longer need the data for the stated purposes, or you have objected to the processing and in the latter two cases we are not permitted to continue processing the data on another lawful basis.",
-        },
-        dataPortability: {
-          title: "5. Right to Data Portability",
-          description:
-            "Furthermore, you may request from us pursuant to Art. 20 GDPR the transfer of your data in a structured, commonly used, and machine-readable format to yourself or to another controller.",
-        },
-        withdrawalOfConsent: {
-          title: "6. Right to Withdraw Consent",
-          description:
-            "If you have provided your consent as the legal basis for the processing of your data by us, for example pursuant to Art. 6 para. 1 sentence 1 lit. a or Art. 9 para. 2 lit. a GDPR, you may withdraw this consent at any time pursuant to Art. 7 para. 3 GDPR. If you do so, we will cease the processing of your data; however, the lawfulness of processing carried out prior to the withdrawal shall remain unaffected.",
-        },
-        complaintToARegulatoryAuthority: {
-          title: "7. Right to Lodge a Complaint with a Supervisory Authority",
-          description:
-            "Pursuant to Art. 77 GDPR, you may also lodge a complaint with a supervisory authority. As a rule, this should be the supervisory authority of your usual place of residence or workplace; alternatively, you may direct your complaint to the supervisory authority of the registered office of the controller.",
-        },
-        objection: {
-          title: "8. RIGHT TO OBJECT",
-          description:
-            "PURSUANT TO ART. 21 GDPR, YOU HAVE THE RIGHT TO OBJECT TO THE PROCESSING OF YOUR PERSONAL DATA IF WE PROCESS YOUR PERSONAL DATA SOLELY ON THE BASIS OF OUR LEGITIMATE INTERESTS AND THERE ARE GROUNDS ARISING FROM YOUR PARTICULAR SITUATION THAT SPEAK AGAINST SUCH PROCESSING. IF YOUR OBJECTION IS DIRECTED AGAINST DIRECT MARKETING, YOU HAVE A GENERAL RIGHT TO OBJECT WITHOUT STATING ANY SPECIFIC GROUNDS. YOU MAY DECLARE YOUR OBJECTION BY EMAIL TO <0>{{email}}</0>.",
-        },
+      correction: {
+        title: "2. Right to Rectification",
+        description:
+          "Should the data processed by us about you be inaccurate or incomplete, you may at any time request the rectification or completion of this data from us pursuant to Art. 16 GDPR.",
+      },
+      deletion: {
+        title: "3. Right to Erasure (Right to be Forgotten)",
+        description: [
+          "Should the original legal basis for data processing no longer apply, or should you have withdrawn your consent, objected to the processing, or should we be prohibited from further processing your data for any other reason stated in Art. 17 para. 1 GDPR, you may request the erasure of your personal data from us pursuant to Art. 17 GDPR.",
+          "This right does not apply if the processing is necessary for the exercise of the right to freedom of expression and information, for safeguarding public interests, if a corresponding legal obligation exists, or if it is necessary for the establishment, exercise, or defense of legal claims.",
+        ],
+      },
+      restriction: {
+        title: "4. Right to Restriction of Processing",
+        description:
+          "Pursuant to Art. 18 GDPR, you may also request the restriction of processing. This right applies if you contest the accuracy of the data, the processing is unlawful, we no longer need the data for the stated purposes, or you have objected to the processing and in the latter two cases we are not permitted to continue processing the data on another lawful basis.",
+      },
+      dataPortability: {
+        title: "5. Right to Data Portability",
+        description:
+          "Furthermore, you may request from us pursuant to Art. 20 GDPR the transfer of your data in a structured, commonly used, and machine-readable format to yourself or to another controller.",
+      },
+      withdrawalOfConsent: {
+        title: "6. Right to Withdraw Consent",
+        description:
+          "If you have provided your consent as the legal basis for the processing of your data by us, for example pursuant to Art. 6 para. 1 sentence 1 lit. a or Art. 9 para. 2 lit. a GDPR, you may withdraw this consent at any time pursuant to Art. 7 para. 3 GDPR. If you do so, we will cease the processing of your data; however, the lawfulness of processing carried out prior to the withdrawal shall remain unaffected.",
+      },
+      complaintToARegulatoryAuthority: {
+        title: "7. Right to Lodge a Complaint with a Supervisory Authority",
+        description:
+          "Pursuant to Art. 77 GDPR, you may also lodge a complaint with a supervisory authority. As a rule, this should be the supervisory authority of your usual place of residence or workplace; alternatively, you may direct your complaint to the supervisory authority of the registered office of the controller.",
+      },
+      objection: {
+        title: "8. RIGHT TO OBJECT",
+        description:
+          "PURSUANT TO ART. 21 GDPR, YOU HAVE THE RIGHT TO OBJECT TO THE PROCESSING OF YOUR PERSONAL DATA IF WE PROCESS YOUR PERSONAL DATA SOLELY ON THE BASIS OF OUR LEGITIMATE INTERESTS AND THERE ARE GROUNDS ARISING FROM YOUR PARTICULAR SITUATION THAT SPEAK AGAINST SUCH PROCESSING. IF YOUR OBJECTION IS DIRECTED AGAINST DIRECT MARKETING, YOU HAVE A GENERAL RIGHT TO OBJECT WITHOUT STATING ANY SPECIFIC GROUNDS. YOU MAY DECLARE YOUR OBJECTION BY EMAIL TO <0>{{email}}</0>.",
       },
     },
   },
