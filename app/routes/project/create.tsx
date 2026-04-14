@@ -188,7 +188,7 @@ function Create() {
                 <Link
                   key="terms-of-use"
                   as="link"
-                  to="https://mint-vernetzt.de/terms-of-use-community-platform/"
+                  to="/terms-of-use"
                   className="text-primary"
                   isExternal
                 >

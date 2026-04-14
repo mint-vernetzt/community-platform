@@ -2,6 +2,8 @@ import { Button } from "./../molecules/Button";
 import { type AboutProjectLocales } from "~/routes/project/$slug/detail/about.server";
 import { useNonce } from "~/nonce-provider";
 import { Children, isValidElement, useState } from "react";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { TextButton } from "../molecules/TextButton";
 
 type VideoProps = {
   src: string;
@@ -33,12 +35,24 @@ function Video(props: React.PropsWithChildren<VideoProps>) {
         <div className="w-full h-full bg-primary-400 flex flex-col justify-center items-center gap-4">
           {!cookiesAccepted ? (
             <>
+              <p className="text-white text-sm @md:text-base text-center px-4">
+                {insertComponentsIntoLocale(
+                  locales.video.cookieActionDescription,
+                  [
+                    <TextButton
+                      key="google-privacy-policy"
+                      as="link"
+                      to="https://www.google.com/intl/de/policies/privacy/"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="inline-flex text-white"
+                    />,
+                  ]
+                )}
+              </p>
               <Button variant="outline" onClick={handleClick}>
                 {locales.video.cookieAction}
               </Button>
-              <p className="text-white text-sm @md:text-base text-center px-4">
-                {locales.video.cookieActionDescription}
-              </p>
             </>
           ) : (
             <iframe

@@ -1,9 +1,9 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { TextButton } from "@mint-vernetzt/components/src/molecules/TextButton";
 import {
   Form,
-  Link,
   redirect,
   useActionData,
   useLoaderData,
@@ -19,13 +19,13 @@ import {
   getSessionUser,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { Checkbox } from "~/components-next/Checkbox";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { Checkbox } from "~/components-next/Checkbox";
 import { acceptTermsSchema } from "./accept-terms.shared";
 
 export const loader = async (args: LoaderFunctionArgs) => {
@@ -133,24 +133,22 @@ export default function AcceptTerms() {
                   />
                   <label htmlFor={acceptTermsFields.termsAccepted.id}>
                     {insertComponentsIntoLocale(locales.content.confirmation, [
-                      <Link
+                      <TextButton
                         key="terms-of-use-confirmation"
-                        to="https://mint-vernetzt.de/terms-of-use-community-platform"
+                        as="link"
+                        to="/terms-of-use"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-primary font-semibold hover:underline"
-                      >
-                        {" "}
-                      </Link>,
-                      <Link
+                        className="inline-flex"
+                      />,
+                      <TextButton
                         key="privacy-policy-confirmation"
-                        to="https://mint-vernetzt.de/privacy-policy-community-platform"
+                        as="link"
+                        to="/privacy-policy"
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="text-primary font-semibold hover:underline"
-                      >
-                        {" "}
-                      </Link>,
+                        className="inline-flex"
+                      />,
                     ])}
                   </label>
                 </div>

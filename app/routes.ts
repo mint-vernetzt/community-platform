@@ -7,6 +7,8 @@ export default [
   route("/status", "./routes/status.tsx"),
   route("/resources", "./routes/resources.tsx"),
   route("/imprint", "./routes/imprint.tsx"),
+  route("/privacy-policy", "./routes/privacy-policy.tsx"),
+  route("/terms-of-use", "./routes/terms-of-use.tsx"),
   route("/help", "./routes/help.tsx"),
   route("/goodbye", "./routes/goodbye.tsx"),
   route("/error", "./routes/error.tsx"),
