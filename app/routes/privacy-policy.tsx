@@ -154,6 +154,8 @@ export default function PrivacyPolicy() {
                 key="dpf-link"
                 as="link"
                 to="https://www.dataprivacyframework.gov/s/participant-search"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex"
               />,
             ]
