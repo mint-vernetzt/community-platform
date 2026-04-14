@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { z } from "zod";
 import {
   getReporter,
@@ -10,9 +10,11 @@ import {
   createImageUploadSchema,
   disconnectImageSchema,
 } from "~/components/legacy/ImageCropper/ImageCropper";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
-import { uploadFileToStorage } from "~/storage.server";
+import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 
 export async function getEventBySlug(slug: string) {
@@ -618,4 +620,85 @@ export async function disconnectBackgroundImage(options: {
     },
     redirectUrl: redirectUrl.toString(),
   };
+}
+
+export async function getContactPersonsOfEvent(options: {
+  slug: string;
+  sessionUser: User | null;
+  authClient: SupabaseClient;
+}) {
+  const { slug, sessionUser, authClient } = options;
+
+  const contactPersons = await prismaClient.contactPersonOfEvent.findMany({
+    where: {
+      event: {
+        slug,
+      },
+    },
+    select: {
+      profile: {
+        select: {
+          id: true,
+          username: true,
+          academicTitle: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          avatar: true,
+          position: true,
+          profileVisibility: {
+            select: {
+              id: true,
+              username: true,
+              academicTitle: true,
+              firstName: true,
+              email: true,
+              phone: true,
+              lastName: true,
+              avatar: true,
+              position: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const enhancedContactPersons = contactPersons.map((contactPerson) => {
+    // Apply profile visibility settings
+    let filteredContactPerson;
+    if (sessionUser === null) {
+      filteredContactPerson = filterProfileByVisibility<
+        typeof contactPerson.profile
+      >(contactPerson.profile);
+    } else {
+      filteredContactPerson = { ...contactPerson.profile };
+    }
+
+    let avatar = filteredContactPerson.avatar;
+    let blurredAvatar;
+    if (avatar !== null) {
+      const publicURL = getPublicURL(authClient, avatar);
+      if (publicURL !== null) {
+        avatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.Event.Detail.ListItem.Avatar,
+          },
+        });
+        blurredAvatar = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            ...ImageSizes.Profile.Event.Detail.ListItem.BlurredAvatar,
+          },
+          blur: BlurFactor,
+        });
+      }
+    }
+
+    return { ...filteredContactPerson, avatar, blurredAvatar };
+  });
+
+  return enhancedContactPersons;
 }

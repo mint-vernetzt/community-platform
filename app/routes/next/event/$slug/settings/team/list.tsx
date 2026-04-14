@@ -25,17 +25,25 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
+  addContactPersonToEvent,
   getEventBySlug,
   getTeamMembersOfEvent,
+  removeContactPersonFromEvent,
   removeTeamMemberFromEvent,
 } from "./list.server";
 import {
+  ADD_CONTACT_PERSON_INTENT,
   CONFIRM_MODAL_SEARCH_PARAM,
+  getAddContactPersonSchema,
+  getRemoveContactPersonSchema,
   getRemoveTeamMemberSchema,
   getSearchTeamMembersSchema,
+  REMOVE_CONTACT_PERSON_INTENT,
+  REMOVE_TEAM_MEMBER_INTENT,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
   TEAM_MEMBER_ID,
 } from "./list.shared";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -104,46 +112,126 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (event._count.teamMembers <= 1) {
-    return redirectWithToast(request.url, {
-      id: "remove-last-team-member-error",
-      key: `remove-last-team-member-error-${Date.now()}`,
-      message: locales.route.errors.removeLastTeamMember,
-      level: "negative",
-    });
-  }
-
   const formData = await request.formData();
-  const submission = await parseWithZod(formData, {
-    schema: getRemoveTeamMemberSchema(),
-  });
+  const intent = formData.get(INTENT_FIELD_NAME);
 
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
+  invariantResponse(
+    intent === REMOVE_TEAM_MEMBER_INTENT ||
+      intent === ADD_CONTACT_PERSON_INTENT ||
+      intent === REMOVE_CONTACT_PERSON_INTENT,
+    "Invalid intent",
+    { status: 400 }
+  );
 
-  try {
-    await removeTeamMemberFromEvent({
-      teamMemberId: submission.value.teamMemberId,
-      eventId: event.id,
-      locales: locales.route,
+  if (intent === REMOVE_TEAM_MEMBER_INTENT) {
+    if (event._count.teamMembers <= 1) {
+      return redirectWithToast(request.url, {
+        id: "remove-last-team-member-error",
+        key: `remove-last-team-member-error-${Date.now()}`,
+        message: locales.route.errors.removeLastTeamMember,
+        level: "negative",
+      });
+    }
+
+    const submission = await parseWithZod(formData, {
+      schema: getRemoveTeamMemberSchema(),
     });
-  } catch (error) {
-    captureException(error);
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await removeTeamMemberFromEvent({
+        teamMemberId: submission.value.teamMemberId,
+        eventId: event.id,
+        locales: {
+          mail: { subject: locales.route.mail.removeTeamMemberSubject },
+        },
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "remove-team-member-error",
+        key: `remove-team-member-error-${Date.now()}`,
+        message: locales.route.errors.removeTeamMemberFailed,
+        level: "negative",
+      });
+    }
+
     return redirectWithToast(request.url, {
-      id: "remove-team-member-error",
-      key: `remove-team-member-error-${Date.now()}`,
-      message: locales.route.errors.removeTeamMemberFailed,
-      level: "negative",
+      id: "remove-team-member-success",
+      key: `remove-team-member-success-${Date.now()}`,
+      message: locales.route.success.removeTeamMember,
+      level: "positive",
+    });
+  } else if (intent === ADD_CONTACT_PERSON_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: getAddContactPersonSchema(),
+    });
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await addContactPersonToEvent({
+        teamMemberId: submission.value.teamMemberId,
+        eventId: event.id,
+        locales: {
+          mail: { subject: locales.route.mail.addContactPersonSubject },
+        },
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "add-contact-person-error",
+        key: `add-contact-person-error-${Date.now()}`,
+        message: locales.route.errors.addContactPersonFailed,
+        level: "negative",
+      });
+    }
+
+    return redirectWithToast(request.url, {
+      id: "add-contact-person-success",
+      key: `add-contact-person-success-${Date.now()}`,
+      message: locales.route.success.addContactPerson,
+      level: "positive",
+    });
+  } else {
+    const submission = await parseWithZod(formData, {
+      schema: getRemoveContactPersonSchema(),
+    });
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await removeContactPersonFromEvent({
+        teamMemberId: submission.value.teamMemberId,
+        eventId: event.id,
+        locales: {
+          mail: { subject: locales.route.mail.removeContactPersonSubject },
+        },
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "remove-contact-person-error",
+        key: `remove-contact-person-error-${Date.now()}`,
+        message: locales.route.errors.removeContactPersonFailed,
+        level: "negative",
+      });
+    }
+
+    return redirectWithToast(request.url, {
+      id: "remove-contact-person-success",
+      key: `remove-contact-person-success-${Date.now()}`,
+      message: locales.route.success.removeContactPerson,
+      level: "positive",
     });
   }
-
-  return redirectWithToast(request.url, {
-    id: "remove-team-member-success",
-    key: `remove-team-member-success-${Date.now()}`,
-    message: locales.route.success.removeTeamMember,
-    level: "positive",
-  });
 }
 
 function TeamList() {
@@ -170,7 +258,7 @@ function TeamList() {
           ])}
         </Hint>
       )}
-      <List id="participants-list" hideAfter={4} locales={locales.route.list}>
+      <List id="team-member-list" hideAfter={4} locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.teamMembers}
           setValues={setTeamMembers}
@@ -200,6 +288,47 @@ function TeamList() {
               </ListItemPersonOrg.Headline>
               {loaderData.teamMembers.length > 1 && (
                 <ListItemPersonOrg.Controls>
+                  {teamMember.isContactPerson ? (
+                    <Form
+                      id={`remove-contact-person-form-${teamMember.id}`}
+                      method="POST"
+                      preventScrollReset
+                    >
+                      <input
+                        type="hidden"
+                        name={TEAM_MEMBER_ID}
+                        value={teamMember.id}
+                      />
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        name={INTENT_FIELD_NAME}
+                        value={REMOVE_CONTACT_PERSON_INTENT}
+                      >
+                        {locales.route.list.removeContactPerson}
+                      </Button>
+                    </Form>
+                  ) : (
+                    <Form
+                      id={`add-contact-person-form-${teamMember.id}`}
+                      method="POST"
+                      preventScrollReset
+                    >
+                      <input
+                        type="hidden"
+                        name={TEAM_MEMBER_ID}
+                        value={teamMember.id}
+                      />
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        name={INTENT_FIELD_NAME}
+                        value={ADD_CONTACT_PERSON_INTENT}
+                      >
+                        {locales.route.list.addContactPerson}
+                      </Button>
+                    </Form>
+                  )}
                   {loaderData.userId === teamMember.id ? (
                     <>
                       <Button
@@ -211,7 +340,7 @@ function TeamList() {
                         {locales.route.list.remove}
                       </Button>
                       <Form
-                        id={`remove-admin-form-${teamMember.id}`}
+                        id={`remove-team-member-form-${teamMember.id}`}
                         method="POST"
                         preventScrollReset
                         hidden
@@ -229,8 +358,10 @@ function TeamList() {
                           {locales.route.confirmation.description}
                         </Modal.Section>
                         <Modal.SubmitButton
-                          form={`remove-admin-form-${teamMember.id}`}
+                          form={`remove-team-member-form-${teamMember.id}`}
                           level="negative"
+                          name={INTENT_FIELD_NAME}
+                          value={REMOVE_TEAM_MEMBER_INTENT}
                         >
                           {locales.route.confirmation.confirm}
                         </Modal.SubmitButton>
@@ -250,7 +381,12 @@ function TeamList() {
                         name={TEAM_MEMBER_ID}
                         value={teamMember.id}
                       />
-                      <Button type="submit" variant="outline">
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        name={INTENT_FIELD_NAME}
+                        value={REMOVE_TEAM_MEMBER_INTENT}
+                      >
                         {locales.route.list.remove}
                       </Button>
                     </Form>

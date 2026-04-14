@@ -31,6 +31,7 @@ import {
   deriveModeForEvent,
   disconnectBackgroundImage,
   getAbuseReportReasons,
+  getContactPersonsOfEvent,
   getEventBySlug,
   getEventIdBySlug,
   getHasUserReportedEvent,
@@ -48,20 +49,21 @@ import {
 } from "./details.shared";
 import { formatDateTime } from "./index.shared";
 
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactCropStyles from "react-image-crop/dist/ReactCrop.css?url";
 import { IMAGE_CROPPER_DISCONNECT_INTENT_VALUE } from "~/components/legacy/ImageCropper/ImageCropper";
+import ContactPerson from "~/components/next/ContactPerson";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
+import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { hasContent } from "~/utils.shared";
 import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
-import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { hasContent } from "~/utils.shared";
 
 export function links() {
   return [
@@ -303,6 +305,12 @@ export async function loader(args: LoaderFunctionArgs) {
     }
   );
 
+  const contactPersons = await getContactPersonsOfEvent({
+    slug: params.slug,
+    authClient,
+    sessionUser,
+  });
+
   const hasUserReportedEvent = await getHasUserReportedEvent(
     sessionUser,
     event.id
@@ -331,6 +339,7 @@ export async function loader(args: LoaderFunctionArgs) {
     background,
     blurredBackground,
     responsibleOrganizations,
+    contactPersons,
     conferenceLink,
     conferenceCode,
     conferenceLinkToBeAnnounced,
@@ -826,6 +835,21 @@ function Detail() {
         </TabBar>
         <Outlet />
       </BasicStructure.Container>
+      {loaderData.event.contactPersons.length > 0 && (
+        <BasicStructure.Container>
+          <ContactPerson.Container>
+            {loaderData.event.contactPersons.map((contactPerson) => {
+              return (
+                <ContactPerson
+                  key={contactPerson.id}
+                  {...contactPerson}
+                  locales={loaderData.locales.route.content}
+                />
+              );
+            })}
+          </ContactPerson.Container>
+        </BasicStructure.Container>
+      )}
     </BasicStructure>
   );
 }
