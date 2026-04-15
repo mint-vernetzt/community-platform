@@ -23,12 +23,13 @@ export default function PrivacyPolicy() {
 
   useEffect(() => {
     try {
+      const dnt = navigator.doNotTrack === "1";
       const _paq = (window._paq = window._paq || []);
       _paq.push([
         // @ts-expect-error - Matomo docs mention that this works. https://developer.matomo.org/guides/tracking-javascript-guide
         function () {
           // @ts-expect-error
-          setIsOptedOutOfMatomo(this.isUserOptedOut());
+          setIsOptedOutOfMatomo(dnt === true ? true : this.isUserOptedOut());
         },
       ]);
     } catch (error) {
