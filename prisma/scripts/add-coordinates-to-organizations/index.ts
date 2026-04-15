@@ -1,5 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import { getCoordinatesFromAddress } from "~/utils.server";
+import { getCoordinatesFromAddress, wait } from "~/utils.server";
 
 async function main() {
   const updateQueries = [];
@@ -16,8 +16,6 @@ async function main() {
   });
 
   for (const organization of organizations) {
-    const wait = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
     await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: organization.id,

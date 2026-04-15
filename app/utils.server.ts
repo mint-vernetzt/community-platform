@@ -355,3 +355,7 @@ export function createCSPHeaderOptions(
     .join("; ");
   return `${cspOptions};`;
 }
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
