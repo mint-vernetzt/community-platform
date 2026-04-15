@@ -1,5 +1,5 @@
 import { prismaClient } from "~/prisma.server";
-import { getCoordinatesFromAddress } from "~/utils.server";
+import { getCoordinatesFromAddress, wait } from "~/utils.server";
 
 async function main() {
   const updateQueries = [];
@@ -16,14 +16,7 @@ async function main() {
   });
 
   for (const organization of organizations) {
-    // Skip existing coordinates
-    if (organization.latitude !== null && organization.longitude !== null) {
-      console.log(
-        `Skipping organization ${organization.id} as it already has coordinates.`
-      );
-      continue;
-    }
-
+    await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: organization.id,
       street: organization.street,

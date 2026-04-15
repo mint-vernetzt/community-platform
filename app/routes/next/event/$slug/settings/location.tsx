@@ -27,7 +27,6 @@ import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import {
@@ -230,14 +229,7 @@ export async function action(args: ActionFunctionArgs) {
     const toastHeaders = await createToastHeaders({
       key: "address-error-toast",
       level: "attention",
-      message: insertParametersIntoLocale(
-        locales.route.errors.coordinatesNotFound,
-        {
-          street: submission.value.venueStreet,
-          city: submission.value.venueCity,
-          zipCode: submission.value.venueZipCode,
-        }
-      ),
+      message: locales.route.errors.coordinatesNotFound,
       isRichtext: true,
       delayInMillis: 60000,
     });

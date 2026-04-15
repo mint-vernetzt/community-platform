@@ -3,6 +3,7 @@ import { createHash, createHmac, type BinaryToTextEncoding } from "crypto";
 import sanitizeHtml from "sanitize-html";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
+import { z } from "zod";
 
 export type Mode = "anon" | "authenticated";
 
@@ -254,6 +255,17 @@ export const sanitizeUserHtml = (
   return sanitizedHtml;
 };
 
+const partialGeoJSONSchema = z.object({
+  type: z.string(),
+  features: z.array(
+    z.object({
+      geometry: z.object({
+        coordinates: z.array(z.number()).length(2),
+      }),
+    })
+  ),
+});
+
 export async function getCoordinatesFromAddress(options: {
   id: string;
   street: string | null;
@@ -261,30 +273,24 @@ export async function getCoordinatesFromAddress(options: {
   zipCode: string | null;
 }) {
   const { id, street, city, zipCode } = options;
-  const searchParams = new URLSearchParams();
-  if (street !== null) {
-    searchParams.set("street", street);
-  }
-  if (city !== null) {
-    searchParams.set("city", city);
-  }
-  if (zipCode !== null) {
-    searchParams.set("postalcode", zipCode);
-  }
-  if (searchParams.toString() === "") {
+
+  const searchQuery = [street, city, zipCode]
+    .filter((part) => part !== null)
+    .join(",");
+  if (searchQuery === "") {
     return {
       longitude: null,
       latitude: null,
       error: null,
     };
   }
+  const searchParams = new URLSearchParams();
+  searchParams.set("q", searchQuery);
+  const requestedUrl = `https://photon.komoot.io/api/?${searchParams.toString()}&limit=1`;
 
-  const response = await fetch(
-    `https://nominatim.openstreetmap.org/search?${searchParams.toString()}&format=jsonv2`,
-    {
-      method: "GET",
-    }
-  );
+  const response = await fetch(requestedUrl, {
+    method: "GET",
+  });
   if (response.status !== 200) {
     return {
       longitude: null,
@@ -293,49 +299,23 @@ export async function getCoordinatesFromAddress(options: {
     };
   }
 
-  const locationJSON = await response.json();
+  const geoJSON = await response.json();
 
-  if (Array.isArray(locationJSON) === false) {
+  const parsedGeoJSON = partialGeoJSONSchema.safeParse(geoJSON);
+  if (!parsedGeoJSON.success) {
     return {
       longitude: null,
       latitude: null,
-      error: `Unexpected response format for entity ${id}: JSON object is not an array`,
+      error: `Invalid GeoJSON format for entity ${id}`,
     };
   }
-  if (locationJSON.length === 0) {
-    return {
-      longitude: null,
-      latitude: null,
-      error: `No location found for entity ${id}`,
-    };
-  }
-  if (
-    "lat" in locationJSON[0] === false ||
-    "lon" in locationJSON[0] === false
-  ) {
-    return {
-      longitude: null,
-      latitude: null,
-      error: `Location JSON does not contain latitude and longitude for entity ${id}`,
-    };
-  }
-  if (locationJSON.length > 1) {
-    console.warn(
-      `Multiple locations found for entity ${id}. The first was taken:`,
-      locationJSON[0]
-    );
-  }
-  const { lat, lon } = locationJSON[0];
-  if (typeof lat !== "string" || typeof lon !== "string") {
-    return {
-      longitude: null,
-      latitude: null,
-      error: `Latitude and longitude are not strings for entity ${id}`,
-    };
-  }
+
+  const { coordinates } = parsedGeoJSON.data.features[0].geometry;
+  const [lon, lat] = coordinates;
+
   return {
-    longitude: lon,
-    latitude: lat,
+    longitude: lon.toString(),
+    latitude: lat.toString(),
     error: null,
   };
 }
@@ -374,4 +354,8 @@ export function createCSPHeaderOptions(
     })
     .join("; ");
   return `${cspOptions};`;
+}
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
