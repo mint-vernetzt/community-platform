@@ -316,11 +316,13 @@ export const locale = {
           "Die erhobenen Rohdaten werden anonymisiert und maximal 30 Tage gespeichert. Danach werden daraus anonymisierte, aggregierte Berichte erzeugt und dauerhaft gespeichert.",
       },
       optOut: {
-        title: "Tracker deaktivieren",
+        title: "Tracker Einstellungen",
         trackerActive:
           "Tracker ist aktiv. Wähle die Checkbox ab, um den Tracker zu deaktivieren.",
         trackerInactive:
           "Tracker ist inaktiv. Wähle die Checkbox an, um den Tracker zu aktivieren.",
+        doNotTrackEnabled:
+          "Der Tracker ist deaktiviert, da die Do-Not-Track-Einstellung in Deinem Browser aktiviert ist.",
       },
       matomoNotConfigured:
         "Der Matomo Tracking Code ist nicht konfiguriert. Deshalb werden derzeit keine Daten erhoben.",

@@ -313,11 +313,13 @@ export const locale = {
           "The raw data collected is anonymized and stored for a maximum of 30 days. Thereafter, anonymized, aggregated reports are generated from it and stored permanently.",
       },
       optOut: {
-        title: "Disable Tracker",
+        title: "Tracker settings",
         trackerActive:
           "Tracker is active. Uncheck the checkbox to disable the tracker.",
         trackerInactive:
           "Tracker is inactive. Check the checkbox to enable the tracker.",
+        doNotTrackEnabled:
+          "The tracker is disabled because the Do-Not-Track setting in your browser is enabled.",
       },
       matomoNotConfigured:
         "Matomo is not yet configured, so no data is currently being collected.",
