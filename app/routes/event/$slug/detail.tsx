@@ -223,7 +223,7 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlug(sessionUser, { slug: params.slug });
 
   invariantResponse(event !== null, "event not found", { status: 404 });
 
