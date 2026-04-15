@@ -16,12 +16,9 @@ async function main() {
   });
 
   for (const event of events) {
-    // Skip existing coordinates
-    if (event.venueLatitude !== null && event.venueLongitude !== null) {
-      console.log(`Skipping event ${event.id} as it already has coordinates.`);
-      continue;
-    }
-
+    const wait = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+    await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: event.id,
       street: event.venueStreet,

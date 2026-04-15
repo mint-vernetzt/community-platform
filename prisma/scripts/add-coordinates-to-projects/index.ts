@@ -16,14 +16,9 @@ async function main() {
   });
 
   for (const project of projects) {
-    // Skip existing coordinates
-    if (project.latitude !== null && project.longitude !== null) {
-      console.log(
-        `Skipping project ${project.id} as it already has coordinates.`
-      );
-      continue;
-    }
-
+    const wait = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+    await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: project.id,
       street: project.street,

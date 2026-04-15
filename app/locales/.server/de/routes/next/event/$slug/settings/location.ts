@@ -30,7 +30,7 @@ export const locale = {
     saveFailed:
       "Beim Speichern der Veranstaltungsorteinstellungen ist ein Fehler aufgetreten. Bitte versuche es später erneut.",
     coordinatesNotFound:
-      'Erfolgreich gespeichert! Allerdings konnten keine Koordinaten zur eingegebenen Adresse gefunden werden. Bitte überprüfe deine Angaben auf Rechtschreibfehler oder versuche Anpassungen bei Schreibweise und Adresszusatz. (Alternativ Eingaben hier prüfen: <a href="https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}}" target="_blank" rel="noopener noreferrer" class="hover:underline text-primary">https://nominatim.openstreetmap.org/ui/search.html?street={{street}}&city={{city}}&postalcode={{zipCode}})</a>',
+      "Erfolgreich gespeichert! Allerdings konnten keine Koordinaten zur eingegebenen Adresse gefunden werden. Bitte überprüfe deine Angaben auf Rechtschreibfehler oder versuche Anpassungen bei Schreibweise und Adresszusatz.",
   },
   success: "Veranstaltungsorteinstellungen erfolgreich gespeichert.",
 } as const;

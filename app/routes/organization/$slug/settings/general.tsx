@@ -30,7 +30,6 @@ import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
 import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
@@ -194,7 +193,6 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  let addressError;
   const submission = await parseWithZod(formData, {
     schema: () =>
       createGeneralSchema(locales, organization).transform(
@@ -202,6 +200,8 @@ export async function action(args: ActionFunctionArgs) {
           const { visibilities, areas, focuses, ...organizationData } = data;
           let longitude = organization.longitude;
           let latitude = organization.latitude;
+          let addressError;
+
           if (
             data.street !== organization.street ||
             data.city !== organization.city ||
@@ -309,7 +309,7 @@ export async function action(args: ActionFunctionArgs) {
             return z.NEVER;
           }
 
-          return { ...data };
+          return { ...data, addressError };
         }
       ),
     async: true,
@@ -319,18 +319,11 @@ export async function action(args: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  if (typeof addressError !== "undefined") {
+  if (typeof submission.value.addressError !== "undefined") {
     const toastHeaders = await createToastHeaders({
       key: "address-error-toast",
       level: "attention",
-      message: insertParametersIntoLocale(
-        locales.route.error.coordinatesNotFound,
-        {
-          street: submission.value.street,
-          city: submission.value.city,
-          zipCode: submission.value.zipCode,
-        }
-      ),
+      message: locales.route.error.coordinatesNotFound,
       isRichtext: true,
       delayInMillis: 60000,
     });
