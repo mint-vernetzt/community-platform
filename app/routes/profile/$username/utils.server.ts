@@ -461,36 +461,6 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
     };
   });
 
-  const administeredEvents = profile.administeredEvents.map((relation) => {
-    let background = relation.event.background;
-    let blurredBackground;
-    if (background !== null) {
-      const publicURL = getPublicURL(authClient, background);
-      if (publicURL) {
-        background = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Event.ListItem.Background,
-          },
-        });
-        blurredBackground = getImageURL(publicURL, {
-          resize: {
-            type: "fill",
-            ...ImageSizes.Event.ListItem.BlurredBackground,
-          },
-          blur: BlurFactor,
-        });
-      }
-    } else {
-      background = DefaultImages.Event.Background;
-      blurredBackground = DefaultImages.Event.BlurredBackground;
-    }
-    return {
-      ...relation,
-      event: { ...relation.event, background, blurredBackground },
-    };
-  });
-
   return {
     ...profile,
     avatar,
@@ -503,7 +473,6 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
     contributedEvents,
     participatedEvents,
     waitingForEvents,
-    administeredEvents,
   };
 }
 
@@ -586,15 +555,6 @@ export function filterProfile(profile: ProfileQuery) {
       return { ...relation, event: filteredEvent };
     }
   );
-  // Filter events where profile is administrator
-  enhancedProfile.administeredEvents = enhancedProfile.administeredEvents.map(
-    (relation) => {
-      const filteredEvent = filterEventByVisibility<typeof relation.event>(
-        relation.event
-      );
-      return { ...relation, event: filteredEvent };
-    }
-  );
 
   return enhancedProfile;
 }
@@ -602,35 +562,24 @@ export function filterProfile(profile: ProfileQuery) {
 export function splitEventsIntoFutureAndPast<
   T extends Pick<
     ProfileQuery,
-    | "contributedEvents"
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "administeredEvents"
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
   >,
 >(events: T) {
   const futureEvents: Pick<
     ProfileQuery,
-    | "contributedEvents"
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "administeredEvents"
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
   > = {
     contributedEvents: [],
     teamMemberOfEvents: [],
     participatedEvents: [],
-    administeredEvents: [],
   };
   const pastEvents: Pick<
     ProfileQuery,
-    | "contributedEvents"
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "administeredEvents"
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
   > = {
     contributedEvents: [],
     teamMemberOfEvents: [],
     participatedEvents: [],
-    administeredEvents: [],
   };
   const now = new Date();
 
@@ -655,13 +604,6 @@ export function splitEventsIntoFutureAndPast<
       pastEvents.teamMemberOfEvents.push(relation);
     }
   }
-  for (const relation of events.administeredEvents) {
-    if (relation.event.endTime >= now) {
-      futureEvents.administeredEvents.push(relation);
-    } else {
-      pastEvents.administeredEvents.push(relation);
-    }
-  }
   return {
     futureEvents,
     pastEvents,
@@ -671,18 +613,12 @@ export function splitEventsIntoFutureAndPast<
 export function sortEvents<
   T extends Pick<
     ProfileQuery,
-    | "contributedEvents"
-    | "teamMemberOfEvents"
-    | "participatedEvents"
-    | "administeredEvents"
+    "contributedEvents" | "teamMemberOfEvents" | "participatedEvents"
   >,
 >(
   events: Pick<
     ProfileQuery,
-    | "contributedEvents"
-    | "participatedEvents"
-    | "teamMemberOfEvents"
-    | "administeredEvents"
+    "contributedEvents" | "participatedEvents" | "teamMemberOfEvents"
   >,
   inFuture: boolean
 ) {
@@ -700,12 +636,6 @@ export function sortEvents<
       return a.event.startTime >= b.event.startTime ? -1 : 1;
     }),
     teamMemberOfEvents: events.teamMemberOfEvents.sort((a, b) => {
-      if (inFuture) {
-        return a.event.startTime >= b.event.startTime ? 1 : -1;
-      }
-      return a.event.startTime >= b.event.startTime ? -1 : 1;
-    }),
-    administeredEvents: events.administeredEvents.sort((a, b) => {
       if (inFuture) {
         return a.event.startTime >= b.event.startTime ? 1 : -1;
       }

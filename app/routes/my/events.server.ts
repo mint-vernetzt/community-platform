@@ -69,7 +69,7 @@ export async function getEvents(options: {
           },
         },
       },
-      select: { ...selectBase },
+      select: { ...selectBase, published: true },
       orderBy,
     }),
     prismaClient.event.findMany({
@@ -92,7 +92,6 @@ export async function getEvents(options: {
             profileId: profileId,
           },
         },
-        published: true,
       },
       select: { ...selectBase, published: true },
       orderBy,
