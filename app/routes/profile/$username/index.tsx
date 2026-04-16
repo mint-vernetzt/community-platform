@@ -236,10 +236,8 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const abilities = await getFeatureAbilities(authClient, ["events"]);
 
-  // Overwrite administeredeEvents on mode !== "owner" with empty array
   let filteredProfile = {
     ...profile,
-    administeredEvents: mode !== "owner" ? [] : profile.administeredEvents,
   };
   // Filtering by visbility settings
   if (mode === "anon") {
@@ -253,16 +251,14 @@ export const loader = async (args: LoaderFunctionArgs) => {
     teamMemberOfEvents,
     participatedEvents,
     waitingForEvents,
-    administeredEvents,
     ...profileWithoutEvents
   } = enhancedProfile;
   // Combine participated and waiting events to show them both in one list in the frontend
 
   const events = {
-    contributedEvents: contributedEvents,
+    contributedEvents,
     teamMemberOfEvents,
     participatedEvents: mode !== "anon" ? participatedEvents : [],
-    administeredEvents: mode === "owner" ? administeredEvents : [],
   };
 
   if (mode === "owner") {
@@ -283,7 +279,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
   type TeamMemberFutureEvents = typeof sortedFutureEvents.teamMemberOfEvents;
   type ContributedFutureEvents = typeof sortedFutureEvents.contributedEvents;
   type ParticipatedFutureEvents = typeof sortedFutureEvents.participatedEvents;
-  type AdministeredFutureEvents = typeof sortedFutureEvents.administeredEvents;
   const enhancedFutureEvents = {
     teamMemberOfEvents:
       await addUserParticipationStatus<TeamMemberFutureEvents>(
@@ -300,16 +295,10 @@ export const loader = async (args: LoaderFunctionArgs) => {
         sortedFutureEvents.participatedEvents,
         sessionUser?.id
       ),
-    administeredEvents:
-      await addUserParticipationStatus<AdministeredFutureEvents>(
-        sortedFutureEvents.administeredEvents,
-        sessionUser?.id
-      ),
   };
   type TeamMemberPastEvents = typeof sortedPastEvents.teamMemberOfEvents;
   type ContributedPastEvents = typeof sortedPastEvents.contributedEvents;
   type ParticipatedPastEvents = typeof sortedPastEvents.participatedEvents;
-  type AdministeredPastEvents = typeof sortedPastEvents.administeredEvents;
   const enhancedPastEvents = {
     teamMemberOfEvents: await addUserParticipationStatus<TeamMemberPastEvents>(
       sortedPastEvents.teamMemberOfEvents,
@@ -322,11 +311,6 @@ export const loader = async (args: LoaderFunctionArgs) => {
     participatedEvents:
       await addUserParticipationStatus<ParticipatedPastEvents>(
         sortedPastEvents.participatedEvents,
-        sessionUser?.id
-      ),
-    administeredEvents:
-      await addUserParticipationStatus<AdministeredPastEvents>(
-        sortedPastEvents.administeredEvents,
         sessionUser?.id
       ),
   };
@@ -512,13 +496,11 @@ export default function Index() {
   const hasFutureEvents =
     hasContent(loaderData.futureEvents.teamMemberOfEvents) ||
     hasContent(loaderData.futureEvents.contributedEvents) ||
-    hasContent(loaderData.futureEvents.participatedEvents) ||
-    hasContent(loaderData.futureEvents.administeredEvents);
+    hasContent(loaderData.futureEvents.participatedEvents);
   const hasPastEvents =
     hasContent(loaderData.pastEvents.teamMemberOfEvents) ||
     hasContent(loaderData.pastEvents.contributedEvents) ||
-    hasContent(loaderData.pastEvents.participatedEvents) ||
-    hasContent(loaderData.pastEvents.administeredEvents);
+    hasContent(loaderData.pastEvents.participatedEvents);
 
   const previousLocation = usePreviousLocation();
   const navigate = useNavigate();
@@ -1066,193 +1048,6 @@ export default function Index() {
                     </div>
                   ) : null}
                 </div>
-                {hasContent(loaderData.futureEvents.administeredEvents) ? (
-                  <>
-                    <h6 id="admin-future-events" className="mb-4 font-bold">
-                      {locales.route.section.event.admin}
-                    </h6>
-                    <div className="mb-6">
-                      {loaderData.futureEvents.administeredEvents.map(
-                        ({ event }) => {
-                          const startTime = utcToZonedTime(
-                            event.startTime,
-                            "Europe/Berlin"
-                          );
-                          const endTime = utcToZonedTime(
-                            event.endTime,
-                            "Europe/Berlin"
-                          );
-                          return (
-                            <div
-                              key={`future-admin-event-${event.id}`}
-                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300  mb-2 flex items-stretch overflow-hidden"
-                            >
-                              <Link
-                                className="flex"
-                                to={`/event/${event.slug}/detail/about`}
-                                prefetch="intent"
-                              >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
-                                  <div className="w-36 h-full relative">
-                                    <Image
-                                      src={event.background}
-                                      alt={event.name}
-                                      blurredSrc={event.blurredBackground}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="px-4 py-4">
-                                  <p className="text-xs mb-1">
-                                    {hasContent(event.stage)
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
-                                      : ""}
-                                    {getDuration(startTime, endTime, language)}
-
-                                    {hasContent(event.participantLimit) ===
-                                      false &&
-                                      ` | ${locales.route.section.event.unlimitedSeats}`}
-                                    {hasContent(event.participantLimit) &&
-                                      event.participantLimit -
-                                        event._count.participants >
-                                        0 &&
-                                      ` | ${
-                                        event.participantLimit -
-                                        event._count.participants
-                                      } / ${event.participantLimit} ${
-                                        locales.route.section.event.seatsFree
-                                      }`}
-
-                                    {hasContent(event.participantLimit) &&
-                                    event.participantLimit -
-                                      event._count.participants <=
-                                      0 ? (
-                                      <>
-                                        {" "}
-                                        |{" "}
-                                        <span>
-                                          {event._count.waitingList}{" "}
-                                          {
-                                            locales.route.section.event
-                                              .onWaitingList
-                                          }
-                                        </span>
-                                      </>
-                                    ) : null}
-                                  </p>
-                                  <h4 className="font-bold text-base m-0 @lg:line-clamp-1">
-                                    {event.name}
-                                  </h4>
-                                  {hasContent(event.subline) ? (
-                                    <p className="text-xs mt-1 @lg:line-clamp-1">
-                                      {event.subline}
-                                    </p>
-                                  ) : (
-                                    <p className="text-xs mt-1 @lg:line-clamp-1">
-                                      {removeHtmlTags(event.description ?? "")}
-                                    </p>
-                                  )}
-                                </div>
-                              </Link>
-
-                              {loaderData.mode === "owner" &&
-                              !event.canceled ? (
-                                <>
-                                  {event.published ? (
-                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      {locales.route.section.event.published}
-                                    </div>
-                                  ) : (
-                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-primary pr-4 py-6 text-primary">
-                                      {locales.route.section.event.draft}
-                                    </div>
-                                  )}
-                                </>
-                              ) : null}
-                              {event.canceled ? (
-                                <div className="flex font-semibold items-centerml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
-                                  {locales.route.section.event.cancelled}
-                                </div>
-                              ) : null}
-                              {event.isParticipant &&
-                              !event.canceled &&
-                              loaderData.mode !== "owner" ? (
-                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.registered}
-                                  </p>
-                                </div>
-                              ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserParticipate(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddParticipantButton
-                                    action={`/event/${event.slug}/settings/participants/add-participant`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
-                              {event.isOnWaitingList &&
-                              !event.canceled &&
-                              loaderData.mode !== "owner" ? (
-                                <div className="flex font-semibold items-center ml-auto border-r-8 border-neutral-500 pr-4 py-6">
-                                  <p>{locales.route.section.event.waiting}</p>
-                                </div>
-                              ) : null}
-                              {loaderData.mode !== "anon" &&
-                              canUserBeAddedToWaitingList(event) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <AddToWaitingListButton
-                                    action={`/event/${event.slug}/settings/waiting-list/add-to-waiting-list`}
-                                    profileId={loaderData.userId}
-                                    locales={locales}
-                                  />
-                                </div>
-                              ) : null}
-                              {(loaderData.mode !== "owner" &&
-                                !event.isParticipant &&
-                                !canUserParticipate(event) &&
-                                !event.isOnWaitingList &&
-                                !canUserBeAddedToWaitingList(event) &&
-                                !event.canceled &&
-                                loaderData.mode !== "anon") ||
-                              (loaderData.mode === "anon" &&
-                                !event.canceled) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    to={`/event/${event.slug}/detail/about`}
-                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-                                    prefetch="intent"
-                                  >
-                                    {locales.route.section.event.more}
-                                  </Link>
-                                </div>
-                              ) : null}
-                            </div>
-                          );
-                        }
-                      )}
-                    </div>
-                  </>
-                ) : null}
                 {hasContent(loaderData.futureEvents.teamMemberOfEvents) ? (
                   <>
                     <h6
@@ -1772,134 +1567,6 @@ export default function Index() {
                     </h3>
                   </div>
                 </div>
-                {hasContent(loaderData.pastEvents.administeredEvents) ? (
-                  <>
-                    <h6 id="past-admin-events" className="mb-4 font-bold">
-                      {locales.route.section.event.admin}
-                    </h6>
-                    <div className="mb-6">
-                      {loaderData.pastEvents.administeredEvents.map(
-                        ({ event }) => {
-                          const startTime = utcToZonedTime(
-                            event.startTime,
-                            "Europe/Berlin"
-                          );
-                          const endTime = utcToZonedTime(
-                            event.endTime,
-                            "Europe/Berlin"
-                          );
-                          return (
-                            <div
-                              key={`past-admin-event-${event.id}`}
-                              className="rounded-lg bg-white shadow-xl border-t border-r border-neutral-300 mb-2 flex items-stretch overflow-hidden"
-                            >
-                              <Link
-                                className="flex"
-                                to={`/event/${event.slug}/detail/about`}
-                                prefetch="intent"
-                              >
-                                <div className="hidden @xl:block w-36 shrink-0 aspect-3/2">
-                                  <div className="w-36 h-full relative">
-                                    <Image
-                                      src={event.background}
-                                      alt={event.name}
-                                      blurredSrc={event.blurredBackground}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="px-4 py-4">
-                                  <p className="text-xs mb-1">
-                                    {hasContent(event.stage)
-                                      ? (() => {
-                                          let title;
-                                          if (
-                                            event.stage.slug in locales.stages
-                                          ) {
-                                            type LocaleKey =
-                                              keyof typeof locales.stages;
-                                            title =
-                                              locales.stages[
-                                                event.stage.slug as LocaleKey
-                                              ].title;
-                                          } else {
-                                            console.error(
-                                              `Event stage ${event.stage.slug} not found in locales`
-                                            );
-                                            title = event.stage.slug;
-                                          }
-                                          return title;
-                                        })() + " | "
-                                      : ""}
-                                    {getDuration(startTime, endTime, language)}
-                                  </p>
-                                  <h4 className="line-clamp-1 font-bold text-base m-0">
-                                    {event.name}
-                                  </h4>
-                                  {hasContent(event.subline) ? (
-                                    <p className="@lg:line-clamp-1 text-xs mt-1">
-                                      {event.subline}
-                                    </p>
-                                  ) : (
-                                    <p className="@lg:line-clamp-1 text-xs mt-1">
-                                      {removeHtmlTags(event.description ?? "")}
-                                    </p>
-                                  )}
-                                </div>
-                              </Link>
-
-                              {loaderData.mode === "owner" &&
-                              !event.canceled ? (
-                                <>
-                                  {event.published ? (
-                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-green-600 pr-4 py-6 text-green-600">
-                                      {locales.route.section.event.published}
-                                    </div>
-                                  ) : (
-                                    <div className="flex font-semibold items-center ml-auto border-r-8 border-primary pr-4 py-6 text-primary">
-                                      {locales.route.section.event.draft}
-                                    </div>
-                                  )}
-                                </>
-                              ) : null}
-                              {event.canceled ? (
-                                <div className="flex font-semibold items-center ml-auto border-r-8 border-red-400 pr-4 py-6 text-red-400">
-                                  {locales.route.section.event.cancelled}
-                                </div>
-                              ) : null}
-                              {event.isParticipant &&
-                              !event.canceled &&
-                              loaderData.mode !== "owner" ? (
-                                <div className="flex font-semibold items-center ml-auto border-r-8 border-green-500 pr-4 py-6 text-green-600">
-                                  <p>
-                                    {locales.route.section.event.participated}
-                                  </p>
-                                </div>
-                              ) : null}
-                              {(loaderData.mode !== "owner" &&
-                                !event.isParticipant &&
-                                !canUserParticipate(event) &&
-                                !event.isOnWaitingList &&
-                                !canUserBeAddedToWaitingList(event) &&
-                                !event.canceled) ||
-                              (loaderData.mode === "anon" &&
-                                !event.canceled) ? (
-                                <div className="flex items-center ml-auto pr-4 py-6">
-                                  <Link
-                                    to={`/event/${event.slug}/detail/about`}
-                                    className="h-auto min-h-0 whitespace-nowrap py-2 px-6 normal-case leading-6 inline-flex cursor-pointer outline-primary shrink-0 flex-wrap items-center justify-center rounded-lg text-center border-primary text-sm font-semibold border bg-primary text-white"
-                                    prefetch="intent"
-                                  >
-                                    {locales.route.section.event.more}
-                                  </Link>
-                                </div>
-                              ) : null}
-                            </div>
-                          );
-                        }
-                      )}
-                    </div>
-                  </>
-                ) : null}
 
                 {hasContent(loaderData.pastEvents.teamMemberOfEvents) ? (
                   <>
