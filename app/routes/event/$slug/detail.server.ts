@@ -17,7 +17,17 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
 
-export async function getEventBySlug(slug: string) {
+export async function getEventBySlug(
+  sessionUser: { id: string } | null,
+  eventInfo: { slug: string }
+) {
+  const { slug } = eventInfo;
+
+  let profileId: string | undefined;
+  if (sessionUser !== null) {
+    profileId = sessionUser.id;
+  }
+
   const event = await prismaClient.event.findUnique({
     where: { slug },
     select: {
@@ -64,7 +74,34 @@ export async function getEventBySlug(slug: string) {
       _count: {
         select: {
           participants: true,
-          childEvents: true,
+          childEvents: {
+            where: {
+              OR: [
+                { published: true },
+                {
+                  admins: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+                {
+                  teamMembers: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+                {
+                  speakers: {
+                    some: {
+                      profileId,
+                    },
+                  },
+                },
+              ],
+            },
+          },
         },
       },
     },
