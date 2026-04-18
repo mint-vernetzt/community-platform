@@ -310,6 +310,14 @@ export async function getCoordinatesFromAddress(options: {
     };
   }
 
+  if (parsedGeoJSON.data.features.length === 0) {
+    return {
+      longitude: null,
+      latitude: null,
+      error: `No coordinates found for entity ${id}`,
+    };
+  }
+
   const { coordinates } = parsedGeoJSON.data.features[0].geometry;
   const [lon, lat] = coordinates;
 
