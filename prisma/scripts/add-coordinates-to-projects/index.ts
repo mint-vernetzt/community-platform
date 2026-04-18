@@ -15,7 +15,10 @@ async function main() {
     },
   });
 
-  for (const project of projects) {
+  for (const [index, project] of projects.entries()) {
+    console.log(
+      `Adding coordinates to project ${index + 1}/${projects.length}`
+    );
     await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: project.id,
