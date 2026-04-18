@@ -15,7 +15,10 @@ async function main() {
     },
   });
 
-  for (const organization of organizations) {
+  for (const [index, organization] of organizations.entries()) {
+    console.log(
+      `Adding coordinates to organization ${index + 1}/${organizations.length}`
+    );
     await wait(1500); // Wait for 1.5 seconds to avoid hitting rate limits
     const { longitude, latitude, error } = await getCoordinatesFromAddress({
       id: organization.id,
