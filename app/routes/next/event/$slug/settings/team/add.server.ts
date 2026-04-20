@@ -1,14 +1,19 @@
-import { prismaClient } from "~/prisma.server";
+import { parseWithZod } from "@conform-to/zod";
+import { type SupabaseClient } from "@supabase/supabase-js";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
-  createSearchTeamMembersSchema,
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
+import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
+import {
   createSearchAdminsSchema,
+  createSearchTeamMembersSchema,
   SEARCH_ADMINS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./add.shared";
-import { parseWithZod } from "@conform-to/zod";
-import { type SupabaseClient } from "@supabase/supabase-js";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -264,4 +269,100 @@ export async function searchProfiles(options: {
   });
 
   return { result: enhancedProfiles, submission: submission.reply() };
+}
+
+export async function inviteProfileToJoinEventAsTeamMember(options: {
+  eventId: string;
+  profileId: string;
+  locales: {
+    mail: {
+      buttonText: string;
+      subject: string;
+    };
+  };
+}) {
+  const { eventId, profileId } = options;
+
+  const result = await prismaClient.inviteForProfileToJoinEvent.upsert({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId,
+        role: "member",
+      },
+    },
+    update: {
+      status: "pending",
+    },
+    create: {
+      eventId,
+      profileId,
+      role: "member",
+      status: "pending",
+    },
+    select: {
+      profile: {
+        select: {
+          firstName: true,
+          email: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-member-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-member-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+      button: {
+        url: `${process.env.COMMUNITY_BASE_URL}/my/events`,
+        text: options.locales.mail.buttonText,
+      },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+      button: {
+        url: `${process.env.COMMUNITY_BASE_URL}/my/events`,
+        text: options.locales.mail.buttonText,
+      },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+}
+
+export async function addAdminAsTeamMemberToEvent(options: {
+  eventId: string;
+  profileId: string;
+}) {
+  const { eventId, profileId } = options;
+
+  const result = await prismaClient.teamMemberOfEvent.create({
+    data: {
+      eventId,
+      profileId,
+    },
+  });
+
+  return result;
 }

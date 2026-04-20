@@ -21,6 +21,12 @@ export function createSearchAdminsSchema(locales: {
   });
 }
 
+export function createInviteProfileToJoinAsTeamMemberSchema() {
+  return z.object({
+    [PROFILE_ID_FIELD]: z.string().uuid(),
+  });
+}
+
 export function createSearchTeamMembersSchema(locales: {
   validation: {
     min: string;
@@ -32,5 +38,11 @@ export function createSearchTeamMembersSchema(locales: {
       .trim()
       .min(3, { message: locales.validation.min })
       .optional(),
+  });
+}
+
+export function createAddAdminAsTeamMemberSchema() {
+  return z.object({
+    [PROFILE_ID_FIELD]: z.string().uuid(),
   });
 }

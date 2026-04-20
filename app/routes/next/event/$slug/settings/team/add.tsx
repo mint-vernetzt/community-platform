@@ -1,41 +1,51 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import { useEffect, useState } from "react";
 import {
   Form,
+  redirect,
   useFetcher,
   useLoaderData,
   useSearchParams,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { languageModuleMap } from "~/locales/.server";
 import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
+import { invariantResponse } from "~/lib/utils/response";
+import { Deep } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  addAdminAsTeamMemberToEvent,
   getAdminsOfEventToAddAsTeamMembers,
   getEventBySlug,
+  inviteProfileToJoinEventAsTeamMember,
   searchProfiles,
 } from "./add.server";
-import { createAuthClient } from "~/auth.server";
-import List from "~/components/next/List";
-import { useEffect, useState } from "react";
 import {
   ADD_ADMIN_AS_TEAM_MEMBER_INTENT,
+  createAddAdminAsTeamMemberSchema,
+  createInviteProfileToJoinAsTeamMemberSchema,
   createSearchAdminsSchema,
   createSearchTeamMembersSchema,
   INVITE_PROFILE_TO_JOIN_AS_TEAM_MEMBER_INTENT,
   PROFILE_ID_FIELD,
   SEARCH_ADMINS_SEARCH_PARAM,
 } from "./add.shared";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { SEARCH_TEAM_MEMBERS_SEARCH_PARAM } from "./list.shared";
-import { parseWithZod } from "@conform-to/zod";
-import { Deep } from "~/lib/utils/searchParams";
-import {
-  decideBetweenSingularOrPlural,
-  insertParametersIntoLocale,
-} from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -74,6 +84,115 @@ export async function loader(args: LoaderFunctionArgs) {
     admins,
     adminsSearchSubmission,
   };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
+
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/event/$slug/settings/team/add"];
+
+  const formData = await request.formData();
+  const intent = formData.get(INTENT_FIELD_NAME);
+
+  invariantResponse(typeof intent === "string", "intent is not defined", {
+    status: 400,
+  });
+  invariantResponse(
+    intent === INVITE_PROFILE_TO_JOIN_AS_TEAM_MEMBER_INTENT ||
+      intent === ADD_ADMIN_AS_TEAM_MEMBER_INTENT,
+    "unknown intent",
+    {
+      status: 400,
+    }
+  );
+
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (intent === INVITE_PROFILE_TO_JOIN_AS_TEAM_MEMBER_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createInviteProfileToJoinAsTeamMemberSchema(),
+    });
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await inviteProfileToJoinEventAsTeamMember({
+        eventId: event.id,
+        profileId: submission.value[PROFILE_ID_FIELD],
+        locales: locales.route,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "invite-profile-to-join-event-as-team-member-error",
+        key: `invite-profile-to-join-event-as-team-member-error-${Date.now()}`,
+        message: locales.route.errors.inviteProfileAsTeamMember,
+        level: "negative",
+      });
+    }
+
+    return redirectWithToast(request.url, {
+      id: "invite-profile-to-join-event-as-team-member-success",
+      key: `invite-profile-to-join-event-as-team-member-success-${Date.now()}`,
+      message: locales.route.success.inviteProfileAsTeamMember,
+      level: "positive",
+    });
+  } else {
+    const submission = await parseWithZod(formData, {
+      schema: createAddAdminAsTeamMemberSchema(),
+    });
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await addAdminAsTeamMemberToEvent({
+        eventId: event.id,
+        profileId: submission.value[PROFILE_ID_FIELD],
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "add-admin-as-team-member-error",
+        key: `add-admin-as-team-member-error-${Date.now()}`,
+        message: locales.route.errors.addAdminAsTeamMember,
+        level: "negative",
+      });
+    }
+
+    return redirectWithToast(request.url, {
+      id: "add-admin-as-team-member-success",
+      key: `add-admin-as-team-member-success-${Date.now()}`,
+      message: locales.route.success.addAdminAsTeamMember,
+      level: "positive",
+    });
+  }
 }
 
 function AddTeamMember() {
