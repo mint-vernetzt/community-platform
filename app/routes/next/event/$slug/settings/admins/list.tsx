@@ -171,7 +171,7 @@ function AdminsList() {
           ])}
         </Hint>
       )}
-      <List id="participants-list" hideAfter={4} locales={locales.route.list}>
+      <List id="admins-list" hideAfter={4} locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.admins}
           setValues={setAdmins}
