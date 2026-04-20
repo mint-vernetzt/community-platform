@@ -28,8 +28,8 @@ export const locale = {
     result_one: "One person found.",
     result_other: "{{count}} people found.",
     invite: "Invite",
-    alreadyAdmin: "already Admin",
-    alreadyInvited: "already Invited",
+    alreadyAdmin: "already admin",
+    alreadyInvited: "already invited",
     more: "{{count}} more",
     less: "{{count}} less",
     validation: {
