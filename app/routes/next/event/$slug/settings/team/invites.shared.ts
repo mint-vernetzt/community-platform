@@ -17,7 +17,7 @@ export function createSearchInvitedProfilesSchema(locales: {
   });
 }
 
-export function createRevokeInviteOfProfileToJoinEventAsAdminSchema() {
+export function createRevokeInviteOfProfileToJoinEventAsTeamMemberSchema() {
   return z.object({
     [PROFILE_ID_FIELD]: z.string().trim().uuid(),
   });
