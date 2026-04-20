@@ -1,15 +1,15 @@
 export const locale = {
   team: {
-    title: "Personen aus Deinem Event-Team als Admin hinzufügen",
+    title: "Administrator:innen als Teammitglied hinzufügen",
     instruction:
-      "Wähle Personen aus dem Event-Team aus und gib ihnen Admin-Rechte.",
+      "Wähle Personen aus Deiner Adminliste des Events aus, um sie zum Teammitglied zu machen.",
     list: {
       more: "{{count}} weitere anzeigen",
       less: "{{count}} weniger anzeigen",
-      add: "Als Administrator:in hinzufügen",
+      add: "Als Teammitglied hinzufügen",
     },
     search: {
-      label: "Duchrsuche die Teammitglieder",
+      label: "Durchsuche die Teammitglieder",
       placeholder: "Name",
       hint: "Gib mindestens 3 Buchstaben ein.",
       validation: {
@@ -18,9 +18,9 @@ export const locale = {
     },
   },
   search: {
-    title: "Weitere Personen als Administrator:innen einladen",
+    title: "Weitere Personen als Teammitglied einladen",
     explanation:
-      "Die von Dir eingeladenen Personen müssen die Einladung annehmen, um Admin zu werden.",
+      "Die von Dir eingeladenen Personen müssen die Einladung annehmen, um Teammitglied zu werden.",
     label: "Suche nach Personen",
     placeholder: "Name oder E-Mail-Adresse",
     hint: "Gib mindestens 3 Buchstaben ein.",
@@ -28,7 +28,7 @@ export const locale = {
     result_one: "Es wurde {{count}} Person gefunden.",
     result_other: "Es wurden {{count}} Personen gefunden.",
     invite: "Einladen",
-    alreadyAdmin: "bereits Admin",
+    alreadyTeamMember: "bereits Teammitglied",
     alreadyInvited: "bereits angefragt",
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
@@ -37,15 +37,15 @@ export const locale = {
     },
   },
   errors: {
-    inviteProfileAsAdmin:
+    inviteProfileAsTeamMember:
       "Beim Einladen der Person ist ein Fehler aufgetreten. Bitte versuche es erneut.",
-    addTeamMemberAsAdmin:
-      "Beim Hinzufügen des Teammitglieds als Admin ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    addAdminAsTeamMember:
+      "Beim Hinzufügen des Admins als Teammitglied ist ein Fehler aufgetreten. Bitte versuche es erneut.",
   },
   success: {
-    inviteProfileAsAdmin: "Die Einladung wurde erfolgreich versendet.",
-    addTeamMemberAsAdmin:
-      "Das Teammitglied wurde erfolgreich als Admin hinzugefügt.",
+    inviteProfileAsTeamMember: "Die Einladung wurde erfolgreich versendet.",
+    addAdminAsTeamMember:
+      "Der Admin wurde erfolgreich als Teammitglied hinzugefügt.",
   },
   mail: {
     buttonText: "Zur Community Plattform",
