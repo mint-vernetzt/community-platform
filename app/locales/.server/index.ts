@@ -88,6 +88,9 @@ import { locale as deNextEventSettingsRegistration } from "./de/routes/next/even
 import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
 import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
+import { locale as deNextEventSettingsSpeakersList } from "./de/routes/next/event/$slug/settings/speakers/list";
+import { locale as deNextEventSettingsSpeakersAdd } from "./de/routes/next/event/$slug/settings/speakers/add";
+import { locale as deNextEventSettingsSpeakersInvites } from "./de/routes/next/event/$slug/settings/speakers/invites";
 import { locale as deNextEventSettingsTeam } from "./de/routes/next/event/$slug/settings/team";
 import { locale as deNextEventSettingsTeamList } from "./de/routes/next/event/$slug/settings/team/list";
 import { locale as deNextEventSettingsTeamAdd } from "./de/routes/next/event/$slug/settings/team/add";
@@ -283,6 +286,9 @@ import { locale as enNextEventSettingsRegistration } from "./en/routes/next/even
 import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
 import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as enNextEventSettingsSpeakers } from "./en/routes/next/event/$slug/settings/speakers";
+import { locale as enNextEventSettingsSpeakersList } from "./en/routes/next/event/$slug/settings/speakers/list";
+import { locale as enNextEventSettingsSpeakersAdd } from "./en/routes/next/event/$slug/settings/speakers/add";
+import { locale as enNextEventSettingsSpeakersInvites } from "./en/routes/next/event/$slug/settings/speakers/invites";
 import { locale as enNextEventSettingsTeam } from "./en/routes/next/event/$slug/settings/team";
 import { locale as enNextEventSettingsTeamList } from "./en/routes/next/event/$slug/settings/team/list";
 import { locale as enNextEventSettingsTeamAdd } from "./en/routes/next/event/$slug/settings/team/add";
@@ -580,6 +586,15 @@ const de = {
   },
   "next/event/$slug/settings/speakers": {
     route: deNextEventSettingsSpeakers,
+  },
+  "next/event/$slug/settings/speakers/add": {
+    route: deNextEventSettingsSpeakersAdd,
+  },
+  "next/event/$slug/settings/speakers/list": {
+    route: deNextEventSettingsSpeakersList,
+  },
+  "next/event/$slug/settings/speakers/invites": {
+    route: deNextEventSettingsSpeakersInvites,
   },
   "next/event/$slug/settings/team": {
     route: deNextEventSettingsTeam,
@@ -1081,6 +1096,15 @@ const en = {
   },
   "next/event/$slug/settings/speakers": {
     route: enNextEventSettingsSpeakers,
+  },
+  "next/event/$slug/settings/speakers/add": {
+    route: enNextEventSettingsSpeakersAdd,
+  },
+  "next/event/$slug/settings/speakers/list": {
+    route: enNextEventSettingsSpeakersList,
+  },
+  "next/event/$slug/settings/speakers/invites": {
+    route: enNextEventSettingsSpeakersInvites,
   },
   "next/event/$slug/settings/team": {
     route: enNextEventSettingsTeam,

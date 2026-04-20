@@ -293,7 +293,22 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/speakers",
-        "./routes/next/event/$slug/settings/speakers.tsx"
+        "./routes/next/event/$slug/settings/speakers.tsx",
+        [
+          index("./routes/next/event/$slug/settings/speakers/index.tsx"),
+          route(
+            "/next/event/:slug/settings/speakers/list",
+            "./routes/next/event/$slug/settings/speakers/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/speakers/add",
+            "./routes/next/event/$slug/settings/speakers/add.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/speakers/invites",
+            "./routes/next/event/$slug/settings/speakers/invites.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/team",
