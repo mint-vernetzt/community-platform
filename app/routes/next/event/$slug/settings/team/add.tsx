@@ -74,7 +74,7 @@ export async function loader(args: LoaderFunctionArgs) {
     await getAdminsOfEventToAddAsTeamMembers({
       eventId: event.id,
       request,
-      locales: locales.route.team.search,
+      locales: locales.route.admins.search,
       authClient,
     });
 
@@ -244,22 +244,22 @@ function AddTeamMember() {
     <>
       <div>
         <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-          {locales.route.team.title}
+          {locales.route.admins.title}
         </h3>
-        <p>{locales.route.team.instruction}</p>
+        <p>{locales.route.admins.instruction}</p>
       </div>
-      <List locales={locales.route.search} id="team-member-list" hideAfter={1}>
+      <List locales={locales.route.search} id="admins-list" hideAfter={1}>
         <List.Search
           defaultItems={loaderData.admins}
           setValues={setAdmins}
           searchParam={SEARCH_ADMINS_SEARCH_PARAM}
           locales={{
-            placeholder: locales.route.team.search.placeholder,
-            label: locales.route.team.search.label,
+            placeholder: locales.route.admins.search.placeholder,
+            label: locales.route.admins.search.label,
           }}
-          label={locales.route.team.search.label}
+          label={locales.route.admins.search.label}
           submission={loaderData.adminsSearchSubmission}
-          schema={createSearchAdminsSchema(locales.route.team.search)}
+          schema={createSearchAdminsSchema(locales.route.admins.search)}
           hideLabel={false}
         />
         {admins.map((admin, index) => {
@@ -298,7 +298,7 @@ function AddTeamMember() {
                       name={INTENT_FIELD_NAME}
                       value={ADD_ADMIN_AS_TEAM_MEMBER_INTENT}
                     >
-                      {locales.route.team.list.add}
+                      {locales.route.admins.list.add}
                     </Button>
                   </Form>
                 )}

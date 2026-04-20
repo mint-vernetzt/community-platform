@@ -1,5 +1,5 @@
 export const locale = {
-  team: {
+  admins: {
     title: "Add Admins as Team Members",
     instruction:
       "Select people from your event's admin list to make them team members.",
