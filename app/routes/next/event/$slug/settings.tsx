@@ -117,27 +117,26 @@ export default function Settings() {
   const deep = searchParams.get(Deep);
 
   const location = useLocation();
-  const leafPathname = location.pathname.replace(
-    `/next/event/${event.slug}/settings/`,
-    ""
-  );
+  const leafPathname = location.pathname
+    .replace(`/next/event/${event.slug}/settings/`, "")
+    .split("/")[0];
   const links = [
     { to: `time-period?${Deep}`, label: locales.route.menu.timePeriod },
     { to: `registration?${Deep}`, label: locales.route.menu.registration },
     { to: `details?${Deep}`, label: locales.route.menu.details },
     { to: `location?${Deep}`, label: locales.route.menu.location },
     {
-      to: `admins?${Deep}`,
+      to: `admins/list?${Deep}`,
       label: locales.route.menu.admins,
       count: event._count.admins,
     },
     {
-      to: `team?${Deep}`,
+      to: `team/list?${Deep}`,
       label: locales.route.menu.team,
       count: event._count.teamMembers,
     },
     {
-      to: `speakers?${Deep}`,
+      to: `speakers/list?${Deep}`,
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
@@ -161,7 +160,10 @@ export default function Settings() {
       label: locales.route.menu.relatedEvents,
       count: event._count.childEvents,
     },
-    { to: `danger-zone?${Deep}`, label: locales.route.menu.dangerZone },
+    {
+      to: `danger-zone/change-url?${Deep}`,
+      label: locales.route.menu.dangerZone,
+    },
   ];
 
   return (
@@ -180,7 +182,7 @@ export default function Settings() {
             {deep === null
               ? locales.route.mobileHeadline
               : links.find((link) => {
-                  const toSlug = link.to.replace(`?${Deep}`, "");
+                  const toSlug = link.to.replace(`?${Deep}`, "").split("/")[0];
                   return toSlug === leafPathname;
                 })?.label || locales.route.mobileHeadline}
           </SettingsNavigation.MobileHeader.Heading>
