@@ -1,10 +1,10 @@
 export const locale = {
-  team: {
-    title: "Add People from Your Event Team as Admins",
+  admins: {
+    title: "Add Admins as Team Members",
     instruction:
-      "Select people from your event team and grant them admin rights.",
+      "Select people from your event's admin list to make them team members.",
     search: {
-      label: "Search the team members",
+      label: "Search the admins",
       placeholder: "Name",
       hint: "Enter at least 3 characters.",
       validation: {
@@ -14,13 +14,13 @@ export const locale = {
     list: {
       more: "{{count}} more",
       less: "{{count}} less",
-      add: "Add as Admin",
+      add: "Add as team member",
     },
   },
   search: {
-    title: "Invite More People as Admins",
+    title: "Invite More People as Team Members",
     explanation:
-      "The people you invite must accept the invitation to become admins.",
+      "The people you invite must accept the invitation to become team members.",
     label: "Search for people",
     placeholder: "Name or Email Address",
     hint: "Enter at least 3 characters.",
@@ -28,8 +28,8 @@ export const locale = {
     result_one: "One person found.",
     result_other: "{{count}} people found.",
     invite: "Invite",
-    alreadyAdmin: "already Admin",
-    alreadyInvited: "already Invited",
+    alreadyTeamMember: "already a team member",
+    alreadyInvited: "already invited",
     more: "{{count}} more",
     less: "{{count}} less",
     validation: {
@@ -37,17 +37,17 @@ export const locale = {
     },
   },
   errors: {
-    inviteProfileAsAdmin:
+    inviteProfileAsTeamMember:
       "An error occurred while inviting the person. Please try again.",
-    addTeamMemberAsAdmin:
-      "An error occurred while adding the team member as an admin. Please try again.",
+    addAdminAsTeamMember:
+      "An error occurred while adding the admin as a team member. Please try again.",
   },
   success: {
-    inviteProfileAsAdmin: "The invitation was sent successfully.",
-    addTeamMemberAsAdmin: "The team member was successfully added as an admin.",
+    inviteProfileAsTeamMember: "The invitation was sent successfully.",
+    addAdminAsTeamMember: "The admin was successfully added as a team member.",
   },
   mail: {
     buttonText: "Zur Community Plattform",
-    subject: "Du wurdest als Admin zu einem Event eingeladen",
+    subject: "Du wurdest als Teammitglied zu einem Event eingeladen",
   },
 } as const;

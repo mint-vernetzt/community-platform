@@ -238,78 +238,72 @@ function AddAdmin() {
 
   return (
     <>
-      <>
-        <div>
-          <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-            {locales.route.team.title}
-          </h3>
-          <p>{locales.route.team.instruction}</p>
-        </div>
-        <List
-          locales={locales.route.search}
-          id="team-member-list"
-          hideAfter={1}
-        >
-          <List.Search
-            defaultItems={loaderData.teamMembers}
-            setValues={setTeamMembers}
-            searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
-            locales={{
-              placeholder: locales.route.team.search.placeholder,
-              label: locales.route.team.search.label,
-            }}
-            label={locales.route.team.search.label}
-            submission={loaderData.teamMembersSearchSubmission}
-            schema={createSearchTeamMembersSchema(locales.route.team.search)}
-            hideLabel={false}
-          />
-          {teamMembers.map((teamMember, index) => {
-            return (
-              <ListItemPersonOrg key={teamMember.id} index={index}>
-                <ListItemPersonOrg.Avatar size="full" {...teamMember} />
-                <ListItemPersonOrg.Headline>
-                  {teamMember.academicTitle !== null &&
-                  teamMember.academicTitle.length > 0
-                    ? `${teamMember.academicTitle} `
-                    : ""}
-                  {teamMember.firstName} {teamMember.lastName}
-                </ListItemPersonOrg.Headline>
-                <ListItemPersonOrg.Controls>
-                  {teamMember.alreadyAdmin ? (
-                    <p className="text-sm font-semibold text-positive-600">
-                      {locales.route.search.alreadyAdmin}
-                    </p>
-                  ) : teamMember.alreadyInvited ? (
-                    <p className="text-sm font-semibold text-neutral-700">
-                      {locales.route.search.alreadyInvited}
-                    </p>
-                  ) : (
-                    <Form
-                      id={`add-team-member-as-admin-${teamMember.id}`}
-                      method="post"
-                      preventScrollReset
+      <div>
+        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+          {locales.route.team.title}
+        </h3>
+        <p>{locales.route.team.instruction}</p>
+      </div>
+      <List locales={locales.route.search} id="team-member-list" hideAfter={1}>
+        <List.Search
+          defaultItems={loaderData.teamMembers}
+          setValues={setTeamMembers}
+          searchParam={SEARCH_TEAM_MEMBERS_SEARCH_PARAM}
+          locales={{
+            placeholder: locales.route.team.search.placeholder,
+            label: locales.route.team.search.label,
+          }}
+          label={locales.route.team.search.label}
+          submission={loaderData.teamMembersSearchSubmission}
+          schema={createSearchTeamMembersSchema(locales.route.team.search)}
+          hideLabel={false}
+        />
+        {teamMembers.map((teamMember, index) => {
+          return (
+            <ListItemPersonOrg key={teamMember.id} index={index}>
+              <ListItemPersonOrg.Avatar size="full" {...teamMember} />
+              <ListItemPersonOrg.Headline>
+                {teamMember.academicTitle !== null &&
+                teamMember.academicTitle.length > 0
+                  ? `${teamMember.academicTitle} `
+                  : ""}
+                {teamMember.firstName} {teamMember.lastName}
+              </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Controls>
+                {teamMember.alreadyAdmin ? (
+                  <p className="text-sm font-semibold text-positive-600">
+                    {locales.route.search.alreadyAdmin}
+                  </p>
+                ) : teamMember.alreadyInvited ? (
+                  <p className="text-sm font-semibold text-neutral-700">
+                    {locales.route.search.alreadyInvited}
+                  </p>
+                ) : (
+                  <Form
+                    id={`add-team-member-as-admin-${teamMember.id}`}
+                    method="post"
+                    preventScrollReset
+                  >
+                    <Input
+                      type="hidden"
+                      name={PROFILE_ID_FIELD}
+                      value={teamMember.id}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      name={INTENT_FIELD_NAME}
+                      value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
                     >
-                      <Input
-                        type="hidden"
-                        name={PROFILE_ID_FIELD}
-                        value={teamMember.id}
-                      />
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        name={INTENT_FIELD_NAME}
-                        value={ADD_TEAM_MEMBER_AS_ADMIN_INTENT}
-                      >
-                        {locales.route.team.list.add}
-                      </Button>
-                    </Form>
-                  )}
-                </ListItemPersonOrg.Controls>
-              </ListItemPersonOrg>
-            );
-          })}
-        </List>
-      </>
+                      {locales.route.team.list.add}
+                    </Button>
+                  </Form>
+                )}
+              </ListItemPersonOrg.Controls>
+            </ListItemPersonOrg>
+          );
+        })}
+      </List>
       <div>
         <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
           {locales.route.search.title}
