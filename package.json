@@ -47,7 +47,7 @@
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "domain-functions": "^2.5.1",
-    "file-type": "^20.1.0",
+    "file-type": "^22.0.1",
     "fs-extra": "^11.2.0",
     "handlebars": "^4.7.8",
     "ics": "^3.7.1",
