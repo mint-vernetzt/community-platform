@@ -178,6 +178,13 @@ export async function removeTeamMemberFromEvent(options: {
     },
   });
 
+  await prismaClient.contactPersonOfEvent.deleteMany({
+    where: {
+      eventId,
+      profileId: teamMemberId,
+    },
+  });
+
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
   const subject = options.locales.mail.subject;
