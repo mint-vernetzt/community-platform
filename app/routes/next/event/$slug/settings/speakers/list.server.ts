@@ -12,6 +12,7 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export async function getSpeakersOfEvent(options: {
   slug: string;
@@ -158,7 +159,9 @@ export async function removeSpeakerFromEvent(options: {
 
   const sender = process.env.SYSTEM_MAIL_SENDER;
   const recipient = result.profile.email;
-  const subject = options.locales.mail.subject;
+  const subject = insertParametersIntoLocale(options.locales.mail.subject, {
+    eventName: result.event.name,
+  });
   const textTemplatePath =
     "mail-templates/general-notification/remove-speaker-from-event-text.hbs";
   const htmlTemplatePath =
