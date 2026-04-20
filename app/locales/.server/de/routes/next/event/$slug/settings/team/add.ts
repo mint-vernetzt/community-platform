@@ -9,7 +9,7 @@ export const locale = {
       add: "Als Teammitglied hinzufügen",
     },
     search: {
-      label: "Durchsuche die Teammitglieder",
+      label: "Durchsuche die Administrator:innen",
       placeholder: "Name",
       hint: "Gib mindestens 3 Buchstaben ein.",
       validation: {

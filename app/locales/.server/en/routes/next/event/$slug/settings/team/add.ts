@@ -4,7 +4,7 @@ export const locale = {
     instruction:
       "Select people from your event's admin list to make them team members.",
     search: {
-      label: "Search the team members",
+      label: "Search the admins",
       placeholder: "Name",
       hint: "Enter at least 3 characters.",
       validation: {
