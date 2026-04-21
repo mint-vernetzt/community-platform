@@ -1,5 +1,5 @@
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient, getSessionUser } from "~/auth.server";
 import { RichText } from "~/components/legacy/Richtext/RichText";
@@ -102,6 +102,12 @@ function About() {
   const [responsibleOrganizations, setResponsibleOrganizations] = useState(
     event.responsibleOrganizations
   );
+
+  useEffect(() => {
+    setSpeakers(event.speakers);
+    setTeamMembers(event.teamMembers);
+    setResponsibleOrganizations(event.responsibleOrganizations);
+  }, [event.speakers, event.teamMembers, event.responsibleOrganizations]);
 
   return (
     <div className="w-full flex flex-col gap-8 md:gap-10">
