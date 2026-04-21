@@ -211,5 +211,14 @@ export const locale = {
         "Wenn Du Einladungen bestätigst, wirst du als <0>Event-Teammitglied</0> sichtbar.",
       linkDescription: "Zu meinen Events",
     },
+    eventSpeakerInvites: {
+      headline_one:
+        "Du hast {{count}} offene Speaker:innen-Einladung für ein Event.",
+      headline_other:
+        "Du hast {{count}} offene Speaker:innen-Einladungen für Events.",
+      description:
+        "Wenn Du Einladungen bestätigst, wirst du als <0>Event-Speaker:in</0> sichtbar.",
+      linkDescription: "Zu meinen Events",
+    },
   },
 } as const;

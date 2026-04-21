@@ -31,6 +31,7 @@ export const locale = {
     teamMemberEvents: "Team Member",
     teamMemberInvites: "Team Member",
     speakerEvents: "Speaker",
+    speakerInvites: "Speaker",
     participantEvents: "Participant",
     waitingListEvents: "Waiting List",
   },
@@ -51,12 +52,16 @@ export const locale = {
       "Error accepting invite as team member for the event.",
     rejectInviteAsTeamMember:
       "Error rejecting invite as team member for the event.",
+    acceptInviteAsSpeaker: "Error accepting invite as speaker for the event.",
+    rejectInviteAsSpeaker: "Error rejecting invite as speaker for the event.",
   },
   success: {
     acceptInviteAsAdmin: "Invite accepted as admin for the event.",
     rejectInviteAsAdmin: "Invite rejected as admin for the event.",
     acceptInviteAsTeamMember: "Invite accepted as team member for the event.",
     rejectInviteAsTeamMember: "Invite rejected as team member for the event.",
+    acceptInviteAsSpeaker: "Invite accepted as speaker for the event.",
+    rejectInviteAsSpeaker: "Invite rejected as speaker for the event.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -70,6 +75,12 @@ export const locale = {
     },
     inviteAsTeamMemberRejected: {
       subject: "Die Einladung zum Teammitglied eines Events wurde abgelehnt",
+    },
+    inviteAsSpeakerAccepted: {
+      subject: "Die Einladung als Speaker:in eines Events wurde angenommen",
+    },
+    inviteAsSpeakerRejected: {
+      subject: "Die Einladung als Speaker:in eines Events wurde abgelehnt",
     },
   },
 } as const;
