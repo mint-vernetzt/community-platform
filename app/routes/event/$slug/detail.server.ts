@@ -740,7 +740,10 @@ export async function getContactPersonsOfEvent(options: {
   return enhancedContactPersons;
 }
 
-export async function getParticipantsCount(slug: string) {
+export async function getParticipantsCount(
+  slug: string,
+  sessionUser: User | null
+) {
   const participants = await prismaClient.participantOfEvent.findMany({
     where: {
       OR: [
@@ -751,9 +754,29 @@ export async function getParticipantsCount(slug: string) {
         },
         {
           event: {
-            parentEvent: {
-              slug,
-            },
+            AND: [
+              {
+                parentEvent: { slug },
+              },
+              {
+                OR: [
+                  { published: true },
+                  sessionUser !== null
+                    ? {
+                        teamMembers: {
+                          some: { profileId: sessionUser?.id },
+                        },
+                        admins: {
+                          some: { profileId: sessionUser?.id },
+                        },
+                        speakers: {
+                          some: { profileId: sessionUser?.id },
+                        },
+                      }
+                    : {},
+                ],
+              },
+            ],
           },
         },
       ],

@@ -262,6 +262,24 @@ export async function getEventBySlug(options: {
         },
       },
       childEvents: {
+        where: {
+          OR: [
+            { published: true },
+            sessionUser !== null
+              ? {
+                  teamMembers: {
+                    some: { profileId: sessionUser?.id },
+                  },
+                  admins: {
+                    some: { profileId: sessionUser?.id },
+                  },
+                  speakers: {
+                    some: { profileId: sessionUser?.id },
+                  },
+                }
+              : {},
+          ],
+        },
         select: {
           speakers: {
             where: speakersWhere,
