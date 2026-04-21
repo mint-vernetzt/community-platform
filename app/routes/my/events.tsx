@@ -43,18 +43,22 @@ import {
 } from "../feature-access.server";
 import {
   acceptInviteAsAdmin,
+  acceptInviteAsSpeaker,
   acceptInviteAsTeamMember,
   getEventInvites,
   getEvents,
   rejectInviteAsAdmin,
+  rejectInviteAsSpeaker,
   rejectInviteAsTeamMember,
 } from "./events.server";
 import {
   ACCEPT_ADMIN_INVITE_INTENT,
+  ACCEPT_SPEAKER_INVITE_INTENT,
   ACCEPT_TEAM_MEMBER_INVITE_INTENT,
-  createAcceptOrRejectInviteAsAdminSchema,
+  createAcceptOrRejectInviteSchema,
   EVENT_ID,
   REJECT_ADMIN_INVITE_INTENT,
+  REJECT_SPEAKER_INVITE_INTENT,
   REJECT_TEAM_MEMBER_INVITE_INTENT,
 } from "./events.shared";
 
@@ -127,12 +131,14 @@ export async function action(args: ActionFunctionArgs) {
     intent === ACCEPT_ADMIN_INVITE_INTENT ||
       intent === REJECT_ADMIN_INVITE_INTENT ||
       intent === ACCEPT_TEAM_MEMBER_INVITE_INTENT ||
-      intent === REJECT_TEAM_MEMBER_INVITE_INTENT,
+      intent === REJECT_TEAM_MEMBER_INVITE_INTENT ||
+      intent === ACCEPT_SPEAKER_INVITE_INTENT ||
+      intent === REJECT_SPEAKER_INVITE_INTENT,
     "invalid intent",
     { status: 400 }
   );
   const submission = await parseWithZod(formData, {
-    schema: createAcceptOrRejectInviteAsAdminSchema(),
+    schema: createAcceptOrRejectInviteSchema(),
   });
 
   if (submission.status !== "success") {
@@ -199,7 +205,7 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-  } else {
+  } else if (intent === REJECT_TEAM_MEMBER_INVITE_INTENT) {
     try {
       await rejectInviteAsTeamMember({
         userId: sessionUser.id,
@@ -215,6 +221,44 @@ export async function action(args: ActionFunctionArgs) {
         id: "reject-team-member-invite-error",
         key: `reject-team-member-invite-error-${Date.now()}`,
         message: locales.route.errors.rejectInviteAsTeamMember,
+        level: "negative",
+      });
+    }
+  } else if (intent === ACCEPT_SPEAKER_INVITE_INTENT) {
+    try {
+      await acceptInviteAsSpeaker({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsSpeakerAccepted,
+        },
+      });
+      toastMessage = locales.route.success.acceptInviteAsSpeaker;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-speaker-invite-error",
+        key: `accept-speaker-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsSpeaker,
+        level: "negative",
+      });
+    }
+  } else {
+    try {
+      await rejectInviteAsSpeaker({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsSpeakerRejected,
+        },
+      });
+      toastMessage = locales.route.success.rejectInviteAsSpeaker;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-speaker-invite-error",
+        key: `reject-speaker-invite-error-${Date.now()}`,
+        message: locales.route.errors.rejectInviteAsSpeaker,
         level: "negative",
       });
     }
@@ -312,6 +356,7 @@ function MyEvents() {
   const hasCanceledEvents = loaderData.canceledEvents.length > 0;
   const hasAdminInvites = loaderData.invites.count.adminInvites > 0;
   const hasTeamMemberInvites = loaderData.invites.count.teamMemberInvites > 0;
+  const hasSpeakerInvites = loaderData.invites.count.speakerInvites > 0;
 
   return (
     <Container>
@@ -324,7 +369,7 @@ function MyEvents() {
           </Button>
         ) : null}
       </Container.Header>
-      {(hasAdminInvites || hasTeamMemberInvites) && (
+      {(hasAdminInvites || hasTeamMemberInvites || hasSpeakerInvites) && (
         <Container.Section>
           <Section.Title>{locales.route.invites.title}</Section.Title>
           <Section.Text>{locales.route.invites.description}</Section.Text>
@@ -378,11 +423,15 @@ function MyEvents() {
                 let acceptIntent = ACCEPT_ADMIN_INVITE_INTENT;
                 if (invites === "teamMemberInvites") {
                   acceptIntent = ACCEPT_TEAM_MEMBER_INVITE_INTENT;
+                } else if (invites === "speakerInvites") {
+                  acceptIntent = ACCEPT_SPEAKER_INVITE_INTENT;
                 }
 
                 let rejectIntent = REJECT_ADMIN_INVITE_INTENT;
                 if (invites === "teamMemberInvites") {
                   rejectIntent = REJECT_TEAM_MEMBER_INVITE_INTENT;
+                } else if (invites === "speakerInvites") {
+                  rejectIntent = REJECT_SPEAKER_INVITE_INTENT;
                 }
 
                 return (

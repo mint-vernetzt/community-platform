@@ -27,6 +27,6 @@ export const locale = {
   },
   mail: {
     buttonText: "Zur Community Plattform",
-    subject: "Einladung als Speaker:in im Event {{eventName}}",
+    subject: "Einladung als Speaker:in für Event {{eventName}}",
   },
 } as const;
