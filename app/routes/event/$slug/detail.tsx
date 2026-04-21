@@ -318,7 +318,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  const participantsCount = await getParticipantsCount(params.slug);
+  const participantsCount = await getParticipantsCount(
+    params.slug,
+    sessionUser
+  );
 
   const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
     await filterEventConferenceLink({

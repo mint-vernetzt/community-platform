@@ -31,7 +31,36 @@ export async function getParticipantsOfEvent(options: {
       where: {
         participatedEvents: {
           some: {
-            OR: [{ event: { slug } }, { event: { parentEvent: { slug } } }],
+            OR: [
+              { event: { slug } },
+              {
+                event: {
+                  AND: [
+                    {
+                      parentEvent: { slug },
+                    },
+                    {
+                      OR: [
+                        { published: true },
+                        sessionUser !== null
+                          ? {
+                              teamMembers: {
+                                some: { profileId: sessionUser?.id },
+                              },
+                              admins: {
+                                some: { profileId: sessionUser?.id },
+                              },
+                              speakers: {
+                                some: { profileId: sessionUser?.id },
+                              },
+                            }
+                          : {},
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
           },
         },
       },
