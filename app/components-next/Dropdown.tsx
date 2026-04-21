@@ -23,7 +23,7 @@ function DropdownLabel(
   const [checked, setChecked] = useState(false);
   const ref = useRef<HTMLLabelElement>(null);
 
-  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setChecked(!checked);
   };

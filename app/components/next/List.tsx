@@ -105,7 +105,7 @@ function Search<
     props.setValues(filteredItems);
   };
 
-  const handleReset: React.FormEventHandler<HTMLFormElement> = () => {
+  const handleReset: React.ReactEventHandler<HTMLFormElement> = () => {
     props.setValues(props.defaultItems);
   };
 

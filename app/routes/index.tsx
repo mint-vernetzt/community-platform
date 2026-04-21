@@ -462,13 +462,7 @@ export default function Index() {
             <div className="flex flex-col @md:flex-row gap-8 @lg:gap-24 @xl:gap-44">
               <div className="text-center flex flex-col gap-6 items-center">
                 <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp
-                    end={loaderData.profileCount}
-                    enableScrollSpy={true}
-                    scrollSpyDelay={100}
-                    scrollSpyOnce={true}
-                    separator="."
-                  />
+                  <CountUp end={loaderData.profileCount} />
                 </p>
                 <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.profiles}
@@ -476,13 +470,7 @@ export default function Index() {
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
                 <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp
-                    end={loaderData.organizationCount}
-                    enableScrollSpy={true}
-                    scrollSpyDelay={100}
-                    scrollSpyOnce={true}
-                    separator="."
-                  />
+                  <CountUp end={loaderData.organizationCount} />
                 </p>
                 <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.organizations}
@@ -490,13 +478,7 @@ export default function Index() {
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
                 <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp
-                    end={loaderData.eventCount}
-                    enableScrollSpy={true}
-                    scrollSpyDelay={100}
-                    scrollSpyOnce={true}
-                    separator="."
-                  />
+                  <CountUp end={loaderData.eventCount} />
                 </p>
                 <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.events}
@@ -504,13 +486,7 @@ export default function Index() {
               </div>
               <div className="text-center flex flex-col gap-6 items-center">
                 <p className="text-neutral-50 text-[54px] font-bold leading-13">
-                  <CountUp
-                    end={loaderData.projectCount}
-                    enableScrollSpy={true}
-                    scrollSpyDelay={100}
-                    scrollSpyOnce={true}
-                    separator="."
-                  />
+                  <CountUp end={loaderData.projectCount} />
                 </p>
                 <p className="text-neutral-50 text-2xl font-bold leading-6.5">
                   {locales.route.content.growth.projects}
