@@ -1,12 +1,17 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 import { prismaClient } from "~/prisma.server";
+import { getPublicURL } from "~/storage.server";
 import {
   createSearchInvitedProfilesSchema,
   INVITED_PROFILES_SEARCH_PARAM,
 } from "./invites.shared";
-import { getPublicURL } from "~/storage.server";
-import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 
 export async function getEventIdBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -133,4 +138,86 @@ export async function getInvitedProfilesToJoinEventAsSpeaker(options: {
     };
   });
   return { submission: submission.reply(), profiles };
+}
+
+export async function revokeInviteOfProfileToJoinEventAsSpeaker(options: {
+  eventId: string;
+  profileId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { eventId, profileId } = options;
+
+  const invite = await prismaClient.inviteForProfileToJoinEvent.findUnique({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId,
+        role: "speaker",
+      },
+      status: "pending",
+    },
+  });
+
+  if (invite === null) {
+    return null;
+  }
+
+  const result = await prismaClient.inviteForProfileToJoinEvent.update({
+    where: {
+      profileId_eventId_role: {
+        eventId,
+        profileId,
+        role: "speaker",
+      },
+    },
+    data: {
+      status: "canceled",
+    },
+    select: {
+      profile: {
+        select: {
+          email: true,
+          firstName: true,
+        },
+      },
+      event: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const recipient = result.profile.email;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-speaker-canceled-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-speaker-canceled-html.hbs";
+
+  const text = getCompiledMailTemplate<typeof textTemplatePath>(
+    textTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "text"
+  );
+  const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+    htmlTemplatePath,
+    {
+      firstName: result.profile.firstName,
+      event: { name: result.event.name },
+    },
+    "html"
+  );
+
+  await mailer(mailerOptions, sender, recipient, subject, text, html);
+
+  return result;
 }

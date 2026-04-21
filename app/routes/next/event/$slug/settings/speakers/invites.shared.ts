@@ -16,3 +16,9 @@ export function createSearchInvitedProfilesSchema(locales: {
       .optional(),
   });
 }
+
+export function createRevokeInviteOfProfileToJoinEventAsSpeakerSchema() {
+  return z.object({
+    [PROFILE_ID_FIELD]: z.string().trim().uuid(),
+  });
+}

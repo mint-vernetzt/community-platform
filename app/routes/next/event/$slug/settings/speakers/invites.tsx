@@ -1,26 +1,34 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
+import { useEffect, useState } from "react";
 import {
   Form,
   redirect,
   useLoaderData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventIdBySlug,
   getInvitedProfilesToJoinEventAsSpeaker,
+  revokeInviteOfProfileToJoinEventAsSpeaker,
 } from "./invites.server";
-import { createAuthClient } from "~/auth.server";
-import { useEffect, useState } from "react";
-import List from "~/components/next/List";
 import {
+  createRevokeInviteOfProfileToJoinEventAsSpeakerSchema,
   createSearchInvitedProfilesSchema,
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID_FIELD,
 } from "./invites.shared";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -50,6 +58,71 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 
   return { locales, profiles, submission };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
+
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
+
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const event = await getEventIdBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/event/$slug/settings/speakers/invites"];
+
+  const formData = await request.formData();
+  const submission = await parseWithZod(formData, {
+    schema: createRevokeInviteOfProfileToJoinEventAsSpeakerSchema(),
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  try {
+    await revokeInviteOfProfileToJoinEventAsSpeaker({
+      eventId: event,
+      profileId: submission.value[PROFILE_ID_FIELD],
+      locales: {
+        mail: locales.route.mail.cancelledInvitation,
+      },
+    });
+  } catch (error) {
+    captureException(error);
+    return redirectWithToast(request.url, {
+      id: "revoke-invite-error",
+      key: `revoke-invite-error-${Date.now()}`,
+      message: locales.route.errors.revokeInviteFailed,
+      level: "negative",
+    });
+  }
+
+  return redirectWithToast(request.url, {
+    id: "revoke-invite-success",
+    key: `revoke-invite-success-${Date.now()}`,
+    message: locales.route.success.revokeInvite,
+    level: "positive",
+  });
 }
 
 function SpeakerInvites() {
