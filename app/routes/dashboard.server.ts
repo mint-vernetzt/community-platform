@@ -696,6 +696,7 @@ export async function getEventAdminInvites(profileId: string) {
     await prismaClient.inviteForProfileToJoinEvent.findMany({
       where: {
         profileId: profileId,
+        role: "admin",
         status: "pending",
       },
       select: {
@@ -708,4 +709,23 @@ export async function getEventAdminInvites(profileId: string) {
       },
     });
   return eventAdminInvites;
+}
+export async function getEventTeamMemberInvites(profileId: string) {
+  const eventTeamMemberInvites =
+    await prismaClient.inviteForProfileToJoinEvent.findMany({
+      where: {
+        profileId: profileId,
+        role: "member",
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+  return eventTeamMemberInvites;
 }

@@ -43,15 +43,19 @@ import {
 } from "../feature-access.server";
 import {
   acceptInviteAsAdmin,
+  acceptInviteAsTeamMember,
   getEventInvites,
   getEvents,
   rejectInviteAsAdmin,
+  rejectInviteAsTeamMember,
 } from "./events.server";
 import {
   ACCEPT_ADMIN_INVITE_INTENT,
+  ACCEPT_TEAM_MEMBER_INVITE_INTENT,
   createAcceptOrRejectInviteAsAdminSchema,
   EVENT_ID,
   REJECT_ADMIN_INVITE_INTENT,
+  REJECT_TEAM_MEMBER_INVITE_INTENT,
 } from "./events.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -85,19 +89,13 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const featureAbilities = await getFeatureAbilities(authClient, ["events"]);
 
-  let invites;
-  if (featureAbilities["events"].hasAccess) {
-    invites = await getEventInvites({
-      profileId: sessionUser.id,
-      authClient,
-    });
-  } else {
-    invites = {
-      adminInvites: [],
-      count: {
-        adminInvites: 0,
-      },
-    };
+  const invites = await getEventInvites({
+    profileId: sessionUser.id,
+    authClient,
+  });
+  if (featureAbilities["events"].hasAccess === false) {
+    invites.adminInvites = [];
+    invites.count.adminInvites = 0;
   }
 
   return {
@@ -127,7 +125,9 @@ export async function action(args: ActionFunctionArgs) {
   });
   invariantResponse(
     intent === ACCEPT_ADMIN_INVITE_INTENT ||
-      intent === REJECT_ADMIN_INVITE_INTENT,
+      intent === REJECT_ADMIN_INVITE_INTENT ||
+      intent === ACCEPT_TEAM_MEMBER_INVITE_INTENT ||
+      intent === REJECT_TEAM_MEMBER_INVITE_INTENT,
     "invalid intent",
     { status: 400 }
   );
@@ -139,6 +139,8 @@ export async function action(args: ActionFunctionArgs) {
     return submission.reply();
   }
 
+  let toastMessage = "";
+
   if (intent === ACCEPT_ADMIN_INVITE_INTENT) {
     try {
       await acceptInviteAsAdmin({
@@ -148,6 +150,7 @@ export async function action(args: ActionFunctionArgs) {
           mail: locales.route.mail.inviteAsAdminAccepted,
         },
       });
+      toastMessage = locales.route.success.acceptInviteAsAdmin;
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
@@ -157,7 +160,7 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-  } else {
+  } else if (intent === REJECT_ADMIN_INVITE_INTENT) {
     try {
       await rejectInviteAsAdmin({
         userId: sessionUser.id,
@@ -166,6 +169,7 @@ export async function action(args: ActionFunctionArgs) {
           mail: locales.route.mail.inviteAsAdminRejected,
         },
       });
+      toastMessage = locales.route.success.rejectInviteAsAdmin;
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
@@ -175,15 +179,51 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
+  } else if (intent === ACCEPT_TEAM_MEMBER_INVITE_INTENT) {
+    try {
+      await acceptInviteAsTeamMember({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsTeamMemberAccepted,
+        },
+      });
+      toastMessage = locales.route.success.acceptInviteAsTeamMember;
+    } catch (error) {
+      console.log(error);
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-team-member-invite-error",
+        key: `accept-team-member-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsTeamMember,
+        level: "negative",
+      });
+    }
+  } else {
+    try {
+      await rejectInviteAsTeamMember({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsTeamMemberRejected,
+        },
+      });
+      toastMessage = locales.route.success.rejectInviteAsTeamMember;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-team-member-invite-error",
+        key: `reject-team-member-invite-error-${Date.now()}`,
+        message: locales.route.errors.rejectInviteAsTeamMember,
+        level: "negative",
+      });
+    }
   }
 
   return redirectWithToast(request.url, {
     id: "admin-invite-success",
     key: `admin-invite-success-${Date.now()}`,
-    message:
-      intent === "reject-admin-invite"
-        ? locales.route.success.rejectInviteAsAdmin
-        : locales.route.success.acceptInviteAsAdmin,
+    message: toastMessage,
     level: "positive",
   });
 }
@@ -271,6 +311,7 @@ function MyEvents() {
   const hasPastEvents = pastEventsCount > 0;
   const hasCanceledEvents = loaderData.canceledEvents.length > 0;
   const hasAdminInvites = loaderData.invites.count.adminInvites > 0;
+  const hasTeamMemberInvites = loaderData.invites.count.teamMemberInvites > 0;
 
   return (
     <Container>
@@ -283,7 +324,7 @@ function MyEvents() {
           </Button>
         ) : null}
       </Container.Header>
-      {hasAdminInvites && (
+      {(hasAdminInvites || hasTeamMemberInvites) && (
         <Container.Section>
           <Section.Title>{locales.route.invites.title}</Section.Title>
           <Section.Text>{locales.route.invites.description}</Section.Text>
@@ -334,9 +375,19 @@ function MyEvents() {
             {loaderData.invites[invites as "adminInvites"].map(
               (invite, index) => {
                 const { event } = invite;
+                let acceptIntent = ACCEPT_ADMIN_INVITE_INTENT;
+                if (invites === "teamMemberInvites") {
+                  acceptIntent = ACCEPT_TEAM_MEMBER_INVITE_INTENT;
+                }
+
+                let rejectIntent = REJECT_ADMIN_INVITE_INTENT;
+                if (invites === "teamMemberInvites") {
+                  rejectIntent = REJECT_TEAM_MEMBER_INVITE_INTENT;
+                }
+
                 return (
                   <ListItemEvent
-                    key={`past-${event.slug}`}
+                    key={`${invites}-${event.slug}`}
                     to={`/event/${event.slug}/detail/about`}
                     index={index}
                   >
@@ -368,7 +419,7 @@ function MyEvents() {
                     ) : null}
                     <ListItemEvent.Controls>
                       <Form
-                        id={`reject-admin-invite-form-${event.id}`}
+                        id={`reject-${invites}-form-${event.id}`}
                         method="POST"
                         preventScrollReset
                       >
@@ -379,7 +430,7 @@ function MyEvents() {
                           fullSize
                           variant="outline"
                           name={INTENT_FIELD_NAME}
-                          value={REJECT_ADMIN_INVITE_INTENT}
+                          value={rejectIntent}
                           onClick={(
                             event: React.MouseEvent<HTMLButtonElement>
                           ) => {
@@ -390,7 +441,7 @@ function MyEvents() {
                         </Button>
                       </Form>
                       <Form
-                        id={`accept-admin-invite-form-${event.id}`}
+                        id={`accept-${invites}-form-${event.id}`}
                         method="POST"
                         preventScrollReset
                       >
@@ -400,7 +451,7 @@ function MyEvents() {
                           size="small"
                           fullSize
                           name={INTENT_FIELD_NAME}
-                          value={ACCEPT_ADMIN_INVITE_INTENT}
+                          value={acceptIntent}
                           onClick={(
                             event: React.MouseEvent<HTMLButtonElement>
                           ) => {
