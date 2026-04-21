@@ -1,8 +1,26 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import {
+  Form,
+  redirect,
+  useLoaderData,
+  type LoaderFunctionArgs,
+} from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { prismaClient } from "~/prisma.server";
 import { detectLanguage } from "~/root.server";
+import {
+  getEventIdBySlug,
+  getInvitedProfilesToJoinEventAsSpeaker,
+} from "./invites.server";
+import { createAuthClient } from "~/auth.server";
+import { useEffect, useState } from "react";
+import List from "~/components/next/List";
+import {
+  createSearchInvitedProfilesSchema,
+  INVITED_PROFILES_SEARCH_PARAM,
+  PROFILE_ID_FIELD,
+} from "./invites.shared";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -10,36 +28,96 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
+  const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/speakers/invites"];
 
-  const event = await prismaClient.event.findUnique({
-    where: { slug: params.slug },
-    select: {
-      _count: {
-        select: {
-          profileJoinInvites: {
-            where: {
-              role: "speaker",
-              status: "pending",
-            },
-          },
-        },
-      },
-    },
-  });
-  invariantResponse(event !== null, "Event not found", { status: 404 });
+  const eventId = await getEventIdBySlug(params.slug);
+  invariantResponse(eventId !== null, "Event not found", { status: 404 });
 
-  if (event._count.profileJoinInvites === 0) {
+  const { submission, profiles } = await getInvitedProfilesToJoinEventAsSpeaker(
+    {
+      request,
+      eventId,
+      authClient,
+      locales: locales.route.search,
+    }
+  );
+
+  if (profiles.length === 0) {
     return redirect(`/next/event/${params.slug}/settings/speakers/add`);
   }
 
-  return { locales };
+  return { locales, profiles, submission };
 }
 
 function SpeakerInvites() {
-  return <>Speaker invites</>;
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
+
+  const [profiles, setProfiles] = useState(loaderData.profiles);
+
+  useEffect(() => {
+    setProfiles(loaderData.profiles);
+  }, [loaderData.profiles]);
+  return (
+    <>
+      <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
+        {locales.route.title}
+      </h3>
+      <List id="invites-list" locales={locales.route.list}>
+        <List.Search
+          defaultItems={loaderData.profiles}
+          setValues={setProfiles}
+          searchParam={INVITED_PROFILES_SEARCH_PARAM}
+          locales={{
+            placeholder: locales.route.search.placeholder,
+            label: locales.route.search.label,
+          }}
+          hideUntil={8}
+          label={locales.route.search.label}
+          submission={loaderData.submission}
+          schema={createSearchInvitedProfilesSchema(locales.route.search)}
+          hideLabel={false}
+        />
+        {profiles.map((profile, index) => {
+          return (
+            <ListItemPersonOrg
+              key={profile.id}
+              index={index}
+              // to={`/profile/${profile.username}`} // TODO: link and controls currently not supported by component
+            >
+              <ListItemPersonOrg.Avatar size="full" {...profile} />
+              <ListItemPersonOrg.Headline>
+                {profile.academicTitle !== null &&
+                profile.academicTitle.length > 0
+                  ? `${profile.academicTitle} `
+                  : ""}
+                {profile.firstName} {profile.lastName}
+              </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Controls>
+                <Form
+                  id={`revoke-invite-form-${profile.id}`}
+                  method="post"
+                  preventScrollReset
+                >
+                  <input
+                    type="hidden"
+                    name={PROFILE_ID_FIELD}
+                    value={profile.id}
+                  />
+                  <Button type="submit" variant="outline">
+                    {locales.route.list.revoke}
+                  </Button>
+                </Form>
+              </ListItemPersonOrg.Controls>
+            </ListItemPersonOrg>
+          );
+        })}
+      </List>
+    </>
+  );
 }
 
 export default SpeakerInvites;
