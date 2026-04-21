@@ -89,21 +89,13 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const featureAbilities = await getFeatureAbilities(authClient, ["events"]);
 
-  let invites: Awaited<ReturnType<typeof getEventInvites>>;
-  if (featureAbilities["events"].hasAccess) {
-    invites = await getEventInvites({
-      profileId: sessionUser.id,
-      authClient,
-    });
-  } else {
-    invites = {
-      adminInvites: [],
-      teamMemberInvites: [],
-      count: {
-        adminInvites: 0,
-        teamMemberInvites: 0,
-      },
-    };
+  const invites = await getEventInvites({
+    profileId: sessionUser.id,
+    authClient,
+  });
+  if (featureAbilities["events"].hasAccess === false) {
+    invites.adminInvites = [];
+    invites.count.adminInvites = 0;
   }
 
   return {
@@ -395,7 +387,7 @@ function MyEvents() {
 
                 return (
                   <ListItemEvent
-                    key={`invites-${event.slug}`}
+                    key={`${invites}-${event.slug}`}
                     to={`/event/${event.slug}/detail/about`}
                     index={index}
                   >
@@ -427,7 +419,7 @@ function MyEvents() {
                     ) : null}
                     <ListItemEvent.Controls>
                       <Form
-                        id={`reject-invite-form-${event.id}`}
+                        id={`reject-${invites}-form-${event.id}`}
                         method="POST"
                         preventScrollReset
                       >
@@ -449,7 +441,7 @@ function MyEvents() {
                         </Button>
                       </Form>
                       <Form
-                        id={`accept-invite-form-${event.id}`}
+                        id={`accept-${invites}-form-${event.id}`}
                         method="POST"
                         preventScrollReset
                       >
