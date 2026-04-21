@@ -59,6 +59,32 @@ export async function getEventBySlug(
           name: true,
           slug: true,
         },
+        where: {
+          OR: [
+            { published: true },
+            {
+              admins: {
+                some: {
+                  profileId,
+                },
+              },
+            },
+            {
+              teamMembers: {
+                some: {
+                  profileId,
+                },
+              },
+            },
+            {
+              speakers: {
+                some: {
+                  profileId,
+                },
+              },
+            },
+          ],
+        },
       },
       responsibleOrganizations: {
         select: {
