@@ -282,6 +282,10 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-member-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-member-text.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-member-accepted-html.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-member-accepted-text.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-member-rejected-html.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-member-rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-member-canceled-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-member-canceled-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-speaker-html.hbs"
@@ -392,6 +396,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-admin-accepted-text.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-admin-rejected-html.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-admin-rejected-text.hbs"
+                                          | "mail-templates/invites/profile-to-join-event/as-member-accepted-html.hbs"
+                                          | "mail-templates/invites/profile-to-join-event/as-member-accepted-text.hbs"
+                                          | "mail-templates/invites/profile-to-join-event/as-member-rejected-html.hbs"
+                                          | "mail-templates/invites/profile-to-join-event/as-member-rejected-text.hbs"
                                       ? InviteAcceptedOrRejectedContent
                                       : TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs"
