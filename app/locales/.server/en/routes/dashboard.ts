@@ -207,5 +207,12 @@ export const locale = {
         "When you confirm invitations, you become visible as an <0>event team member</0>.",
       linkDescription: "To my events",
     },
+    eventSpeakerInvites: {
+      headline_one: "You have {{count}} open speaker invitation for an event.",
+      headline_other: "You have {{count}} open speaker invitations for events.",
+      description:
+        "When you confirm invitations, you become visible as an <0>event speaker</0>.",
+      linkDescription: "To my events",
+    },
   },
 } as const;

@@ -691,41 +691,29 @@ export async function getUpcomingCanceledEvents(
   return enhancedEvents;
 }
 
-export async function getEventAdminInvites(profileId: string) {
-  const eventAdminInvites =
-    await prismaClient.inviteForProfileToJoinEvent.findMany({
-      where: {
-        profileId: profileId,
-        role: "admin",
-        status: "pending",
-      },
-      select: {
-        event: {
-          select: {
-            name: true,
-            slug: true,
-          },
+export async function getEventInvites(profileId: string) {
+  const eventInvites = await prismaClient.inviteForProfileToJoinEvent.findMany({
+    where: {
+      profileId: profileId,
+      status: "pending",
+    },
+    select: {
+      event: {
+        select: {
+          name: true,
+          slug: true,
         },
       },
-    });
-  return eventAdminInvites;
-}
-export async function getEventTeamMemberInvites(profileId: string) {
-  const eventTeamMemberInvites =
-    await prismaClient.inviteForProfileToJoinEvent.findMany({
-      where: {
-        profileId: profileId,
-        role: "member",
-        status: "pending",
-      },
-      select: {
-        event: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
-    });
-  return eventTeamMemberInvites;
+      role: true,
+    },
+  });
+
+  const flattenedEventInvites = eventInvites.map((invite) => {
+    return {
+      ...invite.event,
+      role: invite.role,
+    };
+  });
+
+  return flattenedEventInvites;
 }

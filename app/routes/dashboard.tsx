@@ -34,7 +34,7 @@ import ImageCropper, {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { DashboardSearch } from "~/components/legacy/Search/DashboardSearch";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { BlurFactor, ImageSizes, getImageURL } from "~/images.server";
+import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
   DefaultImages,
   ImageAspects,
@@ -59,9 +59,8 @@ import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import {
   enhanceEventsWithParticipationStatus,
-  getEventAdminInvites,
+  getEventInvites,
   getEventsForCards,
-  getEventTeamMemberInvites,
   getNetworkInvites,
   getNetworkRequests,
   getOrganizationMemberInvites,
@@ -545,11 +544,16 @@ export const loader = async (args: LoaderFunctionArgs) => {
 
   const networkRequests = await getNetworkRequests(authClient, sessionUser.id);
 
-  const eventAdminInvites = await getEventAdminInvites(sessionUser.id);
-
-  const eventTeamMemberInvites = await getEventTeamMemberInvites(
-    sessionUser.id
-  );
+  const eventInvites = await getEventInvites(sessionUser.id);
+  const eventAdminInvites = eventInvites.filter((invite) => {
+    return invite.role === "admin";
+  });
+  const eventTeamMemberInvites = eventInvites.filter((invite) => {
+    return invite.role === "member";
+  });
+  const eventSpeakerInvites = eventInvites.filter((invite) => {
+    return invite.role === "speaker";
+  });
 
   const upcomingCanceledEvents = await getUpcomingCanceledEvents(
     authClient,
@@ -621,6 +625,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     networkRequests,
     eventAdminInvites,
     eventTeamMemberInvites,
+    eventSpeakerInvites,
     upcomingCanceledEvents,
     locales,
     imageCropperLocales,
@@ -1204,6 +1209,50 @@ function Dashboard() {
             >
               {
                 loaderData.locales.route.content.eventTeamMemberInvites
+                  .linkDescription
+              }
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Event Speaker Invites Section */}
+      {loaderData.eventSpeakerInvites.length > 0 && (
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.eventSpeakerInvites
+                      .headline_one,
+                    loaderData.locales.route.content.eventSpeakerInvites
+                      .headline_other,
+                    loaderData.eventSpeakerInvites.length
+                  ),
+                  { count: loaderData.eventSpeakerInvites.length }
+                )}
+              </h3>
+              <p className="@lg:text-left text-sm text-center">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.eventSpeakerInvites
+                    .description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button
+              as="link"
+              to="/my/events"
+              className="w-full @lg:w-fit"
+              prefetch="intent"
+            >
+              {
+                loaderData.locales.route.content.eventSpeakerInvites
                   .linkDescription
               }
             </Button>
