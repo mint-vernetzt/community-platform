@@ -36,6 +36,7 @@ import {
   getEventIdBySlug,
   getHasUserReportedEvent,
   getIsMember,
+  getParticipantsCount,
   isAdminOfEvent,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
@@ -62,7 +63,6 @@ import { type loader as rootLoader } from "~/root";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
 import { hasContent } from "~/utils.shared";
-import { getFullDepthParticipantIds } from "./detail/participants.server";
 import { filterEventConferenceLink } from "./utils.server";
 
 export function links() {
@@ -318,13 +318,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const abuseReportReasons = await getAbuseReportReasons();
 
-  let participantsCount;
-  if (event._count.childEvents > 0) {
-    const participantIds = await getFullDepthParticipantIds(params.slug);
-    participantsCount = participantIds.length;
-  } else {
-    participantsCount = event._count.participants;
-  }
+  const participantsCount = await getParticipantsCount(params.slug);
 
   const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
     await filterEventConferenceLink({

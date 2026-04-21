@@ -5,12 +5,6 @@ import { Prisma, type Profile, type Event } from "@prisma/client";
 import { type ArrayElement } from "~/lib/utils/types";
 import { stages } from "../../../../prisma/scripts/import-datasets/data/stages";
 
-export function getChildEventCount(slug: string) {
-  return prismaClient.event.count({
-    where: { parentEvent: { slug } },
-  });
-}
-
 export async function filterEventConferenceLink(options: {
   event: {
     conferenceLink: string | null;

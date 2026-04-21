@@ -739,3 +739,27 @@ export async function getContactPersonsOfEvent(options: {
 
   return enhancedContactPersons;
 }
+
+export async function getParticipantsCount(slug: string) {
+  const participants = await prismaClient.participantOfEvent.findMany({
+    where: {
+      OR: [
+        {
+          event: {
+            slug,
+          },
+        },
+        {
+          event: {
+            parentEvent: {
+              slug,
+            },
+          },
+        },
+      ],
+    },
+    distinct: ["profileId"],
+  });
+
+  return participants.length;
+}
