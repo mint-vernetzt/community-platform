@@ -290,6 +290,8 @@ type TemplatePath =
   | "mail-templates/invites/profile-to-join-event/as-member-canceled-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-speaker-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-speaker-text.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-html.hbs"
+  | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-text.hbs"
   | "mail-templates/general-notification/remove-admin-from-event-html.hbs"
   | "mail-templates/general-notification/remove-admin-from-event-text.hbs"
   | "mail-templates/general-notification/remove-team-member-from-event-html.hbs"
@@ -410,6 +412,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-event/as-admin-canceled-text.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-member-canceled-html.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-member-canceled-text.hbs"
+                                            | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-html.hbs"
+                                            | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-text.hbs"
                                         ? InviteProfileToJoinContent
                                         : TemplatePath extends
                                               | "mail-templates/general-notification/remove-admin-from-event-html.hbs"

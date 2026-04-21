@@ -42,13 +42,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/team/invites"];
 
-  const event = await getEventIdBySlug(params.slug);
-  invariantResponse(event !== null, "Event not found", { status: 404 });
+  const eventId = await getEventIdBySlug(params.slug);
+  invariantResponse(eventId !== null, "Event not found", { status: 404 });
 
   const { submission, profiles } =
     await getInvitedProfilesToJoinEventAsTeamMember({
       request,
-      eventId: event,
+      eventId,
       authClient,
       locales: locales.route.search,
     });
