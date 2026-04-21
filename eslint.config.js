@@ -12,4 +12,10 @@ export default [
       "import/consistent-type-specifier-style": "off",
     },
   },
+  {
+    files: ["**/*.ts?(x)"],
+    rules: {
+      "@typescript-eslint/no-deprecated": "warn",
+    },
+  },
 ];

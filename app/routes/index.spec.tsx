@@ -47,6 +47,17 @@ Functional tests:
 
 vi.mock("~/prisma.server");
 
+const IntersectionObserverMock = vi.fn(
+  class {
+    disconnect = vi.fn();
+    observe = vi.fn();
+    takeRecords = vi.fn();
+    unobserve = vi.fn();
+  }
+);
+
+vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
 test("Landing page is rendered without errors", async () => {
   consoleError.mockImplementationOnce(() => {
     return;
