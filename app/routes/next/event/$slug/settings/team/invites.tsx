@@ -38,21 +38,6 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
-  const sessionUser = await getSessionUserOrThrow(authClient);
-  const redirectPath = await getRedirectPathOnProtectedEventRoute({
-    request,
-    slug: params.slug,
-    sessionUser,
-    authClient,
-  });
-  if (redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/team/invites"];
@@ -69,7 +54,7 @@ export async function loader(args: LoaderFunctionArgs) {
     });
 
   if (profiles.length === 0) {
-    return redirect(`/next/event/${params.slug}/settings/admins/add`);
+    return redirect(`/next/event/${params.slug}/settings/team/add`);
   }
 
   return { locales, profiles, submission };
@@ -154,7 +139,7 @@ function TeamInvites() {
       <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
         {locales.route.title}
       </h3>
-      <List id="participants-list" locales={locales.route.list}>
+      <List id="invites-list" locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.profiles}
           setValues={setProfiles}
