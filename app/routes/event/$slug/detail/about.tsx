@@ -20,12 +20,7 @@ import { detectLanguage } from "~/i18n.server";
 import { getLocaleFromSlug } from "~/i18n.shared";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getChildEventCount } from "../utils.server";
-import {
-  getEventBySlug,
-  getFullDepthSpeakerIds,
-  getSpeakersOfEvent,
-} from "./about.server";
+import { getEventBySlug } from "./about.server";
 import {
   getFormattedAddress,
   getSearchResponsibleOrganizationsSchema,
@@ -68,43 +63,25 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 400,
   });
 
-  const childEventCount = await getChildEventCount(params.slug);
-  let optionalSpeakerWhereClause;
-  if (childEventCount > 0) {
-    const speakerIds = await getFullDepthSpeakerIds(params.slug);
-    optionalSpeakerWhereClause = {
-      id: {
-        in: speakerIds,
-      },
-    };
-  }
-
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const { speakersSubmission, speakers } = await getSpeakersOfEvent({
+  const {
+    teamMembersSubmission,
+    responsibleOrganizationsSubmission,
+    speakersSubmission,
+    event,
+  } = await getEventBySlug({
     slug: params.slug,
     authClient,
     sessionUser,
     searchParams,
-    optionalWhereClause: optionalSpeakerWhereClause,
+    locales: locales.route.error,
   });
-
-  const { teamMembersSubmission, responsibleOrganizationsSubmission, event } =
-    await getEventBySlug({
-      slug: params.slug,
-      authClient,
-      sessionUser,
-      searchParams,
-      locales: locales.route.error,
-    });
 
   return {
     locales,
-    event: {
-      ...event,
-      speakers,
-    },
+    event,
     speakersSubmission,
     teamMembersSubmission,
     responsibleOrganizationsSubmission,
