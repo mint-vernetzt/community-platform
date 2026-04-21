@@ -1,11 +1,13 @@
 import { parseWithZod } from "@conform-to/zod";
-import { Prisma, type Profile } from "@prisma/client";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
+import { utcToZonedTime } from "date-fns-tz";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { deriveModeForEvent, getIsMember } from "../detail.server";
+import { filterEventConferenceLink } from "../utils.server";
 import {
   getSearchResponsibleOrganizationsSchema,
   getSearchSpeakersSchema,
@@ -14,9 +16,6 @@ import {
   SEARCH_SPEAKERS_SEARCH_PARAM,
   SEARCH_TEAM_MEMBERS_SEARCH_PARAM,
 } from "./about.shared";
-import { filterEventConferenceLink } from "../utils.server";
-import { deriveModeForEvent, getIsMember } from "../detail.server";
-import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventBySlug(options: {
   slug: string;
@@ -37,8 +36,13 @@ export async function getEventBySlug(options: {
     schema: getSearchResponsibleOrganizationsSchema(),
   });
 
+  const speakersSubmission = parseWithZod(searchParams, {
+    schema: getSearchSpeakersSchema(),
+  });
+
   let teamMembersWhere;
   let responsibleOrganizationsWhere;
+  let speakersWhere;
 
   if (
     teamMembersSubmission.status === "success" &&
@@ -81,6 +85,28 @@ export async function getEventBySlug(options: {
             OR: [
               { name: { contains: term, mode: "insensitive" as const } },
               { slug: { contains: term, mode: "insensitive" as const } },
+            ],
+          };
+        }),
+      },
+    };
+  }
+
+  if (
+    speakersSubmission.status === "success" &&
+    typeof speakersSubmission.value[SEARCH_SPEAKERS_SEARCH_PARAM] !==
+      "undefined"
+  ) {
+    const query =
+      speakersSubmission.value[SEARCH_SPEAKERS_SEARCH_PARAM].trim().split(" ");
+    speakersWhere = {
+      profile: {
+        OR: query.map((term) => {
+          return {
+            OR: [
+              { firstName: { contains: term, mode: "insensitive" as const } },
+              { lastName: { contains: term, mode: "insensitive" as const } },
+              { username: { contains: term, mode: "insensitive" as const } },
             ],
           };
         }),
@@ -200,6 +226,64 @@ export async function getEventBySlug(options: {
                   networkType: {
                     select: {
                       slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      speakers: {
+        where: speakersWhere,
+        select: {
+          profile: {
+            select: {
+              id: true,
+              username: true,
+              academicTitle: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              position: true,
+              profileVisibility: {
+                select: {
+                  id: true,
+                  username: true,
+                  academicTitle: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                  position: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      childEvents: {
+        select: {
+          speakers: {
+            where: speakersWhere,
+            select: {
+              profile: {
+                select: {
+                  id: true,
+                  username: true,
+                  academicTitle: true,
+                  firstName: true,
+                  lastName: true,
+                  avatar: true,
+                  position: true,
+                  profileVisibility: {
+                    select: {
+                      id: true,
+                      username: true,
+                      academicTitle: true,
+                      firstName: true,
+                      lastName: true,
+                      avatar: true,
+                      position: true,
                     },
                   },
                 },
@@ -336,143 +420,28 @@ export async function getEventBySlug(options: {
     }
   );
 
-  let documents = event.documents;
-  if (sessionUser === null) {
-    documents = [];
-  }
+  const eventSpeakers = event.speakers.map((relation) => relation.profile);
+  const childEventSpeakers = event.childEvents.flatMap((childEvent) =>
+    childEvent.speakers.map((relation) => relation.profile)
+  );
 
-  return {
-    teamMembersSubmission: teamMembersSubmission.reply(),
-    responsibleOrganizationsSubmission:
-      responsibleOrganizationsSubmission.reply(),
-    event: {
-      ...event,
-      documents,
-      teamMembers,
-      responsibleOrganizations,
-      conferenceLink,
-      conferenceCode,
-      conferenceLinkToBeAnnounced,
-    },
-  };
-}
+  const combinedUniqueSpeakers = [
+    ...new Map(
+      [...eventSpeakers, ...childEventSpeakers].map((profile) => [
+        profile.id,
+        profile,
+      ])
+    ).values(),
+  ];
 
-export async function getSpeakersOfEvent(options: {
-  slug: string;
-  authClient: SupabaseClient;
-  sessionUser: User | null;
-  searchParams: URLSearchParams;
-  optionalWhereClause?: {
-    id: {
-      in: string[];
-    };
-  };
-}) {
-  const { slug, authClient, sessionUser, searchParams, optionalWhereClause } =
-    options;
-
-  const submission = parseWithZod(searchParams, {
-    schema: getSearchSpeakersSchema(),
-  });
-
-  let speakers = [];
-
-  if (
-    submission.status !== "success" ||
-    typeof submission.value[SEARCH_SPEAKERS_SEARCH_PARAM] === "undefined"
-  ) {
-    speakers = await prismaClient.profile.findMany({
-      where:
-        typeof optionalWhereClause !== "undefined"
-          ? optionalWhereClause
-          : {
-              contributedEvents: { some: { event: { slug } } },
-            },
-      select: {
-        id: true,
-        username: true,
-        academicTitle: true,
-        firstName: true,
-        lastName: true,
-        avatar: true,
-        position: true,
-        profileVisibility: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            position: true,
-          },
-        },
-      },
-    });
-  } else {
-    const query =
-      submission.value[SEARCH_SPEAKERS_SEARCH_PARAM].trim().split(" ");
-
-    speakers = await prismaClient.profile.findMany({
-      where:
-        typeof optionalWhereClause !== "undefined"
-          ? {
-              ...optionalWhereClause,
-              OR: query.map((term) => {
-                return {
-                  OR: [
-                    { firstName: { contains: term, mode: "insensitive" } },
-                    { lastName: { contains: term, mode: "insensitive" } },
-                    { username: { contains: term, mode: "insensitive" } },
-                  ],
-                };
-              }),
-            }
-          : {
-              contributedEvents: { some: { event: { slug } } },
-              OR: query.map((term) => {
-                return {
-                  OR: [
-                    { firstName: { contains: term, mode: "insensitive" } },
-                    { lastName: { contains: term, mode: "insensitive" } },
-                    { username: { contains: term, mode: "insensitive" } },
-                  ],
-                };
-              }),
-            },
-      select: {
-        id: true,
-        username: true,
-        academicTitle: true,
-        firstName: true,
-        lastName: true,
-        avatar: true,
-        position: true,
-        profileVisibility: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            position: true,
-          },
-        },
-      },
-    });
-  }
-
-  const enhancedSpeakers = speakers.map((speaker) => {
-    // Apply profile visibility settings
-    let filteredSpeaker;
+  const speakers = combinedUniqueSpeakers.map((profile) => {
+    let filteredProfile;
     if (sessionUser === null) {
-      filteredSpeaker = filterProfileByVisibility<typeof speaker>(speaker);
+      filteredProfile = filterProfileByVisibility<typeof profile>(profile);
     } else {
-      filteredSpeaker = { ...speaker };
+      filteredProfile = profile;
     }
-
-    let avatar = filteredSpeaker.avatar;
+    let avatar = filteredProfile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -492,49 +461,31 @@ export async function getSpeakersOfEvent(options: {
         });
       }
     }
-
-    return { ...filteredSpeaker, avatar, blurredAvatar };
+    return {
+      ...filteredProfile,
+      avatar,
+      blurredAvatar,
+    };
   });
-
-  return { speakersSubmission: submission.reply(), speakers: enhancedSpeakers };
-}
-
-export async function getFullDepthSpeakerIds(slug: string) {
-  try {
-    // Get event and all child events of arbitrary depth with raw query
-    // Join the result with relevant relation tables
-    const select = Prisma.sql`SELECT profiles.id`;
-
-    const profileJoin = Prisma.sql`JOIN "speakers_of_events"
-                    ON get_full_depth.id = "speakers_of_events".event_id
-                    JOIN "profiles"
-                    ON "profiles".id = "speakers_of_events".profile_id`;
-
-    const groupByClause = Prisma.sql`GROUP BY profiles.id`;
-
-    const result: Array<Pick<Profile, "id">> = await prismaClient.$queryRaw`
-      WITH RECURSIVE get_full_depth AS (
-          SELECT id, parent_event_id, name
-          FROM "events"
-          WHERE slug = ${slug}
-        UNION
-          SELECT "events".id, "events".parent_event_id, "events".name
-          FROM "events"
-            JOIN get_full_depth
-            ON "events".parent_event_id = get_full_depth.id
-      )
-        ${select}
-        FROM get_full_depth
-          ${profileJoin}
-        ${groupByClause}
-      ;`;
-
-    const profiles = result.map((profile) => {
-      return profile.id;
-    });
-    return profiles;
-  } catch (error) {
-    console.error({ error });
-    invariantResponse(false, "Server Error", { status: 500 });
+  let documents = event.documents;
+  if (sessionUser === null) {
+    documents = [];
   }
+
+  return {
+    teamMembersSubmission: teamMembersSubmission.reply(),
+    speakersSubmission: speakersSubmission.reply(),
+    responsibleOrganizationsSubmission:
+      responsibleOrganizationsSubmission.reply(),
+    event: {
+      ...event,
+      documents,
+      teamMembers,
+      responsibleOrganizations,
+      speakers,
+      conferenceLink,
+      conferenceCode,
+      conferenceLinkToBeAnnounced,
+    },
+  };
 }

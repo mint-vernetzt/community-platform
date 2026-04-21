@@ -7,16 +7,12 @@ import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getChildEventCount } from "../utils.server";
-import {
-  getFullDepthParticipantIds,
-  getParticipantsOfEvent,
-} from "./participants.server";
+import { hasContent } from "~/utils.shared";
+import { getParticipantsOfEvent } from "./participants.server";
 import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
-import { hasContent } from "~/utils.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -40,23 +36,11 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const childEventCount = await getChildEventCount(slug);
-  let optionalWhereClause;
-  if (childEventCount > 0) {
-    const participantIds = await getFullDepthParticipantIds(slug);
-    optionalWhereClause = {
-      id: {
-        in: participantIds,
-      },
-    };
-  }
-
   const { submission, participants } = await getParticipantsOfEvent({
     slug,
     authClient,
     sessionUser,
     searchParams,
-    optionalWhereClause,
   });
 
   return { submission, participants, locales };
