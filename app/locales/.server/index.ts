@@ -85,6 +85,9 @@ import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$
 import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
 import { locale as deNextEventSettingsParticipants } from "./de/routes/next/event/$slug/settings/participants";
 import { locale as deNextEventSettingsRegistration } from "./de/routes/next/event/$slug/settings/registration";
+import { locale as deNextEventSettingsRegistrationAccess } from "./de/routes/next/event/$slug/settings/registration/access";
+import { locale as deNextEventSettingsRegistrationPeriod } from "./de/routes/next/event/$slug/settings/registration/period";
+import { locale as deNextEventSettingsRegistrationLimit } from "./de/routes/next/event/$slug/settings/registration/limit";
 import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
 import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as deNextEventSettingsSpeakers } from "./de/routes/next/event/$slug/settings/speakers";
@@ -283,6 +286,9 @@ import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$
 import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
 import { locale as enNextEventSettingsParticipants } from "./en/routes/next/event/$slug/settings/participants";
 import { locale as enNextEventSettingsRegistration } from "./en/routes/next/event/$slug/settings/registration";
+import { locale as enNextEventSettingsRegistrationAccess } from "./en/routes/next/event/$slug/settings/registration/access";
+import { locale as enNextEventSettingsRegistrationPeriod } from "./en/routes/next/event/$slug/settings/registration/period";
+import { locale as enNextEventSettingsRegistrationLimit } from "./en/routes/next/event/$slug/settings/registration/limit";
 import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
 import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as enNextEventSettingsSpeakers } from "./en/routes/next/event/$slug/settings/speakers";
@@ -577,6 +583,15 @@ const de = {
   },
   "next/event/$slug/settings/registration": {
     route: deNextEventSettingsRegistration,
+  },
+  "next/event/$slug/settings/registration/access": {
+    route: deNextEventSettingsRegistrationAccess,
+  },
+  "next/event/$slug/settings/registration/period": {
+    route: deNextEventSettingsRegistrationPeriod,
+  },
+  "next/event/$slug/settings/registration/limit": {
+    route: deNextEventSettingsRegistrationLimit,
   },
   "next/event/$slug/settings/related-events": {
     route: deNextEventSettingsRelatedEvents,
@@ -1087,6 +1102,15 @@ const en = {
   },
   "next/event/$slug/settings/registration": {
     route: enNextEventSettingsRegistration,
+  },
+  "next/event/$slug/settings/registration/access": {
+    route: enNextEventSettingsRegistrationAccess,
+  },
+  "next/event/$slug/settings/registration/period": {
+    route: enNextEventSettingsRegistrationPeriod,
+  },
+  "next/event/$slug/settings/registration/limit": {
+    route: enNextEventSettingsRegistrationLimit,
   },
   "next/event/$slug/settings/related-events": {
     route: enNextEventSettingsRelatedEvents,
