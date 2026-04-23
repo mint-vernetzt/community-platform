@@ -281,7 +281,22 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/registration",
-        "./routes/next/event/$slug/settings/registration.tsx"
+        "./routes/next/event/$slug/settings/registration.tsx",
+        [
+          index("./routes/next/event/$slug/settings/registration/index.tsx"),
+          route(
+            "/next/event/:slug/settings/registration/access",
+            "./routes/next/event/$slug/settings/registration/access.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/registration/period",
+            "./routes/next/event/$slug/settings/registration/period.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/registration/limit",
+            "./routes/next/event/$slug/settings/registration/limit.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/related-events",
