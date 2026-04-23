@@ -1,11 +1,35 @@
-import { Form, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import {
+  type ActionFunctionArgs,
+  Form,
+  useLoaderData,
+  type LoaderFunctionArgs,
+  redirect,
+} from "react-router";
 import Hint from "~/components/next/Hint";
 import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { getEventBySlug } from "./access.server";
+import {
+  getEventBySlug,
+  updateEventRegistrationAccessBySlug,
+} from "./access.server";
 import classNames from "classnames";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  CLOSED_REGISTRATION,
+  createAccessSettingsSchema,
+  EXTERNAL_REGISTRATION,
+  INTERNAL_REGISTRATION,
+  OPEN_REGISTRATION,
+  SUBMIT_REGISTRATION_ACCESS_ACTION,
+  SUBMIT_REGISTRATION_TYPE_ACTION,
+} from "./access.shared";
+import { parseWithZod } from "@conform-to/zod";
+import { redirectWithToast } from "~/toast.server";
+import { captureException } from "@sentry/node";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -27,6 +51,84 @@ export async function loader(args: LoaderFunctionArgs) {
   return { locales, event };
 }
 
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
+  const { slug } = params;
+
+  invariantResponse(typeof slug === "string", "slug is not defined", {
+    status: 400,
+  });
+
+  const { authClient } = createAuthClient(request);
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "next/event/$slug/settings/registration/access"
+    ];
+
+  const formData = await request.formData();
+  const schema = createAccessSettingsSchema();
+  const submission = await parseWithZod(formData, { schema });
+
+  if (submission.status !== "success") {
+    return redirectWithToast(request.url, {
+      id: "registration-access-settings-validation-error",
+      key: `registration-access-settings-validation-error-${Date.now()}`,
+      message: locales.route.errors.validationError,
+      level: "negative",
+    });
+  }
+
+  if (typeof submission.value.type !== "undefined") {
+    try {
+      await updateEventRegistrationAccessBySlug(slug, {
+        external: submission.value.type === EXTERNAL_REGISTRATION,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "registration-type-update-error",
+        key: `registration-type-update-error-${Date.now()}`,
+        message: locales.route.errors.updateTypeFailed,
+        level: "negative",
+      });
+    }
+  }
+
+  if (typeof submission.value.access !== "undefined") {
+    try {
+      await updateEventRegistrationAccessBySlug(slug, {
+        openForRegistration: submission.value.access === OPEN_REGISTRATION,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "registration-access-update-error",
+        key: `registration-access-update-error-${Date.now()}`,
+        message: locales.route.errors.updateAccessFailed,
+        level: "negative",
+      });
+    }
+  }
+
+  return null;
+}
+
 function RegistrationAccess() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, event } = loaderData;
@@ -46,10 +148,14 @@ function RegistrationAccess() {
           <Hint.InfoIcon />
           {locales.route.type.hint}
         </Hint>
-        <Form method="post" className="flex flex-col gap-4">
+        <Form
+          id="registration-type-form"
+          method="post"
+          className="flex flex-col gap-4"
+        >
           <RadioButtonSettings
-            name="type"
-            value="internal"
+            name={SUBMIT_REGISTRATION_TYPE_ACTION}
+            value={INTERNAL_REGISTRATION}
             active={event.external === false}
             disabled={event.published}
           >
@@ -61,8 +167,8 @@ function RegistrationAccess() {
             </RadioButtonSettings.Subline>
           </RadioButtonSettings>
           <RadioButtonSettings
-            name="type"
-            value="external"
+            name={SUBMIT_REGISTRATION_TYPE_ACTION}
+            value={EXTERNAL_REGISTRATION}
             active={event.external}
             disabled={event.published}
           >
@@ -84,10 +190,14 @@ function RegistrationAccess() {
             {locales.route.access.subline}
           </TitleSection.Subline>
         </TitleSection>
-        <Form method="post" className="flex flex-col gap-4">
+        <Form
+          id="registration-access-form"
+          method="post"
+          className="flex flex-col gap-4"
+        >
           <RadioButtonSettings
-            name="access"
-            value="open"
+            name={SUBMIT_REGISTRATION_ACCESS_ACTION}
+            value={OPEN_REGISTRATION}
             active={event.openForRegistration}
             disabled={event.published}
           >
@@ -99,8 +209,8 @@ function RegistrationAccess() {
             </RadioButtonSettings.Subline>
           </RadioButtonSettings>
           <RadioButtonSettings
-            name="access"
-            value="closed"
+            name={SUBMIT_REGISTRATION_ACCESS_ACTION}
+            value={CLOSED_REGISTRATION}
             active={event.openForRegistration === false}
             disabled={event.published}
           >

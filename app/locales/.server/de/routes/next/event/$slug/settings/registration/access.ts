@@ -28,4 +28,11 @@ export const locale = {
         "Nur auf Einladung zugänglich. Diese Option ist bei externer Registrierung nicht verfügbar.",
     },
   },
+  errors: {
+    validationError: "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    updateTypeFailed:
+      "Die Aktualisierung der Registrierungsart ist fehlgeschlagen. Bitte versuche es erneut.",
+    updateAccessFailed:
+      "Die Aktualisierung der Registrierungszugangseinstellung ist fehlgeschlagen. Bitte versuche es erneut.",
+  },
 } as const;

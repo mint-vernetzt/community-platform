@@ -12,3 +12,18 @@ export async function getEventBySlug(slug: string) {
 
   return event;
 }
+
+export async function updateEventRegistrationAccessBySlug(
+  slug: string,
+  options: { external?: boolean; openForRegistration?: boolean }
+) {
+  const updatedEvent = await prismaClient.event.update({
+    where: { slug },
+    data: {
+      external: options.external,
+      openForRegistration: options.openForRegistration,
+    },
+  });
+
+  return updatedEvent;
+}

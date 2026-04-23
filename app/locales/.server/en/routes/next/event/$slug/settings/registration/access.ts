@@ -27,4 +27,11 @@ export const locale = {
         "Accessible by invitation only. This option is not available for external registration.",
     },
   },
+  errors: {
+    validationError: "An error occurred. Please try again.",
+    updateTypeFailed:
+      "Updating the registration type failed. Please try again.",
+    updateAccessFailed:
+      "Updating the registration access setting failed. Please try again.",
+  },
 } as const;
