@@ -6,6 +6,7 @@ export async function getEventBySlug(slug: string) {
     select: {
       published: true,
       external: true,
+      openForRegistration: true,
     },
   });
 

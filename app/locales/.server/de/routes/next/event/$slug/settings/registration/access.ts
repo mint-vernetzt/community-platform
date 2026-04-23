@@ -18,5 +18,14 @@ export const locale = {
     headline:
       "Handelt es sich um eine öffentliche oder geschlossene Veranstaltung?",
     subline: "Kontrolliere, wer zu Deiner Veranstaltung kommen kann.",
+    open: {
+      headline: "Öffentliche Veranstaltung",
+      subline: "Für alle Nutzer:innen sichtbar und zugänglich.",
+    },
+    closed: {
+      headline: "Geschlossene Veranstaltung",
+      subline:
+        "Nur auf Einladung zugänglich. Diese Option ist bei externer Registrierung nicht verfügbar.",
+    },
   },
 } as const;

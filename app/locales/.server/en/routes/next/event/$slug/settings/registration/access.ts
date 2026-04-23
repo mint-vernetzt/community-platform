@@ -17,5 +17,14 @@ export const locale = {
   access: {
     headline: "Is this a public or private event?",
     subline: "Control who can attend your event.",
+    open: {
+      headline: "Public Event",
+      subline: "Visible and accessible to all users.",
+    },
+    closed: {
+      headline: "Private Event",
+      subline:
+        "Accessible by invitation only. This option is not available for external registration.",
+    },
   },
 } as const;
