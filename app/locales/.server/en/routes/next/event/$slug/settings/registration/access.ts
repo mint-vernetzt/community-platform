@@ -12,6 +12,7 @@ export const locale = {
       headline: "External Registration",
       subline:
         "Your participants are redirected to your external registration tool.",
+      hint: "If you use external registration for your event, you <0>cannot use participant management</0> and <0>cannot set a registration period</0> on the platform.",
     },
   },
   access: {

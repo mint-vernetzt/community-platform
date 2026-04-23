@@ -1,15 +1,36 @@
 // Design
 // Name: Hinweis
-// Source: https://www.figma.com/design/9aKvb1kUWVYaLDi4xjRaSB/Event-Settings?node-id=288-7794&m=dev
-// TODO: No component only frame
+// Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=12822-5235&m=dev
 
-import React from "react";
+import { Children, isValidElement } from "react";
 
 function Hint(props: { children: React.ReactNode }) {
+  const childrenArray = Children.toArray(props.children);
+
+  const infoIcon = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === Hint.InfoIcon;
+  });
+
+  const otherChildren = childrenArray.filter((child) => {
+    if (isValidElement(child)) {
+      return child.type !== Hint.InfoIcon;
+    }
+    return true;
+  });
+
+  if (typeof infoIcon === "undefined") {
+    return (
+      <p className="py-2 px-4 rounded-lg bg-primary-50 text-neutral-600">
+        {props.children}
+      </p>
+    );
+  }
+
   return (
-    <p className="inline-flex gap-2 py-2 px-4 rounded-lg bg-primary-50 text-neutral-600">
-      {props.children}
-    </p>
+    <div className="py-2 px-4 rounded-lg bg-primary-50 text-neutral-600 flex gap-2">
+      {infoIcon}
+      <div>{otherChildren}</div>
+    </div>
   );
 }
 

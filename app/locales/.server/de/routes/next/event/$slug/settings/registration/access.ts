@@ -12,6 +12,7 @@ export const locale = {
       headline: "Externe Registrierung",
       subline:
         "Deine Teilnehmenden werden zu Deinem externen Anmeldetool weitergeleitet.",
+      hint: "Wenn Du für Dein Event eine externe Registrierung nutzt, dann kannst Du auf der Plattform <0>keine Teilnehmendenverwaltung nutzen</0> und <0>keinen Registrierungszeitraum</0> einstellen.",
     },
   },
   access: {

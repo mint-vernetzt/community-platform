@@ -30,6 +30,7 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { redirectWithToast } from "~/toast.server";
 import { captureException } from "@sentry/node";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -180,49 +181,59 @@ function RegistrationAccess() {
             </RadioButtonSettings.Subline>
           </RadioButtonSettings>
         </Form>
+        {event.external && (
+          <Hint>
+            <Hint.InfoIcon />
+            {insertComponentsIntoLocale(locales.route.type.external.hint, [
+              <span key="strong" className="font-semibold" />,
+            ])}
+          </Hint>
+        )}
       </div>
-      <div className="flex flex-col gap-4">
-        <TitleSection>
-          <TitleSection.Headline>
-            {locales.route.access.headline}
-          </TitleSection.Headline>
-          <TitleSection.Subline>
-            {locales.route.access.subline}
-          </TitleSection.Subline>
-        </TitleSection>
-        <Form
-          id="registration-access-form"
-          method="post"
-          className="flex flex-col gap-4"
-        >
-          <RadioButtonSettings
-            name={SUBMIT_REGISTRATION_ACCESS_ACTION}
-            value={OPEN_REGISTRATION}
-            active={event.openForRegistration}
-            disabled={event.published}
+      {event.external === false && (
+        <div className="flex flex-col gap-4">
+          <TitleSection>
+            <TitleSection.Headline>
+              {locales.route.access.headline}
+            </TitleSection.Headline>
+            <TitleSection.Subline>
+              {locales.route.access.subline}
+            </TitleSection.Subline>
+          </TitleSection>
+          <Form
+            id="registration-access-form"
+            method="post"
+            className="flex flex-col gap-4"
           >
-            <RadioButtonSettings.Title>
-              {locales.route.access.open.headline}
-            </RadioButtonSettings.Title>
-            <RadioButtonSettings.Subline>
-              {locales.route.access.open.subline}
-            </RadioButtonSettings.Subline>
-          </RadioButtonSettings>
-          <RadioButtonSettings
-            name={SUBMIT_REGISTRATION_ACCESS_ACTION}
-            value={CLOSED_REGISTRATION}
-            active={event.openForRegistration === false}
-            disabled={event.published}
-          >
-            <RadioButtonSettings.Title>
-              {locales.route.access.closed.headline}
-            </RadioButtonSettings.Title>
-            <RadioButtonSettings.Subline>
-              {locales.route.access.closed.subline}
-            </RadioButtonSettings.Subline>
-          </RadioButtonSettings>
-        </Form>
-      </div>
+            <RadioButtonSettings
+              name={SUBMIT_REGISTRATION_ACCESS_ACTION}
+              value={OPEN_REGISTRATION}
+              active={event.openForRegistration}
+              disabled={event.published}
+            >
+              <RadioButtonSettings.Title>
+                {locales.route.access.open.headline}
+              </RadioButtonSettings.Title>
+              <RadioButtonSettings.Subline>
+                {locales.route.access.open.subline}
+              </RadioButtonSettings.Subline>
+            </RadioButtonSettings>
+            <RadioButtonSettings
+              name={SUBMIT_REGISTRATION_ACCESS_ACTION}
+              value={CLOSED_REGISTRATION}
+              active={event.openForRegistration === false}
+              disabled={event.published}
+            >
+              <RadioButtonSettings.Title>
+                {locales.route.access.closed.headline}
+              </RadioButtonSettings.Title>
+              <RadioButtonSettings.Subline>
+                {locales.route.access.closed.subline}
+              </RadioButtonSettings.Subline>
+            </RadioButtonSettings>
+          </Form>
+        </div>
+      )}
     </div>
   );
 }
