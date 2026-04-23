@@ -1,36 +1,44 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import classNames from "classnames";
 import {
   type ActionFunctionArgs,
   Form,
-  useLoaderData,
   type LoaderFunctionArgs,
   redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Hint from "~/components/next/Hint";
 import TitleSection from "~/components/next/TitleSection";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import {
-  getEventBySlug,
-  updateEventRegistrationAccessBySlug,
-} from "./access.server";
-import classNames from "classnames";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
-  CLOSED_REGISTRATION,
-  createAccessSettingsSchema,
-  EXTERNAL_REGISTRATION,
-  INTERNAL_REGISTRATION,
-  OPEN_REGISTRATION,
-  SUBMIT_REGISTRATION_ACCESS_ACTION,
-  SUBMIT_REGISTRATION_TYPE_ACTION,
+  getEventBySlug,
+  updateEventExternalRegistrationUrl,
+  updateEventRegistrationAccess,
+} from "./access.server";
+import {
+  createExternalRegistrationUrlSchema,
+  SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT,
+  SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
+  SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
+  SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT,
+  UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
 } from "./access.shared";
-import { parseWithZod } from "@conform-to/zod";
-import { redirectWithToast } from "~/toast.server";
-import { captureException } from "@sentry/node";
-import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -83,22 +91,31 @@ export async function action(args: ActionFunctionArgs) {
     ];
 
   const formData = await request.formData();
-  const schema = createAccessSettingsSchema();
-  const submission = await parseWithZod(formData, { schema });
+  const intent = formData.get(INTENT_FIELD_NAME);
 
-  if (submission.status !== "success") {
-    return redirectWithToast(request.url, {
-      id: "registration-access-settings-validation-error",
-      key: `registration-access-settings-validation-error-${Date.now()}`,
-      message: locales.route.errors.validationError,
-      level: "negative",
-    });
-  }
+  invariantResponse(
+    intent === SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT ||
+      intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT ||
+      intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT ||
+      intent === SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT ||
+      intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
+    "Invalid intent",
+    {
+      status: 400,
+    }
+  );
 
-  if (typeof submission.value.type !== "undefined") {
+  const event = await getEventBySlug(slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (
+    intent === SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT ||
+    intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT
+  ) {
     try {
-      await updateEventRegistrationAccessBySlug(slug, {
-        external: submission.value.type === EXTERNAL_REGISTRATION,
+      await updateEventRegistrationAccess({
+        eventId: event.id,
+        external: intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
       });
     } catch (error) {
       captureException(error);
@@ -109,12 +126,17 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
+    return null;
   }
 
-  if (typeof submission.value.access !== "undefined") {
+  if (
+    intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT ||
+    intent === SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT
+  ) {
     try {
-      await updateEventRegistrationAccessBySlug(slug, {
-        openForRegistration: submission.value.access === OPEN_REGISTRATION,
+      await updateEventRegistrationAccess({
+        eventId: event.id,
+        openForRegistration: intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
       });
     } catch (error) {
       captureException(error);
@@ -125,6 +147,39 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
+    return null;
+  }
+
+  if (intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT) {
+    const schema = createExternalRegistrationUrlSchema({
+      locales: locales.route.type.external.form.errors,
+    });
+    const submission = await parseWithZod(formData, { schema });
+
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+
+    try {
+      await updateEventExternalRegistrationUrl({
+        eventId: event.id,
+        externalRegistrationUrl: submission.value.externalRegistrationUrl,
+      });
+      return redirectWithToast(request.url, {
+        id: "registration-url-update-success",
+        key: `registration-url-update-success-${Date.now()}`,
+        message: locales.route.type.external.form.success,
+        level: "positive",
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "registration-url-update-error",
+        key: `registration-url-update-error-${Date.now()}`,
+        message: locales.route.errors.updateRegistrationUrlFailed,
+        level: "negative",
+      });
+    }
   }
 
   return null;
@@ -132,7 +187,33 @@ export async function action(args: ActionFunctionArgs) {
 
 function RegistrationAccess() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const { locales, event } = loaderData;
+  const isHydrated = useHydrated();
+  const isSubmitting = useIsSubmitting();
+  const navigation = useNavigation();
+
+  const [form, fields] = useForm({
+    id: "registration-external-url-form",
+    constraint: getZodConstraint(
+      createExternalRegistrationUrlSchema({
+        locales: locales.route.type.external.form.errors,
+      })
+    ),
+    defaultValue: {
+      externalRegistrationUrl: event.externalRegistrationUrl,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    onValidate: (values) => {
+      return parseWithZod(values.formData, {
+        schema: createExternalRegistrationUrlSchema({
+          locales: locales.route.type.external.form.errors,
+        }),
+      });
+    },
+    lastResult: navigation.state === "idle" ? actionData : null,
+  });
 
   return (
     <div className="flex flex-col gap-8 pt-4">
@@ -149,14 +230,20 @@ function RegistrationAccess() {
           <Hint.InfoIcon />
           {locales.route.type.hint}
         </Hint>
+        <Hint>
+          <Hint.InfoIcon />
+          {insertComponentsIntoLocale(locales.route.type.external.hint, [
+            <span key="strong" className="font-semibold" />,
+          ])}
+        </Hint>
         <Form
           id="registration-type-form"
           method="post"
           className="flex flex-col gap-4"
         >
           <RadioButtonSettings
-            name={SUBMIT_REGISTRATION_TYPE_ACTION}
-            value={INTERNAL_REGISTRATION}
+            name={INTENT_FIELD_NAME}
+            value={SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT}
             active={event.external === false}
             disabled={event.published}
           >
@@ -168,8 +255,8 @@ function RegistrationAccess() {
             </RadioButtonSettings.Subline>
           </RadioButtonSettings>
           <RadioButtonSettings
-            name={SUBMIT_REGISTRATION_TYPE_ACTION}
-            value={EXTERNAL_REGISTRATION}
+            name={INTENT_FIELD_NAME}
+            value={SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT}
             active={event.external}
             disabled={event.published}
           >
@@ -182,12 +269,78 @@ function RegistrationAccess() {
           </RadioButtonSettings>
         </Form>
         {event.external && (
-          <Hint>
-            <Hint.InfoIcon />
-            {insertComponentsIntoLocale(locales.route.type.external.hint, [
-              <span key="strong" className="font-semibold" />,
-            ])}
-          </Hint>
+          <>
+            <Form
+              {...getFormProps(form)}
+              method="post"
+              className="flex flex-col gap-4"
+            >
+              <Input
+                {...getInputProps(fields.externalRegistrationUrl, {
+                  type: "text",
+                })}
+                placeholder={
+                  locales.route.type.external.form.registrationUrl.placeholder
+                }
+                key="externalRegistrationUrl"
+              >
+                <Input.Label htmlFor={fields.externalRegistrationUrl.id}>
+                  {locales.route.type.external.form.registrationUrl.label}
+                </Input.Label>
+                {typeof fields.externalRegistrationUrl.errors !== "undefined" &&
+                fields.externalRegistrationUrl.errors.length > 0
+                  ? fields.externalRegistrationUrl.errors.map((error) => (
+                      <Input.Error
+                        id={fields.externalRegistrationUrl.errorId}
+                        key={error}
+                      >
+                        {error}
+                      </Input.Error>
+                    ))
+                  : null}
+              </Input>
+              <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
+                <div className="w-full md:w-fit">
+                  <Button
+                    type="submit"
+                    name={INTENT_FIELD_NAME}
+                    value={UPDATE_EXTERNAL_REGISTRATION_URL_INTENT}
+                    fullSize
+                    form={form.id}
+                    // Don't disable button when js is disabled
+                    disabled={
+                      isHydrated
+                        ? form.dirty === false ||
+                          form.valid === false ||
+                          isSubmitting
+                        : false
+                    }
+                  >
+                    {locales.route.type.external.form.submit}
+                  </Button>
+                </div>
+                <div className="w-full md:w-fit">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      form.reset();
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? form.dirty === false : false}
+                  >
+                    {locales.route.type.external.form.reset}
+                  </Button>
+                  <noscript className="absolute top-0">
+                    <Button as="link" to="." variant="outline" fullSize>
+                      {locales.route.type.external.form.reset}
+                    </Button>
+                  </noscript>
+                </div>
+              </div>
+            </Form>
+          </>
         )}
       </div>
       {event.external === false && (
@@ -206,8 +359,8 @@ function RegistrationAccess() {
             className="flex flex-col gap-4"
           >
             <RadioButtonSettings
-              name={SUBMIT_REGISTRATION_ACCESS_ACTION}
-              value={OPEN_REGISTRATION}
+              name={INTENT_FIELD_NAME}
+              value={SET_REGISTRATION_ACCESS_TO_OPEN_INTENT}
               active={event.openForRegistration}
               disabled={event.published}
             >
@@ -219,8 +372,8 @@ function RegistrationAccess() {
               </RadioButtonSettings.Subline>
             </RadioButtonSettings>
             <RadioButtonSettings
-              name={SUBMIT_REGISTRATION_ACCESS_ACTION}
-              value={CLOSED_REGISTRATION}
+              name={INTENT_FIELD_NAME}
+              value={SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT}
               active={event.openForRegistration === false}
               disabled={event.published}
             >

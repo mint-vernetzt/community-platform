@@ -13,6 +13,20 @@ export const locale = {
       subline:
         "Deine Teilnehmenden werden zu Deinem externen Anmeldetool weitergeleitet.",
       hint: "Wenn Du für Dein Event eine externe Registrierung nutzt, dann kannst Du auf der Plattform <0>keine Teilnehmendenverwaltung nutzen</0> und <0>keinen Registrierungszeitraum</0> einstellen.",
+      form: {
+        registrationUrl: {
+          label: "Externer Registrierungslink",
+          placeholder: "Gib eine URL an.",
+        },
+        submit: "URL ändern",
+        reset: "Änderung verwerfen",
+        errors: {
+          required: "Bitte gib eine URL an.",
+          invalidUrl: "Die angegebene URL ist ungültig.",
+        },
+        success:
+          "Der externe Registrierungslink wurde erfolgreich aktualisiert.",
+      },
     },
   },
   access: {
@@ -35,5 +49,7 @@ export const locale = {
       "Die Aktualisierung der Registrierungsart ist fehlgeschlagen. Bitte versuche es erneut.",
     updateAccessFailed:
       "Die Aktualisierung der Registrierungszugangseinstellung ist fehlgeschlagen. Bitte versuche es erneut.",
+    updateRegistrationUrlFailed:
+      "Die Aktualisierung des externen Registrierungslinks ist fehlgeschlagen. Bitte versuche es erneut.",
   },
 } as const;

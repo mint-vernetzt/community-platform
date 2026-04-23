@@ -13,6 +13,19 @@ export const locale = {
       subline:
         "Your participants are redirected to your external registration tool.",
       hint: "If you use external registration for your event, you <0>cannot use participant management</0> and <0>cannot set a registration period</0> on the platform.",
+      form: {
+        registrationUrl: {
+          label: "External Registration Link",
+          placeholder: "Enter a URL.",
+        },
+        submit: "Change URL",
+        reset: "Discard Changes",
+        errors: {
+          required: "Please enter a URL.",
+          invalidUrl: "The provided URL is invalid.",
+        },
+        success: "The external registration link was successfully updated.",
+      },
     },
   },
   access: {
@@ -34,5 +47,7 @@ export const locale = {
       "Updating the registration type failed. Please try again.",
     updateAccessFailed:
       "Updating the registration access setting failed. Please try again.",
+    updateRegistrationUrlFailed:
+      "Updating the external registration link failed. Please try again.",
   },
 } as const;
