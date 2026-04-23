@@ -122,7 +122,10 @@ export default function Settings() {
     .split("/")[0];
   const links = [
     { to: `time-period?${Deep}`, label: locales.route.menu.timePeriod },
-    { to: `registration?${Deep}`, label: locales.route.menu.registration },
+    {
+      to: `registration/access?${Deep}`,
+      label: locales.route.menu.registration,
+    },
     { to: `details?${Deep}`, label: locales.route.menu.details },
     { to: `location?${Deep}`, label: locales.route.menu.location },
     {
