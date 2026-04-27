@@ -518,6 +518,7 @@ model Event {
   participationFrom                DateTime                         @default(now()) @map("participation_from")
   external                         Boolean                          @default(false)
   openForRegistration              Boolean                          @default(true) @map("open_for_registration")
+  externalRegistrationUrl          String?                          @map("external_registration_url")
   areas                            AreaOfEvent[] // legacy
   documents                        DocumentOfEvent[]
   types                            TypeOfEvent[]
@@ -583,6 +584,7 @@ model EventVisibility {
   participationFrom                Boolean @default(true) @map("participation_from")
   external                         Boolean @default(true)
   openForRegistration              Boolean @default(true) @map("open_for_registration")
+  externalRegistrationUrl          Boolean @default(true) @map("external_registration_url")
   areas                            Boolean @default(true)
   documents                        Boolean @default(true)
   types                            Boolean @default(true)

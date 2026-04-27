@@ -65,19 +65,19 @@ export default function Registration() {
             event.external === false &&
             event.openForRegistration ? (
               <Link
-                to={`./limit?${Deep}=${deep}`}
+                to={`./period?${Deep}=${deep}`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/period"))}
                 preventScrollReset
                 prefetch="intent"
               >
                 <TabBar.Item.Title>
-                  {locales.route.tabs.limit}
+                  {locales.route.tabs.period}
                 </TabBar.Item.Title>
               </Link>
             ) : (
               <>
                 <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
-                  {locales.route.tabs.limit}
+                  {locales.route.tabs.period}
                 </h2>
               </>
             )}
