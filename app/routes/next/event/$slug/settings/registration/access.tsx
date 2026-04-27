@@ -3,7 +3,6 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import { captureException } from "@sentry/node";
-import classNames from "classnames";
 import {
   type ActionFunctionArgs,
   data,
@@ -18,12 +17,17 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import Hint from "~/components/next/Hint";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
+import { RadioSubmitButtonSettings } from "~/components/next/RadioButtonSettings";
 import TitleSection from "~/components/next/TitleSection";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
@@ -41,11 +45,6 @@ import {
   SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT,
   UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
 } from "./access.shared";
-import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
-import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
-import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { RadioSubmitButtonSettings } from "~/components/next/RadioButtonSettings";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -114,6 +113,15 @@ export async function action(args: ActionFunctionArgs) {
 
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.published && intent !== UPDATE_EXTERNAL_REGISTRATION_URL_INTENT) {
+    return redirectWithToast(request.url, {
+      id: "event-published-error",
+      key: `event-published-error-${Date.now()}`,
+      message: locales.route.errors.eventPublished,
+      level: "negative",
+    });
+  }
 
   if (
     intent === SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT ||

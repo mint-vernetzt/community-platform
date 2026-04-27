@@ -51,5 +51,7 @@ export const locale = {
       "Die Aktualisierung der Registrierungszugangseinstellung ist fehlgeschlagen. Bitte versuche es erneut.",
     updateRegistrationUrlFailed:
       "Die Aktualisierung des externen Registrierungslinks ist fehlgeschlagen. Bitte versuche es erneut.",
+    eventPublished:
+      "Da Deine Veranstaltung bereits veröffentlicht ist, kannst Du die Registrierungsart oder die Zugänglichkeit nicht mehr ändern.",
   },
 } as const;

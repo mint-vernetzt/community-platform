@@ -49,5 +49,7 @@ export const locale = {
       "Updating the registration access setting failed. Please try again.",
     updateRegistrationUrlFailed:
       "Updating the external registration link failed. Please try again.",
+    eventPublished:
+      "Since your event is already published, you can no longer change the registration type or accessibility.",
   },
 } as const;
