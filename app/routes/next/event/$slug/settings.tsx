@@ -139,7 +139,10 @@ export default function Settings() {
       count: event._count.teamMembers,
     },
     {
-      to: `speakers/list?${Deep}`,
+      to:
+        event._count.speakers > 0
+          ? `speakers/list?${Deep}`
+          : `speakers/add?${Deep}`,
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
@@ -149,7 +152,10 @@ export default function Settings() {
       count: event._count.participants,
     },
     {
-      to: `responsible-orgs?${Deep}`,
+      to:
+        event._count.responsibleOrganizations > 0
+          ? `responsible-orgs/list?${Deep}`
+          : `responsible-orgs/add?${Deep}`,
       label: locales.route.menu.responsibleOrgs,
       count: event._count.responsibleOrganizations,
     },
