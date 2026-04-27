@@ -6,11 +6,13 @@ import { captureException } from "@sentry/node";
 import classNames from "classnames";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
   type LoaderFunctionArgs,
   redirect,
   useActionData,
   useLoaderData,
+  useLocation,
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
@@ -24,7 +26,7 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { redirectWithToast } from "~/toast.server";
+import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
@@ -39,6 +41,10 @@ import {
   SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT,
   UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
 } from "./access.shared";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -165,11 +171,13 @@ export async function action(args: ActionFunctionArgs) {
         eventId: event.id,
         externalRegistrationUrl: submission.value.externalRegistrationUrl,
       });
-      return redirectWithToast(request.url, {
-        id: "registration-url-update-success",
-        key: `registration-url-update-success-${Date.now()}`,
+      const toastHeaders = await createToastHeaders({
+        id: "registration-url-update",
+        key: `registration-url-update-${Date.now()}`,
         message: locales.route.type.external.form.success,
-        level: "positive",
+      });
+      return data(submission.reply(), {
+        headers: toastHeaders,
       });
     } catch (error) {
       captureException(error);
@@ -212,93 +220,115 @@ function RegistrationAccess() {
         }),
       });
     },
-    lastResult: navigation.state === "idle" ? actionData : null,
+    lastResult: navigation.state === "idle" ? actionData : undefined,
+  });
+
+  const location = useLocation();
+  const previousLocation = usePreviousLocation();
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: actionData === null ? undefined : actionData,
+      form,
+    },
+    skipRevalidation:
+      location.search.includes(UnsavedChangesModalParam) ||
+      (previousLocation !== null &&
+        previousLocation.search.includes(UnsavedChangesModalParam)),
   });
 
   return (
-    <div className="flex flex-col gap-8 pt-4">
-      <div className="flex flex-col gap-4">
-        <TitleSection>
-          <TitleSection.Headline>
-            {locales.route.type.headline}
-          </TitleSection.Headline>
-          <TitleSection.Subline>
-            {locales.route.type.subline}
-          </TitleSection.Subline>
-        </TitleSection>
-        <Hint>
-          <Hint.InfoIcon />
-          {locales.route.type.hint}
-        </Hint>
-        <Hint>
-          <Hint.InfoIcon />
-          {insertComponentsIntoLocale(locales.route.type.external.hint, [
-            <span key="strong" className="font-semibold" />,
-          ])}
-        </Hint>
-        <Form
-          id="registration-type-form"
-          method="post"
-          className="flex flex-col gap-4"
-        >
-          <RadioButtonSettings
-            name={INTENT_FIELD_NAME}
-            value={SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT}
-            active={event.external === false}
-            disabled={event.published}
+    <>
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={form}
+        locales={locales.components.UnsavedChangesModal}
+      />
+      <div className="flex flex-col gap-8 pt-4">
+        <div className="flex flex-col gap-4">
+          <TitleSection>
+            <TitleSection.Headline>
+              {locales.route.type.headline}
+            </TitleSection.Headline>
+            <TitleSection.Subline>
+              {locales.route.type.subline}
+            </TitleSection.Subline>
+          </TitleSection>
+          <Hint>
+            <Hint.InfoIcon />
+            {locales.route.type.hint}
+          </Hint>
+          <Hint>
+            <Hint.InfoIcon />
+            {insertComponentsIntoLocale(locales.route.type.external.hint, [
+              <span key="strong" className="font-semibold" />,
+            ])}
+          </Hint>
+          <Form
+            id="registration-type-form"
+            method="post"
+            className="flex flex-col gap-4"
           >
-            <RadioButtonSettings.Title>
-              {locales.route.type.internal.headline}
-            </RadioButtonSettings.Title>
-            <RadioButtonSettings.Subline>
-              {locales.route.type.internal.subline}
-            </RadioButtonSettings.Subline>
-          </RadioButtonSettings>
-          <RadioButtonSettings
-            name={INTENT_FIELD_NAME}
-            value={SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT}
-            active={event.external}
-            disabled={event.published}
-          >
-            <RadioButtonSettings.Title>
-              {locales.route.type.external.headline}
-            </RadioButtonSettings.Title>
-            <RadioButtonSettings.Subline>
-              {locales.route.type.external.subline}
-            </RadioButtonSettings.Subline>
-          </RadioButtonSettings>
-        </Form>
-        {event.external && (
-          <>
-            <Form
-              {...getFormProps(form)}
-              method="post"
-              className="flex flex-col gap-4"
+            <RadioButtonSettings
+              name={INTENT_FIELD_NAME}
+              value={SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT}
+              active={event.external === false}
+              disabled={event.published}
             >
-              <Input
-                {...getInputProps(fields.externalRegistrationUrl, {
-                  type: "text",
-                })}
-                placeholder={
-                  locales.route.type.external.form.registrationUrl.placeholder
-                }
-                key="externalRegistrationUrl"
+              <RadioButtonSettings.Title>
+                {locales.route.type.internal.headline}
+              </RadioButtonSettings.Title>
+              <RadioButtonSettings.Subline>
+                {locales.route.type.internal.subline}
+              </RadioButtonSettings.Subline>
+            </RadioButtonSettings>
+            <RadioButtonSettings
+              name={INTENT_FIELD_NAME}
+              value={SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT}
+              active={event.external}
+              disabled={event.published}
+            >
+              <RadioButtonSettings.Title>
+                {locales.route.type.external.headline}
+              </RadioButtonSettings.Title>
+              <RadioButtonSettings.Subline>
+                {locales.route.type.external.subline}
+              </RadioButtonSettings.Subline>
+            </RadioButtonSettings>
+          </Form>
+          {event.external && (
+            <>
+              <Form
+                {...getFormProps(form)}
+                method="post"
+                className="flex flex-col gap-4"
               >
-                <Input.Label htmlFor={fields.externalRegistrationUrl.id}>
-                  {locales.route.type.external.form.registrationUrl.label}
-                </Input.Label>
-                {typeof fields.externalRegistrationUrl.errors !== "undefined" &&
-                fields.externalRegistrationUrl.errors.length > 0
-                  ? fields.externalRegistrationUrl.errors.map((error) => (
-                      <Input.Error
-                        id={fields.externalRegistrationUrl.errorId}
-                        key={error}
-                      >
-                        {error}
-                      </Input.Error>
-                    ))
-                  : null}
-              </Input>
+                <Input
+                  {...getInputProps(fields.externalRegistrationUrl, {
+                    type: "text",
+                  })}
+                  placeholder={
+                    locales.route.type.external.form.registrationUrl.placeholder
+                  }
+                  key="externalRegistrationUrl"
+                >
+                  <Input.Label htmlFor={fields.externalRegistrationUrl.id}>
+                    {locales.route.type.external.form.registrationUrl.label}
+                  </Input.Label>
+                  {typeof fields.externalRegistrationUrl.errors !==
+                    "undefined" &&
+                  fields.externalRegistrationUrl.errors.length > 0
+                    ? fields.externalRegistrationUrl.errors.map((error) => (
+                        <Input.Error
+                          id={fields.externalRegistrationUrl.errorId}
+                          key={error}
+                        >
+                          {error}
+                        </Input.Error>
+                      ))
+                    : null}
+                </Input>
+              </Form>
               <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
                 <div className="w-full md:w-fit">
                   <Button
@@ -327,6 +357,7 @@ function RegistrationAccess() {
                     }}
                     variant="outline"
                     fullSize
+                    form={form.id}
                     // Don't disable button when js is disabled
                     disabled={isHydrated ? form.dirty === false : false}
                   >
@@ -339,55 +370,55 @@ function RegistrationAccess() {
                   </noscript>
                 </div>
               </div>
+            </>
+          )}
+        </div>
+        {event.external === false && (
+          <div className="flex flex-col gap-4">
+            <TitleSection>
+              <TitleSection.Headline>
+                {locales.route.access.headline}
+              </TitleSection.Headline>
+              <TitleSection.Subline>
+                {locales.route.access.subline}
+              </TitleSection.Subline>
+            </TitleSection>
+            <Form
+              id="registration-access-form"
+              method="post"
+              className="flex flex-col gap-4"
+            >
+              <RadioButtonSettings
+                name={INTENT_FIELD_NAME}
+                value={SET_REGISTRATION_ACCESS_TO_OPEN_INTENT}
+                active={event.openForRegistration}
+                disabled={event.published}
+              >
+                <RadioButtonSettings.Title>
+                  {locales.route.access.open.headline}
+                </RadioButtonSettings.Title>
+                <RadioButtonSettings.Subline>
+                  {locales.route.access.open.subline}
+                </RadioButtonSettings.Subline>
+              </RadioButtonSettings>
+              <RadioButtonSettings
+                name={INTENT_FIELD_NAME}
+                value={SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT}
+                active={event.openForRegistration === false}
+                disabled={event.published}
+              >
+                <RadioButtonSettings.Title>
+                  {locales.route.access.closed.headline}
+                </RadioButtonSettings.Title>
+                <RadioButtonSettings.Subline>
+                  {locales.route.access.closed.subline}
+                </RadioButtonSettings.Subline>
+              </RadioButtonSettings>
             </Form>
-          </>
+          </div>
         )}
       </div>
-      {event.external === false && (
-        <div className="flex flex-col gap-4">
-          <TitleSection>
-            <TitleSection.Headline>
-              {locales.route.access.headline}
-            </TitleSection.Headline>
-            <TitleSection.Subline>
-              {locales.route.access.subline}
-            </TitleSection.Subline>
-          </TitleSection>
-          <Form
-            id="registration-access-form"
-            method="post"
-            className="flex flex-col gap-4"
-          >
-            <RadioButtonSettings
-              name={INTENT_FIELD_NAME}
-              value={SET_REGISTRATION_ACCESS_TO_OPEN_INTENT}
-              active={event.openForRegistration}
-              disabled={event.published}
-            >
-              <RadioButtonSettings.Title>
-                {locales.route.access.open.headline}
-              </RadioButtonSettings.Title>
-              <RadioButtonSettings.Subline>
-                {locales.route.access.open.subline}
-              </RadioButtonSettings.Subline>
-            </RadioButtonSettings>
-            <RadioButtonSettings
-              name={INTENT_FIELD_NAME}
-              value={SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT}
-              active={event.openForRegistration === false}
-              disabled={event.published}
-            >
-              <RadioButtonSettings.Title>
-                {locales.route.access.closed.headline}
-              </RadioButtonSettings.Title>
-              <RadioButtonSettings.Subline>
-                {locales.route.access.closed.subline}
-              </RadioButtonSettings.Subline>
-            </RadioButtonSettings>
-          </Form>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 

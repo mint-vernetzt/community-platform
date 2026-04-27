@@ -586,6 +586,7 @@ const de = {
   },
   "next/event/$slug/settings/registration/access": {
     route: deNextEventSettingsRegistrationAccess,
+    components: deComponents,
   },
   "next/event/$slug/settings/registration/period": {
     route: deNextEventSettingsRegistrationPeriod,
@@ -1105,6 +1106,7 @@ const en = {
   },
   "next/event/$slug/settings/registration/access": {
     route: enNextEventSettingsRegistrationAccess,
+    components: enComponents,
   },
   "next/event/$slug/settings/registration/period": {
     route: enNextEventSettingsRegistrationPeriod,
