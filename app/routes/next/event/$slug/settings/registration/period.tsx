@@ -1,7 +1,9 @@
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
+import { getEventBySlug } from "./period.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -17,14 +19,21 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/registration/period"
     ];
 
-  return { locales };
+  const event = await getEventBySlug(slug);
+
+  return { locales, event };
 }
 
 function RegistrationPeriod() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, event } = loaderData;
 
-  return <h3>{locales.route.title}</h3>;
+  return (
+    <TitleSection>
+      <TitleSection.Headline>{locales.route.headline}</TitleSection.Headline>
+      <TitleSection.Subline>{locales.route.subline}</TitleSection.Subline>
+    </TitleSection>
+  );
 }
 
 export default RegistrationPeriod;
