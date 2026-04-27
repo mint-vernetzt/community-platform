@@ -121,56 +121,56 @@ export default function Settings() {
     .replace(`/next/event/${event.slug}/settings/`, "")
     .split("/")[0];
   const links = [
-    { to: `time-period?${Deep}`, label: locales.route.menu.timePeriod },
+    { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
-      to: `registration/access?${Deep}`,
+      to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
     },
-    { to: `details?${Deep}`, label: locales.route.menu.details },
-    { to: `location?${Deep}`, label: locales.route.menu.location },
+    { to: `details?${Deep}=true`, label: locales.route.menu.details },
+    { to: `location?${Deep}=true`, label: locales.route.menu.location },
     {
-      to: `admins/list?${Deep}`,
+      to: `admins/list?${Deep}=true`,
       label: locales.route.menu.admins,
       count: event._count.admins,
     },
     {
-      to: `team/list?${Deep}`,
+      to: `team/list?${Deep}=true`,
       label: locales.route.menu.team,
       count: event._count.teamMembers,
     },
     {
       to:
         event._count.speakers > 0
-          ? `speakers/list?${Deep}`
-          : `speakers/add?${Deep}`,
+          ? `speakers/list?${Deep}=true`
+          : `speakers/add?${Deep}=true`,
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
     {
-      to: `participants?${Deep}`,
+      to: `participants?${Deep}=true`,
       label: locales.route.menu.participants,
       count: event._count.participants,
     },
     {
       to:
         event._count.responsibleOrganizations > 0
-          ? `responsible-orgs/list?${Deep}`
-          : `responsible-orgs/add?${Deep}`,
+          ? `responsible-orgs/list?${Deep}=true`
+          : `responsible-orgs/add?${Deep}=true`,
       label: locales.route.menu.responsibleOrgs,
       count: event._count.responsibleOrganizations,
     },
     {
-      to: `documents?${Deep}`,
+      to: `documents?${Deep}=true`,
       label: locales.route.menu.documents,
       count: event._count.documents,
     },
     {
-      to: `related-events?${Deep}`,
+      to: `related-events?${Deep}=true`,
       label: locales.route.menu.relatedEvents,
       count: event._count.childEvents,
     },
     {
-      to: `danger-zone/change-url?${Deep}`,
+      to: `danger-zone/change-url?${Deep}=true`,
       label: locales.route.menu.dangerZone,
     },
   ];
@@ -191,7 +191,9 @@ export default function Settings() {
             {deep === null
               ? locales.route.mobileHeadline
               : links.find((link) => {
-                  const toSlug = link.to.replace(`?${Deep}`, "").split("/")[0];
+                  const toSlug = link.to
+                    .replace(`?${Deep}=true`, "")
+                    .split("/")[0];
                   return toSlug === leafPathname;
                 })?.label || locales.route.mobileHeadline}
           </SettingsNavigation.MobileHeader.Heading>
@@ -261,7 +263,10 @@ export default function Settings() {
           return (
             <SettingsNavigation.Item
               key={link.to}
-              active={leafPathname === link.to.replace(`?${Deep}`, "")}
+              active={
+                leafPathname ===
+                link.to.replace(`?${Deep}=true`, "").split("/")[0]
+              }
               critical={link.to.includes("danger-zone")}
             >
               <NavLink

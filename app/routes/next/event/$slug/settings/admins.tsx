@@ -56,7 +56,7 @@ export default function Admins() {
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/list")}>
               <Link
-                to={`./list?${Deep}=${deep}`}
+                to={`./list?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
                 preventScrollReset
                 prefetch="intent"
@@ -71,7 +71,7 @@ export default function Admins() {
             </TabBar.Item>
             <TabBar.Item active={pathname.endsWith("/add")}>
               <Link
-                to={`./add?${Deep}=${deep}`}
+                to={`./add?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
                 preventScrollReset
                 prefetch="intent"
@@ -84,7 +84,7 @@ export default function Admins() {
             <TabBar.Item active={pathname.endsWith("/invites")}>
               {event._count.profileJoinInvites > 0 ? (
                 <Link
-                  to={`./invites?${Deep}=${deep}`}
+                  to={`./invites?${Deep}=true`}
                   {...TabBar.getItemElementClasses(
                     pathname.endsWith("/invites")
                   )}
