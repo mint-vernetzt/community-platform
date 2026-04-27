@@ -422,6 +422,8 @@ function RegistrationAccess() {
   );
 }
 
+// TODO: Merge this with componets/next/RadioButtonSettings.tsx
+
 function RadioButtonSettings(props: {
   children: React.ReactNode;
   active?: boolean;
