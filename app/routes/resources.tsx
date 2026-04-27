@@ -51,7 +51,7 @@ function getDataForToolsSection() {
       imagePath: "/images/media-database.png",
       blurredImagePath: "/images/media-database-blurred.png",
       external: true,
-      beta: true,
+      beta: false,
       bgClassName: "bg-neutral-50",
     },
     oeb: {
