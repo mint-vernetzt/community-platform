@@ -3,7 +3,6 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
@@ -37,9 +36,6 @@ export default function Team() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get("deep");
 
   return (
     <>

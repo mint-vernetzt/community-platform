@@ -3,17 +3,16 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
+import { Counter } from "~/components/next/Counter";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./admins.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { Counter } from "~/components/next/Counter";
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, params } = args;
@@ -38,9 +37,6 @@ export default function Admins() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <>
