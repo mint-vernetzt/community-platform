@@ -5,7 +5,7 @@ import { detectLanguage } from "~/i18n.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["$"];
@@ -26,4 +26,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }),
     level: "negative",
   });
-};
+}

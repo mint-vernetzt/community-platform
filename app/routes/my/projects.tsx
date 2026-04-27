@@ -52,7 +52,7 @@ export async function loader(args: LoaderFunctionArgs) {
   return { projects, locales };
 }
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -126,7 +126,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(redirectUrl, result.toast);
   }
   return { submission: result.submission };
-};
+}
 
 function MyProjects() {
   const loaderData = useLoaderData<typeof loader>();

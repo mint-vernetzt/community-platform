@@ -7,7 +7,7 @@ import { detectLanguage } from "~/i18n.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -260,4 +260,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   return null;
-};
+}

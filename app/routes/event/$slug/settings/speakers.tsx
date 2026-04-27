@@ -36,7 +36,7 @@ import {
 } from "./speakers/add-speaker";
 import { type action as removeSpeakerAction } from "./speakers/remove-speaker";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/speakers"];
@@ -114,7 +114,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Speakers() {
   const { slug } = useParams();

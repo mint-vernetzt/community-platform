@@ -26,7 +26,7 @@ import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const { authClient } = createAuthClient(request);
@@ -39,7 +39,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales = languageModuleMap[language]["login/index"];
 
   return { locales };
-};
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);

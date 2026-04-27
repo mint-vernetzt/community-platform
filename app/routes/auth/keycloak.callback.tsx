@@ -8,7 +8,7 @@ import { captureException } from "@sentry/node";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient, headers } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -65,4 +65,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return redirect(loginRedirect || "/dashboard", {
     headers,
   });
-};
+}

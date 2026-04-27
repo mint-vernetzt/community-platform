@@ -22,7 +22,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: customMapStyles },
 ];
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
@@ -157,7 +157,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function MapIndex() {
   const { organizations, locales, language } = useLoaderData<typeof loader>();

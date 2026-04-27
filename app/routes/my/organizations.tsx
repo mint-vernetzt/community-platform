@@ -69,7 +69,7 @@ import {
   updateOrganizationMemberInvite,
 } from "./organizations.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
@@ -170,9 +170,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organizations: flattenedOrganizations,
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -437,7 +437,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirectWithToast(redirectUrl, result.toast);
   }
   return redirect(redirectUrl);
-};
+}
 
 export default function MyOrganizations() {
   const {

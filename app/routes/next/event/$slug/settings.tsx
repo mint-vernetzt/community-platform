@@ -30,7 +30,7 @@ import {
   updateEventBySlug,
 } from "./settings.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = params.slug;
   invariantResponse(typeof slug === "string", "Slug is required", {
@@ -58,9 +58,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -108,7 +108,7 @@ export const action = async (args: ActionFunctionArgs) => {
     key: `publish-success-${Date.now()}`,
     message: locales.route.publishSuccess,
   });
-};
+}
 
 export default function Settings() {
   const loaderData = useLoaderData<typeof loader>();

@@ -3,18 +3,17 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./danger-zone.server";
-import { invariantResponse } from "~/lib/utils/response";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { params, request } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -28,7 +27,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function DangerZone() {
   const loaderData = useLoaderData<typeof loader>();
@@ -36,9 +35,6 @@ export default function DangerZone() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">

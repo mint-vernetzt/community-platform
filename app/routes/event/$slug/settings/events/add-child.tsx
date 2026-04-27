@@ -52,7 +52,7 @@ const createMutation = (locales: AddChildEventLocales) => {
   });
 };
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -82,4 +82,4 @@ export const action = async (args: ActionFunctionArgs) => {
     };
   }
   return { ...result };
-};
+}

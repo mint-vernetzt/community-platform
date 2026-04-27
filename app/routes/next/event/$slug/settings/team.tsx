@@ -3,7 +3,6 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
@@ -15,7 +14,7 @@ import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./team.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
@@ -29,7 +28,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function Team() {
   const loaderData = useLoaderData<typeof loader>();
@@ -37,9 +36,6 @@ export default function Team() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get("deep");
 
   return (
     <>

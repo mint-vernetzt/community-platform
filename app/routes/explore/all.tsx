@@ -33,7 +33,7 @@ import { getAllProfiles, getProfileIds } from "./profiles.server";
 import { getAllProjects, getProjectIds } from "./projects.server";
 import { getAllOrganizations } from "./organizations/list.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -597,7 +597,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     language,
     preferredExploreOrganizationsView,
   };
-};
+}
 
 export default function ExploreAll() {
   const loaderData = useLoaderData<typeof loader>();

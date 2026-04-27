@@ -12,7 +12,7 @@ import { detectLanguage } from "~/i18n.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -22,7 +22,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return {
     locales,
   };
-};
+}
 
 function DangerZone() {
   const location = useLocation();

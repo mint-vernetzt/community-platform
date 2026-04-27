@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -10,7 +10,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     languageModuleMap[language]["next/event/$slug/settings/related-events"];
 
   return { locales };
-};
+}
 
 export default function RelatedEvents() {
   return <>Related Events</>;

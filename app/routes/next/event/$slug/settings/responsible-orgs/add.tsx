@@ -22,6 +22,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
 function AddResponsibleOrg() {
   const loaderData = useLoaderData<typeof loader>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { locales } = loaderData;
 
   return <></>;

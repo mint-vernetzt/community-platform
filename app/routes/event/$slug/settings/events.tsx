@@ -46,7 +46,7 @@ import {
   getParentEventSuggestions,
 } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/events"];
@@ -173,7 +173,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Events() {
   const { slug } = useParams();

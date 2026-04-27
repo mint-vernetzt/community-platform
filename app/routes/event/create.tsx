@@ -29,7 +29,7 @@ import { getEventById } from "./create.server";
 import { createEventOnProfile, transformFormToEvent } from "./utils.server";
 import { createSchema, type FormType, type SchemaType } from "./create.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -51,9 +51,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const abilities = await getFeatureAbilities(authClient, "next_event_create");
 
   return { child, parent, locales, abilities };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -103,7 +103,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(`/event/${slug}/detail/about`);
   }
   return { data, errors };
-};
+}
 
 export default function Create() {
   const loaderData = useLoaderData<typeof loader>();

@@ -7,7 +7,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 
 // handle "/profile/$username" as default route
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -21,4 +21,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
   invariantResponse(profile !== null, "Profile not found", { status: 404 });
   return redirect(`/profile/${profile.username}`);
-};
+}

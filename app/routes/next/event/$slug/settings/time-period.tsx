@@ -52,7 +52,7 @@ import {
   getTimePeriodDefaultValue,
 } from "./time-period.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -66,9 +66,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, language, event };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -137,7 +137,7 @@ export const action = async (args: ActionFunctionArgs) => {
   return data(submission.reply(), {
     headers: toastHeaders,
   });
-};
+}
 
 export default function TimePeriod() {
   const loaderData = useLoaderData<typeof loader>();

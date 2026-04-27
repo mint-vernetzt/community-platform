@@ -36,7 +36,7 @@ import {
 } from "./web-social.server";
 import { createWebSocialSchema } from "./web-social.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -47,7 +47,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const project = await getProjectWebSocial({ slug, locales });
 
   return { project, locales };
-};
+}
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const slug = getParamValueOrThrow(params, "slug");

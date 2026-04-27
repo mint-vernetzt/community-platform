@@ -92,7 +92,7 @@ export function links() {
   ];
 }
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -636,9 +636,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     entities: enhancedEntities,
     preferredExploreOrganizationsView,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -714,7 +714,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectUrl);
   }
   return redirectWithToast(redirectUrl, toast);
-};
+}
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
