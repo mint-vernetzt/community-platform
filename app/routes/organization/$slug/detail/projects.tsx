@@ -15,7 +15,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { hasContent } from "~/utils.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
@@ -48,7 +48,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organization: enhancedOrganization,
     locales,
   };
-};
+}
 
 function Projects() {
   const loaderData = useLoaderData<typeof loader>();

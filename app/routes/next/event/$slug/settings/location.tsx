@@ -46,7 +46,7 @@ import {
   Stages,
 } from "./location.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -81,7 +81,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   return { locales, event: { ...event, stage } };
-};
+}
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;

@@ -112,7 +112,7 @@ export const headers = ({ loaderHeaders }: HeadersArgs) => {
   return loaderHeaders;
 };
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const language = await detectLanguage(request);
   const languageCookieHeaders = {
@@ -279,7 +279,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
       headers: combinedHeaders,
     }
   );
-};
+}
 
 export const ErrorBoundary = () => {
   const error = useRouteError();

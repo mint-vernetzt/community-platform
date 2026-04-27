@@ -13,7 +13,7 @@ import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./registration.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { slug } = params;
 
@@ -29,7 +29,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function Registration() {
   const loaderData = useLoaderData<typeof loader>();

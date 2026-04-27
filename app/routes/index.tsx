@@ -38,7 +38,7 @@ import {
   getProjectCount,
 } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const { authClient } = createAuthClient(request);
@@ -65,7 +65,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projectCount,
     locales,
   };
-};
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const language = await detectLanguage(request);

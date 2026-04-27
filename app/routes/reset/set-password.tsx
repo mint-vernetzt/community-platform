@@ -29,7 +29,7 @@ import {
 import { setNewPassword } from "./set-password.server";
 import { createSetPasswordSchema } from "./set-password.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -43,7 +43,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales = languageModuleMap[language]["reset/set-password"];
 
   return { locales };
-};
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);

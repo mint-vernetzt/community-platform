@@ -25,7 +25,7 @@ import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestPasswordChange } from "./index.server";
 import { createRequestPasswordChangeSchema } from "./index.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -38,9 +38,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const locales = languageModuleMap[language]["reset/index"];
 
   return { locales };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
 
@@ -61,7 +61,7 @@ export const action = async (args: ActionFunctionArgs) => {
     systemMail: process.env.SYSTEM_MAIL_SENDER,
     supportMail: process.env.SUPPORT_MAIL,
   };
-};
+}
 
 export default function Index() {
   const actionData = useActionData<typeof action>();

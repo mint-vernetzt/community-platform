@@ -40,7 +40,7 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariant, invariantResponse } from "~/lib/utils/response";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -59,9 +59,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   ]);
 
   return { locales };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUserOrThrow(authClient);
@@ -134,7 +134,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   return redirect(`/event/${slug}/detail/about`);
-};
+}
 
 export default function Create() {
   const loaderData = useLoaderData<typeof loader>();

@@ -34,7 +34,7 @@ import {
 import { type action as removeAdminAction } from "./admins/remove-admin";
 import { publishSchema } from "./events/publish";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
@@ -112,7 +112,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Admins() {
   const { slug } = useParams();

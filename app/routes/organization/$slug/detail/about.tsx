@@ -27,7 +27,7 @@ import {
 } from "./about.shared";
 import { hasContent } from "~/utils.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const { authClient } = createAuthClient(request);
@@ -57,7 +57,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     mode,
     locales,
   } as const;
-};
+}
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();

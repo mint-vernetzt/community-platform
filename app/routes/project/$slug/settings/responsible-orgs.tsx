@@ -39,7 +39,7 @@ import {
 } from "./responsible-orgs.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -83,9 +83,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     submission,
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -181,7 +181,7 @@ export const action = async (args: ActionFunctionArgs) => {
     );
   }
   return { submission: result.submission.reply(), intent: intent };
-};
+}
 
 function ResponsibleOrgs() {
   const {

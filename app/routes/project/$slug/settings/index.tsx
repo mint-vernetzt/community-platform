@@ -5,7 +5,7 @@ import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const language = await detectLanguage(request);
@@ -28,4 +28,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   return redirect(redirectPath ?? "./general");
-};
+}
