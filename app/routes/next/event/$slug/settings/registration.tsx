@@ -52,7 +52,7 @@ export default function Registration() {
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/access")}>
             <Link
-              to={`./access?${Deep}=${deep}`}
+              to={`./access?${Deep}=true`}
               {...TabBar.getItemElementClasses(pathname.endsWith("/access"))}
               preventScrollReset
               prefetch="intent"
@@ -65,7 +65,7 @@ export default function Registration() {
             event.external === false &&
             event.openForRegistration ? (
               <Link
-                to={`./period?${Deep}=${deep}`}
+                to={`./period?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/period"))}
                 preventScrollReset
                 prefetch="intent"
@@ -84,7 +84,7 @@ export default function Registration() {
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/limit")}>
             <Link
-              to={`./limit?${Deep}=${deep}`}
+              to={`./limit?${Deep}=true`}
               {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}
               preventScrollReset
               prefetch="intent"

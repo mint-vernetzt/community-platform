@@ -50,7 +50,7 @@ export default function DangerZone() {
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/change-url")}>
             <Link
-              to={`./change-url?${Deep}=${deep}`}
+              to={`./change-url?${Deep}=true`}
               {...TabBar.getItemElementClasses(
                 pathname.endsWith("/change-url")
               )}
@@ -65,7 +65,7 @@ export default function DangerZone() {
           <TabBar.Item active={pathname.endsWith("/cancel")}>
             {event.published && event.canceled === false ? (
               <Link
-                to={`./cancel?${Deep}=${deep}`}
+                to={`./cancel?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/cancel"))}
                 preventScrollReset
                 prefetch="intent"
@@ -84,7 +84,7 @@ export default function DangerZone() {
             {(event.published && event.canceled) ||
             event.published === false ? (
               <Link
-                to={`./delete?${Deep}=${deep}`}
+                to={`./delete?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/delete"))}
                 preventScrollReset
                 prefetch="intent"

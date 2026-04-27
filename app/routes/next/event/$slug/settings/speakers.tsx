@@ -53,7 +53,7 @@ export default function Speakers() {
           <TabBar.Item active={pathname.endsWith("/list")}>
             {event._count.speakers > 0 ? (
               <Link
-                to={`./list?${Deep}=${deep}`}
+                to={`./list?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
                 preventScrollReset
                 prefetch="intent"
@@ -78,7 +78,7 @@ export default function Speakers() {
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/add")}>
             <Link
-              to={`./add?${Deep}=${deep}`}
+              to={`./add?${Deep}=true`}
               {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
               preventScrollReset
               prefetch="intent"
@@ -89,7 +89,7 @@ export default function Speakers() {
           <TabBar.Item active={pathname.endsWith("/invites")}>
             {event._count.profileJoinInvites > 0 ? (
               <Link
-                to={`./invites?${Deep}=${deep}`}
+                to={`./invites?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/invites"))}
                 preventScrollReset
                 prefetch="intent"

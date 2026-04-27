@@ -304,7 +304,24 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/responsible-orgs",
-        "./routes/next/event/$slug/settings/responsible-orgs.tsx"
+        "./routes/next/event/$slug/settings/responsible-orgs.tsx",
+        [
+          index(
+            "./routes/next/event/$slug/settings/responsible-orgs/index.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/responsible-orgs/list",
+            "./routes/next/event/$slug/settings/responsible-orgs/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/responsible-orgs/add",
+            "./routes/next/event/$slug/settings/responsible-orgs/add.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/responsible-orgs/invites",
+            "./routes/next/event/$slug/settings/responsible-orgs/invites.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/speakers",
