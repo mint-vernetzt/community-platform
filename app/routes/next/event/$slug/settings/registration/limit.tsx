@@ -113,19 +113,33 @@ export async function action(args: ActionFunctionArgs) {
     const submission = await parseWithZod(formData, { schema });
 
     if (submission.status !== "success") {
-      return submission.reply();
+      return { intent, submission: submission.reply() };
     }
+
+    console.log({ submissionValue: submission.value });
 
     try {
       await updateEventById(eventId, {
         moveUpToParticipants: submission.value.moveUpToParticipants,
       });
-      return redirectWithToast(request.url, {
-        id: "update-move-up-to-participants-success",
-        key: `update-move-up-to-participants-success-${Date.now()}`,
-        message: locales.route.success.moveUpToParticipants,
+      const toastHeaders = await createToastHeaders({
+        id: "update-participant-limit-success",
+        key: `update-participant-limit-success-${Date.now()}`,
+        message: locales.route.success.participantLimit,
         level: "positive",
       });
+      return data(
+        { intent, submission: submission.reply() },
+        {
+          headers: toastHeaders,
+        }
+      );
+      // return redirectWithToast(request.url, {
+      //   id: "update-move-up-to-participants-success",
+      //   key: `update-move-up-to-participants-success-${Date.now()}`,
+      //   message: locales.route.success.moveUpToParticipants,
+      //   level: "positive",
+      // });
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
@@ -136,43 +150,44 @@ export async function action(args: ActionFunctionArgs) {
       });
     }
   }
-  if (intent === UPDATE_PARTICIPANT_LIMIT_INTENT) {
-    const schema = createParticipantLimitSchema();
-    const submission = await parseWithZod(formData, { schema });
+  const schema = createParticipantLimitSchema();
+  const submission = await parseWithZod(formData, { schema });
 
-    if (submission.status !== "success") {
-      return submission.reply();
-    }
-
-    try {
-      await updateEventById(eventId, {
-        participantLimit: submission.value.participantLimit,
-      });
-      const toastHeaders = await createToastHeaders({
-        id: "update-participant-limit-success",
-        key: `update-participant-limit-success-${Date.now()}`,
-        message: locales.route.success.participantLimit,
-        level: "positive",
-      });
-      return data(submission.reply(), {
-        headers: toastHeaders,
-      });
-    } catch (error) {
-      captureException(error);
-      return redirectWithToast(request.url, {
-        id: "update-participant-limit-error",
-        key: `update-participant-limit-error-${Date.now()}`,
-        message: locales.route.errors.participantLimit,
-        level: "negative",
-      });
-    }
+  if (submission.status !== "success") {
+    return { intent, submission: submission.reply() };
   }
-  return null;
+
+  try {
+    await updateEventById(eventId, {
+      participantLimit: submission.value.participantLimit,
+    });
+    const toastHeaders = await createToastHeaders({
+      id: "update-participant-limit-success",
+      key: `update-participant-limit-success-${Date.now()}`,
+      message: locales.route.success.participantLimit,
+      level: "positive",
+    });
+    return data(
+      { intent, submission: submission.reply() },
+      {
+        headers: toastHeaders,
+      }
+    );
+  } catch (error) {
+    captureException(error);
+    return redirectWithToast(request.url, {
+      id: "update-participant-limit-error",
+      key: `update-participant-limit-error-${Date.now()}`,
+      message: locales.route.errors.participantLimit,
+      level: "negative",
+    });
+  }
 }
 
 function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+
   const { locales, now } = loaderData;
 
   const submit = useSubmit();
@@ -182,15 +197,26 @@ function RegistrationLimit() {
   const isSubmitting = useIsSubmitting();
   const [searchParams] = useSearchParams();
 
+  let intent;
+  let submission;
+  if (typeof actionData !== "undefined" && actionData !== null) {
+    intent = actionData.intent;
+    submission = actionData.submission;
+  }
+
   const [moveUpToParticipantsForm, moveUpToParticipantsFields] = useForm({
     // Return only submission with toast headers flickers. Therefore, the old timestamp-based workaround is used.
-    id: `move-up-to-participants-${now}`,
+    id: `move-up-to-participants`,
     constraint: getZodConstraint(createMoveUpToParticipantsSchema()),
     defaultValue: {
       moveUpToParticipants: loaderData.event.moveUpToParticipants,
     },
+    lastResult:
+      navigation.state === "idle" &&
+      intent === UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT
+        ? submission
+        : undefined,
   });
-
   const [participantLimitForm, participantLimitFields] = useForm({
     id: "participant-limit",
     constraint: getZodConstraint(createParticipantLimitSchema()),
@@ -209,7 +235,6 @@ function RegistrationLimit() {
       const submission = parseWithZod(context.formData, {
         schema: createParticipantLimitSchema(),
       });
-
       if (
         submission.status === "success" &&
         submission.value.participantLimit !== null &&
@@ -240,14 +265,28 @@ function RegistrationLimit() {
     shouldDirtyConsider: (name) => {
       return name === "participantLimit";
     },
-    lastResult: navigation.state === "idle" ? actionData : undefined,
+    lastResult:
+      navigation.state === "idle" && intent === UPDATE_PARTICIPANT_LIMIT_INTENT
+        ? submission
+        : undefined,
   });
 
   const previousLocation = usePreviousLocation();
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      submissionResult: actionData === null ? undefined : actionData,
+      submissionResult:
+        intent === UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT
+          ? submission
+          : undefined,
+      form: moveUpToParticipantsForm,
+    },
+  });
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult:
+        intent === UPDATE_PARTICIPANT_LIMIT_INTENT ? submission : undefined,
       form: participantLimitForm,
     },
     skipRevalidation:
@@ -379,7 +418,7 @@ function RegistrationLimit() {
                     type: "checkbox",
                   }
                 )}
-                onClick={(event) => {
+                onChange={(event) => {
                   event.preventDefault();
                   void submit(event.currentTarget.form, {
                     preventScrollReset: true,
@@ -397,7 +436,7 @@ function RegistrationLimit() {
             <input
               type="hidden"
               name={INTENT_FIELD_NAME}
-              value={UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT}
+              defaultValue={UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT}
             />
             <noscript>
               <div className="mt-2">
