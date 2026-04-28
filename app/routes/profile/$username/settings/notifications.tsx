@@ -154,7 +154,7 @@ function Notifications() {
                   type: "checkbox",
                 })}
                 key="updates"
-                onClick={(event) => {
+                onChange={(event) => {
                   event.preventDefault();
                   void submit(event.currentTarget.form, {
                     preventScrollReset: true,
