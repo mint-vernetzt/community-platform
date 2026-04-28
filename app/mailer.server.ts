@@ -274,6 +274,8 @@ type TemplatePath =
   | "mail-templates/invites/organization-to-join-network/canceled-html.hbs"
   | "mail-templates/invites/organization-to-join-event/html.hbs"
   | "mail-templates/invites/organization-to-join-event/text.hbs"
+  | "mail-templates/invites/organization-to-join-event/canceled-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/canceled-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
@@ -428,6 +430,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-event/as-member-canceled-text.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-html.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-text.hbs"
+                                            | "mail-templates/invites/organization-to-join-event/canceled-html.hbs"
+                                            | "mail-templates/invites/organization-to-join-event/canceled-text.hbs"
                                         ? InviteProfileToJoinContent
                                         : TemplatePath extends
                                               | "mail-templates/general-notification/remove-admin-from-event-html.hbs"

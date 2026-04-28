@@ -12,6 +12,7 @@ import {
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getInvitedProfilesToJoinEventAsAdmin(options: {
   request: Request;
@@ -56,6 +57,9 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
         },
         createdAt: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   } else {
     const query =
@@ -90,6 +94,9 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
         },
         createdAt: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   }
 
@@ -119,7 +126,7 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
       ...item.profile,
       avatar,
       blurredAvatar,
-      invitedAt: item.createdAt,
+      invitedAt: utcToZonedTime(item.createdAt, "Europe/Berlin"),
     };
   });
   return { submission: submission.reply(), profiles };
