@@ -13,6 +13,13 @@ export const locale = {
       hint: "Auch wenn die maximale Teilnehmendenanzahl erreicht ist, kannst Du Personen von der Warteliste hinzufügen oder weitere Personen einladen.",
       reset: "Änderungen verwerfen",
       submit: "Eingabe speichern",
+      modal: {
+        title: "Willst Du wirklich Deine Teilnehmendenbegrenzung ändern?",
+        description:
+          "Die von Dir festgelegte <0>maximale Anzahl von Teilnehmenden ({{participantLimit}})</0> unterschreitet die <0>Anzahl der bisherigen Anmeldungen ({{participantsCount}})</0>. Gehe zum Verwalten Deiner Teilnehmenden in die Event-Einstellungen auf die Seite <0>Teilnehmende</0>.",
+        submit: "Begrenzung trotzdem ändern",
+        cancel: "Abbrechen",
+      },
     },
   },
   waitingList: {

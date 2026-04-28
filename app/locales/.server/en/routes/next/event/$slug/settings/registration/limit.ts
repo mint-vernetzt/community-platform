@@ -13,6 +13,13 @@ export const locale = {
       hint: "Even if the maximum number of participants is reached, you can add people from the waiting list or invite more people.",
       reset: "Discard changes",
       submit: "Save input",
+      modal: {
+        title: "Do you really want to change your participant limit?",
+        description:
+          "The <0>maximum number of participants ({{participantLimit}})</0> you set is below the <0>number of current registrations ({{participantsCount}})</0>. To manage your participants, go to the <0>Participants</0> page in your event settings.",
+        submit: "Change limit anyway",
+        cancel: "Cancel",
+      },
     },
   },
   waitingList: {

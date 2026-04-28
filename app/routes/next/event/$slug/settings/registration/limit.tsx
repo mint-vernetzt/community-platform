@@ -13,19 +13,30 @@ import {
   useLoaderData,
   useLocation,
   useNavigation,
+  useSearchParams,
   useSubmit,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { Checkbox } from "~/components-next/Checkbox";
+import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import TitleSection from "~/components/next/TitleSection";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
+import {
+  Deep,
+  extendSearchParams,
+  UnsavedChangesModalParam,
+} from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import {
@@ -36,10 +47,10 @@ import {
 import {
   createMoveUpToParticipantsSchema,
   createParticipantLimitSchema,
+  LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM,
   UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT,
   UPDATE_PARTICIPANT_LIMIT_INTENT,
 } from "./limit.shared";
-import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -162,19 +173,21 @@ export async function action(args: ActionFunctionArgs) {
 function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { locales, event, now } = loaderData;
+  const { locales, now } = loaderData;
 
   const submit = useSubmit();
   const navigation = useNavigation();
+  const location = useLocation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
+  const [searchParams] = useSearchParams();
 
   const [moveUpToParticipantsForm, moveUpToParticipantsFields] = useForm({
     // Return only submission with toast headers flickers. Therefore, the old timestamp-based workaround is used.
     id: `move-up-to-participants-${now}`,
     constraint: getZodConstraint(createMoveUpToParticipantsSchema()),
     defaultValue: {
-      moveUpToParticipants: event.moveUpToParticipants,
+      moveUpToParticipants: loaderData.event.moveUpToParticipants,
     },
   });
 
@@ -182,7 +195,7 @@ function RegistrationLimit() {
     id: "participant-limit",
     constraint: getZodConstraint(createParticipantLimitSchema()),
     defaultValue: {
-      participantLimit: event.participantLimit,
+      participantLimit: loaderData.event.participantLimit,
     },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
@@ -192,10 +205,44 @@ function RegistrationLimit() {
       });
       return submission;
     },
+    onSubmit: async (event, context) => {
+      const submission = parseWithZod(context.formData, {
+        schema: createParticipantLimitSchema(),
+      });
+
+      if (
+        submission.status === "success" &&
+        submission.value.participantLimit !== null &&
+        submission.value.participantLimit < loaderData.event._count.participants
+      ) {
+        if (
+          searchParams.get(LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM) !==
+          "true"
+        ) {
+          event.preventDefault();
+          const url = `${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM]: "true" } })}`;
+          void submit(url, {
+            preventScrollReset: true,
+            replace: true,
+          });
+        } else {
+          event.preventDefault();
+          const action = `?${extendSearchParams(searchParams, { remove: [LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM] })}`;
+          void submit(context.formData, {
+            ...context,
+            action,
+            preventScrollReset: true,
+            replace: true,
+          });
+        }
+      }
+    },
+    shouldDirtyConsider: (name) => {
+      return name === "participantLimit";
+    },
     lastResult: navigation.state === "idle" ? actionData : undefined,
   });
 
-  const location = useLocation();
   const previousLocation = usePreviousLocation();
   useFormRevalidationAfterSuccess({
     deps: {
@@ -227,6 +274,11 @@ function RegistrationLimit() {
             </TitleSection.Subline>
           </TitleSection>
           <Form {...getFormProps(participantLimitForm)} method="post">
+            <input
+              type="hidden"
+              name={INTENT_FIELD_NAME}
+              value={UPDATE_PARTICIPANT_LIMIT_INTENT}
+            />
             <Input
               {...getInputProps(participantLimitFields.participantLimit, {
                 type: "number",
@@ -243,12 +295,34 @@ function RegistrationLimit() {
               </Input.HelperText>
             </Input>
           </Form>
+          <Modal searchParam={LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM}>
+            <Modal.Title>{locales.route.limit.form.modal.title}</Modal.Title>
+            <Modal.Section>
+              <p>
+                {insertComponentsIntoLocale(
+                  insertParametersIntoLocale(
+                    locales.route.limit.form.modal.description,
+                    {
+                      participantLimit:
+                        participantLimitFields.participantLimit.value,
+                      participantsCount: loaderData.event._count.participants,
+                    }
+                  ),
+                  [<span key="highlight" className="font-semibold" />]
+                )}
+              </p>
+            </Modal.Section>
+            <Modal.SubmitButton form={participantLimitForm.id} level="negative">
+              {locales.route.limit.form.modal.submit}
+            </Modal.SubmitButton>
+            <Modal.CloseButton route={location.pathname}>
+              {locales.route.limit.form.modal.cancel}
+            </Modal.CloseButton>
+          </Modal>
           <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
             <div className="w-full md:w-fit">
               <Button
                 type="submit"
-                name={INTENT_FIELD_NAME}
-                value={UPDATE_PARTICIPANT_LIMIT_INTENT}
                 fullSize
                 form={participantLimitForm.id}
                 // Don't disable button when js is disabled

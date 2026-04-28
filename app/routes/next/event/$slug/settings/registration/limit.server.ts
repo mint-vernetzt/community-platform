@@ -9,6 +9,11 @@ export async function getEventBySlug(slug: string) {
       moveUpToParticipants: true,
       external: true,
       openForRegistration: true,
+      _count: {
+        select: {
+          participants: true,
+        },
+      },
     },
   });
   return event;
