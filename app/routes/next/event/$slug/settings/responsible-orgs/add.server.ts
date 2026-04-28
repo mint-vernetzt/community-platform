@@ -58,11 +58,6 @@ export async function getOwnOrganizationsOfEvent(options: {
             profileId: userId,
           },
         },
-        responsibleForEvents: {
-          none: {
-            eventId,
-          },
-        },
       },
       select: {
         id: true,
@@ -80,11 +75,6 @@ export async function getOwnOrganizationsOfEvent(options: {
         admins: {
           some: {
             profileId: userId,
-          },
-        },
-        responsibleForEvents: {
-          none: {
-            eventId,
           },
         },
         OR: query.map((term) => {
