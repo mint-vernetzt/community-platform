@@ -30,8 +30,11 @@ export const locale = {
   errors: {
     moveUpToParticipants:
       "Beim Aktualisieren der Einstellung ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+    participantLimit:
+      "Beim Aktualisieren der Einstellung ist ein Fehler aufgetreten. Bitte versuche es erneut.",
   },
   success: {
     moveUpToParticipants: "Einstellung erfolgreich aktualisiert.",
+    participantLimit: "Einstellung erfolgreich aktualisiert.",
   },
 } as const;

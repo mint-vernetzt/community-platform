@@ -7,6 +7,8 @@ export async function getEventBySlug(slug: string) {
       id: true,
       participantLimit: true,
       moveUpToParticipants: true,
+      external: true,
+      openForRegistration: true,
     },
   });
   return event;
@@ -25,15 +27,13 @@ export async function getEventIdBySlug(slug: string) {
   return event.id;
 }
 
-export async function updateEventMoveUpToParticipants(options: {
-  eventId: string;
-  moveUpToParticipants: boolean;
-}) {
+export async function updateEventById(
+  eventId: string,
+  data: { participantLimit?: number | null; moveUpToParticipants?: boolean }
+) {
   const updatedEvent = await prismaClient.event.update({
-    where: { id: options.eventId },
-    data: {
-      moveUpToParticipants: options.moveUpToParticipants,
-    },
+    where: { id: eventId },
+    data,
   });
 
   return updatedEvent;

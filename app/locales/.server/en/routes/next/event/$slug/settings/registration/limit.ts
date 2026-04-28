@@ -30,8 +30,11 @@ export const locale = {
   errors: {
     moveUpToParticipants:
       "An error occurred while updating settings. Please try again.",
+    participantLimit:
+      "An error occurred while updating settings. Please try again.",
   },
   success: {
     moveUpToParticipants: "Settings updated successfully.",
+    participantLimit: "Settings updated successfully.",
   },
 } as const;

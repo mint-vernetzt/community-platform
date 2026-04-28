@@ -83,14 +83,24 @@ export default function Registration() {
             )}
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/limit")}>
-            <Link
-              to={`./limit?${Deep}=true`}
-              {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}
-              preventScrollReset
-              prefetch="intent"
-            >
-              <TabBar.Item.Title>{locales.route.tabs.limit}</TabBar.Item.Title>
-            </Link>
+            {event.external === false && event.openForRegistration ? (
+              <Link
+                to={`./limit?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabs.limit}
+                </TabBar.Item.Title>
+              </Link>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                  {locales.route.tabs.limit}
+                </h2>
+              </>
+            )}
           </TabBar.Item>
         </TabBar>
         <Outlet />
