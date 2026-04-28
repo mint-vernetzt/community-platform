@@ -20,6 +20,7 @@ import {
 import { languageModuleMap } from "./locales/.server";
 
 vi.mock("~/prisma.server");
+vi.mock("~/mailer.server.ts");
 
 beforeAll(() => {
   process.env.COMMUNITY_BASE_URL = testURL;
@@ -256,8 +257,6 @@ test("Create project abuse report", async () => {
 });
 
 test("Prepare new report mail to support", async () => {
-  vi.mock("~/mailer.server.ts");
-
   await sendNewReportMailToSupport({
     title:
       'Profile "some-reporter-username" reported project "some-reported-project-slug"',
