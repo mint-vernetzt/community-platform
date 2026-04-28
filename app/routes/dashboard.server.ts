@@ -692,28 +692,59 @@ export async function getUpcomingCanceledEvents(
 }
 
 export async function getEventInvites(profileId: string) {
-  const eventInvites = await prismaClient.inviteForProfileToJoinEvent.findMany({
-    where: {
-      profileId: profileId,
-      status: "pending",
-    },
-    select: {
-      event: {
-        select: {
-          name: true,
-          slug: true,
+  const profileEventInvites =
+    await prismaClient.inviteForProfileToJoinEvent.findMany({
+      where: {
+        profileId: profileId,
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+        role: true,
+      },
+    });
+
+  const organizationEventInvites =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.findMany({
+      where: {
+        organization: {
+          admins: {
+            some: {
+              profileId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
       },
-      role: true,
-    },
-  });
+    });
 
-  const flattenedEventInvites = eventInvites.map((invite) => {
-    return {
-      ...invite.event,
-      role: invite.role,
-    };
-  });
+  const flattenedEventInvites = [
+    ...profileEventInvites.map((invite) => {
+      return {
+        ...invite.event,
+        role: invite.role,
+      };
+    }),
+    ...organizationEventInvites.map((invite) => {
+      return {
+        ...invite.event,
+        role: "responsibleOrganization",
+      };
+    }),
+  ];
 
   return flattenedEventInvites;
 }

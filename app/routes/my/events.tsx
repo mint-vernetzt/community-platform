@@ -9,7 +9,9 @@ import {
   Link,
   type LoaderFunctionArgs,
   redirect,
+  useFetcher,
   useLoaderData,
+  useNavigation,
   useSearchParams,
 } from "react-router";
 import {
@@ -43,21 +45,26 @@ import {
 } from "../feature-access.server";
 import {
   acceptInviteAsAdmin,
+  acceptInviteAsResponsibleOrganization,
   acceptInviteAsSpeaker,
   acceptInviteAsTeamMember,
   getEventInvites,
   getEvents,
   rejectInviteAsAdmin,
+  rejectInviteAsResponsibleOrganization,
   rejectInviteAsSpeaker,
   rejectInviteAsTeamMember,
 } from "./events.server";
 import {
   ACCEPT_ADMIN_INVITE_INTENT,
+  ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   ACCEPT_SPEAKER_INVITE_INTENT,
   ACCEPT_TEAM_MEMBER_INVITE_INTENT,
   createAcceptOrRejectInviteSchema,
   EVENT_ID,
+  ORGANIZATION_ID,
   REJECT_ADMIN_INVITE_INTENT,
+  REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   REJECT_SPEAKER_INVITE_INTENT,
   REJECT_TEAM_MEMBER_INVITE_INTENT,
 } from "./events.shared";
@@ -133,7 +140,9 @@ export async function action(args: ActionFunctionArgs) {
       intent === ACCEPT_TEAM_MEMBER_INVITE_INTENT ||
       intent === REJECT_TEAM_MEMBER_INVITE_INTENT ||
       intent === ACCEPT_SPEAKER_INVITE_INTENT ||
-      intent === REJECT_SPEAKER_INVITE_INTENT,
+      intent === REJECT_SPEAKER_INVITE_INTENT ||
+      intent === ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT ||
+      intent === REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
     "invalid intent",
     { status: 400 }
   );
@@ -243,7 +252,7 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-  } else {
+  } else if (intent === REJECT_SPEAKER_INVITE_INTENT) {
     try {
       await rejectInviteAsSpeaker({
         userId: sessionUser.id,
@@ -262,11 +271,59 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
+  } else if (
+    intent === ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT &&
+    typeof submission.value[ORGANIZATION_ID] !== "undefined"
+  ) {
+    try {
+      await acceptInviteAsResponsibleOrganization({
+        userId: sessionUser.id,
+        organizationId: submission.value[ORGANIZATION_ID],
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsResponsibleOrganizationAccepted,
+        },
+      });
+      toastMessage =
+        locales.route.success.acceptInviteAsResponsibleOrganization;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-responsible-organization-invite-error",
+        key: `accept-responsible-organization-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsResponsibleOrganization,
+        level: "negative",
+      });
+    }
+  } else if (
+    intent === REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT &&
+    typeof submission.value[ORGANIZATION_ID] !== "undefined"
+  ) {
+    try {
+      await rejectInviteAsResponsibleOrganization({
+        userId: sessionUser.id,
+        organizationId: submission.value[ORGANIZATION_ID],
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsResponsibleOrganizationRejected,
+        },
+      });
+      toastMessage =
+        locales.route.success.rejectInviteAsResponsibleOrganization;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-responsible-organization-invite-error",
+        key: `reject-responsible-organization-invite-error-${Date.now()}`,
+        message: locales.route.errors.rejectInviteAsResponsibleOrganization,
+        level: "negative",
+      });
+    }
   }
 
   return redirectWithToast(request.url, {
-    id: "admin-invite-success",
-    key: `admin-invite-success-${Date.now()}`,
+    id: "invite-success",
+    key: `invite-success-${Date.now()}`,
     message: toastMessage,
     level: "positive",
   });
@@ -275,6 +332,8 @@ export async function action(args: ActionFunctionArgs) {
 function MyEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
+  const navigation = useNavigation();
+  const fetcher = useFetcher();
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
     ([_key, value]) => {
@@ -317,7 +376,7 @@ function MyEvents() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
-    setSearchParams(params, { preventScrollReset: true });
+    setSearchParams(params, { preventScrollReset: true, replace: true });
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [upcoming]);
@@ -325,7 +384,7 @@ function MyEvents() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
-    setSearchParams(params, { preventScrollReset: true });
+    setSearchParams(params, { preventScrollReset: true, replace: true });
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [past]);
@@ -333,7 +392,7 @@ function MyEvents() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("invites", invites);
-    setSearchParams(params, { preventScrollReset: true });
+    setSearchParams(params, { preventScrollReset: true, replace: true });
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invites]);
@@ -357,6 +416,8 @@ function MyEvents() {
   const hasAdminInvites = loaderData.invites.count.adminInvites > 0;
   const hasTeamMemberInvites = loaderData.invites.count.teamMemberInvites > 0;
   const hasSpeakerInvites = loaderData.invites.count.speakerInvites > 0;
+  const hasResponsibleOrganizationInvites =
+    loaderData.invites.count.responsibleOrganizationInvites > 0;
 
   return (
     <Container>
@@ -369,7 +430,10 @@ function MyEvents() {
           </Button>
         ) : null}
       </Container.Header>
-      {(hasAdminInvites || hasTeamMemberInvites || hasSpeakerInvites) && (
+      {(hasAdminInvites ||
+        hasTeamMemberInvites ||
+        hasSpeakerInvites ||
+        hasResponsibleOrganizationInvites) && (
         <Container.Section>
           <Section.Title>{locales.route.invites.title}</Section.Title>
           <Section.Text>{locales.route.invites.description}</Section.Text>
@@ -419,12 +483,14 @@ function MyEvents() {
           <List id="invites" hideAfter={3} locales={locales.route.list}>
             {loaderData.invites[invites as "adminInvites"].map(
               (invite, index) => {
-                const { event } = invite;
+                const { event, organizationId } = invite;
                 let acceptIntent = ACCEPT_ADMIN_INVITE_INTENT;
                 if (invites === "teamMemberInvites") {
                   acceptIntent = ACCEPT_TEAM_MEMBER_INVITE_INTENT;
                 } else if (invites === "speakerInvites") {
                   acceptIntent = ACCEPT_SPEAKER_INVITE_INTENT;
+                } else if (invites === "responsibleOrganizationInvites") {
+                  acceptIntent = ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT;
                 }
 
                 let rejectIntent = REJECT_ADMIN_INVITE_INTENT;
@@ -432,6 +498,8 @@ function MyEvents() {
                   rejectIntent = REJECT_TEAM_MEMBER_INVITE_INTENT;
                 } else if (invites === "speakerInvites") {
                   rejectIntent = REJECT_SPEAKER_INVITE_INTENT;
+                } else if (invites === "responsibleOrganizationInvites") {
+                  rejectIntent = REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT;
                 }
 
                 return (
@@ -473,6 +541,13 @@ function MyEvents() {
                         preventScrollReset
                       >
                         <input type="hidden" name={EVENT_ID} value={event.id} />
+                        {typeof organizationId !== "undefined" && (
+                          <input
+                            type="hidden"
+                            name={ORGANIZATION_ID}
+                            value={organizationId}
+                          />
+                        )}
                         <Button
                           type="submit"
                           size="small"
@@ -495,6 +570,13 @@ function MyEvents() {
                         preventScrollReset
                       >
                         <input type="hidden" name={EVENT_ID} value={event.id} />
+                        {typeof organizationId !== "undefined" && (
+                          <input
+                            type="hidden"
+                            name={ORGANIZATION_ID}
+                            value={organizationId}
+                          />
+                        )}
                         <Button
                           type="submit"
                           size="small"
