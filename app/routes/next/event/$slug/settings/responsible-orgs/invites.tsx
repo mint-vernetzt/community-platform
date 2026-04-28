@@ -29,6 +29,7 @@ import {
   ORGANIZATION_ID_FIELD,
   createSearchInvitedOrganizationsSchema,
 } from "./invites.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -57,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`/next/event/${params.slug}/settings/responsible-orgs/add`);
   }
 
-  return { locales, organizations, submission };
+  return { locales, language, organizations, submission };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -130,7 +131,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function OrganizationInvites() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
 
   const [organizations, setOrganizations] = useState(loaderData.organizations);
 
@@ -168,6 +169,15 @@ function OrganizationInvites() {
               <ListItemPersonOrg.Headline>
                 {organization.name}
               </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Subline>
+                {insertParametersIntoLocale(locales.route.listItem.invitedAt, {
+                  date: organization.invitedAt.toLocaleDateString(language, {
+                    year: "numeric",
+                    month: "numeric",
+                    day: "numeric",
+                  }),
+                })}
+              </ListItemPersonOrg.Subline>
               <ListItemPersonOrg.Controls>
                 <Form
                   id={`revoke-invite-form-${organization.id}`}

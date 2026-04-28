@@ -12,6 +12,7 @@ import {
   createSearchInvitedProfilesSchema,
   INVITED_PROFILES_SEARCH_PARAM,
 } from "./invites.shared";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventIdBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -71,6 +72,9 @@ export async function getInvitedProfilesToJoinEventAsSpeaker(options: {
         },
         createdAt: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   } else {
     const query =
@@ -105,6 +109,9 @@ export async function getInvitedProfilesToJoinEventAsSpeaker(options: {
         },
         createdAt: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
   }
 
@@ -134,7 +141,7 @@ export async function getInvitedProfilesToJoinEventAsSpeaker(options: {
       ...item.profile,
       avatar,
       blurredAvatar,
-      invitedAt: item.createdAt,
+      invitedAt: utcToZonedTime(item.createdAt, "Europe/Berlin"),
     };
   });
   return { submission: submission.reply(), profiles };

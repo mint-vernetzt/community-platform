@@ -15,6 +15,9 @@ export const locale = {
       min: "Bitte gib mindestens 3 Zeichen ein, um zu suchen.",
     },
   },
+  listItem: {
+    invitedAt: "Eingeladen am {{date}}",
+  },
   mail: {
     cancelledInvitation: {
       subject: "Die Einladung wurde zurückgezogen",

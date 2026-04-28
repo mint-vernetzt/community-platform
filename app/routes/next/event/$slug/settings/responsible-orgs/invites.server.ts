@@ -13,6 +13,7 @@ import {
   INVITED_ORGANIZATIONS_SEARCH_PARAM,
 } from "./invites.shared";
 import { captureException } from "@sentry/node";
+import { utcToZonedTime } from "date-fns-tz";
 
 export async function getEventIdBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
@@ -70,6 +71,9 @@ export async function getInvitedOrganizations(options: {
           },
           createdAt: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
   } else {
     const query =
@@ -98,6 +102,9 @@ export async function getInvitedOrganizations(options: {
             },
           },
           createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
       });
   }
@@ -128,7 +135,7 @@ export async function getInvitedOrganizations(options: {
       ...item.organization,
       logo,
       blurredLogo,
-      invitedAt: item.createdAt,
+      invitedAt: utcToZonedTime(item.createdAt, "Europe/Berlin"),
     };
   });
   return { submission: submission.reply(), organizations };
