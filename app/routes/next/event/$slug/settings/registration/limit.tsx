@@ -76,9 +76,7 @@ export async function loader(args: LoaderFunctionArgs) {
     );
   }
 
-  const now = Date.now();
-
-  return { locales, event, now };
+  return { locales, event };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -116,8 +114,6 @@ export async function action(args: ActionFunctionArgs) {
       return { intent, submission: submission.reply() };
     }
 
-    console.log({ submissionValue: submission.value });
-
     try {
       await updateEventById(eventId, {
         moveUpToParticipants: submission.value.moveUpToParticipants,
@@ -134,12 +130,6 @@ export async function action(args: ActionFunctionArgs) {
           headers: toastHeaders,
         }
       );
-      // return redirectWithToast(request.url, {
-      //   id: "update-move-up-to-participants-success",
-      //   key: `update-move-up-to-participants-success-${Date.now()}`,
-      //   message: locales.route.success.moveUpToParticipants,
-      //   level: "positive",
-      // });
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
@@ -188,7 +178,7 @@ function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const { locales, now } = loaderData;
+  const { locales } = loaderData;
 
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -205,11 +195,16 @@ function RegistrationLimit() {
   }
 
   const [moveUpToParticipantsForm, moveUpToParticipantsFields] = useForm({
-    // Return only submission with toast headers flickers. Therefore, the old timestamp-based workaround is used.
-    id: `move-up-to-participants`,
+    id: "move-up-to-participants",
     constraint: getZodConstraint(createMoveUpToParticipantsSchema()),
     defaultValue: {
       moveUpToParticipants: loaderData.event.moveUpToParticipants,
+    },
+    onValidate: (args) => {
+      const submission = parseWithZod(args.formData, {
+        schema: createMoveUpToParticipantsSchema(),
+      });
+      return submission;
     },
     lastResult:
       navigation.state === "idle" &&
@@ -217,6 +212,7 @@ function RegistrationLimit() {
         ? submission
         : undefined,
   });
+
   const [participantLimitForm, participantLimitFields] = useForm({
     id: "participant-limit",
     constraint: getZodConstraint(createParticipantLimitSchema()),
@@ -440,7 +436,7 @@ function RegistrationLimit() {
             />
             <noscript>
               <div className="mt-2">
-                <Button variant="outline">
+                <Button variant="outline" type="submit">
                   {locales.route.waitingList.form.submit}
                 </Button>
               </div>

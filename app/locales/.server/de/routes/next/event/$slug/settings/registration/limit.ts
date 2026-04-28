@@ -2,7 +2,7 @@ export const locale = {
   limit: {
     headline: "Begrenzung der Teilnehmenden",
     subline:
-      "Lege eine maximale Teilnehmendenzahl fest. Wenn diese erreicht ist, landen weitere Anmeldungen auto-matisch auf der Warteliste.",
+      "Lege eine maximale Teilnehmendenzahl fest. Wenn diese erreicht ist, landen weitere Anmeldungen automatisch auf der Warteliste.",
     form: {
       participantLimit: {
         label: "Max. Anzahl von Teilnehmenden",
@@ -30,7 +30,7 @@ export const locale = {
       moveUpToParticipants: {
         label: "Wartende sollen automatisch nachrücken.",
       },
-      hint: "Unabhängig, ob Deine Wartenden automatisch nachrücken, kannst Du immer auch manuell Perso-nen von der Warteliste als Teilnehmende zulassen.",
+      hint: "Unabhängig, ob Deine Wartenden automatisch nachrücken, kannst Du immer auch manuell Personen von der Warteliste als Teilnehmende zulassen.",
       submit: "Speichern",
     },
   },
