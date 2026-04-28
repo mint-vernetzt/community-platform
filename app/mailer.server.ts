@@ -129,11 +129,18 @@ type InviteContent = {
 
 type InviteAcceptedOrRejectedContent = {
   firstName: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
-} & OneOf<{ organization: { name: string }; event: { name: string } }>;
+} & (
+  | (OneOf<{ organization: { name: string }; event: { name: string } }> & {
+      profile: {
+        firstName: string;
+        lastName: string;
+      };
+    })
+  | {
+      organization: { name: string };
+      event: { name: string };
+    }
+);
 
 type RequestContent = {
   firstName: string;
@@ -276,6 +283,10 @@ type TemplatePath =
   | "mail-templates/invites/organization-to-join-event/text.hbs"
   | "mail-templates/invites/organization-to-join-event/canceled-html.hbs"
   | "mail-templates/invites/organization-to-join-event/canceled-text.hbs"
+  | "mail-templates/invites/organization-to-join-event/accepted-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/accepted-text.hbs"
+  | "mail-templates/invites/organization-to-join-event/rejected-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
@@ -418,6 +429,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-accepted-text.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-rejected-html.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-rejected-text.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/accepted-html.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/accepted-text.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/rejected-html.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/rejected-text.hbs"
                                       ? InviteAcceptedOrRejectedContent
                                       : TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs"

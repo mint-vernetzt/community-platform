@@ -59,6 +59,7 @@ export async function getEvents(options: {
     speakerEvents,
     participantEvents,
     waitingListEvents,
+    responsibleOrganizationEvents,
   ] = await prismaClient.$transaction([
     prismaClient.event.findMany({
       where: {
@@ -120,6 +121,24 @@ export async function getEvents(options: {
         published: true,
       },
       select: { ...selectBase },
+      orderBy,
+    }),
+    prismaClient.event.findMany({
+      where: {
+        ...where,
+        responsibleOrganizations: {
+          some: {
+            organization: {
+              admins: {
+                some: {
+                  profileId: profileId,
+                },
+              },
+            },
+          },
+        },
+      },
+      select: { ...selectBase, published: true },
       orderBy,
     }),
   ]);
@@ -255,6 +274,33 @@ export async function getEvents(options: {
       blurredBackground,
     };
   });
+  const enhancedResponsibleOrganizationEvents =
+    responsibleOrganizationEvents.map((event) => {
+      let background = event.background;
+      let blurredBackground;
+      if (background !== null) {
+        const publicURL = getPublicURL(authClient, background);
+        background = getImageURL(publicURL, {
+          resize: { type: "fill", ...ImageSizes.Event.ListItem.Background },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.BlurredBackground.width,
+            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+          },
+          blur: BlurFactor,
+        });
+      } else {
+        background = DefaultImages.Event.Background;
+        blurredBackground = DefaultImages.Event.BlurredBackground;
+      }
+      return {
+        ...event,
+        background,
+        blurredBackground,
+      };
+    });
 
   return {
     adminEvents: enhancedAdminEvents,
@@ -262,12 +308,14 @@ export async function getEvents(options: {
     speakerEvents: enhancedSpeakerEvents,
     participantEvents: enhancedParticipantEvents,
     waitingListEvents: enhancedWaitingListEvents,
+    responsibleOrganizationEvents: enhancedResponsibleOrganizationEvents,
     count: {
       adminEvents: adminEvents.length,
       teamMemberEvents: teamMemberEvents.length,
       speakerEvents: speakerEvents.length,
       participantEvents: participantEvents.length,
       waitingListEvents: waitingListEvents.length,
+      responsibleOrganizationEvents: responsibleOrganizationEvents.length,
     },
   };
 }
@@ -278,44 +326,106 @@ export async function getEventInvites(options: {
 }) {
   const { profileId, authClient } = options;
 
-  const invites = await prismaClient.inviteForProfileToJoinEvent.findMany({
-    where: {
-      profileId: profileId,
-      status: "pending",
-    },
-    select: {
-      event: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          background: true,
-          subline: true,
-          description: true,
-          startTime: true,
-          endTime: true,
-          participantLimit: true,
-          stage: {
-            select: {
-              slug: true,
+  const profileInvites =
+    await prismaClient.inviteForProfileToJoinEvent.findMany({
+      where: {
+        profileId: profileId,
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            background: true,
+            subline: true,
+            description: true,
+            startTime: true,
+            endTime: true,
+            participantLimit: true,
+            stage: {
+              select: {
+                slug: true,
+              },
             },
-          },
-          _count: {
-            select: {
-              participants: true,
-              waitingList: true,
+            _count: {
+              select: {
+                participants: true,
+                waitingList: true,
+              },
             },
           },
         },
+        role: true,
       },
-      role: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-  const enhancedInvites = invites.map((invite) => {
+  const organizationInvites =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.findMany({
+      where: {
+        organization: {
+          admins: {
+            some: {
+              profileId: profileId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            background: true,
+            subline: true,
+            description: true,
+            startTime: true,
+            endTime: true,
+            participantLimit: true,
+            stage: {
+              select: {
+                slug: true,
+              },
+            },
+            _count: {
+              select: {
+                participants: true,
+                waitingList: true,
+              },
+            },
+          },
+        },
+        organizationId: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+  const mergedInvites:
+    | (ArrayElement<typeof profileInvites> & {
+        organizationId?: string;
+      })[]
+    | (Omit<ArrayElement<typeof organizationInvites>, "organizationId"> & {
+        organizationId?: string;
+        role: string;
+      })[] = [
+    ...profileInvites,
+    ...organizationInvites.map((invite) => {
+      return {
+        ...invite,
+        role: "responsibleOrganization",
+      };
+    }),
+  ];
+
+  const enhancedInvites = mergedInvites.map((invite) => {
     let background = invite.event.background;
     let blurredBackground;
     if (background !== null) {
@@ -358,15 +468,20 @@ export async function getEventInvites(options: {
   const speakerInvites = enhancedInvites.filter((invite) => {
     return invite.role === "speaker";
   });
+  const responsibleOrganizationInvites = enhancedInvites.filter((invite) => {
+    return invite.role === "responsibleOrganization";
+  });
 
   return {
     adminInvites,
     teamMemberInvites,
     speakerInvites,
+    responsibleOrganizationInvites,
     count: {
       adminInvites: adminInvites.length,
       teamMemberInvites: teamMemberInvites.length,
       speakerInvites: speakerInvites.length,
+      responsibleOrganizationInvites: responsibleOrganizationInvites.length,
     },
   };
 }
@@ -826,6 +941,7 @@ export async function rejectInviteAsTeamMember(options: {
     })
   );
 }
+
 export async function acceptInviteAsSpeaker(options: {
   userId: string;
   eventId: string;
@@ -1041,6 +1157,245 @@ export async function rejectInviteAsSpeaker(options: {
             profile: {
               firstName: result.profile.firstName,
               lastName: result.profile.lastName,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
+export async function acceptInviteAsResponsibleOrganization(options: {
+  userId: string;
+  organizationId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, organizationId, eventId } = options;
+
+  // check if invite exists
+  const invite =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.findUnique({
+      where: {
+        organizationId_eventId: {
+          eventId,
+          organizationId,
+        },
+        organization: {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
+        },
+        status: "pending",
+      },
+    });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  await prismaClient.responsibleOrganizationOfEvent.create({
+    data: {
+      eventId,
+      organizationId,
+    },
+  });
+
+  const result =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.update({
+      where: {
+        organizationId_eventId: {
+          eventId,
+          organizationId,
+        },
+      },
+      data: {
+        status: "accepted",
+      },
+      select: {
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/organization-to-join-event/accepted-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/organization-to-join-event/accepted-html.hbs";
+
+  const recipents = result.event.admins.filter((admin) => {
+    return admin.profile.id !== userId;
+  });
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    recipents.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            organization: {
+              name: result.organization.name,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            organization: {
+              name: result.organization.name,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
+export async function rejectInviteAsResponsibleOrganization(options: {
+  userId: string;
+  organizationId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, organizationId, eventId } = options;
+
+  // check if invite exists
+  const invite =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.findUnique({
+      where: {
+        organizationId_eventId: {
+          eventId,
+          organizationId,
+        },
+        organization: {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
+        },
+        status: "pending",
+      },
+    });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  const result =
+    await prismaClient.inviteForOrganizationToBeResponsibleForEvent.update({
+      where: {
+        organizationId_eventId: {
+          eventId,
+          organizationId,
+        },
+      },
+      data: {
+        status: "rejected",
+      },
+      select: {
+        organization: {
+          select: {
+            name: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/organization-to-join-event/rejected-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/organization-to-join-event/rejected-html.hbs";
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    result.event.admins.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            organization: {
+              name: result.organization.name,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            organization: {
+              name: result.organization.name,
             },
           },
           "html"

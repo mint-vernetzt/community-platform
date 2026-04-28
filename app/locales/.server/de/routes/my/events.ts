@@ -34,6 +34,8 @@ export const locale = {
     teamMemberInvites: "Teammitglied",
     speakerEvents: "Speaker:in",
     speakerInvites: "Speaker:in",
+    responsibleOrganizationEvents: "Verantwortliche Organisation",
+    responsibleOrganizationInvites: "Verantwortliche Organisation",
     participantEvents: "Teilnehmer:in",
     waitingListEvents: "Warteliste",
   },
@@ -60,6 +62,10 @@ export const locale = {
       "Fehler beim Akzeptieren der Einladung als Speaker:in für das Event.",
     rejectInviteAsSpeaker:
       "Fehler beim Ablehnen der Einladung als Speaker:in für das Event.",
+    acceptInviteAsResponsibleOrganization:
+      "Fehler beim Akzeptieren der Einladung als verantwortliche Organisation für das Event.",
+    rejectInviteAsResponsibleOrganization:
+      "Fehler beim Ablehnen der Einladung als verantwortliche Organisation für das Event.",
   },
   success: {
     acceptInviteAsAdmin: "Einladung als Admin für das Event angenommen.",
@@ -70,6 +76,10 @@ export const locale = {
       "Einladung als Teammitglied für das Event abgelehnt.",
     acceptInviteAsSpeaker: "Einladung als Speaker:in für das Event angenommen.",
     rejectInviteAsSpeaker: "Einladung als Speaker:in für das Event abgelehnt.",
+    acceptInviteAsResponsibleOrganization:
+      "Einladung als verantwortliche Organisation für das Event angenommen.",
+    rejectInviteAsResponsibleOrganization:
+      "Einladung als verantwortliche Organisation für das Event abgelehnt.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -89,6 +99,14 @@ export const locale = {
     },
     inviteAsSpeakerRejected: {
       subject: "Die Einladung als Speaker:in eines Events wurde abgelehnt",
+    },
+    inviteAsResponsibleOrganizationAccepted: {
+      subject:
+        "Die Einladung als verantwortliche Organisation eines Events wurde angenommen",
+    },
+    inviteAsResponsibleOrganizationRejected: {
+      subject:
+        "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
     },
   },
 } as const;
