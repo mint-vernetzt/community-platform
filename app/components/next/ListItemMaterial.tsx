@@ -1,15 +1,29 @@
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
 import classNames from "classnames";
-import { Children, createContext, isValidElement, useContext } from "react";
+import {
+  type ButtonHTMLAttributes,
+  Children,
+  createContext,
+  type Dispatch,
+  isValidElement,
+  type SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useListContext } from "./List";
 import { FileTypePDFIcon } from "./icons/FileTypePDFIcon";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { type LinkProps } from "react-router";
+import { Link, type LinkProps } from "react-router";
+import { OverlayMenu, type OverlayMenuProps } from "./OverlayMenu";
 
 // Design:
 // Name: List item (Material)
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=8295-102063&t=RJvvlCKHSMjVtZMO-4
-const ListItemMaterialContext = createContext<{ type?: "image" | "pdf" }>({});
+const ListItemMaterialContext = createContext<{
+  type?: "image" | "pdf";
+  useOverlayMenuState?: [boolean, Dispatch<SetStateAction<boolean>>];
+}>({});
 
 export function useListItemMaterialContext() {
   const context = useContext(ListItemMaterialContext);
@@ -25,18 +39,19 @@ function ListItemMaterial(props: {
   children: React.ReactNode;
   index: number;
   type: "image" | "pdf";
+  sizeInMB: number;
 }) {
-  const { children, index, type } = props;
+  const { children, index, type, sizeInMB } = props;
   const { hideAfter } = useListContext();
 
   const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:block"
+      ? "hidden group-has-checked:block"
       : "block"
   );
 
   const classes = classNames(
-    "flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
+    "@container flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
     type === "pdf" && "pl-4 sm:pl-0"
   );
 
@@ -49,18 +64,17 @@ function ListItemMaterial(props: {
   });
 
   const imageClasses = classNames(
-    "h-[94px] w-36 min-w-36 rounded-l-[7px] overflow-hidden",
+    "h-23.5 w-36 min-w-36 rounded-l-[7px] overflow-hidden",
     type === "pdf" &&
       "hidden sm:flex bg-primary-100 items-center justify-center"
   );
   const headline = validChildren.find((child) => {
     return isValidElement(child) && child.type === ListItemMaterial.Headline;
   });
-  const headlineSuffix = validChildren.find((child) => {
-    return (
-      isValidElement(child) && child.type === ListItemMaterial.HeadlineSuffix
-    );
-  });
+  const headlineSuffixClasses = classNames(
+    "text-neutral-700 text-base font-normal leading-5 text-nowrap",
+    type === "image" && "hidden sm:block"
+  );
   const subline = validChildren.find((child) => {
     return (
       isValidElement(child) &&
@@ -72,17 +86,29 @@ function ListItemMaterial(props: {
     return isValidElement(child) && child.type === ListItemMaterial.Controls;
   });
 
+  const [useOverlayMenu, setUseOverlayMenu] = useState(false);
+
   return (
-    <ListItemMaterialContext value={{ type: type }}>
+    <ListItemMaterialContext
+      value={{
+        type: type,
+        useOverlayMenuState: [useOverlayMenu, setUseOverlayMenu],
+      }}
+    >
       <li className={hideClasses}>
         <div className={classes}>
           <div className={imageClasses}>
             {type === "image" ? image : <FileTypePDFIcon />}
           </div>
           <div className="flex flex-col grow">
-            <div className="flex flex-col sm:flex-row sm:gap-1">
+            <div className="flex flex-col @large-list-item:flex-row @large-list-item:gap-1">
               {headline}
-              {headlineSuffix}
+              <div className={headlineSuffixClasses}>
+                {type === "pdf" ? "(PDF" : "(jpg"},{" "}
+                {sizeInMB < 1
+                  ? `${Math.round(sizeInMB * 1024)} KB)`
+                  : `${Math.round(sizeInMB)} MB)`}
+              </div>
             </div>
             {subline}
           </div>
@@ -95,20 +121,10 @@ function ListItemMaterial(props: {
 
 function ListItemHeadline(props: { children: React.ReactNode }) {
   return (
-    <div className="text-neutral-700 text-base font-bold leading-5 line-clamp-1">
+    <div className="text-neutral-700 text-base font-bold leading-5 line-clamp-2 @large-list-item:line-clamp-1">
       {props.children}
     </div>
   );
-}
-
-function ListItemHeadlineSuffix(props: { children: React.ReactNode }) {
-  const { type } = useListItemMaterialContext();
-
-  const classes = classNames(
-    "text-neutral-700 text-base font-normal leading-5 text-nowrap",
-    type === "image" && "hidden sm:block"
-  );
-  return <div className={classes}>{props.children}</div>;
 }
 
 function ListItemSubline(props: { children: React.ReactNode }) {
@@ -119,8 +135,46 @@ function ListItemSubline(props: { children: React.ReactNode }) {
   );
 }
 
-function ListItemControls(props: { children: React.ReactNode }) {
-  return <div className="flex gap-4 pr-4">{props.children}</div>;
+function ListItemControls(props: {
+  children: React.ReactNode;
+  overlayMenuProps?: OverlayMenuProps;
+}) {
+  const { children, overlayMenuProps } = props;
+
+  const { useOverlayMenuState } = useListItemMaterialContext();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [useOverlayMenu, setUseOverlayMenu] = useOverlayMenuState ?? [
+    false,
+    () => {},
+  ];
+
+  useEffect(() => {
+    if (
+      typeof overlayMenuProps !== "undefined" &&
+      Children.count(children) > 1
+    ) {
+      setUseOverlayMenu(true);
+    }
+  }, [overlayMenuProps, children, setUseOverlayMenu]);
+
+  return useOverlayMenu && typeof overlayMenuProps !== "undefined" ? (
+    <>
+      <div className="hidden @large-list-item:flex gap-4 pr-4">{children}</div>
+      <div className="flex @large-list-item:hidden pr-4">
+        <OverlayMenu {...overlayMenuProps}>
+          {Children.toArray(children).map((child, index) => {
+            if (isValidElement(child)) {
+              return (
+                <OverlayMenu.ListItem key={index}>{child}</OverlayMenu.ListItem>
+              );
+            }
+          })}
+        </OverlayMenu>
+      </div>
+    </>
+  ) : (
+    <div className="flex gap-4 pr-4">{children}</div>
+  );
 }
 
 function ListItemControlsDownload(
@@ -128,7 +182,10 @@ function ListItemControlsDownload(
     React.AnchorHTMLAttributes<HTMLAnchorElement>
 ) {
   const { label, ...linkProps } = props;
-  return (
+  const { useOverlayMenuState } = useListItemMaterialContext();
+  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+
+  const circleButton = (
     <CircleButton
       as={"link"}
       aria-label={label}
@@ -154,13 +211,146 @@ function ListItemControlsDownload(
       </svg>
     </CircleButton>
   );
+
+  return useOverlayMenu === false ? (
+    circleButton
+  ) : (
+    <>
+      <div className="w-full block @large-list-item:hidden">
+        <Link
+          {...OverlayMenu.getListChildrenStyles()}
+          reloadDocument
+          {...linkProps}
+        >
+          {label}
+        </Link>
+      </div>
+      <div className="hidden @large-list-item:block">{circleButton}</div>
+    </>
+  );
+}
+
+function ListItemControlsRemove(
+  props: {
+    label: string;
+  } & ButtonHTMLAttributes<HTMLButtonElement>
+) {
+  const { label, ...buttonProps } = props;
+  const { useOverlayMenuState } = useListItemMaterialContext();
+  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+
+  const circleButton = (
+    <CircleButton
+      as={"button"}
+      type="submit"
+      aria-label={label}
+      variant="ghost"
+      {...buttonProps}
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M6.875 6.875C7.22018 6.875 7.5 7.15482 7.5 7.5V15C7.5 15.3452 7.22018 15.625 6.875 15.625C6.52982 15.625 6.25 15.3452 6.25 15V7.5C6.25 7.15482 6.52982 6.875 6.875 6.875Z"
+          fill="#3C4658"
+        />
+        <path
+          d="M10 6.875C10.3452 6.875 10.625 7.15482 10.625 7.5V15C10.625 15.3452 10.3452 15.625 10 15.625C9.65482 15.625 9.375 15.3452 9.375 15V7.5C9.375 7.15482 9.65482 6.875 10 6.875Z"
+          fill="#3C4658"
+        />
+        <path
+          d="M13.75 7.5C13.75 7.15482 13.4702 6.875 13.125 6.875C12.7798 6.875 12.5 7.15482 12.5 7.5V15C12.5 15.3452 12.7798 15.625 13.125 15.625C13.4702 15.625 13.75 15.3452 13.75 15V7.5Z"
+          fill="#3C4658"
+        />
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M18.125 3.75C18.125 4.44036 17.5654 5 16.875 5H16.25V16.25C16.25 17.6307 15.1307 18.75 13.75 18.75H6.25C4.86929 18.75 3.75 17.6307 3.75 16.25V5H3.125C2.43464 5 1.875 4.44036 1.875 3.75V2.5C1.875 1.80964 2.43464 1.25 3.125 1.25H7.5C7.5 0.559644 8.05964 0 8.75 0H11.25C11.9404 0 12.5 0.559644 12.5 1.25H16.875C17.5654 1.25 18.125 1.80964 18.125 2.5V3.75ZM5.14754 5L5 5.07377V16.25C5 16.9404 5.55964 17.5 6.25 17.5H13.75C14.4404 17.5 15 16.9404 15 16.25V5.07377L14.8525 5H5.14754ZM3.125 3.75V2.5H16.875V3.75H3.125Z"
+          fill="#3C4658"
+        />
+      </svg>
+    </CircleButton>
+  );
+
+  return useOverlayMenu === false ? (
+    circleButton
+  ) : (
+    <>
+      <div className="w-full block @large-list-item:hidden">
+        <button
+          {...OverlayMenu.getListChildrenStyles()}
+          type="submit"
+          {...buttonProps}
+        >
+          {label}
+        </button>
+      </div>
+      <div className="hidden @large-list-item:block">{circleButton}</div>
+    </>
+  );
+}
+
+function ListItemControlsEdit(
+  props: {
+    label: string;
+  } & ButtonHTMLAttributes<HTMLButtonElement>
+) {
+  const { label, ...buttonProps } = props;
+  const { useOverlayMenuState } = useListItemMaterialContext();
+  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+
+  const circleButton = (
+    <CircleButton
+      as={"button"}
+      type="submit"
+      aria-label={label}
+      variant="ghost"
+      {...buttonProps}
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
+          fill="#3C4658"
+        />
+      </svg>
+    </CircleButton>
+  );
+
+  return useOverlayMenu === false ? (
+    circleButton
+  ) : (
+    <>
+      <div className="w-full block @large-list-item:hidden">
+        <button
+          {...OverlayMenu.getListChildrenStyles()}
+          {...OverlayMenu.getIdToFocusWhenOpening()}
+          type="submit"
+          {...buttonProps}
+        >
+          {label}
+        </button>
+      </div>
+      <div className="hidden @large-list-item:block">{circleButton}</div>
+    </>
+  );
 }
 
 ListItemMaterial.Subline = ListItemSubline;
 ListItemMaterial.Headline = ListItemHeadline;
-ListItemMaterial.HeadlineSuffix = ListItemHeadlineSuffix;
 ListItemMaterial.Image = Image;
 ListItemMaterial.Controls = ListItemControls;
 ListItemControls.Download = ListItemControlsDownload;
+ListItemControls.Remove = ListItemControlsRemove;
+ListItemControls.Edit = ListItemControlsEdit;
 
 export default ListItemMaterial;

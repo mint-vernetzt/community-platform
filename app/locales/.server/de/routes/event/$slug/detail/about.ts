@@ -52,5 +52,8 @@ export const locale = {
   list: {
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
+    overlayMenu: {
+      close: "Schließen",
+    },
   },
 } as const;

@@ -4,9 +4,11 @@ export const locale = {
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
     searchPlaceholder: "Nach Dokumenten suchen...",
-    download: "Herunterladen",
-    edit: "Bearbeiten",
     remove: "Entfernen",
+    edit: "Bearbeiten",
+    download: "Herunterladen",
+    downloadAll: "Alle herunterladen",
+    overlayMenu: "Schließen",
   },
   errors: {
     removeDocumentFailed: "Das Entfernen des Dokuments ist fehlgeschlagen.",

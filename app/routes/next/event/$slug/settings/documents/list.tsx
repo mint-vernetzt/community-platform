@@ -14,9 +14,14 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { getDocumentsOfEvent } from "./list.server";
 import {
+  DELETE_DOCUMENT_INTENT,
+  EDIT_DOCUMENT_INTENT,
   getSearchDocumentsSchema,
   SEARCH_DOCUMENTS_SEARCH_PARAM,
 } from "./list.shared";
+import ListItemMaterial from "~/components/next/ListItemMaterial";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -40,7 +45,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`/next/event/${params.slug}/settings/documents/add`);
   }
 
-  return { locales, submission, documents };
+  return { locales, submission, documents, event: { slug: params.slug } };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -108,7 +113,7 @@ export async function action(args: ActionFunctionArgs) {
 function DocumentsList() {
   const loaderData = useLoaderData<typeof loader>();
 
-  const { locales } = loaderData;
+  const { locales, event } = loaderData;
   const [documents, setDocuments] = useState(loaderData.documents);
 
   useEffect(() => {
@@ -135,37 +140,68 @@ function DocumentsList() {
         />
         {documents.map((document, index) => {
           return (
-            <></>
-            // TODO: ListItemMaterial, OverlayMenu, Edit Modal
-            // <ListItemPersonOrg
-            //   key={speaker.id}
-            //   index={index}
-            //   //to={`/profile/${speaker.username}`} // TODO: link and controls currently not supported by component
-            // >
-            //   <ListItemPersonOrg.Avatar size="full" {...speaker} />
-            //   <ListItemPersonOrg.Headline>
-            //     {speaker.academicTitle !== null &&
-            //     speaker.academicTitle.length > 0
-            //       ? `${speaker.academicTitle} `
-            //       : ""}
-            //     {speaker.firstName} {speaker.lastName}
-            //   </ListItemPersonOrg.Headline>
-            //   <ListItemPersonOrg.Controls>
-            //     <Form
-            //       id={`remove-speaker-form-${speaker.id}`}
-            //       method="POST"
-            //       preventScrollReset
-            //     >
-            //       <input type="hidden" name="speakerId" value={speaker.id} />
-            //       <Button type="submit" variant="outline">
-            //         {locales.route.list.remove}
-            //       </Button>
-            //     </Form>
-            //   </ListItemPersonOrg.Controls>
-            // </ListItemPersonOrg>
+            <ListItemMaterial
+              key={document.id}
+              index={index}
+              type={document.mimeType === "application/pdf" ? "pdf" : "image"}
+              sizeInMB={document.sizeInMB}
+            >
+              {/* {document.mimeType !== "application/pdf" ? (
+                <ListItemMaterial.Image
+                  alt={document.title || document.filename}
+                  src="TODO:"
+                  blurredSrc="TODO:"
+                />
+              ) : null} */}
+              <ListItemMaterial.Headline>
+                {document.title || document.filename}
+              </ListItemMaterial.Headline>
+              {/* {hasContent(document.credits) && (
+                <ListItemMaterial.Subline>
+                  © {document.credits}
+                </ListItemMaterial.Subline>
+              )} */}
+              <ListItemMaterial.Controls
+                overlayMenuProps={{
+                  as: "circle-button",
+                  searchParam: `overlay-menu-document-${document.id}`,
+                  locales: { close: locales.route.list.overlayMenu },
+                }}
+              >
+                <ListItemMaterial.Controls.Remove
+                  name={INTENT_FIELD_NAME}
+                  value={DELETE_DOCUMENT_INTENT}
+                  label={locales.route.list.remove}
+                />
+                <ListItemMaterial.Controls.Edit
+                  name={INTENT_FIELD_NAME}
+                  value={EDIT_DOCUMENT_INTENT}
+                  label={locales.route.list.edit}
+                />
+                <ListItemMaterial.Controls.Download
+                  to={`/event/${event.slug}/documents-download?document_id=${document.id}`}
+                  label={locales.route.list.download}
+                />
+              </ListItemMaterial.Controls>
+            </ListItemMaterial>
           );
         })}
       </List>
+      {documents.length > 1 ? (
+        <div className="flex md:justify-end">
+          <div className="w-full md:w-fit ">
+            <Button
+              as="link"
+              variant="outline"
+              to={`/event/${event.slug}/documents-download`}
+              reloadDocument
+              fullSize
+            >
+              {locales.route.list.downloadAll}
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
