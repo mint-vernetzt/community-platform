@@ -5,8 +5,23 @@ export const locale = {
     less: "{{count}} weniger anzeigen",
     searchPlaceholder: "Nach Dokumenten suchen...",
     remove: "Entfernen",
-    edit: "Bearbeiten",
-    download: "Herunterladen",
+    edit: "Editieren",
+    editModal: {
+      headline: "Dokument editieren",
+      title: {
+        label: "Titel",
+        helperText:
+          "Schreibe wie Dein Dokument beim Download angezeigt werden soll.",
+      },
+      description: {
+        label: "Beschreibung des Dokuments",
+        helperText:
+          "Wenn es durch den Titel des Dokuments nicht ersichtlich ist, schreibe eine kurze Info worum es sich handelt.",
+      },
+      submit: "Speichern",
+      close: "Verwerfen",
+    },
+    download: "Download",
     downloadAll: "Alle herunterladen",
     overlayMenu: "Schließen",
   },

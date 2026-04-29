@@ -169,12 +169,12 @@ function OverlayMenu(props: OverlayMenuProps) {
       )}
       {isOpen === true ? (
         <div
-          className={`fixed w-screen @lg:w-fit min-w-40 h-dvh @lg:h-fit p-4 @lg:p-0 @lg:absolute top-0 ${as === "square-button" ? (squareButtonProps?.size === "small" ? "@lg:top-10" : squareButtonProps?.size === "medium" ? "@lg:top-12" : "@lg:top-14") : "@lg:top-14"} left-0 @lg:left-auto right-0 text-nowrap rounded-none @lg:rounded-lg shadow-none @lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs @lg:bg-white flex flex-col gap-4 justify-end @lg:justify-normal z-20 @lg:z-20`}
+          className={`fixed w-screen lg:w-fit min-w-40 h-dvh lg:h-fit p-4 lg:p-0 lg:absolute top-0 ${as === "square-button" ? (squareButtonProps?.size === "small" ? "lg:top-10" : squareButtonProps?.size === "medium" ? "lg:top-12" : "lg:top-14") : "lg:top-14"} left-0 lg:left-auto right-0 text-nowrap rounded-none lg:rounded-lg shadow-none lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs lg:bg-white flex flex-col gap-4 justify-end lg:justify-normal z-30 lg:z-20`}
         >
           <ul ref={listRef} className="flex flex-col bg-white rounded-lg">
             {listItems}
           </ul>
-          <ul className="flex @lg:hidden flex-col bg-white rounded-lg">
+          <ul className="flex lg:hidden flex-col bg-white rounded-lg">
             <ListItem>
               <Link
                 to={`?${enhancedSearchParams.toString()}`}
@@ -218,7 +218,7 @@ function ListItem(
 function getListItemChildrenStyles() {
   return {
     className:
-      "w-full flex items-center justify-center @lg:justify-normal gap-2 appearance-none px-3 py-2 focus:outline-hidden",
+      "w-full flex items-center justify-center lg:justify-normal gap-2 appearance-none px-3 py-2 focus:outline-hidden",
   };
 }
 

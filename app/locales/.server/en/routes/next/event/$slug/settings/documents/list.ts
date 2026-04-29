@@ -6,6 +6,21 @@ export const locale = {
     searchPlaceholder: "Search documents...",
     remove: "Remove",
     edit: "Edit",
+    editModal: {
+      headline: "Edit Document",
+      title: {
+        label: "Title",
+        helperText:
+          "Write how your document should be displayed when downloaded.",
+      },
+      description: {
+        label: "Document Description",
+        helperText:
+          "If it's not clear from the document title, write a short info about what it is.",
+      },
+      submit: "Save",
+      close: "Discard",
+    },
     download: "Download",
     downloadAll: "Download all",
     overlayMenu: "Close",

@@ -190,6 +190,7 @@ function DocumentsList() {
                     value: EDIT_DOCUMENT_INTENT,
                   }}
                   label={locales.route.list.edit}
+                  locales={locales.route.list.editModal}
                 />
                 <ListItemMaterial.Controls.Download
                   to={`/event/${event.slug}/documents-download?document_id=${document.id}`}
