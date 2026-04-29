@@ -1,0 +1,28 @@
+import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { invariantResponse } from "~/lib/utils/response";
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/root.server";
+
+export async function loader(args: LoaderFunctionArgs) {
+  const { request, params } = args;
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/event/$slug/settings/documents/list"];
+
+  return {
+    locales,
+  };
+}
+
+function DocumentsList() {
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
+
+  return <>{locales.route.title}</>;
+}
+
+export default DocumentsList;

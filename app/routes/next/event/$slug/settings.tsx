@@ -160,7 +160,10 @@ export default function Settings() {
       count: event._count.responsibleOrganizations,
     },
     {
-      to: `documents?${Deep}=true`,
+      to:
+        event._count.documents > 0
+          ? `documents/list?${Deep}=true`
+          : `documents/add?${Deep}=true`,
       label: locales.route.menu.documents,
       count: event._count.documents,
     },

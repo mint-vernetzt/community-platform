@@ -1,1 +1,6 @@
-export const locale = {} as const;
+export const locale = {
+  tabbar: {
+    list: "Uploaded Documents",
+    add: "Add Documents",
+  },
+} as const;
