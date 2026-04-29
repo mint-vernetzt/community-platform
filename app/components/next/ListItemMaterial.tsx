@@ -14,15 +14,36 @@ import {
 import { useListContext } from "./List";
 import { FileTypePDFIcon } from "./icons/FileTypePDFIcon";
 import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
-import { Link, type LinkProps } from "react-router";
+import {
+  Link,
+  useLocation,
+  useSearchParams,
+  type LinkProps,
+} from "react-router";
 import { OverlayMenu, type OverlayMenuProps } from "./OverlayMenu";
+import {
+  Modal,
+  type ModalCloseButtonProps,
+  type ModalProps,
+  type ModalSubmitButtonProps,
+} from "~/components-next/Modal";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 // Design:
 // Name: List item (Material)
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=8295-102063&t=RJvvlCKHSMjVtZMO-4
 const ListItemMaterialContext = createContext<{
   type?: "image" | "pdf";
-  useOverlayMenuState?: [boolean, Dispatch<SetStateAction<boolean>>];
+  useOverlayMenuState?: [
+    {
+      searchParam: string;
+    } | null,
+    Dispatch<
+      SetStateAction<{
+        searchParam: string;
+      } | null>
+    >,
+  ];
 }>({});
 
 export function useListItemMaterialContext() {
@@ -86,7 +107,9 @@ function ListItemMaterial(props: {
     return isValidElement(child) && child.type === ListItemMaterial.Controls;
   });
 
-  const [useOverlayMenu, setUseOverlayMenu] = useState(false);
+  const [useOverlayMenu, setUseOverlayMenu] = useState<{
+    searchParam: string;
+  } | null>(null);
 
   return (
     <ListItemMaterialContext
@@ -142,9 +165,8 @@ function ListItemControls(props: {
   const { children, overlayMenuProps } = props;
 
   const { useOverlayMenuState } = useListItemMaterialContext();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [useOverlayMenu, setUseOverlayMenu] = useOverlayMenuState ?? [
-    false,
+    null,
     () => {},
   ];
 
@@ -153,11 +175,13 @@ function ListItemControls(props: {
       typeof overlayMenuProps !== "undefined" &&
       Children.count(children) > 1
     ) {
-      setUseOverlayMenu(true);
+      setUseOverlayMenu({
+        searchParam: overlayMenuProps.searchParam,
+      });
     }
   }, [overlayMenuProps, children, setUseOverlayMenu]);
 
-  return useOverlayMenu && typeof overlayMenuProps !== "undefined" ? (
+  return useOverlayMenu !== null && typeof overlayMenuProps !== "undefined" ? (
     <>
       <div className="hidden @large-list-item:flex gap-4 pr-4">{children}</div>
       <div className="flex @large-list-item:hidden pr-4">
@@ -183,7 +207,7 @@ function ListItemControlsDownload(
 ) {
   const { label, ...linkProps } = props;
   const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
 
   const circleButton = (
     <CircleButton
@@ -212,7 +236,7 @@ function ListItemControlsDownload(
     </CircleButton>
   );
 
-  return useOverlayMenu === false ? (
+  return useOverlayMenu === null ? (
     circleButton
   ) : (
     <>
@@ -237,7 +261,7 @@ function ListItemControlsRemove(
 ) {
   const { label, ...buttonProps } = props;
   const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
 
   const circleButton = (
     <CircleButton
@@ -276,7 +300,7 @@ function ListItemControlsRemove(
     </CircleButton>
   );
 
-  return useOverlayMenu === false ? (
+  return useOverlayMenu === null ? (
     circleButton
   ) : (
     <>
@@ -294,22 +318,25 @@ function ListItemControlsRemove(
   );
 }
 
-function ListItemControlsEdit(
-  props: {
-    label: string;
-  } & ButtonHTMLAttributes<HTMLButtonElement>
-) {
-  const { label, ...buttonProps } = props;
+function ListItemControlsEdit(props: {
+  label: string;
+  modalProps: ModalProps;
+  modalSubmitButtonProps: ModalSubmitButtonProps;
+  modalCloseButtonProps: ModalCloseButtonProps;
+}) {
+  const { label, modalProps, modalSubmitButtonProps, modalCloseButtonProps } =
+    props;
   const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [false, () => {}];
+  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const circleButton = (
     <CircleButton
-      as={"button"}
-      type="submit"
+      as={"link"}
+      to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" } }).toString()}`}
       aria-label={label}
       variant="ghost"
-      {...buttonProps}
     >
       <svg
         width="20"
@@ -326,21 +353,33 @@ function ListItemControlsEdit(
     </CircleButton>
   );
 
-  return useOverlayMenu === false ? (
-    circleButton
-  ) : (
+  return (
     <>
-      <div className="w-full block @large-list-item:hidden">
-        <button
-          {...OverlayMenu.getListChildrenStyles()}
-          {...OverlayMenu.getIdToFocusWhenOpening()}
-          type="submit"
-          {...buttonProps}
-        >
-          {label}
-        </button>
-      </div>
-      <div className="hidden @large-list-item:block">{circleButton}</div>
+      <Modal {...modalProps}>
+        <Modal.Title>TODO</Modal.Title>
+        <Modal.Section>TODO</Modal.Section>
+        <Modal.SubmitButton {...modalSubmitButtonProps}>
+          TODO
+        </Modal.SubmitButton>
+        {/* TODO: pass route property from top level and dont forget deep=true */}
+        <Modal.CloseButton {...modalCloseButtonProps}>TODO</Modal.CloseButton>
+      </Modal>
+      {useOverlayMenu === null ? (
+        circleButton
+      ) : (
+        <>
+          <div className="w-full block @large-list-item:hidden">
+            <Link
+              {...OverlayMenu.getListChildrenStyles()}
+              {...OverlayMenu.getIdToFocusWhenOpening()}
+              to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" }, remove: [useOverlayMenu.searchParam] }).toString()}`}
+            >
+              {label}
+            </Link>
+          </div>
+          <div className="hidden @large-list-item:block">{circleButton}</div>
+        </>
+      )}
     </>
   );
 }

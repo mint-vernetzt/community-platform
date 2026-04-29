@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   redirect,
   useLoaderData,
+  useLocation,
+  useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -22,6 +24,7 @@ import {
 import ListItemMaterial from "~/components/next/ListItemMaterial";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -112,6 +115,8 @@ export async function action(args: ActionFunctionArgs) {
 
 function DocumentsList() {
   const loaderData = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const { locales, event } = loaderData;
   const [documents, setDocuments] = useState(loaderData.documents);
@@ -174,8 +179,16 @@ function DocumentsList() {
                   label={locales.route.list.remove}
                 />
                 <ListItemMaterial.Controls.Edit
-                  name={INTENT_FIELD_NAME}
-                  value={EDIT_DOCUMENT_INTENT}
+                  modalProps={{
+                    searchParam: `modal-edit-document-${document.id}`,
+                  }}
+                  modalCloseButtonProps={{
+                    route: `${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [Deep]: "true" } }).toString()}`,
+                  }}
+                  modalSubmitButtonProps={{
+                    name: INTENT_FIELD_NAME,
+                    value: EDIT_DOCUMENT_INTENT,
+                  }}
                   label={locales.route.list.edit}
                 />
                 <ListItemMaterial.Controls.Download
