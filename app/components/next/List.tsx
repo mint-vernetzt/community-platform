@@ -30,7 +30,11 @@ function Search<
         firstName: string;
         lastName: string;
       }
-    | { slug: string; name: string },
+    | { slug: string; name: string }
+    | {
+        title: string | null;
+        filename: string;
+      },
 >(props: {
   id?: string;
   children?: React.ReactNode;
@@ -97,7 +101,13 @@ function Search<
             item.name.toLowerCase().includes(term.toLowerCase())) ||
           ("slug" in item &&
             typeof item.slug === "string" &&
-            item.slug.toLowerCase().includes(term.toLowerCase()))
+            item.slug.toLowerCase().includes(term.toLowerCase())) ||
+          ("title" in item &&
+            typeof item.title === "string" &&
+            item.title.toLowerCase().includes(term.toLowerCase())) ||
+          ("filename" in item &&
+            typeof item.filename === "string" &&
+            item.filename.toLowerCase().includes(term.toLowerCase()))
         );
       });
       return contains;
