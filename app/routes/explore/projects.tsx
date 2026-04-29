@@ -62,7 +62,7 @@ import {
 import { PROJECT_SORT_VALUES } from "./projects.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -474,7 +474,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     projectsCount: projectCount,
     locales,
   };
-};
+}
 
 export default function ExploreProjects() {
   const loaderData = useLoaderData<typeof loader>();

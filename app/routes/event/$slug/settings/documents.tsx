@@ -53,7 +53,7 @@ import {
   DOCUMENT_DESCRIPTION_MAX_LENGTH,
 } from "./documents.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
@@ -77,9 +77,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     event: event,
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
   const { authClient } = createAuthClient(request);
@@ -149,7 +149,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectUrl);
   }
   return redirectWithToast(redirectUrl, toast);
-};
+}
 
 function Documents() {
   const loaderData = useLoaderData<typeof loader>();

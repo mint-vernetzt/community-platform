@@ -9,7 +9,7 @@ import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const url = new URL(request.url);
@@ -63,7 +63,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     confirmationLink: sanitizedConfirmationLink,
     locales,
   };
-};
+}
 
 export default function Confirm() {
   const { confirmationLink, locales } = useLoaderData<typeof loader>();

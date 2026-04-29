@@ -52,7 +52,7 @@ import {
   updateFilterVectorOfProject,
 } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const language = await detectLanguage(request);
@@ -177,7 +177,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     allSpecialTargetGroups,
     locales,
   };
-};
+}
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);

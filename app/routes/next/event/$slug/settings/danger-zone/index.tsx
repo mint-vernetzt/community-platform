@@ -1,10 +1,11 @@
 import { type LoaderFunctionArgs, redirect } from "react-router";
+import { Deep } from "~/lib/utils/searchParams";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const searchParams = new URL(request.url).searchParams;
   const deep = searchParams.get("deep");
 
-  return redirect(`./change-url?deep=${deep}`);
-};
+  return redirect(deep === null ? "./change-url" : `./change-url?${Deep}=true`);
+}

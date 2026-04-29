@@ -29,7 +29,7 @@ import {
   SEARCH_SPEAKERS_SEARCH_PARAM,
 } from "./list.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -55,7 +55,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   }
 
   return { locales, submission, speakers };
-};
+}
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;

@@ -30,7 +30,7 @@ import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organizati
 import { deleteOrganizationBySlug } from "./delete.server";
 import { createSchema } from "./delete.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = getParamValueOrThrow(params, "slug");
 
@@ -55,9 +55,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     organization,
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
 
   const language = await detectLanguage(request);
@@ -127,7 +127,7 @@ export const action = async (args: ActionFunctionArgs) => {
       name: organization.name,
     }),
   });
-};
+}
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();

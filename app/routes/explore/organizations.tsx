@@ -56,7 +56,7 @@ import {
 import { ORGANIZATION_SORT_VALUES } from "./organizations.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
 
@@ -331,7 +331,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     selectedNetworks,
     currentView,
   };
-};
+}
 
 export default function ExploreOrganizations() {
   const loaderData = useLoaderData<typeof loader>();

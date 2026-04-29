@@ -17,7 +17,7 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
@@ -57,4 +57,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
       "Content-Disposition": `filename="${filename}"`,
     },
   });
-};
+}

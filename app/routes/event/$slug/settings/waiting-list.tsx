@@ -38,7 +38,7 @@ import {
 import { type action as moveToParticipantsAction } from "./waiting-list/move-to-participants";
 import { type action as removeFromWaitingListAction } from "./waiting-list/remove-from-waiting-list";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -139,7 +139,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Participants() {
   const { slug } = useParams();

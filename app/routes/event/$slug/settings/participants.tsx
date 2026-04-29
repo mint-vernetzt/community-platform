@@ -75,7 +75,7 @@ const environmentSchema = z.object({
   participantsCount: z.number(),
 });
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -175,7 +175,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 const createMutation = (locales: EventParticipantsLocales) => {
   return makeDomainFunction(

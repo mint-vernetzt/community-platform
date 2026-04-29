@@ -7,7 +7,7 @@ import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 import { hasContent } from "~/utils.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const language = await detectLanguage(request);
@@ -54,7 +54,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   return { project, locales };
-};
+}
 
 function Requirements() {
   const loaderData = useLoaderData<typeof loader>();

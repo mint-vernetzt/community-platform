@@ -57,7 +57,7 @@ import {
 } from "./events.server";
 import { EVENT_SORT_VALUES, PERIOD_OF_TIME_VALUES } from "./events.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -291,7 +291,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 export default function ExploreEvents() {
   const loaderData = useLoaderData<typeof loader>();

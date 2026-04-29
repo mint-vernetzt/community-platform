@@ -46,7 +46,7 @@ import {
   updateFilterVectorOfProject,
 } from "./utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/settings/general"];
@@ -118,7 +118,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const areaOptions = await createAreaOptions(allAreas);
 
   return { project, allFormats, areaOptions, locales };
-};
+}
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { authClient } = createAuthClient(request);

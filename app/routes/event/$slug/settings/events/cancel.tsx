@@ -21,7 +21,7 @@ const mutation = makeDomainFunction(schema)(async (values) => {
   return values;
 });
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -40,4 +40,4 @@ export const action = async (args: ActionFunctionArgs) => {
     await cancelEvent(slug, result.data.cancel);
   }
   return redirect(`/event/${slug}/detail/about`);
-};
+}

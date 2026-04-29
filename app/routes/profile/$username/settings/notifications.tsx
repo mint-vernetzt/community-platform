@@ -28,7 +28,7 @@ import { deriveProfileMode } from "../utils.server";
 import { schema } from "./notifications.shared";
 import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -63,9 +63,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     profile: { ...profile, notificationSettings },
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -105,7 +105,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   return submission.reply();
-};
+}
 
 function Notifications() {
   const loaderData = useLoaderData<typeof loader>();
@@ -154,7 +154,7 @@ function Notifications() {
                   type: "checkbox",
                 })}
                 key="updates"
-                onClick={(event) => {
+                onChange={(event) => {
                   event.preventDefault();
                   void submit(event.currentTarget.form, {
                     preventScrollReset: true,

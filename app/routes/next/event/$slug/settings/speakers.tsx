@@ -3,19 +3,18 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
+import { Counter } from "~/components/next/Counter";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./speakers.server";
-import { Counter } from "~/components/next/Counter";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
@@ -30,7 +29,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function Speakers() {
   const loaderData = useLoaderData<typeof loader>();
@@ -38,9 +37,6 @@ export default function Speakers() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
@@ -53,7 +49,7 @@ export default function Speakers() {
           <TabBar.Item active={pathname.endsWith("/list")}>
             {event._count.speakers > 0 ? (
               <Link
-                to={`./list?${Deep}=${deep}`}
+                to={`./list?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
                 preventScrollReset
                 prefetch="intent"
@@ -78,7 +74,7 @@ export default function Speakers() {
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/add")}>
             <Link
-              to={`./add?${Deep}=${deep}`}
+              to={`./add?${Deep}=true`}
               {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
               preventScrollReset
               prefetch="intent"
@@ -89,7 +85,7 @@ export default function Speakers() {
           <TabBar.Item active={pathname.endsWith("/invites")}>
             {event._count.profileJoinInvites > 0 ? (
               <Link
-                to={`./invites?${Deep}=${deep}`}
+                to={`./invites?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/invites"))}
                 preventScrollReset
                 prefetch="intent"

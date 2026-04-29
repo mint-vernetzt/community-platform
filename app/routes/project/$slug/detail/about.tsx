@@ -27,7 +27,7 @@ import { languageModuleMap } from "~/locales/.server";
 import { decideBetweenSingularOrPlural } from "~/lib/utils/i18n";
 import { hasContent } from "~/utils.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["project/$slug/detail/about"];
@@ -257,7 +257,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   };
 
   return { project: enhancedProject, locales };
-};
+}
 
 function About() {
   const loaderData = useLoaderData<typeof loader>();

@@ -57,7 +57,7 @@ import { PROFILE_SORT_VALUES } from "./profiles.shared";
 import { getAllAreas, getAreaNameBySlug } from "./utils.server";
 import { useEffect, useState } from "react";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -339,7 +339,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     profilesCount: profileCount,
     locales: routeLocales,
   };
-};
+}
 
 export default function ExploreProfiles() {
   const loaderData = useLoaderData<typeof loader>();

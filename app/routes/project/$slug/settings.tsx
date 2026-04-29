@@ -19,7 +19,7 @@ import { prismaClient } from "~/prisma.server";
 import { type ProjectSettingsLocales } from "./settings.server";
 import { getRedirectPathOnProtectedProjectRoute } from "./settings/utils.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
@@ -58,7 +58,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     project,
     locales,
   };
-};
+}
 
 const createNavLinks = (locales: ProjectSettingsLocales) => [
   { to: "./general", label: locales.links.general },

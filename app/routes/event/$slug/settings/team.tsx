@@ -33,7 +33,7 @@ import {
 } from "./team/add-member";
 import { type action as removeMemberAction } from "./team/remove-member";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/team"];
@@ -110,7 +110,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Team() {
   const { slug } = useParams();

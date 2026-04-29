@@ -37,7 +37,7 @@ const createMutation = (locales: RemoveEventTeamMemberLocales) => {
   });
 };
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -64,4 +64,4 @@ export const action = async (args: ActionFunctionArgs) => {
     await removeTeamMemberFromEvent(event.id, result.data.profileId);
   }
   return { ...result };
-};
+}

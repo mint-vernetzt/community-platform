@@ -129,11 +129,18 @@ type InviteContent = {
 
 type InviteAcceptedOrRejectedContent = {
   firstName: string;
-  profile: {
-    firstName: string;
-    lastName: string;
-  };
-} & OneOf<{ organization: { name: string }; event: { name: string } }>;
+} & (
+  | (OneOf<{ organization: { name: string }; event: { name: string } }> & {
+      profile: {
+        firstName: string;
+        lastName: string;
+      };
+    })
+  | {
+      organization: { name: string };
+      event: { name: string };
+    }
+);
 
 type RequestContent = {
   firstName: string;
@@ -272,6 +279,14 @@ type TemplatePath =
   | "mail-templates/invites/organization-to-join-network/rejected-html.hbs"
   | "mail-templates/invites/organization-to-join-network/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/canceled-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/html.hbs"
+  | "mail-templates/invites/organization-to-join-event/text.hbs"
+  | "mail-templates/invites/organization-to-join-event/canceled-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/canceled-text.hbs"
+  | "mail-templates/invites/organization-to-join-event/accepted-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/accepted-text.hbs"
+  | "mail-templates/invites/organization-to-join-event/rejected-html.hbs"
+  | "mail-templates/invites/organization-to-join-event/rejected-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-html.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-text.hbs"
   | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
@@ -305,7 +320,9 @@ type TemplatePath =
   | "mail-templates/general-notification/add-contact-person-from-event-html.hbs"
   | "mail-templates/general-notification/add-contact-person-from-event-text.hbs"
   | "mail-templates/general-notification/remove-speaker-from-event-html.hbs"
-  | "mail-templates/general-notification/remove-speaker-from-event-text.hbs";
+  | "mail-templates/general-notification/remove-speaker-from-event-text.hbs"
+  | "mail-templates/general-notification/remove-responsible-org-from-event-html.hbs"
+  | "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -396,6 +413,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                         | "mail-templates/invites/profile-to-join-event/as-member-text.hbs"
                                         | "mail-templates/invites/profile-to-join-event/as-speaker-html.hbs"
                                         | "mail-templates/invites/profile-to-join-event/as-speaker-text.hbs"
+                                        | "mail-templates/invites/organization-to-join-event/html.hbs"
+                                        | "mail-templates/invites/organization-to-join-event/text.hbs"
                                     ? InviteContent
                                     : TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
@@ -410,6 +429,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-accepted-text.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-rejected-html.hbs"
                                           | "mail-templates/invites/profile-to-join-event/as-speaker-rejected-text.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/accepted-html.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/accepted-text.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/rejected-html.hbs"
+                                          | "mail-templates/invites/organization-to-join-event/rejected-text.hbs"
                                       ? InviteAcceptedOrRejectedContent
                                       : TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-organization/as-admin-canceled-html.hbs"
@@ -422,6 +445,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                             | "mail-templates/invites/profile-to-join-event/as-member-canceled-text.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-html.hbs"
                                             | "mail-templates/invites/profile-to-join-event/as-speaker-canceled-text.hbs"
+                                            | "mail-templates/invites/organization-to-join-event/canceled-html.hbs"
+                                            | "mail-templates/invites/organization-to-join-event/canceled-text.hbs"
                                         ? InviteProfileToJoinContent
                                         : TemplatePath extends
                                               | "mail-templates/general-notification/remove-admin-from-event-html.hbs"
@@ -434,6 +459,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                               | "mail-templates/general-notification/add-contact-person-from-event-text.hbs"
                                               | "mail-templates/general-notification/remove-speaker-from-event-html.hbs"
                                               | "mail-templates/general-notification/remove-speaker-from-event-text.hbs"
+                                              | "mail-templates/general-notification/remove-responsible-org-from-event-html.hbs"
+                                              | "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs"
                                           ? GeneralNotificationAddOrRemovedFromEventContent
                                           : never;
 

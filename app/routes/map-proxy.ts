@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs } from "react-router";
 import { invariantResponse } from "~/lib/utils/response";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(args.request.url);
   const path = url.searchParams.get("path");
   invariantResponse(path !== null, "Missing path parameter", { status: 400 });
@@ -23,4 +23,4 @@ export const loader = async (args: LoaderFunctionArgs) => {
   return new Response(response.body, {
     headers,
   });
-};
+}

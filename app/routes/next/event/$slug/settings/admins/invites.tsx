@@ -29,6 +29,7 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -71,7 +72,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`/next/event/${params.slug}/settings/admins/add`);
   }
 
-  return { locales, profiles, submission };
+  return { locales, language, profiles, submission };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -141,7 +142,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function AdminInvites() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
 
   const [profiles, setProfiles] = useState(loaderData.profiles);
 
@@ -184,6 +185,15 @@ function AdminInvites() {
                   : ""}
                 {profile.firstName} {profile.lastName}
               </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Subline>
+                {insertParametersIntoLocale(locales.route.listItem.invitedAt, {
+                  date: profile.invitedAt.toLocaleDateString(language, {
+                    year: "numeric",
+                    month: "numeric",
+                    day: "numeric",
+                  }),
+                })}
+              </ListItemPersonOrg.Subline>
               <ListItemPersonOrg.Controls>
                 <Form
                   id={`revoke-invite-form-${profile.id}`}

@@ -30,7 +30,7 @@ import {
   updateEventBySlug,
 } from "./settings.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const slug = params.slug;
   invariantResponse(typeof slug === "string", "Slug is required", {
@@ -58,9 +58,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -108,7 +108,7 @@ export const action = async (args: ActionFunctionArgs) => {
     key: `publish-success-${Date.now()}`,
     message: locales.route.publishSuccess,
   });
-};
+}
 
 export default function Settings() {
   const loaderData = useLoaderData<typeof loader>();
@@ -121,50 +121,56 @@ export default function Settings() {
     .replace(`/next/event/${event.slug}/settings/`, "")
     .split("/")[0];
   const links = [
-    { to: `time-period?${Deep}`, label: locales.route.menu.timePeriod },
+    { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
-      to: `registration/access?${Deep}`,
+      to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
     },
-    { to: `details?${Deep}`, label: locales.route.menu.details },
-    { to: `location?${Deep}`, label: locales.route.menu.location },
+    { to: `details?${Deep}=true`, label: locales.route.menu.details },
+    { to: `location?${Deep}=true`, label: locales.route.menu.location },
     {
-      to: `admins/list?${Deep}`,
+      to: `admins/list?${Deep}=true`,
       label: locales.route.menu.admins,
       count: event._count.admins,
     },
     {
-      to: `team/list?${Deep}`,
+      to: `team/list?${Deep}=true`,
       label: locales.route.menu.team,
       count: event._count.teamMembers,
     },
     {
-      to: `speakers/list?${Deep}`,
+      to:
+        event._count.speakers > 0
+          ? `speakers/list?${Deep}=true`
+          : `speakers/add?${Deep}=true`,
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
     {
-      to: `participants?${Deep}`,
+      to: `participants?${Deep}=true`,
       label: locales.route.menu.participants,
       count: event._count.participants,
     },
     {
-      to: `responsible-orgs?${Deep}`,
+      to:
+        event._count.responsibleOrganizations > 0
+          ? `responsible-orgs/list?${Deep}=true`
+          : `responsible-orgs/add?${Deep}=true`,
       label: locales.route.menu.responsibleOrgs,
       count: event._count.responsibleOrganizations,
     },
     {
-      to: `documents?${Deep}`,
+      to: `documents?${Deep}=true`,
       label: locales.route.menu.documents,
       count: event._count.documents,
     },
     {
-      to: `related-events?${Deep}`,
+      to: `related-events?${Deep}=true`,
       label: locales.route.menu.relatedEvents,
       count: event._count.childEvents,
     },
     {
-      to: `danger-zone/change-url?${Deep}`,
+      to: `danger-zone/change-url?${Deep}=true`,
       label: locales.route.menu.dangerZone,
     },
   ];
@@ -185,7 +191,9 @@ export default function Settings() {
             {deep === null
               ? locales.route.mobileHeadline
               : links.find((link) => {
-                  const toSlug = link.to.replace(`?${Deep}`, "").split("/")[0];
+                  const toSlug = link.to
+                    .replace(`?${Deep}=true`, "")
+                    .split("/")[0];
                   return toSlug === leafPathname;
                 })?.label || locales.route.mobileHeadline}
           </SettingsNavigation.MobileHeader.Heading>
@@ -255,7 +263,10 @@ export default function Settings() {
           return (
             <SettingsNavigation.Item
               key={link.to}
-              active={leafPathname === link.to.replace(`?${Deep}`, "")}
+              active={
+                leafPathname ===
+                link.to.replace(`?${Deep}=true`, "").split("/")[0]
+              }
               critical={link.to.includes("danger-zone")}
             >
               <NavLink

@@ -55,7 +55,7 @@ import {
   createSchema,
 } from "./general.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/general"];
@@ -97,9 +97,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     stages,
     locales,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
@@ -164,7 +164,7 @@ export const action = async (args: ActionFunctionArgs) => {
     updated,
     lastSubmit: (formData.get("submit") as string) ?? "",
   };
-};
+}
 
 function General() {
   const { slug } = useParams();

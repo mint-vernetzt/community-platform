@@ -37,7 +37,7 @@ import {
 } from "./organizations/add-organization";
 import { type action as removeOrganizationAction } from "./organizations/remove-organization";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales =
@@ -164,7 +164,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
 function Organizations() {
   const { slug } = useParams();

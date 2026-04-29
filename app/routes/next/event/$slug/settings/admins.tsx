@@ -3,19 +3,18 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
+import { Counter } from "~/components/next/Counter";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./admins.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { Counter } from "~/components/next/Counter";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
@@ -30,7 +29,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function Admins() {
   const loaderData = useLoaderData<typeof loader>();
@@ -38,9 +37,6 @@ export default function Admins() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <>
@@ -56,7 +52,7 @@ export default function Admins() {
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/list")}>
               <Link
-                to={`./list?${Deep}=${deep}`}
+                to={`./list?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
                 preventScrollReset
                 prefetch="intent"
@@ -71,7 +67,7 @@ export default function Admins() {
             </TabBar.Item>
             <TabBar.Item active={pathname.endsWith("/add")}>
               <Link
-                to={`./add?${Deep}=${deep}`}
+                to={`./add?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
                 preventScrollReset
                 prefetch="intent"
@@ -84,7 +80,7 @@ export default function Admins() {
             <TabBar.Item active={pathname.endsWith("/invites")}>
               {event._count.profileJoinInvites > 0 ? (
                 <Link
-                  to={`./invites?${Deep}=${deep}`}
+                  to={`./invites?${Deep}=true`}
                   {...TabBar.getItemElementClasses(
                     pathname.endsWith("/invites")
                   )}

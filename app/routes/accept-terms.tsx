@@ -28,7 +28,7 @@ import { prismaClient } from "~/prisma.server";
 import { acceptTerms } from "./accept-terms.server";
 import { acceptTermsSchema } from "./accept-terms.shared";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const { authClient } = createAuthClient(request);
@@ -49,7 +49,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     }
   }
   return redirect("/");
-};
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { authClient } = createAuthClient(request);

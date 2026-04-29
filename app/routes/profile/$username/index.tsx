@@ -214,7 +214,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
   ];
 };
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
 
   const language = await detectLanguage(request);
@@ -329,9 +329,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     locales,
     language,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const username = getParamValueOrThrow(params, "username");
   const { authClient } = createAuthClient(request);
@@ -403,7 +403,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectUrl);
   }
   return redirectWithToast(redirectUrl, toast);
-};
+}
 
 function hasContactInformations(
   data: Pick<Profile, "email" | "email2" | "phone">

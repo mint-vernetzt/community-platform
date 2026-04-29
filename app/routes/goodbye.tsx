@@ -2,12 +2,12 @@ import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["goodbye"];
   return { locales };
-};
+}
 
 export default function GoodBye() {
   const { locales } = useLoaderData<typeof loader>();

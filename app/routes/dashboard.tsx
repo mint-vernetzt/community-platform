@@ -92,7 +92,7 @@ export function links() {
   ];
 }
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
 
   const language = await detectLanguage(request);
@@ -554,6 +554,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
   const eventSpeakerInvites = eventInvites.filter((invite) => {
     return invite.role === "speaker";
   });
+  const eventResponsibleOrganizationInvites = eventInvites.filter((invite) => {
+    return invite.role === "responsibleOrganization";
+  });
 
   const upcomingCanceledEvents = await getUpcomingCanceledEvents(
     authClient,
@@ -626,6 +629,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     eventAdminInvites,
     eventTeamMemberInvites,
     eventSpeakerInvites,
+    eventResponsibleOrganizationInvites,
     upcomingCanceledEvents,
     locales,
     imageCropperLocales,
@@ -636,9 +640,9 @@ export const loader = async (args: LoaderFunctionArgs) => {
     entities: enhancedEntities,
     preferredExploreOrganizationsView,
   };
-};
+}
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request } = args;
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
@@ -714,7 +718,7 @@ export const action = async (args: ActionFunctionArgs) => {
     return redirect(redirectUrl);
   }
   return redirectWithToast(redirectUrl, toast);
-};
+}
 
 function Dashboard() {
   const loaderData = useLoaderData<typeof loader>();
@@ -1203,7 +1207,7 @@ function Dashboard() {
             </div>
             <Button
               as="link"
-              to="/my/events"
+              to="/my/events?invites=teamMemberInvites"
               className="w-full @lg:w-fit"
               prefetch="intent"
             >
@@ -1247,13 +1251,60 @@ function Dashboard() {
             </div>
             <Button
               as="link"
-              to="/my/events"
+              to="/my/events?invites=speakerInvites"
               className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {
                 loaderData.locales.route.content.eventSpeakerInvites
                   .linkDescription
+              }
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Event Responsible Organization Invites Section */}
+      {loaderData.eventResponsibleOrganizationInvites.length > 0 && (
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content
+                      .eventResponsibleOrganizationInvites.headline_one,
+                    loaderData.locales.route.content
+                      .eventResponsibleOrganizationInvites.headline_other,
+                    loaderData.eventResponsibleOrganizationInvites.length
+                  ),
+                  {
+                    count:
+                      loaderData.eventResponsibleOrganizationInvites.length,
+                  }
+                )}
+              </h3>
+              <p className="@lg:text-left text-sm text-center">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content
+                    .eventResponsibleOrganizationInvites.description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button
+              as="link"
+              to="/my/events?invites=responsibleOrganizationInvites"
+              className="w-full @lg:w-fit"
+              prefetch="intent"
+            >
+              {
+                loaderData.locales.route.content
+                  .eventResponsibleOrganizationInvites.linkDescription
               }
             </Button>
           </div>

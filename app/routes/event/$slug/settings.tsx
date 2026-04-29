@@ -15,7 +15,7 @@ import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
@@ -36,7 +36,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     slug,
     locales,
   };
-};
+}
 
 function Settings() {
   const loaderData = useLoaderData<typeof loader>();

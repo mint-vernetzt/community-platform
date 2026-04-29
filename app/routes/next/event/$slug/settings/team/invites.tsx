@@ -29,6 +29,7 @@ import {
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID_FIELD,
 } from "./invites.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -57,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`/next/event/${params.slug}/settings/team/add`);
   }
 
-  return { locales, profiles, submission };
+  return { locales, language, profiles, submission };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -127,7 +128,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function TeamInvites() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
 
   const [profiles, setProfiles] = useState(loaderData.profiles);
 
@@ -169,6 +170,15 @@ function TeamInvites() {
                   : ""}
                 {profile.firstName} {profile.lastName}
               </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Subline>
+                {insertParametersIntoLocale(locales.route.listItem.invitedAt, {
+                  date: profile.invitedAt.toLocaleDateString(language, {
+                    year: "numeric",
+                    month: "numeric",
+                    day: "numeric",
+                  }),
+                })}
+              </ListItemPersonOrg.Subline>
               <ListItemPersonOrg.Controls>
                 <Form
                   id={`revoke-invite-form-${profile.id}`}

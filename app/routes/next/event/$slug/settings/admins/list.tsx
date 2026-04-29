@@ -39,7 +39,7 @@ import {
 } from "./list.shared";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -62,7 +62,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   });
 
   return { locales, admins, submission, userId: sessionUser.id };
-};
+}
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;

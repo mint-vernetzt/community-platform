@@ -41,7 +41,7 @@ const environmentSchema = z.object({
   eventName: z.string(),
 });
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
   const language = await detectLanguage(request);
@@ -68,7 +68,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
     childEvents: event.childEvents,
     locales,
   };
-};
+}
 
 const createMutation = (locales: DeleteEventLocales) => {
   return makeDomainFunction(
@@ -87,7 +87,7 @@ const createMutation = (locales: DeleteEventLocales) => {
   });
 };
 
-export const action = async (args: ActionFunctionArgs) => {
+export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["event/$slug/settings/delete"];
@@ -119,7 +119,7 @@ export const action = async (args: ActionFunctionArgs) => {
   }
 
   return { ...result };
-};
+}
 
 function Delete() {
   const loaderData = useLoaderData<typeof loader>();

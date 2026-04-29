@@ -3,18 +3,17 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./registration.server";
-import { invariantResponse } from "~/lib/utils/response";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { slug } = params;
 
@@ -30,7 +29,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function Registration() {
   const loaderData = useLoaderData<typeof loader>();
@@ -38,9 +37,6 @@ export default function Registration() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
@@ -52,7 +48,7 @@ export default function Registration() {
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/access")}>
             <Link
-              to={`./access?${Deep}=${deep}`}
+              to={`./access?${Deep}=true`}
               {...TabBar.getItemElementClasses(pathname.endsWith("/access"))}
               preventScrollReset
               prefetch="intent"
@@ -65,7 +61,7 @@ export default function Registration() {
             event.external === false &&
             event.openForRegistration ? (
               <Link
-                to={`./period?${Deep}=${deep}`}
+                to={`./period?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/period"))}
                 preventScrollReset
                 prefetch="intent"
@@ -83,14 +79,24 @@ export default function Registration() {
             )}
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/limit")}>
-            <Link
-              to={`./limit?${Deep}=${deep}`}
-              {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}
-              preventScrollReset
-              prefetch="intent"
-            >
-              <TabBar.Item.Title>{locales.route.tabs.limit}</TabBar.Item.Title>
-            </Link>
+            {event.external === false && event.openForRegistration ? (
+              <Link
+                to={`./limit?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
+                  {locales.route.tabs.limit}
+                </TabBar.Item.Title>
+              </Link>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                  {locales.route.tabs.limit}
+                </h2>
+              </>
+            )}
           </TabBar.Item>
         </TabBar>
         <Outlet />

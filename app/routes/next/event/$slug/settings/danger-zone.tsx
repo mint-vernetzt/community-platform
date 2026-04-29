@@ -3,18 +3,17 @@ import {
   Outlet,
   useLoaderData,
   useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./danger-zone.server";
-import { invariantResponse } from "~/lib/utils/response";
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { params, request } = args;
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
@@ -28,7 +27,7 @@ export const loader = async (args: LoaderFunctionArgs) => {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
-};
+}
 
 export default function DangerZone() {
   const loaderData = useLoaderData<typeof loader>();
@@ -36,9 +35,6 @@ export default function DangerZone() {
 
   const location = useLocation();
   const { pathname } = location;
-
-  const [searchParams] = useSearchParams();
-  const deep = searchParams.get(Deep);
 
   return (
     <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
@@ -50,7 +46,7 @@ export default function DangerZone() {
         <TabBar>
           <TabBar.Item active={pathname.endsWith("/change-url")}>
             <Link
-              to={`./change-url?${Deep}=${deep}`}
+              to={`./change-url?${Deep}=true`}
               {...TabBar.getItemElementClasses(
                 pathname.endsWith("/change-url")
               )}
@@ -65,7 +61,7 @@ export default function DangerZone() {
           <TabBar.Item active={pathname.endsWith("/cancel")}>
             {event.published && event.canceled === false ? (
               <Link
-                to={`./cancel?${Deep}=${deep}`}
+                to={`./cancel?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/cancel"))}
                 preventScrollReset
                 prefetch="intent"
@@ -84,7 +80,7 @@ export default function DangerZone() {
             {(event.published && event.canceled) ||
             event.published === false ? (
               <Link
-                to={`./delete?${Deep}=${deep}`}
+                to={`./delete?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/delete"))}
                 preventScrollReset
                 prefetch="intent"
