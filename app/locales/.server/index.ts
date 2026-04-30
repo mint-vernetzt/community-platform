@@ -596,6 +596,7 @@ const de = {
   },
   "next/event/$slug/settings/registration/period": {
     route: deNextEventSettingsRegistrationPeriod,
+    components: deComponents,
   },
   "next/event/$slug/settings/registration/limit": {
     route: deNextEventSettingsRegistrationLimit,
@@ -1126,6 +1127,7 @@ const en = {
   },
   "next/event/$slug/settings/registration/period": {
     route: enNextEventSettingsRegistrationPeriod,
+    components: enComponents,
   },
   "next/event/$slug/settings/registration/limit": {
     route: enNextEventSettingsRegistrationLimit,
