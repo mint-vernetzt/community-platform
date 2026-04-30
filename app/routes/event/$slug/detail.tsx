@@ -61,7 +61,7 @@ import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags } from "~/lib/utils/transformHtml";
 import { type loader as rootLoader } from "~/root";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
 
@@ -409,7 +409,7 @@ export async function action(args: ActionFunctionArgs) {
       intent === "joinWaitingList" ||
       intent === "leaveWaitingList" ||
       intent === ABUSE_REPORT_INTENT ||
-      intent === UPLOAD_INTENT_VALUE ||
+      intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
       intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE,
     "Invalid intent",
     {
@@ -423,13 +423,13 @@ export async function action(args: ActionFunctionArgs) {
   };
 
   if (
-    intent === UPLOAD_INTENT_VALUE ||
+    intent === UPLOAD_DOCUMENT_INTENT_VALUE ||
     intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
   ) {
     let submission;
     let toast;
     let redirectUrl: string | null = request.url;
-    if (intent === UPLOAD_INTENT_VALUE) {
+    if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
       const isAdmin = await isAdminOfEvent(sessionUser, event);
       invariantResponse(isAdmin, "Not authorized", { status: 403 });
       const result = await uploadBackgroundImage({
@@ -462,12 +462,12 @@ export async function action(args: ActionFunctionArgs) {
     if (submission !== null) {
       return redirectWithToast(`/event/${event.slug}/detail/about`, {
         id:
-          intent === UPLOAD_INTENT_VALUE
+          intent === UPLOAD_DOCUMENT_INTENT_VALUE
             ? "upload-failed"
             : "disconnect-failed",
         key: `${new Date().getTime()}`,
         message:
-          intent === UPLOAD_INTENT_VALUE
+          intent === UPLOAD_DOCUMENT_INTENT_VALUE
             ? locales.route.errors.background.upload
             : locales.route.errors.background.disconnect,
         level: "negative",

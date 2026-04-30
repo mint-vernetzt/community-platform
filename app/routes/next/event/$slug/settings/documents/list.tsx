@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import {
   redirect,
+  useActionData,
   useLoaderData,
   useLocation,
+  useNavigation,
   useSearchParams,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
@@ -14,17 +16,28 @@ import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { getDocumentsOfEvent } from "./list.server";
 import {
-  DELETE_DOCUMENT_INTENT,
-  EDIT_DOCUMENT_INTENT,
-  getSearchDocumentsSchema,
-  SEARCH_DOCUMENTS_SEARCH_PARAM,
-} from "./list.shared";
+  getDocumentsOfEvent,
+  getEventBySlug,
+  removeDocumentFromEvent,
+  updateDocumentOfEvent,
+} from "./list.server";
 import ListItemMaterial from "~/components/next/ListItemMaterial";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
+import {
+  DOCUMENT_ID_FIELD_NAME,
+  EDIT_DOCUMENT_INTENT_VALUE,
+  getEditDocumentSchema,
+  getRemoveDocumentSchema,
+  getSearchDocumentsSchema,
+  REMOVE_DOCUMENT_INTENT_VALUE,
+  SEARCH_DOCUMENTS_SEARCH_PARAM,
+} from "~/storage.shared";
+import { parseWithZod } from "@conform-to/zod";
+import { captureException } from "@sentry/node";
+import { redirectWithToast } from "~/toast.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -76,47 +89,125 @@ export async function action(args: ActionFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/documents/list"];
 
-  // TODO: Remove and update document intents
-  // const event = await getEventBySlug(params.slug);
-  // invariantResponse(event !== null, "Event not found", { status: 404 });
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  // const formData = await request.formData();
-  // const submission = await parseWithZod(formData, {
-  //   schema: getRemoveSpeakerSchema(),
-  // });
+  const formData = await request.formData();
 
-  // if (submission.status !== "success") {
-  //   return submission.reply();
-  // }
+  console.log("formData", Object.fromEntries(formData.entries()));
 
-  // try {
-  //   await removeSpeakerFromEvent({
-  //     speakerId: submission.value.speakerId,
-  //     eventId: event.id,
-  //     locales: locales.route,
-  //   });
-  // } catch (error) {
-  //   captureException(error);
-  //   return redirectWithToast(request.url, {
-  //     id: "remove-speaker-error",
-  //     key: `remove-speaker-error-${Date.now()}`,
-  //     message: locales.route.errors.removeSpeakerFailed,
-  //     level: "negative",
-  //   });
-  // }
+  const intent = formData.get(INTENT_FIELD_NAME);
 
-  // return redirectWithToast(request.url, {
-  //   id: "remove-speaker-success",
-  //   key: `remove-speaker-success-${Date.now()}`,
-  //   message: locales.route.success.removeSpeaker,
-  //   level: "positive",
-  // });
+  invariantResponse(typeof intent === "string", "intent is not defined", {
+    status: 400,
+  });
+  invariantResponse(
+    intent === REMOVE_DOCUMENT_INTENT_VALUE ||
+      intent === EDIT_DOCUMENT_INTENT_VALUE,
+    "unknown intent",
+    {
+      status: 400,
+    }
+  );
+
+  if (intent === REMOVE_DOCUMENT_INTENT_VALUE) {
+    //
+    console.log(formData.get(DOCUMENT_ID_FIELD_NAME));
+    console.log(typeof formData.get(DOCUMENT_ID_FIELD_NAME));
+
+    const submission = await parseWithZod(formData, {
+      schema: getRemoveDocumentSchema(),
+    });
+
+    if (submission.status !== "success") {
+      //
+      console.log(submission.payload);
+      console.log(submission.error);
+
+      captureException(submission.error);
+      return redirectWithToast(request.url, {
+        id: "invite-profile-to-join-event-as-admin-error",
+        key: `invite-profile-to-join-event-as-admin-error-${Date.now()}`,
+        message: locales.route.errors.removeDocumentFailed,
+        level: "negative",
+      });
+    }
+
+    try {
+      await removeDocumentFromEvent({
+        eventId: event.id,
+        documentId: submission.value[DOCUMENT_ID_FIELD_NAME],
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "invite-profile-to-join-event-as-admin-error",
+        key: `invite-profile-to-join-event-as-admin-error-${Date.now()}`,
+        message: locales.route.errors.removeDocumentFailed,
+        level: "negative",
+      });
+    }
+
+    const url = new URL(request.url);
+    const searchParams = extendSearchParams(url.searchParams, {
+      remove: [`overlay-menu-document-${submission.value.documentId}`],
+    });
+
+    return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
+      id: "remove-document-success",
+      key: `remove-document-success-${Date.now()}`,
+      message: locales.route.success.removeDocument,
+      level: "positive",
+    });
+  } else {
+    const submission = await parseWithZod(formData, {
+      schema: getEditDocumentSchema(locales.route.validation.edit),
+    });
+
+    if (submission.status !== "success") {
+      return {
+        submission: submission.reply(),
+        intent: EDIT_DOCUMENT_INTENT_VALUE,
+      };
+    }
+
+    try {
+      const { documentId, ...updateData } = submission.value;
+      await updateDocumentOfEvent({
+        documentId: documentId,
+        data: updateData,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "edit-document-error",
+        key: `edit-document-error-${Date.now()}`,
+        message: locales.route.errors.updateDocumentFailed,
+        level: "negative",
+      });
+    }
+
+    const url = new URL(request.url);
+    const searchParams = extendSearchParams(url.searchParams, {
+      remove: [`modal-edit-document-${submission.value.documentId}`],
+    });
+
+    return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
+      id: "edit-document-success",
+      key: `edit-document-success-${Date.now()}`,
+      message: locales.route.success.updateDocument,
+      level: "positive",
+    });
+  }
 }
 
 function DocumentsList() {
   const loaderData = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const { submission, intent } = actionData ?? {};
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigation = useNavigation();
 
   const { locales, event } = loaderData;
   const [documents, setDocuments] = useState(loaderData.documents);
@@ -174,23 +265,32 @@ function DocumentsList() {
                 }}
               >
                 <ListItemMaterial.Controls.Remove
-                  name={INTENT_FIELD_NAME}
-                  value={DELETE_DOCUMENT_INTENT}
+                  documentId={document.id}
                   label={locales.route.list.remove}
                 />
                 <ListItemMaterial.Controls.Edit
+                  document={{
+                    id: document.id,
+                    title: document.title,
+                    description: document.description,
+                  }}
+                  label={locales.route.list.edit}
+                  lastResult={
+                    navigation.state === "idle" &&
+                    intent === EDIT_DOCUMENT_INTENT_VALUE
+                      ? submission
+                      : undefined
+                  }
                   modalProps={{
                     searchParam: `modal-edit-document-${document.id}`,
                   }}
                   modalCloseButtonProps={{
                     route: `${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [Deep]: "true" } }).toString()}`,
                   }}
-                  modalSubmitButtonProps={{
-                    name: INTENT_FIELD_NAME,
-                    value: EDIT_DOCUMENT_INTENT,
+                  locales={{
+                    ...locales.route.list.editModal,
+                    ...locales.route.validation.edit,
                   }}
-                  label={locales.route.list.edit}
-                  locales={locales.route.list.editModal}
                 />
                 <ListItemMaterial.Controls.Download
                   to={`/event/${event.slug}/documents-download?document_id=${document.id}`}

@@ -6,17 +6,20 @@ type CircleButtonVariant = "normal" | "outline" | "ghost";
 type CircleButtonType = "button" | "link" | "a";
 type CircleButtonSize = "x-small" | "small" | "medium" | "large";
 
-export type CircleButtonProps = {
+export type CustomCircleButtonProps = {
   variant?: CircleButtonVariant;
   size?: CircleButtonSize;
   as?: CircleButtonType;
   floating?: boolean;
   fullSize?: boolean;
-} & (
-  | React.ButtonHTMLAttributes<HTMLButtonElement>
-  | React.AnchorHTMLAttributes<HTMLAnchorElement>
-  | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
-);
+};
+
+export type CircleButtonProps = CustomCircleButtonProps &
+  (
+    | React.ButtonHTMLAttributes<HTMLButtonElement>
+    | React.AnchorHTMLAttributes<HTMLAnchorElement>
+    | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+  );
 
 function CircleButton(props: CircleButtonProps) {
   const {

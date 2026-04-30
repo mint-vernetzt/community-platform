@@ -35,7 +35,7 @@ import {
   DOCUMENT_MIME_TYPES,
   FILE_FIELD_NAME,
   MAX_UPLOAD_FILE_SIZE,
-  UPLOAD_INTENT_VALUE,
+  UPLOAD_DOCUMENT_INTENT_VALUE,
 } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import {
@@ -115,7 +115,7 @@ export async function action(args: ActionFunctionArgs) {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  if (intent === UPLOAD_INTENT_VALUE) {
+  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
     const result = await uploadFile({
       formData,
       authClient,
@@ -170,12 +170,13 @@ function Documents() {
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
-      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
+      [INTENT_FIELD_NAME]: UPLOAD_DOCUMENT_INTENT_VALUE,
     },
     shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     lastResult:
-      navigation.state === "idle" && actionData?.intent === UPLOAD_INTENT_VALUE
+      navigation.state === "idle" &&
+      actionData?.intent === UPLOAD_DOCUMENT_INTENT_VALUE
         ? actionData.submission
         : null,
     onValidate: (args) => {
@@ -312,7 +313,7 @@ function Documents() {
                   {...getInputProps(documentUploadFields[INTENT_FIELD_NAME], {
                     type: "hidden",
                   })}
-                  key={`document-${UPLOAD_INTENT_VALUE}`}
+                  key={`document-${UPLOAD_DOCUMENT_INTENT_VALUE}`}
                 />
                 <Button
                   type="submit"

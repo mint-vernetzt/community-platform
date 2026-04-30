@@ -101,15 +101,22 @@ export const IMAGE_MIME_TYPES = [
 export const FILE_FIELD_NAME = "file";
 // Field name for determining the bucket to upload the file to -> Please use this as name attribute on all file upload forms
 export const BUCKET_FIELD_NAME = "bucket";
+export const DOCUMENT_ID_FIELD_NAME = "documentId";
+export const DOCUMENT_TITLE_FIELD_NAME = "title";
+export const DOCUMENT_DESCRIPTION_FIELD_NAME = "description";
+export const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
+export const SEARCH_DOCUMENTS_SEARCH_PARAM = "search_documents";
 // Field value for determining the intent of the submitted form when using multiple forms on one route -> Please use this value as defaultValue attribute on file form submit button
-export const UPLOAD_INTENT_VALUE = "upload";
+export const UPLOAD_DOCUMENT_INTENT_VALUE = "upload";
+export const EDIT_DOCUMENT_INTENT_VALUE = "edit";
+export const REMOVE_DOCUMENT_INTENT_VALUE = "remove";
 export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
 // zod schema configuration (spread this inside the z.object function)
-export const documentSchema = (
+export function getUploadDocumentSchema(
   locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales
-) => {
+) {
   return {
     [FILE_FIELD_NAME]: z
       .instanceof(File)
@@ -125,13 +132,13 @@ export const documentSchema = (
         return DOCUMENT_MIME_TYPES.includes(file.type);
       }, locales.upload.validation.document.type),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
-    [INTENT_FIELD_NAME]: z.enum([UPLOAD_INTENT_VALUE]),
+    [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
   };
-};
+}
 
-export const imageSchema = (
+export function getUploadImageSchema(
   locales: ProjectAttachmentSettingsLocales | ImageCropperLocales
-) => {
+) {
   return {
     [FILE_FIELD_NAME]: z
       .instanceof(File)
@@ -147,6 +154,34 @@ export const imageSchema = (
         return IMAGE_MIME_TYPES.includes(file.type);
       }, locales.upload.validation.image.type),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_IMAGES]),
-    [INTENT_FIELD_NAME]: z.enum([UPLOAD_INTENT_VALUE]),
+    [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
   };
-};
+}
+
+export function getRemoveDocumentSchema() {
+  return z.object({
+    [DOCUMENT_ID_FIELD_NAME]: z.string().uuid(),
+  });
+}
+
+export function getEditDocumentSchema(locales: { descriptionTooLong: string }) {
+  return z.object({
+    [DOCUMENT_ID_FIELD_NAME]: z.string().uuid(),
+    [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
+    [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
+      .string()
+      .max(
+        DOCUMENT_DESCRIPTION_MAX_LENGTH,
+        insertParametersIntoLocale(locales.descriptionTooLong, {
+          max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
+        })
+      )
+      .optional(),
+  });
+}
+
+export function getSearchDocumentsSchema() {
+  return z.object({
+    [SEARCH_DOCUMENTS_SEARCH_PARAM]: z.string().trim().min(3).optional(),
+  });
+}

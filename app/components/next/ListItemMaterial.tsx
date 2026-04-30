@@ -1,49 +1,63 @@
+import {
+  getFormProps,
+  getInputProps,
+  type SubmissionResult,
+  useForm,
+} from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import {
+  CircleButton,
+  type CustomCircleButtonProps,
+} from "@mint-vernetzt/components/src/molecules/CircleButton";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
 import classNames from "classnames";
 import {
   type ButtonHTMLAttributes,
   Children,
   createContext,
-  type Dispatch,
+  type ForwardRefExoticComponent,
+  type InputHTMLAttributes,
   isValidElement,
-  type SetStateAction,
+  type RefAttributes,
   useContext,
-  useEffect,
-  useState,
 } from "react";
-import { useListContext } from "./List";
-import { FileTypePDFIcon } from "./icons/FileTypePDFIcon";
-import { CircleButton } from "@mint-vernetzt/components/src/molecules/CircleButton";
 import {
+  Form,
+  type FormProps,
   Link,
-  useLocation,
-  useSearchParams,
   type LinkProps,
+  useLocation,
+  useNavigation,
+  useSearchParams,
 } from "react-router";
-import { OverlayMenu, type OverlayMenuProps } from "./OverlayMenu";
 import {
   Modal,
   type ModalCloseButtonProps,
   type ModalProps,
   type ModalSubmitButtonProps,
 } from "~/components-next/Modal";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { extendSearchParams } from "~/lib/utils/searchParams";
+import {
+  DOCUMENT_DESCRIPTION_FIELD_NAME,
+  DOCUMENT_DESCRIPTION_MAX_LENGTH,
+  DOCUMENT_ID_FIELD_NAME,
+  DOCUMENT_TITLE_FIELD_NAME,
+  EDIT_DOCUMENT_INTENT_VALUE,
+  getEditDocumentSchema,
+  REMOVE_DOCUMENT_INTENT_VALUE,
+} from "~/storage.shared";
+import { useListContext } from "./List";
+import { OverlayMenu, type OverlayMenuProps } from "./OverlayMenu";
+import { FileTypePDFIcon } from "./icons/FileTypePDFIcon";
 
 // Design:
 // Name: List item (Material)
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=8295-102063&t=RJvvlCKHSMjVtZMO-4
+
 const ListItemMaterialContext = createContext<{
   type?: "image" | "pdf";
-  useOverlayMenuState?: [
-    {
-      searchParam: string;
-    } | null,
-    Dispatch<
-      SetStateAction<{
-        searchParam: string;
-      } | null>
-    >,
-  ];
 }>({});
 
 export function useListItemMaterialContext() {
@@ -64,10 +78,6 @@ function ListItemMaterial(props: {
 }) {
   const { children, index, type, sizeInMB } = props;
   const { hideAfter } = useListContext();
-
-  const [useOverlayMenu, setUseOverlayMenu] = useState<{
-    searchParam: string;
-  } | null>(null);
 
   const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
@@ -115,7 +125,6 @@ function ListItemMaterial(props: {
     <ListItemMaterialContext
       value={{
         type: type,
-        useOverlayMenuState: [useOverlayMenu, setUseOverlayMenu],
       }}
     >
       <li className={hideClasses}>
@@ -158,48 +167,52 @@ function ListItemSubline(props: { children: React.ReactNode }) {
   );
 }
 
+const ListItemControlsContext = createContext<{
+  searchParam: string;
+} | null>(null);
+
+export function useListItemControlsContext() {
+  const context = useContext(ListItemControlsContext);
+  if (context === null) {
+    throw new Error(
+      "useListItemControlsContext must be used within a ListItemControlsContext"
+    );
+  }
+  return context;
+}
+
 function ListItemControls(props: {
   children: React.ReactNode;
   overlayMenuProps?: OverlayMenuProps;
 }) {
   const { children, overlayMenuProps } = props;
 
-  const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu, setUseOverlayMenu] = useOverlayMenuState ?? [
-    null,
-    () => {},
-  ];
+  const useOverlayMenu = typeof overlayMenuProps !== "undefined";
 
-  useEffect(() => {
-    if (
-      typeof overlayMenuProps !== "undefined" &&
-      Children.count(children) > 1
-    ) {
-      setUseOverlayMenu({
-        searchParam: overlayMenuProps.searchParam,
-      });
-    }
-  }, [overlayMenuProps, children, setUseOverlayMenu]);
-
-  return useOverlayMenu !== null && typeof overlayMenuProps !== "undefined" ? (
-    <>
-      <div className="hidden @large-list-item/list-item-material:flex gap-4 pr-4">
-        {children}
-      </div>
-      <div className="flex @large-list-item/list-item-material:hidden pr-4">
-        <OverlayMenu {...overlayMenuProps}>
-          {Children.toArray(children).map((child, index) => {
-            if (isValidElement(child)) {
-              return (
-                <OverlayMenu.ListItem key={index}>{child}</OverlayMenu.ListItem>
-              );
-            }
-          })}
-        </OverlayMenu>
-      </div>
-    </>
-  ) : (
-    <div className="flex gap-4 pr-4">{children}</div>
+  return (
+    <ListItemControlsContext
+      value={
+        useOverlayMenu ? { searchParam: overlayMenuProps.searchParam } : null
+      }
+    >
+      {useOverlayMenu ? (
+        <div className="pr-4">
+          <OverlayMenu {...overlayMenuProps}>
+            {Children.toArray(children).map((child, index) => {
+              if (isValidElement(child)) {
+                return (
+                  <OverlayMenu.ListItem key={index}>
+                    {child}
+                  </OverlayMenu.ListItem>
+                );
+              }
+            })}
+          </OverlayMenu>
+        </div>
+      ) : (
+        <div className="flex gap-4 pr-4">{children}</div>
+      )}
+    </ListItemControlsContext>
   );
 }
 
@@ -208,8 +221,7 @@ function ListItemControlsDownload(
     React.AnchorHTMLAttributes<HTMLAnchorElement>
 ) {
   const { label, ...linkProps } = props;
-  const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
+  const useOverlayMenu = useListItemControlsContext();
 
   const downloadIcon = (
     <svg
@@ -245,32 +257,39 @@ function ListItemControlsDownload(
   return useOverlayMenu === null ? (
     circleButton
   ) : (
-    <>
-      <div className="w-full block @large-list-item/list-item-material:hidden">
-        <Link
-          {...OverlayMenu.getListChildrenStyles()}
-          reloadDocument
-          {...linkProps}
-        >
-          {downloadIcon}
-          <span>{label}</span>
-        </Link>
-      </div>
-      <div className="hidden @large-list-item/list-item-material:block">
-        {circleButton}
-      </div>
-    </>
+    <Link
+      {...OverlayMenu.getListChildrenStyles()}
+      reloadDocument
+      {...linkProps}
+    >
+      {downloadIcon}
+      <span>{label}</span>
+    </Link>
   );
 }
 
-function ListItemControlsRemove(
-  props: {
-    label: string;
-  } & ButtonHTMLAttributes<HTMLButtonElement>
-) {
-  const { label, ...buttonProps } = props;
-  const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
+function ListItemControlsRemove(props: {
+  documentId: string;
+  label: string;
+  circleSubmitButtonProps?: CustomCircleButtonProps &
+    ButtonHTMLAttributes<HTMLButtonElement>;
+  formProps?: ForwardRefExoticComponent<
+    FormProps & RefAttributes<HTMLFormElement>
+  >;
+  overlaySubmitButtonProps?: ButtonHTMLAttributes<HTMLButtonElement>;
+  idInputProps?: InputHTMLAttributes<HTMLInputElement>;
+}) {
+  const {
+    documentId,
+    label,
+    circleSubmitButtonProps,
+    overlaySubmitButtonProps,
+    idInputProps,
+    formProps,
+  } = props;
+  const useOverlayMenu = useListItemControlsContext();
+
+  console.log(useOverlayMenu);
 
   const removeIcon = (
     <svg
@@ -307,38 +326,65 @@ function ListItemControlsRemove(
       type="submit"
       aria-label={label}
       variant="ghost"
-      {...buttonProps}
+      name={INTENT_FIELD_NAME}
+      value={REMOVE_DOCUMENT_INTENT_VALUE}
+      {...circleSubmitButtonProps}
     >
       {removeIcon}
     </CircleButton>
   );
 
-  return useOverlayMenu === null ? (
-    circleButton
-  ) : (
+  return (
     <>
-      <div className="w-full block @large-list-item/list-item-material:hidden">
+      <Form
+        id={`remove-document-form-${documentId}`}
+        method="POST"
+        preventScrollReset
+        hidden
+        {...formProps}
+      />
+      <input
+        form={`remove-document-form-${documentId}`}
+        name={DOCUMENT_ID_FIELD_NAME}
+        defaultValue={documentId}
+        hidden
+        {...idInputProps}
+      />
+      {useOverlayMenu !== null ? (
         <button
           {...OverlayMenu.getListChildrenStyles()}
+          form={`remove-document-form-${documentId}`}
           type="submit"
-          {...buttonProps}
+          name={INTENT_FIELD_NAME}
+          value={REMOVE_DOCUMENT_INTENT_VALUE}
+          {...overlaySubmitButtonProps}
         >
           {removeIcon}
           <span>{label}</span>
         </button>
-      </div>
-      <div className="hidden @large-list-item/list-item-material:block">
-        {circleButton}
-      </div>
+      ) : (
+        circleButton
+      )}
     </>
   );
 }
 
 function ListItemControlsEdit(props: {
+  document: {
+    id: string;
+    title: string | null;
+    description: string | null;
+  };
   label: string;
+  lastResult: SubmissionResult<string[]> | undefined;
   modalProps: ModalProps;
-  modalSubmitButtonProps: ModalSubmitButtonProps;
-  modalCloseButtonProps: ModalCloseButtonProps;
+  modalSubmitButtonProps?: ModalSubmitButtonProps;
+  modalCloseButtonProps?: ModalCloseButtonProps;
+  useFormOptions?: Parameters<typeof useForm>;
+  formProps?: ForwardRefExoticComponent<
+    FormProps & RefAttributes<HTMLFormElement>
+  >;
+  idInputProps?: InputHTMLAttributes<HTMLInputElement>;
   locales: {
     headline: string;
     title: {
@@ -351,19 +397,46 @@ function ListItemControlsEdit(props: {
     };
     submit: string;
     close: string;
+    descriptionTooLong: string;
   };
 }) {
   const {
+    document,
     label,
+    lastResult,
     modalProps,
     modalSubmitButtonProps,
     modalCloseButtonProps,
+    useFormOptions,
+    formProps,
+    idInputProps,
     locales,
   } = props;
-  const { useOverlayMenuState } = useListItemMaterialContext();
-  const [useOverlayMenu] = useOverlayMenuState ?? [null, () => {}];
+  const useOverlayMenu = useListItemControlsContext();
   const location = useLocation();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
+
+  const [editForm, editFields] = useForm({
+    id: `edit-document-form-${document.id}`,
+    constraint: getZodConstraint(getEditDocumentSchema(locales)),
+    defaultValue: {
+      [DOCUMENT_ID_FIELD_NAME]: document.id,
+      [DOCUMENT_TITLE_FIELD_NAME]: document.title,
+      [DOCUMENT_DESCRIPTION_FIELD_NAME]: document.description,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? lastResult : undefined,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: getEditDocumentSchema(locales),
+      });
+      return submission;
+    },
+    ...useFormOptions,
+  });
 
   const editIcon = (
     <svg
@@ -391,18 +464,65 @@ function ListItemControlsEdit(props: {
     </CircleButton>
   );
 
+  console.log(modalProps);
+
   return (
     <>
+      <Form
+        {...getFormProps(editForm)}
+        method="POST"
+        preventScrollReset
+        hidden
+        {...formProps}
+      />
       <Modal {...modalProps}>
         <Modal.Title>{locales.headline}</Modal.Title>
         <Modal.Section>
-          {/* TODO: inputs with props passed from above */}
-          <label>{locales.title.label}</label>
-          <p>{locales.title.helperText}</p>
-          <label>{locales.description.label}</label>
-          <p>{locales.description.helperText}</p>
+          <input
+            {...getInputProps(editFields.documentId, { type: "hidden" })}
+            form={`edit-document-form-${document.id}`}
+            {...idInputProps}
+          />
+          <Input {...getInputProps(editFields.title, { type: "text" })}>
+            <Input.Label htmlFor={editFields.title.id}>
+              {locales.title.label}
+            </Input.Label>
+            {typeof editFields.title.errors !== "undefined" &&
+            editFields.title.errors.length > 0
+              ? editFields.title.errors.map((error) => (
+                  <Input.Error id={editFields.title.errorId} key={error}>
+                    {error}
+                  </Input.Error>
+                ))
+              : null}
+          </Input>
+          <Input
+            {...getInputProps(editFields.description, { type: "text" })}
+            maxLength={DOCUMENT_DESCRIPTION_MAX_LENGTH}
+          >
+            <Input.Label htmlFor={editFields.description.id}>
+              {locales.description.label}
+            </Input.Label>
+            {typeof editFields.description.errors !== "undefined" &&
+            editFields.description.errors.length > 0 ? (
+              editFields.description.errors.map((error) => (
+                <Input.Error id={editFields.description.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>
+                {locales.description.helperText}
+              </Input.HelperText>
+            )}
+          </Input>
         </Modal.Section>
-        <Modal.SubmitButton {...modalSubmitButtonProps}>
+        <Modal.SubmitButton
+          form={`edit-document-form-${document.id}`}
+          name={INTENT_FIELD_NAME}
+          value={EDIT_DOCUMENT_INTENT_VALUE}
+          {...modalSubmitButtonProps}
+        >
           {locales.submit}
         </Modal.SubmitButton>
         <Modal.CloseButton {...modalCloseButtonProps}>
@@ -413,19 +533,17 @@ function ListItemControlsEdit(props: {
         circleButton
       ) : (
         <>
-          <div className="w-full block @large-list-item/list-item-material:hidden">
-            <Link
-              {...OverlayMenu.getListChildrenStyles()}
-              {...OverlayMenu.getIdToFocusWhenOpening()}
-              to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" }, remove: [useOverlayMenu.searchParam] }).toString()}`}
-            >
-              {editIcon}
-              <span>{label}</span>
-            </Link>
-          </div>
-          <div className="hidden @large-list-item/list-item-material:block">
-            {circleButton}
-          </div>
+          <Link
+            {...OverlayMenu.getListChildrenStyles()}
+            {...OverlayMenu.getIdToFocusWhenOpening()}
+            to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" } }).toString()}`}
+            onClick={() => {
+              editForm.reset();
+            }}
+          >
+            {editIcon}
+            <span>{label}</span>
+          </Link>
         </>
       )}
     </>

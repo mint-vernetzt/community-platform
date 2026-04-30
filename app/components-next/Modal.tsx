@@ -154,6 +154,7 @@ function Modal(props: ModalProps) {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
+      console.log("setOpen", searchParams.get(props.searchParam) === "true");
       setOpen(searchParams.get(props.searchParam) === "true");
     }
   }, [props.searchParam, searchParams]);

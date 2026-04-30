@@ -25,6 +25,12 @@ export const locale = {
     downloadAll: "Alle herunterladen",
     overlayMenu: "Schließen",
   },
+  validation: {
+    edit: {
+      descriptionTooLong:
+        "Die Beschreibung darf maximal {{max}} Zeichen lang sein.",
+    },
+  },
   errors: {
     removeDocumentFailed: "Das Entfernen des Dokuments ist fehlgeschlagen.",
     updateDocumentFailed: "Das Aktualisieren des Dokuments ist fehlgeschlagen.",
