@@ -1,4 +1,5 @@
 import {
+  type FormMetadata,
   getFormProps,
   getInputProps,
   type SubmissionResult,
@@ -16,11 +17,15 @@ import {
   type ButtonHTMLAttributes,
   Children,
   createContext,
+  type Dispatch,
   type ForwardRefExoticComponent,
   type InputHTMLAttributes,
   isValidElement,
   type RefAttributes,
+  type SetStateAction,
   useContext,
+  useEffect,
+  useState,
 } from "react";
 import {
   Form,
@@ -168,7 +173,27 @@ function ListItemSubline(props: { children: React.ReactNode }) {
 }
 
 const ListItemControlsContext = createContext<{
-  searchParam: string;
+  overlayMenu: { searchParam: string } | null;
+  editForm: [
+    FormMetadata<
+      {
+        documentId: string;
+        title?: string | undefined;
+        description?: string | undefined;
+      },
+      string[]
+    > | null,
+    Dispatch<
+      SetStateAction<FormMetadata<
+        {
+          documentId: string;
+          title?: string | undefined;
+          description?: string | undefined;
+        },
+        string[]
+      > | null>
+    >,
+  ];
 } | null>(null);
 
 export function useListItemControlsContext() {
@@ -189,12 +214,36 @@ function ListItemControls(props: {
 
   const useOverlayMenu = typeof overlayMenuProps !== "undefined";
 
+  const childrenArray = Children.toArray(children);
+
+  const editModal = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === ListItemControlsEditModal;
+  });
+
+  const [editForm, setEditForm] = useState<FormMetadata<
+    {
+      documentId: string;
+      title?: string | undefined;
+      description?: string | undefined;
+    },
+    string[]
+  > | null>(null);
+
   return (
     <ListItemControlsContext
       value={
-        useOverlayMenu ? { searchParam: overlayMenuProps.searchParam } : null
+        useOverlayMenu
+          ? {
+              overlayMenu: { searchParam: overlayMenuProps.searchParam },
+              editForm: [editForm, setEditForm],
+            }
+          : {
+              overlayMenu: null,
+              editForm: [editForm, setEditForm],
+            }
       }
     >
+      {editModal}
       {useOverlayMenu ? (
         <div className="pr-4">
           <OverlayMenu {...overlayMenuProps}>
@@ -221,7 +270,7 @@ function ListItemControlsDownload(
     React.AnchorHTMLAttributes<HTMLAnchorElement>
 ) {
   const { label, ...linkProps } = props;
-  const useOverlayMenu = useListItemControlsContext();
+  const listItemControlsContext = useListItemControlsContext();
 
   const downloadIcon = (
     <svg
@@ -254,7 +303,7 @@ function ListItemControlsDownload(
     </CircleButton>
   );
 
-  return useOverlayMenu === null ? (
+  return listItemControlsContext.overlayMenu === null ? (
     circleButton
   ) : (
     <Link
@@ -287,9 +336,7 @@ function ListItemControlsRemove(props: {
     idInputProps,
     formProps,
   } = props;
-  const useOverlayMenu = useListItemControlsContext();
-
-  console.log(useOverlayMenu);
+  const listItemControlsContext = useListItemControlsContext();
 
   const removeIcon = (
     <svg
@@ -350,7 +397,7 @@ function ListItemControlsRemove(props: {
         hidden
         {...idInputProps}
       />
-      {useOverlayMenu !== null ? (
+      {listItemControlsContext.overlayMenu !== null ? (
         <button
           {...OverlayMenu.getListChildrenStyles()}
           form={`remove-document-form-${documentId}`}
@@ -370,73 +417,13 @@ function ListItemControlsRemove(props: {
 }
 
 function ListItemControlsEdit(props: {
-  document: {
-    id: string;
-    title: string | null;
-    description: string | null;
-  };
   label: string;
-  lastResult: SubmissionResult<string[]> | undefined;
   modalProps: ModalProps;
-  modalSubmitButtonProps?: ModalSubmitButtonProps;
-  modalCloseButtonProps?: ModalCloseButtonProps;
-  useFormOptions?: Parameters<typeof useForm>;
-  formProps?: ForwardRefExoticComponent<
-    FormProps & RefAttributes<HTMLFormElement>
-  >;
-  idInputProps?: InputHTMLAttributes<HTMLInputElement>;
-  locales: {
-    headline: string;
-    title: {
-      label: string;
-      helperText: string;
-    };
-    description: {
-      label: string;
-      helperText: string;
-    };
-    submit: string;
-    close: string;
-    descriptionTooLong: string;
-  };
 }) {
-  const {
-    document,
-    label,
-    lastResult,
-    modalProps,
-    modalSubmitButtonProps,
-    modalCloseButtonProps,
-    useFormOptions,
-    formProps,
-    idInputProps,
-    locales,
-  } = props;
-  const useOverlayMenu = useListItemControlsContext();
+  const { label, modalProps } = props;
+  const listItemControlsContext = useListItemControlsContext();
   const location = useLocation();
-  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
-
-  const [editForm, editFields] = useForm({
-    id: `edit-document-form-${document.id}`,
-    constraint: getZodConstraint(getEditDocumentSchema(locales)),
-    defaultValue: {
-      [DOCUMENT_ID_FIELD_NAME]: document.id,
-      [DOCUMENT_TITLE_FIELD_NAME]: document.title,
-      [DOCUMENT_DESCRIPTION_FIELD_NAME]: document.description,
-    },
-    shouldValidate: "onBlur",
-    shouldRevalidate: "onInput",
-    lastResult: navigation.state === "idle" ? lastResult : undefined,
-    onValidate: (args) => {
-      const { formData } = args;
-      const submission = parseWithZod(formData, {
-        schema: getEditDocumentSchema(locales),
-      });
-      return submission;
-    },
-    ...useFormOptions,
-  });
 
   const editIcon = (
     <svg
@@ -464,7 +451,112 @@ function ListItemControlsEdit(props: {
     </CircleButton>
   );
 
-  console.log(modalProps);
+  return listItemControlsContext.overlayMenu === null ? (
+    circleButton
+  ) : (
+    <>
+      <Link
+        {...OverlayMenu.getListChildrenStyles()}
+        {...OverlayMenu.getIdToFocusWhenOpening()}
+        to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" }, remove: [listItemControlsContext.overlayMenu.searchParam] }).toString()}`}
+        onClick={() => {
+          if (listItemControlsContext.editForm[0] !== null) {
+            listItemControlsContext.editForm[0].reset();
+          }
+        }}
+      >
+        {editIcon}
+        <span>{label}</span>
+      </Link>
+    </>
+  );
+}
+
+function ListItemControlsEditModal(props: {
+  document: {
+    id: string;
+    title: string | null;
+    description: string | null;
+  };
+  lastResult: SubmissionResult<string[]> | undefined;
+  modalProps: ModalProps;
+  modalSubmitButtonProps?: ModalSubmitButtonProps;
+  modalCloseButtonProps?: ModalCloseButtonProps;
+  useFormOptions?: Parameters<typeof useForm>;
+  formProps?: ForwardRefExoticComponent<
+    FormProps & RefAttributes<HTMLFormElement>
+  >;
+  idInputProps?: InputHTMLAttributes<HTMLInputElement>;
+  locales: {
+    headline: string;
+    title: {
+      label: string;
+      helperText: string;
+    };
+    description: {
+      label: string;
+      helperText: string;
+    };
+    submit: string;
+    close: string;
+    descriptionTooLong: string;
+  };
+}) {
+  const {
+    document,
+    lastResult,
+    modalProps,
+    modalSubmitButtonProps,
+    modalCloseButtonProps,
+    useFormOptions,
+    formProps,
+    idInputProps,
+    locales,
+  } = props;
+
+  const navigation = useNavigation();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  const listItemControlsContext = useListItemControlsContext();
+  const setEditForm = listItemControlsContext.editForm[1];
+
+  const [editForm, editFields] = useForm({
+    id: `edit-document-form-${document.id}`,
+    constraint: getZodConstraint(getEditDocumentSchema(locales)),
+    defaultValue: {
+      [DOCUMENT_ID_FIELD_NAME]: document.id,
+      [DOCUMENT_TITLE_FIELD_NAME]: document.title,
+      [DOCUMENT_DESCRIPTION_FIELD_NAME]: document.description,
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    lastResult: navigation.state === "idle" ? lastResult : undefined,
+    onValidate: (args) => {
+      const { formData } = args;
+      const submission = parseWithZod(formData, {
+        schema: getEditDocumentSchema(locales),
+      });
+      return submission;
+    },
+    ...useFormOptions,
+  });
+
+  const modalCloseButtonRoute =
+    typeof modalCloseButtonProps !== "undefined" &&
+    typeof modalCloseButtonProps.route !== "undefined"
+      ? new URL(
+          modalCloseButtonProps.route.startsWith("/")
+            ? `${ENV.COMMUNITY_BASE_URL}${modalCloseButtonProps.route}`
+            : modalCloseButtonProps.route
+        )
+      : undefined;
+
+  useEffect(() => {
+    setEditForm(editForm);
+    // Intentional once on render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -525,27 +617,24 @@ function ListItemControlsEdit(props: {
         >
           {locales.submit}
         </Modal.SubmitButton>
-        <Modal.CloseButton {...modalCloseButtonProps}>
+        <Modal.CloseButton
+          route={
+            typeof modalCloseButtonRoute !== "undefined"
+              ? `${modalCloseButtonRoute.pathname}${extendSearchParams(
+                  modalCloseButtonRoute.searchParams,
+                  {
+                    remove: [modalProps.searchParam],
+                  }
+                )}`
+              : `${location.pathname}${extendSearchParams(searchParams, {
+                  remove: [modalProps.searchParam],
+                })}`
+          }
+          {...modalCloseButtonProps}
+        >
           {locales.close}
         </Modal.CloseButton>
       </Modal>
-      {useOverlayMenu === null ? (
-        circleButton
-      ) : (
-        <>
-          <Link
-            {...OverlayMenu.getListChildrenStyles()}
-            {...OverlayMenu.getIdToFocusWhenOpening()}
-            to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [modalProps.searchParam]: "true" } }).toString()}`}
-            onClick={() => {
-              editForm.reset();
-            }}
-          >
-            {editIcon}
-            <span>{label}</span>
-          </Link>
-        </>
-      )}
     </>
   );
 }
@@ -557,5 +646,6 @@ ListItemMaterial.Controls = ListItemControls;
 ListItemControls.Download = ListItemControlsDownload;
 ListItemControls.Remove = ListItemControlsRemove;
 ListItemControls.Edit = ListItemControlsEdit;
+ListItemControls.EditModal = ListItemControlsEditModal;
 
 export default ListItemMaterial;

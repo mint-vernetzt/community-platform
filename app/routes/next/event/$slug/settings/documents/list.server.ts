@@ -79,7 +79,11 @@ export async function getDocumentsOfEvent(options: {
     documents = [...documentsWithTitle, ...documentsWithoutTitle];
   }
 
-  return { submission: submission.reply(), documents };
+  const enhancedDocuments = documents.sort((a, b) => {
+    return a.filename.localeCompare(b.filename);
+  });
+
+  return { submission: submission.reply(), documents: enhancedDocuments };
 }
 
 export async function getEventBySlug(slug: string) {

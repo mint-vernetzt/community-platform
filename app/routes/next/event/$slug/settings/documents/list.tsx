@@ -94,8 +94,6 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  console.log("formData", Object.fromEntries(formData.entries()));
-
   const intent = formData.get(INTENT_FIELD_NAME);
 
   invariantResponse(typeof intent === "string", "intent is not defined", {
@@ -111,19 +109,11 @@ export async function action(args: ActionFunctionArgs) {
   );
 
   if (intent === REMOVE_DOCUMENT_INTENT_VALUE) {
-    //
-    console.log(formData.get(DOCUMENT_ID_FIELD_NAME));
-    console.log(typeof formData.get(DOCUMENT_ID_FIELD_NAME));
-
     const submission = await parseWithZod(formData, {
       schema: getRemoveDocumentSchema(),
     });
 
     if (submission.status !== "success") {
-      //
-      console.log(submission.payload);
-      console.log(submission.error);
-
       captureException(submission.error);
       return redirectWithToast(request.url, {
         id: "invite-profile-to-join-event-as-admin-error",
@@ -268,13 +258,12 @@ function DocumentsList() {
                   documentId={document.id}
                   label={locales.route.list.remove}
                 />
-                <ListItemMaterial.Controls.Edit
+                <ListItemMaterial.Controls.EditModal
                   document={{
                     id: document.id,
                     title: document.title,
                     description: document.description,
                   }}
-                  label={locales.route.list.edit}
                   lastResult={
                     navigation.state === "idle" &&
                     intent === EDIT_DOCUMENT_INTENT_VALUE
@@ -290,6 +279,12 @@ function DocumentsList() {
                   locales={{
                     ...locales.route.list.editModal,
                     ...locales.route.validation.edit,
+                  }}
+                />
+                <ListItemMaterial.Controls.Edit
+                  label={locales.route.list.edit}
+                  modalProps={{
+                    searchParam: `modal-edit-document-${document.id}`,
                   }}
                 />
                 <ListItemMaterial.Controls.Download
