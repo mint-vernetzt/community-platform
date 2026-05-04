@@ -1,19 +1,18 @@
 import { parseWithZod } from "@conform-to/zod";
+import { captureException } from "@sentry/node";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
+import { uploadFileToStorage } from "~/storage.server";
+import { FILE_FIELD_NAME, getUploadDocumentSchema } from "~/storage.shared";
 import {
-  createDocumentUploadSchema,
   createEditDocumentSchema,
   disconnectAttachmentSchema,
 } from "./documents.shared";
-import { uploadFileToStorage } from "~/storage.server";
-import { FILE_FIELD_NAME } from "~/storage.shared";
-import { z } from "zod";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { captureException } from "@sentry/node";
 
 export type EventDocumentsSettingsLocales =
   (typeof languageModuleMap)[ArrayElement<
@@ -55,7 +54,10 @@ export async function uploadFile(options: {
 }) {
   const { formData, authClient, slug, locales } = options;
   const submission = await parseWithZod(formData, {
-    schema: createDocumentUploadSchema(locales).transform(async (data, ctx) => {
+    schema: getUploadDocumentSchema({
+      maxSize: locales.upload.validation.document.size,
+      invalidType: locales.upload.validation.document.type,
+    }).transform(async (data, ctx) => {
       const { file, bucket } = data;
       const { fileMetadataForDatabase, error } = await uploadFileToStorage({
         file,

@@ -113,10 +113,10 @@ export const REMOVE_DOCUMENT_INTENT_VALUE = "remove";
 export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
-// zod schema configuration (spread this inside the z.object function)
-export function getUploadDocumentSchema(
-  locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales
-) {
+export function getUploadDocumentSchema(locales: {
+  maxSize: string;
+  invalidType: string;
+}) {
   return z.object({
     [FILE_FIELD_NAME]: z
       .instanceof(File)
@@ -124,13 +124,13 @@ export function getUploadDocumentSchema(
         (file) => {
           return file.size <= MAX_UPLOAD_FILE_SIZE;
         },
-        insertParametersIntoLocale(locales.upload.validation.document.size, {
+        insertParametersIntoLocale(locales.maxSize, {
           size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
         })
       )
       .refine((file) => {
         return DOCUMENT_MIME_TYPES.includes(file.type);
-      }, locales.upload.validation.document.type),
+      }, locales.invalidType),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
     [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
   });
