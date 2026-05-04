@@ -250,6 +250,10 @@ function DocumentsList() {
               htmlFor={uploadFields[FILE_FIELD_NAME].id}
               fullSize
               variant="outline"
+              tabIndex={0}
+              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
+                event.key === "Enter" && event.currentTarget.click()
+              }
             >
               {locales.route.add.pick}
             </Button>
