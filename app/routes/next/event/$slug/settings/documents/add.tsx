@@ -274,6 +274,7 @@ function DocumentsList() {
                     </ListItemMaterial.Headline>
                     <ListItemMaterial.Controls>
                       <ListItemMaterial.Controls.ClearIcon
+                        label={locales.route.add.clearFileInput}
                         buttonProps={{
                           onClick: (event) => {
                             event.preventDefault();
