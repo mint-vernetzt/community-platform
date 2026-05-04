@@ -53,7 +53,7 @@ import { AddToWaitingListButton } from "~/routes/event/$slug/settings/waiting-li
 import { addUserParticipationStatus } from "~/routes/event/$slug/utils.server";
 import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { parseMultipartFormData } from "~/storage.server";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import { hasContent } from "~/utils.shared";
 import {
@@ -366,7 +366,7 @@ export async function action(args: ActionFunctionArgs) {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  if (intent === UPLOAD_INTENT_VALUE) {
+  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
     const result = await uploadImage({
       request,
       formData,

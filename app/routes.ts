@@ -269,7 +269,18 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/documents",
-        "./routes/next/event/$slug/settings/documents.tsx"
+        "./routes/next/event/$slug/settings/documents.tsx",
+        [
+          index("./routes/next/event/$slug/settings/documents/index.tsx"),
+          route(
+            "/next/event/:slug/settings/documents/list",
+            "./routes/next/event/$slug/settings/documents/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/documents/add",
+            "./routes/next/event/$slug/settings/documents/add.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/location",

@@ -48,7 +48,7 @@ import { getParamValue, getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import { hasContent } from "~/utils.shared";
 import { deriveProjectMode } from "../utils.server";
@@ -336,7 +336,7 @@ export async function action(args: ActionFunctionArgs) {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  if (intent === UPLOAD_INTENT_VALUE) {
+  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
     const result = await uploadImage({
       request,
       formData,
@@ -379,14 +379,14 @@ export async function action(args: ActionFunctionArgs) {
   if (submission !== null) {
     return redirectWithToast(`/project/${slug}/detail/about`, {
       id:
-        intent === UPLOAD_INTENT_VALUE
+        intent === UPLOAD_DOCUMENT_INTENT_VALUE
           ? "upload-failed"
           : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
             ? "disconnect-failed"
             : "publish-failed",
       key: `${new Date().getTime()}`,
       message:
-        intent === UPLOAD_INTENT_VALUE
+        intent === UPLOAD_DOCUMENT_INTENT_VALUE
           ? locales.route.error.onStoring
           : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
             ? locales.route.error.onDisconnecting

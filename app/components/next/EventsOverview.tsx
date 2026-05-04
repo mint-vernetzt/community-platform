@@ -645,7 +645,7 @@ function OverlayMenu(props: {
     >
       <OverlayMenuComponent
         searchParam={props.overlayMenuId}
-        size="medium"
+        squareButtonProps={{ size: "medium" }}
         locales={props.locales.overlayMenu}
       >
         {props.children}

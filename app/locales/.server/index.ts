@@ -82,6 +82,8 @@ import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slu
 import { locale as deNextEventSettingsDelete } from "./de/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
 import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
+import { locale as deNextEventSettingsDocumentsList } from "./de/routes/next/event/$slug/settings/documents/list";
+import { locale as deNextEventSettingsDocumentsAdd } from "./de/routes/next/event/$slug/settings/documents/add";
 import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
 import { locale as deNextEventSettingsParticipants } from "./de/routes/next/event/$slug/settings/participants";
 import { locale as deNextEventSettingsRegistration } from "./de/routes/next/event/$slug/settings/registration";
@@ -286,6 +288,8 @@ import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slu
 import { locale as enNextEventSettingsDelete } from "./en/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
 import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
+import { locale as enNextEventSettingsDocumentsList } from "./en/routes/next/event/$slug/settings/documents/list";
+import { locale as enNextEventSettingsDocumentsAdd } from "./en/routes/next/event/$slug/settings/documents/add";
 import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
 import { locale as enNextEventSettingsParticipants } from "./en/routes/next/event/$slug/settings/participants";
 import { locale as enNextEventSettingsRegistration } from "./en/routes/next/event/$slug/settings/registration";
@@ -577,6 +581,12 @@ const de = {
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
+  },
+  "next/event/$slug/settings/documents/list": {
+    route: deNextEventSettingsDocumentsList,
+  },
+  "next/event/$slug/settings/documents/add": {
+    route: deNextEventSettingsDocumentsAdd,
   },
   "next/event/$slug/settings/location": {
     route: deNextEventSettingsLocation,
@@ -1107,6 +1117,12 @@ const en = {
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,
+  },
+  "next/event/$slug/settings/documents/list": {
+    route: enNextEventSettingsDocumentsList,
+  },
+  "next/event/$slug/settings/documents/add": {
+    route: enNextEventSettingsDocumentsAdd,
   },
   "next/event/$slug/settings/location": {
     route: enNextEventSettingsLocation,

@@ -30,7 +30,11 @@ function Search<
         firstName: string;
         lastName: string;
       }
-    | { slug: string; name: string },
+    | { slug: string; name: string }
+    | {
+        title: string | null;
+        filename: string;
+      },
 >(props: {
   id?: string;
   children?: React.ReactNode;
@@ -85,19 +89,48 @@ function Search<
         return (
           ("firstName" in item &&
             typeof item.firstName === "string" &&
-            item.firstName.toLowerCase().includes(term.toLowerCase())) ||
+            item.firstName
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
           ("lastName" in item &&
             typeof item.lastName === "string" &&
-            item.lastName.toLowerCase().includes(term.toLowerCase())) ||
+            item.lastName
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
           ("username" in item &&
             typeof item.username === "string" &&
-            item.username.toLowerCase().includes(term.toLowerCase())) ||
+            item.username
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
           ("name" in item &&
             typeof item.name === "string" &&
-            item.name.toLowerCase().includes(term.toLowerCase())) ||
+            item.name
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
           ("slug" in item &&
             typeof item.slug === "string" &&
-            item.slug.toLowerCase().includes(term.toLowerCase()))
+            item.slug
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
+          ("title" in item &&
+            typeof item.title === "string" &&
+            item.title
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase())) ||
+          ("title" in item &&
+            item.title === null &&
+            "filename" in item &&
+            typeof item.filename === "string" &&
+            item.filename
+              .normalize()
+              .toLowerCase()
+              .includes(term.normalize().toLowerCase()))
         );
       });
       return contains;

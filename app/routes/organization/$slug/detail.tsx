@@ -45,7 +45,7 @@ import {
 } from "~/routes/explore/organizations.server";
 import { deriveOrganizationMode } from "~/routes/organization/$slug/utils.server";
 import { parseMultipartFormData } from "~/storage.server";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import { hasContent } from "~/utils.shared";
 import {
@@ -300,7 +300,7 @@ export async function action(args: ActionFunctionArgs) {
   let toast;
   let redirectUrl: string | null = request.url;
 
-  if (intent === UPLOAD_INTENT_VALUE && mode === "admin") {
+  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE && mode === "admin") {
     const result = await uploadImage({
       request,
       formData,
@@ -349,7 +349,7 @@ export async function action(args: ActionFunctionArgs) {
   if (submission !== null && submission.status !== "success") {
     return redirectWithToast(`/organization/${slug}/detail/about`, {
       id:
-        intent === UPLOAD_INTENT_VALUE
+        intent === UPLOAD_DOCUMENT_INTENT_VALUE
           ? "upload-failed"
           : intent === IMAGE_CROPPER_DISCONNECT_INTENT_VALUE
             ? "disconnect-failed"

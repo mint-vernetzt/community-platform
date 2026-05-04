@@ -296,6 +296,7 @@ function About() {
                         ? "pdf"
                         : "image"
                     }
+                    sizeInMB={relation.document.sizeInMB}
                   >
                     {/* {relation.document.mimeType !== "application/pdf" ? (
                       <ListItemMaterial.Image
@@ -309,15 +310,6 @@ function About() {
                     <ListItemMaterial.Headline>
                       {relation.document.title || relation.document.filename}
                     </ListItemMaterial.Headline>
-                    <ListItemMaterial.HeadlineSuffix>
-                      {relation.document.mimeType === "application/pdf"
-                        ? "(PDF"
-                        : "(jpg"}
-                      ,{" "}
-                      {relation.document.sizeInMB < 1
-                        ? `${Math.round(relation.document.sizeInMB * 1024)} KB)`
-                        : `${Math.round(relation.document.sizeInMB)} MB)`}
-                    </ListItemMaterial.HeadlineSuffix>
                     {/* {hasContent(relation.document.credits) && (
                       <ListItemMaterial.Subline>
                         © {relation.document.credits}

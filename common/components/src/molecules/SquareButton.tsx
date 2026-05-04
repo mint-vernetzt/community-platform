@@ -2,7 +2,7 @@ import classnames from "classnames";
 import { createElement } from "react";
 import { Link, type LinkProps } from "react-router";
 
-export type SquareButtonSize = "small" | "medium" | "large";
+type SquareButtonSize = "small" | "medium" | "large";
 type SquareButtonVariant = "normal" | "outline" | "ghost";
 type SquareButtonType = "button" | "link" | "div" | "label";
 type SquareButtonLevel =
@@ -12,7 +12,7 @@ type SquareButtonLevel =
   // | "attention"
   | "negative";
 
-type SquareButtonProps = {
+export type SquareButtonProps = {
   size?: SquareButtonSize;
   loading?: boolean;
   variant?: SquareButtonVariant;
@@ -20,16 +20,13 @@ type SquareButtonProps = {
   responsive?: boolean; // lg -> md -> sm
   as?: SquareButtonType;
   fullSize?: boolean;
-};
+} & (
+  | React.ButtonHTMLAttributes<HTMLButtonElement>
+  | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+  | React.LabelHTMLAttributes<HTMLLabelElement>
+);
 
-function SquareButton(
-  props: SquareButtonProps &
-    (
-      | React.ButtonHTMLAttributes<HTMLButtonElement>
-      | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
-      | React.LabelHTMLAttributes<HTMLLabelElement>
-    )
-) {
+function SquareButton(props: SquareButtonProps) {
   const {
     size = "medium",
     variant = "normal",

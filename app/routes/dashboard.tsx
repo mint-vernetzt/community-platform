@@ -55,7 +55,7 @@ import {
   getTagsBySearchQuery,
 } from "~/root.server";
 import { getPublicURL, parseMultipartFormData } from "~/storage.server";
-import { UPLOAD_INTENT_VALUE } from "~/storage.shared";
+import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import {
   enhanceEventsWithParticipationStatus,
@@ -681,7 +681,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const username = profile.username;
 
-  if (intent === UPLOAD_INTENT_VALUE) {
+  if (intent === UPLOAD_DOCUMENT_INTENT_VALUE) {
     const result = await uploadImage({
       request,
       formData,

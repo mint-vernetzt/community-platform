@@ -36,7 +36,7 @@ function ModalClose(props: { route: string }) {
   );
 }
 
-type ModalCloseButtonProps = React.PropsWithChildren<{
+export type ModalCloseButtonProps = React.PropsWithChildren<{
   route?: string;
   as?: "button" | "link";
 }> &
@@ -75,15 +75,15 @@ function ModalCloseButton(props: ModalCloseButtonProps) {
   );
 }
 
-function ModalSubmitButton(
-  props: {
-    level?: "primary" | "negative";
-    as?: "button" | "link";
-  } & (
-    | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
-    | React.ButtonHTMLAttributes<HTMLButtonElement>
-  )
-) {
+export type ModalSubmitButtonProps = {
+  level?: "primary" | "negative";
+  as?: "button" | "link";
+} & (
+  | (LinkProps & React.RefAttributes<HTMLAnchorElement>)
+  | React.ButtonHTMLAttributes<HTMLButtonElement>
+);
+
+function ModalSubmitButton(props: ModalSubmitButtonProps) {
   const {
     children,
     level = "primary",
@@ -143,7 +143,11 @@ function useRedirect(props: { searchParam: string }) {
   return redirect;
 }
 
-function Modal(props: React.PropsWithChildren<{ searchParam: string }>) {
+export type ModalProps = React.PropsWithChildren<{
+  searchParam: string;
+}>;
+
+function Modal(props: ModalProps) {
   const [searchParams] = useSearchParams();
   const [open, setOpen] = useState(false);
   const redirect = useRedirect({ searchParam: props.searchParam });

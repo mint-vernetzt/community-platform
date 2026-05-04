@@ -29,8 +29,8 @@ import {
   BUCKET_NAME_IMAGES,
   FILE_FIELD_NAME,
   IMAGE_MIME_TYPES,
-  imageSchema,
-  UPLOAD_INTENT_VALUE,
+  getUploadImageSchema,
+  UPLOAD_DOCUMENT_INTENT_VALUE,
 } from "~/storage.shared";
 import { canvasPreview } from "./canvasPreview";
 import { useDebounceEffect } from "./useDebounceEffect";
@@ -84,7 +84,7 @@ export const UPLOAD_KEYS = ["avatar", "background", "logo"] as const;
 
 export const createImageUploadSchema = (locales: ImageCropperLocales) =>
   z.object({
-    ...imageSchema(locales),
+    ...getUploadImageSchema(locales),
     uploadKey: z.enum(UPLOAD_KEYS),
     redirectTo: z
       .string()
@@ -222,7 +222,7 @@ function ImageCropper(props: ImageCropperProps) {
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_IMAGES,
-      [INTENT_FIELD_NAME]: UPLOAD_INTENT_VALUE,
+      [INTENT_FIELD_NAME]: UPLOAD_DOCUMENT_INTENT_VALUE,
       uploadKey: uploadKey,
     },
     shouldValidate: "onInput",
@@ -366,7 +366,7 @@ function ImageCropper(props: ImageCropperProps) {
             const formData = new FormData(formRef.current);
             formData.set(FILE_FIELD_NAME, blob);
             formData.set(BUCKET_FIELD_NAME, BUCKET_NAME_IMAGES);
-            formData.set(INTENT_FIELD_NAME, UPLOAD_INTENT_VALUE);
+            formData.set(INTENT_FIELD_NAME, UPLOAD_DOCUMENT_INTENT_VALUE);
             formData.set("uploadKey", uploadKey);
             void submit(formData, {
               preventScrollReset: true,
