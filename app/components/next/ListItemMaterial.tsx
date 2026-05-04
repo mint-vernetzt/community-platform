@@ -580,13 +580,15 @@ function ListItemControlsEditModal(props: {
               {locales.title.label}
             </Input.Label>
             {typeof editFields.title.errors !== "undefined" &&
-            editFields.title.errors.length > 0
-              ? editFields.title.errors.map((error) => (
-                  <Input.Error id={editFields.title.errorId} key={error}>
-                    {error}
-                  </Input.Error>
-                ))
-              : null}
+            editFields.title.errors.length > 0 ? (
+              editFields.title.errors.map((error) => (
+                <Input.Error id={editFields.title.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>{locales.title.helperText}</Input.HelperText>
+            )}
           </Input>
           <Input
             {...getInputProps(editFields.description, { type: "text" })}

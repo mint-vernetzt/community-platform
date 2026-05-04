@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
-import { insertParametersIntoLocale } from "./lib/utils/i18n";
-import { INTENT_FIELD_NAME } from "./form-helpers";
-import { type EventDocumentsSettingsLocales } from "./routes/event/$slug/settings/documents.server";
 import { type ImageCropperLocales } from "./components/legacy/ImageCropper/ImageCropper";
+import { INTENT_FIELD_NAME } from "./form-helpers";
+import { insertParametersIntoLocale } from "./lib/utils/i18n";
+import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
 
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
@@ -133,6 +132,40 @@ export function getUploadDocumentSchema(locales: {
       }, locales.invalidType),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
     [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
+  });
+}
+
+export function nextGetUploadDocumentSchema(locales: {
+  maxSize: string;
+  invalidType: string;
+  descriptionTooLong: string;
+}) {
+  return z.object({
+    [FILE_FIELD_NAME]: z
+      .instanceof(File)
+      .refine(
+        (file) => {
+          return file.size <= MAX_UPLOAD_FILE_SIZE;
+        },
+        insertParametersIntoLocale(locales.maxSize, {
+          size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
+        })
+      )
+      .refine((file) => {
+        return DOCUMENT_MIME_TYPES.includes(file.type);
+      }, locales.invalidType),
+    [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
+    [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
+    [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
+    [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
+      .string()
+      .max(
+        DOCUMENT_DESCRIPTION_MAX_LENGTH,
+        insertParametersIntoLocale(locales.descriptionTooLong, {
+          max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
+        })
+      )
+      .optional(),
   });
 }
 
