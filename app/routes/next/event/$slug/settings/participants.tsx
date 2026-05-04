@@ -6,13 +6,13 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
+import { Counter } from "~/components/next/Counter";
 import TabBar from "~/components/next/TabBar";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { getEventBySlug } from "./participants.server";
-import { invariantResponse } from "~/lib/utils/response";
-import { Counter } from "~/components/next/Counter";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -49,19 +49,30 @@ export default function Participants() {
         >
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/list")}>
-              <Link
-                to={`./list?${Deep}=true`}
-                {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
-                preventScrollReset
-                prefetch="intent"
-              >
-                <TabBar.Item.Title>
-                  {locales.route.tabbar.list}
-                </TabBar.Item.Title>
-                <TabBar.Item.Counter>
-                  {loaderData.event._count.participants}
-                </TabBar.Item.Counter>
-              </Link>
+              {event._count.participants > 0 ? (
+                <Link
+                  to={`./list?${Deep}=true`}
+                  {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
+                  preventScrollReset
+                  prefetch="intent"
+                >
+                  <TabBar.Item.Title>
+                    {locales.route.tabbar.list}
+                  </TabBar.Item.Title>
+                  <TabBar.Item.Counter>
+                    {loaderData.event._count.participants}
+                  </TabBar.Item.Counter>
+                </Link>
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                    {locales.route.tabbar.list}
+                    <Counter active={false}>
+                      {loaderData.event._count.participants}
+                    </Counter>
+                  </h2>
+                </>
+              )}
             </TabBar.Item>
             <TabBar.Item active={pathname.endsWith("/waiting-list")}>
               {event._count.waitingList > 0 ? (
