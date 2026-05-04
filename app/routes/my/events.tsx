@@ -9,9 +9,7 @@ import {
   Link,
   type LoaderFunctionArgs,
   redirect,
-  useFetcher,
   useLoaderData,
-  useNavigation,
   useSearchParams,
 } from "react-router";
 import {
