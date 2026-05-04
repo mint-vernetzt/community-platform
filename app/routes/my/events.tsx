@@ -332,8 +332,6 @@ export async function action(args: ActionFunctionArgs) {
 function MyEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
-  const navigation = useNavigation();
-  const fetcher = useFetcher();
 
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
     ([_key, value]) => {
