@@ -41,9 +41,9 @@ import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { getEventBySlug, updateEventRegistrationPeriod } from "./period.server";
 import {
-  createRegistrationPeriodSchema,
+  createSetRegistrationPeriodToDefaultSchema,
+  createUpdateRegistrationPeriodSchema,
   REGISTRATION_PERIOD_CUSTOM,
-  REGISTRATION_PERIOD_DEFAULT,
   REGISTRATION_PERIOD_SEARCH_PARAM,
   SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT,
   UPDATE_REGISTRATION_PERIOD_INTENT,
@@ -113,30 +113,32 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (intent === SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createSetRegistrationPeriodToDefaultSchema({
+        locales: locales.route.custom.form,
+      }),
+    });
+
+    if (submission.status !== "success") {
+      return { submission: submission.reply(), intent };
+    }
     try {
       await updateEventRegistrationPeriod({
         eventId: event.id,
         participationFrom: event.createdAt,
         participationUntil: event.startTime,
       });
-      // const toastHeaders = await createToastHeaders({
-      //   id: "update-registration-period-success",
-      //   key: `update-registration-period-success-${Date.now()}`,
-      //   message: locales.route.success.updateRegistrationPeriodSuccess,
-      // });
-      // return data(null, {
-      //   headers: toastHeaders,
-      // });
-      const url = new URL(request.url);
-      url.searchParams.set(
-        REGISTRATION_PERIOD_SEARCH_PARAM,
-        REGISTRATION_PERIOD_DEFAULT
-      );
-      return redirectWithToast(url.toString(), {
-        id: "set-registration-period-to-default-success",
-        key: `set-registration-period-to-default-success-${Date.now()}`,
+      const toastHeaders = await createToastHeaders({
+        id: "update-registration-period-success",
+        key: `update-registration-period-success-${Date.now()}`,
         message: locales.route.success.updateRegistrationPeriodSuccess,
       });
+      return data(
+        { submission: submission.reply(), intent },
+        {
+          headers: toastHeaders,
+        }
+      );
     } catch (error) {
       captureException(error);
       return redirectWithToast(request.url, {
@@ -149,7 +151,7 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const submission = await parseWithZod(formData, {
-    schema: createRegistrationPeriodSchema({
+    schema: createUpdateRegistrationPeriodSchema({
       startDate: event.startTime,
       endDate: event.endTime,
       createdAt: event.createdAt,
@@ -160,7 +162,7 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    return submission.reply();
+    return { submission: submission.reply(), intent };
   }
 
   try {
@@ -174,9 +176,12 @@ export async function action(args: ActionFunctionArgs) {
       key: `update-registration-period-success-${Date.now()}`,
       message: locales.route.success.updateRegistrationPeriodSuccess,
     });
-    return data(submission.reply(), {
-      headers: toastHeaders,
-    });
+    return data(
+      { submission: submission.reply(), intent },
+      {
+        headers: toastHeaders,
+      }
+    );
   } catch (error) {
     captureException(error);
     return redirectWithToast(request.url, {
@@ -205,15 +210,27 @@ function RegistrationPeriod() {
   );
 
   useEffect(() => {
-    const registrationPeriodParam = searchParams.get(
-      REGISTRATION_PERIOD_SEARCH_PARAM
-    );
-    if (registrationPeriodParam === REGISTRATION_PERIOD_DEFAULT) {
-      setIsDefault(true);
-    } else {
-      setIsDefault(false);
+    if (navigation.state === "idle") {
+      setIsDefault(
+        searchParams.get(REGISTRATION_PERIOD_SEARCH_PARAM) !==
+          REGISTRATION_PERIOD_CUSTOM
+      );
     }
-  }, [searchParams]);
+  }, [navigation.state, searchParams]);
+
+  let intent;
+  let submission;
+  if (typeof actionData !== "undefined" && actionData !== null) {
+    intent = actionData.intent;
+    submission = actionData.submission;
+  }
+  const startTimeFromZoned = utcToZonedTime(event.startTime, "Europe/Berlin");
+  const createdAtFromZoned = utcToZonedTime(event.createdAt, "Europe/Berlin");
+  const formattedStartDate = format(startTimeFromZoned, "yyyy-MM-dd");
+  const formattedStartTime = format(startTimeFromZoned, "HH:mm");
+
+  const formattedCreatedAtDate = format(createdAtFromZoned, "yyyy-MM-dd");
+  const formattedCreatedAtTime = format(createdAtFromZoned, "HH:mm");
 
   const participationFromZoned = utcToZonedTime(
     event.participationFrom,
@@ -240,49 +257,71 @@ function RegistrationPeriod() {
     "HH:mm"
   );
 
-  const [form, fields] = useForm({
-    id: "registration-period-form",
-    constraint: getZodConstraint(
-      createRegistrationPeriodSchema({
-        startDate: event.startTime,
-        endDate: event.endTime,
-        createdAt: event.createdAt,
-        participationFrom: event.participationFrom,
-        participationUntil: event.participationUntil,
-        locales: locales.route.custom.form,
-      })
-    ),
+  const [
+    setRegistrationPeriodToDefaultForm,
+    setRegistrationPeriodToDefaultFields,
+  ] = useForm({
+    id: "set-registration-period-to-default-form",
     defaultValue: {
-      participationFromDate: formattedParticipationFromDate,
-      participationFromTime: formattedParticipationFromTime,
-      participationUntilDate: formattedParticipationUntilDate,
-      participationUntilTime: formattedParticipationUntilTime,
+      participationFromDate: formattedCreatedAtDate,
+      participationFromTime: formattedCreatedAtTime,
+      participationUntilDate: formattedStartDate,
+      participationUntilTime: formattedStartTime,
     },
-    shouldValidate: "onInput",
-    shouldRevalidate: "onInput",
-    onValidate: (values) => {
-      const submission = parseWithZod(values.formData, {
-        schema: createRegistrationPeriodSchema({
+    lastResult:
+      intent === SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT
+        ? submission
+        : undefined,
+  });
+
+  const [updateRegistrationPeriodForm, updateRegistrationPeriodFields] =
+    useForm({
+      id: "udate-registration-period-form",
+      constraint: getZodConstraint(
+        createUpdateRegistrationPeriodSchema({
           startDate: event.startTime,
           endDate: event.endTime,
           createdAt: event.createdAt,
           participationFrom: event.participationFrom,
           participationUntil: event.participationUntil,
           locales: locales.route.custom.form,
-        }),
-      });
-      return submission;
-    },
-    lastResult: navigation.state === "idle" ? actionData : undefined,
-  });
+        })
+      ),
+      defaultValue: {
+        participationFromDate: formattedParticipationFromDate,
+        participationFromTime: formattedParticipationFromTime,
+        participationUntilDate: formattedParticipationUntilDate,
+        participationUntilTime: formattedParticipationUntilTime,
+      },
+      shouldValidate: "onInput",
+      shouldRevalidate: "onInput",
+      onValidate: (values) => {
+        const submission = parseWithZod(values.formData, {
+          schema: createUpdateRegistrationPeriodSchema({
+            startDate: event.startTime,
+            endDate: event.endTime,
+            createdAt: event.createdAt,
+            participationFrom: event.participationFrom,
+            participationUntil: event.participationUntil,
+            locales: locales.route.custom.form,
+          }),
+        });
+        return submission;
+      },
+      lastResult:
+        navigation.state === "idle" &&
+        intent === UPDATE_REGISTRATION_PERIOD_INTENT
+          ? submission
+          : undefined,
+    });
 
   const location = useLocation();
   const previousLocation = usePreviousLocation();
   useFormRevalidationAfterSuccess({
     deps: {
       navigation,
-      submissionResult: actionData === null ? undefined : actionData,
-      form,
+      submissionResult: submission,
+      form: updateRegistrationPeriodForm,
     },
     skipRevalidation:
       location.search.includes(UnsavedChangesModalParam) ||
@@ -294,181 +333,260 @@ function RegistrationPeriod() {
     <>
       <UnsavedChangesModal
         searchParam={UnsavedChangesModalParam}
-        formMetadataToCheck={form}
+        formMetadataToCheck={updateRegistrationPeriodForm}
         locales={locales.components.UnsavedChangesModal}
       />
       <TitleSection>
         <TitleSection.Headline>{locales.route.headline}</TitleSection.Headline>
         <TitleSection.Subline>{locales.route.subline}</TitleSection.Subline>
       </TitleSection>
-      {isDefault ? (
-        <RadioButtonSettings
-          to={`?${extendSearchParams(searchParams, {
-            addOrReplace: {
-              [REGISTRATION_PERIOD_SEARCH_PARAM]: REGISTRATION_PERIOD_DEFAULT,
-            },
-          }).toString()}`}
+
+      <Form {...getFormProps(setRegistrationPeriodToDefaultForm)} method="post">
+        <RadioSubmitButtonSettings
+          name={INTENT_FIELD_NAME}
+          value={SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT}
           active={isDefault}
-          onClick={(event) => {
-            event.preventDefault();
-            setIsDefault(true);
+          buttonProps={{
+            onClick: () => {
+              setIsDefault(true);
+              searchParams.delete(REGISTRATION_PERIOD_SEARCH_PARAM);
+              updateRegistrationPeriodForm.reset();
+            },
           }}
         >
           {locales.route.default.label}
-        </RadioButtonSettings>
-      ) : (
-        <Form id="set-registration-to-default-form" method="post">
-          <RadioSubmitButtonSettings
-            name={INTENT_FIELD_NAME}
-            value={SET_REGISTRATION_PERIOD_TO_DEFAULT_INTENT}
-            active={isDefault}
-          >
-            {locales.route.default.label}
-          </RadioSubmitButtonSettings>
-        </Form>
-      )}
+        </RadioSubmitButtonSettings>
+        <input
+          {...getInputProps(
+            setRegistrationPeriodToDefaultFields.participationFromDate,
+            { type: "hidden" }
+          )}
+        />
+        <input
+          {...getInputProps(
+            setRegistrationPeriodToDefaultFields.participationFromTime,
+            { type: "hidden" }
+          )}
+        />
+        <input
+          {...getInputProps(
+            setRegistrationPeriodToDefaultFields.participationUntilDate,
+            { type: "hidden" }
+          )}
+        />
+        <input
+          {...getInputProps(
+            setRegistrationPeriodToDefaultFields.participationUntilTime,
+            { type: "hidden" }
+          )}
+        />
+      </Form>
       <RadioButtonSettings
         to={`?${extendSearchParams(searchParams, {
           addOrReplace: {
             [REGISTRATION_PERIOD_SEARCH_PARAM]: REGISTRATION_PERIOD_CUSTOM,
           },
         }).toString()}`}
+        preventScrollReset
         active={isDefault === false}
-        onClick={(event) => {
-          event.preventDefault();
+        onClick={() => {
           setIsDefault(false);
+          searchParams.set(
+            REGISTRATION_PERIOD_SEARCH_PARAM,
+            REGISTRATION_PERIOD_CUSTOM
+          );
         }}
       >
         {locales.route.custom.label}
       </RadioButtonSettings>
-      {isDefault === false && (
-        <>
-          <Form
-            {...getFormProps(form)}
-            method="post"
-            autoComplete="off"
-            className="flex flex-col gap-4"
-          >
+      <Form
+        {...getFormProps(updateRegistrationPeriodForm)}
+        method="post"
+        autoComplete="off"
+        className="flex flex-col gap-4"
+      >
+        {isDefault === false && (
+          <>
             <Input
-              {...getInputProps(fields.participationFromDate, { type: "date" })}
+              {...getInputProps(
+                updateRegistrationPeriodFields.participationFromDate,
+                { type: "date" }
+              )}
               key="participationFromDate"
             >
-              <Input.Label htmlFor={fields.participationFromDate.id}>
-                {locales.route.custom.form.fields.participationFromDate}
-              </Input.Label>
-              {typeof fields.participationFromDate.errors !== "undefined" &&
-                fields.participationFromDate.errors.length > 0 &&
-                fields.participationFromDate.errors.map((error) => (
-                  <Input.Error
-                    id={fields.participationFromDate.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </Input.Error>
-                ))}
-            </Input>
-            <Input
-              {...getInputProps(fields.participationFromTime, { type: "time" })}
-              key="participationFromTime"
-            >
-              <Input.Label htmlFor={fields.participationFromTime.id}>
-                {locales.route.custom.form.fields.participationFromTime}
-              </Input.Label>
-              {typeof fields.participationFromTime.errors !== "undefined" &&
-                fields.participationFromTime.errors.length > 0 &&
-                fields.participationFromTime.errors.map((error) => (
-                  <Input.Error
-                    id={fields.participationFromTime.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </Input.Error>
-                ))}
-            </Input>
-            <Input
-              {...getInputProps(fields.participationUntilDate, {
-                type: "date",
-              })}
-              key="participationUntilDate"
-            >
-              <Input.Label htmlFor={fields.participationUntilDate.id}>
-                {locales.route.custom.form.fields.participationUntilDate}
-              </Input.Label>
-              {typeof fields.participationUntilDate.errors !== "undefined" &&
-                fields.participationUntilDate.errors.length > 0 &&
-                fields.participationUntilDate.errors.map((error) => (
-                  <Input.Error
-                    id={fields.participationUntilDate.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </Input.Error>
-                ))}
-            </Input>
-            <Input
-              {...getInputProps(fields.participationUntilTime, {
-                type: "time",
-              })}
-              key="participationUntilTime"
-            >
-              <Input.Label htmlFor={fields.participationUntilTime.id}>
-                {locales.route.custom.form.fields.participationUntilTime}
-              </Input.Label>
-              {typeof fields.participationUntilTime.errors !== "undefined" &&
-                fields.participationUntilTime.errors.length > 0 &&
-                fields.participationUntilTime.errors.map((error) => (
-                  <Input.Error
-                    id={fields.participationUntilTime.errorId}
-                    key={error}
-                  >
-                    {error}
-                  </Input.Error>
-                ))}
-            </Input>
-          </Form>
-          <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
-            <div className="w-full md:w-fit">
-              <Button
-                type="submit"
-                name={INTENT_FIELD_NAME}
-                value={UPDATE_REGISTRATION_PERIOD_INTENT}
-                fullSize
-                form={form.id}
-                // Don't disable button when js is disabled
-                disabled={
-                  isHydrated
-                    ? form.dirty === false ||
-                      form.valid === false ||
-                      isSubmitting
-                    : false
+              <Input.Label
+                htmlFor={
+                  updateRegistrationPeriodFields.participationFromDate.id
                 }
               >
-                {locales.route.custom.form.submit}
-              </Button>
-            </div>
-            <div className="w-full md:w-fit">
-              <Button
-                type="reset"
-                onClick={() => {
-                  form.reset();
-                }}
-                variant="outline"
-                fullSize
-                form={form.id}
-                // Don't disable button when js is disabled
-                disabled={isHydrated ? form.dirty === false : false}
+                {locales.route.custom.form.fields.participationFromDate}
+              </Input.Label>
+              {typeof updateRegistrationPeriodFields.participationFromDate
+                .errors !== "undefined" &&
+                updateRegistrationPeriodFields.participationFromDate.errors
+                  .length > 0 &&
+                updateRegistrationPeriodFields.participationFromDate.errors.map(
+                  (error) => (
+                    <Input.Error
+                      id={
+                        updateRegistrationPeriodFields.participationFromDate
+                          .errorId
+                      }
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  )
+                )}
+            </Input>
+            <Input
+              {...getInputProps(
+                updateRegistrationPeriodFields.participationFromTime,
+                { type: "time" }
+              )}
+              key="participationFromTime"
+            >
+              <Input.Label
+                htmlFor={
+                  updateRegistrationPeriodFields.participationFromTime.id
+                }
               >
-                {locales.route.custom.form.reset}
-              </Button>
-              <noscript className="absolute top-0">
-                <Button as="link" to="." variant="outline" fullSize>
+                {locales.route.custom.form.fields.participationFromTime}
+              </Input.Label>
+              {typeof updateRegistrationPeriodFields.participationFromTime
+                .errors !== "undefined" &&
+                updateRegistrationPeriodFields.participationFromTime.errors
+                  .length > 0 &&
+                updateRegistrationPeriodFields.participationFromTime.errors.map(
+                  (error) => (
+                    <Input.Error
+                      id={
+                        updateRegistrationPeriodFields.participationFromTime
+                          .errorId
+                      }
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  )
+                )}
+            </Input>
+            <Input
+              {...getInputProps(
+                updateRegistrationPeriodFields.participationUntilDate,
+                {
+                  type: "date",
+                }
+              )}
+              key="participationUntilDate"
+            >
+              <Input.Label
+                htmlFor={
+                  updateRegistrationPeriodFields.participationUntilDate.id
+                }
+              >
+                {locales.route.custom.form.fields.participationUntilDate}
+              </Input.Label>
+              {typeof updateRegistrationPeriodFields.participationUntilDate
+                .errors !== "undefined" &&
+                updateRegistrationPeriodFields.participationUntilDate.errors
+                  .length > 0 &&
+                updateRegistrationPeriodFields.participationUntilDate.errors.map(
+                  (error) => (
+                    <Input.Error
+                      id={
+                        updateRegistrationPeriodFields.participationUntilDate
+                          .errorId
+                      }
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  )
+                )}
+            </Input>
+            <Input
+              {...getInputProps(
+                updateRegistrationPeriodFields.participationUntilTime,
+                {
+                  type: "time",
+                }
+              )}
+              key="participationUntilTime"
+            >
+              <Input.Label
+                htmlFor={
+                  updateRegistrationPeriodFields.participationUntilTime.id
+                }
+              >
+                {locales.route.custom.form.fields.participationUntilTime}
+              </Input.Label>
+              {typeof updateRegistrationPeriodFields.participationUntilTime
+                .errors !== "undefined" &&
+                updateRegistrationPeriodFields.participationUntilTime.errors
+                  .length > 0 &&
+                updateRegistrationPeriodFields.participationUntilTime.errors.map(
+                  (error) => (
+                    <Input.Error
+                      id={
+                        updateRegistrationPeriodFields.participationUntilTime
+                          .errorId
+                      }
+                      key={error}
+                    >
+                      {error}
+                    </Input.Error>
+                  )
+                )}
+            </Input>
+            <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
+              <div className="w-full md:w-fit">
+                <Button
+                  type="submit"
+                  name={INTENT_FIELD_NAME}
+                  value={UPDATE_REGISTRATION_PERIOD_INTENT}
+                  fullSize
+                  form={updateRegistrationPeriodForm.id}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? updateRegistrationPeriodForm.dirty === false ||
+                        updateRegistrationPeriodForm.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.route.custom.form.submit}
+                </Button>
+              </div>
+              <div className="w-full md:w-fit">
+                <Button
+                  type="reset"
+                  onClick={() => {
+                    updateRegistrationPeriodForm.reset();
+                  }}
+                  variant="outline"
+                  fullSize
+                  form={updateRegistrationPeriodForm.id}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? updateRegistrationPeriodForm.dirty === false
+                      : false
+                  }
+                >
                   {locales.route.custom.form.reset}
                 </Button>
-              </noscript>
+                <noscript className="absolute top-0">
+                  <Button as="link" to="." variant="outline" fullSize>
+                    {locales.route.custom.form.reset}
+                  </Button>
+                </noscript>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </Form>
     </>
   );
 }

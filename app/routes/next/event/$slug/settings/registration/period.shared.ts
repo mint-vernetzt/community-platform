@@ -8,7 +8,52 @@ export const REGISTRATION_PERIOD_SEARCH_PARAM = "registration_period";
 export const REGISTRATION_PERIOD_DEFAULT = "default";
 export const REGISTRATION_PERIOD_CUSTOM = "custom";
 
-export function createRegistrationPeriodSchema(options: {
+export const createSetRegistrationPeriodToDefaultSchema = (options: {
+  locales: {
+    errors: {
+      participationFromDateRequired: string;
+      participationFromTimeRequired: string;
+      participationUntilDateRequired: string;
+      participationUntilTimeRequired: string;
+      participationUntilDateInPast: string;
+      participationUntilTimeInPast: string;
+      participationFromDateAfterParticipationUntilDate: string;
+      participationFromTimeAfterParticipationUntilTime: string;
+      participationFromDateAfterStartDate: string;
+      participationFromTimeAfterStartTime: string;
+    };
+  };
+}) => {
+  const schema = z
+    .object({
+      participationFromDate: z.date({
+        required_error: options.locales.errors.participationFromDateRequired,
+      }),
+      participationFromTime: z.string({
+        required_error: options.locales.errors.participationFromTimeRequired,
+      }),
+      participationUntilDate: z.date({
+        required_error: options.locales.errors.participationUntilDateRequired,
+      }),
+      participationUntilTime: z.string({
+        required_error: options.locales.errors.participationUntilTimeRequired,
+      }),
+    })
+    .transform((data) => {
+      const participationFrom = zonedTimeToUtc(
+        `${data.participationFromDate.toISOString().split("T")[0]} ${data.participationFromTime}`,
+        "Europe/Berlin"
+      );
+      const participationUntil = zonedTimeToUtc(
+        `${data.participationUntilDate.toISOString().split("T")[0]} ${data.participationUntilTime}`,
+        "Europe/Berlin"
+      );
+      return { participationFrom, participationUntil };
+    });
+  return schema;
+};
+
+export function createUpdateRegistrationPeriodSchema(options: {
   startDate: Date;
   endDate: Date;
   createdAt: Date;

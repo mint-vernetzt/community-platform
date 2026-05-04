@@ -38,8 +38,16 @@ function RadioSubmitButtonSettings(props: {
   disabled?: boolean;
   name: string;
   value: string;
+  buttonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 }) {
-  const { children, active = false, disabled = false, name, value } = props;
+  const {
+    children,
+    active = false,
+    disabled = false,
+    name,
+    value,
+    buttonProps,
+  } = props;
 
   const buttonClasses = classNames(
     "w-full p-4 rounded-lg ring",
@@ -72,6 +80,7 @@ function RadioSubmitButtonSettings(props: {
           event.preventDefault();
         }
       }}
+      {...buttonProps}
     >
       <div className="w-full flex gap-2 items-center">
         <div className={radioClasses}>
