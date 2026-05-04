@@ -27,6 +27,8 @@ import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import {
   DOCUMENT_DESCRIPTION_MAX_LENGTH,
+  DOCUMENT_MIME_TYPES,
+  FILE_FIELD_NAME,
   MAX_UPLOAD_FILE_SIZE,
   nextGetUploadDocumentSchema,
   UPLOAD_DOCUMENT_INTENT_VALUE,
@@ -35,6 +37,10 @@ import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { uploadDocumentToEvent } from "./add.server";
 import { getEventBySlug } from "./list.server";
+import { useState } from "react";
+import List from "~/components/next/List";
+import ListItemMaterial from "~/components/next/ListItemMaterial";
+import { parseMultipartFormData } from "~/storage.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -77,7 +83,16 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const formData = await request.formData();
+  const { formData, error } = await parseMultipartFormData(request);
+  if (error !== null || formData === null) {
+    captureException(error);
+    return redirectWithToast(request.url, {
+      id: "upload-document-error",
+      key: `${new Date().getTime()}`,
+      message: locales.route.errors.uploadDocumentFailed,
+      level: "negative",
+    });
+  }
 
   const intent = formData.get(INTENT_FIELD_NAME);
 
@@ -88,11 +103,12 @@ export async function action(args: ActionFunctionArgs) {
     status: 400,
   });
 
-  const submission = await parseWithZod(formData, {
+  const submission = parseWithZod(formData, {
     schema: nextGetUploadDocumentSchema(locales.route.validation),
   });
 
   if (submission.status !== "success") {
+    console.log("Server Validation failed", submission);
     return {
       submission: submission.reply(),
       intent: UPLOAD_DOCUMENT_INTENT_VALUE,
@@ -104,6 +120,10 @@ export async function action(args: ActionFunctionArgs) {
       authClient,
       slug: params.slug,
       file: submission.value.file,
+      data: {
+        title: submission.value.title,
+        description: submission.value.description,
+      },
     });
   } catch (error) {
     captureException(error);
@@ -118,7 +138,9 @@ export async function action(args: ActionFunctionArgs) {
   return redirectWithToast(request.url, {
     id: "upload-document-success",
     key: `upload-document-success-${Date.now()}`,
-    message: locales.route.success.documentAdded,
+    message: insertParametersIntoLocale(locales.route.success.documentAdded, {
+      name: submission.value.title ?? submission.value.file.name,
+    }),
     level: "positive",
   });
 }
@@ -133,16 +155,19 @@ function DocumentsList() {
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
 
+  const [selectedFiles, setSelectedFiles] = useState<
+    {
+      id: string;
+      filename: string;
+      sizeInMB: number;
+    }[]
+  >([]);
+
   const [uploadForm, uploadFields] = useForm({
     id: "upload-document-form",
     constraint: getZodConstraint(
       nextGetUploadDocumentSchema(locales.route.validation)
     ),
-    // TODO: Should not be necessary
-    // defaultValue: {
-    //   [DOCUMENT_TITLE_FIELD_NAME]: document.title,
-    //   [DOCUMENT_DESCRIPTION_FIELD_NAME]: document.description,
-    // },
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? submission : undefined,
@@ -151,7 +176,11 @@ function DocumentsList() {
       const submission = parseWithZod(formData, {
         schema: nextGetUploadDocumentSchema(locales.route.validation),
       });
+      console.log("Client validation result", submission);
       return submission;
+    },
+    onSubmit: () => {
+      setSelectedFiles([]);
     },
   });
 
@@ -182,122 +211,153 @@ function DocumentsList() {
       <Form
         {...getFormProps(uploadForm)}
         method="POST"
-        preventScrollReset
-        hidden
-      />
-      {/* TODO: File Input connected with Form */}
-      {/* TODO: Only show this when no file selected */}
-      <div className="flex md:justify-end">
-        <div className="w-full md:w-fit">
-          <Button fullSize variant="outline">
-            {locales.route.add.pick}
-          </Button>
-        </div>
-      </div>
-      {/* TODO: Hide this on no file selected */}
-      {/* TODO: Fill with document data from file input */}
-      {/* TODO: clearFileInput button top right */}
-      {/* <List id="documents-list" locales={locales.route.add.list}>
-        <ListItemMaterial
-          index={0}
-          type={document.mimeType === "application/pdf" ? "pdf" : "image"}
-          sizeInMB={document.sizeInMB}
-        >
-          {document.mimeType !== "application/pdf" ? (
-            <ListItemMaterial.Image
-              alt={document.title || document.filename}
-              src="TODO:"
-              blurredSrc="TODO:"
-            />
-          ) : null}
-          <ListItemMaterial.Headline>
-            {document.title || document.filename}
-          </ListItemMaterial.Headline>
-          {hasContent(document.credits) && (
-            <ListItemMaterial.Subline>
-              © {document.credits}
-            </ListItemMaterial.Subline>
-          )}
-        </ListItemMaterial>
-      </List> */}
-      <Input {...getInputProps(uploadFields.title, { type: "text" })}>
-        <Input.Label htmlFor={uploadFields.title.id}>
-          {locales.route.add.title.label}
-        </Input.Label>
-        {typeof uploadFields.title.errors !== "undefined" &&
-        uploadFields.title.errors.length > 0 ? (
-          uploadFields.title.errors.map((error) => (
-            <Input.Error id={uploadFields.title.errorId} key={error}>
-              {error}
-            </Input.Error>
-          ))
-        ) : (
-          <Input.HelperText>
-            {locales.route.add.title.helperText}
-          </Input.HelperText>
-        )}
-      </Input>
-      <Input
-        {...getInputProps(uploadFields.description, { type: "text" })}
-        maxLength={DOCUMENT_DESCRIPTION_MAX_LENGTH}
+        encType="multipart/form-data"
+        hidden={isHydrated}
       >
-        <Input.Label htmlFor={uploadFields.description.id}>
-          {locales.route.add.description.label}
-        </Input.Label>
-        {typeof uploadFields.description.errors !== "undefined" &&
-        uploadFields.description.errors.length > 0 ? (
-          uploadFields.description.errors.map((error) => (
-            <Input.Error id={uploadFields.description.errorId} key={error}>
-              {error}
-            </Input.Error>
-          ))
-        ) : (
-          <Input.HelperText>
-            {locales.route.add.description.helperText}
-          </Input.HelperText>
-        )}
-      </Input>
-      <div className="w-full flex md:justify-end">
-        <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
+        <input
+          name={INTENT_FIELD_NAME}
+          type="hidden"
+          value={UPLOAD_DOCUMENT_INTENT_VALUE}
+        />
+        <input
+          {...getInputProps(uploadFields[FILE_FIELD_NAME], {
+            type: "file",
+          })}
+          className="cursor-pointer"
+          accept={DOCUMENT_MIME_TYPES.join(", ")}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedFiles(
+              event.target.files !== null
+                ? Array.from(event.target.files).map((file) => {
+                    return {
+                      id: crypto.randomUUID(),
+                      filename: file.name,
+                      sizeInMB:
+                        Math.round((file.size / 1000 / 1000) * 100) / 100,
+                    };
+                  })
+                : []
+            );
+            uploadForm.validate();
+          }}
+        />
+      </Form>
+      {selectedFiles.length === 0 && isHydrated ? (
+        <div className="flex md:justify-end">
           <div className="w-full md:w-fit">
             <Button
-              type="submit"
+              as="label"
+              htmlFor={uploadFields[FILE_FIELD_NAME].id}
               fullSize
-              form={uploadForm.id} // Don't disable button when js is disabled
-              disabled={
-                isHydrated
-                  ? uploadForm.dirty === false ||
-                    uploadForm.valid === false ||
-                    isSubmitting
-                  : false
-              }
+              variant="outline"
             >
-              {locales.route.add.upload}
+              {locales.route.add.pick}
             </Button>
           </div>
-          <div className="w-full md:w-fit">
-            <div className="relative w-full">
-              <Button
-                type="reset"
-                onClick={() => {
-                  uploadForm.reset();
-                }}
-                variant="outline"
-                fullSize
-                // Don't disable button when js is disabled
-                disabled={isHydrated ? uploadForm.dirty === false : false}
-              >
-                {locales.route.add.cancel}
-              </Button>
-              <noscript className="absolute top-0">
-                <Button as="link" to="." variant="outline" fullSize>
-                  {locales.route.add.cancel}
+        </div>
+      ) : (
+        <>
+          {isHydrated ? (
+            <List id="selected-files-list" locales={locales.route.add.list}>
+              {selectedFiles.map((document, index) => {
+                return (
+                  <ListItemMaterial
+                    key={document.id}
+                    index={index}
+                    type="pdf"
+                    sizeInMB={document.sizeInMB}
+                  >
+                    <ListItemMaterial.Headline>
+                      {document.filename}
+                    </ListItemMaterial.Headline>
+                    {/* TODO: clearFileInput button top right */}
+                  </ListItemMaterial>
+                );
+              })}
+            </List>
+          ) : null}
+          <Input {...getInputProps(uploadFields.title, { type: "text" })}>
+            <Input.Label htmlFor={uploadFields.title.id}>
+              {locales.route.add.title.label}
+            </Input.Label>
+            {typeof uploadFields.title.errors !== "undefined" &&
+            uploadFields.title.errors.length > 0 ? (
+              uploadFields.title.errors.map((error) => (
+                <Input.Error id={uploadFields.title.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>
+                {locales.route.add.title.helperText}
+              </Input.HelperText>
+            )}
+          </Input>
+          <Input
+            {...getInputProps(uploadFields.description, { type: "text" })}
+            maxLength={DOCUMENT_DESCRIPTION_MAX_LENGTH}
+          >
+            <Input.Label htmlFor={uploadFields.description.id}>
+              {locales.route.add.description.label}
+            </Input.Label>
+            {typeof uploadFields.description.errors !== "undefined" &&
+            uploadFields.description.errors.length > 0 ? (
+              uploadFields.description.errors.map((error) => (
+                <Input.Error id={uploadFields.description.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>
+                {locales.route.add.description.helperText}
+              </Input.HelperText>
+            )}
+          </Input>
+          <div className="w-full flex md:justify-end">
+            <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
+              <div className="w-full md:w-fit">
+                <Button
+                  type="submit"
+                  fullSize
+                  form={uploadForm.id}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? uploadForm.dirty === false ||
+                        uploadForm.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.route.add.upload}
                 </Button>
-              </noscript>
+              </div>
+              <div className="w-full md:w-fit">
+                <div className="relative w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setSelectedFiles([]);
+                      uploadForm.reset();
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? uploadForm.dirty === false : false}
+                  >
+                    {locales.route.add.cancel}
+                  </Button>
+                  <noscript className="absolute top-0">
+                    <Button as="link" to="." variant="outline" fullSize>
+                      {locales.route.add.cancel}
+                    </Button>
+                  </noscript>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 }

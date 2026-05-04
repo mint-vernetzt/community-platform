@@ -135,6 +135,7 @@ export function getUploadDocumentSchema(locales: {
   });
 }
 
+// TODO: When used with different buckets extend this with BUCKET_FIELD_NAME like above
 export function nextGetUploadDocumentSchema(locales: {
   maxSize: string;
   invalidType: string;
@@ -154,8 +155,6 @@ export function nextGetUploadDocumentSchema(locales: {
       .refine((file) => {
         return DOCUMENT_MIME_TYPES.includes(file.type);
       }, locales.invalidType),
-    [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
-    [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
     [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
     [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
       .string()

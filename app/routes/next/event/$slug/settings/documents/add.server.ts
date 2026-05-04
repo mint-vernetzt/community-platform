@@ -4,10 +4,14 @@ import { uploadFileToStorage } from "~/storage.server";
 
 export async function uploadDocumentToEvent(options: {
   authClient: SupabaseClient;
+  data: {
+    title?: string;
+    description?: string;
+  };
   file: File;
   slug: string;
 }) {
-  const { authClient, file, slug } = options;
+  const { authClient, file, slug, data } = options;
   const { fileMetadataForDatabase, error } = await uploadFileToStorage({
     file,
     authClient,
@@ -24,7 +28,7 @@ export async function uploadDocumentToEvent(options: {
       documents: {
         create: {
           document: {
-            create: { ...fileMetadataForDatabase },
+            create: { ...fileMetadataForDatabase, ...data },
           },
         },
       },
