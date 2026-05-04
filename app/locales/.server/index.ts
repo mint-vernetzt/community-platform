@@ -86,6 +86,10 @@ import { locale as deNextEventSettingsDocumentsList } from "./de/routes/next/eve
 import { locale as deNextEventSettingsDocumentsAdd } from "./de/routes/next/event/$slug/settings/documents/add";
 import { locale as deNextEventSettingsLocation } from "./de/routes/next/event/$slug/settings/location";
 import { locale as deNextEventSettingsParticipants } from "./de/routes/next/event/$slug/settings/participants";
+import { locale as deNextEventSettingsParticipantsList } from "./de/routes/next/event/$slug/settings/participants/list";
+import { locale as deNextEventSettingsParticipantsWaitingList } from "./de/routes/next/event/$slug/settings/participants/waiting-list";
+import { locale as deNextEventSettingsParticipantsAdd } from "./de/routes/next/event/$slug/settings/participants/add";
+import { locale as deNextEventSettingsParticipantsInvites } from "./de/routes/next/event/$slug/settings/participants/invites";
 import { locale as deNextEventSettingsRegistration } from "./de/routes/next/event/$slug/settings/registration";
 import { locale as deNextEventSettingsRegistrationAccess } from "./de/routes/next/event/$slug/settings/registration/access";
 import { locale as deNextEventSettingsRegistrationPeriod } from "./de/routes/next/event/$slug/settings/registration/period";
@@ -292,6 +296,10 @@ import { locale as enNextEventSettingsDocumentsList } from "./en/routes/next/eve
 import { locale as enNextEventSettingsDocumentsAdd } from "./en/routes/next/event/$slug/settings/documents/add";
 import { locale as enNextEventSettingsLocation } from "./en/routes/next/event/$slug/settings/location";
 import { locale as enNextEventSettingsParticipants } from "./en/routes/next/event/$slug/settings/participants";
+import { locale as enNextEventSettingsParticipantsList } from "./en/routes/next/event/$slug/settings/participants/list";
+import { locale as enNextEventSettingsParticipantsWaitingList } from "./en/routes/next/event/$slug/settings/participants/waiting-list";
+import { locale as enNextEventSettingsParticipantsAdd } from "./en/routes/next/event/$slug/settings/participants/add";
+import { locale as enNextEventSettingsParticipantsInvites } from "./en/routes/next/event/$slug/settings/participants/invites";
 import { locale as enNextEventSettingsRegistration } from "./en/routes/next/event/$slug/settings/registration";
 import { locale as enNextEventSettingsRegistrationAccess } from "./en/routes/next/event/$slug/settings/registration/access";
 import { locale as enNextEventSettingsRegistrationPeriod } from "./en/routes/next/event/$slug/settings/registration/period";
@@ -596,6 +604,18 @@ const de = {
   },
   "next/event/$slug/settings/participants": {
     route: deNextEventSettingsParticipants,
+  },
+  "next/event/$slug/settings/participants/list": {
+    route: deNextEventSettingsParticipantsList,
+  },
+  "next/event/$slug/settings/participants/waiting-list": {
+    route: deNextEventSettingsParticipantsWaitingList,
+  },
+  "next/event/$slug/settings/participants/add": {
+    route: deNextEventSettingsParticipantsAdd,
+  },
+  "next/event/$slug/settings/participants/invites": {
+    route: deNextEventSettingsParticipantsInvites,
   },
   "next/event/$slug/settings/registration": {
     route: deNextEventSettingsRegistration,
@@ -1133,6 +1153,18 @@ const en = {
   },
   "next/event/$slug/settings/participants": {
     route: enNextEventSettingsParticipants,
+  },
+  "next/event/$slug/settings/participants/list": {
+    route: enNextEventSettingsParticipantsList,
+  },
+  "next/event/$slug/settings/participants/waiting-list": {
+    route: enNextEventSettingsParticipantsWaitingList,
+  },
+  "next/event/$slug/settings/participants/add": {
+    route: enNextEventSettingsParticipantsAdd,
+  },
+  "next/event/$slug/settings/participants/invites": {
+    route: enNextEventSettingsParticipantsInvites,
   },
   "next/event/$slug/settings/registration": {
     route: enNextEventSettingsRegistration,

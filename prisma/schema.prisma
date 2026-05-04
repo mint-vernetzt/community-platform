@@ -10,42 +10,43 @@ datasource db {
 }
 
 model Profile {
-  id                        String                               @id @default(uuid())
-  username                  String                               @unique
+  id                        String                                 @id @default(uuid())
+  username                  String                                 @unique
   email                     String
   email2                    String?
   phone                     String?
   website                   String?
   avatar                    String?
   background                String? // legacy
-  backgroundImage           Image?                               @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
-  backgroundImageId         String?                              @map("background_image_id")
+  backgroundImage           Image?                                 @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId         String?                                @map("background_image_id")
   facebook                  String?
   linkedin                  String?
   twitter                   String?
   xing                      String?
   bio                       String?
-  bioRTEState               String?                              @map("bio_rte_state")
+  bioRTEState               String?                                @map("bio_rte_state")
   skills                    String[]
   interests                 String[]
-  academicTitle             String?                              @map("academic_title")
-  createdAt                 DateTime                             @default(now()) @map("created_at")
-  firstName                 String                               @map("first_name")
-  lastName                  String                               @map("last_name")
-  publicFields              String[]                             @map("public_fields") // legacy
-  termsAccepted             Boolean                              @map("terms_accepted")
-  termsAcceptedAt           DateTime                             @default(now()) @map("terms_accepted_at")
-  updatedAt                 DateTime                             @default(now()) @map("updated_at")
+  academicTitle             String?                                @map("academic_title")
+  createdAt                 DateTime                               @default(now()) @map("created_at")
+  firstName                 String                                 @map("first_name")
+  lastName                  String                                 @map("last_name")
+  publicFields              String[]                               @map("public_fields") // legacy
+  termsAccepted             Boolean                                @map("terms_accepted")
+  termsAcceptedAt           DateTime                               @default(now()) @map("terms_accepted_at")
+  updatedAt                 DateTime                               @default(now()) @map("updated_at")
   position                  String?
   instagram                 String?
   youtube                   String?
   mastodon                  String?
   tiktok                    String?
-  score                     Int                                  @default(0)
+  score                     Int                                    @default(0)
   areas                     AreasOnProfiles[]
   memberOf                  MemberOfOrganization[]
   offers                    OffersOnProfiles[]
   participatedEvents        ParticipantOfEvent[]
+  participantOnEventInvites InviteForProfileToParticipateOnEvent[]
   seekings                  SeekingsOnProfiles[]
   contributedEvents         SpeakerOfEvent[]
   teamMemberOfEvents        TeamMemberOfEvent[]
@@ -57,15 +58,15 @@ model Profile {
   administeredOrganizations AdminOfOrganization[]
   administeredProjects      AdminOfProject[]
   notificationSettings      NotificationSettings?
-  profileAbuseReport        ProfileAbuseReport[]                 @relation("reporter_of_profile_abuse_report")
-  organizationAbuseReport   OrganizationAbuseReport[]            @relation("reporter_of_organization_abuse_report")
-  eventAbuseReport          EventAbuseReport[]                   @relation("reporter_of_event_abuse_report")
-  projectAbuseReport        ProjectAbuseReport[]                 @relation("reporter_of_project_abuse_report")
-  abuseReports              ProfileAbuseReport[]                 @relation("profile_of_profile_abuse_report")
+  profileAbuseReport        ProfileAbuseReport[]                   @relation("reporter_of_profile_abuse_report")
+  organizationAbuseReport   OrganizationAbuseReport[]              @relation("reporter_of_organization_abuse_report")
+  eventAbuseReport          EventAbuseReport[]                     @relation("reporter_of_event_abuse_report")
+  projectAbuseReport        ProjectAbuseReport[]                   @relation("reporter_of_project_abuse_report")
+  abuseReports              ProfileAbuseReport[]                   @relation("profile_of_profile_abuse_report")
   joinOrganizationRequests  RequestToOrganizationToAddProfile[]
   joinOrganizationInvites   InviteForProfileToJoinOrganization[]
   joinEventInvites          InviteForProfileToJoinEvent[]
-  claimOrganizationRequests OrganizationClaimRequest[]           @relation("claimer_of_organization_claim_request")
+  claimOrganizationRequests OrganizationClaimRequest[]             @relation("claimer_of_organization_claim_request")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -109,6 +110,7 @@ model ProfileVisibility {
   memberOf                  Boolean @default(true)
   offers                    Boolean @default(false)
   participatedEvents        Boolean @default(false)
+  participantOnEventInvites Boolean @default(false)
   seekings                  Boolean @default(false)
   contributedEvents         Boolean @default(true)
   teamMemberOfEvents        Boolean @default(true)
@@ -530,6 +532,7 @@ model Event {
   stage                            Stage?                                         @relation("stage_of_event", fields: [stageId], references: [id])
   focuses                          FocusOfEvent[]
   participants                     ParticipantOfEvent[]
+  participantInvites               InviteForProfileToParticipateOnEvent[]
   responsibleOrganizations         ResponsibleOrganizationOfEvent[]
   responsibleOrganizationInvites   InviteForOrganizationToBeResponsibleForEvent[]
   speakers                         SpeakerOfEvent[]
@@ -598,6 +601,7 @@ model EventVisibility {
   stage                            Boolean @default(true)
   focuses                          Boolean @default(true)
   participants                     Boolean @default(false)
+  participantInvites               Boolean @default(false)
   responsibleOrganizations         Boolean @default(true)
   responsibleOrganizationInvites   Boolean @default(false)
   speakers                         Boolean @default(true)
@@ -1654,6 +1658,19 @@ model InviteForProfileToJoinEvent {
 
   @@id([profileId, eventId, role])
   @@map("invites_for_profiles_to_join_events")
+}
+
+model InviteForProfileToParticipateOnEvent {
+  profileId String     @map("profile_id")
+  profile   Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  eventId   String     @map("event_id")
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status    JoinStatus
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@id([profileId, eventId])
+  @@map("invites_for_profiles_to_participate_on_events")
 }
 
 model InviteForOrganizationToBeResponsibleForEvent {
