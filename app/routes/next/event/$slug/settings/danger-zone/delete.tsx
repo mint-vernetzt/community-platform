@@ -130,7 +130,7 @@ function Delete() {
     constraint: getZodConstraint(
       createDeleteSchema({ locales: locales.route, name: event.name })
     ),
-    shouldValidate: "onSubmit",
+    shouldValidate: "onInput",
     shouldRevalidate: "onInput",
     onValidate: (values) => {
       return parseWithZod(values.formData, {
@@ -181,7 +181,9 @@ function Delete() {
               form={form.id}
               // Don't disable button when js is disabled
               disabled={
-                isHydrated ? form.valid === false || isSubmitting : false
+                isHydrated
+                  ? form.dirty === false || form.valid === false || isSubmitting
+                  : false
               }
             >
               {locales.route.submit}

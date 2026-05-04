@@ -93,16 +93,11 @@ export function createEventCreationSchema(options: {
         }
 
         const participationUntil = startTime;
-        const oneDayInMillis = 86_400_000;
-        const participationFrom = new Date(
-          startTime.getTime() - oneDayInMillis
-        );
 
         return {
           name: data.name,
           startTime,
           endTime,
-          participationFrom,
           participationUntil,
         };
       });
@@ -174,16 +169,11 @@ export function createEventCreationSchema(options: {
         }
 
         const participationUntil = startTime;
-        const oneDayInMillis = 86_400_000;
-        const participationFrom = new Date(
-          startTime.getTime() - oneDayInMillis
-        );
 
         return {
           name: data.name,
           startTime,
           endTime,
-          participationFrom,
           participationUntil,
         };
       });

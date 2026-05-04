@@ -57,9 +57,7 @@ export default function Registration() {
             </Link>
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/period")}>
-            {event.published === false &&
-            event.external === false &&
-            event.openForRegistration ? (
+            {event.external === false && event.openForRegistration ? (
               <Link
                 to={`./period?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/period"))}
