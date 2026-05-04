@@ -91,7 +91,7 @@ function ListItemMaterial(props: {
   );
 
   const classes = classNames(
-    "@container/list-item-material flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
+    "relative @container/list-item-material flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
     type === "pdf" && "pl-4 sm:pl-0"
   );
 
@@ -220,6 +220,18 @@ function ListItemControls(props: {
     return isValidElement(child) && child.type === ListItemControlsEditModal;
   });
 
+  const clearIcon = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === ListItemControlsClearIcon;
+  });
+
+  const otherChildren = childrenArray.filter((child) => {
+    return (
+      isValidElement(child) &&
+      child.type !== ListItemControlsEditModal &&
+      child.type !== ListItemControlsClearIcon
+    );
+  });
+
   const [editForm, setEditForm] = useState<FormMetadata<
     {
       documentId: string;
@@ -247,7 +259,7 @@ function ListItemControls(props: {
       {useOverlayMenu ? (
         <div className="pr-4">
           <OverlayMenu {...overlayMenuProps}>
-            {Children.toArray(children).map((child, index) => {
+            {Children.toArray(otherChildren).map((child, index) => {
               if (isValidElement(child)) {
                 return (
                   <OverlayMenu.ListItem key={index}>
@@ -259,8 +271,9 @@ function ListItemControls(props: {
           </OverlayMenu>
         </div>
       ) : (
-        <div className="flex gap-4 pr-4">{children}</div>
+        <div className="flex gap-4 pr-4">{otherChildren}</div>
       )}
+      <div className="absolute top-4 right-4">{clearIcon}</div>
     </ListItemControlsContext>
   );
 }
@@ -279,6 +292,7 @@ function ListItemControlsDownload(
       height="20"
       viewBox="0 0 20 20"
       fill="none"
+      aria-hidden="true"
     >
       <path
         d="M0.625 12.375C0.970178 12.375 1.25 12.6549 1.25 13V16.125C1.25 16.8154 1.80964 17.375 2.5 17.375H17.5C18.1904 17.375 18.75 16.8154 18.75 16.125V13C18.75 12.6549 19.0298 12.375 19.375 12.375C19.7202 12.375 20 12.6549 20 13V16.125C20 17.5057 18.8807 18.625 17.5 18.625H2.5C1.11929 18.625 0 17.5057 0 16.125V13C0 12.6549 0.279822 12.375 0.625 12.375Z"
@@ -345,6 +359,7 @@ function ListItemControlsRemove(props: {
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <path
         d="M6.875 6.875C7.22018 6.875 7.5 7.15482 7.5 7.5V15C7.5 15.3452 7.22018 15.625 6.875 15.625C6.52982 15.625 6.25 15.3452 6.25 15V7.5C6.25 7.15482 6.52982 6.875 6.875 6.875Z"
@@ -432,6 +447,7 @@ function ListItemControlsEdit(props: {
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <path
         d="M15.1831 0.183058C15.4272 -0.0610194 15.8229 -0.0610194 16.067 0.183058L19.817 3.93306C20.061 4.17714 20.061 4.57286 19.817 4.81694L7.31696 17.3169C7.25711 17.3768 7.18573 17.4239 7.10714 17.4553L0.857137 19.9553C0.625002 20.0482 0.359866 19.9937 0.183076 19.8169C0.00628736 19.6402 -0.0481339 19.375 0.0447203 19.1429L2.54472 12.8929C2.57616 12.8143 2.62323 12.7429 2.68308 12.6831L15.1831 0.183058ZM14.0089 3.125L16.875 5.99112L18.4911 4.375L15.625 1.50888L14.0089 3.125ZM15.9911 6.875L13.125 4.00888L5.00002 12.1339V12.5H5.62502C5.9702 12.5 6.25002 12.7798 6.25002 13.125V13.75H6.87502C7.2202 13.75 7.50002 14.0298 7.50002 14.375V15H7.86613L15.9911 6.875ZM3.78958 13.3443L3.65767 13.4762L1.74693 18.2531L6.52379 16.3423L6.6557 16.2104C6.41871 16.1216 6.25002 15.893 6.25002 15.625V15H5.62502C5.27984 15 5.00002 14.7202 5.00002 14.375V13.75H4.37502C4.10701 13.75 3.87841 13.5813 3.78958 13.3443Z"
@@ -580,13 +596,15 @@ function ListItemControlsEditModal(props: {
               {locales.title.label}
             </Input.Label>
             {typeof editFields.title.errors !== "undefined" &&
-            editFields.title.errors.length > 0
-              ? editFields.title.errors.map((error) => (
-                  <Input.Error id={editFields.title.errorId} key={error}>
-                    {error}
-                  </Input.Error>
-                ))
-              : null}
+            editFields.title.errors.length > 0 ? (
+              editFields.title.errors.map((error) => (
+                <Input.Error id={editFields.title.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>{locales.title.helperText}</Input.HelperText>
+            )}
           </Input>
           <Input
             {...getInputProps(editFields.description, { type: "text" })}
@@ -639,6 +657,34 @@ function ListItemControlsEditModal(props: {
   );
 }
 
+export function ListItemControlsClearIcon(props: {
+  label: string;
+  buttonProps?: ButtonHTMLAttributes<HTMLButtonElement>;
+}) {
+  const { label, buttonProps } = props;
+  const clearIcon = (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M5.8075 5.80752C5.86556 5.74931 5.93453 5.70314 6.01046 5.67163C6.08639 5.64012 6.16779 5.6239 6.25 5.6239C6.33221 5.6239 6.41361 5.64012 6.48955 5.67163C6.56548 5.70314 6.63445 5.74931 6.6925 5.80752L10 9.11627L13.3075 5.80752C13.3656 5.74941 13.4346 5.70331 13.5105 5.67186C13.5864 5.64042 13.6678 5.62423 13.75 5.62423C13.8322 5.62423 13.9136 5.64042 13.9895 5.67186C14.0654 5.70331 14.1344 5.74941 14.1925 5.80752C14.2506 5.86563 14.2967 5.93461 14.3282 6.01054C14.3596 6.08646 14.3758 6.16784 14.3758 6.25002C14.3758 6.3322 14.3596 6.41357 14.3282 6.4895C14.2967 6.56542 14.2506 6.63441 14.1925 6.69252L10.8838 10L14.1925 13.3075C14.2506 13.3656 14.2967 13.4346 14.3282 13.5105C14.3596 13.5865 14.3758 13.6678 14.3758 13.75C14.3758 13.8322 14.3596 13.9136 14.3282 13.9895C14.2967 14.0654 14.2506 14.1344 14.1925 14.1925C14.1344 14.2506 14.0654 14.2967 13.9895 14.3282C13.9136 14.3596 13.8322 14.3758 13.75 14.3758C13.6678 14.3758 13.5864 14.3596 13.5105 14.3282C13.4346 14.2967 13.3656 14.2506 13.3075 14.1925L10 10.8838L6.6925 14.1925C6.63439 14.2506 6.56541 14.2967 6.48948 14.3282C6.41356 14.3596 6.33218 14.3758 6.25 14.3758C6.16782 14.3758 6.08645 14.3596 6.01052 14.3282C5.9346 14.2967 5.86561 14.2506 5.8075 14.1925C5.74939 14.1344 5.7033 14.0654 5.67185 13.9895C5.6404 13.9136 5.62421 13.8322 5.62421 13.75C5.62421 13.6678 5.6404 13.5865 5.67185 13.5105C5.7033 13.4346 5.74939 13.3656 5.8075 13.3075L9.11625 10L5.8075 6.69252C5.7493 6.63446 5.70312 6.56549 5.67161 6.48956C5.6401 6.41363 5.62389 6.33223 5.62389 6.25002C5.62389 6.16781 5.6401 6.08641 5.67161 6.01048C5.70312 5.93454 5.7493 5.86558 5.8075 5.80752Z"
+        fill="#3C4658"
+      />
+    </svg>
+  );
+
+  return (
+    <button aria-label={label} {...buttonProps}>
+      {clearIcon}
+    </button>
+  );
+}
+
 ListItemMaterial.Subline = ListItemSubline;
 ListItemMaterial.Headline = ListItemHeadline;
 ListItemMaterial.Image = Image;
@@ -647,5 +693,6 @@ ListItemControls.Download = ListItemControlsDownload;
 ListItemControls.Remove = ListItemControlsRemove;
 ListItemControls.Edit = ListItemControlsEdit;
 ListItemControls.EditModal = ListItemControlsEditModal;
+ListItemControls.ClearIcon = ListItemControlsClearIcon;
 
 export default ListItemMaterial;

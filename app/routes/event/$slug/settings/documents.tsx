@@ -34,6 +34,7 @@ import {
   BUCKET_NAME_DOCUMENTS,
   DOCUMENT_MIME_TYPES,
   FILE_FIELD_NAME,
+  getUploadDocumentSchema,
   MAX_UPLOAD_FILE_SIZE,
   UPLOAD_DOCUMENT_INTENT_VALUE,
 } from "~/storage.shared";
@@ -47,7 +48,6 @@ import {
 import { publishSchema } from "./events/publish";
 import { getRedirectPathOnProtectedEventRoute } from "./utils.server";
 import {
-  createDocumentUploadSchema,
   createEditDocumentSchema,
   disconnectAttachmentSchema,
   DOCUMENT_DESCRIPTION_MAX_LENGTH,
@@ -166,7 +166,12 @@ function Documents() {
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
     id: "upload-document-form",
-    constraint: getZodConstraint(createDocumentUploadSchema(locales)),
+    constraint: getZodConstraint(
+      getUploadDocumentSchema({
+        maxSize: locales.upload.validation.document.size,
+        invalidType: locales.upload.validation.document.type,
+      })
+    ),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
@@ -182,7 +187,10 @@ function Documents() {
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
-        schema: createDocumentUploadSchema(locales),
+        schema: getUploadDocumentSchema({
+          maxSize: locales.upload.validation.document.size,
+          invalidType: locales.upload.validation.document.type,
+        }),
       });
       return submission;
     },
