@@ -1,5 +1,5 @@
-function ParticipatntsAdd() {
+function ParticipantsAdd() {
   return <h1>Participants Add</h1>;
 }
 
-export default ParticipatntsAdd;
+export default ParticipantsAdd;
