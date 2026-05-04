@@ -8,7 +8,7 @@ import {
 
 export const createDocumentUploadSchema = (
   locales: ProjectAttachmentSettingsLocales
-) => z.object({ ...getUploadDocumentSchema(locales) });
+) => getUploadDocumentSchema(locales);
 
 export const createImageUploadSchema = (
   locales: ProjectAttachmentSettingsLocales

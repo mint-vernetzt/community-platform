@@ -117,7 +117,7 @@ export const BUCKET_NAME_DOCUMENTS = "documents";
 export function getUploadDocumentSchema(
   locales: ProjectAttachmentSettingsLocales | EventDocumentsSettingsLocales
 ) {
-  return {
+  return z.object({
     [FILE_FIELD_NAME]: z
       .instanceof(File)
       .refine(
@@ -133,7 +133,7 @@ export function getUploadDocumentSchema(
       }, locales.upload.validation.document.type),
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_DOCUMENTS]),
     [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
-  };
+  });
 }
 
 export function getUploadImageSchema(
