@@ -108,7 +108,6 @@ export async function action(args: ActionFunctionArgs) {
   });
 
   if (submission.status !== "success") {
-    console.log("Server Validation failed", submission);
     return {
       submission: submission.reply(),
       intent: UPLOAD_DOCUMENT_INTENT_VALUE,
@@ -176,7 +175,6 @@ function DocumentsList() {
       const submission = parseWithZod(formData, {
         schema: nextGetUploadDocumentSchema(locales.route.validation),
       });
-      console.log("Client validation result", submission);
       return submission;
     },
     onSubmit: () => {
@@ -274,7 +272,17 @@ function DocumentsList() {
                     <ListItemMaterial.Headline>
                       {document.filename}
                     </ListItemMaterial.Headline>
-                    {/* TODO: clearFileInput button top right */}
+                    <ListItemMaterial.Controls>
+                      <ListItemMaterial.Controls.ClearIcon
+                        buttonProps={{
+                          onClick: (event) => {
+                            event.preventDefault();
+                            setSelectedFiles([]);
+                            uploadForm.reset();
+                          },
+                        }}
+                      />
+                    </ListItemMaterial.Controls>
                   </ListItemMaterial>
                 );
               })}

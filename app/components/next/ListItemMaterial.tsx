@@ -91,7 +91,7 @@ function ListItemMaterial(props: {
   );
 
   const classes = classNames(
-    "@container/list-item-material flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
+    "relative @container/list-item-material flex gap-4 items-center border border-neutral-200 rounded-lg h-24",
     type === "pdf" && "pl-4 sm:pl-0"
   );
 
@@ -220,6 +220,18 @@ function ListItemControls(props: {
     return isValidElement(child) && child.type === ListItemControlsEditModal;
   });
 
+  const clearIcon = childrenArray.find((child) => {
+    return isValidElement(child) && child.type === ListItemControlsClearIcon;
+  });
+
+  const otherChildren = childrenArray.filter((child) => {
+    return (
+      isValidElement(child) &&
+      child.type !== ListItemControlsEditModal &&
+      child.type !== ListItemControlsClearIcon
+    );
+  });
+
   const [editForm, setEditForm] = useState<FormMetadata<
     {
       documentId: string;
@@ -247,7 +259,7 @@ function ListItemControls(props: {
       {useOverlayMenu ? (
         <div className="pr-4">
           <OverlayMenu {...overlayMenuProps}>
-            {Children.toArray(children).map((child, index) => {
+            {Children.toArray(otherChildren).map((child, index) => {
               if (isValidElement(child)) {
                 return (
                   <OverlayMenu.ListItem key={index}>
@@ -259,8 +271,9 @@ function ListItemControls(props: {
           </OverlayMenu>
         </div>
       ) : (
-        <div className="flex gap-4 pr-4">{children}</div>
+        <div className="flex gap-4 pr-4">{otherChildren}</div>
       )}
+      <div className="absolute top-4 right-4">{clearIcon}</div>
     </ListItemControlsContext>
   );
 }
@@ -641,6 +654,32 @@ function ListItemControlsEditModal(props: {
   );
 }
 
+export function ListItemControlsClearIcon(props: {
+  buttonProps?: ButtonHTMLAttributes<HTMLButtonElement>;
+}) {
+  const { buttonProps } = props;
+  const clearIcon = (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5.8075 5.80752C5.86556 5.74931 5.93453 5.70314 6.01046 5.67163C6.08639 5.64012 6.16779 5.6239 6.25 5.6239C6.33221 5.6239 6.41361 5.64012 6.48955 5.67163C6.56548 5.70314 6.63445 5.74931 6.6925 5.80752L10 9.11627L13.3075 5.80752C13.3656 5.74941 13.4346 5.70331 13.5105 5.67186C13.5864 5.64042 13.6678 5.62423 13.75 5.62423C13.8322 5.62423 13.9136 5.64042 13.9895 5.67186C14.0654 5.70331 14.1344 5.74941 14.1925 5.80752C14.2506 5.86563 14.2967 5.93461 14.3282 6.01054C14.3596 6.08646 14.3758 6.16784 14.3758 6.25002C14.3758 6.3322 14.3596 6.41357 14.3282 6.4895C14.2967 6.56542 14.2506 6.63441 14.1925 6.69252L10.8838 10L14.1925 13.3075C14.2506 13.3656 14.2967 13.4346 14.3282 13.5105C14.3596 13.5865 14.3758 13.6678 14.3758 13.75C14.3758 13.8322 14.3596 13.9136 14.3282 13.9895C14.2967 14.0654 14.2506 14.1344 14.1925 14.1925C14.1344 14.2506 14.0654 14.2967 13.9895 14.3282C13.9136 14.3596 13.8322 14.3758 13.75 14.3758C13.6678 14.3758 13.5864 14.3596 13.5105 14.3282C13.4346 14.2967 13.3656 14.2506 13.3075 14.1925L10 10.8838L6.6925 14.1925C6.63439 14.2506 6.56541 14.2967 6.48948 14.3282C6.41356 14.3596 6.33218 14.3758 6.25 14.3758C6.16782 14.3758 6.08645 14.3596 6.01052 14.3282C5.9346 14.2967 5.86561 14.2506 5.8075 14.1925C5.74939 14.1344 5.7033 14.0654 5.67185 13.9895C5.6404 13.9136 5.62421 13.8322 5.62421 13.75C5.62421 13.6678 5.6404 13.5865 5.67185 13.5105C5.7033 13.4346 5.74939 13.3656 5.8075 13.3075L9.11625 10L5.8075 6.69252C5.7493 6.63446 5.70312 6.56549 5.67161 6.48956C5.6401 6.41363 5.62389 6.33223 5.62389 6.25002C5.62389 6.16781 5.6401 6.08641 5.67161 6.01048C5.70312 5.93454 5.7493 5.86558 5.8075 5.80752Z"
+        fill="#3C4658"
+      />
+    </svg>
+  );
+
+  return (
+    <button aria-label="Clear" {...buttonProps}>
+      {clearIcon}
+    </button>
+  );
+}
+
 ListItemMaterial.Subline = ListItemSubline;
 ListItemMaterial.Headline = ListItemHeadline;
 ListItemMaterial.Image = Image;
@@ -649,5 +688,6 @@ ListItemControls.Download = ListItemControlsDownload;
 ListItemControls.Remove = ListItemControlsRemove;
 ListItemControls.Edit = ListItemControlsEdit;
 ListItemControls.EditModal = ListItemControlsEditModal;
+ListItemControls.ClearIcon = ListItemControlsClearIcon;
 
 export default ListItemMaterial;
