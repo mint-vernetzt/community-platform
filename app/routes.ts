@@ -288,7 +288,26 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/participants",
-        "./routes/next/event/$slug/settings/participants.tsx"
+        "./routes/next/event/$slug/settings/participants.tsx",
+        [
+          index("./routes/next/event/$slug/settings/participants/index.tsx"),
+          route(
+            "/next/event/:slug/settings/participants/list",
+            "./routes/next/event/$slug/settings/participants/list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/participants/waiting-list",
+            "./routes/next/event/$slug/settings/participants/waiting-list.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/participants/add",
+            "./routes/next/event/$slug/settings/participants/add.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/participants/invites",
+            "./routes/next/event/$slug/settings/participants/invites.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/registration",
