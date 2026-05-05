@@ -1,26 +1,241 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { useState } from "react";
+import {
+  Form,
+  redirect,
+  useLoaderData,
+  useLocation,
+  useSearchParams,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { Modal } from "~/components-next/Modal";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import TitleSection from "~/components/next/TitleSection";
+import { detectLanguage } from "~/i18n.server";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { getEventBySlug } from "./list.server";
-import { Deep } from "~/lib/utils/searchParams";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import {
+  getEventBySlug,
+  getParticipantsOfEvent,
+  removeParticipantFromEvent,
+} from "./list.server";
+import {
+  CONFIRM_MODAL_SEARCH_PARAM,
+  getConfirmationModalSearchParam,
+  getRemoveParticipantSchema,
+  getSearchParticipantsSchema,
+  SEARCH_PARTICIPANTS_SEARCH_PARAM,
+} from "./list.shared";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { parseWithZod } from "@conform-to/zod";
+import { captureException } from "@sentry/node";
+import { redirectWithToast } from "~/toast.server";
 
 export async function loader(args: LoaderFunctionArgs) {
-  const { params } = args;
+  const { request, params } = args;
   const { slug } = params;
 
   invariantResponse(typeof slug === "string", "Invalid slug", { status: 400 });
 
-  const event = await getEventBySlug(slug);
-  invariantResponse(event !== null, "Event not found", { status: 404 });
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/event/$slug/settings/participants/list"];
 
-  if (event._count.participants === 0) {
+  const { authClient } = createAuthClient(request);
+
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  const result = await getParticipantsOfEvent({
+    slug,
+    authClient,
+    searchParams,
+  });
+  const { submission, participants } = result;
+
+  if (participants.length === 0) {
     return redirect(`../add?${Deep}=true`);
   }
 
-  return null;
+  return { locales, participants, submission };
+}
+
+export async function action(args: ActionFunctionArgs) {
+  const { request, params } = args;
+
+  const { slug } = params;
+  invariantResponse(typeof slug === "string", "Invalid slug", { status: 400 });
+
+  const { authClient } = createAuthClient(request);
+
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
+  const sessionUser = await getSessionUserOrThrow(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["next/event/$slug/settings/participants/list"];
+
+  const event = await getEventBySlug(slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  const formData = await request.formData();
+  const submission = await parseWithZod(formData, {
+    schema: getRemoveParticipantSchema(),
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const url = new URL(request.url);
+  url.searchParams.delete(
+    getConfirmationModalSearchParam(submission.value.participantId)
+  );
+
+  try {
+    await removeParticipantFromEvent({
+      participantId: submission.value.participantId,
+      eventId: event.id,
+      locales: {
+        mail: {
+          subject: locales.route.mail.removeParticipant.subject,
+        },
+      },
+    });
+
+    return redirectWithToast(url.toString(), {
+      id: "remove-participant-success",
+      key: `remove-participant-success-${Date.now()}`,
+      message: locales.route.success.removeParticipant,
+      level: "positive",
+    });
+  } catch (error) {
+    captureException(error);
+    return redirectWithToast(url.toString(), {
+      id: "remove-participant-error",
+      key: `remove-participant-error-${Date.now()}`,
+      message: locales.route.errors.removeParticipant,
+      level: "negative",
+    });
+  }
 }
 
 function ParticipantsList() {
-  return <h1>Participants List</h1>;
+  const loaderData = useLoaderData<typeof loader>();
+  const { locales } = loaderData;
+
+  const [participants, setParticipants] = useState(loaderData.participants);
+
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  return (
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.list.title}
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.list.subline}
+        </TitleSection.Subline>
+      </TitleSection>
+      <List id="participants-list" hideAfter={4} locales={locales.route.list}>
+        <List.Search
+          defaultItems={loaderData.participants}
+          setValues={setParticipants}
+          searchParam={SEARCH_PARTICIPANTS_SEARCH_PARAM}
+          locales={{
+            placeholder: locales.route.list.search.placeholder,
+          }}
+          hideUntil={4}
+          label={locales.route.list.search.label}
+          submission={loaderData.submission}
+          schema={getSearchParticipantsSchema()}
+        />
+        {participants.map((participant, index) => {
+          const confirmModalSearchParam = getConfirmationModalSearchParam(
+            participant.id
+          );
+
+          return (
+            <ListItemPersonOrg
+              key={participant.id}
+              index={index}
+              // to={`/profile/${participant.username}`} // TODO: link and controls currently not supported by component
+            >
+              <ListItemPersonOrg.Avatar size="full" {...participant} />
+              <ListItemPersonOrg.Headline>
+                {participant.academicTitle !== null &&
+                participant.academicTitle.length > 0
+                  ? `${participant.academicTitle} `
+                  : ""}
+                {participant.firstName} {participant.lastName}
+              </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Controls>
+                <Button
+                  variant="outline"
+                  as="link"
+                  to={`?${extendSearchParams(searchParams, { addOrReplace: { [confirmModalSearchParam]: "true" } }).toString()}`}
+                  preventScrollReset
+                >
+                  {locales.route.list.remove}
+                </Button>
+                <Form
+                  id={`remove-participant-form-${participant.id}`}
+                  method="POST"
+                  preventScrollReset
+                  hidden
+                >
+                  <input name="participantId" defaultValue={participant.id} />
+                </Form>
+                <Modal searchParam={confirmModalSearchParam}>
+                  <Modal.Title>
+                    {insertParametersIntoLocale(
+                      locales.route.list.confirmation.title,
+                      {
+                        firstName: participant.firstName,
+                        lastName: participant.lastName,
+                      }
+                    )}
+                  </Modal.Title>
+                  <Modal.Section>
+                    {locales.route.list.confirmation.description}
+                  </Modal.Section>
+                  <Modal.SubmitButton
+                    form={`remove-participant-form-${participant.id}`}
+                    level="negative"
+                  >
+                    {locales.route.list.confirmation.submit}
+                  </Modal.SubmitButton>
+                  <Modal.CloseButton route={location.pathname}>
+                    {locales.route.list.confirmation.abort}
+                  </Modal.CloseButton>
+                </Modal>
+              </ListItemPersonOrg.Controls>
+            </ListItemPersonOrg>
+          );
+        })}
+      </List>
+    </>
+  );
 }
 
 export default ParticipantsList;
