@@ -1,14 +1,7 @@
 import { z } from "zod";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { type ProjectAttachmentSettingsLocales } from "./attachments.server";
-import {
-  getUploadDocumentSchema,
-  getUploadImageSchema,
-} from "~/storage.shared";
-
-export const createDocumentUploadSchema = (
-  locales: ProjectAttachmentSettingsLocales
-) => z.object({ ...getUploadDocumentSchema(locales) });
+import { getUploadImageSchema } from "~/storage.shared";
 
 export const createImageUploadSchema = (
   locales: ProjectAttachmentSettingsLocales
