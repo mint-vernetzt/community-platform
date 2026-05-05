@@ -147,7 +147,7 @@ export default function Settings() {
       count: event._count.speakers,
     },
     {
-      to: `participants?${Deep}=true`,
+      to: `participants/list?${Deep}=true`,
       label: locales.route.menu.participants,
       count: event._count.participants,
     },

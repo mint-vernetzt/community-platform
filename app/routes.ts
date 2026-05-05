@@ -296,6 +296,10 @@ export default [
             "./routes/next/event/$slug/settings/participants/list.tsx"
           ),
           route(
+            "/next/event/:slug/settings/participants/list-download",
+            "./routes/next/event/$slug/settings/participants/list-download.tsx"
+          ),
+          route(
             "/next/event/:slug/settings/participants/waiting-list",
             "./routes/next/event/$slug/settings/participants/waiting-list.tsx"
           ),

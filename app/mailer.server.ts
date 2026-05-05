@@ -322,7 +322,9 @@ type TemplatePath =
   | "mail-templates/general-notification/remove-speaker-from-event-html.hbs"
   | "mail-templates/general-notification/remove-speaker-from-event-text.hbs"
   | "mail-templates/general-notification/remove-responsible-org-from-event-html.hbs"
-  | "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs";
+  | "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs"
+  | "mail-templates/general-notification/remove-participant-from-event-html.hbs"
+  | "mail-templates/general-notification/remove-participant-from-event-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -461,6 +463,8 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                               | "mail-templates/general-notification/remove-speaker-from-event-text.hbs"
                                               | "mail-templates/general-notification/remove-responsible-org-from-event-html.hbs"
                                               | "mail-templates/general-notification/remove-responsible-org-from-event-text.hbs"
+                                              | "mail-templates/general-notification/remove-participant-from-event-html.hbs"
+                                              | "mail-templates/general-notification/remove-participant-from-event-text.hbs"
                                           ? GeneralNotificationAddOrRemovedFromEventContent
                                           : never;
 
