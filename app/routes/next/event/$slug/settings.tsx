@@ -126,7 +126,7 @@ export default function Settings() {
       to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
     },
-    { to: `details?${Deep}=true`, label: locales.route.menu.details },
+    { to: `details/info?${Deep}=true`, label: locales.route.menu.details },
     { to: `location?${Deep}=true`, label: locales.route.menu.location },
     {
       to: `admins/list?${Deep}=true`,
