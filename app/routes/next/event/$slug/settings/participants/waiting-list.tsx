@@ -1,11 +1,9 @@
 import {
-  ActionFunctionArgs,
+  type ActionFunctionArgs,
   Form,
   Link,
   redirect,
   useLoaderData,
-  useLocation,
-  useSearchParams,
   type LoaderFunctionArgs,
 } from "react-router";
 import { detectLanguage } from "~/i18n.server";
