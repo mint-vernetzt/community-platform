@@ -298,7 +298,7 @@ function DocumentsList() {
       </List>
       {documents.length > 1 ? (
         <div className="flex md:justify-end">
-          <div className="w-full md:w-fit ">
+          <div className="w-full md:w-fit">
             <Button
               as="link"
               variant="outline"

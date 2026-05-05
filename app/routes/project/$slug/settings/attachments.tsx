@@ -40,6 +40,7 @@ import {
   BUCKET_NAME_IMAGES,
   DOCUMENT_MIME_TYPES,
   FILE_FIELD_NAME,
+  getUploadDocumentSchema,
   IMAGE_MIME_TYPES,
   MAX_UPLOAD_FILE_SIZE,
   UPLOAD_DOCUMENT_INTENT_VALUE,
@@ -53,7 +54,6 @@ import {
   uploadFile,
 } from "./attachments.server";
 import {
-  createDocumentUploadSchema,
   createEditDocumentSchema,
   createEditImageSchema,
   createImageUploadSchema,
@@ -267,7 +267,12 @@ function Attachments() {
   >([]);
   const [documentUploadForm, documentUploadFields] = useForm({
     id: "upload-document-form",
-    constraint: getZodConstraint(createDocumentUploadSchema(locales)),
+    constraint: getZodConstraint(
+      getUploadDocumentSchema({
+        maxSize: locales.upload.validation.document.size,
+        invalidType: locales.upload.validation.document.type,
+      })
+    ),
     defaultValue: {
       [FILE_FIELD_NAME]: null,
       [BUCKET_FIELD_NAME]: BUCKET_NAME_DOCUMENTS,
@@ -283,7 +288,10 @@ function Attachments() {
     onValidate: (args) => {
       const { formData } = args;
       const submission = parseWithZod(formData, {
-        schema: createDocumentUploadSchema(locales),
+        schema: getUploadDocumentSchema({
+          maxSize: locales.upload.validation.document.size,
+          invalidType: locales.upload.validation.document.type,
+        }),
       });
       return submission;
     },

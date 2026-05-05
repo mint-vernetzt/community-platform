@@ -13,9 +13,9 @@ import {
   BUCKET_NAME_DOCUMENTS,
   BUCKET_NAME_IMAGES,
   FILE_FIELD_NAME,
+  getUploadDocumentSchema,
 } from "~/storage.shared";
 import {
-  createDocumentUploadSchema,
   createEditDocumentSchema,
   createEditImageSchema,
   createImageUploadSchema,
@@ -49,7 +49,10 @@ export async function uploadFile(options: {
   }
   const schema =
     bucket === BUCKET_NAME_DOCUMENTS
-      ? createDocumentUploadSchema(locales)
+      ? getUploadDocumentSchema({
+          maxSize: locales.upload.validation.document.size,
+          invalidType: locales.upload.validation.document.type,
+        })
       : createImageUploadSchema(locales);
   const submission = await parseWithZod(formData, {
     schema: schema.transform(async (data, ctx) => {

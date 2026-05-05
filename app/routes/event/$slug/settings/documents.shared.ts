@@ -1,11 +1,6 @@
 import { z } from "zod";
-import { type EventDocumentsSettingsLocales } from "./documents.server";
-import { getUploadDocumentSchema } from "~/storage.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-
-export const createDocumentUploadSchema = (
-  locales: EventDocumentsSettingsLocales
-) => z.object({ ...getUploadDocumentSchema(locales) });
+import { type EventDocumentsSettingsLocales } from "./documents.server";
 
 export const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
 
