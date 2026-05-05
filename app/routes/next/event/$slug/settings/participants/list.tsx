@@ -1,7 +1,10 @@
+import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
 import { useState } from "react";
 import {
   Form,
+  Link,
   redirect,
   useLoaderData,
   useLocation,
@@ -11,31 +14,32 @@ import {
 } from "react-router";
 import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
+import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import {
+  insertComponentsIntoLocale,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   getEventBySlug,
   getParticipantsOfEvent,
   removeParticipantFromEvent,
 } from "./list.server";
 import {
-  CONFIRM_MODAL_SEARCH_PARAM,
   getConfirmationModalSearchParam,
   getRemoveParticipantSchema,
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./list.shared";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -52,8 +56,11 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
+  const event = await getEventBySlug(slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
   const result = await getParticipantsOfEvent({
-    slug,
+    eventId: event.id,
     authClient,
     searchParams,
   });
@@ -63,7 +70,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`../add?${Deep}=true`);
   }
 
-  return { locales, participants, submission };
+  return { locales, language, participants, submission };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -140,7 +147,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function ParticipantsList() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, language } = loaderData;
 
   const [participants, setParticipants] = useState(loaderData.participants);
 
@@ -189,6 +196,18 @@ function ParticipantsList() {
                   : ""}
                 {participant.firstName} {participant.lastName}
               </ListItemPersonOrg.Headline>
+              <ListItemPersonOrg.Subline>
+                {insertParametersIntoLocale(locales.route.list.item.subline, {
+                  date: new Date(participant.createdAt).toLocaleDateString(
+                    language,
+                    {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    }
+                  ),
+                })}
+              </ListItemPersonOrg.Subline>
               <ListItemPersonOrg.Controls>
                 <Button
                   variant="outline"
@@ -196,7 +215,7 @@ function ParticipantsList() {
                   to={`?${extendSearchParams(searchParams, { addOrReplace: { [confirmModalSearchParam]: "true" } }).toString()}`}
                   preventScrollReset
                 >
-                  {locales.route.list.remove}
+                  {locales.route.list.item.remove}
                 </Button>
                 <Form
                   id={`remove-participant-form-${participant.id}`}

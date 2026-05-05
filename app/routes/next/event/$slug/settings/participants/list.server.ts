@@ -14,11 +14,11 @@ import {
 } from "~/mailer.server";
 
 export async function getParticipantsOfEvent(options: {
-  slug: string;
+  eventId: string;
   authClient: SupabaseClient;
   searchParams: URLSearchParams;
 }) {
-  const { slug, authClient, searchParams } = options;
+  const { eventId, authClient, searchParams } = options;
 
   const submission = parseWithZod(searchParams, {
     schema: getSearchParticipantsSchema(),
@@ -30,51 +30,63 @@ export async function getParticipantsOfEvent(options: {
     submission.status !== "success" ||
     typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
   ) {
-    participants = await prismaClient.profile.findMany({
+    participants = await prismaClient.participantOfEvent.findMany({
       where: {
-        participatedEvents: { some: { event: { slug } } },
+        eventId,
       },
       select: {
-        id: true,
-        username: true,
-        academicTitle: true,
-        firstName: true,
-        lastName: true,
-        avatar: true,
         createdAt: true,
+        profile: {
+          select: {
+            id: true,
+            username: true,
+            academicTitle: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            createdAt: true,
+          },
+        },
       },
     });
   } else {
     const query =
       submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM].trim().split(" ");
 
-    participants = await prismaClient.profile.findMany({
+    participants = await prismaClient.participantOfEvent.findMany({
       where: {
-        participatedEvents: { some: { event: { slug } } },
-        OR: query.map((term) => {
-          return {
-            OR: [
-              { firstName: { contains: term, mode: "insensitive" } },
-              { lastName: { contains: term, mode: "insensitive" } },
-              { email: { contains: term, mode: "insensitive" } },
-            ],
-          };
-        }),
+        eventId,
+        profile: {
+          OR: query.map((term) => {
+            return {
+              OR: [
+                { firstName: { contains: term, mode: "insensitive" } },
+                { lastName: { contains: term, mode: "insensitive" } },
+                { email: { contains: term, mode: "insensitive" } },
+              ],
+            };
+          }),
+        },
       },
       select: {
-        id: true,
-        username: true,
-        academicTitle: true,
-        firstName: true,
-        lastName: true,
-        avatar: true,
         createdAt: true,
+        profile: {
+          select: {
+            id: true,
+            username: true,
+            academicTitle: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            createdAt: true,
+          },
+        },
       },
     });
   }
 
   const enhancedParticipants = participants.map((participant) => {
-    let avatar = participant.avatar;
+    let avatar = participant.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -95,7 +107,7 @@ export async function getParticipantsOfEvent(options: {
       }
     }
 
-    return { ...participant, avatar, blurredAvatar };
+    return { ...participant.profile, avatar, blurredAvatar };
   });
 
   return { submission: submission.reply(), participants: enhancedParticipants };

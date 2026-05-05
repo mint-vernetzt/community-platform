@@ -7,7 +7,10 @@ export const locale = {
       label: "Search People",
       placeholder: "Name or Email Address",
     },
-    remove: "Remove",
+    item: {
+      subline: "Registered on {{date}}",
+      remove: "Remove",
+    },
     more: "Show {{count}} more",
     less: "Show {{count}} less",
     confirmation: {

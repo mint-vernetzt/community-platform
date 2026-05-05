@@ -7,7 +7,10 @@ export const locale = {
       label: "Suche Personen",
       placeholder: "Name oder E-Mail-Adresse",
     },
-    remove: "Entfernen",
+    item: {
+      subline: "Angemeldet am {{date}}",
+      remove: "Entfernen",
+    },
     more: "{{count}} weitere anzeigen",
     less: "{{count}} weniger anzeigen",
     confirmation: {
@@ -22,7 +25,7 @@ export const locale = {
     title: "CSV-Datei Download",
     subline:
       "Lade hier die Liste der Teilnehmenden als CSV mit Name, Position und E-Mail-Adresse herunter.",
-    hint: "<0>Hinweis zum Datenschutz<0>: Nutze die Teilnehmenden-Daten nur zur Organisation Deines Events und gib sie nicht weiter. Mit dem Download übernimmst Du Verantwortung für einen datenschutzkonformen Umgang. Details findest Du in unserer <1>Datenschutzerklärung</1> und den <2>Nutzungsbedingungen</2>.",
+    hint: "<0>Hinweis zum Datenschutz</0>: Nutze die Teilnehmenden-Daten nur zur Organisation Deines Events und gib sie nicht weiter. Mit dem Download übernimmst Du Verantwortung für einen datenschutzkonformen Umgang. Details findest Du in unserer <1>Datenschutzerklärung</1> und den <2>Nutzungsbedingungen</2>.",
     action: "CSV-Datei speichern",
   },
   mail: {
