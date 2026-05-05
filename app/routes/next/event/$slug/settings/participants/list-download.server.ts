@@ -158,3 +158,18 @@ export function createCsvString(
 
   return csv;
 }
+
+export async function getEventNameBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+    },
+  });
+
+  if (event === null) {
+    return null;
+  }
+
+  return event.name;
+}

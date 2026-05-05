@@ -16,7 +16,7 @@ export const locale = {
     confirmation: {
       title:
         "Willst Du wirklich {{firstName}} {{lastName}} von der Teilnehmer:innenliste entfernen?",
-      description: "Die entfernte Persion wird per Mail informiert.",
+      description: "Die entfernte Person wird per Mail informiert.",
       submit: "Entfernen",
       abort: "Abbrechen",
     },
