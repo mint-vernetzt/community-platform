@@ -253,6 +253,44 @@ function ParticipantsList() {
           );
         })}
       </List>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.download.title}
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.download.subline}
+        </TitleSection.Subline>
+      </TitleSection>
+      <Hint>
+        {insertComponentsIntoLocale(locales.route.download.hint, [
+          <span key="privacy-notice" className="font-semibold" />,
+          <Link
+            key="privacy-policy"
+            to="/privacy-policy"
+            target="_blank"
+            className="underline font-semibold"
+          />,
+          <Link
+            key="terms-of-use"
+            to="/terms-of-use"
+            target="_blank"
+            className="underline font-semibold"
+          />,
+        ])}
+      </Hint>
+      <div className="flex justify-end">
+        <div className="w-full md:w-fit">
+          <Button
+            as="link"
+            to="../list-download"
+            variant="outline"
+            reloadDocument
+            fullSize
+          >
+            {locales.route.download.action}
+          </Button>
+        </div>
+      </div>
     </>
   );
 }
