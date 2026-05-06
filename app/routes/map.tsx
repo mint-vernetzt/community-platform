@@ -11,7 +11,7 @@ import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";

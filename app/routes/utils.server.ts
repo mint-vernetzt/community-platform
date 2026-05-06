@@ -10,7 +10,7 @@ import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";

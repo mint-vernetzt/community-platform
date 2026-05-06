@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {

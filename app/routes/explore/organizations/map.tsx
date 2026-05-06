@@ -27,7 +27,7 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "../all.shared";

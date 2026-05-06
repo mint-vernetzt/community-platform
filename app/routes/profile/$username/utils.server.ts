@@ -8,7 +8,7 @@ import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
   filterProjectByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {

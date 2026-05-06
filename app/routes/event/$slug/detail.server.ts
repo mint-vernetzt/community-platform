@@ -12,7 +12,7 @@ import {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";

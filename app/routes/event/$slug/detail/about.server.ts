@@ -3,7 +3,7 @@ import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { utcToZonedTime } from "date-fns-tz";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveModeForEvent, getIsMember } from "../detail.server";
