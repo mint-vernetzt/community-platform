@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { captureException } from "@sentry/node";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   Link,
@@ -150,6 +150,10 @@ function ParticipantsList() {
   const { locales, language } = loaderData;
 
   const [participants, setParticipants] = useState(loaderData.participants);
+
+  useEffect(() => {
+    setParticipants(loaderData.participants);
+  }, [loaderData.participants]);
 
   const location = useLocation();
   const [searchParams] = useSearchParams();
