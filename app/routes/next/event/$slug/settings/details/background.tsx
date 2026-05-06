@@ -12,6 +12,9 @@ import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { useState } from "react";
 import { UploadIcon } from "~/components-next/icons/UploadIcon";
+import TitleSection from "~/components/next/TitleSection";
+
+// TODO: Background editing on detail should be a link leading here
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -23,8 +26,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/details/background"];
 
+  // TODO: Get current event background
+
   return { locales };
 }
+
+// TODO: Action with upload and remove intent
+// TODO: check prisma schema and how we can connect background field to Document model
 
 function Background() {
   const loaderData = useLoaderData<typeof loader>();
@@ -42,22 +50,22 @@ function Background() {
 
   return (
     <>
-      <div>
-        <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
-          {locales.route.title}
-        </h3>
-        <p>
+      <TitleSection>
+        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Subline>
           {insertParametersIntoLocale(locales.route.fileExplanation, {
             size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
           })}
-        </p>
-        <p>
+        </TitleSection.Subline>
+        <TitleSection.Subline>
           {insertParametersIntoLocale(locales.route.aspectExplanation, {
             aspectRatio: ImageAspectsAsStrings.EventBackground,
             minWidth: MaxImageSizes.EventBackground.width,
           })}
-        </p>
-      </div>
+        </TitleSection.Subline>
+      </TitleSection>
+      {/* TODO: Either pass selectedFile or current background or default background */}
+      {/* TODO: If current background exists add the remove button */}
       <div className="w-full rounded-md overflow-hidden">
         <Image
           alt={locales.route.currentBackground.title}
@@ -134,6 +142,7 @@ function Background() {
               })}
             </>
           ) : null}
+          {/* TODO: Conform form with inputs description, credits and upload intent */}
           {/* Javascript independent code */}
         </>
       )}
