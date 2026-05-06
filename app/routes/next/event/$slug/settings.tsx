@@ -275,7 +275,10 @@ export default function Settings() {
               <NavLink
                 to={link.to}
                 prefetch="intent"
-                className={({ isActive }) => {
+                className={() => {
+                  const isActive =
+                    leafPathname ===
+                    link.to.replace(`?${Deep}=true`, "").split("/")[0];
                   return SettingsNavigation.getSettingsNavigationItemStyles({
                     active: isActive,
                     critical: link.to.includes("danger-zone"),
