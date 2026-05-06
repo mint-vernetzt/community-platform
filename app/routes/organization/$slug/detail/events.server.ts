@@ -27,7 +27,11 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  background: true,
+                  backgroundImage: {
+                    select: {
+                      path: true,
+                    },
+                  },
                   name: true,
                   subline: true,
                   description: true,
@@ -50,7 +54,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      background: true,
+                      backgroundImage: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -94,7 +98,11 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  background: true,
+                  backgroundImage: {
+                    select: {
+                      path: true,
+                    },
+                  },
                   name: true,
                   subline: true,
                   description: true,
@@ -117,7 +125,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      background: true,
+                      backgroundImage: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -206,7 +214,10 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   const futureEvents = organization.futureEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -238,7 +249,10 @@ export function addImgUrls(
   });
 
   const pastEvents = organization.pastEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

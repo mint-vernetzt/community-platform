@@ -35,7 +35,11 @@ export async function getEventBySlug(
       name: true,
       description: true,
       slug: true,
-      background: true,
+      backgroundImage: {
+        select: {
+          path: true,
+        },
+      },
       startTime: true,
       endTime: true,
       venueName: true,
@@ -92,7 +96,11 @@ export async function getEventBySlug(
             select: {
               name: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
             },
           },
         },
@@ -708,7 +716,11 @@ export async function getContactPersonsOfEvent(options: {
           lastName: true,
           email: true,
           phone: true,
-          avatar: true,
+          avatarImage: {
+            select: {
+              path: true,
+            },
+          },
           position: true,
           profileVisibility: {
             select: {
@@ -719,7 +731,7 @@ export async function getContactPersonsOfEvent(options: {
               email: true,
               phone: true,
               lastName: true,
-              avatar: true,
+              avatarImage: true,
               position: true,
             },
           },
@@ -739,7 +751,10 @@ export async function getContactPersonsOfEvent(options: {
       filteredContactPerson = { ...contactPerson.profile };
     }
 
-    let avatar = filteredContactPerson.avatar;
+    let avatar =
+      filteredContactPerson.avatarImage === null
+        ? null
+        : filteredContactPerson.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

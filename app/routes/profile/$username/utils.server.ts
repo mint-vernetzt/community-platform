@@ -251,7 +251,7 @@ export async function updateFilterVectorOfProfile(profileId: string) {
 }
 
 export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
-  let avatar = profile.avatar;
+  let avatar = profile.avatarImage === null ? null : profile.avatarImage.path;
   let blurredAvatar;
   if (avatar !== null) {
     const publicURL = getPublicURL(authClient, avatar);
@@ -265,7 +265,8 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       });
     }
   }
-  let background = profile.background;
+  let background =
+    profile.backgroundImage === null ? null : profile.backgroundImage.path;
   let blurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
@@ -287,7 +288,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   }
 
   const memberOf = profile.memberOf.map((relation) => {
-    let logo = relation.organization.logo;
+    let logo =
+      relation.organization.logoImage === null
+        ? null
+        : relation.organization.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -314,7 +318,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
   const teamMemberOfProjects = profile.teamMemberOfProjects.map(
     (projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
+      let projectLogo =
+        projectRelation.project.logoImage === null
+          ? null
+          : projectRelation.project.logoImage.path;
       let blurredLogo;
       if (projectLogo !== null) {
         const publicURL = getPublicURL(authClient, projectLogo);
@@ -342,7 +349,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   );
 
   const teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -372,7 +382,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const contributedEvents = profile.contributedEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -402,7 +415,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const participatedEvents = profile.participatedEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -432,7 +448,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const waitingForEvents = profile.waitingForEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImage === null
+        ? null
+        : relation.event.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

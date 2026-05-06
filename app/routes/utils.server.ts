@@ -75,7 +75,11 @@ export async function getOrganizationSuggestionsForAutocomplete(
     select: {
       id: true,
       name: true,
-      logo: true,
+      logoImage: {
+        select: {
+          path: true,
+        },
+      },
       types: {
         select: {
           organizationType: {
@@ -104,7 +108,8 @@ export async function getOrganizationSuggestionsForAutocomplete(
 
   const enhancedOrganizationSuggestions = organizationSuggestions.map(
     (organization) => {
-      let logo = organization.logo;
+      let logo =
+        organization.logoImage === null ? null : organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -181,7 +186,11 @@ export async function getProfileSuggestionsForAutocomplete(
       id: true,
       firstName: true,
       lastName: true,
-      avatar: true,
+      avatarImage: {
+        select: {
+          path: true,
+        },
+      },
       position: true,
     },
     where: {
@@ -201,7 +210,7 @@ export async function getProfileSuggestionsForAutocomplete(
   });
 
   const enhancedProfileSuggestions = profileSuggestions.map((profile) => {
-    let avatar = profile.avatar;
+    let avatar = profile.avatarImage === null ? null : profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -282,7 +291,11 @@ export async function searchProfiles(options: {
         firstName: true,
         lastName: true,
         username: true,
-        avatar: true,
+        avatarImage: {
+          select: {
+            path: true,
+          },
+        },
         academicTitle: true,
         position: true,
         profileVisibility: {
@@ -290,7 +303,7 @@ export async function searchProfiles(options: {
             firstName: true,
             lastName: true,
             username: true,
-            avatar: true,
+            avatarImage: true,
             academicTitle: true,
             position: true,
           },
@@ -344,7 +357,8 @@ export async function searchProfiles(options: {
   }
 
   const enhancedSearchedProfiles = filteredSearchedProfiles.map((relation) => {
-    let avatar = relation.avatar;
+    let avatar =
+      relation.avatarImage === null ? null : relation.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -406,7 +420,11 @@ export async function searchOrganizations(options: {
       select: {
         id: true,
         slug: true,
-        logo: true,
+        logoImage: {
+          select: {
+            path: true,
+          },
+        },
         name: true,
         shadow: true,
         types: {
@@ -431,7 +449,7 @@ export async function searchOrganizations(options: {
           select: {
             id: true,
             slug: true,
-            logo: true,
+            logoImage: true,
             name: true,
             types: true,
             networkTypes: true,
@@ -503,7 +521,7 @@ export async function searchOrganizations(options: {
 
   const enhancedSearchedOrganizations = filteredSearchedOrganizations.map(
     (relation) => {
-      let logo = relation.logo;
+      let logo = relation.logoImage === null ? null : relation.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

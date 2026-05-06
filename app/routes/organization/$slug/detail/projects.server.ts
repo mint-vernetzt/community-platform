@@ -25,7 +25,11 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               responsibleOrganizations: {
                 select: {
@@ -41,7 +45,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                   name: true,
                   responsibleOrganizations: true,
                 },
@@ -104,7 +108,10 @@ export function addImgUrls(
 ) {
   const responsibleForProject = organization.responsibleForProject.map(
     (relation) => {
-      let logo = relation.project.logo;
+      let logo =
+        relation.project.logoImage === null
+          ? null
+          : relation.project.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

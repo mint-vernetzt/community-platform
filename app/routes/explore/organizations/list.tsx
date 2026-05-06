@@ -107,7 +107,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     // Add images from image proxy
-    let logo = enhancedOrganization.logo;
+    let logo =
+      enhancedOrganization.logoImage === null
+        ? null
+        : enhancedOrganization.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -130,7 +133,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     }
 
-    let background = enhancedOrganization.background;
+    let background =
+      enhancedOrganization.backgroundImage === null
+        ? null
+        : enhancedOrganization.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -157,7 +163,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
-      let avatar = relation.profile.avatar;
+      let avatar =
+        relation.profile.avatarImage === null
+          ? null
+          : relation.profile.avatarImage.path;
       let blurredAvatar;
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);

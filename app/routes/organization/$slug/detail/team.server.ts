@@ -24,7 +24,11 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               username: true,
-              avatar: true,
+              avatarImage: {
+                select: {
+                  path: true,
+                },
+              },
               firstName: true,
               lastName: true,
               academicTitle: true,
@@ -32,7 +36,7 @@ export async function getOrganization(slug: string) {
               profileVisibility: {
                 select: {
                   username: true,
-                  avatar: true,
+                  avatarImage: true,
                   firstName: true,
                   lastName: true,
                   academicTitle: true,
@@ -89,7 +93,10 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   const teamMembers = organization.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImage === null
+        ? null
+        : relation.profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

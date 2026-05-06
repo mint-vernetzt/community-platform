@@ -29,8 +29,16 @@ export async function getOrganization(slug: string) {
       slug: true,
       name: true,
       bio: true,
-      background: true,
-      logo: true,
+      backgroundImage: {
+        select: {
+          path: true,
+        },
+      },
+      logoImage: {
+        select: {
+          path: true,
+        },
+      },
       email: true,
       phone: true,
       website: true,
@@ -71,13 +79,17 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               organizationVisibility: {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                   name: true,
                 },
               },
@@ -113,8 +125,8 @@ export async function getOrganization(slug: string) {
           name: true,
           slug: true,
           bio: true,
-          background: true,
-          logo: true,
+          backgroundImage: true,
+          logoImage: true,
           email: true,
           phone: true,
           website: true,
@@ -168,7 +180,10 @@ export function addImgUrls(
   authClient: SupabaseClient,
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
-  let background = organization.background;
+  let background =
+    organization.backgroundImage === null
+      ? null
+      : organization.backgroundImage.path;
   let blurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
@@ -187,7 +202,8 @@ export function addImgUrls(
     blurredBackground = DefaultImages.Organization.BlurredBackground;
   }
 
-  let logo = organization.logo;
+  let logo =
+    organization.logoImage === null ? null : organization.logoImage.path;
   let blurredLogo;
   if (logo !== null) {
     const publicURL = getPublicURL(authClient, logo);
@@ -200,7 +216,10 @@ export function addImgUrls(
     });
   }
   const networkMembers = organization.networkMembers.map((relation) => {
-    let logo = relation.networkMember.logo;
+    let logo =
+      relation.networkMember.logoImage === null
+        ? null
+        : relation.networkMember.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

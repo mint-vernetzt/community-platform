@@ -62,7 +62,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const participants = getParticipantsDataFromEvent(event);
   const enhancedWaitingParticipants = participants.waitingList.map(
     (waitingParticipant) => {
-      let avatar = waitingParticipant.avatar;
+      let avatar =
+        waitingParticipant.avatarImage === null
+          ? null
+          : waitingParticipant.avatarImage.path;
       let blurredAvatar;
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);

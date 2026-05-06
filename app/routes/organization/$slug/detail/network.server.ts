@@ -23,7 +23,11 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -47,7 +51,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                   name: true,
                   types: true,
                   networkTypes: true,
@@ -69,7 +73,11 @@ export async function getOrganization(slug: string) {
               id: true,
               slug: true,
               name: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               networkTypes: {
                 select: {
                   networkType: {
@@ -92,7 +100,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                   name: true,
                   types: true,
                   networkTypes: true,
@@ -160,7 +168,10 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   const networkMembers = organization.networkMembers.map((relation) => {
-    let logo = relation.networkMember.logo;
+    let logo =
+      relation.networkMember.logoImage === null
+        ? null
+        : relation.networkMember.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -186,7 +197,10 @@ export function addImgUrls(
   });
 
   const memberOf = organization.memberOf.map((relation) => {
-    let logo = relation.network.logo;
+    let logo =
+      relation.network.logoImage === null
+        ? null
+        : relation.network.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

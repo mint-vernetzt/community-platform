@@ -67,7 +67,10 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const enhancedChildEvents = event.childEvents.map((childEvent) => {
-    let background = childEvent.background;
+    let background =
+      childEvent.backgroundImage === null
+        ? null
+        : childEvent.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -98,7 +101,10 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   let enhancedParentEvent = null;
   if (event.parentEvent !== null) {
-    let background = event.parentEvent.background;
+    let background =
+      event.parentEvent.backgroundImage === null
+        ? null
+        : event.parentEvent.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

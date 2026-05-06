@@ -58,7 +58,11 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -96,7 +100,11 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -131,7 +139,11 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -169,7 +181,11 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -206,7 +222,10 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   // enhance pendingNetworkRequests, networks, pendingNetworkMemberInvitations nad networkMembers with avatar
   const sentNetworkJoinRequests = organization.sentNetworkJoinRequests.map(
     (relation) => {
-      let logo = relation.network.logo;
+      let logo =
+        relation.network.logoImage === null
+          ? null
+          : relation.network.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -245,7 +264,10 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   );
 
   const memberOf = organization.memberOf.map((relation) => {
-    let logo = relation.network.logo;
+    let logo =
+      relation.network.logoImage === null
+        ? null
+        : relation.network.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -278,7 +300,10 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
 
   const sentNetworkJoinInvites = organization.sentNetworkJoinInvites.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImage === null
+          ? null
+          : relation.organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -317,7 +342,10 @@ export async function getOrganizationWithNetworksAndNetworkMembers(options: {
   );
 
   const networkMembers = organization.networkMembers.map((relation) => {
-    let logo = relation.networkMember.logo;
+    let logo =
+      relation.networkMember.logoImage === null
+        ? null
+        : relation.networkMember.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

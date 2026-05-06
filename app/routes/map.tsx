@@ -65,7 +65,10 @@ export async function loader(args: LoaderFunctionArgs) {
     // Add images from image proxy
 
     // Usage:
-    let logo = enhancedOrganization.logo;
+    let logo =
+      enhancedOrganization.logoImage === null
+        ? null
+        : enhancedOrganization.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -91,7 +94,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const networkMembers = enhancedOrganization.networkMembers.map(
       (relation) => {
-        let logo = relation.networkMember.logo;
+        let logo =
+          relation.networkMember.logoImage === null
+            ? null
+            : relation.networkMember.logoImage.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
