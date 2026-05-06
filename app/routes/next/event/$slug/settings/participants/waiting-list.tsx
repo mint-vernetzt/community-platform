@@ -68,7 +68,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const { submission, waitingList } = result;
 
   if (waitingList.length === 0) {
-    return redirect(`../participants?${Deep}=true`);
+    return redirect(`../list?${Deep}=true`);
   }
 
   return {
