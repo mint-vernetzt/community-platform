@@ -35,9 +35,9 @@ import {
   removeParticipantFromEvent,
 } from "./list.server";
 import {
-  getConfirmationModalSearchParam,
-  getRemoveParticipantSchema,
-  getSearchParticipantsSchema,
+  createConfirmationModalSearchParam,
+  createRemoveParticipantSchema,
+  createSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./list.shared";
 
@@ -105,7 +105,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
-    schema: getRemoveParticipantSchema(),
+    schema: createRemoveParticipantSchema(),
   });
 
   if (submission.status !== "success") {
@@ -114,7 +114,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const url = new URL(request.url);
   url.searchParams.delete(
-    getConfirmationModalSearchParam(submission.value.participantId)
+    createConfirmationModalSearchParam(submission.value.participantId)
   );
 
   try {
@@ -179,10 +179,10 @@ function ParticipantsList() {
           hideUntil={4}
           label={locales.route.list.search.label}
           submission={loaderData.submission}
-          schema={getSearchParticipantsSchema()}
+          schema={createSearchParticipantsSchema()}
         />
         {participants.map((participant, index) => {
-          const confirmModalSearchParam = getConfirmationModalSearchParam(
+          const confirmModalSearchParam = createConfirmationModalSearchParam(
             participant.id
           );
 
