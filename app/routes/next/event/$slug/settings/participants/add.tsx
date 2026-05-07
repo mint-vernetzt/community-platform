@@ -155,7 +155,7 @@ function ParticipantsAdd() {
   const { locales } = loaderData;
 
   const [searchParams] = useSearchParams();
-  const searchSpeakersParam = searchParams.get(
+  const searchParticipantsParam = searchParams.get(
     SEARCH_PARTICIPANTS_SEARCH_PARAM
   );
 
@@ -165,7 +165,7 @@ function ParticipantsAdd() {
     id: "search-participants-form",
     defaultValue: {
       [SEARCH_PARTICIPANTS_SEARCH_PARAM]:
-        searchSpeakersParam !== null ? searchSpeakersParam : "",
+        searchParticipantsParam !== null ? searchParticipantsParam : "",
     },
     onValidate: (values) => {
       const submission = parseWithZod(values.formData, {
