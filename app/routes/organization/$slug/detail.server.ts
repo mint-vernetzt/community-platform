@@ -292,9 +292,22 @@ export async function uploadImage(options: {
           where: {
             slug,
           },
-          data: {
-            [uploadKey]: fileMetadataForDatabase.path,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImage: {
+                    create: {
+                      ...fileMetadataForDatabase,
+                    },
+                  },
+                }
+              : {
+                  logoImage: {
+                    create: {
+                      ...fileMetadataForDatabase,
+                    },
+                  },
+                },
           select: {
             id: true,
           },
@@ -367,9 +380,18 @@ export async function disconnectImage(options: {
           where: {
             slug,
           },
-          data: {
-            [uploadKey]: null,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImage: {
+                    disconnect: true,
+                  },
+                }
+              : {
+                  logoImage: {
+                    disconnect: true,
+                  },
+                },
           select: {
             id: true,
           },

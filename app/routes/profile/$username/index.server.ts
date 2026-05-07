@@ -479,9 +479,22 @@ export async function uploadImage(options: {
           where: {
             username,
           },
-          data: {
-            [uploadKey]: fileMetadataForDatabase.path,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImage: {
+                    create: {
+                      ...fileMetadataForDatabase,
+                    },
+                  },
+                }
+              : {
+                  avatarImage: {
+                    create: {
+                      ...fileMetadataForDatabase,
+                    },
+                  },
+                },
           select: {
             id: true,
           },
@@ -552,9 +565,18 @@ export async function disconnectImage(options: {
           where: {
             username,
           },
-          data: {
-            [uploadKey]: null,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImage: {
+                    disconnect: true,
+                  },
+                }
+              : {
+                  avatarImage: {
+                    disconnect: true,
+                  },
+                },
           select: {
             id: true,
           },

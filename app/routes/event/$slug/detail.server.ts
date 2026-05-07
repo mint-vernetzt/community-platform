@@ -573,7 +573,11 @@ export async function uploadBackgroundImage(options: {
             slug,
           },
           data: {
-            [uploadKey]: fileMetadataForDatabase.path,
+            backgroundImage: {
+              create: {
+                ...fileMetadataForDatabase,
+              },
+            },
           },
         });
       } catch (error) {
@@ -652,7 +656,9 @@ export async function disconnectBackgroundImage(options: {
             slug,
           },
           data: {
-            [uploadKey]: null,
+            backgroundImage: {
+              disconnect: true,
+            },
           },
         });
       } catch (error) {
