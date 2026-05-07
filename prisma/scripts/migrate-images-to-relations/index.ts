@@ -4,6 +4,9 @@ import { prismaClient } from "../../../app/prisma.server";
 
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { createAdminAuthClient } from "~/auth.server";
+import { fileTypeFromBlob } from "file-type";
+import { IMAGE_MIME_TYPES } from "~/storage.shared";
 
 // Get the current file path
 const __filename = fileURLToPath(import.meta.url);
@@ -54,34 +57,283 @@ async function main() {
     },
   };
 
-  console.log("Calculating changes");
+  console.log("Calculate metadata from existing images in storage");
+  const authClient = createAdminAuthClient();
+  const metaDataByPath = new Map<
+    string,
+    {
+      path: string;
+      filename: string;
+      extension: string;
+      sizeInMB: number;
+      mimeType: string;
+    }
+  >();
+
   for (const oldProfile of changes.old.profiles) {
+    if (oldProfile.background !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldProfile.background);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve background image for profile with id ${oldProfile.id}. Skipping this profile for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for background image for profile with id ${oldProfile.id}. Skipping this profile for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for background image for profile with id ${oldProfile.id}. Skipping this profile for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldProfile.background, {
+        path: oldProfile.background,
+        filename: `background.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+
+    if (oldProfile.avatar !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldProfile.avatar);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve avatar image for profile with id ${oldProfile.id}. Skipping this profile for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for avatar image for profile with id ${oldProfile.id}. Skipping this profile for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for avatar image for profile with id ${oldProfile.id}. Skipping this profile for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldProfile.avatar, {
+        path: oldProfile.avatar,
+        filename: `avatar.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+  }
+
+  for (const oldOrganization of changes.old.organizations) {
+    if (oldOrganization.background !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldOrganization.background);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve background image for organization with id ${oldOrganization.id}. Skipping this organization for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for background image for organization with id ${oldOrganization.id}. Skipping this organization for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for background image for organization with id ${oldOrganization.id}. Skipping this organization for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldOrganization.background, {
+        path: oldOrganization.background,
+        filename: `background.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+
+    if (oldOrganization.logo !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldOrganization.logo);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve logo image for organization with id ${oldOrganization.id}. Skipping this organization for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for logo image for organization with id ${oldOrganization.id}. Skipping this organization for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for logo image for organization with id ${oldOrganization.id}. Skipping this organization for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldOrganization.logo, {
+        path: oldOrganization.logo,
+        filename: `logo.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+  }
+
+  for (const oldEvent of changes.old.events) {
+    if (oldEvent.background !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldEvent.background);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve background image for event with id ${oldEvent.id}. Skipping this event for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for background image for event with id ${oldEvent.id}. Skipping this event for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for background image for event with id ${oldEvent.id}. Skipping this event for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldEvent.background, {
+        path: oldEvent.background,
+        filename: `background.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+  }
+
+  for (const oldProject of changes.old.projects) {
+    if (oldProject.background !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldProject.background);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve background image for project with id ${oldProject.id}. Skipping this project for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for background image for project with id ${oldProject.id}. Skipping this project for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for background image for project with id ${oldProject.id}. Skipping this project for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldProject.background, {
+        path: oldProject.background,
+        filename: `background.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+
+    if (oldProject.logo !== null) {
+      const { error, data: blob } = await authClient.storage
+        .from("images")
+        .download(oldProject.logo);
+      if (error !== null || blob === null) {
+        console.error(
+          `Could not retrieve logo image for project with id ${oldProject.id}. Skipping this project for migration. Error: ${error}`
+        );
+        continue;
+      }
+      const fileType = await fileTypeFromBlob(blob);
+      if (typeof fileType === "undefined") {
+        console.error(
+          `Could not determine file type for logo image for project with id ${oldProject.id}. Skipping this project for migration.`
+        );
+        continue;
+      }
+      if (IMAGE_MIME_TYPES.includes(fileType.mime) === false) {
+        console.error(
+          `File type ${fileType.mime} not allowed for logo image for project with id ${oldProject.id}. Skipping this project for migration.`
+        );
+        continue;
+      }
+      metaDataByPath.set(oldProject.logo, {
+        path: oldProject.logo,
+        filename: `logo.${fileType.ext}`,
+        extension: fileType.ext,
+        sizeInMB: Math.round((blob.size / 1000 / 1000) * 100) / 100,
+        mimeType: fileType.mime,
+      });
+    }
+  }
+
+  console.log("Calculating changes");
+
+  for (const oldProfile of changes.old.profiles) {
+    const backgroundMetaData =
+      oldProfile.background !== null
+        ? metaDataByPath.get(oldProfile.background)
+        : undefined;
+    const avatarMetaData =
+      oldProfile.avatar !== null
+        ? metaDataByPath.get(oldProfile.avatar)
+        : undefined;
     const newProfile = {
       ...oldProfile,
-      background: null,
-      avatar: null,
+      background:
+        oldProfile.background !== null &&
+        typeof backgroundMetaData === "undefined"
+          ? oldProfile.background
+          : null,
+      avatar:
+        oldProfile.avatar !== null && typeof avatarMetaData === "undefined"
+          ? oldProfile.avatar
+          : null,
       backgroundImage:
-        oldProfile.background !== null
+        typeof backgroundMetaData !== "undefined"
           ? {
-              create: {
-                path: oldProfile.background,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: backgroundMetaData,
             }
           : undefined,
       avatarImage:
-        oldProfile.avatar !== null
+        typeof avatarMetaData !== "undefined"
           ? {
-              create: {
-                path: oldProfile.avatar,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: avatarMetaData,
             }
           : undefined,
     };
@@ -89,32 +341,35 @@ async function main() {
   }
 
   for (const oldOrganization of changes.old.organizations) {
+    const backgroundMetaData =
+      oldOrganization.background !== null
+        ? metaDataByPath.get(oldOrganization.background)
+        : undefined;
+    const logoMetaData =
+      oldOrganization.logo !== null
+        ? metaDataByPath.get(oldOrganization.logo)
+        : undefined;
     const newOrganization = {
       ...oldOrganization,
-      background: null,
-      logo: null,
+      background:
+        oldOrganization.background !== null &&
+        typeof backgroundMetaData === "undefined"
+          ? oldOrganization.background
+          : null,
+      logo:
+        oldOrganization.logo !== null && typeof logoMetaData === "undefined"
+          ? oldOrganization.logo
+          : null,
       backgroundImage:
-        oldOrganization.background !== null
+        typeof backgroundMetaData !== "undefined"
           ? {
-              create: {
-                path: oldOrganization.background,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: backgroundMetaData,
             }
           : undefined,
       logoImage:
-        oldOrganization.logo !== null
+        typeof logoMetaData !== "undefined"
           ? {
-              create: {
-                path: oldOrganization.logo,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: logoMetaData,
             }
           : undefined,
     };
@@ -122,32 +377,35 @@ async function main() {
   }
 
   for (const oldProject of changes.old.projects) {
+    const backgroundMetaData =
+      oldProject.background !== null
+        ? metaDataByPath.get(oldProject.background)
+        : undefined;
+    const logoMetaData =
+      oldProject.logo !== null
+        ? metaDataByPath.get(oldProject.logo)
+        : undefined;
     const newProject = {
       ...oldProject,
-      background: null,
-      logo: null,
+      background:
+        oldProject.background !== null &&
+        typeof backgroundMetaData === "undefined"
+          ? oldProject.background
+          : null,
+      logo:
+        oldProject.logo !== null && typeof logoMetaData === "undefined"
+          ? oldProject.logo
+          : null,
       backgroundImage:
-        oldProject.background !== null
+        typeof backgroundMetaData !== "undefined"
           ? {
-              create: {
-                path: oldProject.background,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: backgroundMetaData,
             }
           : undefined,
       logoImage:
-        oldProject.logo !== null
+        typeof logoMetaData !== "undefined"
           ? {
-              create: {
-                path: oldProject.logo,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: logoMetaData,
             }
           : undefined,
     };
@@ -155,19 +413,21 @@ async function main() {
   }
 
   for (const oldEvent of changes.old.events) {
+    const backgroundMetaData =
+      oldEvent.background !== null
+        ? metaDataByPath.get(oldEvent.background)
+        : undefined;
     const newEvent = {
       ...oldEvent,
-      background: null,
+      background:
+        oldEvent.background !== null &&
+        typeof backgroundMetaData === "undefined"
+          ? oldEvent.background
+          : null,
       backgroundImage:
-        oldEvent.background !== null
+        typeof backgroundMetaData !== "undefined"
           ? {
-              create: {
-                path: oldEvent.background,
-                filename: "TODO:",
-                extension: "TODO:",
-                sizeInMB: 0,
-                mimeType: "TODO:",
-              },
+              create: backgroundMetaData,
             }
           : undefined,
     };
