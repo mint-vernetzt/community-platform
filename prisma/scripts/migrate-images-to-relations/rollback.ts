@@ -81,13 +81,13 @@ async function main() {
         avatarImage:
           oldFields.avatar !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
         backgroundImage:
           oldFields.background !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
       },
@@ -102,13 +102,13 @@ async function main() {
         logoImage:
           oldFields.logo !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
         backgroundImage:
           oldFields.background !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
       },
@@ -123,13 +123,13 @@ async function main() {
         logoImage:
           oldFields.logo !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
         backgroundImage:
           oldFields.background !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
       },
@@ -144,7 +144,7 @@ async function main() {
         backgroundImage:
           oldFields.background !== null
             ? {
-                disconnect: true,
+                delete: true,
               }
             : undefined,
       },

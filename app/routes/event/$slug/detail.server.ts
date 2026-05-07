@@ -574,8 +574,13 @@ export async function uploadBackgroundImage(options: {
           },
           data: {
             backgroundImage: {
-              create: {
-                ...fileMetadataForDatabase,
+              upsert: {
+                create: {
+                  ...fileMetadataForDatabase,
+                },
+                update: {
+                  ...fileMetadataForDatabase,
+                },
               },
             },
           },
@@ -657,7 +662,7 @@ export async function disconnectBackgroundImage(options: {
           },
           data: {
             backgroundImage: {
-              disconnect: true,
+              delete: true,
             },
           },
         });

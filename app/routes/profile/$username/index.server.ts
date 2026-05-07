@@ -483,15 +483,17 @@ export async function uploadImage(options: {
             uploadKey === "background"
               ? {
                   backgroundImage: {
-                    create: {
-                      ...fileMetadataForDatabase,
+                    upsert: {
+                      create: { ...fileMetadataForDatabase },
+                      update: { ...fileMetadataForDatabase },
                     },
                   },
                 }
               : {
                   avatarImage: {
-                    create: {
-                      ...fileMetadataForDatabase,
+                    upsert: {
+                      create: { ...fileMetadataForDatabase },
+                      update: { ...fileMetadataForDatabase },
                     },
                   },
                 },
@@ -569,12 +571,12 @@ export async function disconnectImage(options: {
             uploadKey === "background"
               ? {
                   backgroundImage: {
-                    disconnect: true,
+                    delete: true,
                   },
                 }
               : {
                   avatarImage: {
-                    disconnect: true,
+                    delete: true,
                   },
                 },
           select: {

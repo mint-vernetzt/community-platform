@@ -63,15 +63,25 @@ export async function uploadImage(options: {
             uploadKey === "background"
               ? {
                   backgroundImage: {
-                    create: {
-                      ...fileMetadataForDatabase,
+                    upsert: {
+                      create: {
+                        ...fileMetadataForDatabase,
+                      },
+                      update: {
+                        ...fileMetadataForDatabase,
+                      },
                     },
                   },
                 }
               : {
                   logoImage: {
-                    create: {
-                      ...fileMetadataForDatabase,
+                    upsert: {
+                      create: {
+                        ...fileMetadataForDatabase,
+                      },
+                      update: {
+                        ...fileMetadataForDatabase,
+                      },
                     },
                   },
                 },
@@ -142,12 +152,12 @@ export async function disconnectImage(options: {
             uploadKey === "background"
               ? {
                   backgroundImage: {
-                    disconnect: true,
+                    delete: true,
                   },
                 }
               : {
                   logoImage: {
-                    disconnect: true,
+                    delete: true,
                   },
                 },
         });
