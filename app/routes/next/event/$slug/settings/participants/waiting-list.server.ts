@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import {
-  getSearchWaitingListSchema,
+  createSearchWaitingListSchema,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
 import { getPublicURL } from "~/storage.server";
@@ -32,7 +32,7 @@ export async function getWaitingListOfEvent(options: {
   const { eventId, authClient, searchParams } = options;
 
   const submission = parseWithZod(searchParams, {
-    schema: getSearchWaitingListSchema(),
+    schema: createSearchWaitingListSchema(),
   });
 
   let waitingList = [];

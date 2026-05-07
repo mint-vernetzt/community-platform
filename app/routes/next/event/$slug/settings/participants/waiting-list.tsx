@@ -25,8 +25,8 @@ import {
 } from "~/lib/utils/i18n";
 import List from "~/components/next/List";
 import {
-  getMoveToParticipantsSchema,
-  getSearchWaitingListSchema,
+  createMoveToParticipantsSchema,
+  createSearchWaitingListSchema,
   PROFILE_ID,
   SEARCH_WAITING_LIST_SEARCH_PARAM,
 } from "./waiting-list.shared";
@@ -114,7 +114,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
-    schema: getMoveToParticipantsSchema(),
+    schema: createMoveToParticipantsSchema(),
   });
 
   if (submission.status !== "success") {
@@ -191,7 +191,7 @@ function ParticipantsWaitingList() {
           hideUntil={4}
           label={locales.route.search.label}
           submission={loaderData.submission}
-          schema={getSearchWaitingListSchema()}
+          schema={createSearchWaitingListSchema()}
         />
         {waitingList.map((profile, index) => {
           const date = new Date(profile.createdAt);

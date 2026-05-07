@@ -1,7 +1,7 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import {
-  getSearchParticipantsSchema,
+  createSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./list.shared";
 import { parseWithZod } from "@conform-to/zod";
@@ -21,7 +21,7 @@ export async function getParticipantsOfEvent(options: {
   const { eventId, authClient, searchParams } = options;
 
   const submission = parseWithZod(searchParams, {
-    schema: getSearchParticipantsSchema(),
+    schema: createSearchParticipantsSchema(),
   });
 
   let participants = [];
