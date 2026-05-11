@@ -31,4 +31,18 @@ export const locale = {
     hint: "Tipp: Wähle ein Bild aus der MINT-Mediendatenbank aus, lade es herunter und füge es hier ein.",
     cta: "Zur MINT-Mediendatenbank",
   },
+  validation: {
+    maxSize:
+      "Dein Bild ist zu groß ({{size}} MB). Maximale Größe: {{maxSize}} MB",
+    invalidType: "Die Datei muss ein JPG oder PNG sein.",
+    descriptionTooLong:
+      "Die Bildbeschreibung darf maximal {{max}} Zeichen lang sein.",
+    creditsTooLong: "Die Credits dürfen maximal {{max}} Zeichen lang sein.",
+  },
+  errors: {
+    uploadImageFailed: "Das Hochladen des Bildes ist fehlgeschlagen.",
+  },
+  success: {
+    imageAdded: "Titelbild gespeichert.",
+  },
 } as const;

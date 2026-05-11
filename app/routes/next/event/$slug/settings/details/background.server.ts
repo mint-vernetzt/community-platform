@@ -1,7 +1,8 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { prismaClient } from "~/prisma.server";
-import { getPublicURL } from "~/storage.server";
+import { getPublicURL, uploadFileToStorage } from "~/storage.server";
+import { BUCKET_NAME_IMAGES } from "~/storage.shared";
 
 export async function getEventBackground(
   slug: string,
@@ -48,4 +49,50 @@ export async function getEventBackground(
     path: enhancedBackground,
     blurredPath: blurredBackground,
   };
+}
+
+export async function changeEventBackground(options: {
+  slug: string;
+  authClient: SupabaseClient;
+  data: {
+    file: File;
+    description?: string;
+    credits?: string;
+  };
+}) {
+  const { slug, authClient, data } = options;
+  const { file, ...rest } = data;
+
+  const { fileMetadataForDatabase, error } = await uploadFileToStorage({
+    file,
+    authClient,
+    bucket: BUCKET_NAME_IMAGES,
+  });
+
+  if (error !== null) {
+    throw error;
+  }
+  if (fileMetadataForDatabase === null) {
+    throw new Error("File metadata is null after upload");
+  }
+
+  await prismaClient.event.update({
+    where: {
+      slug,
+    },
+    data: {
+      backgroundImage: {
+        upsert: {
+          create: {
+            ...fileMetadataForDatabase,
+            ...rest,
+          },
+          update: {
+            ...fileMetadataForDatabase,
+            ...rest,
+          },
+        },
+      },
+    },
+  });
 }

@@ -31,4 +31,18 @@ export const locale = {
     hint: "Tip: Select an image from the MINT media database, download it, and insert it here.",
     cta: "To the MINT media database",
   },
+  validation: {
+    maxSize:
+      "Your image is too large ({{size}} MB). Maximum size: {{maxSize}} MB",
+    invalidType: "The file must be a JPG or PNG.",
+    descriptionTooLong:
+      "The image description must be at most {{max}} characters long.",
+    creditsTooLong: "The credits must be at most {{max}} characters long.",
+  },
+  errors: {
+    uploadImageFailed: "The image upload failed.",
+  },
+  success: {
+    imageAdded: "Background image saved.",
+  },
 } as const;
