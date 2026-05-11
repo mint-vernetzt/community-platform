@@ -36,7 +36,11 @@ export async function getProjectWithResponsibleOrganizations(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -70,7 +74,10 @@ export async function getProjectWithResponsibleOrganizations(options: {
   // enhance responsibleOrganizations with logo
   const responsibleOrganizations = project.responsibleOrganizations.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImage === null
+          ? null
+          : relation.organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -165,7 +172,11 @@ export async function getOwnOrganizationSuggestions(options: {
     select: {
       id: true,
       slug: true,
-      logo: true,
+      logoImage: {
+        select: {
+          path: true,
+        },
+      },
       name: true,
       types: {
         select: {
@@ -190,7 +201,8 @@ export async function getOwnOrganizationSuggestions(options: {
 
   const enhancedOwnOrganizationSuggestions = ownOrganizationSuggestions.map(
     (organization) => {
-      let logo = organization.logo;
+      let logo =
+        organization.logoImage === null ? null : organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -309,7 +321,11 @@ export async function addResponsibleOrganizationToProject(options: {
 //           select: {
 //             id: true,
 //             slug: true,
-//             logo: true,
+//             logoImage: {
+//        select: {
+//          path: true,
+//        }
+//      },
 //             name: true,
 //             types: {
 //               select: {

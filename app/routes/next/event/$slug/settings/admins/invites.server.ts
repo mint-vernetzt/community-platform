@@ -52,7 +52,11 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
         createdAt: true,
@@ -89,7 +93,11 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
         createdAt: true,
@@ -101,7 +109,8 @@ export async function getInvitedProfilesToJoinEventAsAdmin(options: {
   }
 
   const profiles = result.map((item) => {
-    let avatar = item.profile.avatar;
+    let avatar =
+      item.profile.avatarImage === null ? null : item.profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

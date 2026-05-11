@@ -71,7 +71,11 @@ export async function searchProfiles(options: {
       academicTitle: true,
       firstName: true,
       lastName: true,
-      avatar: true,
+      avatarImage: {
+        select: {
+          path: true,
+        },
+      },
     },
   });
 
@@ -96,7 +100,8 @@ export async function searchProfiles(options: {
   });
 
   const enhancedProfiles = profiles.map((relation) => {
-    let avatar = relation.avatar;
+    let avatar =
+      relation.avatarImage === null ? null : relation.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

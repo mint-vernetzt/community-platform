@@ -248,7 +248,8 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   let blurredBackground;
-  let background = event.background;
+  let background =
+    event.backgroundImage === null ? null : event.backgroundImage.path;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
     if (publicURL) {
@@ -275,7 +276,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const responsibleOrganizations = event.responsibleOrganizations.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImage === null
+          ? null
+          : relation.organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

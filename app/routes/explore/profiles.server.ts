@@ -499,8 +499,16 @@ export async function getAllProfiles(options: {
       firstName: true,
       lastName: true,
       position: true,
-      avatar: true,
-      background: true,
+      avatarImage: {
+        select: {
+          path: true,
+        },
+      },
+      backgroundImage: {
+        select: {
+          path: true,
+        },
+      },
       memberOf: {
         select: {
           organization: {
@@ -508,13 +516,17 @@ export async function getAllProfiles(options: {
               id: true,
               name: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               organizationVisibility: {
                 select: {
                   id: true,
                   name: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                 },
               },
             },
@@ -547,8 +559,8 @@ export async function getAllProfiles(options: {
           firstName: true,
           lastName: true,
           position: true,
-          avatar: true,
-          background: true,
+          avatarImage: true,
+          backgroundImage: true,
           memberOf: true,
           areas: true,
           offers: true,

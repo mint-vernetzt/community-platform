@@ -60,7 +60,11 @@ export async function getAdminsOfEventToAddAsTeamMembers(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
       },
@@ -91,7 +95,11 @@ export async function getAdminsOfEventToAddAsTeamMembers(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
       },
@@ -119,7 +127,10 @@ export async function getAdminsOfEventToAddAsTeamMembers(options: {
   });
 
   const enhancedProfiles = admins.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImage === null
+        ? null
+        : relation.profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -206,7 +217,11 @@ export async function searchProfiles(options: {
       academicTitle: true,
       firstName: true,
       lastName: true,
-      avatar: true,
+      avatarImage: {
+        select: {
+          path: true,
+        },
+      },
     },
   });
 
@@ -231,7 +246,8 @@ export async function searchProfiles(options: {
   });
 
   const enhancedProfiles = profiles.map((relation) => {
-    let avatar = relation.avatar;
+    let avatar =
+      relation.avatarImage === null ? null : relation.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

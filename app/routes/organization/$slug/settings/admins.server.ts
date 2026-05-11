@@ -44,7 +44,11 @@ export async function getOrganizationWithAdmins(options: {
               username: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImage: {
+                select: {
+                  path: true,
+                },
+              },
               academicTitle: true,
               position: true,
             },
@@ -64,7 +68,10 @@ export async function getOrganizationWithAdmins(options: {
 
   // enhance admins with avatar
   const admins = organization.admins.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImage === null
+        ? null
+        : relation.profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -110,7 +117,11 @@ export async function getPendingAdminInvitesOfOrganization(
             username: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
             academicTitle: true,
             position: true,
           },
@@ -124,7 +135,10 @@ export async function getPendingAdminInvitesOfOrganization(
     });
 
   const enhancedProfiles = profiles.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImage === null
+        ? null
+        : relation.profile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

@@ -135,7 +135,10 @@ export async function loader(args: LoaderFunctionArgs) {
   for (const network of networks) {
     const enhancedNetwork = { ...network };
 
-    let logo = enhancedNetwork.logo;
+    let logo =
+      enhancedNetwork.logoImage === null
+        ? null
+        : enhancedNetwork.logoImage.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
