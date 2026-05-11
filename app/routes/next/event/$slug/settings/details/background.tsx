@@ -45,9 +45,9 @@ function Background() {
 
   const [selectedFiles, setSelectedFiles] = useState<
     {
-      id: string;
       filename: string;
       sizeInMB: number;
+      src: string;
     }[]
   >([]);
 
@@ -72,11 +72,19 @@ function Background() {
       <div className="w-full aspect-3/2 rounded-md overflow-hidden">
         <Image
           alt={locales.route.currentBackground.title}
-          src={background !== null ? background.path : eventDefaultBackground}
+          src={
+            selectedFiles.length > 0
+              ? selectedFiles[0].src
+              : background !== null
+                ? background.path
+                : eventDefaultBackground
+          }
           blurredSrc={
-            background !== null
-              ? background.blurredPath
-              : eventDefaultBackgroundBlurred
+            selectedFiles.length > 0
+              ? selectedFiles[0].src
+              : background !== null
+                ? background.blurredPath
+                : eventDefaultBackgroundBlurred
           }
         />
       </div>
@@ -103,56 +111,56 @@ function Background() {
           className="cursor-pointer"
           accept={IMAGE_MIME_TYPES.join(", ")}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedFiles(
-              event.target.files !== null
-                ? Array.from(event.target.files).map((file) => {
-                    return {
-                      id: crypto.randomUUID(),
-                      filename: file.name,
-                      sizeInMB:
-                        Math.round((file.size / 1000 / 1000) * 100) / 100,
-                    };
-                  })
-                : []
-            );
+            if (event.target.files !== null) {
+              Array.from(event.target.files).map((file) => {
+                const reader = new FileReader();
+                reader.addEventListener("load", () => {
+                  setSelectedFiles((prevSelectedFiles) => {
+                    if (
+                      reader.result !== null &&
+                      typeof reader.result === "string"
+                    ) {
+                      return [
+                        ...prevSelectedFiles,
+                        {
+                          filename: file.name,
+                          sizeInMB: file.size / 1000 / 1000,
+                          src: reader.result,
+                        },
+                      ];
+                    }
+                    return prevSelectedFiles;
+                  });
+                });
+                reader.readAsDataURL(file);
+              });
+            }
             // TODO: Conform
             // uploadForm.validate();
           }}
         />
       </Form>
-      {selectedFiles.length === 0 && isHydrated ? (
-        <div className="flex md:justify-end">
-          <div className="w-full md:w-fit">
-            <Button
-              as="label"
-              htmlFor="file-input"
-              // TODO: Conform
-              // htmlFor={uploadFields[FILE_FIELD_NAME].id}
-              fullSize
-              variant="outline"
-              tabIndex={0}
-              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
-                event.key === "Enter" && event.currentTarget.click()
-              }
-            >
-              <UploadIcon />
-              <span>{locales.route.changeBackground.pick}</span>
-            </Button>
-          </div>
+      <div className="flex md:justify-end">
+        <div className="w-full md:w-fit">
+          <Button
+            as="label"
+            htmlFor="file-input"
+            // TODO: Conform
+            // htmlFor={uploadFields[FILE_FIELD_NAME].id}
+            fullSize
+            variant="outline"
+            tabIndex={0}
+            onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
+              event.key === "Enter" && event.currentTarget.click()
+            }
+          >
+            <UploadIcon />
+            <span>{locales.route.changeBackground.pick}</span>
+          </Button>
         </div>
-      ) : (
-        <>
-          {isHydrated ? (
-            <>
-              {selectedFiles.map((image, index) => {
-                return <>{/* Javascript dependent code */}</>;
-              })}
-            </>
-          ) : null}
-          {/* TODO: Conform form with inputs description, credits and upload intent */}
-          {/* Javascript independent code */}
-        </>
-      )}
+      </div>
+      {/* TODO: Conform form with inputs description, credits and upload intent */}
+      {/* Javascript independent code */}
     </>
   );
 }
