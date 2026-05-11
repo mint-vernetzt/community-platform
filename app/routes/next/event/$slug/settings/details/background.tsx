@@ -13,6 +13,8 @@ import { useHydrated } from "remix-utils/use-hydrated";
 import { useState } from "react";
 import { UploadIcon } from "~/components-next/icons/UploadIcon";
 import TitleSection from "~/components/next/TitleSection";
+import { getEventBackground } from "./background.server";
+import { createAuthClient } from "~/auth.server";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -26,9 +28,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/details/background"];
 
-  // TODO: Get current event background
+  const { authClient } = createAuthClient(request);
+  const background = await getEventBackground(params.slug, authClient);
 
-  return { locales };
+  return { locales, background };
 }
 
 // TODO: Action with upload and remove intent
@@ -36,7 +39,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
 function Background() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, background } = loaderData;
 
   const isHydrated = useHydrated();
 
@@ -66,11 +69,15 @@ function Background() {
       </TitleSection>
       {/* TODO: Either pass selectedFile or current background or default background */}
       {/* TODO: If current background exists add the remove button */}
-      <div className="w-full rounded-md overflow-hidden">
+      <div className="w-full aspect-3/2 rounded-md overflow-hidden">
         <Image
           alt={locales.route.currentBackground.title}
-          src={eventDefaultBackground}
-          blurredSrc={eventDefaultBackgroundBlurred}
+          src={background !== null ? background.path : eventDefaultBackground}
+          blurredSrc={
+            background !== null
+              ? background.blurredPath
+              : eventDefaultBackgroundBlurred
+          }
         />
       </div>
       <Form

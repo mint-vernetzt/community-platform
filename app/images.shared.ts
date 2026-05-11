@@ -4,8 +4,8 @@ export const MaxImageSizes = {
     height: 480,
   },
   EventBackground: {
-    width: 600,
-    height: 400,
+    width: 900,
+    height: 600,
   },
   AvatarAndLogo: {
     width: 256,
