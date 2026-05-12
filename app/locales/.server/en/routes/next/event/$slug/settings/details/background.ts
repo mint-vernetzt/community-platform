@@ -32,8 +32,7 @@ export const locale = {
     cta: "To the MINT media database",
   },
   validation: {
-    maxSize:
-      "Your image is too large ({{size}} MB). Maximum size: {{maxSize}} MB",
+    maxSize: "Your image is too large ({{size}} MB).",
     invalidType: "The file must be a JPG or PNG.",
     descriptionTooLong:
       "The image description must be at most {{max}} characters long.",

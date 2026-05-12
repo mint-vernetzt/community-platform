@@ -215,9 +215,7 @@ export function nextGetUploadImageSchema(locales: {
             code: "custom",
             message: insertParametersIntoLocale(locales.maxSize, {
               size: Math.round((file.size / 1000 / 1000) * 10) / 10,
-              maxSize: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,
             }),
-            // path: ["file"],
           });
           return z.NEVER;
         }

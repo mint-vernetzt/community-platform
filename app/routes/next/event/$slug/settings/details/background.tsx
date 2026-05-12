@@ -1,18 +1,36 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Image } from "@mint-vernetzt/components/src/molecules/Image";
+import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import { useState } from "react";
 import {
   type ActionFunctionArgs,
+  data,
   Form,
-  useLoaderData,
-  useNavigation,
   type LoaderFunctionArgs,
   redirect,
   useActionData,
+  useLoaderData,
+  useNavigation,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
+import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
+import eventDefaultBackground from "~/assets/default-event-background.jpg";
+import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import { UploadIcon } from "~/components-next/icons/UploadIcon";
+import TitleSection from "~/components/next/TitleSection";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { ImageAspectsAsStrings, MaxImageSizes } from "~/images.shared";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { parseMultipartFormData } from "~/storage.server";
 import {
   FILE_FIELD_NAME,
   IMAGE_CREDITS_FIELD_NAME,
@@ -24,25 +42,9 @@ import {
   nextGetUploadImageSchema,
   UPLOAD_IMAGE_INTENT_VALUE,
 } from "~/storage.shared";
-import eventDefaultBackground from "~/assets/default-event-background.jpg";
-import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { useState } from "react";
-import { UploadIcon } from "~/components-next/icons/UploadIcon";
-import TitleSection from "~/components/next/TitleSection";
-import { changeEventBackground, getEventBackground } from "./background.server";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { parseMultipartFormData } from "~/storage.server";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { Input } from "@mint-vernetzt/components/src/molecules/Input";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
+import { changeEventBackground, getEventBackground } from "./background.server";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -134,12 +136,18 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  return redirectWithToast(request.url, {
+  const toastHeaders = await createToastHeaders({
     id: "upload-image-success",
     key: `upload-image-success-${Date.now()}`,
     message: locales.route.success.imageAdded,
     level: "positive",
   });
+  return data(
+    { submission: submission.reply(), intent },
+    {
+      headers: toastHeaders,
+    }
+  );
 }
 
 // TODO: no js functionality
@@ -162,21 +170,20 @@ function Background() {
     }[]
   >([]);
 
-  // TODO: dirty state not working yet
-  console.log("background", background);
+  const defaultValue = {
+    [FILE_FIELD_NAME]: undefined,
+    [IMAGE_DESCRIPTION_FIELD_NAME]:
+      background !== null ? background.description : null,
+    [IMAGE_CREDITS_FIELD_NAME]: background !== null ? background.credits : null,
+    [INTENT_FIELD_NAME]: UPLOAD_IMAGE_INTENT_VALUE,
+  };
 
   const [uploadForm, uploadFields] = useForm({
     id: "upload-image-form",
     constraint: getZodConstraint(
       nextGetUploadImageSchema(locales.route.validation)
     ),
-    defaultValue: {
-      [FILE_FIELD_NAME]: null,
-      [IMAGE_DESCRIPTION_FIELD_NAME]:
-        background !== null ? background.description : null,
-      [IMAGE_CREDITS_FIELD_NAME]:
-        background !== null ? background.credits : null,
-    },
+    defaultValue,
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     lastResult: navigation.state === "idle" ? submission : undefined,
@@ -187,8 +194,13 @@ function Background() {
       });
       return submission;
     },
-    onSubmit: () => {
-      setSelectedFiles([]);
+  });
+
+  useFormRevalidationAfterSuccess({
+    deps: {
+      navigation,
+      submissionResult: submission,
+      form: uploadForm,
     },
   });
 
@@ -236,18 +248,18 @@ function Background() {
         hidden={isHydrated}
       >
         <input
-          name={INTENT_FIELD_NAME}
-          type="hidden"
-          value={UPLOAD_IMAGE_INTENT_VALUE}
+          {...getInputProps(uploadFields[INTENT_FIELD_NAME], {
+            type: "hidden",
+          })}
         />
         <input
           {...getInputProps(uploadFields[FILE_FIELD_NAME], {
             type: "file",
           })}
-          type="file"
           className="cursor-pointer"
           accept={IMAGE_MIME_TYPES.join(", ")}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            console.log("onChange");
             setSelectedFiles([]);
             if (event.target.files !== null) {
               Array.from(event.target.files).map((file) => {
@@ -277,20 +289,7 @@ function Background() {
           }}
         />
       </Form>
-      {/* TODO: Display this on correct location after its discussed with design team */}
-      {typeof uploadFields.file.errors !== "undefined" &&
-      uploadFields.file.errors.length > 0 ? (
-        uploadFields.file.errors.map((error) => (
-          <Input.Error id={uploadFields.file.errorId} key={error}>
-            {error}
-          </Input.Error>
-        ))
-      ) : (
-        <Input.HelperText>
-          {locales.route.changeBackground.description.helperText}
-        </Input.HelperText>
-      )}
-      <div className="flex md:justify-end">
+      <div className="w-full flex flex-col gap-2 md:justify-start md:flex-row-reverse">
         <div className="w-full md:w-fit">
           <Button
             as="label"
@@ -306,6 +305,14 @@ function Background() {
             <span>{locales.route.changeBackground.pick}</span>
           </Button>
         </div>
+        {typeof uploadFields.file.errors !== "undefined" &&
+        uploadFields.file.errors.length > 0
+          ? uploadFields.file.errors.map((error) => (
+              <Input.Error id={uploadFields.file.errorId} key={error}>
+                {error}
+              </Input.Error>
+            ))
+          : null}
       </div>
       {/* TODO: Use textareas with fixed height */}
       <Input
