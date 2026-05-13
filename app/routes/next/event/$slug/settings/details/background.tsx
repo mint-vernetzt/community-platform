@@ -52,6 +52,7 @@ import {
 } from "./background.server";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
 import { TextArea } from "~/components-next/TextArea";
+import ImageCropper from "~/components/next/ImageCropper";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -273,36 +274,40 @@ function Background() {
       {background !== null && selectedFiles.length === 0 ? (
         <Form id="remove-image-form" hidden method="POST" preventScrollReset />
       ) : null}
-      <div className="w-full aspect-3/2 rounded-md overflow-hidden">
-        <Image
-          alt={locales.route.currentBackground.title}
-          src={
-            selectedFiles.length > 0
-              ? selectedFiles[0].src
-              : background !== null
-                ? background.path
-                : eventDefaultBackground
-          }
-          blurredSrc={
-            selectedFiles.length > 0
-              ? selectedFiles[0].src
-              : background !== null
-                ? background.blurredPath
-                : eventDefaultBackgroundBlurred
-          }
-        >
-          {background !== null && selectedFiles.length === 0 ? (
-            <Image.RemoveButton
-              label={locales.route.currentBackground.remove}
-              buttonProps={{
-                type: "submit",
-                form: "remove-image-form",
-                name: INTENT_FIELD_NAME,
-                value: REMOVE_IMAGE_INTENT_VALUE,
-              }}
-            />
-          ) : null}
-        </Image>
+      <div className="relative w-full aspect-3/2 rounded-md overflow-hidden">
+        {isHydrated && selectedFiles.length > 0 ? (
+          <ImageCropper src={selectedFiles[0].src} aspect={3 / 2} />
+        ) : (
+          <Image
+            alt={locales.route.currentBackground.title}
+            src={
+              selectedFiles.length > 0
+                ? selectedFiles[0].src
+                : background !== null
+                  ? background.path
+                  : eventDefaultBackground
+            }
+            blurredSrc={
+              selectedFiles.length > 0
+                ? selectedFiles[0].src
+                : background !== null
+                  ? background.blurredPath
+                  : eventDefaultBackgroundBlurred
+            }
+          >
+            {background !== null && selectedFiles.length === 0 ? (
+              <Image.RemoveButton
+                label={locales.route.currentBackground.remove}
+                buttonProps={{
+                  type: "submit",
+                  form: "remove-image-form",
+                  name: INTENT_FIELD_NAME,
+                  value: REMOVE_IMAGE_INTENT_VALUE,
+                }}
+              />
+            ) : null}
+          </Image>
+        )}
       </div>
 
       <div className="w-full flex flex-col gap-2 md:justify-start md:flex-row-reverse">
