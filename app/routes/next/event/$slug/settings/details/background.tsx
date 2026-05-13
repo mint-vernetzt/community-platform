@@ -190,8 +190,6 @@ export async function action(args: ActionFunctionArgs) {
   }
 }
 
-// TODO: no js functionality
-
 function Background() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, background } = loaderData;
@@ -305,61 +303,7 @@ function Background() {
           ) : null}
         </Image>
       </div>
-      <Form
-        {...getFormProps(uploadForm)}
-        method="POST"
-        encType="multipart/form-data"
-        hidden={isHydrated}
-        preventScrollReset
-      >
-        <input
-          {...getInputProps(uploadFields[INTENT_FIELD_NAME], {
-            type: "hidden",
-          })}
-        />
-        <input
-          {...getInputProps(uploadFields[FILE_FIELD_NAME], {
-            type: "file",
-          })}
-          className="cursor-pointer"
-          accept={IMAGE_MIME_TYPES.join(", ")}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedFiles([]);
-            if (event.target.files !== null) {
-              Array.from(event.target.files).map((file) => {
-                const reader = new FileReader();
-                reader.addEventListener("load", () => {
-                  setSelectedFiles((prevSelectedFiles) => {
-                    if (
-                      reader.result !== null &&
-                      typeof reader.result === "string"
-                    ) {
-                      return [
-                        ...prevSelectedFiles,
-                        {
-                          filename: file.name,
-                          sizeInMB: file.size / 1000 / 1000,
-                          src: reader.result,
-                        },
-                      ];
-                    }
-                    return prevSelectedFiles;
-                  });
-                  if (
-                    reader.result !== null &&
-                    typeof reader.result === "string"
-                  ) {
-                    setDescription(null);
-                    setCredits(null);
-                  }
-                });
-                reader.readAsDataURL(file);
-              });
-            }
-            uploadForm.validate();
-          }}
-        />
-      </Form>
+
       <div className="w-full flex flex-col gap-2 md:justify-start md:flex-row-reverse">
         <div className="w-full md:w-fit">
           <Button
@@ -376,6 +320,61 @@ function Background() {
             <span>{locales.route.changeBackground.pick}</span>
           </Button>
         </div>
+        <Form
+          {...getFormProps(uploadForm)}
+          method="POST"
+          encType="multipart/form-data"
+          hidden={isHydrated}
+          preventScrollReset
+        >
+          <input
+            {...getInputProps(uploadFields[INTENT_FIELD_NAME], {
+              type: "hidden",
+            })}
+          />
+          <input
+            {...getInputProps(uploadFields[FILE_FIELD_NAME], {
+              type: "file",
+            })}
+            className="cursor-pointer"
+            accept={IMAGE_MIME_TYPES.join(", ")}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setSelectedFiles([]);
+              if (event.target.files !== null) {
+                Array.from(event.target.files).map((file) => {
+                  const reader = new FileReader();
+                  reader.addEventListener("load", () => {
+                    setSelectedFiles((prevSelectedFiles) => {
+                      if (
+                        reader.result !== null &&
+                        typeof reader.result === "string"
+                      ) {
+                        return [
+                          ...prevSelectedFiles,
+                          {
+                            filename: file.name,
+                            sizeInMB: file.size / 1000 / 1000,
+                            src: reader.result,
+                          },
+                        ];
+                      }
+                      return prevSelectedFiles;
+                    });
+                    if (
+                      reader.result !== null &&
+                      typeof reader.result === "string"
+                    ) {
+                      setDescription(null);
+                      setCredits(null);
+                    }
+                  });
+                  reader.readAsDataURL(file);
+                });
+              }
+              uploadForm.validate();
+            }}
+          />
+        </Form>
         {typeof uploadFields.file.errors !== "undefined" &&
         uploadFields.file.errors.length > 0
           ? uploadFields.file.errors.map((error) => (
@@ -386,7 +385,9 @@ function Background() {
           : null}
       </div>
       {/* TODO: Use textareas with fixed height */}
-      {background !== null || selectedFiles.length > 0 ? (
+      {isHydrated === false ||
+      background !== null ||
+      selectedFiles.length > 0 ? (
         <>
           <Input
             {...getInputProps(uploadFields.description, { type: "text" })}
