@@ -5,6 +5,7 @@ export const locale = {
     "Größenverhältnis: Querformat ({{aspectRatio}}), empfohlene Mindestbreite {{minWidth}} px",
   currentBackground: {
     title: "Aktuelles Titelbild",
+    remove: "Titelbild entfernen",
   },
   changeBackground: {
     pick: "Datei auswählen",
@@ -40,8 +41,10 @@ export const locale = {
   },
   errors: {
     uploadImageFailed: "Das Hochladen des Bildes ist fehlgeschlagen.",
+    removeImageFailed: "Das Entfernen des Bildes ist fehlgeschlagen.",
   },
   success: {
     imageAdded: "Titelbild gespeichert.",
+    imageRemoved: "Titelbild entfernt.",
   },
 } as const;

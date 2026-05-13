@@ -3,6 +3,7 @@ import { type ImageCropperLocales } from "./components/legacy/ImageCropper/Image
 import { INTENT_FIELD_NAME } from "./form-helpers";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
+import { transformEmptyToNull } from "./lib/utils/schemas";
 
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
@@ -118,6 +119,7 @@ export const UPLOAD_DOCUMENT_INTENT_VALUE = "upload-document";
 export const UPLOAD_IMAGE_INTENT_VALUE = "upload-image";
 export const EDIT_DOCUMENT_INTENT_VALUE = "edit-document";
 export const REMOVE_DOCUMENT_INTENT_VALUE = "remove-document";
+export const REMOVE_IMAGE_INTENT_VALUE = "remove-image";
 export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
@@ -164,7 +166,10 @@ export function nextGetUploadDocumentSchema(locales: {
       .refine((file) => {
         return DOCUMENT_MIME_TYPES.includes(file.type);
       }, locales.invalidType),
-    [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
+    [DOCUMENT_TITLE_FIELD_NAME]: z
+      .string()
+      .optional()
+      .transform(transformEmptyToNull),
     [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
       .string()
       .max(
@@ -173,7 +178,8 @@ export function nextGetUploadDocumentSchema(locales: {
           max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
         })
       )
-      .optional(),
+      .optional()
+      .transform(transformEmptyToNull),
   });
 }
 
@@ -222,7 +228,8 @@ export function nextGetUploadImageSchema(locales: {
       })
       .refine((file) => {
         return IMAGE_MIME_TYPES.includes(file.type);
-      }, locales.invalidType),
+      }, locales.invalidType)
+      .optional(),
     [IMAGE_DESCRIPTION_FIELD_NAME]: z
       .string()
       .max(
@@ -231,7 +238,8 @@ export function nextGetUploadImageSchema(locales: {
           max: IMAGE_DESCRIPTION_MAX_LENGTH,
         })
       )
-      .optional(),
+      .optional()
+      .transform(transformEmptyToNull),
     [IMAGE_CREDITS_FIELD_NAME]: z
       .string()
       .max(
@@ -240,7 +248,8 @@ export function nextGetUploadImageSchema(locales: {
           max: IMAGE_CREDITS_MAX_LENGTH,
         })
       )
-      .optional(),
+      .optional()
+      .transform(transformEmptyToNull),
   });
 }
 

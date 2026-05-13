@@ -55,13 +55,29 @@ export async function changeEventBackground(options: {
   slug: string;
   authClient: SupabaseClient;
   data: {
-    file: File;
-    description?: string;
-    credits?: string;
+    file?: File;
+    description: string | null;
+    credits?: string | null;
   };
 }) {
   const { slug, authClient, data } = options;
   const { file, ...rest } = data;
+
+  if (typeof file === "undefined") {
+    await prismaClient.event.update({
+      where: {
+        slug,
+      },
+      data: {
+        backgroundImage: {
+          update: {
+            ...rest,
+          },
+        },
+      },
+    });
+    return;
+  }
 
   const { fileMetadataForDatabase, error } = await uploadFileToStorage({
     file,
@@ -92,6 +108,21 @@ export async function changeEventBackground(options: {
             ...rest,
           },
         },
+      },
+    },
+  });
+}
+
+export async function removeEventBackground(options: { slug: string }) {
+  const { slug } = options;
+
+  await prismaClient.event.update({
+    where: {
+      slug,
+    },
+    data: {
+      backgroundImage: {
+        delete: true,
       },
     },
   });

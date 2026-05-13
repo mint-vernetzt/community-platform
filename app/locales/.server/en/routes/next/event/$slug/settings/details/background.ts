@@ -5,6 +5,7 @@ export const locale = {
     "Aspect ratio: Landscape ({{aspectRatio}}), recommended minimum width {{minWidth}} px",
   currentBackground: {
     title: "Current Background Image",
+    remove: "Remove background image",
   },
   changeBackground: {
     pick: "Select file",
@@ -40,8 +41,10 @@ export const locale = {
   },
   errors: {
     uploadImageFailed: "The image upload failed.",
+    removeImageFailed: "The image removal failed.",
   },
   success: {
     imageAdded: "Background image saved.",
+    imageRemoved: "Background image removed.",
   },
 } as const;

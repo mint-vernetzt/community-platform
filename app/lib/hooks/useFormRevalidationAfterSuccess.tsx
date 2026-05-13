@@ -12,11 +12,13 @@ export function useFormRevalidationAfterSuccess<
   };
   skipRevalidation?: boolean;
   redirectToSameRouteOnDifferentURL?: boolean;
+  extendedFunctionality?: Function;
 }) {
   const {
     skipRevalidation = false,
     redirectToSameRouteOnDifferentURL = false,
     deps,
+    extendedFunctionality,
   } = options;
   const { navigation, submissionResult, form } = deps;
 
@@ -29,6 +31,9 @@ export function useFormRevalidationAfterSuccess<
       skipRevalidation === false
     ) {
       form.reset();
+      if (typeof extendedFunctionality !== "undefined") {
+        extendedFunctionality();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation.state, submissionResult, skipRevalidation]);

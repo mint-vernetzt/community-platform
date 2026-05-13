@@ -40,11 +40,16 @@ import {
   IMAGE_MIME_TYPES,
   MAX_UPLOAD_FILE_SIZE,
   nextGetUploadImageSchema,
+  REMOVE_IMAGE_INTENT_VALUE,
   UPLOAD_IMAGE_INTENT_VALUE,
 } from "~/storage.shared";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { changeEventBackground, getEventBackground } from "./background.server";
+import {
+  changeEventBackground,
+  getEventBackground,
+  removeEventBackground,
+} from "./background.server";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -105,49 +110,83 @@ export async function action(args: ActionFunctionArgs) {
   invariantResponse(typeof intent === "string", "intent is not defined", {
     status: 400,
   });
-  invariantResponse(intent === UPLOAD_IMAGE_INTENT_VALUE, "unknown intent", {
-    status: 400,
-  });
-
-  const submission = parseWithZod(formData, {
-    schema: nextGetUploadImageSchema(locales.route.validation),
-  });
-
-  if (submission.status !== "success") {
-    return {
-      submission: submission.reply(),
-      intent: UPLOAD_IMAGE_INTENT_VALUE,
-    };
-  }
-
-  try {
-    await changeEventBackground({
-      slug: params.slug,
-      authClient,
-      data: submission.value,
-    });
-  } catch (error) {
-    captureException(error);
-    return redirectWithToast(request.url, {
-      id: "upload-image-error",
-      key: `upload-image-error-${Date.now()}`,
-      message: locales.route.errors.uploadImageFailed,
-      level: "negative",
-    });
-  }
-
-  const toastHeaders = await createToastHeaders({
-    id: "upload-image-success",
-    key: `upload-image-success-${Date.now()}`,
-    message: locales.route.success.imageAdded,
-    level: "positive",
-  });
-  return data(
-    { submission: submission.reply(), intent },
+  invariantResponse(
+    intent === UPLOAD_IMAGE_INTENT_VALUE ||
+      intent === REMOVE_IMAGE_INTENT_VALUE,
+    "unknown intent",
     {
-      headers: toastHeaders,
+      status: 400,
     }
   );
+
+  if (intent === UPLOAD_IMAGE_INTENT_VALUE) {
+    const submission = parseWithZod(formData, {
+      schema: nextGetUploadImageSchema(locales.route.validation),
+    });
+
+    if (submission.status !== "success") {
+      return {
+        submission: submission.reply(),
+        intent: UPLOAD_IMAGE_INTENT_VALUE,
+      };
+    }
+
+    try {
+      await changeEventBackground({
+        slug: params.slug,
+        authClient,
+        data: submission.value,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "upload-image-error",
+        key: `upload-image-error-${Date.now()}`,
+        message: locales.route.errors.uploadImageFailed,
+        level: "negative",
+      });
+    }
+
+    const toastHeaders = await createToastHeaders({
+      id: "upload-image-success",
+      key: `upload-image-success-${Date.now()}`,
+      message: locales.route.success.imageAdded,
+      level: "positive",
+    });
+    return data(
+      { submission: submission.reply(), intent },
+      {
+        headers: toastHeaders,
+      }
+    );
+  } else {
+    try {
+      await removeEventBackground({
+        slug: params.slug,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "remove-image-error",
+        key: `remove-image-error-${Date.now()}`,
+        message: locales.route.errors.removeImageFailed,
+        level: "negative",
+      });
+    }
+
+    const toastHeaders = await createToastHeaders({
+      id: "remove-image-success",
+      key: `remove-image-success-${Date.now()}`,
+      message: locales.route.success.imageRemoved,
+      level: "positive",
+    });
+    return data(
+      { submission: undefined, intent },
+      {
+        headers: toastHeaders,
+      }
+    );
+  }
 }
 
 // TODO: no js functionality
@@ -169,6 +208,13 @@ function Background() {
       src: string;
     }[]
   >([]);
+
+  const [description, setDescription] = useState(
+    background !== null ? background.description : null
+  );
+  const [credits, setCredits] = useState(
+    background !== null ? background.credits : null
+  );
 
   const defaultValue = {
     [FILE_FIELD_NAME]: undefined,
@@ -202,6 +248,9 @@ function Background() {
       submissionResult: submission,
       form: uploadForm,
     },
+    extendedFunctionality: () => {
+      setSelectedFiles([]);
+    },
   });
 
   return (
@@ -221,7 +270,9 @@ function Background() {
         </TitleSection.Subline>
       </TitleSection>
       {/* TODO: Crop functionality on selected file */}
-      {/* TODO: If current background exists add the remove button */}
+      {background !== null && selectedFiles.length === 0 ? (
+        <Form id="remove-image-form" hidden method="POST" preventScrollReset />
+      ) : null}
       <div className="w-full aspect-3/2 rounded-md overflow-hidden">
         <Image
           alt={locales.route.currentBackground.title}
@@ -239,13 +290,26 @@ function Background() {
                 ? background.blurredPath
                 : eventDefaultBackgroundBlurred
           }
-        />
+        >
+          {background !== null && selectedFiles.length === 0 ? (
+            <Image.RemoveButton
+              label={locales.route.currentBackground.remove}
+              buttonProps={{
+                type: "submit",
+                form: "remove-image-form",
+                name: INTENT_FIELD_NAME,
+                value: REMOVE_IMAGE_INTENT_VALUE,
+              }}
+            />
+          ) : null}
+        </Image>
       </div>
       <Form
         {...getFormProps(uploadForm)}
         method="POST"
         encType="multipart/form-data"
         hidden={isHydrated}
+        preventScrollReset
       >
         <input
           {...getInputProps(uploadFields[INTENT_FIELD_NAME], {
@@ -259,7 +323,6 @@ function Background() {
           className="cursor-pointer"
           accept={IMAGE_MIME_TYPES.join(", ")}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            console.log("onChange");
             setSelectedFiles([]);
             if (event.target.files !== null) {
               Array.from(event.target.files).map((file) => {
@@ -281,6 +344,13 @@ function Background() {
                     }
                     return prevSelectedFiles;
                   });
+                  if (
+                    reader.result !== null &&
+                    typeof reader.result === "string"
+                  ) {
+                    setDescription(null);
+                    setCredits(null);
+                  }
                 });
                 reader.readAsDataURL(file);
               });
@@ -315,89 +385,110 @@ function Background() {
           : null}
       </div>
       {/* TODO: Use textareas with fixed height */}
-      <Input
-        {...getInputProps(uploadFields.description, { type: "text" })}
-        maxLength={IMAGE_DESCRIPTION_MAX_LENGTH}
-      >
-        <Input.Label htmlFor={uploadFields.description.id}>
-          {locales.route.changeBackground.description.label}
-        </Input.Label>
-        {typeof uploadFields.description.errors !== "undefined" &&
-        uploadFields.description.errors.length > 0 ? (
-          uploadFields.description.errors.map((error) => (
-            <Input.Error id={uploadFields.description.errorId} key={error}>
-              {error}
-            </Input.Error>
-          ))
-        ) : (
-          <Input.HelperText>
-            {locales.route.changeBackground.description.helperText}
-          </Input.HelperText>
-        )}
-      </Input>
-      <Input
-        {...getInputProps(uploadFields.credits, { type: "text" })}
-        maxLength={IMAGE_CREDITS_MAX_LENGTH}
-      >
-        <Input.Label htmlFor={uploadFields.credits.id}>
-          {locales.route.changeBackground.credits.label}
-        </Input.Label>
-        {typeof uploadFields.credits.errors !== "undefined" &&
-        uploadFields.credits.errors.length > 0 ? (
-          uploadFields.credits.errors.map((error) => (
-            <Input.Error id={uploadFields.credits.errorId} key={error}>
-              {error}
-            </Input.Error>
-          ))
-        ) : (
-          <Input.HelperText>
-            {locales.route.changeBackground.credits.helperText}
-          </Input.HelperText>
-        )}
-      </Input>
-      <div className="w-full flex md:justify-end">
-        <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
-          <div className="w-full md:w-fit">
-            <Button
-              type="submit"
-              fullSize
-              form={uploadForm.id}
-              // Don't disable button when js is disabled
-              disabled={
-                isHydrated
-                  ? uploadForm.dirty === false ||
-                    uploadForm.valid === false ||
-                    isSubmitting
-                  : false
-              }
-            >
-              {locales.route.changeBackground.submit}
-            </Button>
-          </div>
-          <div className="w-full md:w-fit">
-            <div className="relative w-full">
-              <Button
-                type="reset"
-                onClick={() => {
-                  setSelectedFiles([]);
-                  uploadForm.reset();
-                }}
-                variant="outline"
-                fullSize
-                // Don't disable button when js is disabled
-                disabled={isHydrated ? uploadForm.dirty === false : false}
-              >
-                {locales.route.changeBackground.discard}
-              </Button>
-              <noscript className="absolute top-0">
-                <Button as="link" to="." variant="outline" fullSize>
-                  {locales.route.changeBackground.discard}
+      {background !== null || selectedFiles.length > 0 ? (
+        <>
+          <Input
+            {...getInputProps(uploadFields.description, { type: "text" })}
+            defaultValue={undefined}
+            value={description ?? ""}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setDescription(event.target.value);
+            }}
+            maxLength={IMAGE_DESCRIPTION_MAX_LENGTH}
+          >
+            <Input.Label htmlFor={uploadFields.description.id}>
+              {locales.route.changeBackground.description.label}
+            </Input.Label>
+            {typeof uploadFields.description.errors !== "undefined" &&
+            uploadFields.description.errors.length > 0 ? (
+              uploadFields.description.errors.map((error) => (
+                <Input.Error id={uploadFields.description.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>
+                {locales.route.changeBackground.description.helperText}
+              </Input.HelperText>
+            )}
+          </Input>
+          <Input
+            {...getInputProps(uploadFields.credits, { type: "text" })}
+            defaultValue={undefined}
+            value={credits ?? ""}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              setCredits(event.target.value);
+            }}
+            maxLength={IMAGE_CREDITS_MAX_LENGTH}
+          >
+            <Input.Label htmlFor={uploadFields.credits.id}>
+              {locales.route.changeBackground.credits.label}
+            </Input.Label>
+            {typeof uploadFields.credits.errors !== "undefined" &&
+            uploadFields.credits.errors.length > 0 ? (
+              uploadFields.credits.errors.map((error) => (
+                <Input.Error id={uploadFields.credits.errorId} key={error}>
+                  {error}
+                </Input.Error>
+              ))
+            ) : (
+              <Input.HelperText>
+                {locales.route.changeBackground.credits.helperText}
+              </Input.HelperText>
+            )}
+          </Input>
+          <div className="w-full flex md:justify-end">
+            <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
+              <div className="w-full md:w-fit">
+                <Button
+                  type="submit"
+                  fullSize
+                  form={uploadForm.id}
+                  // Don't disable button when js is disabled
+                  disabled={
+                    isHydrated
+                      ? uploadForm.dirty === false ||
+                        uploadForm.valid === false ||
+                        isSubmitting
+                      : false
+                  }
+                >
+                  {locales.route.changeBackground.submit}
                 </Button>
-              </noscript>
+              </div>
+              <div className="w-full md:w-fit">
+                <div className="relative w-full">
+                  <Button
+                    type="reset"
+                    onClick={() => {
+                      setSelectedFiles([]);
+                      setDescription(
+                        background !== null ? background.description : null
+                      );
+                      setCredits(
+                        background !== null ? background.credits : null
+                      );
+                      uploadForm.reset();
+                    }}
+                    variant="outline"
+                    fullSize
+                    // Don't disable button when js is disabled
+                    disabled={isHydrated ? uploadForm.dirty === false : false}
+                  >
+                    {locales.route.changeBackground.discard}
+                  </Button>
+                  <noscript className="absolute top-0">
+                    <Button as="link" to="." variant="outline" fullSize>
+                      {locales.route.changeBackground.discard}
+                    </Button>
+                  </noscript>
+                </div>
+              </div>
             </div>
+            {/* TODO: Media database hint */}
           </div>
-        </div>
-      </div>
+        </>
+      ) : null}
     </>
   );
 }

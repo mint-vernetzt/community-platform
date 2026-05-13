@@ -6,8 +6,8 @@ import { BUCKET_NAME_DOCUMENTS } from "~/storage.shared";
 export async function uploadDocumentToEvent(options: {
   authClient: SupabaseClient;
   data: {
-    title?: string;
-    description?: string;
+    title: string | null;
+    description: string | null;
   };
   file: File;
   slug: string;
