@@ -50,6 +50,7 @@ import {
   getEventBackground,
   removeEventBackground,
 } from "./background.server";
+import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -485,10 +486,30 @@ function Background() {
                 </div>
               </div>
             </div>
-            {/* TODO: Media database hint */}
           </div>
         </>
-      ) : null}
+      ) : (
+        <ShadowOrganizationHint>
+          <ShadowOrganizationHint.Description>
+            {locales.route.toMediaDatabase.hint}
+          </ShadowOrganizationHint.Description>
+          <ShadowOrganizationHint.Controls>
+            <div className="w-full @md:w-fit">
+              <Button
+                as="link"
+                to="https://mediendatenbank.mint-vernetzt.de/"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline"
+                size="small"
+                fullSize
+              >
+                {locales.route.toMediaDatabase.cta}
+              </Button>
+            </div>
+          </ShadowOrganizationHint.Controls>
+        </ShadowOrganizationHint>
+      )}
     </>
   );
 }
