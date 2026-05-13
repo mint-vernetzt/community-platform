@@ -51,6 +51,7 @@ import {
   removeEventBackground,
 } from "./background.server";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
+import { TextArea } from "~/components-next/TextArea";
 
 // TODO: Background editing on detail should be a link leading here
 
@@ -384,12 +385,11 @@ function Background() {
             ))
           : null}
       </div>
-      {/* TODO: Use textareas with fixed height */}
       {isHydrated === false ||
       background !== null ||
       selectedFiles.length > 0 ? (
         <>
-          <Input
+          <TextArea
             {...getInputProps(uploadFields.description, { type: "text" })}
             defaultValue={undefined}
             value={description ?? ""}
@@ -397,24 +397,19 @@ function Background() {
               setDescription(event.target.value);
             }}
             maxLength={IMAGE_DESCRIPTION_MAX_LENGTH}
-          >
-            <Input.Label htmlFor={uploadFields.description.id}>
-              {locales.route.changeBackground.description.label}
-            </Input.Label>
-            {typeof uploadFields.description.errors !== "undefined" &&
-            uploadFields.description.errors.length > 0 ? (
-              uploadFields.description.errors.map((error) => (
-                <Input.Error id={uploadFields.description.errorId} key={error}>
-                  {error}
-                </Input.Error>
-              ))
-            ) : (
-              <Input.HelperText>
-                {locales.route.changeBackground.description.helperText}
-              </Input.HelperText>
-            )}
-          </Input>
-          <Input
+            label={locales.route.changeBackground.description.label}
+            placeholder={locales.route.changeBackground.description.placeholder}
+            helperText={locales.route.changeBackground.description.helperText}
+            errorMessage={
+              typeof uploadFields.description.errors !== "undefined" &&
+              uploadFields.description.errors.length > 0
+                ? uploadFields.description.errors.join(", ")
+                : undefined
+            }
+            errorId={uploadFields.description.errorId}
+            height="h-[79px]"
+          />
+          <TextArea
             {...getInputProps(uploadFields.credits, { type: "text" })}
             defaultValue={undefined}
             value={credits ?? ""}
@@ -422,23 +417,18 @@ function Background() {
               setCredits(event.target.value);
             }}
             maxLength={IMAGE_CREDITS_MAX_LENGTH}
-          >
-            <Input.Label htmlFor={uploadFields.credits.id}>
-              {locales.route.changeBackground.credits.label}
-            </Input.Label>
-            {typeof uploadFields.credits.errors !== "undefined" &&
-            uploadFields.credits.errors.length > 0 ? (
-              uploadFields.credits.errors.map((error) => (
-                <Input.Error id={uploadFields.credits.errorId} key={error}>
-                  {error}
-                </Input.Error>
-              ))
-            ) : (
-              <Input.HelperText>
-                {locales.route.changeBackground.credits.helperText}
-              </Input.HelperText>
-            )}
-          </Input>
+            label={locales.route.changeBackground.credits.label}
+            placeholder={locales.route.changeBackground.credits.placeholder}
+            helperText={locales.route.changeBackground.credits.helperText}
+            errorMessage={
+              typeof uploadFields.credits.errors !== "undefined" &&
+              uploadFields.credits.errors.length > 0
+                ? uploadFields.credits.errors.join(", ")
+                : undefined
+            }
+            errorId={uploadFields.credits.errorId}
+            height="h-[79px]"
+          />
           <div className="w-full flex md:justify-end">
             <div className="w-full md:w-fit flex flex-col md:flex-row-reverse gap-4">
               <div className="w-full md:w-fit">
