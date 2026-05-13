@@ -2,7 +2,7 @@ import { assertFocusLocales } from "./../../utils";
 
 export const locale = assertFocusLocales({
   girls_and_women_in_stem: {
-    title: "Girls and Women in STEM",
+    title: "Girls and women in STEM",
     description: null,
   },
   networking: {
@@ -10,15 +10,15 @@ export const locale = assertFocusLocales({
     description: null,
   },
   social_media_management: {
-    title: "Social Media Management",
+    title: "Social media management",
     description: null,
   },
   good_practice: {
-    title: "Best Practice",
+    title: "Best practice",
     description: null,
   },
   stem_research: {
-    title: "STEM Research",
+    title: "STEM research",
     description: null,
   },
   innovation: {
@@ -26,19 +26,19 @@ export const locale = assertFocusLocales({
     description: null,
   },
   politics: {
-    title: "Civic Education",
+    title: "Politics",
     description: null,
   },
   career_orientation: {
-    title: "Vocational Training",
+    title: "Career orientation",
     description: null,
   },
   early_childhood_education: {
-    title: "Early Childhood Education",
+    title: "Early childhood education",
     description: null,
   },
   school_stem_education: {
-    title: "School STEM Education",
+    title: "School STEM education",
     description: null,
   },
   diversity: {
@@ -50,7 +50,7 @@ export const locale = assertFocusLocales({
     description: null,
   },
   rural_area: {
-    title: "Rural Areas",
+    title: "Rural areas",
     description: null,
   },
   international: {
@@ -62,7 +62,11 @@ export const locale = assertFocusLocales({
     description: null,
   },
   education_for_sustainable_development: {
-    title: "Education for Sustainable Development",
+    title: "Education for sustainable development",
+    description: null,
+  },
+  school_based_and_extracurricular_cooperation: {
+    title: "School-based and extracurricular cooperation",
     description: null,
   },
 } as const);

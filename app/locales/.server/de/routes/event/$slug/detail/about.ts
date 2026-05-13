@@ -24,7 +24,7 @@ export const locale = {
       "Das Event wird Praktizierenden aus folgenden Bildungsbereichen empfohlen",
   },
   focuses: {
-    label: "MINT-Schwerpunkte",
+    label: "Schwerpunkte",
   },
   experienceLevel: {
     label: "Erfahrungsstufe",

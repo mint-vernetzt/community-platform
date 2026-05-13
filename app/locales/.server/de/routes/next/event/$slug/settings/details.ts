@@ -42,9 +42,9 @@ export const locale = {
       notFound: "Erfahrungsstufe nicht gefunden",
     },
     focuses: {
-      label: "MINT-Schwerpunkte",
+      label: "Schwerpunkte",
       cta: "Bitte auswählen",
-      notFound: "MINT-Schwerpunkt nicht gefunden",
+      notFound: "Schwerpunkt nicht gefunden",
     },
   },
   requiredHint: "*Erforderliche Angaben",
