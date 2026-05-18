@@ -45,10 +45,10 @@ export const locale = {
       notFound: "Experience level not found",
     },
     focuses: {
-      label: "STEM focuses",
+      label: "Focuses",
       helperText: "Multiple selection is possible.",
       cta: "Please select",
-      notFound: "STEM focus not found",
+      notFound: "Focus not found",
     },
   },
   requiredHint: "*Required information",

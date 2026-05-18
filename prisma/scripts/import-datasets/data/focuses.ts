@@ -85,7 +85,7 @@ export const focuses = [
   },
   {
     id: "9a4cb1b6-83ab-42a1-a803-b8b7a76103fe",
-    title: "Nachhaöltigkeit",
+    title: "Nachhaltigkeit",
     slug: "sustainability",
     description: null,
   },
@@ -93,6 +93,12 @@ export const focuses = [
     id: "7bc9dbb3-d366-4591-be42-acacbba91e82",
     title: "Bildung für nachhaltige Entwicklung",
     slug: "education_for_sustainable_development",
+    description: null,
+  },
+  {
+    id: "ebc68275-2301-4b92-8689-c83e587faa6d",
+    title: "Schulisch-außerschulische Kooperation",
+    slug: "school_based_and_extracurricular_cooperation",
     description: null,
   },
 ] as const;
