@@ -8,7 +8,7 @@ export async function getEventBackground(
   slug: string,
   authClient: SupabaseClient
 ) {
-  const background = await prismaClient.imageMetaData.findFirst({
+  const background = await prismaClient.image.findFirst({
     where: {
       backgroundOfEvent: {
         slug: slug,
