@@ -112,6 +112,7 @@ export function filterProfileByVisibility<
         key === "avatarImage" ||
         key === "background" || // legacy
         key === "backgroundImage" ||
+        key === "backgroundImageId" || // legacy
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||
@@ -245,6 +246,7 @@ export function filterOrganizationByVisibility<
         key === "logoImage" ||
         key === "background" || // legacy
         key === "backgroundImage" ||
+        key === "backgroundImageId" || // legacy
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||
@@ -382,6 +384,7 @@ export function filterEventByVisibility<
         key === "experienceLevelId" ||
         key === "background" || // legacy
         key === "backgroundImage" ||
+        key === "backgroundImageId" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
         key === "participantLimit" ||
@@ -497,6 +500,7 @@ export function filterProjectByVisibility<
         key === "logoImage" ||
         key === "background" || // legacy
         key === "backgroundImage" ||
+        key === "backgroundImageId" || // legacy
         key === "headline" ||
         key === "excerpt" ||
         key === "description" || // legacy

@@ -20,6 +20,7 @@ model Profile {
   avatarImage               Image?                                 @relation("avatar_of_profile")
   background                String? // legacy
   backgroundImage           Image?                                 @relation("background_of_profile")
+  backgroundImageId         String?                                @map("background_image_id") // legacy
   facebook                  String?
   linkedin                  String?
   twitter                   String?
@@ -85,6 +86,7 @@ model ProfileVisibility {
   avatarImage               Boolean @default(true) @map("avatar_image")
   background                Boolean @default(true) // legacy
   backgroundImage           Boolean @default(true) @map("background_image")
+  backgroundImageId         Boolean @default(true) @map("background_image_id") // legacy
   facebook                  Boolean @default(false)
   linkedin                  Boolean @default(false)
   twitter                   Boolean @default(false)
@@ -246,6 +248,7 @@ model Organization {
   logoImage                  Image?                                         @relation("logo_of_organization")
   background                 String? // legacy
   backgroundImage            Image?                                         @relation("background_of_organization")
+  backgroundImageId          String?                                        @map("background_image_id") // legacy
   facebook                   String?
   linkedin                   String?
   twitter                    String?
@@ -311,6 +314,7 @@ model OrganizationVisibility {
   logoImage                   Boolean @default(true) @map("logo_image")
   background                  Boolean @default(true) // legacy
   backgroundImage             Boolean @default(true) @map("background_image")
+  backgroundImageId           Boolean @default(true) @map("background_image_id") // legacy
   facebook                    Boolean @default(true)
   linkedin                    Boolean @default(true)
   twitter                     Boolean @default(true)
@@ -513,6 +517,7 @@ model Event {
   experienceLevelId                String?                                        @map("experience_level_id")
   background                       String? // legacy
   backgroundImage                  Image?                                         @relation("background_of_event")
+  backgroundImageId                String?                                        @map("background_image_id") // legacy
   conferenceLink                   String?                                        @map("conference_link")
   conferenceCode                   String?                                        @map("conference_code")
   participantLimit                 Int?                                           @map("participant_limit")
@@ -581,6 +586,7 @@ model EventVisibility {
   experienceLevelId                Boolean @default(true) @map("experience_level_id")
   background                       Boolean @default(true) // legacy
   backgroundImage                  Boolean @default(true) @map("background_image")
+  backgroundImageId                Boolean @default(true) @map("background_image_id") // legacy
   conferenceLink                   Boolean @default(true) @map("conference_link")
   conferenceCode                   Boolean @default(true) @map("conference_code")
   participantLimit                 Boolean @default(true) @map("participant_limit")
@@ -1061,6 +1067,7 @@ model Project {
   logoImage                            Image?                             @relation("logo_of_project")
   background                           String? // legacy
   backgroundImage                      Image?                             @relation("background_of_project")
+  backgroundImageId                    String?                            @map("background_image_id") // legacy
   headline                             String?
   excerpt                              String?
   description                          String? // legacy
@@ -1153,6 +1160,7 @@ model ProjectVisibility {
   logoImage                            Boolean @default(true) @map("logo_image")
   background                           Boolean @default(true) // legacy
   backgroundImage                      Boolean @default(true) @map("background_image")
+  backgroundImageId                    Boolean @default(true) @map("background_image_id") // legacy
   headline                             Boolean @default(true)
   excerpt                              Boolean @default(true)
   description                          Boolean @default(true) // legacy
