@@ -207,7 +207,7 @@ export async function editImage(options: {
       const { id, ...rest } = data;
       let image;
       try {
-        image = await prismaClient.imageMetaData.update({
+        image = await prismaClient.image.update({
           select: {
             filename: true,
           },
@@ -316,7 +316,7 @@ export async function disconnectImage(options: {
       const { id } = data;
       let image;
       try {
-        image = await prismaClient.imageMetaData.delete({
+        image = await prismaClient.image.delete({
           select: {
             title: true,
             filename: true,
