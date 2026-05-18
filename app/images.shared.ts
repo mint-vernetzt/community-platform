@@ -4,8 +4,8 @@ export const MaxImageSizes = {
     height: 480,
   },
   EventBackground: {
-    width: 900,
-    height: 600,
+    width: 720,
+    height: 480,
   },
   AvatarAndLogo: {
     width: 256,
@@ -32,12 +32,6 @@ export const ImageAspects = {
   Background: 31 / 10,
   EventBackground: 3 / 2,
   AvatarAndLogo: 1,
-};
-
-export const ImageAspectsAsStrings = {
-  Background: "31:10",
-  EventBackground: "3:2",
-  AvatarAndLogo: "1:1",
 };
 
 export const DefaultImages = {

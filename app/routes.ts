@@ -265,18 +265,7 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/details",
-        "./routes/next/event/$slug/settings/details.tsx",
-        [
-          index("./routes/next/event/$slug/settings/details/index.tsx"),
-          route(
-            "/next/event/:slug/settings/details/info",
-            "./routes/next/event/$slug/settings/details/info.tsx"
-          ),
-          route(
-            "/next/event/:slug/settings/details/background",
-            "./routes/next/event/$slug/settings/details/background.tsx"
-          ),
-        ]
+        "./routes/next/event/$slug/settings/details.tsx"
       ),
       route(
         "/next/event/:slug/settings/documents",

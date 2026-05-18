@@ -36,4 +36,3 @@ node_modules
 /prisma/scripts/export-duplicate-entities/data/*.json
 /prisma/scripts/migrate-rte-fields/*.json
 /prisma/scripts/sanitize-rte-fields/*.json
-/prisma/scripts/migrate-images-to-relations/*.json

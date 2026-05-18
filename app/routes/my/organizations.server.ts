@@ -39,16 +39,8 @@ export async function getOrganizationsFromProfile(id: string) {
           slug: true,
           name: true,
           bio: true,
-          logoImage: {
-            select: {
-              path: true,
-            },
-          },
-          backgroundImage: {
-            select: {
-              path: true,
-            },
-          },
+          logo: true,
+          background: true,
           types: {
             select: {
               organizationType: {
@@ -91,11 +83,7 @@ export async function getOrganizationsFromProfile(id: string) {
                 select: {
                   firstName: true,
                   lastName: true,
-                  avatarImage: {
-                    select: {
-                      path: true,
-                    },
-                  },
+                  avatar: true,
                   username: true,
                   id: true,
                 },
@@ -122,16 +110,8 @@ export async function getOrganizationsFromProfile(id: string) {
           slug: true,
           name: true,
           bio: true,
-          logoImage: {
-            select: {
-              path: true,
-            },
-          },
-          backgroundImage: {
-            select: {
-              path: true,
-            },
-          },
+          logo: true,
+          background: true,
           types: {
             select: {
               organizationType: {
@@ -174,11 +154,7 @@ export async function getOrganizationsFromProfile(id: string) {
                 select: {
                   firstName: true,
                   lastName: true,
-                  avatarImage: {
-                    select: {
-                      path: true,
-                    },
-                  },
+                  avatar: true,
                   username: true,
                   id: true,
                 },
@@ -210,13 +186,9 @@ export function addImageUrlToOrganizations(
 ) {
   const adminOrganizations = organizations.adminOrganizations.map(
     (organization) => {
-      let background =
-        organization.backgroundImage === null
-          ? null
-          : organization.backgroundImage.path;
+      let background = organization.background;
       let blurredBackground;
-      let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+      let logo = organization.logo;
       let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -263,10 +235,7 @@ export function addImageUrlToOrganizations(
         }
       }
       const teamMembers = organization.teamMembers.map((relation) => {
-        let avatar =
-          relation.profile.avatarImage === null
-            ? null
-            : relation.profile.avatarImage.path;
+        let avatar = relation.profile.avatar;
         let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
@@ -310,13 +279,9 @@ export function addImageUrlToOrganizations(
 
   const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
     (organization) => {
-      let background =
-        organization.backgroundImage === null
-          ? null
-          : organization.backgroundImage.path;
+      let background = organization.background;
       let blurredBackground;
-      let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+      let logo = organization.logo;
       let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -363,10 +328,7 @@ export function addImageUrlToOrganizations(
         }
       }
       const teamMembers = organization.teamMembers.map((relation) => {
-        let avatar =
-          relation.profile.avatarImage === null
-            ? null
-            : relation.profile.avatarImage.path;
+        let avatar = relation.profile.avatar;
         let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
@@ -473,11 +435,7 @@ export async function getOrganizationMemberInvites(id: string) {
             id: true,
             slug: true,
             name: true,
-            logoImage: {
-              select: {
-                path: true,
-              },
-            },
+            logo: true,
             types: {
               select: {
                 organizationType: {
@@ -518,11 +476,7 @@ export async function getOrganizationMemberInvites(id: string) {
             id: true,
             slug: true,
             name: true,
-            logoImage: {
-              select: {
-                path: true,
-              },
-            },
+            logo: true,
             types: {
               select: {
                 organizationType: {
@@ -565,10 +519,7 @@ export function addImageUrlToOrganizationMemberInvites(
   invites: Awaited<ReturnType<typeof getOrganizationMemberInvites>>
 ) {
   const adminInvites = invites.adminInvites.map((invite) => {
-    let logo =
-      invite.organization.logoImage === null
-        ? null
-        : invite.organization.logoImage.path;
+    let logo = invite.organization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -609,10 +560,7 @@ export function addImageUrlToOrganizationMemberInvites(
   });
 
   const teamMemberInvites = invites.teamMemberInvites.map((invite) => {
-    let logo =
-      invite.organization.logoImage === null
-        ? null
-        : invite.organization.logoImage.path;
+    let logo = invite.organization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -671,11 +619,7 @@ export async function getPendingRequestsToOrganizations(
             id: true,
             name: true,
             slug: true,
-            logoImage: {
-              select: {
-                path: true,
-              },
-            },
+            logo: true,
             types: {
               select: {
                 organizationType: {
@@ -706,7 +650,7 @@ export async function getPendingRequestsToOrganizations(
   });
 
   const enhancedRequests = requests.map((request) => {
-    let logo = request.logoImage === null ? null : request.logoImage.path;
+    let logo = request.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -755,11 +699,7 @@ export async function getOrganizationMemberRequests(id: string) {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
-                select: {
-                  path: true,
-                },
-              },
+              avatar: true,
               position: true,
               username: true,
             },
@@ -810,10 +750,7 @@ export function addImageUrlToOrganizationMemberRequests(
     (organization) => {
       const profileJoinRequests = organization.profileJoinRequests.map(
         (relation) => {
-          let avatar =
-            relation.profile.avatarImage === null
-              ? null
-              : relation.profile.avatarImage.path;
+          let avatar = relation.profile.avatar;
           let blurredAvatar;
           if (avatar !== null) {
             const publicURL = getPublicURL(authClient, avatar);
@@ -867,11 +804,7 @@ export async function getNetworkRequests(id: string) {
               id: true,
               slug: true,
               name: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
               types: {
                 select: {
                   organizationType: {
@@ -953,10 +886,7 @@ export function addImageUrlToNetworkRequests(
     (organization) => {
       const receivedNetworkJoinRequests =
         organization.receivedNetworkJoinRequests.map((relation) => {
-          let logo =
-            relation.organization.logoImage === null
-              ? null
-              : relation.organization.logoImage.path;
+          let logo = relation.organization.logo;
           let blurredLogo;
           if (logo !== null) {
             const publicURL = getPublicURL(authClient, logo);
@@ -1009,11 +939,7 @@ export async function getNetworkInvites(id: string) {
               id: true,
               slug: true,
               name: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
               types: {
                 select: {
                   organizationType: {
@@ -1093,10 +1019,7 @@ export function addImageUrlToNetworkInvites(
     (organization) => {
       const receivedNetworkJoinInvites =
         organization.receivedNetworkJoinInvites.map((relation) => {
-          let logo =
-            relation.network.logoImage === null
-              ? null
-              : relation.network.logoImage.path;
+          let logo = relation.network.logo;
           let blurredLogo;
           if (logo !== null) {
             const publicURL = getPublicURL(authClient, logo);

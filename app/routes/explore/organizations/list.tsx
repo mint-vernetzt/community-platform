@@ -24,7 +24,7 @@ import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
@@ -107,10 +107,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     // Add images from image proxy
-    let logo =
-      enhancedOrganization.logoImage === null
-        ? null
-        : enhancedOrganization.logoImage.path;
+    let logo = enhancedOrganization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -133,10 +130,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     }
 
-    let background =
-      enhancedOrganization.backgroundImage === null
-        ? null
-        : enhancedOrganization.backgroundImage.path;
+    let background = enhancedOrganization.background;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -163,10 +157,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 
     const teamMembers = enhancedOrganization.teamMembers.map((relation) => {
-      let avatar =
-        relation.profile.avatarImage === null
-          ? null
-          : relation.profile.avatarImage.path;
+      let avatar = relation.profile.avatar;
       let blurredAvatar;
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);

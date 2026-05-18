@@ -27,7 +27,7 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
-import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "../all.shared";
@@ -115,10 +115,7 @@ export async function loader(args: LoaderFunctionArgs) {
     }
 
     // Add images from image proxy
-    let logo =
-      enhancedOrganization.logoImage === null
-        ? null
-        : enhancedOrganization.logoImage.path;
+    let logo = enhancedOrganization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -143,10 +140,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const networkMembers = enhancedOrganization.networkMembers.map(
       (relation) => {
-        let logo =
-          relation.networkMember.logoImage === null
-            ? null
-            : relation.networkMember.logoImage.path;
+        let logo = relation.networkMember.logo;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

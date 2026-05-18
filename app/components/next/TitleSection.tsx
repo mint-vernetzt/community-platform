@@ -13,14 +13,14 @@ function TitleSection(props: { children: React.ReactNode }) {
     return isValidElement(child) && child.type === Headline;
   });
 
-  const sublines = childrenArray.filter((child) => {
+  const subline = childrenArray.find((child) => {
     return isValidElement(child) && child.type === Subline;
   });
 
   return (
     <div className="flex flex-col gap-2">
       {typeof headline !== "undefined" ? headline : null}
-      {sublines.length > 0 ? sublines : null}
+      {typeof subline !== "undefined" ? subline : null}
     </div>
   );
 }

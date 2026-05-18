@@ -1,4 +1,4 @@
-import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 
 export async function getOrganization(slug: string) {

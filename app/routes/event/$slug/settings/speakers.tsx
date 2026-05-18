@@ -58,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const speakers = getSpeakerProfileDataFromEvent(event);
   const enhancedSpeakers = speakers.map((speaker) => {
-    let avatar = speaker.avatarImage === null ? null : speaker.avatarImage.path;
+    let avatar = speaker.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

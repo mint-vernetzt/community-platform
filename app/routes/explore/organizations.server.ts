@@ -690,11 +690,7 @@ export async function getAllNetworks() {
       id: true,
       name: true,
       slug: true,
-      logoImage: {
-        select: {
-          path: true,
-        },
-      },
+      logo: true,
     },
     where: {
       types: {

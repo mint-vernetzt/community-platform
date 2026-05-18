@@ -40,11 +40,7 @@ export async function getTeamMembersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatarImage: {
-          select: {
-            path: true,
-          },
-        },
+        avatar: true,
         position: true,
       },
     });
@@ -71,11 +67,7 @@ export async function getTeamMembersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatarImage: {
-          select: {
-            path: true,
-          },
-        },
+        avatar: true,
         position: true,
         profileVisibility: {
           select: {
@@ -84,7 +76,7 @@ export async function getTeamMembersOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: true,
+            avatar: true,
             position: true,
           },
         },
@@ -108,8 +100,7 @@ export async function getTeamMembersOfEvent(options: {
   });
 
   const enhancedTeamMembers = teamMembers.map((teamMember) => {
-    let avatar =
-      teamMember.avatarImage === null ? null : teamMember.avatarImage.path;
+    let avatar = teamMember.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

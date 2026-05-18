@@ -18,11 +18,7 @@ export async function getEventBySlug(slug: string) {
           profile: {
             select: {
               id: true,
-              avatarImage: {
-                select: {
-                  path: true,
-                },
-              },
+              avatar: true,
               firstName: true,
               lastName: true,
               username: true,

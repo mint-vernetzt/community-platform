@@ -66,11 +66,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
-              select: {
-                path: true,
-              },
-            },
+            avatar: true,
           },
         },
         createdAt: true,
@@ -106,11 +102,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
-              select: {
-                path: true,
-              },
-            },
+            avatar: true,
           },
         },
         createdAt: true,
@@ -122,10 +114,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
   }
 
   const profiles = invites.map((invite) => {
-    let avatar =
-      invite.profile.avatarImage !== null
-        ? invite.profile.avatarImage.path
-        : null;
+    let avatar = invite.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

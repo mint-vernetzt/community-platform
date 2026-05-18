@@ -16,10 +16,10 @@ model Profile {
   email2                    String?
   phone                     String?
   website                   String?
-  avatar                    String? // legacy
-  avatarImage               ImageMetaData?                         @relation("avatar_of_profile")
+  avatar                    String?
   background                String? // legacy
-  backgroundImage           ImageMetaData?                         @relation("background_of_profile")
+  backgroundImage           Image?                                 @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId         String?                                @map("background_image_id")
   facebook                  String?
   linkedin                  String?
   twitter                   String?
@@ -81,10 +81,10 @@ model ProfileVisibility {
   email2                    Boolean @default(false)
   phone                     Boolean @default(false)
   website                   Boolean @default(false)
-  avatar                    Boolean @default(true) // legacy
-  avatarImage               Boolean @default(true) @map("avatar_image")
+  avatar                    Boolean @default(true)
   background                Boolean @default(true) // legacy
   backgroundImage           Boolean @default(true) @map("background_image")
+  backgroundImageId         Boolean @default(true) @map("background_image_id")
   facebook                  Boolean @default(false)
   linkedin                  Boolean @default(false)
   twitter                   Boolean @default(false)
@@ -97,7 +97,6 @@ model ProfileVisibility {
   createdAt                 Boolean @default(true) @map("created_at")
   firstName                 Boolean @default(true) @map("first_name")
   lastName                  Boolean @default(true) @map("last_name")
-  publicFields              Boolean @default(true) @map("public_fields") // legacy
   termsAccepted             Boolean @default(true) @map("terms_accepted")
   termsAcceptedAt           Boolean @default(true) @map("terms_accepted_at")
   updatedAt                 Boolean @default(true) @map("updated_at")
@@ -118,9 +117,10 @@ model ProfileVisibility {
   contactPersonsOfEvents    Boolean @default(true)
   teamMemberOfProjects      Boolean @default(true)
   waitingForEvents          Boolean @default(false)
-  profileVisibility         Boolean @default(true)
-  administeredEvents        Boolean @default(false)
+  profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                 String  @unique
   administeredOrganizations Boolean @default(false)
+  administeredEvents        Boolean @default(false)
   administeredProjects      Boolean @default(false)
   notificationSettings      Boolean @default(false) @map("notfication_settings")
   profileAbuseReport        Boolean @default(false)
@@ -130,12 +130,7 @@ model ProfileVisibility {
   abuseReports              Boolean @default(false)
   joinOrganizationRequests  Boolean @default(false)
   joinOrganizationInvites   Boolean @default(false)
-  joinEventInvites          Boolean @default(false)
   claimOrganizationRequests Boolean @default(false)
-  filterVector              Boolean @default(true)
-
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId String  @unique
 
   @@map("profile_visibilities")
 }
@@ -242,21 +237,21 @@ model Organization {
   street                     String? // is now required -> String? is legacy
   city                       String? // is now required -> String? is legacy
   website                    String?
-  logo                       String? // legacy
-  logoImage                  ImageMetaData?                                 @relation("logo_of_organization")
+  logo                       String?
   background                 String? // legacy
-  backgroundImage            ImageMetaData?                                 @relation("background_of_organization")
+  backgroundImage            Image?                                         @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId          String?                                        @map("background_image_id")
   facebook                   String?
   linkedin                   String?
   twitter                    String?
   xing                       String?
   bio                        String?
   bioRTEState                String?                                        @map("bio_rte_state")
-  quote                      String? // legacy
+  quote                      String?
   createdAt                  DateTime                                       @default(now()) @map("created_at")
   publicFields               String[]                                       @map("public_fields") // legacy
-  quoteAuthor                String?                                        @map("quote_author") // legacy
-  quoteAuthorInformation     String?                                        @map("quote_author_information") // legacy
+  quoteAuthor                String?                                        @map("quote_author")
+  quoteAuthorInformation     String?                                        @map("quote_author_information")
   streetNumber               String?                                        @map("street_number") // legacy
   addressSupplement          String?                                        @map("address_supplement")
   supportedBy                String[]                                       @map("supported_by")
@@ -299,67 +294,58 @@ model Organization {
 }
 
 model OrganizationVisibility {
-  id                          String  @id @default(uuid())
-  name                        Boolean @default(true)
-  slug                        Boolean @default(true)
-  email                       Boolean @default(true)
-  phone                       Boolean @default(true)
-  street                      Boolean @default(true)
-  city                        Boolean @default(true)
-  website                     Boolean @default(true)
-  logo                        Boolean @default(true) // legacy
-  logoImage                   Boolean @default(true) @map("logo_image")
-  background                  Boolean @default(true) // legacy
-  backgroundImage             Boolean @default(true) @map("background_image")
-  facebook                    Boolean @default(true)
-  linkedin                    Boolean @default(true)
-  twitter                     Boolean @default(true)
-  xing                        Boolean @default(true)
-  bio                         Boolean @default(true)
-  bioRTEState                 Boolean @default(false) @map("bio_rte_state")
-  quote                       Boolean @default(true) // legacy
-  createdAt                   Boolean @default(true) @map("created_at")
-  publicFields                Boolean @default(true) @map("public_fields") // legacy
-  quoteAuthor                 Boolean @default(true) @map("quote_author") // legacy
-  quoteAuthorInformation      Boolean @default(true) @map("quote_author_information") // legacy
-  streetNumber                Boolean @default(true) @map("street_number") // legacy
-  addressSupplement           Boolean @default(true) @map("address_supplement")
-  supportedBy                 Boolean @default(true) @map("supported_by")
-  updatedAt                   Boolean @default(true) @map("updated_at")
-  zipCode                     Boolean @default(true) @map("zip_code")
-  longitude                   Boolean @default(true)
-  latitude                    Boolean @default(true)
-  instagram                   Boolean @default(true)
-  youtube                     Boolean @default(true)
-  mastodon                    Boolean @default(true)
-  tiktok                      Boolean @default(true)
-  score                       Boolean @default(true)
-  shadow                      Boolean @default(false)
-  shadowSource                Boolean @default(false) @map("shadow_source")
-  claimRequests               Boolean @default(false)
-  areas                       Boolean @default(true)
-  focuses                     Boolean @default(true)
-  networkMembers              Boolean @default(true)
-  memberOf                    Boolean @default(true)
-  teamMembers                 Boolean @default(true)
-  types                       Boolean @default(true)
-  networkTypes                Boolean @default(true)
-  responsibleForEvents        Boolean @default(true)
-  responsibleForEventInvites  Boolean @default(false)
-  responsibleForProject       Boolean @default(true)
-  organizationVisibility      Boolean @default(true)
-  admins                      Boolean @default(false)
-  abuseReports                Boolean @default(false)
-  profileJoinRequests         Boolean @default(false)
-  profileJoinInvites          Boolean @default(false)
-  filterVector                Boolean @default(true)
-  sentNetworkJoinRequests     Boolean @default(false)
-  receivedNetworkJoinRequests Boolean @default(false)
-  sentNetworkJoinInvites      Boolean @default(false)
-  receivedNetworkJoinInvites  Boolean @default(false)
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  organizationId String       @unique
+  id                     String       @id @default(uuid())
+  name                   Boolean      @default(true)
+  slug                   Boolean      @default(true)
+  email                  Boolean      @default(true)
+  phone                  Boolean      @default(true)
+  street                 Boolean      @default(true)
+  city                   Boolean      @default(true)
+  website                Boolean      @default(true)
+  logo                   Boolean      @default(true)
+  background             Boolean      @default(true) // legacy
+  backgroundImage        Boolean      @default(true) @map("background_image")
+  backgroundImageId      Boolean      @default(true) @map("background_image_id")
+  facebook               Boolean      @default(true)
+  linkedin               Boolean      @default(true)
+  twitter                Boolean      @default(true)
+  xing                   Boolean      @default(true)
+  bio                    Boolean      @default(true)
+  bioRTEState            Boolean      @default(false) @map("bio_rte_state")
+  quote                  Boolean      @default(true)
+  createdAt              Boolean      @default(true) @map("created_at")
+  quoteAuthor            Boolean      @default(true) @map("quote_author")
+  quoteAuthorInformation Boolean      @default(true) @map("quote_author_information")
+  streetNumber           Boolean      @default(true) @map("street_number") // legacy
+  addressSupplement      Boolean      @default(true) @map("address_supplement")
+  supportedBy            Boolean      @default(true) @map("supported_by")
+  updatedAt              Boolean      @default(true) @map("updated_at")
+  zipCode                Boolean      @default(true) @map("zip_code")
+  longitude              Boolean      @default(true)
+  latitude               Boolean      @default(true)
+  instagram              Boolean      @default(true)
+  youtube                Boolean      @default(true)
+  mastodon               Boolean      @default(true)
+  tiktok                 Boolean      @default(true)
+  score                  Boolean      @default(true)
+  shadow                 Boolean      @default(false)
+  shadowSource           Boolean      @default(false) @map("shadow_source")
+  claimRequests          Boolean      @default(false)
+  areas                  Boolean      @default(true)
+  focuses                Boolean      @default(true)
+  networkMembers         Boolean      @default(true)
+  memberOf               Boolean      @default(true)
+  teamMembers            Boolean      @default(true)
+  admins                 Boolean      @default(false)
+  types                  Boolean      @default(true)
+  networkTypes           Boolean      @default(true)
+  responsibleForEvents   Boolean      @default(true)
+  responsibleForProject  Boolean      @default(true)
+  abuseReports           Boolean      @default(false)
+  profileJoinRequests    Boolean      @default(false)
+  profileJoinInvites     Boolean      @default(false)
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId         String       @unique
 
   @@map("organization_visibilities")
 }
@@ -512,7 +498,8 @@ model Event {
   updatedAt                        DateTime                                       @default(now()) @updatedAt @map("updated_at")
   experienceLevelId                String?                                        @map("experience_level_id")
   background                       String? // legacy
-  backgroundImage                  ImageMetaData?                                 @relation("background_of_event")
+  backgroundImage                  Image?                                         @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId                String?                                        @map("background_image_id")
   conferenceLink                   String?                                        @map("conference_link")
   conferenceCode                   String?                                        @map("conference_code")
   participantLimit                 Int?                                           @map("participant_limit")
@@ -581,6 +568,7 @@ model EventVisibility {
   experienceLevelId                Boolean @default(true) @map("experience_level_id")
   background                       Boolean @default(true) // legacy
   backgroundImage                  Boolean @default(true) @map("background_image")
+  backgroundImageId                Boolean @default(true) @map("background_image_id")
   conferenceLink                   Boolean @default(true) @map("conference_link")
   conferenceCode                   Boolean @default(true) @map("conference_code")
   participantLimit                 Boolean @default(true) @map("participant_limit")
@@ -588,14 +576,14 @@ model EventVisibility {
   venueName                        Boolean @default(true) @map("venue_name")
   venueStreet                      Boolean @default(true) @map("venue_street")
   venueStreetNumber                Boolean @default(true) @map("venue_street_number") // legacy
-  venueLatitude                    Boolean @default(true) @map("venue_latitude")
-  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   venueCity                        Boolean @default(true) @map("venue_city")
   venueZipCode                     Boolean @default(true) @map("venue_zip_code")
   accessibilityInformation         Boolean @default(true) @map("accessibility_information")
   accessibilityInformationRTEState Boolean @default(true) @map("accessibility_information_rte_state")
   privacyInformation               Boolean @default(true) @map("privacy_information")
   privacyInformationRTEState       Boolean @default(true) @map("privacy_information_rte_state")
+  venueLatitude                    Boolean @default(true) @map("venue_latitude")
+  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   canceled                         Boolean @default(true)
   stageId                          Boolean @default(true) @map("stage_id")
   subline                          Boolean @default(true)
@@ -604,7 +592,7 @@ model EventVisibility {
   openForRegistration              Boolean @default(true) @map("open_for_registration")
   externalRegistrationUrl          Boolean @default(true) @map("external_registration_url")
   moveUpToParticipants             Boolean @default(true) @map("move_up_to_participants")
-  areas                            Boolean @default(true) // legacy
+  areas                            Boolean @default(true)
   documents                        Boolean @default(true)
   types                            Boolean @default(true)
   experienceLevel                  Boolean @default(true)
@@ -622,15 +610,12 @@ model EventVisibility {
   eventTargetGroups                Boolean @default(true)
   teamMembers                      Boolean @default(true)
   contactPersons                   Boolean @default(true)
-  waitingList                      Boolean @default(false)
-  eventVisibility                  Boolean @default(true)
   admins                           Boolean @default(false)
   profileJoinInvites               Boolean @default(false)
+  waitingList                      Boolean @default(false)
   abuseReports                     Boolean @default(false)
-  filterVector                     Boolean @default(true)
-
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId String @unique
+  event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId                          String  @unique
 
   @@map("event_visibilities")
 }
@@ -1057,10 +1042,10 @@ model Project {
   name                                 String
   subline                              String?
   slug                                 String                             @unique
-  logo                                 String? // legacy
-  logoImage                            ImageMetaData?                     @relation("logo_of_project")
+  logo                                 String?
   background                           String? // legacy
-  backgroundImage                      ImageMetaData?                     @relation("background_of_project")
+  backgroundImage                      Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull)
+  backgroundImageId                    String?                            @map("background_image_id")
   headline                             String?
   excerpt                              String?
   description                          String? // legacy
@@ -1121,7 +1106,7 @@ model Project {
   timeframeRTEState                    String?                            @map("timeframe_rte_state")
   furtherDisciplines                   String[]                           @map("further_disciplines")
   furtherFormats                       String[]                           @map("further_formats")
-  awards                               AwardOfProject[] // legacy
+  awards                               AwardOfProject[]
   disciplines                          DisciplineOfProject[]
   additionalDisciplines                AdditionalDisciplineOfProject[]
   responsibleOrganizations             ResponsibleOrganizationOfProject[]
@@ -1147,13 +1132,13 @@ model Project {
 model ProjectVisibility {
   id                                   String  @id @default(uuid())
   name                                 Boolean @default(true)
-  subline                              Boolean @default(true)
   slug                                 Boolean @default(true)
-  logo                                 Boolean @default(true) // legacy
-  logoImage                            Boolean @default(true) @map("logo_image")
+  logo                                 Boolean @default(true)
   background                           Boolean @default(true) // legacy
   backgroundImage                      Boolean @default(true) @map("background_image")
+  backgroundImageId                    Boolean @default(true) @map("background_image_id")
   headline                             Boolean @default(true)
+  subline                              Boolean @default(true)
   excerpt                              Boolean @default(true)
   description                          Boolean @default(true) // legacy
   furtherDescription                   Boolean @default(true) @map("further_description")
@@ -1192,13 +1177,15 @@ model ProjectVisibility {
   hintsRTEState                        Boolean @default(false) @map("hints_rte_state")
   video                                Boolean @default(true)
   videoSubline                         Boolean @default(true)
+  participantLimit                     Boolean @default(true) @map("participant_limit")
+  timeframe                            Boolean @default(true)
+  timeframeRTEState                    Boolean @default(false) @map("timeframe_rte_state")
   jobFillings                          Boolean @default(true) @map("job_fillings")
   jobFillingsRTEState                  Boolean @default(false) @map("job_fillings_rte_state")
   furtherJobFillings                   Boolean @default(true) @map("further_job_fillings")
   furtherJobFillingsRTEState           Boolean @default(false) @map("further_job_fillings_rte_state")
   yearlyBudget                         Boolean @default(true) @map("yearly_budget")
-  participantLimit                     Boolean @default(true) @map("participant_limit")
-  targetGroupAdditions                 Boolean @default(true) @map("target_group_additions")
+  financings                           Boolean @default(true)
   furtherFinancings                    Boolean @default(true) @map("further_financings")
   furtherFinancingsRTEState            Boolean @default(false) @map("further_financings_rte_state")
   technicalRequirements                Boolean @default(true) @map("technical_requirements")
@@ -1209,11 +1196,10 @@ model ProjectVisibility {
   roomSituationRTEState                Boolean @default(false) @map("room_situation_rte_state")
   furtherRoomSituation                 Boolean @default(true) @map("further_room_situation")
   furtherRoomSituationRTEState         Boolean @default(false) @map("further_room_situation_rte_state")
-  timeframe                            Boolean @default(true)
-  timeframeRTEState                    Boolean @default(false) @map("timeframe_rte_state")
   furtherDisciplines                   Boolean @default(true) @map("further_disciplines")
+  targetGroupAdditions                 Boolean @default(true) @map("target_group_additions")
   furtherFormats                       Boolean @default(true)
-  awards                               Boolean @default(true) // legacy
+  awards                               Boolean @default(true)
   disciplines                          Boolean @default(true)
   additionalDisciplines                Boolean @default(true) @map("additional_disciplines")
   responsibleOrganizations             Boolean @default(true)
@@ -1221,18 +1207,14 @@ model ProjectVisibility {
   projectTargetGroups                  Boolean @default(true)
   specialTargetGroups                  Boolean @default(true)
   formats                              Boolean @default(true)
-  financings                           Boolean @default(true)
   teamMembers                          Boolean @default(true)
-  projectVisibility                    Boolean @default(true)
-  admins                               Boolean @default(false)
   areas                                Boolean @default(true)
   documents                            Boolean @default(true)
   images                               Boolean @default(true)
+  admins                               Boolean @default(false)
   abuseReports                         Boolean @default(false)
-  filterVector                         Boolean @default(true) @map("filter_vector")
-
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String  @unique
+  project                              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId                            String  @unique
 
   @@map("project_visibilities")
 }
@@ -1428,44 +1410,34 @@ model DocumentOfProject {
 }
 
 model ImageOfProject {
-  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String        @map("project_id")
-  imageId   String        @map("image_id")
-  image     ImageMetaData @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String  @map("project_id")
+  imageId   String  @map("image_id")
+  image     Image   @relation(fields: [imageId], references: [id], onDelete: Cascade)
 
   @@id([projectId, imageId])
   @@map("images_of_projects")
 }
 
-model ImageMetaData {
-  id                         String           @id @default(uuid())
-  path                       String
-  mimeType                   String           @map("mime_type")
-  credits                    String?
-  title                      String?
-  sizeInMB                   Float            @map("size_in_mb")
-  filename                   String
-  description                String?
-  createdAt                  DateTime         @default(now()) @map("created_at")
-  updatedAt                  DateTime         @default(now()) @updatedAt @map("updated_at")
-  extension                  String
-  avatarOfProfile            Profile?         @relation(name: "avatar_of_profile", fields: [avatarOfProfileId], references: [id], onDelete: SetNull)
-  avatarOfProfileId          String?          @unique @map("avatar_of_profile_id")
-  backgroundOfProfile        Profile?         @relation(name: "background_of_profile", fields: [backgroundOfProfileId], references: [id], onDelete: SetNull)
-  backgroundOfProfileId      String?          @unique @map("background_of_profile_id")
-  logoOfOrganization         Organization?    @relation(name: "logo_of_organization", fields: [logoOfOrganizationId], references: [id], onDelete: SetNull)
-  logoOfOrganizationId       String?          @unique @map("logo_of_organization_id")
-  backgroundOfOrganization   Organization?    @relation(name: "background_of_organization", fields: [backgroundOfOrganizationId], references: [id], onDelete: SetNull)
-  backgroundOfOrganizationId String?          @unique @map("background_of_organization_id")
-  backgroundOfEvent          Event?           @relation(name: "background_of_event", fields: [backgroundOfEventId], references: [id], onDelete: SetNull)
-  backgroundOfEventId        String?          @unique @map("background_of_event_id")
-  logoOfProject              Project?         @relation(name: "logo_of_project", fields: [logoOfProjectId], references: [id], onDelete: SetNull)
-  logoOfProjectId            String?          @unique @map("logo_of_project_id")
-  backgroundOfProject        Project?         @relation(name: "background_of_project", fields: [backgroundOfProjectId], references: [id], onDelete: SetNull)
-  backgroundOfProjectId      String?          @unique @map("background_of_project_id")
-  imagesOfProjects           ImageOfProject[]
+model Image {
+  id           String           @id @default(uuid())
+  path         String
+  mimeType     String           @map("mime_type")
+  credits      String?
+  title        String?
+  sizeInMB     Float            @map("size_in_mb")
+  filename     String
+  description  String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at")
+  extension    String
+  Profile      Profile[]
+  Organization Organization[]
+  Event        Event[]
+  Project      Project[]
+  projects     ImageOfProject[]
 
-  @@map("image_meta_data")
+  @@map("image")
 }
 
 model AdminOfProject {

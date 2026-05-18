@@ -63,11 +63,7 @@ export async function getOwnOrganizationsOfEvent(options: {
         id: true,
         name: true,
         slug: true,
-        logoImage: {
-          select: {
-            path: true,
-          },
-        },
+        logo: true,
       },
     });
   } else {
@@ -91,11 +87,7 @@ export async function getOwnOrganizationsOfEvent(options: {
         id: true,
         name: true,
         slug: true,
-        logoImage: {
-          select: {
-            path: true,
-          },
-        },
+        logo: true,
       },
     });
   }
@@ -122,10 +114,7 @@ export async function getOwnOrganizationsOfEvent(options: {
     });
 
   const enhancedOwnOrganizations = ownOrganizations.map((ownOrganization) => {
-    let logo =
-      ownOrganization.logoImage === null
-        ? null
-        : ownOrganization.logoImage.path;
+    let logo = ownOrganization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -208,11 +197,7 @@ export async function searchOrganizations(options: {
       id: true,
       name: true,
       slug: true,
-      logoImage: {
-        select: {
-          path: true,
-        },
-      },
+      logo: true,
     },
   });
 
@@ -239,10 +224,7 @@ export async function searchOrganizations(options: {
 
   const enhancedOrganizations = searchedOrganizations.map(
     (searchedOrganization) => {
-      let logo =
-        searchedOrganization.logoImage === null
-          ? null
-          : searchedOrganization.logoImage.path;
+      let logo = searchedOrganization.logo;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

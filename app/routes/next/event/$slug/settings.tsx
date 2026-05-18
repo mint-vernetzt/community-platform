@@ -126,7 +126,7 @@ export default function Settings() {
       to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
     },
-    { to: `details/info?${Deep}=true`, label: locales.route.menu.details },
+    { to: `details?${Deep}=true`, label: locales.route.menu.details },
     { to: `location?${Deep}=true`, label: locales.route.menu.location },
     {
       to: `admins/list?${Deep}=true`,
@@ -275,10 +275,7 @@ export default function Settings() {
               <NavLink
                 to={link.to}
                 prefetch="intent"
-                className={() => {
-                  const isActive =
-                    leafPathname ===
-                    link.to.replace(`?${Deep}=true`, "").split("/")[0];
+                className={({ isActive }) => {
                   return SettingsNavigation.getSettingsNavigationItemStyles({
                     active: isActive,
                     critical: link.to.includes("danger-zone"),

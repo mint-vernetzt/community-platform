@@ -61,8 +61,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const organizations = getResponsibleOrganizationDataFromEvent(event);
 
   const enhancedOrganizations = organizations.map((organization) => {
-    let logo =
-      organization.logoImage === null ? null : organization.logoImage.path;
+    let logo = organization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -108,8 +107,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const enhancedOwnOrganizations = ownOrganizationsSuggestions.map(
     (organization) => {
-      let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+      let logo = organization.logo;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

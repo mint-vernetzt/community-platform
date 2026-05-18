@@ -1,15 +1,6 @@
-export function getScoreOfEntity(entity: {
-  avatarImageId?: string | null;
-  logoImageId?: string | null;
-  position?: string | null;
-  types?: any[];
-  bio?: string | null;
-  areas?: any[];
-}) {
-  const hasAvatar =
-    entity.avatarImageId !== undefined && entity.avatarImageId !== null;
-  const hasLogo =
-    entity.logoImageId !== undefined && entity.logoImageId !== null;
+export function getScoreOfEntity(entity: any) {
+  const hasAvatar = entity.avatar !== undefined && entity.avatar !== null;
+  const hasLogo = entity.logo !== undefined && entity.logo !== null;
   const hasPosition = entity.position !== undefined && entity.position !== null;
   const hasTypes = entity.types !== undefined && entity.types.length > 0;
   const hasBio = entity.bio !== undefined && entity.bio !== null;

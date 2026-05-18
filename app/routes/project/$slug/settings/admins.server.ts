@@ -38,11 +38,7 @@ export async function getProjectWithAdmins(options: {
               username: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
-                select: {
-                  path: true,
-                },
-              },
+              avatar: true,
               academicTitle: true,
               position: true,
             },
@@ -58,10 +54,7 @@ export async function getProjectWithAdmins(options: {
 
   // enhance admins with avatar
   const admins = project.admins.map((relation) => {
-    let avatar =
-      relation.profile.avatarImage === null
-        ? null
-        : relation.profile.avatarImage.path;
+    let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -174,11 +167,7 @@ export async function addAdminToProject(options: {
 //           username: true,
 //           firstName: true,
 //           lastName: true,
-//           avatarImage: {
-//        select: {
-//          path: true,
-//        }
-//      },
+//           avatar: true,
 //           academicTitle: true,
 //           position: true,
 //         },

@@ -159,24 +159,12 @@ type BucketData = {
   };
   logo?: {
     path: string;
-    mimeType: string;
-    filename: string;
-    extension: string;
-    sizeInMB: number;
   };
   avatar?: {
     path: string;
-    mimeType: string;
-    filename: string;
-    extension: string;
-    sizeInMB: number;
   };
   background?: {
     path: string;
-    mimeType: string;
-    filename: string;
-    extension: string;
-    sizeInMB: number;
   };
 };
 
@@ -246,13 +234,7 @@ export async function uploadImageBucketData(
   numberOfImages: number
 ) {
   const bucketData: {
-    [key in ImageType]: {
-      path: string;
-      mimeType: string;
-      filename: string;
-      extension: string;
-      sizeInMB: number;
-    }[];
+    [key in ImageType]: string[];
   } = {
     avatars: [],
     logos: [],
@@ -307,13 +289,7 @@ export async function uploadImageBucketData(
           );
           continue;
         }
-        bucketData[imageType as ImageType].push({
-          path: path,
-          filename: `faker-image-${i}.${extension}`,
-          mimeType: mimeType,
-          sizeInMB: arrayBuffer.byteLength / 1_000_000,
-          extension: extension,
-        });
+        bucketData[imageType as ImageType].push(path);
         console.log(
           `Successfully fetched image from ${imgUrl} and added it to bucket images.`
         );
@@ -368,13 +344,7 @@ export async function uploadImageBucketData(
               uploadObjectError
             );
           }
-          bucketData[imageType as ImageType].push({
-            path: path,
-            filename: `fallback-${imageType}.${extension}`,
-            mimeType: mimeType,
-            sizeInMB: data.byteLength / 1_000_000,
-            extension: extension,
-          });
+          bucketData[imageType as ImageType].push(path);
           console.log(
             `Successfully added fallback ${imageType} to bucket images.`
           );
@@ -579,14 +549,6 @@ export async function seedAllEntities(
 
   // Seeding some standard profiles to add to specific entities later
   for (let i = 0; i < numberOfStandardEntities; i++) {
-    const randomAvatarIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.avatars.length - 1,
-    });
-    const randomBackgroundIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.backgrounds.length - 1,
-    });
     const standardProfile = getEntityData<"profile">(
       "profile",
       "Standard",
@@ -594,11 +556,25 @@ export async function seedAllEntities(
       {
         avatar:
           imageBucketData.avatars.length > 0
-            ? imageBucketData.avatars[randomAvatarIndex]
+            ? {
+                path: imageBucketData.avatars[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.avatars.length - 1,
+                  })
+                ],
+              }
             : undefined,
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[randomBackgroundIndex]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -607,7 +583,6 @@ export async function seedAllEntities(
     const standardProfileId = await seedEntity<"profile">(
       "profile",
       standardProfile,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -621,14 +596,6 @@ export async function seedAllEntities(
 
   // Seeding standard organizations
   for (let i = 0; i < numberOfStandardEntities; i++) {
-    const randomLogoIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.logos.length - 1,
-    });
-    const randomBackgroundIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.backgrounds.length - 1,
-    });
     const standardOrganization = getEntityData<"organization">(
       "organization",
       "Standard",
@@ -636,11 +603,25 @@ export async function seedAllEntities(
       {
         logo:
           imageBucketData.logos.length > 0
-            ? imageBucketData.logos[randomLogoIndex]
+            ? {
+                path: imageBucketData.logos[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
             : undefined,
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[randomBackgroundIndex]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -649,7 +630,6 @@ export async function seedAllEntities(
     const standardOrganizationId = await seedEntity<"organization">(
       "organization",
       standardOrganization,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -723,7 +703,6 @@ export async function seedAllEntities(
       const standardDocumentId = await seedEntity<"document">(
         "document",
         standardDocument,
-        imageBucketData,
         authClient,
         defaultPassword
       );
@@ -739,10 +718,6 @@ export async function seedAllEntities(
   // Seeding standard awards
   if (imageBucketData.logos.length > 0) {
     for (let i = 0; i < numberOfStandardEntities; i++) {
-      const randomLogoIndex = faker.number.int({
-        min: 0,
-        max: imageBucketData.logos.length - 1,
-      });
       const standardAward = getEntityData<"award">(
         "award",
         "Standard",
@@ -750,14 +725,15 @@ export async function seedAllEntities(
         {
           logo:
             imageBucketData.logos.length > 0
-              ? imageBucketData.logos[randomLogoIndex]
-              : {
-                  path: "",
-                  filename: "",
-                  mimeType: "",
-                  sizeInMB: 0,
-                  extension: "",
-                },
+              ? {
+                  path: imageBucketData.logos[
+                    faker.number.int({
+                      min: 0,
+                      max: imageBucketData.logos.length - 1,
+                    })
+                  ],
+                }
+              : { path: "" },
         },
         useRealNames,
         numberOfStandardEntities
@@ -765,7 +741,6 @@ export async function seedAllEntities(
       const standardAwardId = await seedEntity<"award">(
         "award",
         standardAward,
-        imageBucketData,
         authClient,
         defaultPassword
       );
@@ -780,10 +755,6 @@ export async function seedAllEntities(
 
   // Seeding standard events
   for (let i = 0; i < numberOfEventsPerStructure; i++) {
-    const randomBackgroundIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.backgrounds.length - 1,
-    });
     const standardEvent = getEntityData<"event">(
       "event",
       "Standard",
@@ -791,7 +762,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[randomBackgroundIndex]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -800,7 +778,6 @@ export async function seedAllEntities(
     const standardEventId = await seedEntity<"event">(
       "event",
       standardEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -896,14 +873,6 @@ export async function seedAllEntities(
 
   // Seeding standard projects
   for (let i = 0; i < numberOfStandardEntities; i++) {
-    const randomLogoIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.logos.length - 1,
-    });
-    const randomBackgroundIndex = faker.number.int({
-      min: 0,
-      max: imageBucketData.backgrounds.length - 1,
-    });
     const standardProject = getEntityData<"project">(
       "project",
       "Standard",
@@ -911,11 +880,25 @@ export async function seedAllEntities(
       {
         logo:
           imageBucketData.logos.length > 0
-            ? imageBucketData.logos[randomLogoIndex]
+            ? {
+                path: imageBucketData.logos[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
             : undefined,
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[randomBackgroundIndex]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -924,7 +907,6 @@ export async function seedAllEntities(
     const standardProjectId = await seedEntity<"project">(
       "project",
       standardProject,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -973,21 +955,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -996,7 +982,6 @@ export async function seedAllEntities(
   const developerProfileId = await seedEntity<"profile">(
     "profile",
     developerProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1014,21 +999,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1037,7 +1026,6 @@ export async function seedAllEntities(
   const privateProfileId = await seedEntity<"profile">(
     "profile",
     privateProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1063,21 +1051,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1086,7 +1078,6 @@ export async function seedAllEntities(
   const publicProfileId = await seedEntity<"profile">(
     "profile",
     publicProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1117,7 +1108,6 @@ export async function seedAllEntities(
   const smallestProfileId = await seedEntity<"profile">(
     "profile",
     smallestProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1134,21 +1124,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1157,7 +1151,6 @@ export async function seedAllEntities(
   const emptyStringsProfileId = await seedEntity<"profile">(
     "profile",
     emptyStringsProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1187,21 +1180,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1210,7 +1207,6 @@ export async function seedAllEntities(
   const eventManagerProfileId = await seedEntity<"profile">(
     "profile",
     eventManagerProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1260,21 +1256,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1283,7 +1283,6 @@ export async function seedAllEntities(
   const makerProfileId = await seedEntity<"profile">(
     "profile",
     makerProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1328,21 +1327,25 @@ export async function seedAllEntities(
       {
         logo:
           imageBucketData.logos.length > 0
-            ? imageBucketData.logos[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.logos.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.logos[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.logos.length - 1,
+                  })
+                ],
+              }
             : undefined,
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -1351,7 +1354,6 @@ export async function seedAllEntities(
     const networkOrganizationId = await seedEntity<"organization">(
       "organization",
       networkOrganization,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -1398,21 +1400,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1421,7 +1427,6 @@ export async function seedAllEntities(
   const coordinatorOrganizationId = await seedEntity<"organization">(
     "organization",
     coordinatorOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1466,21 +1471,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1489,7 +1498,6 @@ export async function seedAllEntities(
   const coordinatorProfileId = await seedEntity<"profile">(
     "profile",
     coordinatorProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1556,21 +1564,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1579,7 +1591,6 @@ export async function seedAllEntities(
   const unicodeProfileId = await seedEntity<"profile">(
     "profile",
     unicodeProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1605,21 +1616,25 @@ export async function seedAllEntities(
     {
       avatar:
         imageBucketData.avatars.length > 0
-          ? imageBucketData.avatars[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.avatars.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.avatars[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.avatars.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1628,7 +1643,6 @@ export async function seedAllEntities(
   const largestProfileId = await seedEntity<"profile">(
     "profile",
     largestProfile,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1727,21 +1741,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1750,7 +1768,6 @@ export async function seedAllEntities(
   const developerOrganizationId = await seedEntity<"organization">(
     "organization",
     developerOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1797,21 +1814,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1820,7 +1841,6 @@ export async function seedAllEntities(
   const smallTeamOrganizationId = await seedEntity<"organization">(
     "organization",
     smallTeamOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1867,21 +1887,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1890,7 +1914,6 @@ export async function seedAllEntities(
   const largeTeamOrganizationId = await seedEntity<"organization">(
     "organization",
     largeTeamOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1941,7 +1964,6 @@ export async function seedAllEntities(
   const smallestOrganizationId = await seedEntity<"organization">(
     "organization",
     smallestOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -1973,21 +1995,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -1996,7 +2022,6 @@ export async function seedAllEntities(
   const privateOrganizationId = await seedEntity<"organization">(
     "organization",
     privateOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2043,21 +2068,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2066,7 +2095,6 @@ export async function seedAllEntities(
   const publicOrganizationId = await seedEntity<"organization">(
     "organization",
     publicOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2113,21 +2141,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2136,7 +2168,6 @@ export async function seedAllEntities(
   const emptyStringsOrganizationId = await seedEntity<"organization">(
     "organization",
     emptyStringsOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2183,21 +2214,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2206,7 +2241,6 @@ export async function seedAllEntities(
   const eventCompanionOrganizationId = await seedEntity<"organization">(
     "organization",
     eventCompanionOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2263,21 +2297,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2286,7 +2324,6 @@ export async function seedAllEntities(
   const projectCompanionOrganizationId = await seedEntity<"organization">(
     "organization",
     projectCompanionOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2343,21 +2380,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2366,7 +2407,6 @@ export async function seedAllEntities(
   const unicodeOrganizationId = await seedEntity<"organization">(
     "organization",
     unicodeOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2427,7 +2467,6 @@ export async function seedAllEntities(
     largestDocumentId = await seedEntity<"document">(
       "document",
       largestDocument,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -2449,12 +2488,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -2463,7 +2504,6 @@ export async function seedAllEntities(
     const largestEventId = await seedEntity<"event">(
       "event",
       largestEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -2602,19 +2642,15 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
-          : {
-              path: "",
-              filename: "",
-              mimeType: "",
-              sizeInMB: 0,
-              extension: "",
-            },
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -2622,7 +2658,6 @@ export async function seedAllEntities(
   const largestAwardId = await seedEntity<"award">(
     "award",
     largestAward,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2636,21 +2671,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2659,7 +2698,6 @@ export async function seedAllEntities(
   const largestProjectId = await seedEntity<"project">(
     "project",
     largestProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2728,21 +2766,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -2751,7 +2793,6 @@ export async function seedAllEntities(
   const largestOrganizationId = await seedEntity<"organization">(
     "organization",
     largestOrganization,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -2842,12 +2883,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -2856,7 +2899,6 @@ export async function seedAllEntities(
     const developerEventId = await seedEntity<"event">(
       "event",
       developerEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -2982,12 +3024,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -2996,7 +3040,6 @@ export async function seedAllEntities(
     const depth2EventId = await seedEntity<"event">(
       "event",
       depth2Event,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3149,12 +3192,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3163,7 +3208,6 @@ export async function seedAllEntities(
     const depth3EventId = await seedEntity<"event">(
       "event",
       depth3Event,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3328,7 +3372,6 @@ export async function seedAllEntities(
     smallestDocumentId = await seedEntity<"document">(
       "document",
       smallestDocument,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3356,7 +3399,6 @@ export async function seedAllEntities(
     const smallestEventId = await seedEntity<"event">(
       "event",
       smallestEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3417,7 +3459,6 @@ export async function seedAllEntities(
     const emptyStringsDocumentId = await seedEntity<"document">(
       "document",
       emptyStringsDocument,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3439,12 +3480,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3453,7 +3496,6 @@ export async function seedAllEntities(
     const emptyStringsEventId = await seedEntity<"event">(
       "event",
       emptyStringsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3586,12 +3628,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3600,7 +3644,6 @@ export async function seedAllEntities(
     const fullParticipantsEventId = await seedEntity<"event">(
       "event",
       fullParticipantsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3721,12 +3764,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3735,7 +3780,6 @@ export async function seedAllEntities(
     const canceledEventId = await seedEntity<"event">(
       "event",
       canceledEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3861,12 +3905,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3875,7 +3921,6 @@ export async function seedAllEntities(
     const unpublishedEventId = await seedEntity<"event">(
       "event",
       unpublishedEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -3972,12 +4017,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -3986,7 +4033,6 @@ export async function seedAllEntities(
     const smallTeamEventId = await seedEntity<"event">(
       "event",
       smallTeamEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4083,12 +4129,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4097,7 +4145,6 @@ export async function seedAllEntities(
     const largeTeamEventId = await seedEntity<"event">(
       "event",
       largeTeamEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4184,12 +4231,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4198,7 +4247,6 @@ export async function seedAllEntities(
     const manyResponsibleOrganizationsEventId = await seedEntity<"event">(
       "event",
       manyResponsibleOrganizationsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4321,12 +4369,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4335,7 +4385,6 @@ export async function seedAllEntities(
     const manySpeakersEventId = await seedEntity<"event">(
       "event",
       manySpeakersEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4423,12 +4472,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4437,7 +4488,6 @@ export async function seedAllEntities(
     const manyParticipantsEventId = await seedEntity<"event">(
       "event",
       manyParticipantsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4539,12 +4589,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4553,7 +4605,6 @@ export async function seedAllEntities(
     const manyDocumentsEventId = await seedEntity<"event">(
       "event",
       manyDocumentsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4676,12 +4727,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4690,7 +4743,6 @@ export async function seedAllEntities(
     const overfullParticipantsEventId = await seedEntity<"event">(
       "event",
       overfullParticipantsEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4814,7 +4866,6 @@ export async function seedAllEntities(
     unicodeDocumentId = await seedEntity<"document">(
       "document",
       unicodeDocument,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4836,12 +4887,14 @@ export async function seedAllEntities(
       {
         background:
           imageBucketData.backgrounds.length > 0
-            ? imageBucketData.backgrounds[
-                faker.number.int({
-                  min: 0,
-                  max: imageBucketData.backgrounds.length - 1,
-                })
-              ]
+            ? {
+                path: imageBucketData.backgrounds[
+                  faker.number.int({
+                    min: 0,
+                    max: imageBucketData.backgrounds.length - 1,
+                  })
+                ],
+              }
             : undefined,
       },
       useRealNames,
@@ -4850,7 +4903,6 @@ export async function seedAllEntities(
     const unicodeEventId = await seedEntity<"event">(
       "event",
       unicodeEvent,
-      imageBucketData,
       authClient,
       defaultPassword
     );
@@ -4976,21 +5028,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -4999,7 +5055,6 @@ export async function seedAllEntities(
   const developerProjectId = await seedEntity<"project">(
     "project",
     developerProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5058,19 +5113,15 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
-          : {
-              path: "",
-              filename: "",
-              mimeType: "",
-              sizeInMB: 0,
-              extension: "",
-            },
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -5078,7 +5129,6 @@ export async function seedAllEntities(
   const smallestAwardId = await seedEntity<"award">(
     "award",
     smallestAward,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5099,7 +5149,6 @@ export async function seedAllEntities(
   const smallestProjectId = await seedEntity<"project">(
     "project",
     smallestproject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5150,19 +5199,15 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
-          : {
-              path: "",
-              filename: "",
-              mimeType: "",
-              sizeInMB: 0,
-              extension: "",
-            },
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -5170,7 +5215,6 @@ export async function seedAllEntities(
   const emptyStringsAwardId = await seedEntity<"award">(
     "award",
     emptyStringsAward,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5186,21 +5230,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5209,7 +5257,6 @@ export async function seedAllEntities(
   const emptyStringsProjectId = await seedEntity<"project">(
     "project",
     emptyStringsProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5280,21 +5327,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5303,7 +5354,6 @@ export async function seedAllEntities(
   const multipleAwardedProjectId = await seedEntity<"project">(
     "project",
     multipleAwardedProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5376,21 +5426,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5399,7 +5453,6 @@ export async function seedAllEntities(
   const smallTeamProjectId = await seedEntity<"project">(
     "project",
     smallTeamProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5449,21 +5502,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5472,7 +5529,6 @@ export async function seedAllEntities(
   const largeTeamProjectId = await seedEntity<"project">(
     "project",
     largeTeamProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5528,21 +5584,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5551,7 +5611,6 @@ export async function seedAllEntities(
   const manyResponsibleOrganizationsProjectId = await seedEntity<"project">(
     "project",
     manyResponsibleOrganizationsProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5611,19 +5670,15 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
-          : {
-              path: "",
-              filename: "",
-              mimeType: "",
-              sizeInMB: 0,
-              extension: "",
-            },
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
+          : { path: "" },
     },
     useRealNames,
     numberOfStandardEntities
@@ -5631,7 +5686,6 @@ export async function seedAllEntities(
   const unicodeAwardId = await seedEntity<"award">(
     "award",
     unicodeAward,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5645,21 +5699,25 @@ export async function seedAllEntities(
     {
       logo:
         imageBucketData.logos.length > 0
-          ? imageBucketData.logos[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.logos.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.logos[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.logos.length - 1,
+                })
+              ],
+            }
           : undefined,
       background:
         imageBucketData.backgrounds.length > 0
-          ? imageBucketData.backgrounds[
-              faker.number.int({
-                min: 0,
-                max: imageBucketData.backgrounds.length - 1,
-              })
-            ]
+          ? {
+              path: imageBucketData.backgrounds[
+                faker.number.int({
+                  min: 0,
+                  max: imageBucketData.backgrounds.length - 1,
+                })
+              ],
+            }
           : undefined,
     },
     useRealNames,
@@ -5668,7 +5726,6 @@ export async function seedAllEntities(
   const unicodeProjectId = await seedEntity<"project">(
     "project",
     unicodeProject,
-    imageBucketData,
     authClient,
     defaultPassword
   );
@@ -5746,7 +5803,7 @@ export function getEntityData<
   useRealNames: boolean,
   numberOfStandardEntities: number
 ) {
-  const entityData = {
+  const entityData: unknown = {
     username: generateUsername<T>(entityType, entityStructure, index),
     title: generateTitle<T>(entityType, entityStructure),
     date: generateDate<T>(entityType, index),
@@ -5786,7 +5843,9 @@ export function getEntityData<
     city: generateCity<T>(entityType, entityStructure),
     zipCode: generateZipCode<T>(entityType, entityStructure),
     website: generateWebsite<T>(entityType, entityStructure),
-    logo: setLogo(entityType, bucketData),
+    logo: setLogo(entityType, entityStructure, bucketData),
+    avatar: setAvatar(entityType, entityStructure, bucketData),
+    background: setBackground(entityType, entityStructure, bucketData),
     facebook: generateSocialMediaUrl<T>(
       entityType,
       entityStructure,
@@ -5821,8 +5880,7 @@ export function getEntityData<
     termsAccepted: generateTermsAccepted<T>(entityType),
     position: generatePosition<T>(entityType, entityStructure),
   };
-
-  return entityData as unknown as EntityTypeOnData<T>;
+  return entityData as EntityTypeOnData<T>;
 }
 
 // TODO: Do we need this function?
@@ -5834,7 +5892,6 @@ export async function seedEntity<
 >(
   entityType: T,
   entity: EntityTypeOnData<T>,
-  imageBucketData: Awaited<ReturnType<typeof uploadImageBucketData>>,
   authClient: SupabaseClient<any, "public", any>,
   defaultPassword: string
 ) {
@@ -5871,34 +5928,6 @@ export async function seedEntity<
           },
           select: { id: true },
         });
-        if (imageBucketData.avatars.length > 0) {
-          await prismaClient.profile.update({
-            where: {
-              id: result.id,
-            },
-            data: {
-              avatarImage: {
-                create: {
-                  ...imageBucketData.avatars[0],
-                },
-              },
-            },
-          });
-        }
-        if (imageBucketData.backgrounds.length > 0) {
-          await prismaClient.profile.update({
-            where: {
-              id: result.id,
-            },
-            data: {
-              backgroundImage: {
-                create: {
-                  ...imageBucketData.backgrounds[0],
-                },
-              },
-            },
-          });
-        }
       } catch (e) {
         console.error(e);
         throw new Error(
@@ -5916,34 +5945,6 @@ export async function seedEntity<
       },
       select: { id: true },
     });
-    if (imageBucketData.logos.length > 0) {
-      await prismaClient.organization.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          logoImage: {
-            create: {
-              ...imageBucketData.logos[0],
-            },
-          },
-        },
-      });
-    }
-    if (imageBucketData.backgrounds.length > 0) {
-      await prismaClient.organization.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          backgroundImage: {
-            create: {
-              ...imageBucketData.backgrounds[0],
-            },
-          },
-        },
-      });
-    }
   } else if (entityType === "event" && "startTime" in entity) {
     result = await prismaClient.event.create({
       data: {
@@ -5954,20 +5955,6 @@ export async function seedEntity<
       },
       select: { id: true },
     });
-    if (imageBucketData.backgrounds.length > 0) {
-      await prismaClient.event.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          backgroundImage: {
-            create: {
-              ...imageBucketData.backgrounds[0],
-            },
-          },
-        },
-      });
-    }
   } else if (entityType === "project" && "headline" in entity) {
     result = await prismaClient.project.create({
       data: {
@@ -5978,34 +5965,6 @@ export async function seedEntity<
       },
       select: { id: true },
     });
-    if (imageBucketData.logos.length > 0) {
-      await prismaClient.project.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          logoImage: {
-            create: {
-              ...imageBucketData.logos[0],
-            },
-          },
-        },
-      });
-    }
-    if (imageBucketData.backgrounds.length > 0) {
-      await prismaClient.project.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          backgroundImage: {
-            create: {
-              ...imageBucketData.backgrounds[0],
-            },
-          },
-        },
-      });
-    }
   } else {
     // @ts-ignore -> Union type issue -> To much abstraction
     result = await prismaClient[entityType].create({
@@ -7269,15 +7228,79 @@ function setLogo<
     PrismaClient,
     "profile" | "organization" | "project" | "event" | "award" | "document"
   >,
->(entityType: T, bucketData: EntityTypeOnBucketData<T>) {
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
   // award required, organization, project
-  let logo;
+  let logoPath;
   if ("logo" in bucketData && bucketData.logo !== undefined) {
     if (entityType === "award") {
-      logo = bucketData.logo.path;
+      logoPath = bucketData.logo.path;
+    }
+    if (entityType === "organization" || entityType === "project") {
+      if (entityStructure === "Smallest") {
+        logoPath = null;
+      } else {
+        logoPath = bucketData.logo.path;
+      }
     }
   }
-  return logo;
+  return logoPath;
+}
+
+function setAvatar<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >,
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // profile
+  let avatarPath;
+  if ("avatar" in bucketData && bucketData.avatar !== undefined) {
+    if (entityType === "profile") {
+      if (entityStructure === "Smallest") {
+        avatarPath = null;
+      } else {
+        avatarPath = bucketData.avatar.path;
+      }
+    }
+  }
+  return avatarPath;
+}
+
+function setBackground<
+  T extends keyof Pick<
+    PrismaClient,
+    "profile" | "organization" | "project" | "event" | "award" | "document"
+  >,
+>(
+  entityType: T,
+  entityStructure: EntityTypeOnStructure<T>,
+  bucketData: EntityTypeOnBucketData<T>
+) {
+  // organization, project, profile, event
+  let backgroundPath;
+  if ("background" in bucketData && bucketData.background !== undefined) {
+    if (
+      entityType === "organization" ||
+      entityType === "project" ||
+      entityType === "event" ||
+      entityType === "profile"
+    ) {
+      if (entityStructure === "Smallest") {
+        backgroundPath = null;
+      } else {
+        backgroundPath = bucketData.background.path;
+      }
+    }
+  }
+  return backgroundPath;
 }
 
 function generateSocialMediaUrl<

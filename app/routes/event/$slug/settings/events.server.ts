@@ -18,11 +18,7 @@ export async function getEventBySlug(slug: string) {
       childEvents: {
         select: {
           id: true,
-          backgroundImage: {
-            select: {
-              path: true,
-            },
-          },
+          background: true,
           startTime: true,
           endTime: true,
           slug: true,
@@ -47,11 +43,7 @@ export async function getEventBySlug(slug: string) {
       parentEvent: {
         select: {
           id: true,
-          backgroundImage: {
-            select: {
-              path: true,
-            },
-          },
+          background: true,
           startTime: true,
           endTime: true,
           slug: true,

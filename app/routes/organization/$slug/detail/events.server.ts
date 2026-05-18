@@ -4,7 +4,7 @@ import { DefaultImages } from "~/images.shared";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -27,11 +27,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  backgroundImage: {
-                    select: {
-                      path: true,
-                    },
-                  },
+                  background: true,
                   name: true,
                   subline: true,
                   description: true,
@@ -54,7 +50,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      backgroundImage: true,
+                      background: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -98,11 +94,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  backgroundImage: {
-                    select: {
-                      path: true,
-                    },
-                  },
+                  background: true,
                   name: true,
                   subline: true,
                   description: true,
@@ -125,7 +117,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      backgroundImage: true,
+                      background: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -214,10 +206,7 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   const futureEvents = organization.futureEvents.map((relation) => {
-    let background =
-      relation.event.backgroundImage === null
-        ? null
-        : relation.event.backgroundImage.path;
+    let background = relation.event.background;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -249,10 +238,7 @@ export function addImgUrls(
   });
 
   const pastEvents = organization.pastEvents.map((relation) => {
-    let background =
-      relation.event.backgroundImage === null
-        ? null
-        : relation.event.backgroundImage.path;
+    let background = relation.event.background;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

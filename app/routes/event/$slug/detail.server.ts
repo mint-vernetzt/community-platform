@@ -12,7 +12,7 @@ import {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { filterProfileByVisibility } from "~/public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
@@ -35,12 +35,7 @@ export async function getEventBySlug(
       name: true,
       description: true,
       slug: true,
-      backgroundImage: {
-        select: {
-          path: true,
-          description: true,
-        },
-      },
+      background: true,
       startTime: true,
       endTime: true,
       venueName: true,
@@ -97,11 +92,7 @@ export async function getEventBySlug(
             select: {
               name: true,
               slug: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
             },
           },
         },
@@ -574,16 +565,7 @@ export async function uploadBackgroundImage(options: {
             slug,
           },
           data: {
-            backgroundImage: {
-              upsert: {
-                create: {
-                  ...fileMetadataForDatabase,
-                },
-                update: {
-                  ...fileMetadataForDatabase,
-                },
-              },
-            },
+            [uploadKey]: fileMetadataForDatabase.path,
           },
         });
       } catch (error) {
@@ -662,9 +644,7 @@ export async function disconnectBackgroundImage(options: {
             slug,
           },
           data: {
-            backgroundImage: {
-              delete: true,
-            },
+            [uploadKey]: null,
           },
         });
       } catch (error) {
@@ -728,11 +708,7 @@ export async function getContactPersonsOfEvent(options: {
           lastName: true,
           email: true,
           phone: true,
-          avatarImage: {
-            select: {
-              path: true,
-            },
-          },
+          avatar: true,
           position: true,
           profileVisibility: {
             select: {
@@ -743,7 +719,7 @@ export async function getContactPersonsOfEvent(options: {
               email: true,
               phone: true,
               lastName: true,
-              avatarImage: true,
+              avatar: true,
               position: true,
             },
           },
@@ -763,10 +739,7 @@ export async function getContactPersonsOfEvent(options: {
       filteredContactPerson = { ...contactPerson.profile };
     }
 
-    let avatar =
-      filteredContactPerson.avatarImage === null
-        ? null
-        : filteredContactPerson.avatarImage.path;
+    let avatar = filteredContactPerson.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

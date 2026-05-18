@@ -20,11 +20,7 @@ export async function getEvent(slug: string) {
               username: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
-                select: {
-                  path: true,
-                },
-              },
+              avatar: true,
               position: true,
             },
           },

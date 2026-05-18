@@ -81,8 +81,6 @@ import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$
 import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as deNextEventSettingsDelete } from "./de/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
-import { locale as deNextEventSettingsDetailsInfo } from "./de/routes/next/event/$slug/settings/details/info";
-import { locale as deNextEventSettingsDetailsBackground } from "./de/routes/next/event/$slug/settings/details/background";
 import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
 import { locale as deNextEventSettingsDocumentsList } from "./de/routes/next/event/$slug/settings/documents/list";
 import { locale as deNextEventSettingsDocumentsAdd } from "./de/routes/next/event/$slug/settings/documents/add";
@@ -293,8 +291,6 @@ import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$
 import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as enNextEventSettingsDelete } from "./en/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
-import { locale as enNextEventSettingsDetailsInfo } from "./en/routes/next/event/$slug/settings/details/info";
-import { locale as enNextEventSettingsDetailsBackground } from "./en/routes/next/event/$slug/settings/details/background";
 import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
 import { locale as enNextEventSettingsDocumentsList } from "./en/routes/next/event/$slug/settings/documents/list";
 import { locale as enNextEventSettingsDocumentsAdd } from "./en/routes/next/event/$slug/settings/documents/add";
@@ -583,9 +579,6 @@ const de = {
   },
   "next/event/$slug/settings/details": {
     route: deNextEventSettingsDetails,
-  },
-  "next/event/$slug/settings/details/info": {
-    route: deNextEventSettingsDetailsInfo,
     types: deEventTypes,
     tags: deTags,
     eventTargetGroups: deEventTargetGroups,
@@ -593,9 +586,6 @@ const de = {
     focuses: deFocuses,
     components: deComponents,
     rte: deRTE,
-  },
-  "next/event/$slug/settings/details/background": {
-    route: deNextEventSettingsDetailsBackground,
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
@@ -1138,9 +1128,6 @@ const en = {
   },
   "next/event/$slug/settings/details": {
     route: enNextEventSettingsDetails,
-  },
-  "next/event/$slug/settings/details/info": {
-    route: enNextEventSettingsDetailsInfo,
     types: enEventTypes,
     tags: enTags,
     eventTargetGroups: enEventTargetGroups,
@@ -1148,9 +1135,6 @@ const en = {
     focuses: enFocuses,
     components: enComponents,
     rte: enRTE,
-  },
-  "next/event/$slug/settings/details/background": {
-    route: enNextEventSettingsDetailsBackground,
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,

@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { filterProfileByVisibility } from "~/public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {
@@ -70,11 +70,7 @@ export async function getParticipantsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatarImage: {
-          select: {
-            path: true,
-          },
-        },
+        avatar: true,
         position: true,
         profileVisibility: {
           select: {
@@ -83,7 +79,7 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: true,
+            avatar: true,
             position: true,
           },
         },
@@ -120,11 +116,7 @@ export async function getParticipantsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatarImage: {
-          select: {
-            path: true,
-          },
-        },
+        avatar: true,
         position: true,
         profileVisibility: {
           select: {
@@ -133,7 +125,7 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: true,
+            avatar: true,
             position: true,
           },
         },
@@ -142,8 +134,7 @@ export async function getParticipantsOfEvent(options: {
   }
 
   const enhancedParticipants = participants.map((participant) => {
-    let avatar =
-      participant.avatarImage === null ? null : participant.avatarImage.path;
+    let avatar = participant.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

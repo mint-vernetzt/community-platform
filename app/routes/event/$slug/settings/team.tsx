@@ -54,10 +54,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const enhancedTeamMembers = event.teamMembers.map((relation) => {
-    let avatar =
-      relation.profile.avatarImage === null
-        ? null
-        : relation.profile.avatarImage.path;
+    let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

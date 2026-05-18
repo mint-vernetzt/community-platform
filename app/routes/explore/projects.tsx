@@ -43,7 +43,7 @@ import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/public-fields-filtering.server";
+} from "~/next-public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { getFilterSchemes, type FilterSchemes } from "./all.shared";
 import {
@@ -149,10 +149,7 @@ export async function loader(args: LoaderFunctionArgs) {
     }
 
     // Add images from image proxy
-    let background =
-      enhancedProject.backgroundImage === null
-        ? null
-        : enhancedProject.backgroundImage.path;
+    let background = enhancedProject.background;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -178,10 +175,7 @@ export async function loader(args: LoaderFunctionArgs) {
       blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
-    let logo =
-      enhancedProject.logoImage === null
-        ? null
-        : enhancedProject.logoImage.path;
+    let logo = enhancedProject.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -206,10 +200,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const responsibleOrganizations =
       enhancedProject.responsibleOrganizations.map((relation) => {
-        let logo =
-          relation.organization.logoImage === null
-            ? null
-            : relation.organization.logoImage.path;
+        let logo = relation.organization.logo;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

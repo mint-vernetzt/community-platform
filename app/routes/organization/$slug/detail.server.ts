@@ -1,6 +1,6 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
-import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -29,16 +29,8 @@ export async function getOrganization(slug: string) {
       slug: true,
       name: true,
       bio: true,
-      backgroundImage: {
-        select: {
-          path: true,
-        },
-      },
-      logoImage: {
-        select: {
-          path: true,
-        },
-      },
+      background: true,
+      logo: true,
       email: true,
       phone: true,
       website: true,
@@ -79,17 +71,13 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
               name: true,
               organizationVisibility: {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logo: true,
                   name: true,
                 },
               },
@@ -125,8 +113,8 @@ export async function getOrganization(slug: string) {
           name: true,
           slug: true,
           bio: true,
-          backgroundImage: true,
-          logoImage: true,
+          background: true,
+          logo: true,
           email: true,
           phone: true,
           website: true,
@@ -180,10 +168,7 @@ export function addImgUrls(
   authClient: SupabaseClient,
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
-  let background =
-    organization.backgroundImage === null
-      ? null
-      : organization.backgroundImage.path;
+  let background = organization.background;
   let blurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
@@ -202,8 +187,7 @@ export function addImgUrls(
     blurredBackground = DefaultImages.Organization.BlurredBackground;
   }
 
-  let logo =
-    organization.logoImage === null ? null : organization.logoImage.path;
+  let logo = organization.logo;
   let blurredLogo;
   if (logo !== null) {
     const publicURL = getPublicURL(authClient, logo);
@@ -216,10 +200,7 @@ export function addImgUrls(
     });
   }
   const networkMembers = organization.networkMembers.map((relation) => {
-    let logo =
-      relation.networkMember.logoImage === null
-        ? null
-        : relation.networkMember.logoImage.path;
+    let logo = relation.networkMember.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -292,32 +273,9 @@ export async function uploadImage(options: {
           where: {
             slug,
           },
-          data:
-            uploadKey === "background"
-              ? {
-                  backgroundImage: {
-                    upsert: {
-                      create: {
-                        ...fileMetadataForDatabase,
-                      },
-                      update: {
-                        ...fileMetadataForDatabase,
-                      },
-                    },
-                  },
-                }
-              : {
-                  logoImage: {
-                    upsert: {
-                      create: {
-                        ...fileMetadataForDatabase,
-                      },
-                      update: {
-                        ...fileMetadataForDatabase,
-                      },
-                    },
-                  },
-                },
+          data: {
+            [uploadKey]: fileMetadataForDatabase.path,
+          },
           select: {
             id: true,
           },
@@ -390,18 +348,9 @@ export async function disconnectImage(options: {
           where: {
             slug,
           },
-          data:
-            uploadKey === "background"
-              ? {
-                  backgroundImage: {
-                    delete: true,
-                  },
-                }
-              : {
-                  logoImage: {
-                    delete: true,
-                  },
-                },
+          data: {
+            [uploadKey]: null,
+          },
           select: {
             id: true,
           },

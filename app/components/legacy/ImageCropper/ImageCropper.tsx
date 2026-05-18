@@ -1,4 +1,4 @@
-import { Pica } from "pica";
+import { default as Pica } from "pica";
 import {
   centerCrop,
   makeAspectCrop,

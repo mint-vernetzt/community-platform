@@ -44,11 +44,7 @@ export async function getOrganizationWithTeamMembers(options: {
               username: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
-                select: {
-                  path: true,
-                },
-              },
+              avatar: true,
               academicTitle: true,
               position: true,
             },
@@ -68,10 +64,7 @@ export async function getOrganizationWithTeamMembers(options: {
 
   // enhance teamMembers with avatar
   const teamMembers = organization.teamMembers.map((relation) => {
-    let avatar =
-      relation.profile.avatarImage === null
-        ? null
-        : relation.profile.avatarImage.path;
+    let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -117,11 +110,7 @@ export async function getPendingTeamMemberInvitesOfOrganization(
             username: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
-              select: {
-                path: true,
-              },
-            },
+            avatar: true,
             academicTitle: true,
             position: true,
           },
@@ -135,10 +124,7 @@ export async function getPendingTeamMemberInvitesOfOrganization(
     });
 
   const enhancedProfiles = profiles.map((relation) => {
-    let avatar =
-      relation.profile.avatarImage === null
-        ? null
-        : relation.profile.avatarImage.path;
+    let avatar = relation.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

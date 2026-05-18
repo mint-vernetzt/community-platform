@@ -66,11 +66,7 @@ export async function getInvitedOrganizations(options: {
               id: true,
               name: true,
               slug: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
             },
           },
           createdAt: true,
@@ -102,11 +98,7 @@ export async function getInvitedOrganizations(options: {
               id: true,
               name: true,
               slug: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
             },
           },
           createdAt: true,
@@ -118,10 +110,7 @@ export async function getInvitedOrganizations(options: {
   }
 
   const organizations = result.map((item) => {
-    let logo =
-      item.organization.logoImage === null
-        ? null
-        : item.organization.logoImage.path;
+    let logo = item.organization.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

@@ -214,17 +214,9 @@ export async function loader(args: LoaderFunctionArgs) {
       slug: true,
       name: true,
       subline: true,
-      logoImage: {
-        select: {
-          path: true,
-        },
-      },
+      logo: true,
       published: true,
-      backgroundImage: {
-        select: {
-          path: true,
-        },
-      },
+      background: true,
       timeframe: true,
       jobFillings: true,
       furtherJobFillings: true,
@@ -259,8 +251,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   let background;
   let blurredBackground;
-  if (project.backgroundImage !== null) {
-    const publicURL = getPublicURL(authClient, project.backgroundImage.path);
+  if (project.background !== null) {
+    const publicURL = getPublicURL(authClient, project.background);
     if (publicURL) {
       background = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Project.Detail.Background },
@@ -276,8 +268,8 @@ export async function loader(args: LoaderFunctionArgs) {
   }
   let logo;
   let blurredLogo;
-  if (project.logoImage !== null) {
-    const publicURL = getPublicURL(authClient, project.logoImage.path);
+  if (project.logo !== null) {
+    const publicURL = getPublicURL(authClient, project.logo);
     if (publicURL) {
       logo = getImageURL(publicURL, {
         resize: { type: "fill", ...ImageSizes.Project.Detail.Logo },

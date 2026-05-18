@@ -90,12 +90,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const profiles = rawProfiles.map((profile) => {
-    const {
-      avatarImage: avatar,
-      backgroundImage: background,
-      memberOf,
-      ...otherFields
-    } = profile;
+    const { avatar, background, memberOf, ...otherFields } = profile;
     const extensions: {
       memberOf: Pick<Organization, "name" | "slug" | "logo">[];
       areas: string[];
@@ -105,7 +100,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let avatarImage: string | null = null;
     let blurredAvatar;
     if (avatar !== null) {
-      const publicURL = getPublicURL(authClient, avatar.path);
+      const publicURL = getPublicURL(authClient, avatar);
       if (publicURL !== null) {
         avatarImage = getImageURL(publicURL, {
           resize: {
@@ -128,7 +123,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let backgroundImage: string | null = null;
     let blurredBackground;
     if (background !== null) {
-      const publicURL = getPublicURL(authClient, background.path);
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
           resize: {
@@ -154,11 +149,8 @@ export async function loader(args: LoaderFunctionArgs) {
     extensions.memberOf = memberOf.map((relation) => {
       let logoImage: string | null = null;
       let blurredLogo;
-      if (relation.organization.logoImage !== null) {
-        const publicURL = getPublicURL(
-          authClient,
-          relation.organization.logoImage.path
-        );
+      if (relation.organization.logo !== null) {
+        const publicURL = getPublicURL(authClient, relation.organization.logo);
         if (publicURL !== null) {
           logoImage = getImageURL(publicURL, {
             resize: {
@@ -225,12 +217,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const organizations = rawOrganizations.map((organization) => {
-    const {
-      logoImage: logo,
-      backgroundImage: background,
-      teamMembers,
-      ...otherFields
-    } = organization;
+    const { logo, background, teamMembers, ...otherFields } = organization;
     const extensions: {
       teamMembers: Pick<
         Profile,
@@ -251,7 +238,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let logoImage: string | null = null;
     let blurredLogo;
     if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo.path);
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
           resize: {
@@ -274,7 +261,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let backgroundImage: string | null = null;
     let blurredBackground;
     if (background !== null) {
-      const publicURL = getPublicURL(authClient, background.path);
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
           resize: {
@@ -300,11 +287,8 @@ export async function loader(args: LoaderFunctionArgs) {
     extensions.teamMembers = teamMembers.map((relation) => {
       let avatar: string | null = null;
       let blurredAvatar;
-      if (relation.profile.avatarImage !== null) {
-        const publicURL = getPublicURL(
-          authClient,
-          relation.profile.avatarImage.path
-        );
+      if (relation.profile.avatar !== null) {
+        const publicURL = getPublicURL(authClient, relation.profile.avatar);
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
             resize: {
@@ -382,16 +366,12 @@ export async function loader(args: LoaderFunctionArgs) {
   const rawEventsWithParticipationStatus =
     await enhanceEventsWithParticipationStatus(sessionUser, rawEvents);
   const events = rawEventsWithParticipationStatus.map((event) => {
-    const {
-      backgroundImage: background,
-      responsibleOrganizations,
-      ...otherFields
-    } = event;
+    const { background, responsibleOrganizations, ...otherFields } = event;
 
     let backgroundImage;
     let blurredBackground;
     if (background !== null) {
-      const publicURL = getPublicURL(authClient, background.path);
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
           resize: {
@@ -416,10 +396,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const enhancedResponsibleOrganizations = responsibleOrganizations.map(
       (relation) => {
-        let logo =
-          relation.organization.logoImage === null
-            ? null
-            : relation.organization.logoImage.path;
+        let logo = relation.organization.logo;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
@@ -482,12 +459,8 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const projects = rawProjects.map((project) => {
-    const {
-      logoImage: logo,
-      backgroundImage: background,
-      responsibleOrganizations,
-      ...otherFields
-    } = project;
+    const { logo, background, responsibleOrganizations, ...otherFields } =
+      project;
     const extensions: {
       responsibleOrganizations: {
         organization: Pick<Organization, "name" | "slug" | "logo">;
@@ -497,7 +470,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let logoImage: string | null = null;
     let blurredLogo;
     if (logo !== null) {
-      const publicURL = getPublicURL(authClient, logo.path);
+      const publicURL = getPublicURL(authClient, logo);
       if (publicURL !== null) {
         logoImage = getImageURL(publicURL, {
           resize: {
@@ -520,7 +493,7 @@ export async function loader(args: LoaderFunctionArgs) {
     let backgroundImage: string | null = null;
     let blurredBackground;
     if (background !== null) {
-      const publicURL = getPublicURL(authClient, background.path);
+      const publicURL = getPublicURL(authClient, background);
       if (publicURL !== null) {
         backgroundImage = getImageURL(publicURL, {
           resize: {
@@ -547,10 +520,10 @@ export async function loader(args: LoaderFunctionArgs) {
       (relation) => {
         let logoImage: string | null = null;
         let blurredLogo;
-        if (relation.organization.logoImage !== null) {
+        if (relation.organization.logo !== null) {
           const publicURL = getPublicURL(
             authClient,
-            relation.organization.logoImage.path
+            relation.organization.logo
           );
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {

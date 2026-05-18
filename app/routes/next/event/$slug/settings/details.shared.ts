@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { transformEmptyToNull } from "~/lib/utils/schemas";
-import { NAME_MIN_LENGTH } from "../../../create.shared";
+import { NAME_MIN_LENGTH } from "../../create.shared";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { removeHtmlTags, replaceHtmlEntities } from "~/lib/utils/transformHtml";
 

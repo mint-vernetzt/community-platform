@@ -30,11 +30,7 @@ export async function getAllOrganizations(options: {
       id: true,
       slug: true,
       name: true,
-      logoImage: {
-        select: {
-          path: true,
-        },
-      },
+      logo: true,
       longitude: true,
       latitude: true,
       street: true,
@@ -65,17 +61,13 @@ export async function getAllOrganizations(options: {
             select: {
               id: true,
               slug: true,
-              logoImage: {
-                select: {
-                  path: true,
-                },
-              },
+              logo: true,
               name: true,
               organizationVisibility: {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logo: true,
                   name: true,
                 },
               },
@@ -88,7 +80,7 @@ export async function getAllOrganizations(options: {
           id: true,
           slug: true,
           name: true,
-          logoImage: true,
+          logo: true,
           longitude: true,
           latitude: true,
           street: true,

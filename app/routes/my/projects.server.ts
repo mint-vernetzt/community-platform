@@ -28,16 +28,8 @@ export async function getProjects(options: {
     slug: true,
     description: true,
     excerpt: true,
-    backgroundImage: {
-      select: {
-        path: true,
-      },
-    },
-    logoImage: {
-      select: {
-        path: true,
-      },
-    },
+    background: true,
+    logo: true,
     published: true,
     responsibleOrganizations: {
       select: {
@@ -45,11 +37,7 @@ export async function getProjects(options: {
           select: {
             name: true,
             slug: true,
-            logoImage: {
-              select: {
-                path: true,
-              },
-            },
+            logo: true,
           },
         },
       },
@@ -86,8 +74,7 @@ export async function getProjects(options: {
   ]);
 
   const enhancedAdminProjects = adminProjects.map((project) => {
-    let background =
-      project.backgroundImage === null ? null : project.backgroundImage.path;
+    let background = project.background;
     let blurredBackground;
 
     if (background !== null) {
@@ -107,7 +94,7 @@ export async function getProjects(options: {
       blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
-    let logo = project.logoImage === null ? null : project.logoImage.path;
+    let logo = project.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -122,10 +109,7 @@ export async function getProjects(options: {
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
-        let logo =
-          responsibleOrganization.organization.logoImage === null
-            ? null
-            : responsibleOrganization.organization.logoImage.path;
+        let logo = responsibleOrganization.organization.logo;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
@@ -165,8 +149,7 @@ export async function getProjects(options: {
   });
 
   const enhancedTeamMemberProjects = teamMemberProjects.map((project) => {
-    let background =
-      project.backgroundImage === null ? null : project.backgroundImage.path;
+    let background = project.background;
     let blurredBackground;
 
     if (background !== null) {
@@ -186,7 +169,7 @@ export async function getProjects(options: {
       blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
-    let logo = project.logoImage === null ? null : project.logoImage.path;
+    let logo = project.logo;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -201,10 +184,7 @@ export async function getProjects(options: {
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
-        let logo =
-          responsibleOrganization.organization.logoImage === null
-            ? null
-            : responsibleOrganization.organization.logoImage.path;
+        let logo = responsibleOrganization.organization.logo;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

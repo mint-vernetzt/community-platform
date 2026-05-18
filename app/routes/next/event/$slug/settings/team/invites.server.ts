@@ -67,11 +67,7 @@ export async function getInvitedProfilesToJoinEventAsTeamMember(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
-              select: {
-                path: true,
-              },
-            },
+            avatar: true,
           },
         },
         createdAt: true,
@@ -108,11 +104,7 @@ export async function getInvitedProfilesToJoinEventAsTeamMember(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
-              select: {
-                path: true,
-              },
-            },
+            avatar: true,
           },
         },
         createdAt: true,
@@ -124,8 +116,7 @@ export async function getInvitedProfilesToJoinEventAsTeamMember(options: {
   }
 
   const profiles = result.map((item) => {
-    let avatar =
-      item.profile.avatarImage === null ? null : item.profile.avatarImage.path;
+    let avatar = item.profile.avatar;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
