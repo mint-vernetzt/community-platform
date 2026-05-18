@@ -101,6 +101,7 @@ model ProfileVisibility {
   createdAt                 Boolean @default(true) @map("created_at")
   firstName                 Boolean @default(true) @map("first_name")
   lastName                  Boolean @default(true) @map("last_name")
+  publicFields              Boolean @default(true) @map("public_fields") // legacy
   termsAccepted             Boolean @default(true) @map("terms_accepted")
   termsAcceptedAt           Boolean @default(true) @map("terms_accepted_at")
   updatedAt                 Boolean @default(true) @map("updated_at")
@@ -121,8 +122,7 @@ model ProfileVisibility {
   contactPersonsOfEvents    Boolean @default(true)
   teamMemberOfProjects      Boolean @default(true)
   waitingForEvents          Boolean @default(false)
-  profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId                 String  @unique
+  profileVisibility         Boolean @default(true)
   administeredOrganizations Boolean @default(false)
   administeredEvents        Boolean @default(false)
   administeredProjects      Boolean @default(false)
@@ -134,7 +134,12 @@ model ProfileVisibility {
   abuseReports              Boolean @default(false)
   joinOrganizationRequests  Boolean @default(false)
   joinOrganizationInvites   Boolean @default(false)
+  joinEventInvites          Boolean @default(false)
   claimOrganizationRequests Boolean @default(false)
+  filterVector              Boolean @default(true)
+
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String  @unique
 
   @@map("profile_visibilities")
 }
@@ -632,7 +637,9 @@ model EventVisibility {
   admins                           Boolean @default(false)
   profileJoinInvites               Boolean @default(false)
   waitingList                      Boolean @default(false)
+  eventVisibility                  Boolean @default(true)
   abuseReports                     Boolean @default(false)
+  filterVector                     Boolean @default(true)
   event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                          String  @unique
 
@@ -1231,11 +1238,13 @@ model ProjectVisibility {
   specialTargetGroups                  Boolean @default(true)
   formats                              Boolean @default(true)
   teamMembers                          Boolean @default(true)
+  projectVisibility                    Boolean @default(true)
   areas                                Boolean @default(true)
   documents                            Boolean @default(true)
   images                               Boolean @default(true)
   admins                               Boolean @default(false)
   abuseReports                         Boolean @default(false)
+  filterVector                         Boolean @default(true) @map("filter_vector")
   project                              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId                            String  @unique
 
