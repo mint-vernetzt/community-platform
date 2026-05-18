@@ -8,6 +8,7 @@ import { Pica } from "pica";
 import { MaxImageSizes } from "~/images.shared";
 import Slider from "rc-slider";
 import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
+import { useNonce } from "~/nonce-provider";
 
 function ImageCropper(props: {
   src: CropperProps["image"];
@@ -15,10 +16,10 @@ function ImageCropper(props: {
   setCroppedArea: Dispatch<SetStateAction<Area | null>>;
   shape?: CropperProps["cropShape"];
 }) {
+  const nonce = useNonce();
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
-    console.log(croppedAreaPixels);
     props.setCroppedArea(croppedAreaPixels);
   };
 
@@ -35,6 +36,7 @@ function ImageCropper(props: {
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
           objectFit="contain"
+          disableAutomaticStylesInjection
         />
       </div>
       <div className="flex items-center w-full gap-4">
@@ -80,7 +82,6 @@ function ImageCropper(props: {
           variant="outline"
           size="small"
           onClick={() => {
-            console.log(zoom, "zoom");
             setZoom((prev) => {
               return Math.min(prev + 0.1, 3);
             });

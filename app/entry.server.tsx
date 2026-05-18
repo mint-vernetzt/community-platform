@@ -60,6 +60,7 @@ export default async function handleRequest(
 
   const styleSrcElem = ["'self'"];
   if (process.env.NODE_ENV === "development") {
+    // HMR support
     styleSrcElem.push("'unsafe-inline'");
   }
 
