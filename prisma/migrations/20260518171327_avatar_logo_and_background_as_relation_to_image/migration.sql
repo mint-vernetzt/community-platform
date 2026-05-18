@@ -24,7 +24,8 @@ ALTER TABLE "projects" DROP CONSTRAINT "projects_background_image_id_fkey";
 
 -- AlterTable
 ALTER TABLE "event_visibilities" ADD COLUMN     "eventVisibility" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "filterVector" BOOLEAN NOT NULL DEFAULT true;
+ADD COLUMN     "filterVector" BOOLEAN NOT NULL DEFAULT true,
+ALTER COLUMN "background_image_id" SET DEFAULT false;
 
 -- AlterTable
 ALTER TABLE "image" ADD COLUMN     "avatar_of_profile_id" TEXT,
@@ -44,19 +45,22 @@ ADD COLUMN     "receivedNetworkJoinInvites" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "receivedNetworkJoinRequests" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "responsibleForEventInvites" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "sentNetworkJoinInvites" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "sentNetworkJoinRequests" BOOLEAN NOT NULL DEFAULT false;
+ADD COLUMN     "sentNetworkJoinRequests" BOOLEAN NOT NULL DEFAULT false,
+ALTER COLUMN "background_image_id" SET DEFAULT false;
 
 -- AlterTable
 ALTER TABLE "profile_visibilities" ADD COLUMN     "avatar_image" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "filterVector" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "joinEventInvites" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "profileVisibility" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "public_fields" BOOLEAN NOT NULL DEFAULT true;
+ADD COLUMN     "public_fields" BOOLEAN NOT NULL DEFAULT true,
+ALTER COLUMN "background_image_id" SET DEFAULT false;
 
 -- AlterTable
 ALTER TABLE "project_visibilities" ADD COLUMN     "filter_vector" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "logo_image" BOOLEAN NOT NULL DEFAULT true,
-ADD COLUMN     "projectVisibility" BOOLEAN NOT NULL DEFAULT true;
+ADD COLUMN     "projectVisibility" BOOLEAN NOT NULL DEFAULT true,
+ALTER COLUMN "background_image_id" SET DEFAULT false;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "image_avatar_of_profile_id_key" ON "image"("avatar_of_profile_id");
