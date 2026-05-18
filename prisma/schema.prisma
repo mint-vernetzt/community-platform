@@ -101,7 +101,6 @@ model ProfileVisibility {
   createdAt                 Boolean @default(true) @map("created_at")
   firstName                 Boolean @default(true) @map("first_name")
   lastName                  Boolean @default(true) @map("last_name")
-  publicFields              Boolean @default(true) @map("public_fields") // legacy
   termsAccepted             Boolean @default(true) @map("terms_accepted")
   termsAcceptedAt           Boolean @default(true) @map("terms_accepted_at")
   updatedAt                 Boolean @default(true) @map("updated_at")
@@ -122,9 +121,10 @@ model ProfileVisibility {
   contactPersonsOfEvents    Boolean @default(true)
   teamMemberOfProjects      Boolean @default(true)
   waitingForEvents          Boolean @default(false)
-  profileVisibility         Boolean @default(true)
-  administeredEvents        Boolean @default(false)
+  profile                   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId                 String  @unique
   administeredOrganizations Boolean @default(false)
+  administeredEvents        Boolean @default(false)
   administeredProjects      Boolean @default(false)
   notificationSettings      Boolean @default(false) @map("notfication_settings")
   profileAbuseReport        Boolean @default(false)
@@ -134,12 +134,7 @@ model ProfileVisibility {
   abuseReports              Boolean @default(false)
   joinOrganizationRequests  Boolean @default(false)
   joinOrganizationInvites   Boolean @default(false)
-  joinEventInvites          Boolean @default(false)
   claimOrganizationRequests Boolean @default(false)
-  filterVector              Boolean @default(true)
-
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId String  @unique
 
   @@map("profile_visibilities")
 }
@@ -258,11 +253,11 @@ model Organization {
   xing                       String?
   bio                        String?
   bioRTEState                String?                                        @map("bio_rte_state")
-  quote                      String? // legacy
+  quote                      String?
   createdAt                  DateTime                                       @default(now()) @map("created_at")
   publicFields               String[]                                       @map("public_fields") // legacy
-  quoteAuthor                String?                                        @map("quote_author") // legacy
-  quoteAuthorInformation     String?                                        @map("quote_author_information") // legacy
+  quoteAuthor                String?                                        @map("quote_author")
+  quoteAuthorInformation     String?                                        @map("quote_author_information")
   streetNumber               String?                                        @map("street_number") // legacy
   addressSupplement          String?                                        @map("address_supplement")
   supportedBy                String[]                                       @map("supported_by")
@@ -600,14 +595,14 @@ model EventVisibility {
   venueName                        Boolean @default(true) @map("venue_name")
   venueStreet                      Boolean @default(true) @map("venue_street")
   venueStreetNumber                Boolean @default(true) @map("venue_street_number") // legacy
-  venueLatitude                    Boolean @default(true) @map("venue_latitude")
-  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   venueCity                        Boolean @default(true) @map("venue_city")
   venueZipCode                     Boolean @default(true) @map("venue_zip_code")
   accessibilityInformation         Boolean @default(true) @map("accessibility_information")
   accessibilityInformationRTEState Boolean @default(true) @map("accessibility_information_rte_state")
   privacyInformation               Boolean @default(true) @map("privacy_information")
   privacyInformationRTEState       Boolean @default(true) @map("privacy_information_rte_state")
+  venueLatitude                    Boolean @default(true) @map("venue_latitude")
+  venueLongitude                   Boolean @default(true) @map("venue_longitude")
   canceled                         Boolean @default(true)
   stageId                          Boolean @default(true) @map("stage_id")
   subline                          Boolean @default(true)
@@ -616,7 +611,7 @@ model EventVisibility {
   openForRegistration              Boolean @default(true) @map("open_for_registration")
   externalRegistrationUrl          Boolean @default(true) @map("external_registration_url")
   moveUpToParticipants             Boolean @default(true) @map("move_up_to_participants")
-  areas                            Boolean @default(true) // legacy
+  areas                            Boolean @default(true)
   documents                        Boolean @default(true)
   types                            Boolean @default(true)
   experienceLevel                  Boolean @default(true)
@@ -634,15 +629,12 @@ model EventVisibility {
   eventTargetGroups                Boolean @default(true)
   teamMembers                      Boolean @default(true)
   contactPersons                   Boolean @default(true)
-  waitingList                      Boolean @default(false)
-  eventVisibility                  Boolean @default(true)
   admins                           Boolean @default(false)
   profileJoinInvites               Boolean @default(false)
+  waitingList                      Boolean @default(false)
   abuseReports                     Boolean @default(false)
-  filterVector                     Boolean @default(true)
-
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId String @unique
+  event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId                          String  @unique
 
   @@map("event_visibilities")
 }
@@ -1135,7 +1127,7 @@ model Project {
   timeframeRTEState                    String?                            @map("timeframe_rte_state")
   furtherDisciplines                   String[]                           @map("further_disciplines")
   furtherFormats                       String[]                           @map("further_formats")
-  awards                               AwardOfProject[] // legacy
+  awards                               AwardOfProject[]
   disciplines                          DisciplineOfProject[]
   additionalDisciplines                AdditionalDisciplineOfProject[]
   responsibleOrganizations             ResponsibleOrganizationOfProject[]
@@ -1161,7 +1153,6 @@ model Project {
 model ProjectVisibility {
   id                                   String  @id @default(uuid())
   name                                 Boolean @default(true)
-  subline                              Boolean @default(true)
   slug                                 Boolean @default(true)
   logo                                 Boolean @default(true) // legacy
   logoImageMetaData                    Boolean @default(true) @map("logo_image_meta_data")
@@ -1170,6 +1161,7 @@ model ProjectVisibility {
   backgroundImage                      Boolean @default(true) @map("background_image") // legacy
   backgroundImageId                    Boolean @default(true) @map("background_image_id") // legacy
   headline                             Boolean @default(true)
+  subline                              Boolean @default(true)
   excerpt                              Boolean @default(true)
   description                          Boolean @default(true) // legacy
   furtherDescription                   Boolean @default(true) @map("further_description")
@@ -1208,13 +1200,15 @@ model ProjectVisibility {
   hintsRTEState                        Boolean @default(false) @map("hints_rte_state")
   video                                Boolean @default(true)
   videoSubline                         Boolean @default(true)
+  participantLimit                     Boolean @default(true) @map("participant_limit")
+  timeframe                            Boolean @default(true)
+  timeframeRTEState                    Boolean @default(false) @map("timeframe_rte_state")
   jobFillings                          Boolean @default(true) @map("job_fillings")
   jobFillingsRTEState                  Boolean @default(false) @map("job_fillings_rte_state")
   furtherJobFillings                   Boolean @default(true) @map("further_job_fillings")
   furtherJobFillingsRTEState           Boolean @default(false) @map("further_job_fillings_rte_state")
   yearlyBudget                         Boolean @default(true) @map("yearly_budget")
-  participantLimit                     Boolean @default(true) @map("participant_limit")
-  targetGroupAdditions                 Boolean @default(true) @map("target_group_additions")
+  financings                           Boolean @default(true)
   furtherFinancings                    Boolean @default(true) @map("further_financings")
   furtherFinancingsRTEState            Boolean @default(false) @map("further_financings_rte_state")
   technicalRequirements                Boolean @default(true) @map("technical_requirements")
@@ -1225,11 +1219,10 @@ model ProjectVisibility {
   roomSituationRTEState                Boolean @default(false) @map("room_situation_rte_state")
   furtherRoomSituation                 Boolean @default(true) @map("further_room_situation")
   furtherRoomSituationRTEState         Boolean @default(false) @map("further_room_situation_rte_state")
-  timeframe                            Boolean @default(true)
-  timeframeRTEState                    Boolean @default(false) @map("timeframe_rte_state")
   furtherDisciplines                   Boolean @default(true) @map("further_disciplines")
+  targetGroupAdditions                 Boolean @default(true) @map("target_group_additions")
   furtherFormats                       Boolean @default(true)
-  awards                               Boolean @default(true) // legacy
+  awards                               Boolean @default(true)
   disciplines                          Boolean @default(true)
   additionalDisciplines                Boolean @default(true) @map("additional_disciplines")
   responsibleOrganizations             Boolean @default(true)
@@ -1237,18 +1230,14 @@ model ProjectVisibility {
   projectTargetGroups                  Boolean @default(true)
   specialTargetGroups                  Boolean @default(true)
   formats                              Boolean @default(true)
-  financings                           Boolean @default(true)
   teamMembers                          Boolean @default(true)
-  projectVisibility                    Boolean @default(true)
-  admins                               Boolean @default(false)
   areas                                Boolean @default(true)
   documents                            Boolean @default(true)
   images                               Boolean @default(true)
+  admins                               Boolean @default(false)
   abuseReports                         Boolean @default(false)
-  filterVector                         Boolean @default(true) @map("filter_vector")
-
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String  @unique
+  project                              Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId                            String  @unique
 
   @@map("project_visibilities")
 }
