@@ -1501,7 +1501,7 @@ model ImageMetaData {
   backgroundOfProject        Project?      @relation(name: "background_of_project", fields: [backgroundOfProjectId], references: [id], onDelete: SetNull)
   backgroundOfProjectId      String?       @unique @map("background_of_project_id")
 
-  @@map("image")
+  @@map("image_meta_data")
 }
 
 model AdminOfProject {
