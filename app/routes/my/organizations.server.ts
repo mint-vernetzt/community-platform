@@ -39,12 +39,12 @@ export async function getOrganizationsFromProfile(id: string) {
           slug: true,
           name: true,
           bio: true,
-          logoImage: {
+          logoImageMetaData: {
             select: {
               path: true,
             },
           },
-          backgroundImage: {
+          backgroundImageMetaData: {
             select: {
               path: true,
             },
@@ -91,7 +91,7 @@ export async function getOrganizationsFromProfile(id: string) {
                 select: {
                   firstName: true,
                   lastName: true,
-                  avatarImage: {
+                  avatarImageMetaData: {
                     select: {
                       path: true,
                     },
@@ -122,12 +122,12 @@ export async function getOrganizationsFromProfile(id: string) {
           slug: true,
           name: true,
           bio: true,
-          logoImage: {
+          logoImageMetaData: {
             select: {
               path: true,
             },
           },
-          backgroundImage: {
+          backgroundImageMetaData: {
             select: {
               path: true,
             },
@@ -174,7 +174,7 @@ export async function getOrganizationsFromProfile(id: string) {
                 select: {
                   firstName: true,
                   lastName: true,
-                  avatarImage: {
+                  avatarImageMetaData: {
                     select: {
                       path: true,
                     },
@@ -211,12 +211,14 @@ export function addImageUrlToOrganizations(
   const adminOrganizations = organizations.adminOrganizations.map(
     (organization) => {
       let background =
-        organization.backgroundImage === null
+        organization.backgroundImageMetaData === null
           ? null
-          : organization.backgroundImage.path;
+          : organization.backgroundImageMetaData.path;
       let blurredBackground;
       let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+        organization.logoImageMetaData === null
+          ? null
+          : organization.logoImageMetaData.path;
       let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -264,9 +266,9 @@ export function addImageUrlToOrganizations(
       }
       const teamMembers = organization.teamMembers.map((relation) => {
         let avatar =
-          relation.profile.avatarImage === null
+          relation.profile.avatarImageMetaData === null
             ? null
-            : relation.profile.avatarImage.path;
+            : relation.profile.avatarImageMetaData.path;
         let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
@@ -311,12 +313,14 @@ export function addImageUrlToOrganizations(
   const teamMemberOrganizations = organizations.teamMemberOrganizations.map(
     (organization) => {
       let background =
-        organization.backgroundImage === null
+        organization.backgroundImageMetaData === null
           ? null
-          : organization.backgroundImage.path;
+          : organization.backgroundImageMetaData.path;
       let blurredBackground;
       let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+        organization.logoImageMetaData === null
+          ? null
+          : organization.logoImageMetaData.path;
       let blurredLogo;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -364,9 +368,9 @@ export function addImageUrlToOrganizations(
       }
       const teamMembers = organization.teamMembers.map((relation) => {
         let avatar =
-          relation.profile.avatarImage === null
+          relation.profile.avatarImageMetaData === null
             ? null
-            : relation.profile.avatarImage.path;
+            : relation.profile.avatarImageMetaData.path;
         let blurredAvatar;
         if (avatar !== null) {
           const publicURL = getPublicURL(authClient, avatar);
@@ -473,7 +477,7 @@ export async function getOrganizationMemberInvites(id: string) {
             id: true,
             slug: true,
             name: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -518,7 +522,7 @@ export async function getOrganizationMemberInvites(id: string) {
             id: true,
             slug: true,
             name: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -566,9 +570,9 @@ export function addImageUrlToOrganizationMemberInvites(
 ) {
   const adminInvites = invites.adminInvites.map((invite) => {
     let logo =
-      invite.organization.logoImage === null
+      invite.organization.logoImageMetaData === null
         ? null
-        : invite.organization.logoImage.path;
+        : invite.organization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -610,9 +614,9 @@ export function addImageUrlToOrganizationMemberInvites(
 
   const teamMemberInvites = invites.teamMemberInvites.map((invite) => {
     let logo =
-      invite.organization.logoImage === null
+      invite.organization.logoImageMetaData === null
         ? null
-        : invite.organization.logoImage.path;
+        : invite.organization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -671,7 +675,7 @@ export async function getPendingRequestsToOrganizations(
             id: true,
             name: true,
             slug: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -706,7 +710,10 @@ export async function getPendingRequestsToOrganizations(
   });
 
   const enhancedRequests = requests.map((request) => {
-    let logo = request.logoImage === null ? null : request.logoImage.path;
+    let logo =
+      request.logoImageMetaData === null
+        ? null
+        : request.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -755,7 +762,7 @@ export async function getOrganizationMemberRequests(id: string) {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -811,9 +818,9 @@ export function addImageUrlToOrganizationMemberRequests(
       const profileJoinRequests = organization.profileJoinRequests.map(
         (relation) => {
           let avatar =
-            relation.profile.avatarImage === null
+            relation.profile.avatarImageMetaData === null
               ? null
-              : relation.profile.avatarImage.path;
+              : relation.profile.avatarImageMetaData.path;
           let blurredAvatar;
           if (avatar !== null) {
             const publicURL = getPublicURL(authClient, avatar);
@@ -867,7 +874,7 @@ export async function getNetworkRequests(id: string) {
               id: true,
               slug: true,
               name: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -954,9 +961,9 @@ export function addImageUrlToNetworkRequests(
       const receivedNetworkJoinRequests =
         organization.receivedNetworkJoinRequests.map((relation) => {
           let logo =
-            relation.organization.logoImage === null
+            relation.organization.logoImageMetaData === null
               ? null
-              : relation.organization.logoImage.path;
+              : relation.organization.logoImageMetaData.path;
           let blurredLogo;
           if (logo !== null) {
             const publicURL = getPublicURL(authClient, logo);
@@ -1009,7 +1016,7 @@ export async function getNetworkInvites(id: string) {
               id: true,
               slug: true,
               name: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -1094,9 +1101,9 @@ export function addImageUrlToNetworkInvites(
       const receivedNetworkJoinInvites =
         organization.receivedNetworkJoinInvites.map((relation) => {
           let logo =
-            relation.network.logoImage === null
+            relation.network.logoImageMetaData === null
               ? null
-              : relation.network.logoImage.path;
+              : relation.network.logoImageMetaData.path;
           let blurredLogo;
           if (logo !== null) {
             const publicURL = getPublicURL(authClient, logo);

@@ -186,7 +186,7 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -199,7 +199,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatarImage: true,
+                  avatarImageMetaData: true,
                   position: true,
                 },
               },
@@ -215,7 +215,7 @@ export async function getEventBySlug(options: {
               id: true,
               name: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -252,7 +252,7 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -265,7 +265,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatarImage: true,
+                  avatarImageMetaData: true,
                   position: true,
                 },
               },
@@ -303,7 +303,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatarImage: {
+                  avatarImageMetaData: {
                     select: {
                       path: true,
                     },
@@ -316,7 +316,7 @@ export async function getEventBySlug(options: {
                       academicTitle: true,
                       firstName: true,
                       lastName: true,
-                      avatarImage: true,
+                      avatarImageMetaData: true,
                       position: true,
                     },
                   },
@@ -398,9 +398,9 @@ export async function getEventBySlug(options: {
       filteredProfile = relation.profile;
     }
     let avatar =
-      filteredProfile.avatarImage === null
+      filteredProfile.avatarImageMetaData === null
         ? null
-        : filteredProfile.avatarImage.path;
+        : filteredProfile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -430,9 +430,9 @@ export async function getEventBySlug(options: {
   const responsibleOrganizations = event.responsibleOrganizations.map(
     (relation) => {
       let logo =
-        relation.organization.logoImage === null
+        relation.organization.logoImageMetaData === null
           ? null
-          : relation.organization.logoImage.path;
+          : relation.organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -482,9 +482,9 @@ export async function getEventBySlug(options: {
       filteredProfile = profile;
     }
     let avatar =
-      filteredProfile.avatarImage === null
+      filteredProfile.avatarImageMetaData === null
         ? null
-        : filteredProfile.avatarImage.path;
+        : filteredProfile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

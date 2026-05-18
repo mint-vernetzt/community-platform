@@ -62,7 +62,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const enhancedOrganizations = organizations.map((organization) => {
     let logo =
-      organization.logoImage === null ? null : organization.logoImage.path;
+      organization.logoImageMetaData === null
+        ? null
+        : organization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -109,7 +111,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const enhancedOwnOrganizations = ownOrganizationsSuggestions.map(
     (organization) => {
       let logo =
-        organization.logoImage === null ? null : organization.logoImage.path;
+        organization.logoImageMetaData === null
+          ? null
+          : organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

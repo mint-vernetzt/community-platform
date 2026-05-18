@@ -18,7 +18,7 @@ export async function getEventBySlug(slug: string) {
       childEvents: {
         select: {
           id: true,
-          backgroundImage: {
+          backgroundImageMetaData: {
             select: {
               path: true,
             },
@@ -47,7 +47,7 @@ export async function getEventBySlug(slug: string) {
       parentEvent: {
         select: {
           id: true,
-          backgroundImage: {
+          backgroundImageMetaData: {
             select: {
               path: true,
             },

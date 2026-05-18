@@ -13,7 +13,7 @@ export async function getProfileByUserId(id: string) {
       username: true,
       firstName: true,
       lastName: true,
-      avatarImage: {
+      avatarImageMetaData: {
         select: {
           path: true,
         },
@@ -793,7 +793,7 @@ async function getProfilesBySearchQuery(searchQuery: string) {
       firstName: true,
       lastName: true,
       username: true,
-      avatarImage: {
+      avatarImageMetaData: {
         select: {
           path: true,
         },
@@ -804,7 +804,10 @@ async function getProfilesBySearchQuery(searchQuery: string) {
   const normalizedProfiles = profiles.map((profile) => {
     const name = `${profile.firstName} ${profile.lastName}`;
     const url = `/profile/${profile.username}`;
-    const logo = profile.avatarImage === null ? null : profile.avatarImage.path;
+    const logo =
+      profile.avatarImageMetaData === null
+        ? null
+        : profile.avatarImageMetaData.path;
 
     return {
       name,
@@ -835,7 +838,7 @@ async function getOrganizationsBySearchQuery(searchQuery: string) {
     select: {
       name: true,
       slug: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -847,7 +850,9 @@ async function getOrganizationsBySearchQuery(searchQuery: string) {
     const name = organization.name;
     const url = `/organization/${organization.slug}/detail/about`;
     const logo =
-      organization.logoImage === null ? null : organization.logoImage.path;
+      organization.logoImageMetaData === null
+        ? null
+        : organization.logoImageMetaData.path;
 
     return {
       name,
@@ -879,7 +884,7 @@ async function getEventsBySearchQuery(searchQuery: string) {
     select: {
       name: true,
       slug: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -891,7 +896,9 @@ async function getEventsBySearchQuery(searchQuery: string) {
     const name = event.name;
     const url = `/event/${event.slug}/detail/about`;
     const logo =
-      event.backgroundImage === null ? null : event.backgroundImage.path;
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
 
     return {
       name,
@@ -923,7 +930,7 @@ async function getProjectsBySearchQuery(searchQuery: string) {
     select: {
       name: true,
       slug: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -934,7 +941,10 @@ async function getProjectsBySearchQuery(searchQuery: string) {
   const normalizedProjects = projects.map((project) => {
     const name = project.name;
     const url = `/project/${project.slug}/detail/about`;
-    const logo = project.logoImage === null ? null : project.logoImage.path;
+    const logo =
+      project.logoImageMetaData === null
+        ? null
+        : project.logoImageMetaData.path;
 
     return {
       name,

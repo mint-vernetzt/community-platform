@@ -29,12 +29,12 @@ export async function getOrganization(slug: string) {
       slug: true,
       name: true,
       bio: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
       },
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -79,7 +79,7 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -89,7 +89,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logoImageMetaData: true,
                   name: true,
                 },
               },
@@ -125,8 +125,8 @@ export async function getOrganization(slug: string) {
           name: true,
           slug: true,
           bio: true,
-          backgroundImage: true,
-          logoImage: true,
+          backgroundImageMetaData: true,
+          logoImageMetaData: true,
           email: true,
           phone: true,
           website: true,
@@ -181,9 +181,9 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   let background =
-    organization.backgroundImage === null
+    organization.backgroundImageMetaData === null
       ? null
-      : organization.backgroundImage.path;
+      : organization.backgroundImageMetaData.path;
   let blurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
@@ -203,7 +203,9 @@ export function addImgUrls(
   }
 
   let logo =
-    organization.logoImage === null ? null : organization.logoImage.path;
+    organization.logoImageMetaData === null
+      ? null
+      : organization.logoImageMetaData.path;
   let blurredLogo;
   if (logo !== null) {
     const publicURL = getPublicURL(authClient, logo);
@@ -217,9 +219,9 @@ export function addImgUrls(
   }
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo =
-      relation.networkMember.logoImage === null
+      relation.networkMember.logoImageMetaData === null
         ? null
-        : relation.networkMember.logoImage.path;
+        : relation.networkMember.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -295,7 +297,7 @@ export async function uploadImage(options: {
           data:
             uploadKey === "background"
               ? {
-                  backgroundImage: {
+                  backgroundImageMetaData: {
                     upsert: {
                       create: {
                         ...fileMetadataForDatabase,
@@ -307,7 +309,7 @@ export async function uploadImage(options: {
                   },
                 }
               : {
-                  logoImage: {
+                  logoImageMetaData: {
                     upsert: {
                       create: {
                         ...fileMetadataForDatabase,
@@ -393,12 +395,12 @@ export async function disconnectImage(options: {
           data:
             uploadKey === "background"
               ? {
-                  backgroundImage: {
+                  backgroundImageMetaData: {
                     delete: true,
                   },
                 }
               : {
-                  logoImage: {
+                  logoImageMetaData: {
                     delete: true,
                   },
                 },

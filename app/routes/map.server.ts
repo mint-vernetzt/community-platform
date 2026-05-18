@@ -30,7 +30,7 @@ export async function getAllOrganizations(options: {
       id: true,
       slug: true,
       name: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -65,7 +65,7 @@ export async function getAllOrganizations(options: {
             select: {
               id: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -75,7 +75,7 @@ export async function getAllOrganizations(options: {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logoImageMetaData: true,
                   name: true,
                 },
               },
@@ -88,7 +88,7 @@ export async function getAllOrganizations(options: {
           id: true,
           slug: true,
           name: true,
-          logoImage: true,
+          logoImageMetaData: true,
           longitude: true,
           latitude: true,
           street: true,

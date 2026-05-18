@@ -576,12 +576,12 @@ export async function getAllProjects(options: {
       id: true,
       slug: true,
       name: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
       },
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -595,7 +595,7 @@ export async function getAllProjects(options: {
               id: true,
               name: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -605,7 +605,7 @@ export async function getAllProjects(options: {
                   id: true,
                   name: true,
                   slug: true,
-                  logoImage: true,
+                  logoImageMetaData: true,
                 },
               },
             },
@@ -617,8 +617,8 @@ export async function getAllProjects(options: {
           id: true,
           slug: true,
           name: true,
-          logoImage: true,
-          backgroundImage: true,
+          logoImageMetaData: true,
+          backgroundImageMetaData: true,
           excerpt: true,
           subline: true,
           responsibleOrganizations: true,

@@ -27,7 +27,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  backgroundImage: {
+                  backgroundImageMetaData: {
                     select: {
                       path: true,
                     },
@@ -54,7 +54,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      backgroundImage: true,
+                      backgroundImageMetaData: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -98,7 +98,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  backgroundImage: {
+                  backgroundImageMetaData: {
                     select: {
                       path: true,
                     },
@@ -125,7 +125,7 @@ export async function getOrganization(slug: string) {
                   eventVisibility: {
                     select: {
                       slug: true,
-                      backgroundImage: true,
+                      backgroundImageMetaData: true,
                       name: true,
                       subline: true,
                       description: true,
@@ -215,9 +215,9 @@ export function addImgUrls(
 ) {
   const futureEvents = organization.futureEvents.map((relation) => {
     let background =
-      relation.event.backgroundImage === null
+      relation.event.backgroundImageMetaData === null
         ? null
-        : relation.event.backgroundImage.path;
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -250,9 +250,9 @@ export function addImgUrls(
 
   const pastEvents = organization.pastEvents.map((relation) => {
     let background =
-      relation.event.backgroundImage === null
+      relation.event.backgroundImageMetaData === null
         ? null
-        : relation.event.backgroundImage.path;
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

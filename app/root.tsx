@@ -143,7 +143,9 @@ export async function loader(args: LoaderFunctionArgs) {
         return redirect(`/accept-terms?redirect_to=${url.pathname}`);
       }
       let avatar =
-        profile.avatarImage === null ? null : profile.avatarImage.path;
+        profile.avatarImageMetaData === null
+          ? null
+          : profile.avatarImageMetaData.path;
       let blurredAvatar;
       if (avatar !== null) {
         const publicURL = getPublicURL(authClient, avatar);

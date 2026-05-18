@@ -16,10 +16,11 @@ model Profile {
   email2                    String?
   phone                     String?
   website                   String?
+  avatarImageMetaData       ImageMetaData?                         @relation("avatar_of_profile")
+  backgroundImageMetaData   ImageMetaData?                         @relation("background_of_profile")
   avatar                    String? // legacy
-  avatarImage               Image?                                 @relation("avatar_of_profile")
   background                String? // legacy
-  backgroundImage           Image?                                 @relation("background_of_profile")
+  backgroundImage           Image?                                 @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull) // legacy
   backgroundImageId         String?                                @map("background_image_id") // legacy
   facebook                  String?
   linkedin                  String?
@@ -82,11 +83,12 @@ model ProfileVisibility {
   email2                    Boolean @default(false)
   phone                     Boolean @default(false)
   website                   Boolean @default(false)
+  avatarImageMetaData       Boolean @default(true) @map("avatar_image_meta_data")
+  backgroundImageMetaData   Boolean @default(true) @map("background_image_meta_data")
   avatar                    Boolean @default(true) // legacy
-  avatarImage               Boolean @default(true) @map("avatar_image")
   background                Boolean @default(true) // legacy
-  backgroundImage           Boolean @default(true) @map("background_image")
-  backgroundImageId         Boolean @default(false) @map("background_image_id") // legacy
+  backgroundImage           Boolean @default(true) @map("background_image") // legacy
+  backgroundImageId         Boolean @default(true) @map("background_image_id") // legacy
   facebook                  Boolean @default(false)
   linkedin                  Boolean @default(false)
   twitter                   Boolean @default(false)
@@ -244,10 +246,11 @@ model Organization {
   street                     String? // is now required -> String? is legacy
   city                       String? // is now required -> String? is legacy
   website                    String?
+  logoImageMetaData          ImageMetaData?                                 @relation("logo_of_organization")
+  backgroundImageMetaData    ImageMetaData?                                 @relation("background_of_organization")
   logo                       String? // legacy
-  logoImage                  Image?                                         @relation("logo_of_organization")
   background                 String? // legacy
-  backgroundImage            Image?                                         @relation("background_of_organization")
+  backgroundImage            Image?                                         @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull) // legacy
   backgroundImageId          String?                                        @map("background_image_id") // legacy
   facebook                   String?
   linkedin                   String?
@@ -310,11 +313,12 @@ model OrganizationVisibility {
   street                      Boolean @default(true)
   city                        Boolean @default(true)
   website                     Boolean @default(true)
+  logoImageMetaData           Boolean @default(true) @map("logo_image_meta_data")
+  backgroundImageMetaData     Boolean @default(true) @map("background_image_meta_data")
   logo                        Boolean @default(true) // legacy
-  logoImage                   Boolean @default(true) @map("logo_image")
   background                  Boolean @default(true) // legacy
-  backgroundImage             Boolean @default(true) @map("background_image")
-  backgroundImageId           Boolean @default(false) @map("background_image_id") // legacy
+  backgroundImage             Boolean @default(true) @map("background_image") // legacy
+  backgroundImageId           Boolean @default(true) @map("background_image_id") // legacy
   facebook                    Boolean @default(true)
   linkedin                    Boolean @default(true)
   twitter                     Boolean @default(true)
@@ -515,8 +519,9 @@ model Event {
   createdAt                        DateTime                                       @default(now()) @map("created_at")
   updatedAt                        DateTime                                       @default(now()) @updatedAt @map("updated_at")
   experienceLevelId                String?                                        @map("experience_level_id")
+  backgroundImageMetaData          ImageMetaData?                                 @relation("background_of_event")
   background                       String? // legacy
-  backgroundImage                  Image?                                         @relation("background_of_event")
+  backgroundImage                  Image?                                         @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull) // legacy
   backgroundImageId                String?                                        @map("background_image_id") // legacy
   conferenceLink                   String?                                        @map("conference_link")
   conferenceCode                   String?                                        @map("conference_code")
@@ -584,9 +589,10 @@ model EventVisibility {
   createdAt                        Boolean @default(true) @map("created_at")
   updatedAt                        Boolean @default(true) @map("updated_at")
   experienceLevelId                Boolean @default(true) @map("experience_level_id")
+  backgroundImageMetaData          Boolean @default(true) @map("background_of_event")
   background                       Boolean @default(true) // legacy
-  backgroundImage                  Boolean @default(true) @map("background_image")
-  backgroundImageId                Boolean @default(false) @map("background_image_id") // legacy
+  backgroundImage                  Boolean @default(true) @map("background_image") // legacy
+  backgroundImageId                Boolean @default(true) @map("background_image_id") // legacy
   conferenceLink                   Boolean @default(true) @map("conference_link")
   conferenceCode                   Boolean @default(true) @map("conference_code")
   participantLimit                 Boolean @default(true) @map("participant_limit")
@@ -1063,10 +1069,11 @@ model Project {
   name                                 String
   subline                              String?
   slug                                 String                             @unique
+  logoImageMetaData                    ImageMetaData?                     @relation("logo_of_project")
+  backgroundImageMetaData              ImageMetaData?                     @relation("background_of_project")
   logo                                 String? // legacy
-  logoImage                            Image?                             @relation("logo_of_project")
   background                           String? // legacy
-  backgroundImage                      Image?                             @relation("background_of_project")
+  backgroundImage                      Image?                             @relation(fields: [backgroundImageId], references: [id], onDelete: SetNull) // legacy
   backgroundImageId                    String?                            @map("background_image_id") // legacy
   headline                             String?
   excerpt                              String?
@@ -1157,10 +1164,11 @@ model ProjectVisibility {
   subline                              Boolean @default(true)
   slug                                 Boolean @default(true)
   logo                                 Boolean @default(true) // legacy
-  logoImage                            Boolean @default(true) @map("logo_image")
+  logoImageMetaData                    Boolean @default(true) @map("logo_image_meta_data")
+  backgroundImageMetaData              Boolean @default(true) @map("background_image_meta_data")
   background                           Boolean @default(true) // legacy
-  backgroundImage                      Boolean @default(true) @map("background_image")
-  backgroundImageId                    Boolean @default(false) @map("background_image_id") // legacy
+  backgroundImage                      Boolean @default(true) @map("background_image") // legacy
+  backgroundImageId                    Boolean @default(true) @map("background_image_id") // legacy
   headline                             Boolean @default(true)
   excerpt                              Boolean @default(true)
   description                          Boolean @default(true) // legacy
@@ -1446,32 +1454,52 @@ model ImageOfProject {
 }
 
 model Image {
-  id                         String           @id @default(uuid())
+  id           String           @id @default(uuid())
+  path         String
+  mimeType     String           @map("mime_type")
+  credits      String?
+  title        String?
+  sizeInMB     Float            @map("size_in_mb")
+  filename     String
+  description  String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at")
+  extension    String
+  Profile      Profile[] // legacy
+  Organization Organization[] // legacy
+  Event        Event[] // legacy
+  Project      Project[] // legacy
+  projects     ImageOfProject[]
+
+  @@map("image")
+}
+
+model ImageMetaData {
+  id                         String        @id @default(uuid())
   path                       String
-  mimeType                   String           @map("mime_type")
+  mimeType                   String        @map("mime_type")
   credits                    String?
   title                      String?
-  sizeInMB                   Float            @map("size_in_mb")
+  sizeInMB                   Float         @map("size_in_mb")
   filename                   String
   description                String?
-  createdAt                  DateTime         @default(now()) @map("created_at")
-  updatedAt                  DateTime         @default(now()) @updatedAt @map("updated_at")
+  createdAt                  DateTime      @default(now()) @map("created_at")
+  updatedAt                  DateTime      @default(now()) @updatedAt @map("updated_at")
   extension                  String
-  avatarOfProfile            Profile?         @relation(name: "avatar_of_profile", fields: [avatarOfProfileId], references: [id], onDelete: SetNull)
-  avatarOfProfileId          String?          @unique @map("avatar_of_profile_id")
-  backgroundOfProfile        Profile?         @relation(name: "background_of_profile", fields: [backgroundOfProfileId], references: [id], onDelete: SetNull)
-  backgroundOfProfileId      String?          @unique @map("background_of_profile_id")
-  logoOfOrganization         Organization?    @relation(name: "logo_of_organization", fields: [logoOfOrganizationId], references: [id], onDelete: SetNull)
-  logoOfOrganizationId       String?          @unique @map("logo_of_organization_id")
-  backgroundOfOrganization   Organization?    @relation(name: "background_of_organization", fields: [backgroundOfOrganizationId], references: [id], onDelete: SetNull)
-  backgroundOfOrganizationId String?          @unique @map("background_of_organization_id")
-  backgroundOfEvent          Event?           @relation(name: "background_of_event", fields: [backgroundOfEventId], references: [id], onDelete: SetNull)
-  backgroundOfEventId        String?          @unique @map("background_of_event_id")
-  logoOfProject              Project?         @relation(name: "logo_of_project", fields: [logoOfProjectId], references: [id], onDelete: SetNull)
-  logoOfProjectId            String?          @unique @map("logo_of_project_id")
-  backgroundOfProject        Project?         @relation(name: "background_of_project", fields: [backgroundOfProjectId], references: [id], onDelete: SetNull)
-  backgroundOfProjectId      String?          @unique @map("background_of_project_id")
-  imagesOfProjects           ImageOfProject[]
+  avatarOfProfile            Profile?      @relation(name: "avatar_of_profile", fields: [avatarOfProfileId], references: [id], onDelete: SetNull)
+  avatarOfProfileId          String?       @unique @map("avatar_of_profile_id")
+  backgroundOfProfile        Profile?      @relation(name: "background_of_profile", fields: [backgroundOfProfileId], references: [id], onDelete: SetNull)
+  backgroundOfProfileId      String?       @unique @map("background_of_profile_id")
+  logoOfOrganization         Organization? @relation(name: "logo_of_organization", fields: [logoOfOrganizationId], references: [id], onDelete: SetNull)
+  logoOfOrganizationId       String?       @unique @map("logo_of_organization_id")
+  backgroundOfOrganization   Organization? @relation(name: "background_of_organization", fields: [backgroundOfOrganizationId], references: [id], onDelete: SetNull)
+  backgroundOfOrganizationId String?       @unique @map("background_of_organization_id")
+  backgroundOfEvent          Event?        @relation(name: "background_of_event", fields: [backgroundOfEventId], references: [id], onDelete: SetNull)
+  backgroundOfEventId        String?       @unique @map("background_of_event_id")
+  logoOfProject              Project?      @relation(name: "logo_of_project", fields: [logoOfProjectId], references: [id], onDelete: SetNull)
+  logoOfProjectId            String?       @unique @map("logo_of_project_id")
+  backgroundOfProject        Project?      @relation(name: "background_of_project", fields: [backgroundOfProjectId], references: [id], onDelete: SetNull)
+  backgroundOfProjectId      String?       @unique @map("background_of_project_id")
 
   @@map("image")
 }

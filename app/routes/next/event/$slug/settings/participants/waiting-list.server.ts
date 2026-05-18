@@ -54,7 +54,7 @@ export async function getWaitingListOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -97,7 +97,7 @@ export async function getWaitingListOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -116,8 +116,8 @@ export async function getWaitingListOfEvent(options: {
 
   const enhancedWaitingList = waitingList.map((participantOnWaitingList) => {
     let avatar =
-      participantOnWaitingList.profile.avatarImage !== null
-        ? participantOnWaitingList.profile.avatarImage.path
+      participantOnWaitingList.profile.avatarImageMetaData !== null
+        ? participantOnWaitingList.profile.avatarImageMetaData.path
         : null;
     let blurredAvatar;
     if (avatar !== null) {

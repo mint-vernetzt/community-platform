@@ -109,12 +109,21 @@ export async function triggerEntityScore(options: {
   if (options.entity === "profile") {
     entity = await prismaClient.profile.findFirst({
       where: options.where,
-      include: { areas: true },
+      include: {
+        areas: true,
+        avatarImageMetaData: true,
+        backgroundImageMetaData: true,
+      },
     });
   } else {
     entity = await prismaClient.organization.findFirst({
       where: options.where,
-      include: { areas: true, types: true },
+      include: {
+        areas: true,
+        types: true,
+        logoImageMetaData: true,
+        backgroundImageMetaData: true,
+      },
     });
   }
   if (entity !== null) {

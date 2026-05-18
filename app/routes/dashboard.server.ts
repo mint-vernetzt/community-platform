@@ -23,7 +23,7 @@ export async function getProfileById(id: string, authClient: SupabaseClient) {
       firstName: true,
       lastName: true,
       username: true,
-      avatarImage: {
+      avatarImageMetaData: {
         select: {
           path: true,
         },
@@ -34,7 +34,7 @@ export async function getProfileById(id: string, authClient: SupabaseClient) {
             select: {
               name: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -53,7 +53,10 @@ export async function getProfileById(id: string, authClient: SupabaseClient) {
     return null;
   }
 
-  let avatar = profile.avatarImage === null ? null : profile.avatarImage.path;
+  let avatar =
+    profile.avatarImageMetaData === null
+      ? null
+      : profile.avatarImageMetaData.path;
   let blurredAvatar;
   if (avatar !== null) {
     const publicURL = getPublicURL(authClient, avatar);
@@ -79,9 +82,9 @@ export async function getProfileById(id: string, authClient: SupabaseClient) {
   const claimOrganizationRequests = profile.claimOrganizationRequests.map(
     (relation) => {
       let logo =
-        relation.organization.logoImage === null
+        relation.organization.logoImageMetaData === null
           ? null
-          : relation.organization.logoImage.path;
+          : relation.organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -127,12 +130,12 @@ export async function getProfilesForCards(take: number) {
       firstName: true,
       lastName: true,
       position: true,
-      avatarImage: {
+      avatarImageMetaData: {
         select: {
           path: true,
         },
       },
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -144,7 +147,7 @@ export async function getProfilesForCards(take: number) {
           organization: {
             select: {
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -177,12 +180,12 @@ export async function getOrganizationsForCards(take: number) {
     select: {
       slug: true,
       name: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
       },
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -196,7 +199,7 @@ export async function getOrganizationsForCards(take: number) {
           profile: {
             select: {
               username: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -230,14 +233,14 @@ export async function getProjectsForCards(take: number) {
     select: {
       slug: true,
       name: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
       },
       subline: true,
       excerpt: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -247,7 +250,7 @@ export async function getProjectsForCards(take: number) {
           organization: {
             select: {
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -285,7 +288,7 @@ export async function getEventsForCards(take: number) {
       participationUntil: true,
       participationFrom: true,
       participantLimit: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -313,7 +316,7 @@ export async function getEventsForCards(take: number) {
             select: {
               slug: true,
               name: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -428,7 +431,7 @@ export async function getOrganizationMemberInvites(
         organization: {
           select: {
             name: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -441,10 +444,10 @@ export async function getOrganizationMemberInvites(
 
   const enhancedOrganizationMemberInvites = organizationMemberInvites.map(
     (relation) => {
-      if (relation.organization.logoImage !== null) {
+      if (relation.organization.logoImageMetaData !== null) {
         const publicURL = getPublicURL(
           authClient,
-          relation.organization.logoImage.path
+          relation.organization.logoImageMetaData.path
         );
         if (publicURL !== null) {
           const logo = getImageURL(publicURL, {
@@ -503,7 +506,7 @@ export async function getOrganizationMemberRequests(
           select: {
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -516,10 +519,10 @@ export async function getOrganizationMemberRequests(
 
   const enhancedOrganizationMemberRequests = organizationMemberRequests.map(
     (relation) => {
-      if (relation.profile.avatarImage !== null) {
+      if (relation.profile.avatarImageMetaData !== null) {
         const publicURL = getPublicURL(
           authClient,
-          relation.profile.avatarImage.path
+          relation.profile.avatarImageMetaData.path
         );
         if (publicURL !== null) {
           const avatar = getImageURL(publicURL, {
@@ -586,7 +589,7 @@ export async function getNetworkInvites(
         network: {
           select: {
             name: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -598,10 +601,10 @@ export async function getNetworkInvites(
     });
 
   const enhancedNetworkInvites = networkInvites.map((relation) => {
-    if (relation.network.logoImage !== null) {
+    if (relation.network.logoImageMetaData !== null) {
       const publicURL = getPublicURL(
         authClient,
-        relation.network.logoImage.path
+        relation.network.logoImageMetaData.path
       );
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
@@ -667,7 +670,7 @@ export async function getNetworkRequests(
         organization: {
           select: {
             name: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -679,10 +682,10 @@ export async function getNetworkRequests(
     });
 
   const enhancedNetworkRequests = networkRequests.map((relation) => {
-    if (relation.organization.logoImage !== null) {
+    if (relation.organization.logoImageMetaData !== null) {
       const publicURL = getPublicURL(
         authClient,
-        relation.organization.logoImage.path
+        relation.organization.logoImageMetaData.path
       );
       if (publicURL !== null) {
         const logo = getImageURL(publicURL, {
@@ -727,7 +730,7 @@ export async function getUpcomingCanceledEvents(
     select: {
       slug: true,
       name: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -747,7 +750,9 @@ export async function getUpcomingCanceledEvents(
 
   const enhancedEvents = upcomingCanceledEvents.map((event) => {
     let background =
-      event.backgroundImage === null ? null : event.backgroundImage.path;
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

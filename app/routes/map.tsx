@@ -66,9 +66,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
     // Usage:
     let logo =
-      enhancedOrganization.logoImage === null
+      enhancedOrganization.logoImageMetaData === null
         ? null
-        : enhancedOrganization.logoImage.path;
+        : enhancedOrganization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -95,9 +95,9 @@ export async function loader(args: LoaderFunctionArgs) {
     const networkMembers = enhancedOrganization.networkMembers.map(
       (relation) => {
         let logo =
-          relation.networkMember.logoImage === null
+          relation.networkMember.logoImageMetaData === null
             ? null
-            : relation.networkMember.logoImage.path;
+            : relation.networkMember.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

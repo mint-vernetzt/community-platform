@@ -91,8 +91,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const profiles = rawProfiles.map((profile) => {
     const {
-      avatarImage: avatar,
-      backgroundImage: background,
+      avatarImageMetaData: avatar,
+      backgroundImageMetaData: background,
       memberOf,
       ...otherFields
     } = profile;
@@ -154,10 +154,10 @@ export async function loader(args: LoaderFunctionArgs) {
     extensions.memberOf = memberOf.map((relation) => {
       let logoImage: string | null = null;
       let blurredLogo;
-      if (relation.organization.logoImage !== null) {
+      if (relation.organization.logoImageMetaData !== null) {
         const publicURL = getPublicURL(
           authClient,
-          relation.organization.logoImage.path
+          relation.organization.logoImageMetaData.path
         );
         if (publicURL !== null) {
           logoImage = getImageURL(publicURL, {
@@ -226,8 +226,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const organizations = rawOrganizations.map((organization) => {
     const {
-      logoImage: logo,
-      backgroundImage: background,
+      logoImageMetaData: logo,
+      backgroundImageMetaData: background,
       teamMembers,
       ...otherFields
     } = organization;
@@ -300,10 +300,10 @@ export async function loader(args: LoaderFunctionArgs) {
     extensions.teamMembers = teamMembers.map((relation) => {
       let avatar: string | null = null;
       let blurredAvatar;
-      if (relation.profile.avatarImage !== null) {
+      if (relation.profile.avatarImageMetaData !== null) {
         const publicURL = getPublicURL(
           authClient,
-          relation.profile.avatarImage.path
+          relation.profile.avatarImageMetaData.path
         );
         if (publicURL !== null) {
           avatar = getImageURL(publicURL, {
@@ -383,7 +383,7 @@ export async function loader(args: LoaderFunctionArgs) {
     await enhanceEventsWithParticipationStatus(sessionUser, rawEvents);
   const events = rawEventsWithParticipationStatus.map((event) => {
     const {
-      backgroundImage: background,
+      backgroundImageMetaData: background,
       responsibleOrganizations,
       ...otherFields
     } = event;
@@ -417,9 +417,9 @@ export async function loader(args: LoaderFunctionArgs) {
     const enhancedResponsibleOrganizations = responsibleOrganizations.map(
       (relation) => {
         let logo =
-          relation.organization.logoImage === null
+          relation.organization.logoImageMetaData === null
             ? null
-            : relation.organization.logoImage.path;
+            : relation.organization.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
@@ -483,8 +483,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const projects = rawProjects.map((project) => {
     const {
-      logoImage: logo,
-      backgroundImage: background,
+      logoImageMetaData: logo,
+      backgroundImageMetaData: background,
       responsibleOrganizations,
       ...otherFields
     } = project;
@@ -547,10 +547,10 @@ export async function loader(args: LoaderFunctionArgs) {
       (relation) => {
         let logoImage: string | null = null;
         let blurredLogo;
-        if (relation.organization.logoImage !== null) {
+        if (relation.organization.logoImageMetaData !== null) {
           const publicURL = getPublicURL(
             authClient,
-            relation.organization.logoImage.path
+            relation.organization.logoImageMetaData.path
           );
           if (publicURL !== null) {
             logoImage = getImageURL(publicURL, {

@@ -523,7 +523,7 @@ export async function getParentEventSuggestions(
       slug: true,
       startTime: true,
       endTime: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -580,9 +580,9 @@ export async function getParentEventSuggestions(
   const enhancedParentEventSuggestions = parentEventSuggestions.map(
     (parentEvent) => {
       let background =
-        parentEvent.backgroundImage === null
+        parentEvent.backgroundImageMetaData === null
           ? null
-          : parentEvent.backgroundImage.path;
+          : parentEvent.backgroundImageMetaData.path;
       let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -648,7 +648,7 @@ export async function getChildEventSuggestions(
       slug: true,
       startTime: true,
       endTime: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
         },
@@ -705,9 +705,9 @@ export async function getChildEventSuggestions(
   const enhancedChildEventSuggestions = childEventSuggestions.map(
     (childEvent) => {
       let background =
-        childEvent.backgroundImage === null
+        childEvent.backgroundImageMetaData === null
           ? null
-          : childEvent.backgroundImage.path;
+          : childEvent.backgroundImageMetaData.path;
       let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);

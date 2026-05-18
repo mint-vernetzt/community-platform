@@ -136,9 +136,9 @@ export async function loader(args: LoaderFunctionArgs) {
     const enhancedNetwork = { ...network };
 
     let logo =
-      enhancedNetwork.logoImage === null
+      enhancedNetwork.logoImageMetaData === null
         ? null
-        : enhancedNetwork.logoImage.path;
+        : enhancedNetwork.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
