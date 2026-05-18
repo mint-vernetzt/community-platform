@@ -43,7 +43,11 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
             createdAt: true,
           },
         },
@@ -77,7 +81,11 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: {
+              select: {
+                path: true,
+              },
+            },
             createdAt: true,
           },
         },
@@ -86,7 +94,10 @@ export async function getParticipantsOfEvent(options: {
   }
 
   const enhancedParticipants = participants.map((participant) => {
-    let avatar = participant.profile.avatar;
+    let avatar =
+      participant.profile.avatarImage !== null
+        ? participant.profile.avatarImage.path
+        : null;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

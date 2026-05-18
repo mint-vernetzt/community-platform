@@ -64,6 +64,7 @@ import { getFeatureAbilities } from "~/routes/feature-access.server";
 import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
+import { Deep } from "~/lib/utils/searchParams";
 
 export function links() {
   return [
@@ -248,7 +249,8 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   let blurredBackground;
-  let background = event.background;
+  let background =
+    event.backgroundImage === null ? null : event.backgroundImage.path;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
     if (publicURL) {
@@ -275,7 +277,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const responsibleOrganizations = event.responsibleOrganizations.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImage === null
+          ? null
+          : relation.organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -628,7 +633,12 @@ function Detail() {
       )}
       <EventsOverview>
         <EventsOverview.Image
-          alt={loaderData.event.name}
+          alt={
+            loaderData.event.backgroundImage !== null &&
+            loaderData.event.backgroundImage.description !== null
+              ? loaderData.event.backgroundImage.description
+              : loaderData.event.name
+          }
           src={loaderData.event.background}
           blurredSrc={loaderData.event.blurredBackground}
         />
@@ -636,6 +646,8 @@ function Detail() {
           <>
             <EventsOverview.EditBackground
               locales={loaderData.locales.route.content}
+              next={loaderData.abilities["next_event_settings"].hasAccess}
+              to={`/next/event/${loaderData.event.slug}/settings/details/background?${Deep}=true`}
             />
             <EventsOverview.EditBackgroundModal
               background={loaderData.event.background}

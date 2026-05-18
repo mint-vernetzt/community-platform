@@ -653,7 +653,11 @@ export async function getAllEvents(options: {
       participationUntil: true,
       participationFrom: true,
       participantLimit: true,
-      background: true,
+      backgroundImage: {
+        select: {
+          path: true,
+        },
+      },
       published: true,
       stage: {
         select: {
@@ -678,13 +682,17 @@ export async function getAllEvents(options: {
               id: true,
               name: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               organizationVisibility: {
                 select: {
                   id: true,
                   name: true,
                   slug: true,
-                  logo: true,
+                  logoImage: true,
                 },
               },
             },
@@ -702,7 +710,7 @@ export async function getAllEvents(options: {
           participationUntil: true,
           participationFrom: true,
           participantLimit: true,
-          background: true,
+          backgroundImage: true,
           published: true,
           stage: true,
           canceled: true,

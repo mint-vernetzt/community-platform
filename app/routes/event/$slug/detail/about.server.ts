@@ -3,7 +3,7 @@ import { type SupabaseClient, type User } from "@supabase/supabase-js";
 import { utcToZonedTime } from "date-fns-tz";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { deriveModeForEvent, getIsMember } from "../detail.server";
@@ -186,7 +186,11 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImage: {
+                select: {
+                  path: true,
+                },
+              },
               position: true,
               profileVisibility: {
                 select: {
@@ -195,7 +199,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatar: true,
+                  avatarImage: true,
                   position: true,
                 },
               },
@@ -211,7 +215,11 @@ export async function getEventBySlug(options: {
               id: true,
               name: true,
               slug: true,
-              logo: true,
+              logoImage: {
+                select: {
+                  path: true,
+                },
+              },
               types: {
                 select: {
                   organizationType: {
@@ -244,7 +252,11 @@ export async function getEventBySlug(options: {
               academicTitle: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImage: {
+                select: {
+                  path: true,
+                },
+              },
               position: true,
               profileVisibility: {
                 select: {
@@ -253,7 +265,7 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatar: true,
+                  avatarImage: true,
                   position: true,
                 },
               },
@@ -291,7 +303,11 @@ export async function getEventBySlug(options: {
                   academicTitle: true,
                   firstName: true,
                   lastName: true,
-                  avatar: true,
+                  avatarImage: {
+                    select: {
+                      path: true,
+                    },
+                  },
                   position: true,
                   profileVisibility: {
                     select: {
@@ -300,7 +316,7 @@ export async function getEventBySlug(options: {
                       academicTitle: true,
                       firstName: true,
                       lastName: true,
-                      avatar: true,
+                      avatarImage: true,
                       position: true,
                     },
                   },
@@ -381,7 +397,10 @@ export async function getEventBySlug(options: {
     } else {
       filteredProfile = relation.profile;
     }
-    let avatar = filteredProfile.avatar;
+    let avatar =
+      filteredProfile.avatarImage === null
+        ? null
+        : filteredProfile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -410,7 +429,10 @@ export async function getEventBySlug(options: {
 
   const responsibleOrganizations = event.responsibleOrganizations.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImage === null
+          ? null
+          : relation.organization.logoImage.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -459,7 +481,10 @@ export async function getEventBySlug(options: {
     } else {
       filteredProfile = profile;
     }
-    let avatar = filteredProfile.avatar;
+    let avatar =
+      filteredProfile.avatarImage === null
+        ? null
+        : filteredProfile.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

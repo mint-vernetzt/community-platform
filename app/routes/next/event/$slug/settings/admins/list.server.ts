@@ -40,7 +40,11 @@ export async function getAdminsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatar: true,
+        avatarImage: {
+          select: {
+            path: true,
+          },
+        },
         position: true,
       },
     });
@@ -67,7 +71,11 @@ export async function getAdminsOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatar: true,
+        avatarImage: {
+          select: {
+            path: true,
+          },
+        },
         position: true,
         profileVisibility: {
           select: {
@@ -76,7 +84,7 @@ export async function getAdminsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImage: true,
             position: true,
           },
         },
@@ -85,7 +93,7 @@ export async function getAdminsOfEvent(options: {
   }
 
   const enhancedAdmins = admins.map((admin) => {
-    let avatar = admin.avatar;
+    let avatar = admin.avatarImage === null ? null : admin.avatarImage.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

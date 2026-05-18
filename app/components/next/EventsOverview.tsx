@@ -1104,6 +1104,8 @@ function LeaveWaitingList(props: {
 function EditBackground(props: {
   modalName?: string;
   locales: { changeBackground: string };
+  next: boolean;
+  to: string;
 }) {
   const location = useLocation();
 
@@ -1117,23 +1119,51 @@ function EditBackground(props: {
   }
 
   return (
-    <div className="absolute top-0 left-0 w-full h-59.75 md:h-100 rounded-t-2xl overflow-hidden">
+    <div className="absolute top-0 left-0 w-full aspect-3/2 md:h-100 rounded-t-2xl overflow-hidden">
       <div className="relative w-full h-full xl:aspect-3/2 xl:w-auto xl:m-auto opacity-0 hover:opacity-100">
         <div className="absolute w-full h-full bg-neutral-700 opacity-70" />
         <div className="absolute flex m-auto w-full h-full items-start xl:items-end justify-end p-4">
-          <Form method="get" preventScrollReset action={location.pathname}>
-            <input
-              hidden
-              name={modalName}
-              defaultValue="true"
-              aria-hidden="true"
-              aria-label={props.locales.changeBackground}
-            />
-            <div className="hidden xl:block">
-              <Button type="submit" variant="outline" size="small">
-                <span>
+          {props.next === false ? (
+            <Form method="get" preventScrollReset action={location.pathname}>
+              <input
+                hidden
+                name={modalName}
+                defaultValue="true"
+                aria-hidden="true"
+                aria-label={props.locales.changeBackground}
+              />
+              <div className="hidden xl:block">
+                <Button type="submit" variant="outline" size="small">
+                  <span>
+                    <svg
+                      className="hidden xl:block"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                    >
+                      <path
+                        d="M6.00159 5.5C6.00159 6.32843 5.33001 7 4.50159 7C3.67316 7 3.00159 6.32843 3.00159 5.5C3.00159 4.67157 3.67316 4 4.50159 4C5.33001 4 6.00159 4.67157 6.00159 5.5Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M2.00159 1C0.897017 1 0.00158691 1.89543 0.00158691 3V13C0.00158691 14.1046 0.897017 15 2.00159 15H14.0016C15.1062 15 16.0016 14.1046 16.0016 13V3C16.0016 1.89543 15.1062 1 14.0016 1H2.00159ZM14.0016 2C14.5539 2 15.0016 2.44772 15.0016 3V9.50001L11.2252 7.5528C11.0327 7.45655 10.8002 7.49428 10.648 7.64646L6.93788 11.3566L4.27894 9.58399C4.08063 9.45178 3.81657 9.47793 3.64803 9.64646L1.00159 12V3C1.00159 2.44772 1.4493 2 2.00159 2H14.0016Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span>Bild bearbeiten</span>
+                </Button>
+              </div>
+              <div className="xl:hidden w-10 h-10">
+                <CircleButton
+                  type="submit"
+                  aria-label={props.locales.changeBackground}
+                  variant="outline"
+                  fullSize
+                >
                   <svg
-                    className="hidden xl:block"
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
                     height="16"
@@ -1141,48 +1171,77 @@ function EditBackground(props: {
                     fill="none"
                   >
                     <path
-                      d="M6.00159 5.5C6.00159 6.32843 5.33001 7 4.50159 7C3.67316 7 3.00159 6.32843 3.00159 5.5C3.00159 4.67157 3.67316 4 4.50159 4C5.33001 4 6.00159 4.67157 6.00159 5.5Z"
-                      fill="currentColor"
+                      d="M15 12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V6C1 5.44772 1.44772 5 2 5H3.17157C3.96722 5 4.73028 4.68393 5.29289 4.12132L6.12132 3.29289C6.30886 3.10536 6.56321 3 6.82843 3H9.17157C9.43679 3 9.69114 3.10536 9.87868 3.29289L10.7071 4.12132C11.2697 4.68393 12.0328 5 12.8284 5H14C14.5523 5 15 5.44772 15 6V12ZM2 4C0.895431 4 0 4.89543 0 6V12C0 13.1046 0.895431 14 2 14H14C15.1046 14 16 13.1046 16 12V6C16 4.89543 15.1046 4 14 4H12.8284C12.298 4 11.7893 3.78929 11.4142 3.41421L10.5858 2.58579C10.2107 2.21071 9.70201 2 9.17157 2H6.82843C6.29799 2 5.78929 2.21071 5.41421 2.58579L4.58579 3.41421C4.21071 3.78929 3.70201 4 3.17157 4H2Z"
+                      fill="#154194"
                     />
                     <path
-                      d="M2.00159 1C0.897017 1 0.00158691 1.89543 0.00158691 3V13C0.00158691 14.1046 0.897017 15 2.00159 15H14.0016C15.1062 15 16.0016 14.1046 16.0016 13V3C16.0016 1.89543 15.1062 1 14.0016 1H2.00159ZM14.0016 2C14.5539 2 15.0016 2.44772 15.0016 3V9.50001L11.2252 7.5528C11.0327 7.45655 10.8002 7.49428 10.648 7.64646L6.93788 11.3566L4.27894 9.58399C4.08063 9.45178 3.81657 9.47793 3.64803 9.64646L1.00159 12V3C1.00159 2.44772 1.4493 2 2.00159 2H14.0016Z"
-                      fill="currentColor"
+                      d="M8 11C6.61929 11 5.5 9.88071 5.5 8.5C5.5 7.11929 6.61929 6 8 6C9.38071 6 10.5 7.11929 10.5 8.5C10.5 9.88071 9.38071 11 8 11ZM8 12C9.933 12 11.5 10.433 11.5 8.5C11.5 6.567 9.933 5 8 5C6.067 5 4.5 6.567 4.5 8.5C4.5 10.433 6.067 12 8 12Z"
+                      fill="#154194"
+                    />
+                    <path
+                      d="M3 6.5C3 6.77614 2.77614 7 2.5 7C2.22386 7 2 6.77614 2 6.5C2 6.22386 2.22386 6 2.5 6C2.77614 6 3 6.22386 3 6.5Z"
+                      fill="#154194"
                     />
                   </svg>
-                </span>
-                <span>Bild bearbeiten</span>
-              </Button>
-            </div>
-            <div className="xl:hidden w-10 h-10">
-              <CircleButton
-                type="submit"
-                aria-label={props.locales.changeBackground}
-                variant="outline"
-                fullSize
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
+                </CircleButton>
+              </div>
+            </Form>
+          ) : (
+            <>
+              <div className="hidden xl:block">
+                <Button as="link" to={props.to} variant="outline" size="small">
+                  <span>
+                    <svg
+                      className="hidden xl:block"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M12.1465 0.146447C12.3417 -0.0488155 12.6583 -0.0488155 12.8536 0.146447L15.8536 3.14645C16.0488 3.34171 16.0488 3.65829 15.8536 3.85355L5.85357 13.8536C5.80569 13.9014 5.74858 13.9391 5.68571 13.9642L0.68571 15.9642C0.500001 16.0385 0.287892 15.995 0.146461 15.8536C0.00502989 15.7121 -0.0385071 15.5 0.0357762 15.3143L2.03578 10.3143C2.06092 10.2514 2.09858 10.1943 2.14646 10.1464L12.1465 0.146447ZM11.2071 2.5L13.5 4.79289L14.7929 3.5L12.5 1.20711L11.2071 2.5ZM12.7929 5.5L10.5 3.20711L4.00001 9.70711V10H4.50001C4.77616 10 5.00001 10.2239 5.00001 10.5V11H5.50001C5.77616 11 6.00001 11.2239 6.00001 11.5V12H6.29291L12.7929 5.5ZM3.03167 10.6755L2.92614 10.781L1.39754 14.6025L5.21903 13.0739L5.32456 12.9683C5.13496 12.8973 5.00001 12.7144 5.00001 12.5V12H4.50001C4.22387 12 4.00001 11.7761 4.00001 11.5V11H3.50001C3.28561 11 3.10272 10.865 3.03167 10.6755Z"
+                        fill="#154194"
+                      />
+                    </svg>
+                  </span>
+                  <span>Bild bearbeiten</span>
+                </Button>
+              </div>
+              <div className="xl:hidden w-10 h-10">
+                <CircleButton
+                  as="link"
+                  to={props.to}
+                  aria-label={props.locales.changeBackground}
+                  variant="outline"
+                  fullSize
                 >
-                  <path
-                    d="M15 12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V6C1 5.44772 1.44772 5 2 5H3.17157C3.96722 5 4.73028 4.68393 5.29289 4.12132L6.12132 3.29289C6.30886 3.10536 6.56321 3 6.82843 3H9.17157C9.43679 3 9.69114 3.10536 9.87868 3.29289L10.7071 4.12132C11.2697 4.68393 12.0328 5 12.8284 5H14C14.5523 5 15 5.44772 15 6V12ZM2 4C0.895431 4 0 4.89543 0 6V12C0 13.1046 0.895431 14 2 14H14C15.1046 14 16 13.1046 16 12V6C16 4.89543 15.1046 4 14 4H12.8284C12.298 4 11.7893 3.78929 11.4142 3.41421L10.5858 2.58579C10.2107 2.21071 9.70201 2 9.17157 2H6.82843C6.29799 2 5.78929 2.21071 5.41421 2.58579L4.58579 3.41421C4.21071 3.78929 3.70201 4 3.17157 4H2Z"
-                    fill="#154194"
-                  />
-                  <path
-                    d="M8 11C6.61929 11 5.5 9.88071 5.5 8.5C5.5 7.11929 6.61929 6 8 6C9.38071 6 10.5 7.11929 10.5 8.5C10.5 9.88071 9.38071 11 8 11ZM8 12C9.933 12 11.5 10.433 11.5 8.5C11.5 6.567 9.933 5 8 5C6.067 5 4.5 6.567 4.5 8.5C4.5 10.433 6.067 12 8 12Z"
-                    fill="#154194"
-                  />
-                  <path
-                    d="M3 6.5C3 6.77614 2.77614 7 2.5 7C2.22386 7 2 6.77614 2 6.5C2 6.22386 2.22386 6 2.5 6C2.77614 6 3 6.22386 3 6.5Z"
-                    fill="#154194"
-                  />
-                </svg>
-              </CircleButton>
-            </div>
-          </Form>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M15 12C15 12.5523 14.5523 13 14 13H2C1.44772 13 1 12.5523 1 12V6C1 5.44772 1.44772 5 2 5H3.17157C3.96722 5 4.73028 4.68393 5.29289 4.12132L6.12132 3.29289C6.30886 3.10536 6.56321 3 6.82843 3H9.17157C9.43679 3 9.69114 3.10536 9.87868 3.29289L10.7071 4.12132C11.2697 4.68393 12.0328 5 12.8284 5H14C14.5523 5 15 5.44772 15 6V12ZM2 4C0.895431 4 0 4.89543 0 6V12C0 13.1046 0.895431 14 2 14H14C15.1046 14 16 13.1046 16 12V6C16 4.89543 15.1046 4 14 4H12.8284C12.298 4 11.7893 3.78929 11.4142 3.41421L10.5858 2.58579C10.2107 2.21071 9.70201 2 9.17157 2H6.82843C6.29799 2 5.78929 2.21071 5.41421 2.58579L4.58579 3.41421C4.21071 3.78929 3.70201 4 3.17157 4H2Z"
+                      fill="#154194"
+                    />
+                    <path
+                      d="M8 11C6.61929 11 5.5 9.88071 5.5 8.5C5.5 7.11929 6.61929 6 8 6C9.38071 6 10.5 7.11929 10.5 8.5C10.5 9.88071 9.38071 11 8 11ZM8 12C9.933 12 11.5 10.433 11.5 8.5C11.5 6.567 9.933 5 8 5C6.067 5 4.5 6.567 4.5 8.5C4.5 10.433 6.067 12 8 12Z"
+                      fill="#154194"
+                    />
+                    <path
+                      d="M3 6.5C3 6.77614 2.77614 7 2.5 7C2.22386 7 2 6.77614 2 6.5C2 6.22386 2.22386 6 2.5 6C2.77614 6 3 6.22386 3 6.5Z"
+                      fill="#154194"
+                    />
+                  </svg>
+                </CircleButton>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

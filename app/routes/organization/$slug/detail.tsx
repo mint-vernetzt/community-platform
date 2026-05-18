@@ -61,6 +61,7 @@ import {
   hasProjectsData,
   hasTeamData,
 } from "./detail.shared";
+import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
 
 export function links() {
   return [
@@ -657,9 +658,9 @@ function OrganizationDetail() {
           </div>
         </div>
         {allowedToClaimOrganization ? (
-          <div className="w-full px-4 pb-6">
-            <div className="w-full p-4 flex flex-col @md:flex-row @md:justify-between items-center gap-4 rounded-sm bg-primary-50">
-              <p className="text-primary-700 @md:max-w-200">
+          <div className="w-full px-4 @sm:px-6 @md:px-8 pb-6">
+            <ShadowOrganizationHint>
+              <ShadowOrganizationHint.Description>
                 {alreadyRequestedToClaim
                   ? locales.route.claimRequest.alreadyRequested.description
                   : insertComponentsIntoLocale(
@@ -680,76 +681,78 @@ function OrganizationDetail() {
                         </Link>,
                       ]
                     )}
-              </p>
-              <div className="w-full @md:w-fit">
-                {mode === "anon" ? (
-                  <Button
-                    as="link"
-                    to={`/login?login_redirect=/organization/${organization.slug}/detail/about`}
-                    variant="outline"
-                    size="small"
-                    fullSize
-                    prefetch="intent"
-                  >
-                    {locales.route.claimRequest.anon.cta}
-                  </Button>
-                ) : alreadyRequestedToClaim ? (
-                  <>
-                    <Form
-                      {...getFormProps(claimRequestForm)}
-                      method="post"
-                      hidden
-                      preventScrollReset
-                    />
-                    <input
-                      form={claimRequestForm.id}
-                      type="hidden"
-                      name="redirectTo"
-                      value={location.pathname}
-                    />
+              </ShadowOrganizationHint.Description>
+              <ShadowOrganizationHint.Controls>
+                <div className="w-full @md:w-fit">
+                  {mode === "anon" ? (
                     <Button
-                      name={INTENT_FIELD_NAME}
-                      value={CLAIM_REQUEST_INTENTS.withdraw}
-                      form={claimRequestForm.id}
-                      type="submit"
+                      as="link"
+                      to={`/login?login_redirect=/organization/${organization.slug}/detail/about`}
                       variant="outline"
                       size="small"
                       fullSize
-                      disabled={isSubmitting}
+                      prefetch="intent"
                     >
-                      {locales.route.claimRequest.alreadyRequested.cta}
+                      {locales.route.claimRequest.anon.cta}
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <Form
-                      {...getFormProps(claimRequestForm)}
-                      method="post"
-                      hidden
-                      preventScrollReset
-                    />
-                    <input
-                      form={claimRequestForm.id}
-                      type="hidden"
-                      name="redirectTo"
-                      value={location.pathname}
-                    />
-                    <Button
-                      name={INTENT_FIELD_NAME}
-                      value={CLAIM_REQUEST_INTENTS.create}
-                      form={claimRequestForm.id}
-                      type="submit"
-                      variant="outline"
-                      size="small"
-                      fullSize
-                      disabled={isSubmitting}
-                    >
-                      {locales.route.claimRequest.notRequested.cta}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+                  ) : alreadyRequestedToClaim ? (
+                    <>
+                      <Form
+                        {...getFormProps(claimRequestForm)}
+                        method="post"
+                        hidden
+                        preventScrollReset
+                      />
+                      <input
+                        form={claimRequestForm.id}
+                        type="hidden"
+                        name="redirectTo"
+                        value={location.pathname}
+                      />
+                      <Button
+                        name={INTENT_FIELD_NAME}
+                        value={CLAIM_REQUEST_INTENTS.withdraw}
+                        form={claimRequestForm.id}
+                        type="submit"
+                        variant="outline"
+                        size="small"
+                        fullSize
+                        disabled={isSubmitting}
+                      >
+                        {locales.route.claimRequest.alreadyRequested.cta}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Form
+                        {...getFormProps(claimRequestForm)}
+                        method="post"
+                        hidden
+                        preventScrollReset
+                      />
+                      <input
+                        form={claimRequestForm.id}
+                        type="hidden"
+                        name="redirectTo"
+                        value={location.pathname}
+                      />
+                      <Button
+                        name={INTENT_FIELD_NAME}
+                        value={CLAIM_REQUEST_INTENTS.create}
+                        form={claimRequestForm.id}
+                        type="submit"
+                        variant="outline"
+                        size="small"
+                        fullSize
+                        disabled={isSubmitting}
+                      >
+                        {locales.route.claimRequest.notRequested.cta}
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </ShadowOrganizationHint.Controls>
+            </ShadowOrganizationHint>
           </div>
         ) : null}
       </Container.Section>

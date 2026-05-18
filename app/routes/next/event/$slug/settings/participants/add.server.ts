@@ -72,7 +72,11 @@ export async function searchProfiles(options: {
       academicTitle: true,
       firstName: true,
       lastName: true,
-      avatar: true,
+      avatarImage: {
+        select: {
+          path: true,
+        },
+      },
     },
   });
 
@@ -96,7 +100,7 @@ export async function searchProfiles(options: {
     });
 
   const enhancedProfiles = profiles.map((profile) => {
-    let avatar = profile.avatar;
+    let avatar = profile.avatarImage !== null ? profile.avatarImage.path : null;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

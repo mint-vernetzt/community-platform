@@ -41,7 +41,7 @@ import { languageModuleMap } from "~/locales/.server";
 import {
   filterEventByVisibility,
   filterOrganizationByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { type FilterSchemes, getFilterSchemes } from "./all.shared";
 import {
@@ -144,7 +144,10 @@ export async function loader(args: LoaderFunctionArgs) {
     }
 
     // Add images from image proxy
-    let background = enhancedEvent.background;
+    let background =
+      enhancedEvent.backgroundImage === null
+        ? null
+        : enhancedEvent.backgroundImage.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -172,7 +175,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const responsibleOrganizations = enhancedEvent.responsibleOrganizations.map(
       (relation) => {
-        let logo = relation.organization.logo;
+        let logo =
+          relation.organization.logoImage === null
+            ? null
+            : relation.organization.logoImage.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
