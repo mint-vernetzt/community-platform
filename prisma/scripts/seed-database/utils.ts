@@ -18,7 +18,6 @@ import {
   generateProjectSlug,
   generateUsername as generateUsername_app,
 } from "../../../app/utils.server";
-import { Return } from "@prisma/client/runtime/library";
 
 type EntityData = {
   profile: Prisma.ProfileCreateArgs["data"];
