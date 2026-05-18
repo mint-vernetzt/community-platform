@@ -54,9 +54,9 @@ function SquareButton(props: SquareButtonProps) {
     isDisabled && "pointer-events-none",
     as === "label" && isDisabled === false && "cursor-pointer",
     // button size
-    size === "small" && "h-8 w-8 text-xs leading-4",
-    size === "medium" && "h-10 w-10 text-sm leading-5",
-    size === "large" && "h-12 w-12 text-base leading-[22px]",
+    size === "small" && "h-8 w-8 min-w-8 text-xs leading-4",
+    size === "medium" && "h-10 w-10 min-w-10 text-sm leading-5",
+    size === "large" && "h-12 w-12 min-w-12 text-base leading-5.5",
     // button border
     variant === "outline" && "border",
     // button full size

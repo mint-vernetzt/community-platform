@@ -14,6 +14,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
+  useSubmit,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
@@ -52,9 +53,17 @@ import {
 } from "./background.server";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
 import { TextArea } from "~/components-next/TextArea";
-import ImageCropper from "~/components/next/ImageCropper";
+import ImageCropper, {
+  croppedAreaToBlob,
+} from "~/components/next/ImageCropper";
+import { type Area } from "react-easy-crop";
+import rcSliderStyles from "rc-slider/assets/index.css?url";
 
 // TODO: Background editing on detail should be a link leading here
+
+export function links() {
+  return [{ rel: "stylesheet", href: rcSliderStyles }];
+}
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -201,6 +210,7 @@ function Background() {
   const isHydrated = useHydrated();
   const navigation = useNavigation();
   const isSubmitting = useIsSubmitting();
+  const submit = useSubmit();
 
   const [selectedFiles, setSelectedFiles] = useState<
     {
@@ -216,6 +226,8 @@ function Background() {
   const [credits, setCredits] = useState(
     background !== null ? background.credits : null
   );
+
+  const [croppedArea, setCroppedArea] = useState<Area | null>(null);
 
   const defaultValue = {
     [FILE_FIELD_NAME]: undefined,
@@ -240,6 +252,24 @@ function Background() {
         schema: nextGetUploadImageSchema(locales.route.validation),
       });
       return submission;
+    },
+    onSubmit: async (event, { formData }) => {
+      if (croppedArea !== null && selectedFiles.length > 0) {
+        event.preventDefault();
+        const croppedImageFile = await croppedAreaToBlob({
+          croppedArea,
+          sourceImage: {
+            src: selectedFiles[0].src,
+            filename: selectedFiles[0].filename,
+          },
+        });
+        console.log(croppedImageFile);
+        formData.set(FILE_FIELD_NAME, croppedImageFile);
+        void submit(formData, {
+          method: "post",
+          encType: "multipart/form-data",
+        });
+      }
     },
   });
 
@@ -270,14 +300,18 @@ function Background() {
           })}
         </TitleSection.Subline>
       </TitleSection>
-      {/* TODO: Crop functionality on selected file */}
       {background !== null && selectedFiles.length === 0 ? (
-        <Form id="remove-image-form" hidden method="POST" preventScrollReset />
+        <Form id="remove-image-form" hidden method="POST" />
       ) : null}
-      <div className="relative w-full aspect-3/2 rounded-md overflow-hidden">
-        {isHydrated && selectedFiles.length > 0 ? (
-          <ImageCropper src={selectedFiles[0].src} aspect={3 / 2} />
-        ) : (
+
+      {isHydrated && selectedFiles.length > 0 ? (
+        <ImageCropper
+          src={selectedFiles[0].src}
+          aspect={3 / 2}
+          setCroppedArea={setCroppedArea}
+        />
+      ) : (
+        <div className="relative w-full aspect-3/2 rounded-md overflow-hidden">
           <Image
             alt={locales.route.currentBackground.title}
             src={
@@ -307,8 +341,8 @@ function Background() {
               />
             ) : null}
           </Image>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="w-full flex flex-col gap-2 md:justify-start md:flex-row-reverse">
         <div className="w-full md:w-fit">
@@ -331,7 +365,6 @@ function Background() {
           method="POST"
           encType="multipart/form-data"
           hidden={isHydrated}
-          preventScrollReset
         >
           <input
             {...getInputProps(uploadFields[INTENT_FIELD_NAME], {
