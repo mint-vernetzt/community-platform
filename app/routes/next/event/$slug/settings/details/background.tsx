@@ -58,11 +58,13 @@ import ImageCropper, {
 } from "~/components/next/ImageCropper";
 import { type Area } from "react-easy-crop";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
-
-// TODO: Background editing on detail should be a link leading here
+import reactEasyCropStyles from "react-easy-crop/react-easy-crop.css?url";
 
 export function links() {
-  return [{ rel: "stylesheet", href: rcSliderStyles }];
+  return [
+    { rel: "stylesheet", href: rcSliderStyles },
+    { rel: "stylesheet", href: reactEasyCropStyles },
+  ];
 }
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -263,7 +265,6 @@ function Background() {
             filename: selectedFiles[0].filename,
           },
         });
-        console.log(croppedImageFile);
         formData.set(FILE_FIELD_NAME, croppedImageFile);
         void submit(formData, {
           method: "post",

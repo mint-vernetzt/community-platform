@@ -18,7 +18,6 @@ function ImageCropper(props: {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
-    console.log(croppedAreaPixels);
     props.setCroppedArea(croppedAreaPixels);
   };
 
@@ -35,6 +34,7 @@ function ImageCropper(props: {
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
           objectFit="contain"
+          disableAutomaticStylesInjection
         />
       </div>
       <div className="flex items-center w-full gap-4">
@@ -80,7 +80,6 @@ function ImageCropper(props: {
           variant="outline"
           size="small"
           onClick={() => {
-            console.log(zoom, "zoom");
             setZoom((prev) => {
               return Math.min(prev + 0.1, 3);
             });
