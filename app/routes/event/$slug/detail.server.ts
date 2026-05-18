@@ -38,6 +38,7 @@ export async function getEventBySlug(
       backgroundImage: {
         select: {
           path: true,
+          description: true,
         },
       },
       startTime: true,
