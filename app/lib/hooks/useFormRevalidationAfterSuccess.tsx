@@ -1,12 +1,12 @@
 import { type FormMetadata, type SubmissionResult } from "@conform-to/react";
 import { useEffect } from "react";
-import { type Navigation } from "react-router";
+import { type useNavigation } from "react-router";
 
 export function useFormRevalidationAfterSuccess<
   T extends SubmissionResult<string[]> | undefined,
 >(options: {
   deps: {
-    navigation: Navigation;
+    navigation: ReturnType<typeof useNavigation>;
     submissionResult: T;
     form: FormMetadata<any, string[]>;
   };
