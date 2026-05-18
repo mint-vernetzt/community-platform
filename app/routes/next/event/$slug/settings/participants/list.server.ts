@@ -43,7 +43,7 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -81,7 +81,7 @@ export async function getParticipantsOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -95,8 +95,8 @@ export async function getParticipantsOfEvent(options: {
 
   const enhancedParticipants = participants.map((participant) => {
     let avatar =
-      participant.profile.avatarImage !== null
-        ? participant.profile.avatarImage.path
+      participant.profile.avatarImageMetaData !== null
+        ? participant.profile.avatarImageMetaData.path
         : null;
     let blurredAvatar;
     if (avatar !== null) {

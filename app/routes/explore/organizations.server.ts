@@ -690,7 +690,7 @@ export async function getAllNetworks() {
       id: true,
       name: true,
       slug: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },

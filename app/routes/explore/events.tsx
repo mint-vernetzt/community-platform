@@ -145,9 +145,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
     // Add images from image proxy
     let background =
-      enhancedEvent.backgroundImage === null
+      enhancedEvent.backgroundImageMetaData === null
         ? null
-        : enhancedEvent.backgroundImage.path;
+        : enhancedEvent.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -176,9 +176,9 @@ export async function loader(args: LoaderFunctionArgs) {
     const responsibleOrganizations = enhancedEvent.responsibleOrganizations.map(
       (relation) => {
         let logo =
-          relation.organization.logoImage === null
+          relation.organization.logoImageMetaData === null
             ? null
-            : relation.organization.logoImage.path;
+            : relation.organization.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

@@ -78,13 +78,13 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        avatarImage:
+        avatarImageMetaData:
           oldFields.avatar !== null
             ? {
                 delete: true,
               }
             : undefined,
-        backgroundImage:
+        backgroundImageMetaData:
           oldFields.background !== null
             ? {
                 delete: true,
@@ -99,13 +99,13 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        logoImage:
+        logoImageMetaData:
           oldFields.logo !== null
             ? {
                 delete: true,
               }
             : undefined,
-        backgroundImage:
+        backgroundImageMetaData:
           oldFields.background !== null
             ? {
                 delete: true,
@@ -120,13 +120,13 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        logoImage:
+        logoImageMetaData:
           oldFields.logo !== null
             ? {
                 delete: true,
               }
             : undefined,
-        backgroundImage:
+        backgroundImageMetaData:
           oldFields.background !== null
             ? {
                 delete: true,
@@ -141,7 +141,7 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        backgroundImage:
+        backgroundImageMetaData:
           oldFields.background !== null
             ? {
                 delete: true,

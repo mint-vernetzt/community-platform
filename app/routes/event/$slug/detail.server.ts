@@ -35,7 +35,7 @@ export async function getEventBySlug(
       name: true,
       description: true,
       slug: true,
-      backgroundImage: {
+      backgroundImageMetaData: {
         select: {
           path: true,
           description: true,
@@ -97,7 +97,7 @@ export async function getEventBySlug(
             select: {
               name: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -574,7 +574,7 @@ export async function uploadBackgroundImage(options: {
             slug,
           },
           data: {
-            backgroundImage: {
+            backgroundImageMetaData: {
               upsert: {
                 create: {
                   ...fileMetadataForDatabase,
@@ -662,7 +662,7 @@ export async function disconnectBackgroundImage(options: {
             slug,
           },
           data: {
-            backgroundImage: {
+            backgroundImageMetaData: {
               delete: true,
             },
           },
@@ -728,7 +728,7 @@ export async function getContactPersonsOfEvent(options: {
           lastName: true,
           email: true,
           phone: true,
-          avatarImage: {
+          avatarImageMetaData: {
             select: {
               path: true,
             },
@@ -743,7 +743,7 @@ export async function getContactPersonsOfEvent(options: {
               email: true,
               phone: true,
               lastName: true,
-              avatarImage: true,
+              avatarImageMetaData: true,
               position: true,
             },
           },
@@ -764,9 +764,9 @@ export async function getContactPersonsOfEvent(options: {
     }
 
     let avatar =
-      filteredContactPerson.avatarImage === null
+      filteredContactPerson.avatarImageMetaData === null
         ? null
-        : filteredContactPerson.avatarImage.path;
+        : filteredContactPerson.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

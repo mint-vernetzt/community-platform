@@ -8,7 +8,7 @@ export async function getEventBackground(
   slug: string,
   authClient: SupabaseClient
 ) {
-  const background = await prismaClient.image.findFirst({
+  const background = await prismaClient.imageMetaData.findFirst({
     where: {
       backgroundOfEvent: {
         slug: slug,
@@ -69,7 +69,7 @@ export async function changeEventBackground(options: {
         slug,
       },
       data: {
-        backgroundImage: {
+        backgroundImageMetaData: {
           update: {
             ...rest,
           },
@@ -97,7 +97,7 @@ export async function changeEventBackground(options: {
       slug,
     },
     data: {
-      backgroundImage: {
+      backgroundImageMetaData: {
         upsert: {
           create: {
             ...fileMetadataForDatabase,
@@ -121,7 +121,7 @@ export async function removeEventBackground(options: { slug: string }) {
       slug,
     },
     data: {
-      backgroundImage: {
+      backgroundImageMetaData: {
         delete: true,
       },
     },

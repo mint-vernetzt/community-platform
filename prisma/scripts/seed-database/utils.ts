@@ -5877,7 +5877,7 @@ export async function seedEntity<
               id: result.id,
             },
             data: {
-              avatarImage: {
+              avatarImageMetaData: {
                 create: {
                   ...imageBucketData.avatars[0],
                 },
@@ -5891,7 +5891,7 @@ export async function seedEntity<
               id: result.id,
             },
             data: {
-              backgroundImage: {
+              backgroundImageMetaData: {
                 create: {
                   ...imageBucketData.backgrounds[0],
                 },
@@ -5922,7 +5922,7 @@ export async function seedEntity<
           id: result.id,
         },
         data: {
-          logoImage: {
+          logoImageMetaData: {
             create: {
               ...imageBucketData.logos[0],
             },
@@ -5936,7 +5936,7 @@ export async function seedEntity<
           id: result.id,
         },
         data: {
-          backgroundImage: {
+          backgroundImageMetaData: {
             create: {
               ...imageBucketData.backgrounds[0],
             },
@@ -5960,7 +5960,7 @@ export async function seedEntity<
           id: result.id,
         },
         data: {
-          backgroundImage: {
+          backgroundImageMetaData: {
             create: {
               ...imageBucketData.backgrounds[0],
             },
@@ -5984,7 +5984,7 @@ export async function seedEntity<
           id: result.id,
         },
         data: {
-          logoImage: {
+          logoImageMetaData: {
             create: {
               ...imageBucketData.logos[0],
             },
@@ -5998,7 +5998,7 @@ export async function seedEntity<
           id: result.id,
         },
         data: {
-          backgroundImage: {
+          backgroundImageMetaData: {
             create: {
               ...imageBucketData.backgrounds[0],
             },

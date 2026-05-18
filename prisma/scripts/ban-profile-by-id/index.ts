@@ -145,7 +145,7 @@ async function main() {
   const profileBackup = await prismaClient.profile.findUnique({
     where: { id: options.id },
     include: {
-      backgroundImage: true,
+      backgroundImageMetaData: true,
       areas: true,
       memberOf: true,
       offers: true,

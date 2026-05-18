@@ -23,7 +23,7 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -51,7 +51,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logoImageMetaData: true,
                   name: true,
                   types: true,
                   networkTypes: true,
@@ -73,7 +73,7 @@ export async function getOrganization(slug: string) {
               id: true,
               slug: true,
               name: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -100,7 +100,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logoImage: true,
+                  logoImageMetaData: true,
                   name: true,
                   types: true,
                   networkTypes: true,
@@ -169,9 +169,9 @@ export function addImgUrls(
 ) {
   const networkMembers = organization.networkMembers.map((relation) => {
     let logo =
-      relation.networkMember.logoImage === null
+      relation.networkMember.logoImageMetaData === null
         ? null
-        : relation.networkMember.logoImage.path;
+        : relation.networkMember.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -198,9 +198,9 @@ export function addImgUrls(
 
   const memberOf = organization.memberOf.map((relation) => {
     let logo =
-      relation.network.logoImage === null
+      relation.network.logoImageMetaData === null
         ? null
-        : relation.network.logoImage.path;
+        : relation.network.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

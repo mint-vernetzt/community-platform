@@ -35,7 +35,7 @@ export async function getChildEventsOfEvent(options: {
         id: true,
         slug: true,
         name: true,
-        backgroundImage: {
+        backgroundImageMetaData: {
           select: {
             path: true,
           },
@@ -84,7 +84,7 @@ export async function getChildEventsOfEvent(options: {
         id: true,
         slug: true,
         name: true,
-        backgroundImage: {
+        backgroundImageMetaData: {
           select: {
             path: true,
           },
@@ -136,7 +136,9 @@ export async function getChildEventsOfEvent(options: {
 
       let blurredBackground;
       let background =
-        event.backgroundImage === null ? null : event.backgroundImage.path;
+        event.backgroundImageMetaData === null
+          ? null
+          : event.backgroundImageMetaData.path;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {

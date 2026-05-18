@@ -66,7 +66,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -106,7 +106,7 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatarImage: {
+            avatarImageMetaData: {
               select: {
                 path: true,
               },
@@ -123,8 +123,8 @@ export async function getInvitedProfilesToParticipateOnEvent(options: {
 
   const profiles = invites.map((invite) => {
     let avatar =
-      invite.profile.avatarImage !== null
-        ? invite.profile.avatarImage.path
+      invite.profile.avatarImageMetaData !== null
+        ? invite.profile.avatarImageMetaData.path
         : null;
     let blurredAvatar;
     if (avatar !== null) {

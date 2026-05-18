@@ -24,7 +24,7 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               username: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -36,7 +36,7 @@ export async function getOrganization(slug: string) {
               profileVisibility: {
                 select: {
                   username: true,
-                  avatarImage: true,
+                  avatarImageMetaData: true,
                   firstName: true,
                   lastName: true,
                   academicTitle: true,
@@ -94,9 +94,9 @@ export function addImgUrls(
 ) {
   const teamMembers = organization.teamMembers.map((relation) => {
     let avatar =
-      relation.profile.avatarImage === null
+      relation.profile.avatarImageMetaData === null
         ? null
-        : relation.profile.avatarImage.path;
+        : relation.profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

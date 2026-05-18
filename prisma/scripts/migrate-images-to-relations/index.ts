@@ -324,13 +324,13 @@ async function main() {
         oldProfile.avatar !== null && typeof avatarMetaData === "undefined"
           ? oldProfile.avatar
           : null,
-      backgroundImage:
+      backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
               create: backgroundMetaData,
             }
           : undefined,
-      avatarImage:
+      avatarImageMetaData:
         typeof avatarMetaData !== "undefined"
           ? {
               create: avatarMetaData,
@@ -360,13 +360,13 @@ async function main() {
         oldOrganization.logo !== null && typeof logoMetaData === "undefined"
           ? oldOrganization.logo
           : null,
-      backgroundImage:
+      backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
               create: backgroundMetaData,
             }
           : undefined,
-      logoImage:
+      logoImageMetaData:
         typeof logoMetaData !== "undefined"
           ? {
               create: logoMetaData,
@@ -396,13 +396,13 @@ async function main() {
         oldProject.logo !== null && typeof logoMetaData === "undefined"
           ? oldProject.logo
           : null,
-      backgroundImage:
+      backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
               create: backgroundMetaData,
             }
           : undefined,
-      logoImage:
+      logoImageMetaData:
         typeof logoMetaData !== "undefined"
           ? {
               create: logoMetaData,
@@ -424,7 +424,7 @@ async function main() {
         typeof backgroundMetaData === "undefined"
           ? oldEvent.background
           : null,
-      backgroundImage:
+      backgroundImageMetaData:
         typeof backgroundMetaData !== "undefined"
           ? {
               create: backgroundMetaData,

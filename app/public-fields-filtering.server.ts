@@ -18,8 +18,9 @@ type ProfileWithRelations = Profile & {
   administeredEvents: any;
   administeredOrganizations: any;
   administeredProjects: any;
-  avatarImage: any;
-  backgroundImage: any;
+  avatarImageMetaData: any;
+  backgroundImageMetaData: any;
+  backgroundImage: any; // legacy
   profileAbuseReport: any;
   organizationAbuseReport: any;
   eventAbuseReport: any;
@@ -54,7 +55,7 @@ export function filterProfileByVisibility<
       else if (
         key === "skills" ||
         key === "interests" ||
-        key === "publicFields" ||
+        key === "publicFields" || // legacy
         key === "areas" ||
         key === "memberOf" ||
         key === "offers" ||
@@ -108,10 +109,12 @@ export function filterProfileByVisibility<
         key === "email2" ||
         key === "phone" ||
         key === "website" ||
+        key === "avatarImageMetaData" ||
+        key === "backgroundImageMetaData" ||
         key === "avatar" || // legacy
-        key === "avatarImage" ||
         key === "background" || // legacy
-        key === "backgroundImage" ||
+        key === "backgroundImage" || // legacy
+        key === "backgroundImageId" || // legacy
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||
@@ -144,8 +147,9 @@ export function filterProfileByVisibility<
 }
 
 type OrganizationWithRelations = Organization & {
-  logoImage: any;
-  backgroundImage: any;
+  logoImageMetaData: any;
+  backgroundImageMetaData: any;
+  backgroundImage: any; // legacy
   areas: any;
   focuses: any;
   networkMembers: any;
@@ -186,7 +190,7 @@ export function filterOrganizationByVisibility<
       }
       // Fields in Organization with type []
       else if (
-        key === "publicFields" ||
+        key === "publicFields" || // legacy
         key === "supportedBy" ||
         key === "claimRequests" ||
         key === "areas" ||
@@ -241,10 +245,12 @@ export function filterOrganizationByVisibility<
         key === "street" ||
         key === "city" ||
         key === "website" ||
+        key === "logoImageMetaData" ||
+        key === "backgroundImageMetaData" ||
         key === "logo" || // legacy
-        key === "logoImage" ||
         key === "background" || // legacy
-        key === "backgroundImage" ||
+        key === "backgroundImage" || // legacy
+        key === "backgroundImageId" || // legacy
         key === "facebook" ||
         key === "linkedin" ||
         key === "twitter" ||
@@ -305,6 +311,7 @@ type EventWithRelations = Event & {
   waitingList: any;
   eventVisibility: any;
   admins: any;
+  backgroundImageMetaData: any;
   backgroundImage: any;
   abuseReports: any;
   profileJoinInvites: any;
@@ -380,8 +387,10 @@ export function filterEventByVisibility<
         key === "description" ||
         key === "descriptionRTEState" ||
         key === "experienceLevelId" ||
+        key === "backgroundImageMetaData" ||
         key === "background" || // legacy
-        key === "backgroundImage" ||
+        key === "backgroundImage" || // legacy
+        key === "backgroundImageId" || // legacy
         key === "conferenceLink" ||
         key === "conferenceCode" ||
         key === "participantLimit" ||
@@ -435,8 +444,9 @@ type ProjectWithRelations = Project & {
   admins: any;
   images: any;
   documents: any;
-  backgroundImage: any;
-  logoImage: any;
+  logoImageMetaData: any;
+  backgroundImageMetaData: any;
+  backgroundImage: any; // legacy
   abuseReports: any;
   filterVector: any;
   _count: any;
@@ -493,10 +503,12 @@ export function filterProjectByVisibility<
       // All other fields in Project that are optional (String?, Relation?, etc...)
       else if (
         key === "subline" ||
+        key === "logoImageMetaData" ||
+        key === "backgroundImageMetaData" ||
         key === "logo" || // legacy
-        key === "logoImage" ||
         key === "background" || // legacy
-        key === "backgroundImage" ||
+        key === "backgroundImage" || // legacy
+        key === "backgroundImageId" || // legacy
         key === "headline" ||
         key === "excerpt" ||
         key === "description" || // legacy

@@ -110,7 +110,7 @@ export async function getOrganizationsFromProfile(id: string) {
       slug: true,
       name: true,
       bio: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -148,7 +148,9 @@ export function addImageUrlToOrganizations(
 ) {
   const enhancedOrganizations = organizations.map((organization) => {
     let logo =
-      organization.logoImage === null ? null : organization.logoImage.path;
+      organization.logoImageMetaData === null
+        ? null
+        : organization.logoImageMetaData.path;
     let blurredLogo;
 
     if (logo !== null) {
@@ -212,7 +214,7 @@ export async function getPendingRequestsToOrganizations(
             id: true,
             name: true,
             slug: true,
-            logoImage: {
+            logoImageMetaData: {
               select: {
                 path: true,
               },
@@ -238,7 +240,10 @@ export async function getPendingRequestsToOrganizations(
   });
 
   const enhancedRequests = requests.map((request) => {
-    let logo = request.logoImage === null ? null : request.logoImage.path;
+    let logo =
+      request.logoImageMetaData === null
+        ? null
+        : request.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

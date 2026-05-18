@@ -50,7 +50,7 @@ export async function loader(args: LoaderFunctionArgs) {
     select: {
       name: true,
       excerpt: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -144,7 +144,7 @@ export async function loader(args: LoaderFunctionArgs) {
               firstName: true,
               lastName: true,
               position: true,
-              avatarImage: {
+              avatarImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -159,7 +159,7 @@ export async function loader(args: LoaderFunctionArgs) {
             select: {
               name: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
@@ -184,7 +184,8 @@ export async function loader(args: LoaderFunctionArgs) {
     status: 404,
   });
 
-  let logo = project.logoImage === null ? null : project.logoImage.path;
+  let logo =
+    project.logoImageMetaData === null ? null : project.logoImageMetaData.path;
   let blurredLogo;
   if (logo !== null) {
     const publicURL = getPublicURL(authClient, logo);
@@ -204,9 +205,9 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const teamMembers = project.teamMembers.map((relation) => {
     let avatar =
-      relation.profile.avatarImage === null
+      relation.profile.avatarImageMetaData === null
         ? null
-        : relation.profile.avatarImage.path;
+        : relation.profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -236,9 +237,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const responsibleOrganizations = project.responsibleOrganizations.map(
     (relation) => {
       let logo =
-        relation.organization.logoImage === null
+        relation.organization.logoImageMetaData === null
           ? null
-          : relation.organization.logoImage.path;
+          : relation.organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

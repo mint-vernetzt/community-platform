@@ -15,7 +15,7 @@ export async function getOwnOrganizationsSuggestions(
   const ownOrganizationSuggestions = await prismaClient.organization.findMany({
     select: {
       id: true,
-      logoImage: {
+      logoImageMetaData: {
         select: {
           path: true,
         },
@@ -63,7 +63,7 @@ export async function getEventBySlug(slug: string) {
             select: {
               id: true,
               slug: true,
-              logoImage: {
+              logoImageMetaData: {
                 select: {
                   path: true,
                 },
