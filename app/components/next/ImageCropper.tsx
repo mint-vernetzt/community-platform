@@ -8,7 +8,6 @@ import { Pica } from "pica";
 import { MaxImageSizes } from "~/images.shared";
 import Slider from "rc-slider";
 import { SquareButton } from "@mint-vernetzt/components/src/molecules/SquareButton";
-import { useNonce } from "~/nonce-provider";
 
 function ImageCropper(props: {
   src: CropperProps["image"];
@@ -16,7 +15,6 @@ function ImageCropper(props: {
   setCroppedArea: Dispatch<SetStateAction<Area | null>>;
   shape?: CropperProps["cropShape"];
 }) {
-  const nonce = useNonce();
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
