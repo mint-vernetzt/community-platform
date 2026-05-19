@@ -168,9 +168,14 @@ export default function Settings() {
       count: event._count.documents,
     },
     {
-      to: `related-events?${Deep}=true`,
+      to: `related-events/${event._count.childEvents > 0 ? "child-events" : "parent-event"}?${Deep}=true`,
       label: locales.route.menu.relatedEvents,
-      count: event._count.childEvents,
+      count:
+        event._count.childEvents > 0
+          ? event._count.childEvents
+          : event.parentEventId !== null
+            ? 1
+            : 0,
     },
     {
       to: `danger-zone/change-url?${Deep}=true`,
