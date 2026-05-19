@@ -8,6 +8,7 @@ export async function getEventBySlug(slug: string) {
       name: true,
       slug: true,
       published: true,
+      parentEventId: true,
       _count: {
         select: {
           admins: true,

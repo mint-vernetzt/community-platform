@@ -345,7 +345,18 @@ export default [
       ),
       route(
         "/next/event/:slug/settings/related-events",
-        "./routes/next/event/$slug/settings/related-events.tsx"
+        "./routes/next/event/$slug/settings/related-events.tsx",
+        [
+          index("./routes/next/event/$slug/settings/related-events/index.tsx"),
+          route(
+            "/next/event/:slug/settings/related-events/parent-event",
+            "./routes/next/event/$slug/settings/related-events/parent-event.tsx"
+          ),
+          route(
+            "/next/event/:slug/settings/related-events/child-events",
+            "./routes/next/event/$slug/settings/related-events/child-events.tsx"
+          ),
+        ]
       ),
       route(
         "/next/event/:slug/settings/responsible-orgs",

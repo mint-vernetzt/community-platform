@@ -97,6 +97,8 @@ import { locale as deNextEventSettingsRegistrationAccess } from "./de/routes/nex
 import { locale as deNextEventSettingsRegistrationPeriod } from "./de/routes/next/event/$slug/settings/registration/period";
 import { locale as deNextEventSettingsRegistrationLimit } from "./de/routes/next/event/$slug/settings/registration/limit";
 import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
+import { locale as deNextEventSettingsRelatedEventsParentEvent } from "./de/routes/next/event/$slug/settings/related-events/parent-event";
+import { locale as deNextEventSettingsRelatedEventsChildEvents } from "./de/routes/next/event/$slug/settings/related-events/child-events";
 import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as deNextEventSettingsResponsibleOrgsList } from "./de/routes/next/event/$slug/settings/responsible-orgs/list";
 import { locale as deNextEventSettingsResponsibleOrgsAdd } from "./de/routes/next/event/$slug/settings/responsible-orgs/add";
@@ -309,6 +311,8 @@ import { locale as enNextEventSettingsRegistrationAccess } from "./en/routes/nex
 import { locale as enNextEventSettingsRegistrationPeriod } from "./en/routes/next/event/$slug/settings/registration/period";
 import { locale as enNextEventSettingsRegistrationLimit } from "./en/routes/next/event/$slug/settings/registration/limit";
 import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
+import { locale as enNextEventSettingsRelatedEventsParentEvent } from "./en/routes/next/event/$slug/settings/related-events/parent-event";
+import { locale as enNextEventSettingsRelatedEventsChildEvents } from "./en/routes/next/event/$slug/settings/related-events/child-events";
 import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as enNextEventSettingsResponsibleOrgsList } from "./en/routes/next/event/$slug/settings/responsible-orgs/list";
 import { locale as enNextEventSettingsResponsibleOrgsAdd } from "./en/routes/next/event/$slug/settings/responsible-orgs/add";
@@ -644,6 +648,12 @@ const de = {
   },
   "next/event/$slug/settings/related-events": {
     route: deNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/related-events/parent-event": {
+    route: deNextEventSettingsRelatedEventsParentEvent,
+  },
+  "next/event/$slug/settings/related-events/child-events": {
+    route: deNextEventSettingsRelatedEventsChildEvents,
   },
   "next/event/$slug/settings/responsible-orgs": {
     route: deNextEventSettingsResponsibleOrgs,
@@ -1199,6 +1209,12 @@ const en = {
   },
   "next/event/$slug/settings/related-events": {
     route: enNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/related-events/parent-event": {
+    route: enNextEventSettingsRelatedEventsParentEvent,
+  },
+  "next/event/$slug/settings/related-events/child-events": {
+    route: enNextEventSettingsRelatedEventsChildEvents,
   },
   "next/event/$slug/settings/responsible-orgs": {
     route: enNextEventSettingsResponsibleOrgs,
