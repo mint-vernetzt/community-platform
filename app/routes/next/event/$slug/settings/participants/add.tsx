@@ -132,7 +132,6 @@ export async function action(args: ActionFunctionArgs) {
       locales: locales.route,
     });
   } catch (error) {
-    console.log("Error inviting profile to participate on event", error);
     captureException(error);
     return redirectWithToast(request.url, {
       id: "invite-profile-to-participate-on-event-error",

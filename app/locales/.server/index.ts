@@ -652,6 +652,7 @@ const de = {
   },
   "next/event/$slug/settings/related-events/parent-event": {
     route: deNextEventSettingsRelatedEventsParentEvent,
+    stages: deStages,
   },
   "next/event/$slug/settings/related-events/child-events": {
     route: deNextEventSettingsRelatedEventsChildEvents,
@@ -1214,6 +1215,7 @@ const en = {
   },
   "next/event/$slug/settings/related-events/parent-event": {
     route: enNextEventSettingsRelatedEventsParentEvent,
+    stages: enStages,
   },
   "next/event/$slug/settings/related-events/child-events": {
     route: enNextEventSettingsRelatedEventsChildEvents,
