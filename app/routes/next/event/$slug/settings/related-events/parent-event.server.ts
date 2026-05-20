@@ -1,14 +1,16 @@
-import { type SupabaseClient } from "@supabase/supabase-js";
+import { type User, type SupabaseClient } from "@supabase/supabase-js";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { isAdminOfEvent } from "../../settings.server";
 
 export async function getEventBySlug(options: {
   authClient: SupabaseClient;
+  sessionUser: User;
   slug: string;
 }) {
-  const { authClient, slug } = options;
+  const { authClient, sessionUser, slug } = options;
   const event = await prismaClient.event.findUnique({
     where: {
       slug,
@@ -89,6 +91,7 @@ export async function getEventBySlug(options: {
     ...event.parentEvent,
     background,
     blurredBackground,
+    isAdmin: await isAdminOfEvent(sessionUser, event.parentEvent.slug),
   };
 
   const enhancedEvent = {
@@ -220,10 +223,15 @@ export async function addParentEvent(options: {
     slug: string;
     startTime: Date;
     endTime: Date;
+    published: boolean;
   };
   parentEventId: string;
 }) {
   const { userId, event, parentEventId } = options;
+
+  if (event.published === true) {
+    throw new Error("Cannot add parent event to a published event");
+  }
 
   const parentEvent = await prismaClient.event.findFirst({
     where: {

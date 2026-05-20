@@ -7,13 +7,16 @@ export const locale = {
       "Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen.",
     label: "Füge ein Event als Rahmenevent hinzu",
     cta: "Als Rahmenevent zuweisen",
+    blankStateHint:
+      "Es gibt aktuell kein Rahmenevent, das Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge diesem Dein untergeordnetes Event hinzu.",
   },
   current: {
     headline: "Aktuelles Rahmenevent",
     cta: "Als Rahmenevent entfernen",
     hint: {
-      // TODO: Remove admin notification part if only own events can be assigned as parent events
-      unpublished:
+      unpublishedSameAdmin:
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Eine Auflösung der Verknüpfung ist nur möglich, solange Dein Event noch nicht veröffentlicht ist.",
+      unpublishedDifferentAdmin:
         "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Der Admin des Rahmenevents wird über die aufgelöste Verknüpfung informiert. Eine Auflösung der Verknüpfung ist nur möglich, solange Dein Event noch nicht veröffentlicht ist.",
       published:
         "Da Dein Event bereits veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen.",

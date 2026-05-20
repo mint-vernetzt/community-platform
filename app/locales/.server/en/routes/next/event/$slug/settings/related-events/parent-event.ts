@@ -7,14 +7,17 @@ export const locale = {
       "The parent event must be completely within the time period of your sub-event.",
     label: "Add an event as a parent event",
     cta: "Assign as parent event",
+    blankStateHint:
+      "There is currently no parent event that you can add. Please create an event in the corresponding time period first and then add your sub-event to it.",
   },
   current: {
     headline: "Current Parent Event",
     cta: "Remove as parent event",
     hint: {
-      // TODO: Remove admin notification part if only own events can be assigned as parent events
-      unpublished:
-        "If you remove the link to the parent event, your event will become an independent event again. The admin of the parent event will be informed about the dissolved link. A link can only be dissolved as long as your event has not yet been published.",
+      unpublishedSameAdmin:
+        "If you remove the link to the parent event, your event will become an independent event again. The link can only be removed as long as your event has not been published yet.",
+      unpublishedDifferentAdmin:
+        "If you remove the link to the parent event, your event will become an independent event again. The admin of the parent event will be informed about the dissolved link. The link can only be removed as long as your event has not been published yet.",
       published:
         "Since your event has already been published, you can no longer make changes to the link to the parent event.",
     },
