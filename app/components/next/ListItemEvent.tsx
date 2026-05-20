@@ -20,7 +20,7 @@ function ListItemEvent(props: {
 
   const hideClasses = classNames(
     typeof hideAfter !== "undefined" && index > hideAfter - 1
-      ? "hidden group-has-[:checked]:block"
+      ? "hidden group-has-checked:block"
       : "block"
   );
 
@@ -71,8 +71,8 @@ function ListItemEvent(props: {
       <li className={hideClasses}>
         <div className={classes}>
           {typeof image !== "undefined" ? (
-            <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
-              <div className="w-36 h-[96px] rounded-l-lg overflow-hidden">
+            <div className="hidden @lg:block w-36 shrink-0 aspect-3/2">
+              <div className="w-36 h-24 rounded-l-lg overflow-hidden">
                 {image}
               </div>
             </div>
@@ -80,7 +80,7 @@ function ListItemEvent(props: {
           <div className={infoContainerClasses}>
             <div
               className={classNames(
-                "flex flex-col max-w-[737px]",
+                "flex flex-col max-w-184.25",
                 typeof subline !== "undefined"
                   ? "justify-between"
                   : "justify-start gap-1"
@@ -110,13 +110,13 @@ function ListItemEvent(props: {
         to={to}
         className={classNames(
           classes,
-          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 has-[button:hover]:bg-white has-[a:hover]:bg-white active:bg-primary-50 focus:outline-none"
         )}
         prefetch="intent"
       >
         {typeof image !== "undefined" ? (
-          <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2]">
-            <div className="w-36 h-[96px] rounded-l-[7px] overflow-hidden">
+          <div className="hidden @lg:block w-36 shrink-0 aspect-3/2">
+            <div className="w-36 h-24 rounded-l-[7px] overflow-hidden">
               {image}
             </div>
           </div>
@@ -124,7 +124,7 @@ function ListItemEvent(props: {
         <div className={infoContainerClasses}>
           <div
             className={classNames(
-              "flex flex-col max-w-[737px]",
+              "flex flex-col max-w-184.25",
               typeof subline !== "undefined"
                 ? "justify-between"
                 : "justify-start gap-1"
@@ -230,7 +230,7 @@ function ListItemFlag(props: {
   locales: { draft: string; canceled: string };
 }) {
   const classes = classNames(
-    "flex font-semibold items-center ml-auto border-r-8 pr-4 h-[123px] @md:h-24 rounded-r-[7px]"
+    "flex font-semibold items-center ml-auto border-r-8 pr-4 h-30.75 @md:h-24 rounded-r-[7px]"
   );
 
   if (props.canceled) {
@@ -314,7 +314,10 @@ function ListItemControl(props: {
 
 function ListItemEventControls(props: { children: React.ReactNode }) {
   return (
-    <div className="w-full flex flex-col @md:flex-row gap-4">
+    <div
+      className="w-full flex flex-col @md:flex-row gap-4"
+      onClick={(event) => event.stopPropagation()}
+    >
       {props.children}
     </div>
   );

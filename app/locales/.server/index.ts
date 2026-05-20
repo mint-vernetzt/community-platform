@@ -600,6 +600,7 @@ const de = {
   },
   "next/event/$slug/settings/details/background": {
     route: deNextEventSettingsDetailsBackground,
+    components: deComponents,
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
@@ -651,6 +652,7 @@ const de = {
   },
   "next/event/$slug/settings/related-events/parent-event": {
     route: deNextEventSettingsRelatedEventsParentEvent,
+    stages: deStages,
   },
   "next/event/$slug/settings/related-events/child-events": {
     route: deNextEventSettingsRelatedEventsChildEvents,
@@ -1161,6 +1163,7 @@ const en = {
   },
   "next/event/$slug/settings/details/background": {
     route: enNextEventSettingsDetailsBackground,
+    components: enComponents,
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,
@@ -1212,6 +1215,7 @@ const en = {
   },
   "next/event/$slug/settings/related-events/parent-event": {
     route: enNextEventSettingsRelatedEventsParentEvent,
+    stages: enStages,
   },
   "next/event/$slug/settings/related-events/child-events": {
     route: enNextEventSettingsRelatedEventsChildEvents,
