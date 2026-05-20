@@ -110,7 +110,7 @@ function ListItemEvent(props: {
         to={to}
         className={classNames(
           classes,
-          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+          "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 has-[button:hover]:bg-white has-[a:hover]:bg-white active:bg-primary-50 focus:outline-none"
         )}
         prefetch="intent"
       >
@@ -314,7 +314,10 @@ function ListItemControl(props: {
 
 function ListItemEventControls(props: { children: React.ReactNode }) {
   return (
-    <div className="w-full flex flex-col @md:flex-row gap-4">
+    <div
+      className="w-full flex flex-col @md:flex-row gap-4"
+      onClick={(event) => event.stopPropagation()}
+    >
       {props.children}
     </div>
   );

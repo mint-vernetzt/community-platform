@@ -208,8 +208,7 @@ function ParentEvent() {
         {event.parentEvent !== null ? (
           <ListItemEvent
             index={0}
-            // TODO: if link is needed, optimize hover behaviour for Controls and prevent bubbling of click event from Controls
-            // to={`/event/${event.parentEvent.slug}/detail/about`}
+            to={`/event/${event.parentEvent.slug}/detail/about`}
           >
             <ListItemEvent.Image
               alt={event.parentEvent.name}
@@ -330,8 +329,7 @@ function ParentEvent() {
                   </Form>
                   <ListItemEvent
                     index={index}
-                    // TODO: if link is needed, optimize hover behaviour for Controls and prevent bubbling of click event from Controls
-                    // to={`/event/${event.slug}/detail/about`}
+                    to={`/event/${event.slug}/detail/about`}
                   >
                     <ListItemEvent.Image
                       alt={event.name}
