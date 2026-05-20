@@ -1,12 +1,23 @@
 export const locale = {
-  headline: "Rahmenveranstaltung hinzufügen",
-  subline:
-    "Du kannst Deinem Event eine bestehende Rahmenveranstaltung zuordnen. Dadurch wird Dein Event zur Unterveranstaltung.",
-  timePeriodHint:
-    "Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen.",
   add: {
+    headline: "Rahmenveranstaltung hinzufügen",
+    subline:
+      "Du kannst Deinem Event eine bestehende Rahmenveranstaltung zuordnen. Dadurch wird Dein Event zur Unterveranstaltung.",
+    timePeriodHint:
+      "Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen.",
     label: "Füge ein Event als Rahmenevent hinzu",
     cta: "Als Rahmenevent zuweisen",
+  },
+  current: {
+    headline: "Aktuelles Rahmenevent",
+    cta: "Als Rahmenevent entfernen",
+    hint: {
+      // TODO: Remove admin notification part if only own events can be assigned as parent events
+      unpublished:
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Der Admin des Rahmenevents wird über die aufgelöste Verknüpfung informiert. Eine Auflösung der Verknüpfung ist nur möglich, solange Dein Event noch nicht veröffentlicht ist.",
+      published:
+        "Da Dein Event bereits veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen.",
+    },
   },
   list: {
     more: "{{count}} weitere anzeigen",
@@ -18,8 +29,11 @@ export const locale = {
   errors: {
     addParentEvent:
       "Die Rahmenveranstaltung konnte nicht hinzugefügt werden. Bitte versuche es später erneut.",
+    removeParentEvent:
+      "Die Rahmenveranstaltung konnte nicht entfernt werden. Bitte versuche es später erneut.",
   },
   success: {
     addParentEvent: "Die Rahmenveranstaltung wurde erfolgreich hinzugefügt.",
+    removeParentEvent: "Die Rahmenveranstaltung wurde erfolgreich entfernt.",
   },
 } as const;

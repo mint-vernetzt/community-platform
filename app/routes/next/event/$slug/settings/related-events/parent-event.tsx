@@ -21,6 +21,7 @@ import {
   getEventBySlug,
   getEventBySlugForAction,
   getParentEventsToAdd,
+  removeParentEvent,
 } from "./parent-event.server";
 import {
   createAuthClient,
@@ -33,6 +34,7 @@ import {
   ADD_PARENT_EVENT_INTENT,
   createAddParentEventSchema,
   PARENT_EVENT_ID,
+  REMOVE_PARENT_EVENT_INTENT,
 } from "./parent-event.shared";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseWithZod } from "@conform-to/zod";
@@ -120,43 +122,66 @@ export async function action(args: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get(INTENT_FIELD_NAME);
 
-  invariantResponse(intent === ADD_PARENT_EVENT_INTENT, "unknown intent", {
-    status: 400,
-  });
+  invariantResponse(
+    intent === ADD_PARENT_EVENT_INTENT || intent === REMOVE_PARENT_EVENT_INTENT,
+    "unknown intent",
+    {
+      status: 400,
+    }
+  );
 
   const event = await getEventBySlugForAction(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  const submission = await parseWithZod(formData, {
-    schema: createAddParentEventSchema(),
-  });
-
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  try {
-    await addParentEvent({
-      userId: sessionUser.id,
-      event,
-      parentEventId: submission.value[PARENT_EVENT_ID],
+  if (intent === ADD_PARENT_EVENT_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createAddParentEventSchema(),
     });
-  } catch (error) {
-    captureException(error);
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+    try {
+      await addParentEvent({
+        userId: sessionUser.id,
+        event,
+        parentEventId: submission.value[PARENT_EVENT_ID],
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "add-parent-event-error",
+        key: `add-parent-event-error-${Date.now()}`,
+        message: locales.route.errors.addParentEvent,
+        level: "negative",
+      });
+    }
     return redirectWithToast(request.url, {
-      id: "add-parent-event-error",
-      key: `add-parent-event-error-${Date.now()}`,
-      message: locales.route.errors.addParentEvent,
-      level: "negative",
+      id: "add-parent-event-success",
+      key: `add-parent-event-success-${Date.now()}`,
+      message: locales.route.success.addParentEvent,
+      level: "positive",
+    });
+  } else if (intent === REMOVE_PARENT_EVENT_INTENT) {
+    try {
+      await removeParentEvent({
+        event,
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "remove-parent-event-error",
+        key: `remove-parent-event-error-${Date.now()}`,
+        message: locales.route.errors.removeParentEvent,
+        level: "negative",
+      });
+    }
+    return redirectWithToast(request.url, {
+      id: "remove-parent-event-success",
+      key: `remove-parent-event-success-${Date.now()}`,
+      message: locales.route.success.removeParentEvent,
+      level: "positive",
     });
   }
-
-  return redirectWithToast(request.url, {
-    id: "add-parent-event-success",
-    key: `add-parent-event-success-${Date.now()}`,
-    message: locales.route.success.addParentEvent,
-    level: "positive",
-  });
 }
 
 function ParentEvent() {
@@ -166,12 +191,14 @@ function ParentEvent() {
   return event.parentEvent === null ? (
     <>
       <TitleSection>
-        <TitleSection.Headline>{locales.route.headline}</TitleSection.Headline>
-        <TitleSection.Subline>{locales.route.subline}</TitleSection.Subline>
+        <TitleSection.Headline>
+          {locales.route.add.headline}
+        </TitleSection.Headline>
+        <TitleSection.Subline>{locales.route.add.subline}</TitleSection.Subline>
       </TitleSection>
       <Hint>
         <Hint.InfoIcon />
-        {locales.route.timePeriodHint}
+        {locales.route.add.timePeriodHint}
       </Hint>
       <BasicStructure.Container
         deflatedUntil={false}
@@ -206,7 +233,12 @@ function ParentEvent() {
           {parentEventsToAdd.map((event, index) => {
             return (
               <div key={event.id}>
-                <Form id={`add-parent-form-${event.id}`} method="POST" hidden>
+                <Form
+                  id={`add-parent-form-${event.id}`}
+                  method="POST"
+                  hidden
+                  preventScrollReset
+                >
                   <input name={PARENT_EVENT_ID} defaultValue={event.id} />
                 </Form>
                 <ListItemEvent
@@ -250,20 +282,18 @@ function ParentEvent() {
                       size="small"
                       fullSize
                     >
-                      <div>
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M10 5C10.1658 5 10.3247 5.06585 10.4419 5.18306C10.5592 5.30027 10.625 5.45924 10.625 5.625V9.375H14.375C14.5408 9.375 14.6997 9.44085 14.8169 9.55806C14.9342 9.67527 15 9.83424 15 10C15 10.1658 14.9342 10.3247 14.8169 10.4419C14.6997 10.5592 14.5408 10.625 14.375 10.625H10.625V14.375C10.625 14.5408 10.5592 14.6997 10.4419 14.8169C10.3247 14.9342 10.1658 15 10 15C9.83424 15 9.67527 14.9342 9.55806 14.8169C9.44085 14.6997 9.375 14.5408 9.375 14.375V10.625H5.625C5.45924 10.625 5.30027 10.5592 5.18306 10.4419C5.06585 10.3247 5 10.1658 5 10C5 9.83424 5.06585 9.67527 5.18306 9.55806C5.30027 9.44085 5.45924 9.375 5.625 9.375H9.375V5.625C9.375 5.45924 9.44085 5.30027 9.55806 5.18306C9.67527 5.06585 9.83424 5 10 5Z"
-                            fill="#154194"
-                          />
-                        </svg>
-                      </div>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M10 5C10.1658 5 10.3247 5.06585 10.4419 5.18306C10.5592 5.30027 10.625 5.45924 10.625 5.625V9.375H14.375C14.5408 9.375 14.6997 9.44085 14.8169 9.55806C14.9342 9.67527 15 9.83424 15 10C15 10.1658 14.9342 10.3247 14.8169 10.4419C14.6997 10.5592 14.5408 10.625 14.375 10.625H10.625V14.375C10.625 14.5408 10.5592 14.6997 10.4419 14.8169C10.3247 14.9342 10.1658 15 10 15C9.83424 15 9.67527 14.9342 9.55806 14.8169C9.44085 14.6997 9.375 14.5408 9.375 14.375V10.625H5.625C5.45924 10.625 5.30027 10.5592 5.18306 10.4419C5.06585 10.3247 5 10.1658 5 10C5 9.83424 5.06585 9.67527 5.18306 9.55806C5.30027 9.44085 5.45924 9.375 5.625 9.375H9.375V5.625C9.375 5.45924 9.44085 5.30027 9.55806 5.18306C9.67527 5.06585 9.83424 5 10 5Z"
+                          fill="#154194"
+                        />
+                      </svg>
                       <span>{locales.route.add.cta}</span>
                     </Button>
                   </ListItemEvent.Controls>
@@ -275,7 +305,76 @@ function ParentEvent() {
       </BasicStructure.Container>
     </>
   ) : (
-    <>{/* TODO: remove current parent event */}</>
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.current.headline}
+        </TitleSection.Headline>
+      </TitleSection>
+      {event.published === false ? (
+        <Form id="remove-parent-form" method="POST" hidden preventScrollReset />
+      ) : null}
+      <ListItemEvent
+        index={0}
+        // TODO: if link is needed, optimize hover behaviour for Controls and prevent bubbling of click event from Controls
+        // to={`/event/${event.parentEvent.slug}/detail/about`}
+      >
+        <ListItemEvent.Image
+          alt={event.parentEvent.name}
+          src={event.parentEvent.background}
+          blurredSrc={event.parentEvent.blurredBackground}
+        />
+        <ListItemEvent.Info
+          {...event.parentEvent}
+          stage={event.parentEvent.stage}
+          locales={{
+            stages: locales.stages,
+            ...loaderData.locales.route.list,
+          }}
+          participantCount={event.parentEvent._count.participants}
+          language={language}
+        ></ListItemEvent.Info>
+        <ListItemEvent.Headline>
+          {event.parentEvent.name}
+        </ListItemEvent.Headline>
+        {hasContent(event.parentEvent.subline) ||
+        hasContent(event.parentEvent.description) ? (
+          <ListItemEvent.Subline>
+            {hasContent(event.parentEvent.subline) ? (
+              event.parentEvent.subline
+            ) : (
+              <RichText html={event.parentEvent.description as string} />
+            )}
+          </ListItemEvent.Subline>
+        ) : null}
+        {event.published === false ? (
+          <ListItemEvent.Controls>
+            <Button
+              type="submit"
+              form="remove-parent-form"
+              name={INTENT_FIELD_NAME}
+              value={REMOVE_PARENT_EVENT_INTENT}
+              variant="outline"
+              size="small"
+              fullSize
+            >
+              {locales.route.current.cta}
+            </Button>
+          </ListItemEvent.Controls>
+        ) : null}
+      </ListItemEvent>
+      {event.published === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.current.hint.unpublished}
+        </Hint>
+      ) : (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.current.hint.published}
+        </Hint>
+      )}
+    </>
   );
 }
 

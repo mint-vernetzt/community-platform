@@ -15,6 +15,7 @@ export async function getEventBySlug(options: {
     },
     select: {
       slug: true,
+      published: true,
       startTime: true,
       endTime: true,
       parentEvent: {
@@ -52,7 +53,7 @@ export async function getEventBySlug(options: {
   }
 
   if (event.parentEvent === null) {
-    return event;
+    return event as typeof event & { parentEvent: null };
   }
 
   let blurredBackground;
@@ -84,14 +85,18 @@ export async function getEventBySlug(options: {
     blurredBackground = DefaultImages.Event.BlurredBackground;
   }
 
-  return {
-    ...event,
-    parentEvent: {
-      ...event.parentEvent,
-      background,
-      blurredBackground,
-    },
+  const enhancedParentEvent = {
+    ...event.parentEvent,
+    background,
+    blurredBackground,
   };
+
+  const enhancedEvent = {
+    ...event,
+    parentEvent: enhancedParentEvent,
+  };
+
+  return enhancedEvent;
 }
 
 export async function getParentEventsToAdd(options: {
@@ -202,6 +207,7 @@ export async function getEventBySlugForAction(slug: string) {
       slug: true,
       startTime: true,
       endTime: true,
+      published: true,
     },
   });
 
@@ -250,6 +256,28 @@ export async function addParentEvent(options: {
     },
     data: {
       parentEventId,
+    },
+  });
+}
+
+export async function removeParentEvent(options: {
+  event: {
+    slug: string;
+    published: boolean;
+  };
+}) {
+  const { event } = options;
+
+  if (event.published === true) {
+    throw new Error("Cannot remove parent event from a published event");
+  }
+
+  await prismaClient.event.update({
+    where: {
+      slug: event.slug,
+    },
+    data: {
+      parentEventId: null,
     },
   });
 }
