@@ -600,6 +600,7 @@ const de = {
   },
   "next/event/$slug/settings/details/background": {
     route: deNextEventSettingsDetailsBackground,
+    components: deComponents,
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
@@ -1161,6 +1162,7 @@ const en = {
   },
   "next/event/$slug/settings/details/background": {
     route: enNextEventSettingsDetailsBackground,
+    components: enComponents,
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,

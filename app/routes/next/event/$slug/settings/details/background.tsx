@@ -59,6 +59,8 @@ import ImageCropper, {
 import { type Area } from "react-easy-crop";
 import rcSliderStyles from "rc-slider/assets/index.css?url";
 import reactEasyCropStyles from "react-easy-crop/react-easy-crop.css?url";
+import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
+import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 
 export function links() {
   return [
@@ -287,6 +289,11 @@ function Background() {
 
   return (
     <>
+      <UnsavedChangesModal
+        searchParam={UnsavedChangesModalParam}
+        formMetadataToCheck={uploadForm}
+        locales={locales.components.UnsavedChangesModal}
+      />
       <TitleSection>
         <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
         <TitleSection.Subline>
