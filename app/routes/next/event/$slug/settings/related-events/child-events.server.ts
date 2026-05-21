@@ -3,27 +3,105 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { DefaultImages } from "~/images.shared";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { isAdminOfEvent } from "../../settings.server";
 
 export async function getEventBySlug(options: {
   authClient: SupabaseClient;
   sessionUser: User;
   slug: string;
 }) {
-  const { authClient, sessionUser, slug } = options;
+  const { authClient, slug } = options;
   const event = await prismaClient.event.findUnique({
     where: {
       slug,
     },
     select: {
+      id: true,
       parentEventId: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      childEvents: {
+        select: {
+          published: true,
+          canceled: true,
+          id: true,
+          name: true,
+          slug: true,
+          backgroundImageMetaData: {
+            select: {
+              path: true,
+            },
+          },
+          subline: true,
+          description: true,
+          stage: {
+            select: {
+              slug: true,
+            },
+          },
+          startTime: true,
+          endTime: true,
+          participantLimit: true,
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
+        },
+      },
     },
   });
 
-  return event;
+  if (event === null) {
+    return null;
+  }
+
+  const enhancedChildEvents = event.childEvents.map((childEvent) => {
+    let blurredBackground;
+    let background =
+      childEvent.backgroundImageMetaData === null
+        ? null
+        : childEvent.backgroundImageMetaData.path;
+    if (background !== null) {
+      const publicURL = getPublicURL(authClient, background);
+      if (publicURL) {
+        background = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.Background.width,
+            height: ImageSizes.Event.ListItem.Background.height,
+          },
+        });
+        blurredBackground = getImageURL(publicURL, {
+          resize: {
+            type: "fill",
+            width: ImageSizes.Event.ListItem.BlurredBackground.width,
+            height: ImageSizes.Event.ListItem.BlurredBackground.height,
+          },
+          blur: BlurFactor,
+        });
+      }
+    } else {
+      background = DefaultImages.Event.Background;
+      blurredBackground = DefaultImages.Event.BlurredBackground;
+    }
+
+    return {
+      ...childEvent,
+      background,
+      blurredBackground,
+    };
+  });
+
+  const enhancedEvent = {
+    ...event,
+    childEvents: enhancedChildEvents,
+  };
+
+  return enhancedEvent;
 }
 
-export async function getParentEventsToAdd(options: {
+export async function getChildEventsToAdd(options: {
   authClient: SupabaseClient;
   userId: string;
   event: {
@@ -34,26 +112,28 @@ export async function getParentEventsToAdd(options: {
 }) {
   const { event, userId, authClient } = options;
 
-  const parentEventsToAdd = await prismaClient.event.findMany({
+  const childEventsToAdd = await prismaClient.event.findMany({
     where: {
       slug: {
         not: event.slug,
       },
-      parentEventId: null,
       admins: {
         some: {
           profileId: userId,
         },
       },
       startTime: {
-        lte: event.startTime,
+        gte: event.startTime,
       },
       endTime: {
-        gte: event.endTime,
+        lte: event.endTime,
       },
     },
     select: {
       id: true,
+      parentEventId: true,
+      published: true,
+      canceled: true,
       name: true,
       slug: true,
       backgroundImageMetaData: {
@@ -74,6 +154,7 @@ export async function getParentEventsToAdd(options: {
       _count: {
         select: {
           participants: true,
+          childEvents: true,
         },
       },
     },
@@ -82,7 +163,7 @@ export async function getParentEventsToAdd(options: {
     },
   });
 
-  const enhancedParentEventsToAdd = parentEventsToAdd.map((event) => {
+  const enhancedChildEventsToAdd = childEventsToAdd.map((event) => {
     let blurredBackground;
     let background =
       event.backgroundImageMetaData === null
@@ -119,7 +200,7 @@ export async function getParentEventsToAdd(options: {
     };
   });
 
-  return enhancedParentEventsToAdd;
+  return enhancedChildEventsToAdd;
 }
 
 export async function getEventBySlugForAction(slug: string) {
@@ -128,82 +209,100 @@ export async function getEventBySlugForAction(slug: string) {
       slug,
     },
     select: {
+      id: true,
       slug: true,
       startTime: true,
       endTime: true,
-      published: true,
     },
   });
 
   return event;
 }
 
-export async function addParentEvent(options: {
+export async function addChildEvent(options: {
   userId: string;
   event: {
+    id: string;
     slug: string;
     startTime: Date;
     endTime: Date;
-    published: boolean;
   };
-  parentEventId: string;
+  childEventId: string;
 }) {
-  const { userId, event, parentEventId } = options;
+  const { userId, event, childEventId } = options;
 
-  if (event.published === true) {
-    throw new Error("Cannot add parent event to a published event");
-  }
-
-  const parentEvent = await prismaClient.event.findFirst({
+  const childEvent = await prismaClient.event.findFirst({
     where: {
-      id: parentEventId,
+      id: childEventId,
       slug: {
         not: event.slug,
       },
+      published: false,
       parentEventId: null,
+      childEvents: {
+        none: {},
+      },
       admins: {
         some: {
           profileId: userId,
         },
       },
       startTime: {
-        lte: event.startTime,
+        gte: event.startTime,
       },
       endTime: {
-        gte: event.endTime,
+        lte: event.endTime,
       },
+    },
+    select: {
+      slug: true,
     },
   });
 
-  if (parentEvent === null) {
-    throw new Error("Parent event not found or not eligible to be a parent");
+  if (childEvent === null) {
+    throw new Error("Child event not found or not eligible to be a child");
   }
 
   await prismaClient.event.update({
     where: {
-      slug: event.slug,
+      slug: childEvent.slug,
     },
     data: {
-      parentEventId,
+      parentEventId: event.id,
     },
   });
 }
 
-export async function removeParentEvent(options: {
+export async function removeChildEvent(options: {
   event: {
-    slug: string;
-    published: boolean;
+    id: string;
   };
+  childEventId: string;
 }) {
-  const { event } = options;
+  const { event, childEventId } = options;
 
-  if (event.published === true) {
-    throw new Error("Cannot remove parent event from a published event");
+  const childEvent = await prismaClient.event.findFirst({
+    where: {
+      id: childEventId,
+      parentEventId: {
+        equals: event.id,
+      },
+      published: false,
+    },
+    select: {
+      slug: true,
+    },
+  });
+
+  if (childEvent === null) {
+    throw new Error(
+      "Child event not found or not eligible to be removed as a child"
+    );
   }
 
   await prismaClient.event.update({
     where: {
-      slug: event.slug,
+      slug: childEvent.slug,
     },
     data: {
       parentEventId: null,

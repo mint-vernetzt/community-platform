@@ -30,6 +30,7 @@ export const locale = {
     waitinglist: "Wartelistenplätze",
     seatsFree: "Plätzen frei",
     unlimitedSeats: "Unbegrenzte Plätze",
+    hasParentEvent: "Hat selbst ein Rahmenevent",
   },
   errors: {
     addParentEvent:

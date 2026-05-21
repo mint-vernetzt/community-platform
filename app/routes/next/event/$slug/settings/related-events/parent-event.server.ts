@@ -123,7 +123,6 @@ export async function getParentEventsToAdd(options: {
       slug: {
         not: event.slug,
       },
-      parentEventId: null,
       admins: {
         some: {
           profileId: userId,
@@ -138,6 +137,7 @@ export async function getParentEventsToAdd(options: {
     },
     select: {
       id: true,
+      parentEventId: true,
       name: true,
       slug: true,
       backgroundImageMetaData: {

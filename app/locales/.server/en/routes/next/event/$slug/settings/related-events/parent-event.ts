@@ -27,9 +27,10 @@ export const locale = {
   list: {
     more: "{{count}} more",
     less: "{{count}} less",
-    waitinglist: "Waiting list",
+    waitinglist: "Waiting list spots",
     seatsFree: "Seats available",
     unlimitedSeats: "Unlimited seats",
+    hasParentEvent: "already has a parent event",
   },
   errors: {
     addParentEvent:

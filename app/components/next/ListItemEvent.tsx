@@ -225,30 +225,32 @@ function ListItemInfo(props: {
 }
 
 function ListItemFlag(props: {
-  canceled: boolean;
-  published: boolean;
+  canceled?: boolean;
+  published?: boolean;
   locales: { draft: string; canceled: string };
 }) {
+  const { published = false, canceled = false, locales } = props;
+
   const classes = classNames(
     "flex font-semibold items-center ml-auto border-r-8 pr-4 h-30.75 @md:h-24 rounded-r-[7px]"
   );
 
-  if (props.canceled) {
+  if (canceled === true) {
     return (
       <div
         className={classNames(classes, "border-negative-700 text-negative-700")}
       >
-        {props.locales.canceled}
+        {locales.canceled}
       </div>
     );
   }
 
-  if (props.published === false) {
+  if (published === false) {
     return (
       <div
         className={classNames(classes, "border-primary-400 text-primary-400")}
       >
-        {props.locales.draft}
+        {locales.draft}
       </div>
     );
   }

@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-export const PARENT_EVENT_ID = "parentEventId";
-export const ADD_PARENT_EVENT_INTENT = "add_parent_event";
-export const REMOVE_PARENT_EVENT_INTENT = "remove_parent_event";
+export const EVENT_ID = "childEventId";
+export const ADD_CHILD_EVENT_INTENT = "add_child_event";
+export const REMOVE_CHILD_EVENT_INTENT = "remove_child_event";
 
-export function createAddParentEventSchema() {
+export function createAddOrRemoveChildEventSchema() {
   return z.object({
-    [PARENT_EVENT_ID]: z.string().uuid(),
+    [EVENT_ID]: z.string().uuid(),
   });
 }
