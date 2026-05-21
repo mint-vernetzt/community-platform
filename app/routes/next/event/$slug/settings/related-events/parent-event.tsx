@@ -189,7 +189,19 @@ function ParentEvent() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, parentEventsToAdd } = loaderData;
 
-  return event.published === true || event.parentEvent !== null ? (
+  return event._count.childEvents > 0 ? (
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.add.headline}
+        </TitleSection.Headline>
+      </TitleSection>
+      <Hint>
+        <Hint.InfoIcon />
+        {locales.route.add.hasChildEventsHint}
+      </Hint>
+    </>
+  ) : event.published === true || event.parentEvent !== null ? (
     <>
       <>
         <TitleSection>

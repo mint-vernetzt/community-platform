@@ -1,6 +1,8 @@
 export const locale = {
   add: {
     headline: "Rahmenveranstaltung hinzufügen",
+    hasChildEventsHint:
+      "Dein Event ist bereits als Rahmenveranstaltung angelegt. Daher kannst Du es nicht zusätzlich einem anderen Rahmenevent zuordnen. Wenn Du Dein Event stattdessen als Unterveranstaltung eines bestehenden Rahmenevents anlegen möchtest, entferne zuerst die Unterevents aus Deinem aktuellen Event. Danach kannst Du es einem Rahmenevent zuordnen.",
     subline:
       "Du kannst Deinem Event eine bestehende Rahmenveranstaltung zuordnen. Dadurch wird Dein Event zur Unterveranstaltung.",
     timePeriodHint:

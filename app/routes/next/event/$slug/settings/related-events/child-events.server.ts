@@ -16,95 +16,11 @@ export async function getEventBySlug(options: {
       slug,
     },
     select: {
-      slug: true,
-      published: true,
-      startTime: true,
-      endTime: true,
-      parentEvent: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          backgroundImageMetaData: {
-            select: {
-              path: true,
-            },
-          },
-          subline: true,
-          description: true,
-          stage: {
-            select: {
-              slug: true,
-            },
-          },
-          startTime: true,
-          endTime: true,
-          participantLimit: true,
-          _count: {
-            select: {
-              participants: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          childEvents: true,
-        },
-      },
+      parentEventId: true,
     },
   });
 
-  if (event === null) {
-    return null;
-  }
-
-  if (event.parentEvent === null) {
-    return event as typeof event & { parentEvent: null };
-  }
-
-  let blurredBackground;
-  let background =
-    event.parentEvent.backgroundImageMetaData === null
-      ? null
-      : event.parentEvent.backgroundImageMetaData.path;
-  if (background !== null) {
-    const publicURL = getPublicURL(authClient, background);
-    if (publicURL) {
-      background = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          width: ImageSizes.Event.ListItem.Background.width,
-          height: ImageSizes.Event.ListItem.Background.height,
-        },
-      });
-      blurredBackground = getImageURL(publicURL, {
-        resize: {
-          type: "fill",
-          width: ImageSizes.Event.ListItem.BlurredBackground.width,
-          height: ImageSizes.Event.ListItem.BlurredBackground.height,
-        },
-        blur: BlurFactor,
-      });
-    }
-  } else {
-    background = DefaultImages.Event.Background;
-    blurredBackground = DefaultImages.Event.BlurredBackground;
-  }
-
-  const enhancedParentEvent = {
-    ...event.parentEvent,
-    background,
-    blurredBackground,
-    isAdmin: await isAdminOfEvent(sessionUser, event.parentEvent.slug),
-  };
-
-  const enhancedEvent = {
-    ...event,
-    parentEvent: enhancedParentEvent,
-  };
-
-  return enhancedEvent;
+  return event;
 }
 
 export async function getParentEventsToAdd(options: {

@@ -1,6 +1,8 @@
 export const locale = {
   add: {
     headline: "Add Parent Event",
+    hasChildEventsHint:
+      "Your event is already set as a parent event. Therefore, you cannot assign it to another parent event. If you want to make your event a sub-event of an existing parent event, first remove the sub-events from your current event. Then you can assign it to a parent event.",
     subline:
       "You can assign an existing parent event to your event. This will make your event a sub-event.",
     timePeriodHint:
