@@ -1,8 +1,7 @@
-// Design:
-// Name: Grundstruktur_Gap_32px and Grundstruktur_Gap_24px
-
 import classNames from "classnames";
 
+// Design:
+// Name: Grundstruktur_Gap_32px and Grundstruktur_Gap_24px
 // Source: https://www.figma.com/design/EcsrhGDlDkVEYRAI1qmcD6/MINTvernetzt?node-id=10015-37242&m=dev
 function BasicStructure(props: { children: React.ReactNode }) {
   return (
@@ -20,28 +19,39 @@ function BasicStructure(props: { children: React.ReactNode }) {
 // TODO: No tablet and desktop size defined for the second Container in source
 // TODO: Another different container in following usage: https://www.figma.com/design/9aKvb1kUWVYaLDi4xjRaSB/Event-Settings?node-id=67-11724&m=dev
 // Therefore added deflatedUntil, gaps and rounded prop
+// TODO: Next different container in following usage: https://www.figma.com/design/9aKvb1kUWVYaLDi4xjRaSB/Event-Settings?node-id=1212-16079&m=dev
+// Therefore added deflatedUntil = false option and padding prop
 function Container(props: {
   children: React.ReactNode;
-  deflatedUntil?: "md" | "lg" | "xl";
+  deflatedUntil?: "md" | "lg" | "xl" | false;
   gaps?: {
     base: "gap-8" | "gap-4";
     md: "gap-8" | "gap-6" | "gap-4";
     xl: "gap-10" | "gap-6" | "gap-4";
   };
+  padding?: "p-6" | "p-4";
   rounded?: "rounded-2xl" | "rounded-lg";
 }) {
   const {
     children,
     deflatedUntil = "md",
     gaps = { base: "gap-8", md: "gap-6", xl: "gap-6" },
+    padding = "p-6",
     rounded = "rounded-2xl",
   } = props;
 
   const classes = classNames(
     "w-full flex flex-col bg-white ring-neutral-200",
-    deflatedUntil === "md" ? "md:p-6 md:ring" : "",
-    deflatedUntil === "lg" ? "lg:p-6 lg:ring" : "",
-    deflatedUntil === "xl" ? "xl:p-6 xl:ring" : "",
+    deflatedUntil === false ? `${padding === "p-6" ? "p-6" : "p-4"} ring` : "",
+    deflatedUntil === "md"
+      ? `${padding === "p-6" ? "md:p-6" : "md:p-4"} md:ring`
+      : "",
+    deflatedUntil === "lg"
+      ? `${padding === "p-6" ? "lg:p-6" : "lg:p-4"} lg:ring`
+      : "",
+    deflatedUntil === "xl"
+      ? `${padding === "p-6" ? "xl:p-6" : "xl:p-4"} xl:ring`
+      : "",
     rounded === "rounded-2xl" ? "rounded-2xl" : "",
     rounded === "rounded-lg" ? "rounded-lg" : "",
     gaps.base === "gap-4" ? "gap-4" : "",

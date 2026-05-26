@@ -41,7 +41,11 @@ export async function getSpeakersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatar: true,
+        avatarImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         position: true,
       },
     });
@@ -68,7 +72,11 @@ export async function getSpeakersOfEvent(options: {
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatar: true,
+        avatarImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         position: true,
         profileVisibility: {
           select: {
@@ -77,7 +85,7 @@ export async function getSpeakersOfEvent(options: {
             academicTitle: true,
             firstName: true,
             lastName: true,
-            avatar: true,
+            avatarImageMetaData: true,
             position: true,
           },
         },
@@ -86,7 +94,10 @@ export async function getSpeakersOfEvent(options: {
   }
 
   const enhancedSpeakers = speakers.map((speaker) => {
-    let avatar = speaker.avatar;
+    let avatar =
+      speaker.avatarImageMetaData === null
+        ? null
+        : speaker.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

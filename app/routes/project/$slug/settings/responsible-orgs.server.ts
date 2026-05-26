@@ -36,7 +36,11 @@ export async function getProjectWithResponsibleOrganizations(options: {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -70,7 +74,10 @@ export async function getProjectWithResponsibleOrganizations(options: {
   // enhance responsibleOrganizations with logo
   const responsibleOrganizations = project.responsibleOrganizations.map(
     (relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImageMetaData === null
+          ? null
+          : relation.organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -165,7 +172,11 @@ export async function getOwnOrganizationSuggestions(options: {
     select: {
       id: true,
       slug: true,
-      logo: true,
+      logoImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
       name: true,
       types: {
         select: {
@@ -190,7 +201,10 @@ export async function getOwnOrganizationSuggestions(options: {
 
   const enhancedOwnOrganizationSuggestions = ownOrganizationSuggestions.map(
     (organization) => {
-      let logo = organization.logo;
+      let logo =
+        organization.logoImageMetaData === null
+          ? null
+          : organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -309,7 +323,11 @@ export async function addResponsibleOrganizationToProject(options: {
 //           select: {
 //             id: true,
 //             slug: true,
-//             logo: true,
+//             logoImageMetaData: {
+//        select: {
+//          path: true,
+//        }
+//      },
 //             name: true,
 //             types: {
 //               select: {

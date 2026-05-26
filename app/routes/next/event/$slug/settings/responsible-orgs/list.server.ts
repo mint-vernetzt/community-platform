@@ -41,7 +41,11 @@ export async function getResponsibleOrgsOfEvent(options: {
         id: true,
         name: true,
         slug: true,
-        logo: true,
+        logoImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
       },
     });
   } else {
@@ -61,13 +65,20 @@ export async function getResponsibleOrgsOfEvent(options: {
         id: true,
         name: true,
         slug: true,
-        logo: true,
+        logoImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
       },
     });
   }
 
   const enhancedResponsibleOrgs = responsibleOrgs.map((organization) => {
-    let logo = organization.logo;
+    let logo =
+      organization.logoImageMetaData === null
+        ? null
+        : organization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);

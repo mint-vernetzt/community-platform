@@ -36,7 +36,11 @@ export async function getEventBySlug(slug: string) {
               id: true,
               username: true,
               position: true,
-              avatar: true,
+              avatarImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               firstName: true,
               lastName: true,
             },

@@ -38,7 +38,11 @@ export async function getProjectWithTeamMembers(options: {
               username: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               academicTitle: true,
               position: true,
             },
@@ -54,7 +58,10 @@ export async function getProjectWithTeamMembers(options: {
 
   // enhance teamMembers with avatar
   const teamMembers = project.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImageMetaData === null
+        ? null
+        : relation.profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -167,7 +174,11 @@ export async function addTeamMemberToProject(options: {
 //           username: true,
 //           firstName: true,
 //           lastName: true,
-//           avatar: true,
+//           avatarImageMetaData: {
+//        select: {
+//          path: true,
+//        }
+//      },
 //           academicTitle: true,
 //           position: true,
 //         },
@@ -181,7 +192,7 @@ export async function addTeamMemberToProject(options: {
 //   });
 
 //   const enhancedProfiles = profiles.map((relation) => {
-//     let avatar = relation.profile.avatar;
+//     let avatar = relation.profile.avatarImageMetaData === null ? null : relation.profile.avatarImageMetaData.path;
 //     let blurredAvatar;
 //     if (avatar !== null) {
 //       const publicURL = getPublicURL(authClient, avatar);

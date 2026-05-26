@@ -14,8 +14,16 @@ export async function getAllOrganizations(options: {
       id: true,
       slug: true,
       name: true,
-      logo: true,
-      background: true,
+      logoImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
+      backgroundImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
       types: {
         select: {
           organizationType: {
@@ -58,14 +66,18 @@ export async function getAllOrganizations(options: {
             select: {
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               username: true,
               id: true,
               profileVisibility: {
                 select: {
                   firstName: true,
                   lastName: true,
-                  avatar: true,
+                  avatarImageMetaData: true,
                   username: true,
                   id: true,
                 },
@@ -79,8 +91,8 @@ export async function getAllOrganizations(options: {
           id: true,
           slug: true,
           name: true,
-          logo: true,
-          background: true,
+          logoImageMetaData: true,
+          backgroundImageMetaData: true,
           types: true,
           networkTypes: true,
           focuses: true,

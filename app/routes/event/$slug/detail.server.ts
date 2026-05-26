@@ -12,7 +12,7 @@ import {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { filterProfileByVisibility } from "~/next-public-fields-filtering.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
@@ -35,7 +35,12 @@ export async function getEventBySlug(
       name: true,
       description: true,
       slug: true,
-      background: true,
+      backgroundImageMetaData: {
+        select: {
+          path: true,
+          description: true,
+        },
+      },
       startTime: true,
       endTime: true,
       venueName: true,
@@ -92,7 +97,11 @@ export async function getEventBySlug(
             select: {
               name: true,
               slug: true,
-              logo: true,
+              logoImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
             },
           },
         },
@@ -565,7 +574,16 @@ export async function uploadBackgroundImage(options: {
             slug,
           },
           data: {
-            [uploadKey]: fileMetadataForDatabase.path,
+            backgroundImageMetaData: {
+              upsert: {
+                create: {
+                  ...fileMetadataForDatabase,
+                },
+                update: {
+                  ...fileMetadataForDatabase,
+                },
+              },
+            },
           },
         });
       } catch (error) {
@@ -644,7 +662,9 @@ export async function disconnectBackgroundImage(options: {
             slug,
           },
           data: {
-            [uploadKey]: null,
+            backgroundImageMetaData: {
+              delete: true,
+            },
           },
         });
       } catch (error) {
@@ -708,7 +728,11 @@ export async function getContactPersonsOfEvent(options: {
           lastName: true,
           email: true,
           phone: true,
-          avatar: true,
+          avatarImageMetaData: {
+            select: {
+              path: true,
+            },
+          },
           position: true,
           profileVisibility: {
             select: {
@@ -719,7 +743,7 @@ export async function getContactPersonsOfEvent(options: {
               email: true,
               phone: true,
               lastName: true,
-              avatar: true,
+              avatarImageMetaData: true,
               position: true,
             },
           },
@@ -739,7 +763,10 @@ export async function getContactPersonsOfEvent(options: {
       filteredContactPerson = { ...contactPerson.profile };
     }
 
-    let avatar = filteredContactPerson.avatar;
+    let avatar =
+      filteredContactPerson.avatarImageMetaData === null
+        ? null
+        : filteredContactPerson.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

@@ -29,8 +29,16 @@ export async function getProfileByUsername(username: string) {
     select: {
       id: true,
       username: true,
-      avatar: true,
-      background: true,
+      avatarImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
+      backgroundImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
       email: true,
       email2: true,
       phone: true,
@@ -60,7 +68,11 @@ export async function getProfileByUsername(username: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               types: {
                 select: {
@@ -75,7 +87,7 @@ export async function getProfileByUsername(username: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImageMetaData: true,
                   name: true,
                   types: true,
                 },
@@ -100,7 +112,11 @@ export async function getProfileByUsername(username: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               responsibleOrganizations: {
                 select: {
@@ -122,7 +138,7 @@ export async function getProfileByUsername(username: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImageMetaData: true,
                   name: true,
                   responsibleOrganizations: true,
                 },
@@ -164,7 +180,11 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
-              background: true,
+              backgroundImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               eventVisibility: {
                 select: {
                   id: true,
@@ -181,7 +201,7 @@ export async function getProfileByUsername(username: string) {
                   canceled: true,
                   subline: true,
                   description: true,
-                  background: true,
+                  backgroundImageMetaData: true,
                 },
               },
             },
@@ -222,7 +242,11 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
-              background: true,
+              backgroundImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               eventVisibility: {
                 select: {
                   id: true,
@@ -239,7 +263,7 @@ export async function getProfileByUsername(username: string) {
                   canceled: true,
                   subline: true,
                   description: true,
-                  background: true,
+                  backgroundImageMetaData: true,
                 },
               },
             },
@@ -280,7 +304,11 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
-              background: true,
+              backgroundImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               eventVisibility: {
                 select: {
                   id: true,
@@ -297,7 +325,7 @@ export async function getProfileByUsername(username: string) {
                   canceled: true,
                   subline: true,
                   description: true,
-                  background: true,
+                  backgroundImageMetaData: true,
                 },
               },
             },
@@ -338,7 +366,11 @@ export async function getProfileByUsername(username: string) {
                   waitingList: true,
                 },
               },
-              background: true,
+              backgroundImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               eventVisibility: {
                 select: {
                   id: true,
@@ -355,7 +387,7 @@ export async function getProfileByUsername(username: string) {
                   canceled: true,
                   subline: true,
                   description: true,
-                  background: true,
+                  backgroundImageMetaData: true,
                 },
               },
             },
@@ -371,8 +403,8 @@ export async function getProfileByUsername(username: string) {
         select: {
           id: true,
           username: true,
-          avatar: true,
-          background: true,
+          avatarImageMetaData: true,
+          backgroundImageMetaData: true,
           email: true,
           email2: true,
           phone: true,
@@ -447,9 +479,24 @@ export async function uploadImage(options: {
           where: {
             username,
           },
-          data: {
-            [uploadKey]: fileMetadataForDatabase.path,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImageMetaData: {
+                    upsert: {
+                      create: { ...fileMetadataForDatabase },
+                      update: { ...fileMetadataForDatabase },
+                    },
+                  },
+                }
+              : {
+                  avatarImageMetaData: {
+                    upsert: {
+                      create: { ...fileMetadataForDatabase },
+                      update: { ...fileMetadataForDatabase },
+                    },
+                  },
+                },
           select: {
             id: true,
           },
@@ -520,9 +567,18 @@ export async function disconnectImage(options: {
           where: {
             username,
           },
-          data: {
-            [uploadKey]: null,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImageMetaData: {
+                    delete: true,
+                  },
+                }
+              : {
+                  avatarImageMetaData: {
+                    delete: true,
+                  },
+                },
           select: {
             id: true,
           },

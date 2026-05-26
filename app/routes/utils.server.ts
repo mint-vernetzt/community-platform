@@ -10,7 +10,7 @@ import { SearchOrganizations, SearchProfiles } from "~/lib/utils/searchParams";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type Mode } from "~/utils.server";
@@ -75,7 +75,11 @@ export async function getOrganizationSuggestionsForAutocomplete(
     select: {
       id: true,
       name: true,
-      logo: true,
+      logoImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
       types: {
         select: {
           organizationType: {
@@ -104,7 +108,10 @@ export async function getOrganizationSuggestionsForAutocomplete(
 
   const enhancedOrganizationSuggestions = organizationSuggestions.map(
     (organization) => {
-      let logo = organization.logo;
+      let logo =
+        organization.logoImageMetaData === null
+          ? null
+          : organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);
@@ -181,7 +188,11 @@ export async function getProfileSuggestionsForAutocomplete(
       id: true,
       firstName: true,
       lastName: true,
-      avatar: true,
+      avatarImageMetaData: {
+        select: {
+          path: true,
+        },
+      },
       position: true,
     },
     where: {
@@ -201,7 +212,10 @@ export async function getProfileSuggestionsForAutocomplete(
   });
 
   const enhancedProfileSuggestions = profileSuggestions.map((profile) => {
-    let avatar = profile.avatar;
+    let avatar =
+      profile.avatarImageMetaData === null
+        ? null
+        : profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -282,7 +296,11 @@ export async function searchProfiles(options: {
         firstName: true,
         lastName: true,
         username: true,
-        avatar: true,
+        avatarImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         academicTitle: true,
         position: true,
         profileVisibility: {
@@ -290,7 +308,7 @@ export async function searchProfiles(options: {
             firstName: true,
             lastName: true,
             username: true,
-            avatar: true,
+            avatarImageMetaData: true,
             academicTitle: true,
             position: true,
           },
@@ -344,7 +362,10 @@ export async function searchProfiles(options: {
   }
 
   const enhancedSearchedProfiles = filteredSearchedProfiles.map((relation) => {
-    let avatar = relation.avatar;
+    let avatar =
+      relation.avatarImageMetaData === null
+        ? null
+        : relation.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -406,7 +427,11 @@ export async function searchOrganizations(options: {
       select: {
         id: true,
         slug: true,
-        logo: true,
+        logoImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         name: true,
         shadow: true,
         types: {
@@ -431,7 +456,7 @@ export async function searchOrganizations(options: {
           select: {
             id: true,
             slug: true,
-            logo: true,
+            logoImageMetaData: true,
             name: true,
             types: true,
             networkTypes: true,
@@ -503,7 +528,10 @@ export async function searchOrganizations(options: {
 
   const enhancedSearchedOrganizations = filteredSearchedOrganizations.map(
     (relation) => {
-      let logo = relation.logo;
+      let logo =
+        relation.logoImageMetaData === null
+          ? null
+          : relation.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

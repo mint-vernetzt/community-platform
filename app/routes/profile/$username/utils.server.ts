@@ -8,7 +8,7 @@ import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
   filterProjectByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import {
@@ -251,7 +251,10 @@ export async function updateFilterVectorOfProfile(profileId: string) {
 }
 
 export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
-  let avatar = profile.avatar;
+  let avatar =
+    profile.avatarImageMetaData === null
+      ? null
+      : profile.avatarImageMetaData.path;
   let blurredAvatar;
   if (avatar !== null) {
     const publicURL = getPublicURL(authClient, avatar);
@@ -265,7 +268,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
       });
     }
   }
-  let background = profile.background;
+  let background =
+    profile.backgroundImageMetaData === null
+      ? null
+      : profile.backgroundImageMetaData.path;
   let blurredBackground;
   if (background !== null) {
     const publicURL = getPublicURL(authClient, background);
@@ -287,7 +293,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   }
 
   const memberOf = profile.memberOf.map((relation) => {
-    let logo = relation.organization.logo;
+    let logo =
+      relation.organization.logoImageMetaData === null
+        ? null
+        : relation.organization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -314,7 +323,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
   const teamMemberOfProjects = profile.teamMemberOfProjects.map(
     (projectRelation) => {
-      let projectLogo = projectRelation.project.logo;
+      let projectLogo =
+        projectRelation.project.logoImageMetaData === null
+          ? null
+          : projectRelation.project.logoImageMetaData.path;
       let blurredLogo;
       if (projectLogo !== null) {
         const publicURL = getPublicURL(authClient, projectLogo);
@@ -342,7 +354,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   );
 
   const teamMemberOfEvents = profile.teamMemberOfEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImageMetaData === null
+        ? null
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -372,7 +387,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const contributedEvents = profile.contributedEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImageMetaData === null
+        ? null
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -402,7 +420,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const participatedEvents = profile.participatedEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImageMetaData === null
+        ? null
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -432,7 +453,10 @@ export function addImgUrls(authClient: SupabaseClient, profile: ProfileQuery) {
   });
 
   const waitingForEvents = profile.waitingForEvents.map((relation) => {
-    let background = relation.event.background;
+    let background =
+      relation.event.backgroundImageMetaData === null
+        ? null
+        : relation.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

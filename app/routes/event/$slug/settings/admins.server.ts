@@ -21,7 +21,11 @@ export async function getEvent(slug: string) {
               username: true,
               firstName: true,
               lastName: true,
-              avatar: true,
+              avatarImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               position: true,
             },
           },

@@ -11,7 +11,7 @@ import { detectLanguage } from "~/i18n.server";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
-import { filterOrganizationByVisibility } from "~/next-public-fields-filtering.server";
+import { filterOrganizationByVisibility } from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import customMapStyles from "~/styles/map/map.css?url";
 import { getFilterSchemes } from "./explore/all.shared";
@@ -65,7 +65,10 @@ export async function loader(args: LoaderFunctionArgs) {
     // Add images from image proxy
 
     // Usage:
-    let logo = enhancedOrganization.logo;
+    let logo =
+      enhancedOrganization.logoImageMetaData === null
+        ? null
+        : enhancedOrganization.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -91,7 +94,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
     const networkMembers = enhancedOrganization.networkMembers.map(
       (relation) => {
-        let logo = relation.networkMember.logo;
+        let logo =
+          relation.networkMember.logoImageMetaData === null
+            ? null
+            : relation.networkMember.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

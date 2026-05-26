@@ -3,7 +3,7 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -24,7 +24,11 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               username: true,
-              avatar: true,
+              avatarImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               firstName: true,
               lastName: true,
               academicTitle: true,
@@ -32,7 +36,7 @@ export async function getOrganization(slug: string) {
               profileVisibility: {
                 select: {
                   username: true,
-                  avatar: true,
+                  avatarImageMetaData: true,
                   firstName: true,
                   lastName: true,
                   academicTitle: true,
@@ -89,7 +93,10 @@ export function addImgUrls(
   organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 ) {
   const teamMembers = organization.teamMembers.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImageMetaData === null
+        ? null
+        : relation.profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

@@ -35,7 +35,11 @@ export async function getChildEventsOfEvent(options: {
         id: true,
         slug: true,
         name: true,
-        background: true,
+        backgroundImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         description: true,
         subline: true,
         startTime: true,
@@ -80,7 +84,11 @@ export async function getChildEventsOfEvent(options: {
         id: true,
         slug: true,
         name: true,
-        background: true,
+        backgroundImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
         description: true,
         subline: true,
         startTime: true,
@@ -127,7 +135,10 @@ export async function getChildEventsOfEvent(options: {
       const isMember = await getIsMember(sessionUser, event);
 
       let blurredBackground;
-      let background = event.background;
+      let background =
+        event.backgroundImageMetaData === null
+          ? null
+          : event.backgroundImageMetaData.path;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
         if (publicURL) {

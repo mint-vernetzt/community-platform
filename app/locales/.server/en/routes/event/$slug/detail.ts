@@ -7,7 +7,7 @@ export const locale = {
     waitingListAvailable: "Seats on waiting list available",
     copy: "Copy URL",
     copied: "URL copied!",
-    onSite: "on site",
+    onSite: "On-Site",
     online: "Online Event",
     hybrid: "Hybrid Event",
     details: "Event details",

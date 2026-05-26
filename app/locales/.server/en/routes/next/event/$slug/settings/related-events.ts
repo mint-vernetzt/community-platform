@@ -1,1 +1,6 @@
-export const locale = {} as const;
+export const locale = {
+  tabbar: {
+    parentEvent: "Parent Event",
+    childEvents: "Child Events",
+  },
+} as const;

@@ -56,7 +56,10 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const enhancedAdmins = event.admins.map((relation) => {
-    let avatar = relation.profile.avatar;
+    let avatar =
+      relation.profile.avatarImageMetaData === null
+        ? null
+        : relation.profile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);

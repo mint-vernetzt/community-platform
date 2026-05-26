@@ -3,6 +3,7 @@ import { type ImageCropperLocales } from "./components/legacy/ImageCropper/Image
 import { INTENT_FIELD_NAME } from "./form-helpers";
 import { insertParametersIntoLocale } from "./lib/utils/i18n";
 import { type ProjectAttachmentSettingsLocales } from "./routes/project/$slug/settings/attachments.server";
+import { transformEmptyToNull } from "./lib/utils/schemas";
 
 // TODO: Connect this with the equivalent nginx.conf settings
 // Max upload size (Remember to change nginx.conf when changing this)
@@ -100,15 +101,25 @@ export const IMAGE_MIME_TYPES = [
 export const FILE_FIELD_NAME = "file";
 // Field name for determining the bucket to upload the file to -> Please use this as name attribute on all file upload forms
 export const BUCKET_FIELD_NAME = "bucket";
+
+// Documents
 export const DOCUMENT_ID_FIELD_NAME = "documentId";
 export const DOCUMENT_TITLE_FIELD_NAME = "title";
 export const DOCUMENT_DESCRIPTION_FIELD_NAME = "description";
 export const DOCUMENT_DESCRIPTION_MAX_LENGTH = 80;
 export const SEARCH_DOCUMENTS_SEARCH_PARAM = "search_documents";
+
+// Images
+export const IMAGE_DESCRIPTION_FIELD_NAME = "description";
+export const IMAGE_DESCRIPTION_MAX_LENGTH = 125;
+export const IMAGE_CREDITS_FIELD_NAME = "credits";
+export const IMAGE_CREDITS_MAX_LENGTH = 100;
 // Field value for determining the intent of the submitted form when using multiple forms on one route -> Please use this value as defaultValue attribute on file form submit button
-export const UPLOAD_DOCUMENT_INTENT_VALUE = "upload";
-export const EDIT_DOCUMENT_INTENT_VALUE = "edit";
-export const REMOVE_DOCUMENT_INTENT_VALUE = "remove";
+export const UPLOAD_DOCUMENT_INTENT_VALUE = "upload-document";
+export const UPLOAD_IMAGE_INTENT_VALUE = "upload-image";
+export const EDIT_DOCUMENT_INTENT_VALUE = "edit-document";
+export const REMOVE_DOCUMENT_INTENT_VALUE = "remove-document";
+export const REMOVE_IMAGE_INTENT_VALUE = "remove-image";
 export const BUCKET_NAME_IMAGES = "images";
 export const BUCKET_NAME_DOCUMENTS = "documents";
 
@@ -155,7 +166,10 @@ export function nextGetUploadDocumentSchema(locales: {
       .refine((file) => {
         return DOCUMENT_MIME_TYPES.includes(file.type);
       }, locales.invalidType),
-    [DOCUMENT_TITLE_FIELD_NAME]: z.string().optional(),
+    [DOCUMENT_TITLE_FIELD_NAME]: z
+      .string()
+      .optional()
+      .transform(transformEmptyToNull),
     [DOCUMENT_DESCRIPTION_FIELD_NAME]: z
       .string()
       .max(
@@ -164,7 +178,8 @@ export function nextGetUploadDocumentSchema(locales: {
           max: DOCUMENT_DESCRIPTION_MAX_LENGTH,
         })
       )
-      .optional(),
+      .optional()
+      .transform(transformEmptyToNull),
   });
 }
 
@@ -188,6 +203,54 @@ export function getUploadImageSchema(
     [BUCKET_FIELD_NAME]: z.enum([BUCKET_NAME_IMAGES]),
     [INTENT_FIELD_NAME]: z.enum([UPLOAD_DOCUMENT_INTENT_VALUE]),
   };
+}
+
+// TODO: When used with different buckets extend this with BUCKET_FIELD_NAME like above
+export function nextGetUploadImageSchema(locales: {
+  maxSize: string;
+  invalidType: string;
+  descriptionTooLong: string;
+  creditsTooLong: string;
+}) {
+  return z.object({
+    [FILE_FIELD_NAME]: z
+      .instanceof(File)
+      .superRefine((file, ctx) => {
+        if (file.size > MAX_UPLOAD_FILE_SIZE) {
+          ctx.addIssue({
+            code: "custom",
+            message: insertParametersIntoLocale(locales.maxSize, {
+              size: Math.round((file.size / 1000 / 1000) * 10) / 10,
+            }),
+          });
+          return z.NEVER;
+        }
+      })
+      .refine((file) => {
+        return IMAGE_MIME_TYPES.includes(file.type);
+      }, locales.invalidType)
+      .optional(),
+    [IMAGE_DESCRIPTION_FIELD_NAME]: z
+      .string()
+      .max(
+        IMAGE_DESCRIPTION_MAX_LENGTH,
+        insertParametersIntoLocale(locales.descriptionTooLong, {
+          max: IMAGE_DESCRIPTION_MAX_LENGTH,
+        })
+      )
+      .optional()
+      .transform(transformEmptyToNull),
+    [IMAGE_CREDITS_FIELD_NAME]: z
+      .string()
+      .max(
+        IMAGE_CREDITS_MAX_LENGTH,
+        insertParametersIntoLocale(locales.creditsTooLong, {
+          max: IMAGE_CREDITS_MAX_LENGTH,
+        })
+      )
+      .optional()
+      .transform(transformEmptyToNull),
+  });
 }
 
 export function getRemoveDocumentSchema() {

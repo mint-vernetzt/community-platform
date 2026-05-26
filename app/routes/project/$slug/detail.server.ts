@@ -59,9 +59,32 @@ export async function uploadImage(options: {
           where: {
             slug,
           },
-          data: {
-            [uploadKey]: fileMetadataForDatabase.path,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImageMetaData: {
+                    upsert: {
+                      create: {
+                        ...fileMetadataForDatabase,
+                      },
+                      update: {
+                        ...fileMetadataForDatabase,
+                      },
+                    },
+                  },
+                }
+              : {
+                  logoImageMetaData: {
+                    upsert: {
+                      create: {
+                        ...fileMetadataForDatabase,
+                      },
+                      update: {
+                        ...fileMetadataForDatabase,
+                      },
+                    },
+                  },
+                },
         });
       } catch (error) {
         console.error({ error });
@@ -125,9 +148,18 @@ export async function disconnectImage(options: {
           where: {
             slug,
           },
-          data: {
-            [uploadKey]: null,
-          },
+          data:
+            uploadKey === "background"
+              ? {
+                  backgroundImageMetaData: {
+                    delete: true,
+                  },
+                }
+              : {
+                  logoImageMetaData: {
+                    delete: true,
+                  },
+                },
         });
       } catch (error) {
         console.error({ error });

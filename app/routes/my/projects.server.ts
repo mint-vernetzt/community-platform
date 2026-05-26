@@ -28,8 +28,16 @@ export async function getProjects(options: {
     slug: true,
     description: true,
     excerpt: true,
-    background: true,
-    logo: true,
+    backgroundImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
+    logoImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
     published: true,
     responsibleOrganizations: {
       select: {
@@ -37,7 +45,11 @@ export async function getProjects(options: {
           select: {
             name: true,
             slug: true,
-            logo: true,
+            logoImageMetaData: {
+              select: {
+                path: true,
+              },
+            },
           },
         },
       },
@@ -74,7 +86,10 @@ export async function getProjects(options: {
   ]);
 
   const enhancedAdminProjects = adminProjects.map((project) => {
-    let background = project.background;
+    let background =
+      project.backgroundImageMetaData === null
+        ? null
+        : project.backgroundImageMetaData.path;
     let blurredBackground;
 
     if (background !== null) {
@@ -94,7 +109,10 @@ export async function getProjects(options: {
       blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
-    let logo = project.logo;
+    let logo =
+      project.logoImageMetaData === null
+        ? null
+        : project.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -109,7 +127,10 @@ export async function getProjects(options: {
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
-        let logo = responsibleOrganization.organization.logo;
+        let logo =
+          responsibleOrganization.organization.logoImageMetaData === null
+            ? null
+            : responsibleOrganization.organization.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);
@@ -149,7 +170,10 @@ export async function getProjects(options: {
   });
 
   const enhancedTeamMemberProjects = teamMemberProjects.map((project) => {
-    let background = project.background;
+    let background =
+      project.backgroundImageMetaData === null
+        ? null
+        : project.backgroundImageMetaData.path;
     let blurredBackground;
 
     if (background !== null) {
@@ -169,7 +193,10 @@ export async function getProjects(options: {
       blurredBackground = DefaultImages.Project.BlurredBackground;
     }
 
-    let logo = project.logo;
+    let logo =
+      project.logoImageMetaData === null
+        ? null
+        : project.logoImageMetaData.path;
     let blurredLogo;
     if (logo !== null) {
       const publicURL = getPublicURL(authClient, logo);
@@ -184,7 +211,10 @@ export async function getProjects(options: {
 
     const responsibleOrganizations = project.responsibleOrganizations.map(
       (responsibleOrganization) => {
-        let logo = responsibleOrganization.organization.logo;
+        let logo =
+          responsibleOrganization.organization.logoImageMetaData === null
+            ? null
+            : responsibleOrganization.organization.logoImageMetaData.path;
         let blurredLogo;
         if (logo !== null) {
           const publicURL = getPublicURL(authClient, logo);

@@ -81,6 +81,8 @@ import { locale as deNextEventSettingsChangeURL } from "./de/routes/next/event/$
 import { locale as deNextEventSettingsCancel } from "./de/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as deNextEventSettingsDelete } from "./de/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as deNextEventSettingsDetails } from "./de/routes/next/event/$slug/settings/details";
+import { locale as deNextEventSettingsDetailsInfo } from "./de/routes/next/event/$slug/settings/details/info";
+import { locale as deNextEventSettingsDetailsBackground } from "./de/routes/next/event/$slug/settings/details/background";
 import { locale as deNextEventSettingsDocuments } from "./de/routes/next/event/$slug/settings/documents";
 import { locale as deNextEventSettingsDocumentsList } from "./de/routes/next/event/$slug/settings/documents/list";
 import { locale as deNextEventSettingsDocumentsAdd } from "./de/routes/next/event/$slug/settings/documents/add";
@@ -95,6 +97,8 @@ import { locale as deNextEventSettingsRegistrationAccess } from "./de/routes/nex
 import { locale as deNextEventSettingsRegistrationPeriod } from "./de/routes/next/event/$slug/settings/registration/period";
 import { locale as deNextEventSettingsRegistrationLimit } from "./de/routes/next/event/$slug/settings/registration/limit";
 import { locale as deNextEventSettingsRelatedEvents } from "./de/routes/next/event/$slug/settings/related-events";
+import { locale as deNextEventSettingsRelatedEventsParentEvent } from "./de/routes/next/event/$slug/settings/related-events/parent-event";
+import { locale as deNextEventSettingsRelatedEventsChildEvents } from "./de/routes/next/event/$slug/settings/related-events/child-events";
 import { locale as deNextEventSettingsResponsibleOrgs } from "./de/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as deNextEventSettingsResponsibleOrgsList } from "./de/routes/next/event/$slug/settings/responsible-orgs/list";
 import { locale as deNextEventSettingsResponsibleOrgsAdd } from "./de/routes/next/event/$slug/settings/responsible-orgs/add";
@@ -291,6 +295,8 @@ import { locale as enNextEventSettingsChangeURL } from "./en/routes/next/event/$
 import { locale as enNextEventSettingsCancel } from "./en/routes/next/event/$slug/settings/danger-zone/cancel";
 import { locale as enNextEventSettingsDelete } from "./en/routes/next/event/$slug/settings/danger-zone/delete";
 import { locale as enNextEventSettingsDetails } from "./en/routes/next/event/$slug/settings/details";
+import { locale as enNextEventSettingsDetailsInfo } from "./en/routes/next/event/$slug/settings/details/info";
+import { locale as enNextEventSettingsDetailsBackground } from "./en/routes/next/event/$slug/settings/details/background";
 import { locale as enNextEventSettingsDocuments } from "./en/routes/next/event/$slug/settings/documents";
 import { locale as enNextEventSettingsDocumentsList } from "./en/routes/next/event/$slug/settings/documents/list";
 import { locale as enNextEventSettingsDocumentsAdd } from "./en/routes/next/event/$slug/settings/documents/add";
@@ -305,6 +311,8 @@ import { locale as enNextEventSettingsRegistrationAccess } from "./en/routes/nex
 import { locale as enNextEventSettingsRegistrationPeriod } from "./en/routes/next/event/$slug/settings/registration/period";
 import { locale as enNextEventSettingsRegistrationLimit } from "./en/routes/next/event/$slug/settings/registration/limit";
 import { locale as enNextEventSettingsRelatedEvents } from "./en/routes/next/event/$slug/settings/related-events";
+import { locale as enNextEventSettingsRelatedEventsParentEvent } from "./en/routes/next/event/$slug/settings/related-events/parent-event";
+import { locale as enNextEventSettingsRelatedEventsChildEvents } from "./en/routes/next/event/$slug/settings/related-events/child-events";
 import { locale as enNextEventSettingsResponsibleOrgs } from "./en/routes/next/event/$slug/settings/responsible-orgs";
 import { locale as enNextEventSettingsResponsibleOrgsList } from "./en/routes/next/event/$slug/settings/responsible-orgs/list";
 import { locale as enNextEventSettingsResponsibleOrgsAdd } from "./en/routes/next/event/$slug/settings/responsible-orgs/add";
@@ -579,6 +587,9 @@ const de = {
   },
   "next/event/$slug/settings/details": {
     route: deNextEventSettingsDetails,
+  },
+  "next/event/$slug/settings/details/info": {
+    route: deNextEventSettingsDetailsInfo,
     types: deEventTypes,
     tags: deTags,
     eventTargetGroups: deEventTargetGroups,
@@ -586,6 +597,10 @@ const de = {
     focuses: deFocuses,
     components: deComponents,
     rte: deRTE,
+  },
+  "next/event/$slug/settings/details/background": {
+    route: deNextEventSettingsDetailsBackground,
+    components: deComponents,
   },
   "next/event/$slug/settings/documents": {
     route: deNextEventSettingsDocuments,
@@ -634,6 +649,14 @@ const de = {
   },
   "next/event/$slug/settings/related-events": {
     route: deNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/related-events/parent-event": {
+    route: deNextEventSettingsRelatedEventsParentEvent,
+    stages: deStages,
+  },
+  "next/event/$slug/settings/related-events/child-events": {
+    route: deNextEventSettingsRelatedEventsChildEvents,
+    stages: deStages,
   },
   "next/event/$slug/settings/responsible-orgs": {
     route: deNextEventSettingsResponsibleOrgs,
@@ -1128,6 +1151,9 @@ const en = {
   },
   "next/event/$slug/settings/details": {
     route: enNextEventSettingsDetails,
+  },
+  "next/event/$slug/settings/details/info": {
+    route: enNextEventSettingsDetailsInfo,
     types: enEventTypes,
     tags: enTags,
     eventTargetGroups: enEventTargetGroups,
@@ -1135,6 +1161,10 @@ const en = {
     focuses: enFocuses,
     components: enComponents,
     rte: enRTE,
+  },
+  "next/event/$slug/settings/details/background": {
+    route: enNextEventSettingsDetailsBackground,
+    components: enComponents,
   },
   "next/event/$slug/settings/documents": {
     route: enNextEventSettingsDocuments,
@@ -1183,6 +1213,14 @@ const en = {
   },
   "next/event/$slug/settings/related-events": {
     route: enNextEventSettingsRelatedEvents,
+  },
+  "next/event/$slug/settings/related-events/parent-event": {
+    route: enNextEventSettingsRelatedEventsParentEvent,
+    stages: enStages,
+  },
+  "next/event/$slug/settings/related-events/child-events": {
+    route: enNextEventSettingsRelatedEventsChildEvents,
+    stages: enStages,
   },
   "next/event/$slug/settings/responsible-orgs": {
     route: enNextEventSettingsResponsibleOrgs,

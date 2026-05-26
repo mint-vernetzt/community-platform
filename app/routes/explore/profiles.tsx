@@ -42,7 +42,7 @@ import { languageModuleMap } from "~/locales/.server";
 import {
   filterOrganizationByVisibility,
   filterProfileByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { getPublicURL } from "~/storage.server";
 import { type FilterSchemes, getFilterSchemes } from "./all.shared";
 import {
@@ -143,7 +143,10 @@ export async function loader(args: LoaderFunctionArgs) {
     }
 
     // Add image urls for image proxy
-    let avatar = enhancedProfile.avatar;
+    let avatar =
+      enhancedProfile.avatarImageMetaData === null
+        ? null
+        : enhancedProfile.avatarImageMetaData.path;
     let blurredAvatar;
     if (avatar !== null) {
       const publicURL = getPublicURL(authClient, avatar);
@@ -165,7 +168,10 @@ export async function loader(args: LoaderFunctionArgs) {
         });
       }
     }
-    let background = enhancedProfile.background;
+    let background =
+      enhancedProfile.backgroundImageMetaData === null
+        ? null
+        : enhancedProfile.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -192,7 +198,10 @@ export async function loader(args: LoaderFunctionArgs) {
     }
 
     const memberOf = enhancedProfile.memberOf.map((relation) => {
-      let logo = relation.organization.logo;
+      let logo =
+        relation.organization.logoImageMetaData === null
+          ? null
+          : relation.organization.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

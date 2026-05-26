@@ -5,7 +5,11 @@ async function main() {
   const transactions = [];
 
   const profiles = await prismaClient.profile.findMany({
-    include: { areas: true },
+    include: {
+      areas: true,
+      avatarImageMetaData: true,
+      backgroundImageMetaData: true,
+    },
   });
 
   console.log(`Updating score of ${profiles.length} profiles.`);
@@ -24,7 +28,12 @@ async function main() {
   }
 
   const organizations = await prismaClient.organization.findMany({
-    include: { areas: true, types: true },
+    include: {
+      areas: true,
+      types: true,
+      logoImageMetaData: true,
+      backgroundImageMetaData: true,
+    },
   });
 
   console.log(`Updating score of ${organizations.length} organizations.`);

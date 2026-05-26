@@ -65,4 +65,8 @@ export const locale = assertFocusLocales({
     title: "Bildung für nachhaltige Entwicklung",
     description: null,
   },
+  school_based_and_extracurricular_cooperation: {
+    title: "Schulisch-außerschulische Kooperation",
+    description: null,
+  },
 } as const);

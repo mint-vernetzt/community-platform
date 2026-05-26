@@ -33,7 +33,11 @@ export async function getEvents(options: {
   const selectBase = {
     name: true,
     slug: true,
-    background: true,
+    backgroundImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
     canceled: true,
     subline: true,
     description: true,
@@ -145,7 +149,10 @@ export async function getEvents(options: {
 
   // TODO: generate general utils function for this (had ts problems)
   const enhancedAdminEvents = adminEvents.map((event) => {
-    let background = event.background;
+    let background =
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -171,7 +178,10 @@ export async function getEvents(options: {
     };
   });
   const enhancedTeamMemberEvents = teamMemberEvents.map((event) => {
-    let background = event.background;
+    let background =
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -197,7 +207,10 @@ export async function getEvents(options: {
     };
   });
   const enhancedSpeakerEvents = speakerEvents.map((event) => {
-    let background = event.background;
+    let background =
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -223,7 +236,10 @@ export async function getEvents(options: {
     };
   });
   const enhancedParticipantEvents = participantEvents.map((event) => {
-    let background = event.background;
+    let background =
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -249,7 +265,10 @@ export async function getEvents(options: {
     };
   });
   const enhancedWaitingListEvents = waitingListEvents.map((event) => {
-    let background = event.background;
+    let background =
+      event.backgroundImageMetaData === null
+        ? null
+        : event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);
@@ -276,7 +295,10 @@ export async function getEvents(options: {
   });
   const enhancedResponsibleOrganizationEvents =
     responsibleOrganizationEvents.map((event) => {
-      let background = event.background;
+      let background =
+        event.backgroundImageMetaData === null
+          ? null
+          : event.backgroundImageMetaData.path;
       let blurredBackground;
       if (background !== null) {
         const publicURL = getPublicURL(authClient, background);
@@ -338,7 +360,11 @@ export async function getEventInvites(options: {
             id: true,
             name: true,
             slug: true,
-            background: true,
+            backgroundImageMetaData: {
+              select: {
+                path: true,
+              },
+            },
             subline: true,
             description: true,
             startTime: true,
@@ -419,7 +445,11 @@ export async function getEventInvites(options: {
             id: true,
             name: true,
             slug: true,
-            background: true,
+            backgroundImageMetaData: {
+              select: {
+                path: true,
+              },
+            },
             subline: true,
             description: true,
             startTime: true,
@@ -469,7 +499,10 @@ export async function getEventInvites(options: {
   ];
 
   const enhancedInvites = mergedInvites.map((invite) => {
-    let background = invite.event.background;
+    let background =
+      invite.event.backgroundImageMetaData === null
+        ? null
+        : invite.event.backgroundImageMetaData.path;
     let blurredBackground;
     if (background !== null) {
       const publicURL = getPublicURL(authClient, background);

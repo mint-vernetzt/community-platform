@@ -3,7 +3,7 @@ import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import {
   filterOrganizationByVisibility,
   filterProjectByVisibility,
-} from "~/next-public-fields-filtering.server";
+} from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
 import { type SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -25,7 +25,11 @@ export async function getOrganization(slug: string) {
             select: {
               id: true,
               slug: true,
-              logo: true,
+              logoImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
               name: true,
               responsibleOrganizations: {
                 select: {
@@ -41,7 +45,7 @@ export async function getOrganization(slug: string) {
                 select: {
                   id: true,
                   slug: true,
-                  logo: true,
+                  logoImageMetaData: true,
                   name: true,
                   responsibleOrganizations: true,
                 },
@@ -104,7 +108,10 @@ export function addImgUrls(
 ) {
   const responsibleForProject = organization.responsibleForProject.map(
     (relation) => {
-      let logo = relation.project.logo;
+      let logo =
+        relation.project.logoImageMetaData === null
+          ? null
+          : relation.project.logoImageMetaData.path;
       let blurredLogo;
       if (logo !== null) {
         const publicURL = getPublicURL(authClient, logo);

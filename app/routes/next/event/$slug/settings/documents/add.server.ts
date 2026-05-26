@@ -1,12 +1,13 @@
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { prismaClient } from "~/prisma.server";
 import { uploadFileToStorage } from "~/storage.server";
+import { BUCKET_NAME_DOCUMENTS } from "~/storage.shared";
 
 export async function uploadDocumentToEvent(options: {
   authClient: SupabaseClient;
   data: {
-    title?: string;
-    description?: string;
+    title: string | null;
+    description: string | null;
   };
   file: File;
   slug: string;
@@ -15,7 +16,7 @@ export async function uploadDocumentToEvent(options: {
   const { fileMetadataForDatabase, error } = await uploadFileToStorage({
     file,
     authClient,
-    bucket: "documents",
+    bucket: BUCKET_NAME_DOCUMENTS,
   });
   if (error !== null) {
     throw error;
