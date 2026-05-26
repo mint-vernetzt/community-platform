@@ -607,18 +607,103 @@ export async function cancelParentEventJoinRequest(options: {
 }
 
 export async function removeParentEvent(options: {
+  userId: string;
   event: {
     slug: string;
     published: boolean;
   };
+  locales: {
+    mail: {
+      buttonText: string;
+      subject: string;
+    };
+  };
 }) {
-  const { event } = options;
+  const { event, userId, locales } = options;
 
   if (event.published === true) {
     throw new Error("Cannot remove parent event from a published event");
   }
 
-  // TODO: Check if admin of parent. If not send mail to parent event admins.
+  const currentEvent = await prismaClient.event.findFirst({
+    where: {
+      slug: event.slug,
+    },
+    select: {
+      parentEvent: {
+        select: {
+          name: true,
+          admins: {
+            select: {
+              profile: {
+                select: {
+                  id: true,
+                  email: true,
+                  firstName: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      name: true,
+    },
+  });
+
+  if (currentEvent === null) {
+    throw new Error("Event not found");
+  }
+
+  if (currentEvent.parentEvent === null) {
+    throw new Error("No parent event to remove");
+  }
+
+  const isAdminOfParentEvent = currentEvent.parentEvent.admins.some(
+    (admin) => admin.profile.id === userId
+  );
+
+  if (isAdminOfParentEvent === false) {
+    const sender = process.env.SYSTEM_MAIL_SENDER;
+    const subject = locales.mail.subject;
+    const textTemplatePath =
+      "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
+    const htmlTemplatePath =
+      "mail-templates/general-notification/disconnect-from-parent-event-html.hbs";
+
+    // Do not block main thread while sending the mail
+    void Promise.all(
+      currentEvent.parentEvent.admins.map(async (admin) => {
+        if (currentEvent.parentEvent === null) {
+          return;
+        }
+        try {
+          const recipient = admin.profile.email;
+          const text = getCompiledMailTemplate<typeof textTemplatePath>(
+            textTemplatePath,
+            {
+              firstName: admin.profile.firstName,
+              event: { name: currentEvent.name },
+              parentEvent: { name: currentEvent.parentEvent.name },
+            },
+            "text"
+          );
+          const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+            htmlTemplatePath,
+            {
+              firstName: admin.profile.firstName,
+              event: { name: currentEvent.name },
+              parentEvent: { name: currentEvent.parentEvent.name },
+            },
+            "html"
+          );
+
+          await mailer(mailerOptions, sender, recipient, subject, text, html);
+        } catch (error) {
+          captureException(error);
+        }
+      })
+    );
+  }
 
   await prismaClient.event.update({
     where: {
