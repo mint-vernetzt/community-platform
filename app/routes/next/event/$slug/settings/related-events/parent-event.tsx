@@ -189,7 +189,19 @@ function ParentEvent() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, parentEventsToAdd } = loaderData;
 
-  return event.published === true || event.parentEvent !== null ? (
+  return event._count.childEvents > 0 ? (
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.add.headline}
+        </TitleSection.Headline>
+      </TitleSection>
+      <Hint>
+        <Hint.InfoIcon />
+        {locales.route.add.hasChildEventsHint}
+      </Hint>
+    </>
+  ) : event.published === true || event.parentEvent !== null ? (
     <>
       <>
         <TitleSection>
@@ -316,73 +328,69 @@ function ParentEvent() {
             hideAfter={4}
             locales={locales.route.list}
           >
-            {parentEventsToAdd.map((event, index) => {
+            {parentEventsToAdd.map((parentEvent, index) => {
               return (
-                <div key={event.id}>
+                <div key={parentEvent.id}>
                   <Form
-                    id={`add-parent-form-${event.id}`}
+                    id={`add-parent-form-${parentEvent.id}`}
                     method="POST"
                     hidden
                     preventScrollReset
                   >
-                    <input name={PARENT_EVENT_ID} defaultValue={event.id} />
+                    <input
+                      name={PARENT_EVENT_ID}
+                      defaultValue={parentEvent.id}
+                    />
                   </Form>
                   <ListItemEvent
                     index={index}
-                    to={`/event/${event.slug}/detail/about`}
+                    to={`/event/${parentEvent.slug}/detail/about`}
                   >
                     <ListItemEvent.Image
-                      alt={event.name}
-                      src={event.background}
-                      blurredSrc={event.blurredBackground}
+                      alt={parentEvent.name}
+                      src={parentEvent.background}
+                      blurredSrc={parentEvent.blurredBackground}
                     />
                     <ListItemEvent.Info
-                      {...event}
-                      stage={event.stage}
+                      {...parentEvent}
+                      stage={parentEvent.stage}
                       locales={{
                         stages: locales.stages,
                         ...loaderData.locales.route.list,
                       }}
-                      participantCount={event._count.participants}
+                      participantCount={parentEvent._count.participants}
                       language={language}
                     ></ListItemEvent.Info>
                     <ListItemEvent.Headline>
-                      {event.name}
+                      {parentEvent.name}
                     </ListItemEvent.Headline>
-                    {hasContent(event.subline) ||
-                    hasContent(event.description) ? (
+                    {hasContent(parentEvent.subline) ||
+                    hasContent(parentEvent.description) ? (
                       <ListItemEvent.Subline>
-                        {hasContent(event.subline) ? (
-                          event.subline
+                        {hasContent(parentEvent.subline) ? (
+                          parentEvent.subline
                         ) : (
-                          <RichText html={event.description as string} />
+                          <RichText html={parentEvent.description as string} />
                         )}
                       </ListItemEvent.Subline>
                     ) : null}
                     <ListItemEvent.Controls>
-                      <Button
-                        type="submit"
-                        form={`add-parent-form-${event.id}`}
-                        name={INTENT_FIELD_NAME}
-                        value={ADD_PARENT_EVENT_INTENT}
-                        variant="outline"
-                        size="small"
-                        fullSize
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+                      {parentEvent.parentEventId !== null ? (
+                        <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                          <span>{locales.route.list.hasParentEvent}</span>
+                        </div>
+                      ) : (
+                        <Button
+                          type="submit"
+                          form={`add-parent-form-${parentEvent.id}`}
+                          name={INTENT_FIELD_NAME}
+                          value={ADD_PARENT_EVENT_INTENT}
+                          size="small"
+                          fullSize
                         >
-                          <path
-                            d="M10 5C10.1658 5 10.3247 5.06585 10.4419 5.18306C10.5592 5.30027 10.625 5.45924 10.625 5.625V9.375H14.375C14.5408 9.375 14.6997 9.44085 14.8169 9.55806C14.9342 9.67527 15 9.83424 15 10C15 10.1658 14.9342 10.3247 14.8169 10.4419C14.6997 10.5592 14.5408 10.625 14.375 10.625H10.625V14.375C10.625 14.5408 10.5592 14.6997 10.4419 14.8169C10.3247 14.9342 10.1658 15 10 15C9.83424 15 9.67527 14.9342 9.55806 14.8169C9.44085 14.6997 9.375 14.5408 9.375 14.375V10.625H5.625C5.45924 10.625 5.30027 10.5592 5.18306 10.4419C5.06585 10.3247 5 10.1658 5 10C5 9.83424 5.06585 9.67527 5.18306 9.55806C5.30027 9.44085 5.45924 9.375 5.625 9.375H9.375V5.625C9.375 5.45924 9.44085 5.30027 9.55806 5.18306C9.67527 5.06585 9.83424 5 10 5Z"
-                            fill="#154194"
-                          />
-                        </svg>
-                        <span>{locales.route.add.cta}</span>
-                      </Button>
+                          {locales.route.add.cta}
+                        </Button>
+                      )}
                     </ListItemEvent.Controls>
                   </ListItemEvent>
                 </div>

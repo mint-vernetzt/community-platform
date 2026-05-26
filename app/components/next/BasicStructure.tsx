@@ -42,10 +42,16 @@ function Container(props: {
 
   const classes = classNames(
     "w-full flex flex-col bg-white ring-neutral-200",
-    deflatedUntil === false ? `${padding} ring` : "",
-    deflatedUntil === "md" ? `md:${padding} md:ring` : "",
-    deflatedUntil === "lg" ? `lg:${padding} lg:ring` : "",
-    deflatedUntil === "xl" ? `xl:${padding} xl:ring` : "",
+    deflatedUntil === false ? `${padding === "p-6" ? "p-6" : "p-4"} ring` : "",
+    deflatedUntil === "md"
+      ? `${padding === "p-6" ? "md:p-6" : "md:p-4"} md:ring`
+      : "",
+    deflatedUntil === "lg"
+      ? `${padding === "p-6" ? "lg:p-6" : "lg:p-4"} lg:ring`
+      : "",
+    deflatedUntil === "xl"
+      ? `${padding === "p-6" ? "xl:p-6" : "xl:p-4"} xl:ring`
+      : "",
     rounded === "rounded-2xl" ? "rounded-2xl" : "",
     rounded === "rounded-lg" ? "rounded-lg" : "",
     gaps.base === "gap-4" ? "gap-4" : "",
