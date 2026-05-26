@@ -533,6 +533,8 @@ function MyEvents() {
                   acceptIntent = ACCEPT_SPEAKER_INVITE_INTENT;
                 } else if (invites === "responsibleOrganizationInvites") {
                   acceptIntent = ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT;
+                } else if (invites === "participantInvites") {
+                  acceptIntent = ACCEPT_PARTICIPANT_INVITE_INTENT;
                 }
 
                 let rejectIntent = REJECT_ADMIN_INVITE_INTENT;
@@ -542,6 +544,8 @@ function MyEvents() {
                   rejectIntent = REJECT_SPEAKER_INVITE_INTENT;
                 } else if (invites === "responsibleOrganizationInvites") {
                   rejectIntent = REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT;
+                } else if (invites === "participantInvites") {
+                  rejectIntent = REJECT_PARTICIPANT_INVITE_INTENT;
                 }
 
                 return (
