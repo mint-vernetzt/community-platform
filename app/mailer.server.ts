@@ -271,6 +271,10 @@ type TemplatePath =
   | "mail-templates/requests/network-to-add-organization/rejected-text.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/canceled-html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/text.hbs"
   | "mail-templates/invites/organization-to-join-network/html.hbs"
   | "mail-templates/invites/organization-to-join-network/accepted-text.hbs"
@@ -425,6 +429,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                         | "mail-templates/invites/profile-to-join-event/as-participant-text.hbs"
                                         | "mail-templates/invites/organization-to-join-event/html.hbs"
                                         | "mail-templates/invites/organization-to-join-event/text.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/html.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/text.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/canceled-html.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs"
                                     ? InviteContent
                                     : TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"

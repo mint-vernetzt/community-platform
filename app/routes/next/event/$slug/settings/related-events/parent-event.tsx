@@ -18,10 +18,12 @@ import { RichText } from "~/components/legacy/Richtext/RichText";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import {
   addParentEvent,
+  cancelParentEventJoinRequest,
   getEventBySlug,
   getEventBySlugForAction,
   getParentEventsToAdd,
   removeParentEvent,
+  requestToJoinParentEvent,
 } from "./parent-event.server";
 import {
   createAuthClient,
@@ -33,8 +35,12 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 import {
   ADD_PARENT_EVENT_INTENT,
   createAddParentEventSchema,
+  createRequestParentEventSchema,
   PARENT_EVENT_ID,
   REMOVE_PARENT_EVENT_INTENT,
+  REQUEST_TO_JOIN_PARENT_EVENT_INTENT,
+  CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
+  createCancelParentEventJoinRequestSchema,
 } from "./parent-event.shared";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseWithZod } from "@conform-to/zod";
@@ -76,7 +82,7 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   const parentEventsToAdd = await getParentEventsToAdd({
-    userId: sessionUser.id,
+    sessionUser,
     authClient,
     event,
   });
@@ -124,7 +130,10 @@ export async function action(args: ActionFunctionArgs) {
   const intent = formData.get(INTENT_FIELD_NAME);
 
   invariantResponse(
-    intent === ADD_PARENT_EVENT_INTENT || intent === REMOVE_PARENT_EVENT_INTENT,
+    intent === ADD_PARENT_EVENT_INTENT ||
+      intent === REMOVE_PARENT_EVENT_INTENT ||
+      intent === REQUEST_TO_JOIN_PARENT_EVENT_INTENT ||
+      intent === CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
     "unknown intent",
     {
       status: 400,
@@ -162,6 +171,72 @@ export async function action(args: ActionFunctionArgs) {
       message: locales.route.success.addParentEvent,
       level: "positive",
     });
+  } else if (intent === REQUEST_TO_JOIN_PARENT_EVENT_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createRequestParentEventSchema(),
+    });
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+    try {
+      await requestToJoinParentEvent({
+        event,
+        parentEventId: submission.value[PARENT_EVENT_ID],
+        locales: {
+          mail: {
+            buttonText: locales.route.mail.request.buttonText,
+            subject: locales.route.mail.request.subject,
+          },
+        },
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "request-parent-event-error",
+        key: `request-parent-event-error-${Date.now()}`,
+        message: locales.route.errors.requestToJoinParentEvent,
+        level: "negative",
+      });
+    }
+    return redirectWithToast(request.url, {
+      id: "request-parent-event-success",
+      key: `request-parent-event-success-${Date.now()}`,
+      message: locales.route.success.requestToJoinParentEvent,
+      level: "positive",
+    });
+  } else if (intent === CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT) {
+    const submission = await parseWithZod(formData, {
+      schema: createCancelParentEventJoinRequestSchema(),
+    });
+    if (submission.status !== "success") {
+      return submission.reply();
+    }
+    try {
+      await cancelParentEventJoinRequest({
+        event,
+        parentEventId: submission.value[PARENT_EVENT_ID],
+        locales: {
+          mail: {
+            buttonText: locales.route.mail.cancel.buttonText,
+            subject: locales.route.mail.cancel.subject,
+          },
+        },
+      });
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "cancel-parent-event-join-request-error",
+        key: `cancel-parent-event-join-request-error-${Date.now()}`,
+        message: locales.route.errors.cancelParentEventJoinRequest,
+        level: "negative",
+      });
+    }
+    return redirectWithToast(request.url, {
+      id: "cancel-parent-event-join-request-success",
+      key: `cancel-parent-event-join-request-success-${Date.now()}`,
+      message: locales.route.success.cancelParentEventJoinRequest,
+      level: "positive",
+    });
   } else if (intent === REMOVE_PARENT_EVENT_INTENT) {
     try {
       await removeParentEvent({
@@ -193,108 +268,192 @@ function ParentEvent() {
     <>
       <TitleSection>
         <TitleSection.Headline>
-          {locales.route.add.headline}
+          {locales.route.addOrRequest.headline}
         </TitleSection.Headline>
       </TitleSection>
       <Hint>
         <Hint.InfoIcon />
-        {locales.route.add.hasChildEventsHint}
+        {locales.route.addOrRequest.hasChildEventsHint}
+      </Hint>
+    </>
+  ) : event.sentParentEventJoinRequests.length > 0 ? (
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.pending.headline}
+        </TitleSection.Headline>
+        <TitleSection.Subline>
+          {locales.route.pending.subline}
+        </TitleSection.Subline>
+      </TitleSection>
+      <List
+        id="pending-parent-requests-list"
+        hideAfter={4}
+        locales={locales.route.list}
+      >
+        {event.sentParentEventJoinRequests.map((request, index) => {
+          return (
+            <ListItemEvent
+              index={index}
+              to={`/event/${request.parentEvent.slug}/detail/about`}
+              key={`pending-parent-request-${request.parentEvent.id}`}
+            >
+              <ListItemEvent.Image
+                alt={request.parentEvent.name}
+                src={request.parentEvent.background}
+                blurredSrc={request.parentEvent.blurredBackground}
+              />
+              <ListItemEvent.Info
+                {...request.parentEvent}
+                stage={request.parentEvent.stage}
+                locales={{
+                  stages: locales.stages,
+                  ...loaderData.locales.route.list,
+                }}
+                participantCount={request.parentEvent._count.participants}
+                language={language}
+              ></ListItemEvent.Info>
+              <ListItemEvent.Headline>
+                {request.parentEvent.name}
+              </ListItemEvent.Headline>
+              {hasContent(request.parentEvent.subline) ||
+              hasContent(request.parentEvent.description) ? (
+                <ListItemEvent.Subline>
+                  {hasContent(request.parentEvent.subline) ? (
+                    request.parentEvent.subline
+                  ) : (
+                    <RichText
+                      html={request.parentEvent.description as string}
+                    />
+                  )}
+                </ListItemEvent.Subline>
+              ) : null}
+              <ListItemEvent.Controls>
+                <Form
+                  id={`cancel-parent-request-form-${request.parentEvent.id}`}
+                  method="POST"
+                  hidden
+                  preventScrollReset
+                >
+                  <input
+                    name={PARENT_EVENT_ID}
+                    defaultValue={request.parentEvent.id}
+                  />
+                </Form>
+                <Button
+                  type="submit"
+                  form={`cancel-parent-request-form-${request.parentEvent.id}`}
+                  name={INTENT_FIELD_NAME}
+                  value={CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT}
+                  size="small"
+                  variant="outline"
+                  fullSize
+                >
+                  {locales.route.pending.cta}
+                </Button>
+              </ListItemEvent.Controls>
+            </ListItemEvent>
+          );
+        })}
+      </List>
+      <Hint>
+        <Hint.InfoIcon />
+        {locales.route.pending.pendingRequestHint}
+      </Hint>
+      <Hint>
+        <Hint.InfoIcon />
+        {locales.route.pending.notficationHint}
       </Hint>
     </>
   ) : event.published === true || event.parentEvent !== null ? (
     <>
-      <>
-        <TitleSection>
-          <TitleSection.Headline>
-            {locales.route.current.headline}
-          </TitleSection.Headline>
-        </TitleSection>
-        {event.published === false ? (
-          <Form
-            id="remove-parent-form"
-            method="POST"
-            hidden
-            preventScrollReset
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.current.headline}
+        </TitleSection.Headline>
+      </TitleSection>
+      {event.published === false ? (
+        <Form id="remove-parent-form" method="POST" hidden preventScrollReset />
+      ) : null}
+      {event.parentEvent !== null ? (
+        <ListItemEvent
+          index={0}
+          to={`/event/${event.parentEvent.slug}/detail/about`}
+        >
+          <ListItemEvent.Image
+            alt={event.parentEvent.name}
+            src={event.parentEvent.background}
+            blurredSrc={event.parentEvent.blurredBackground}
           />
-        ) : null}
-        {event.parentEvent !== null ? (
-          <ListItemEvent
-            index={0}
-            to={`/event/${event.parentEvent.slug}/detail/about`}
-          >
-            <ListItemEvent.Image
-              alt={event.parentEvent.name}
-              src={event.parentEvent.background}
-              blurredSrc={event.parentEvent.blurredBackground}
-            />
-            <ListItemEvent.Info
-              {...event.parentEvent}
-              stage={event.parentEvent.stage}
-              locales={{
-                stages: locales.stages,
-                ...loaderData.locales.route.list,
-              }}
-              participantCount={event.parentEvent._count.participants}
-              language={language}
-            ></ListItemEvent.Info>
-            <ListItemEvent.Headline>
-              {event.parentEvent.name}
-            </ListItemEvent.Headline>
-            {hasContent(event.parentEvent.subline) ||
-            hasContent(event.parentEvent.description) ? (
-              <ListItemEvent.Subline>
-                {hasContent(event.parentEvent.subline) ? (
-                  event.parentEvent.subline
-                ) : (
-                  <RichText html={event.parentEvent.description as string} />
-                )}
-              </ListItemEvent.Subline>
-            ) : null}
-            {event.published === false ? (
-              <ListItemEvent.Controls>
-                <Button
-                  type="submit"
-                  form="remove-parent-form"
-                  name={INTENT_FIELD_NAME}
-                  value={REMOVE_PARENT_EVENT_INTENT}
-                  variant="outline"
-                  size="small"
-                  fullSize
-                >
-                  {locales.route.current.cta}
-                </Button>
-              </ListItemEvent.Controls>
-            ) : null}
-          </ListItemEvent>
-        ) : null}
-        {event.published === false ? (
-          <Hint>
-            <Hint.InfoIcon />
-            {event.parentEvent !== null && event.parentEvent.isAdmin
-              ? locales.route.current.hint.unpublishedSameAdmin
-              : locales.route.current.hint.unpublishedDifferentAdmin}
-          </Hint>
-        ) : (
-          <Hint>
-            <Hint.InfoIcon />
-            {locales.route.current.hint.published}
-          </Hint>
-        )}
-      </>
+          <ListItemEvent.Info
+            {...event.parentEvent}
+            stage={event.parentEvent.stage}
+            locales={{
+              stages: locales.stages,
+              ...loaderData.locales.route.list,
+            }}
+            participantCount={event.parentEvent._count.participants}
+            language={language}
+          ></ListItemEvent.Info>
+          <ListItemEvent.Headline>
+            {event.parentEvent.name}
+          </ListItemEvent.Headline>
+          {hasContent(event.parentEvent.subline) ||
+          hasContent(event.parentEvent.description) ? (
+            <ListItemEvent.Subline>
+              {hasContent(event.parentEvent.subline) ? (
+                event.parentEvent.subline
+              ) : (
+                <RichText html={event.parentEvent.description as string} />
+              )}
+            </ListItemEvent.Subline>
+          ) : null}
+          {event.published === false ? (
+            <ListItemEvent.Controls>
+              <Button
+                type="submit"
+                form="remove-parent-form"
+                name={INTENT_FIELD_NAME}
+                value={REMOVE_PARENT_EVENT_INTENT}
+                variant="outline"
+                size="small"
+                fullSize
+              >
+                {locales.route.current.cta}
+              </Button>
+            </ListItemEvent.Controls>
+          ) : null}
+        </ListItemEvent>
+      ) : null}
+      {event.published === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {event.parentEvent !== null && event.parentEvent.isAdmin
+            ? locales.route.current.hint.unpublishedSameAdmin
+            : locales.route.current.hint.unpublishedDifferentAdmin}
+        </Hint>
+      ) : (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.current.hint.published}
+        </Hint>
+      )}
     </>
   ) : (
     <>
       {/* published false & parentEvent === null */}
       <TitleSection>
         <TitleSection.Headline>
-          {locales.route.add.headline}
+          {locales.route.addOrRequest.headline}
         </TitleSection.Headline>
-        <TitleSection.Subline>{locales.route.add.subline}</TitleSection.Subline>
+        <TitleSection.Subline>
+          {locales.route.addOrRequest.subline}
+        </TitleSection.Subline>
       </TitleSection>
       {parentEventsToAdd.length > 0 ? (
         <Hint>
           <Hint.InfoIcon />
-          {locales.route.add.timePeriodHint}
+          {locales.route.addOrRequest.timePeriodHint}
         </Hint>
       ) : null}
       <BasicStructure.Container
@@ -320,7 +479,7 @@ function ParentEvent() {
               />
             </svg>
           </div>
-          <span>{locales.route.add.label}</span>
+          <span>{locales.route.addOrRequest.label}</span>
         </div>
         {parentEventsToAdd.length > 0 ? (
           <List
@@ -330,77 +489,88 @@ function ParentEvent() {
           >
             {parentEventsToAdd.map((parentEvent, index) => {
               return (
-                <div key={parentEvent.id}>
-                  <Form
-                    id={`add-parent-form-${parentEvent.id}`}
-                    method="POST"
-                    hidden
-                    preventScrollReset
-                  >
-                    <input
-                      name={PARENT_EVENT_ID}
-                      defaultValue={parentEvent.id}
-                    />
-                  </Form>
-                  <ListItemEvent
-                    index={index}
-                    to={`/event/${parentEvent.slug}/detail/about`}
-                  >
-                    <ListItemEvent.Image
-                      alt={parentEvent.name}
-                      src={parentEvent.background}
-                      blurredSrc={parentEvent.blurredBackground}
-                    />
-                    <ListItemEvent.Info
-                      {...parentEvent}
-                      stage={parentEvent.stage}
-                      locales={{
-                        stages: locales.stages,
-                        ...loaderData.locales.route.list,
-                      }}
-                      participantCount={parentEvent._count.participants}
-                      language={language}
-                    ></ListItemEvent.Info>
-                    <ListItemEvent.Headline>
-                      {parentEvent.name}
-                    </ListItemEvent.Headline>
-                    {hasContent(parentEvent.subline) ||
-                    hasContent(parentEvent.description) ? (
-                      <ListItemEvent.Subline>
-                        {hasContent(parentEvent.subline) ? (
-                          parentEvent.subline
-                        ) : (
-                          <RichText html={parentEvent.description as string} />
-                        )}
-                      </ListItemEvent.Subline>
-                    ) : null}
-                    <ListItemEvent.Controls>
-                      {parentEvent.parentEventId !== null ? (
-                        <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                          <span>{locales.route.list.hasParentEvent}</span>
-                        </div>
+                <ListItemEvent
+                  index={index}
+                  to={`/event/${parentEvent.slug}/detail/about`}
+                  key={`parent-to-request-or-add-${parentEvent.id}`}
+                >
+                  <ListItemEvent.Image
+                    alt={parentEvent.name}
+                    src={parentEvent.background}
+                    blurredSrc={parentEvent.blurredBackground}
+                  />
+                  <ListItemEvent.Info
+                    {...parentEvent}
+                    stage={parentEvent.stage}
+                    locales={{
+                      stages: locales.stages,
+                      ...loaderData.locales.route.list,
+                    }}
+                    participantCount={parentEvent._count.participants}
+                    language={language}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>
+                    {parentEvent.name}
+                  </ListItemEvent.Headline>
+                  {hasContent(parentEvent.subline) ||
+                  hasContent(parentEvent.description) ? (
+                    <ListItemEvent.Subline>
+                      {hasContent(parentEvent.subline) ? (
+                        parentEvent.subline
                       ) : (
-                        <Button
-                          type="submit"
-                          form={`add-parent-form-${parentEvent.id}`}
-                          name={INTENT_FIELD_NAME}
-                          value={ADD_PARENT_EVENT_INTENT}
-                          size="small"
-                          fullSize
-                        >
-                          {locales.route.add.cta}
-                        </Button>
+                        <RichText html={parentEvent.description as string} />
                       )}
-                    </ListItemEvent.Controls>
-                  </ListItemEvent>
-                </div>
+                    </ListItemEvent.Subline>
+                  ) : null}
+                  <ListItemEvent.Controls>
+                    <Form
+                      id={`add-or-request-parent-form-${parentEvent.id}`}
+                      method="POST"
+                      hidden
+                      preventScrollReset
+                    >
+                      <input
+                        name={PARENT_EVENT_ID}
+                        defaultValue={parentEvent.id}
+                      />
+                    </Form>
+                    {parentEvent.parentEventId !== null ? (
+                      <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                        <span>{locales.route.list.hasParentEvent}</span>
+                      </div>
+                    ) : parentEvent.isAdmin ? (
+                      <Button
+                        type="submit"
+                        form={`add-or-request-parent-form-${parentEvent.id}`}
+                        name={INTENT_FIELD_NAME}
+                        value={ADD_PARENT_EVENT_INTENT}
+                        size="small"
+                        fullSize
+                      >
+                        {locales.route.addOrRequest.cta.add}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        form={`add-or-request-parent-form-${parentEvent.id}`}
+                        name={INTENT_FIELD_NAME}
+                        value={REQUEST_TO_JOIN_PARENT_EVENT_INTENT}
+                        size="small"
+                        variant="outline"
+                        fullSize
+                      >
+                        {locales.route.addOrRequest.cta.request}
+                      </Button>
+                    )}
+                  </ListItemEvent.Controls>
+                </ListItemEvent>
               );
             })}
           </List>
         ) : (
           <Hint>
             <Hint.InfoIcon />
-            {locales.route.add.blankStateHint}
+            {locales.route.addOrRequest.blankStateHint}
           </Hint>
         )}
       </BasicStructure.Container>

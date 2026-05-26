@@ -316,6 +316,8 @@ type EventWithRelations = Event & {
   abuseReports: any;
   profileJoinInvites: any;
   filterVector: any;
+  sentParentEventJoinRequests: any;
+  receivedParentEventJoinRequests: any;
   _count: any;
 };
 
@@ -351,7 +353,9 @@ export function filterEventByVisibility<
         key === "waitingList" ||
         key === "admins" ||
         key === "profileJoinInvites" ||
-        key === "abuseReports"
+        key === "abuseReports" ||
+        key === "sentParentEventJoinRequests" ||
+        key === "receivedParentEventJoinRequests"
       ) {
         filteredFields[key] =
           event.eventVisibility[key] === true ? event[key] : [];

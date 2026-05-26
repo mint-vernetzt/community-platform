@@ -214,72 +214,69 @@ function ChildEvents() {
           >
             {event.childEvents.map((event, index) => {
               return (
-                <div key={event.id}>
-                  <Form
-                    id={`remove-child-form-${event.id}`}
-                    method="POST"
-                    hidden
-                    preventScrollReset
-                  >
-                    <input name={EVENT_ID} defaultValue={event.id} />
-                  </Form>
-                  <ListItemEvent
-                    index={index}
-                    to={`/event/${event.slug}/detail/about`}
-                  >
-                    <ListItemEvent.Image
-                      alt={event.name}
-                      src={event.background}
-                      blurredSrc={event.blurredBackground}
-                    />
-                    <ListItemEvent.Info
-                      {...event}
-                      stage={event.stage}
-                      locales={{
-                        stages: locales.stages,
-                        ...loaderData.locales.route.list,
-                      }}
-                      participantCount={event._count.participants}
-                      language={language}
-                    ></ListItemEvent.Info>
-                    <ListItemEvent.Headline>
-                      {event.name}
-                    </ListItemEvent.Headline>
-                    {hasContent(event.subline) ||
-                    hasContent(event.description) ? (
-                      <ListItemEvent.Subline>
-                        {hasContent(event.subline) ? (
-                          event.subline
-                        ) : (
-                          <RichText html={event.description as string} />
-                        )}
-                      </ListItemEvent.Subline>
-                    ) : null}
-                    <ListItemEvent.Controls>
-                      {event.published === true ? (
-                        <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                          <span>{locales.route.list.alreadyPublished}</span>
-                        </div>
+                <ListItemEvent
+                  index={index}
+                  to={`/event/${event.slug}/detail/about`}
+                  key={`child-event-${event.id}`}
+                >
+                  <ListItemEvent.Image
+                    alt={event.name}
+                    src={event.background}
+                    blurredSrc={event.blurredBackground}
+                  />
+                  <ListItemEvent.Info
+                    {...event}
+                    stage={event.stage}
+                    locales={{
+                      stages: locales.stages,
+                      ...loaderData.locales.route.list,
+                    }}
+                    participantCount={event._count.participants}
+                    language={language}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>{event.name}</ListItemEvent.Headline>
+                  {hasContent(event.subline) ||
+                  hasContent(event.description) ? (
+                    <ListItemEvent.Subline>
+                      {hasContent(event.subline) ? (
+                        event.subline
                       ) : (
-                        <Button
-                          type="submit"
-                          form={`remove-child-form-${event.id}`}
-                          name={INTENT_FIELD_NAME}
-                          value={REMOVE_CHILD_EVENT_INTENT}
-                          variant="outline"
-                          size="small"
-                          fullSize
-                        >
-                          {locales.route.current.cta}
-                        </Button>
+                        <RichText html={event.description as string} />
                       )}
-                    </ListItemEvent.Controls>
-                    <ListItemEvent.Flag
-                      canceled={event.canceled}
-                      locales={locales.route.list}
-                    />
-                  </ListItemEvent>
-                </div>
+                    </ListItemEvent.Subline>
+                  ) : null}
+                  <ListItemEvent.Controls>
+                    <Form
+                      id={`remove-child-form-${event.id}`}
+                      method="POST"
+                      hidden
+                      preventScrollReset
+                    >
+                      <input name={EVENT_ID} defaultValue={event.id} />
+                    </Form>
+                    {event.published === true ? (
+                      <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                        <span>{locales.route.list.alreadyPublished}</span>
+                      </div>
+                    ) : (
+                      <Button
+                        type="submit"
+                        form={`remove-child-form-${event.id}`}
+                        name={INTENT_FIELD_NAME}
+                        value={REMOVE_CHILD_EVENT_INTENT}
+                        variant="outline"
+                        size="small"
+                        fullSize
+                      >
+                        {locales.route.current.cta}
+                      </Button>
+                    )}
+                  </ListItemEvent.Controls>
+                  <ListItemEvent.Flag
+                    canceled={event.canceled}
+                    locales={locales.route.list}
+                  />
+                </ListItemEvent>
               );
             })}
           </List>
@@ -295,6 +292,18 @@ function ChildEvents() {
           <Hint>
             <Hint.InfoIcon />
             {locales.route.addOrCreate.hasParentEventHint}
+          </Hint>
+        </>
+      ) : event.sentParentEventJoinRequests.length > 0 ? (
+        <>
+          <TitleSection>
+            <TitleSection.Headline>
+              {locales.route.addOrCreate.headline}
+            </TitleSection.Headline>
+          </TitleSection>
+          <Hint>
+            <Hint.InfoIcon />
+            {locales.route.addOrCreate.hasPendingRequestHint}
           </Hint>
         </>
       ) : (
@@ -344,97 +353,94 @@ function ChildEvents() {
               >
                 {childEventsToAdd.map((event, index) => {
                   return (
-                    <div key={event.id}>
-                      <Form
-                        id={`add-child-form-${event.id}`}
-                        method="POST"
-                        hidden
-                        preventScrollReset
-                      >
-                        <input name={EVENT_ID} defaultValue={event.id} />
-                      </Form>
-                      <ListItemEvent
-                        index={index}
-                        to={`/event/${event.slug}/detail/about`}
-                      >
-                        <ListItemEvent.Image
-                          alt={event.name}
-                          src={event.background}
-                          blurredSrc={event.blurredBackground}
-                        />
-                        <ListItemEvent.Info
-                          {...event}
-                          stage={event.stage}
-                          locales={{
-                            stages: locales.stages,
-                            ...loaderData.locales.route.list,
-                          }}
-                          participantCount={event._count.participants}
-                          language={language}
-                        ></ListItemEvent.Info>
-                        <ListItemEvent.Headline>
-                          {event.name}
-                        </ListItemEvent.Headline>
-                        {hasContent(event.subline) ||
-                        hasContent(event.description) ? (
-                          <ListItemEvent.Subline>
-                            {hasContent(event.subline) ? (
-                              event.subline
-                            ) : (
-                              <RichText html={event.description as string} />
-                            )}
-                          </ListItemEvent.Subline>
-                        ) : null}
-                        <ListItemEvent.Controls>
-                          {event.published === true ? (
-                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                              <span>{locales.route.list.alreadyPublished}</span>
-                            </div>
-                          ) : event.alreadyAdded === true ? (
-                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                              <span>{locales.route.list.alreadyAdded}</span>
-                            </div>
-                          ) : event._count.childEvents > 0 ? (
-                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                              <span>{locales.route.list.hasChildEvents}</span>
-                            </div>
-                          ) : event.parentEventId !== null ? (
-                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                              <span>
-                                {locales.route.list.hasDifferentParent}
-                              </span>
-                            </div>
+                    <ListItemEvent
+                      index={index}
+                      to={`/event/${event.slug}/detail/about`}
+                      key={`child-to-add-${event.id}`}
+                    >
+                      <ListItemEvent.Image
+                        alt={event.name}
+                        src={event.background}
+                        blurredSrc={event.blurredBackground}
+                      />
+                      <ListItemEvent.Info
+                        {...event}
+                        stage={event.stage}
+                        locales={{
+                          stages: locales.stages,
+                          ...loaderData.locales.route.list,
+                        }}
+                        participantCount={event._count.participants}
+                        language={language}
+                      ></ListItemEvent.Info>
+                      <ListItemEvent.Headline>
+                        {event.name}
+                      </ListItemEvent.Headline>
+                      {hasContent(event.subline) ||
+                      hasContent(event.description) ? (
+                        <ListItemEvent.Subline>
+                          {hasContent(event.subline) ? (
+                            event.subline
                           ) : (
-                            <Button
-                              type="submit"
-                              form={`add-child-form-${event.id}`}
-                              name={INTENT_FIELD_NAME}
-                              value={ADD_CHILD_EVENT_INTENT}
-                              size="small"
-                              fullSize
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M8 4C8.13261 4 8.25979 4.05268 8.35355 4.14645C8.44732 4.24021 8.5 4.36739 8.5 4.5V7.5H11.5C11.6326 7.5 11.7598 7.55268 11.8536 7.64645C11.9473 7.74021 12 7.86739 12 8C12 8.13261 11.9473 8.25979 11.8536 8.35355C11.7598 8.44732 11.6326 8.5 11.5 8.5H8.5V11.5C8.5 11.6326 8.44732 11.7598 8.35355 11.8536C8.25979 11.9473 8.13261 12 8 12C7.86739 12 7.74021 11.9473 7.64645 11.8536C7.55268 11.7598 7.5 11.6326 7.5 11.5V8.5H4.5C4.36739 8.5 4.24021 8.44732 4.14645 8.35355C4.05268 8.25979 4 8.13261 4 8C4 7.86739 4.05268 7.74021 4.14645 7.64645C4.24021 7.55268 4.36739 7.5 4.5 7.5H7.5V4.5C7.5 4.36739 7.55268 4.24021 7.64645 4.14645C7.74021 4.05268 7.86739 4 8 4V4Z"
-                                  fill="white"
-                                />
-                              </svg>
-                              <span>{locales.route.addOrCreate.add.cta}</span>
-                            </Button>
+                            <RichText html={event.description as string} />
                           )}
-                        </ListItemEvent.Controls>
-                        <ListItemEvent.Flag
-                          canceled={event.canceled}
-                          locales={locales.route.list}
-                        />
-                      </ListItemEvent>
-                    </div>
+                        </ListItemEvent.Subline>
+                      ) : null}
+                      <ListItemEvent.Controls>
+                        <Form
+                          id={`add-child-form-${event.id}`}
+                          method="POST"
+                          hidden
+                          preventScrollReset
+                        >
+                          <input name={EVENT_ID} defaultValue={event.id} />
+                        </Form>
+                        {event.published === true ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.alreadyPublished}</span>
+                          </div>
+                        ) : event.alreadyAdded === true ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.alreadyAdded}</span>
+                          </div>
+                        ) : event._count.childEvents > 0 ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.hasChildEvents}</span>
+                          </div>
+                        ) : event.parentEventId !== null ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.hasDifferentParent}</span>
+                          </div>
+                        ) : (
+                          <Button
+                            type="submit"
+                            form={`add-child-form-${event.id}`}
+                            name={INTENT_FIELD_NAME}
+                            value={ADD_CHILD_EVENT_INTENT}
+                            size="small"
+                            fullSize
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M8 4C8.13261 4 8.25979 4.05268 8.35355 4.14645C8.44732 4.24021 8.5 4.36739 8.5 4.5V7.5H11.5C11.6326 7.5 11.7598 7.55268 11.8536 7.64645C11.9473 7.74021 12 7.86739 12 8C12 8.13261 11.9473 8.25979 11.8536 8.35355C11.7598 8.44732 11.6326 8.5 11.5 8.5H8.5V11.5C8.5 11.6326 8.44732 11.7598 8.35355 11.8536C8.25979 11.9473 8.13261 12 8 12C7.86739 12 7.74021 11.9473 7.64645 11.8536C7.55268 11.7598 7.5 11.6326 7.5 11.5V8.5H4.5C4.36739 8.5 4.24021 8.44732 4.14645 8.35355C4.05268 8.25979 4 8.13261 4 8C4 7.86739 4.05268 7.74021 4.14645 7.64645C4.24021 7.55268 4.36739 7.5 4.5 7.5H7.5V4.5C7.5 4.36739 7.55268 4.24021 7.64645 4.14645C7.74021 4.05268 7.86739 4 8 4V4Z"
+                                fill="white"
+                              />
+                            </svg>
+                            <span>{locales.route.addOrCreate.add.cta}</span>
+                          </Button>
+                        )}
+                      </ListItemEvent.Controls>
+                      <ListItemEvent.Flag
+                        canceled={event.canceled}
+                        locales={locales.route.list}
+                      />
+                    </ListItemEvent>
                   );
                 })}
               </List>

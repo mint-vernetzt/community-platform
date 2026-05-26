@@ -7,6 +7,8 @@ export const locale = {
     headline: "Add Child Events",
     hasParentEventHint:
       "Your event is already a child event of a parent event. Therefore, it is not possible to add child events. Remove the event from the parent event to make it a parent event and add child events to it.",
+    hasPendingRequestHint:
+      "You have already requested to add your event as a child event to a parent event. While this request is pending, you cannot add another event as a child event. If you want to add a different event instead, first withdraw your existing request.",
     subline:
       "You can add more events to your event – these will then be managed as child events. Your original event will become the parent event. A parent event can contain multiple child events.",
     timePeriodHint:
