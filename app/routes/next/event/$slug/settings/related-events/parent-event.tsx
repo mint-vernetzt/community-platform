@@ -376,7 +376,9 @@ function ParentEvent() {
                     ) : null}
                     <ListItemEvent.Controls>
                       {parentEvent.parentEventId !== null ? (
-                        <>{locales.route.list.hasParentEvent}</>
+                        <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                          <span>{locales.route.list.hasParentEvent}</span>
+                        </div>
                       ) : (
                         <Button
                           type="submit"

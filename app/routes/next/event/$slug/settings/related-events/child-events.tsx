@@ -1,5 +1,5 @@
 import {
-  ActionFunctionArgs,
+  type ActionFunctionArgs,
   Form,
   redirect,
   useLoaderData,
@@ -257,7 +257,9 @@ function ChildEvents() {
                     ) : null}
                     <ListItemEvent.Controls>
                       {event.published === true ? (
-                        <>{locales.route.list.alreadyPublished}</>
+                        <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                          <span>{locales.route.list.alreadyPublished}</span>
+                        </div>
                       ) : (
                         <Button
                           type="submit"
@@ -385,13 +387,23 @@ function ChildEvents() {
                         ) : null}
                         <ListItemEvent.Controls>
                           {event.published === true ? (
-                            <>{locales.route.list.alreadyPublished}</>
+                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                              <span>{locales.route.list.alreadyPublished}</span>
+                            </div>
                           ) : event.alreadyAdded === true ? (
-                            <>{locales.route.list.alreadyAdded}</>
+                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                              <span>{locales.route.list.alreadyAdded}</span>
+                            </div>
                           ) : event._count.childEvents > 0 ? (
-                            <>{locales.route.list.hasChildEvents}</>
+                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                              <span>{locales.route.list.hasChildEvents}</span>
+                            </div>
                           ) : event.parentEventId !== null ? (
-                            <>{locales.route.list.hasDifferentParent}</>
+                            <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                              <span>
+                                {locales.route.list.hasDifferentParent}
+                              </span>
+                            </div>
                           ) : (
                             <Button
                               type="submit"
