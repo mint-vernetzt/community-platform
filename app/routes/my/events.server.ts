@@ -402,7 +402,11 @@ export async function getEventInvites(options: {
             id: true,
             name: true,
             slug: true,
-            background: true,
+            backgroundImageMetaData: {
+              select: {
+                path: true,
+              },
+            },
             subline: true,
             description: true,
             startTime: true,
