@@ -364,6 +364,43 @@ export async function getEventInvites(options: {
       },
     });
 
+  const participantOnEventInvites =
+    await prismaClient.inviteForProfileToParticipateOnEvent.findMany({
+      where: {
+        profileId: profileId,
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            background: true,
+            subline: true,
+            description: true,
+            startTime: true,
+            endTime: true,
+            participantLimit: true,
+            stage: {
+              select: {
+                slug: true,
+              },
+            },
+            _count: {
+              select: {
+                participants: true,
+                waitingList: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
   const organizationInvites =
     await prismaClient.inviteForOrganizationToBeResponsibleForEvent.findMany({
       where: {
@@ -412,11 +449,17 @@ export async function getEventInvites(options: {
     | (ArrayElement<typeof profileInvites> & {
         organizationId?: string;
       })[]
+    | (ArrayElement<typeof participantOnEventInvites> & {
+        role: "participant";
+      })[]
     | (Omit<ArrayElement<typeof organizationInvites>, "organizationId"> & {
         organizationId?: string;
         role: string;
       })[] = [
     ...profileInvites,
+    ...participantOnEventInvites.map((invite) => {
+      return { ...invite, role: "participant" };
+    }),
     ...organizationInvites.map((invite) => {
       return {
         ...invite,
@@ -468,6 +511,9 @@ export async function getEventInvites(options: {
   const speakerInvites = enhancedInvites.filter((invite) => {
     return invite.role === "speaker";
   });
+  const participantInvites = enhancedInvites.filter((invite) => {
+    return invite.role === "participant";
+  });
   const responsibleOrganizationInvites = enhancedInvites.filter((invite) => {
     return invite.role === "responsibleOrganization";
   });
@@ -477,11 +523,13 @@ export async function getEventInvites(options: {
     teamMemberInvites,
     speakerInvites,
     responsibleOrganizationInvites,
+    participantInvites,
     count: {
       adminInvites: adminInvites.length,
       teamMemberInvites: teamMemberInvites.length,
       speakerInvites: speakerInvites.length,
       responsibleOrganizationInvites: responsibleOrganizationInvites.length,
+      participantInvites: participantInvites.length,
     },
   };
 }
@@ -564,13 +612,13 @@ export async function acceptInviteAsAdmin(options: {
   const htmlTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs";
 
-  const recipents = result.event.admins.filter((admin) => {
+  const recipients = result.event.admins.filter((admin) => {
     return admin.profile.id !== userId;
   });
 
   // Do not block main thread while sending the mail
   void Promise.all(
-    recipents.map(async (admin) => {
+    recipients.map(async (admin) => {
       try {
         const recipient = admin.profile.email;
         const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -792,13 +840,13 @@ export async function acceptInviteAsTeamMember(options: {
   const htmlTemplatePath =
     "mail-templates/invites/profile-to-join-event/as-member-accepted-html.hbs";
 
-  const recipents = result.event.admins.filter((admin) => {
+  const recipients = result.event.admins.filter((admin) => {
     return admin.profile.id !== userId;
   });
 
   // Do not block main thread while sending the mail
   void Promise.all(
-    recipents.map(async (admin) => {
+    recipients.map(async (admin) => {
       try {
         const recipient = admin.profile.email;
         const text = getCompiledMailTemplate<typeof textTemplatePath>(
@@ -1170,6 +1218,234 @@ export async function rejectInviteAsSpeaker(options: {
   );
 }
 
+export async function acceptInviteAsParticipant(options: {
+  userId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, eventId } = options;
+
+  const invite =
+    await prismaClient.inviteForProfileToParticipateOnEvent.findUnique({
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId: userId,
+        },
+        status: "pending",
+      },
+    });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  await prismaClient.participantOfEvent.create({
+    data: {
+      eventId,
+      profileId: userId,
+    },
+  });
+
+  const result = await prismaClient.inviteForProfileToParticipateOnEvent.update(
+    {
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId: userId,
+        },
+      },
+      data: {
+        status: "accepted",
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+  );
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-participant-accepted-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-participant-accepted-html.hbs";
+
+  const recipients = result.event.admins.filter((admin) => {
+    return admin.profile.id !== userId;
+  });
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    recipients.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
+export async function rejectInviteAsParticipant(options: {
+  userId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, eventId } = options;
+
+  const invite =
+    await prismaClient.inviteForProfileToParticipateOnEvent.findUnique({
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId: userId,
+        },
+        status: "pending",
+      },
+    });
+
+  if (invite === null) {
+    throw new Error("Invite not found");
+  }
+
+  const result = await prismaClient.inviteForProfileToParticipateOnEvent.update(
+    {
+      where: {
+        profileId_eventId: {
+          eventId,
+          profileId: userId,
+        },
+      },
+      data: {
+        status: "rejected",
+      },
+      select: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+        event: {
+          select: {
+            name: true,
+            admins: {
+              select: {
+                profile: {
+                  select: {
+                    firstName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+  );
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-participant-rejected-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/invites/profile-to-join-event/as-participant-rejected-html.hbs";
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    result.event.admins.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: result.event.name },
+            profile: {
+              firstName: result.profile.firstName,
+              lastName: result.profile.lastName,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
 export async function acceptInviteAsResponsibleOrganization(options: {
   userId: string;
   organizationId: string;
@@ -1255,13 +1531,13 @@ export async function acceptInviteAsResponsibleOrganization(options: {
   const htmlTemplatePath =
     "mail-templates/invites/organization-to-join-event/accepted-html.hbs";
 
-  const recipents = result.event.admins.filter((admin) => {
+  const recipients = result.event.admins.filter((admin) => {
     return admin.profile.id !== userId;
   });
 
   // Do not block main thread while sending the mail
   void Promise.all(
-    recipents.map(async (admin) => {
+    recipients.map(async (admin) => {
       try {
         const recipient = admin.profile.email;
         const text = getCompiledMailTemplate<typeof textTemplatePath>(

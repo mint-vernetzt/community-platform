@@ -43,18 +43,21 @@ import {
 } from "../feature-access.server";
 import {
   acceptInviteAsAdmin,
+  acceptInviteAsParticipant,
   acceptInviteAsResponsibleOrganization,
   acceptInviteAsSpeaker,
   acceptInviteAsTeamMember,
   getEventInvites,
   getEvents,
   rejectInviteAsAdmin,
+  rejectInviteAsParticipant,
   rejectInviteAsResponsibleOrganization,
   rejectInviteAsSpeaker,
   rejectInviteAsTeamMember,
 } from "./events.server";
 import {
   ACCEPT_ADMIN_INVITE_INTENT,
+  ACCEPT_PARTICIPANT_INVITE_INTENT,
   ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   ACCEPT_SPEAKER_INVITE_INTENT,
   ACCEPT_TEAM_MEMBER_INVITE_INTENT,
@@ -62,6 +65,7 @@ import {
   EVENT_ID,
   ORGANIZATION_ID,
   REJECT_ADMIN_INVITE_INTENT,
+  REJECT_PARTICIPANT_INVITE_INTENT,
   REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   REJECT_SPEAKER_INVITE_INTENT,
   REJECT_TEAM_MEMBER_INVITE_INTENT,
@@ -139,6 +143,8 @@ export async function action(args: ActionFunctionArgs) {
       intent === REJECT_TEAM_MEMBER_INVITE_INTENT ||
       intent === ACCEPT_SPEAKER_INVITE_INTENT ||
       intent === REJECT_SPEAKER_INVITE_INTENT ||
+      intent === ACCEPT_PARTICIPANT_INVITE_INTENT ||
+      intent === REJECT_PARTICIPANT_INVITE_INTENT ||
       intent === ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT ||
       intent === REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
     "invalid intent",
@@ -266,6 +272,44 @@ export async function action(args: ActionFunctionArgs) {
         id: "reject-speaker-invite-error",
         key: `reject-speaker-invite-error-${Date.now()}`,
         message: locales.route.errors.rejectInviteAsSpeaker,
+        level: "negative",
+      });
+    }
+  } else if (intent === ACCEPT_PARTICIPANT_INVITE_INTENT) {
+    try {
+      await acceptInviteAsParticipant({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsParticipantAccepted,
+        },
+      });
+      toastMessage = locales.route.success.acceptInviteAsParticipant;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-participant-invite-error",
+        key: `accept-participant-invite-error-${Date.now()}`,
+        message: locales.route.errors.acceptInviteAsParticipant,
+        level: "negative",
+      });
+    }
+  } else if (intent === REJECT_PARTICIPANT_INVITE_INTENT) {
+    try {
+      await rejectInviteAsParticipant({
+        userId: sessionUser.id,
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.inviteAsParticipantRejected,
+        },
+      });
+      toastMessage = locales.route.success.rejectInviteAsParticipant;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-participant-invite-error",
+        key: `reject-participant-invite-error-${Date.now()}`,
+        message: locales.route.errors.rejectInviteAsParticipant,
         level: "negative",
       });
     }
@@ -412,6 +456,7 @@ function MyEvents() {
   const hasAdminInvites = loaderData.invites.count.adminInvites > 0;
   const hasTeamMemberInvites = loaderData.invites.count.teamMemberInvites > 0;
   const hasSpeakerInvites = loaderData.invites.count.speakerInvites > 0;
+  const hasParticipantInvites = loaderData.invites.count.participantInvites > 0;
   const hasResponsibleOrganizationInvites =
     loaderData.invites.count.responsibleOrganizationInvites > 0;
 
@@ -429,6 +474,7 @@ function MyEvents() {
       {(hasAdminInvites ||
         hasTeamMemberInvites ||
         hasSpeakerInvites ||
+        hasParticipantInvites ||
         hasResponsibleOrganizationInvites) && (
         <Container.Section>
           <Section.Title>{locales.route.invites.title}</Section.Title>

@@ -1299,12 +1299,12 @@ function Dashboard() {
             </div>
             <Button
               as="link"
-              to="/my/events?invites=speakerInvites"
+              to="/my/events?invites=participantInvites"
               className="w-full @lg:w-fit"
               prefetch="intent"
             >
               {
-                loaderData.locales.route.content.eventSpeakerInvites
+                loaderData.locales.route.content.eventParticipantInvites
                   .linkDescription
               }
             </Button>

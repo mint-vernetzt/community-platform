@@ -8,6 +8,8 @@ export const ACCEPT_TEAM_MEMBER_INVITE_INTENT = "accept-team-member-invite";
 export const REJECT_TEAM_MEMBER_INVITE_INTENT = "reject-team-member-invite";
 export const ACCEPT_SPEAKER_INVITE_INTENT = "accept-speaker-invite";
 export const REJECT_SPEAKER_INVITE_INTENT = "reject-speaker-invite";
+export const ACCEPT_PARTICIPANT_INVITE_INTENT = "accept-participant-invite";
+export const REJECT_PARTICIPANT_INVITE_INTENT = "reject-participant-invite";
 export const ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT =
   "accept-responsible-organization-invite";
 export const REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT =
