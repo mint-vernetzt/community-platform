@@ -25,7 +25,7 @@ export const locale = {
     title: "CSV File Download",
     subline:
       "Download the list of participants as a CSV file with name, position, and email address.",
-    hint: "<0>Privacy Notice<0>: Use the participant data only for organizing your event and do not share it. By downloading, you take responsibility for handling the data in compliance with privacy regulations. Details can be found in our <1>Privacy Policy</1> and <2>Terms of Use</2>.",
+    hint: "<0>Privacy Notice</0>: Use the participant data only for organizing your event and do not share it. By downloading, you take responsibility for handling the data in compliance with privacy regulations. Details can be found in our <1>Privacy Policy</1> and <2>Terms of Use</2>.",
     action: "Save CSV File",
   },
   mail: {
