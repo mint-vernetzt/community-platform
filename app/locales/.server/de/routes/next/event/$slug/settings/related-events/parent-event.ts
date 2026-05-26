@@ -71,5 +71,8 @@ export const locale = {
       subject:
         "Die Anfrage eines Events, Teil deines Events zu werden, wurde zurückgezogen",
     },
+    remove: {
+      subject: "Ein Event wurde aus deinem Rahmenevent entfernt",
+    },
   },
 } as const;

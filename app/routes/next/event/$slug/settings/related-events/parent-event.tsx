@@ -240,7 +240,13 @@ export async function action(args: ActionFunctionArgs) {
   } else if (intent === REMOVE_PARENT_EVENT_INTENT) {
     try {
       await removeParentEvent({
+        userId: sessionUser.id,
         event,
+        locales: {
+          mail: {
+            subject: locales.route.mail.remove.subject,
+          },
+        },
       });
     } catch (error) {
       captureException(error);

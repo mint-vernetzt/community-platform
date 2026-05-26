@@ -614,7 +614,6 @@ export async function removeParentEvent(options: {
   };
   locales: {
     mail: {
-      buttonText: string;
       subject: string;
     };
   };
