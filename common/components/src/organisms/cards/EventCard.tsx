@@ -33,7 +33,7 @@ type EventCardProps = {
     participationUntil: Date;
     subline?: string | null;
     description?: string | null;
-    published: boolean;
+    published?: boolean;
     canceled: boolean;
     background?: string | null;
     blurredBackground?: string;
@@ -164,7 +164,7 @@ function EventCard(
             {props.match}% {locales.eventCard.match}
           </CardStatus>
         )}
-        {event.canceled && event.published && (
+        {event.canceled === true && event.published === true && (
           <CardStatus variant="negative">
             {locales.eventCard.cancelled}
           </CardStatus>
@@ -172,12 +172,12 @@ function EventCard(
         {event.endTime.getTime() < now.getTime() && (
           <CardStatus variant="neutral">{locales.eventCard.passed}</CardStatus>
         )}
-        {!event.published && event.isTeamMember && (
+        {event.published === false && event.isTeamMember === true && (
           <CardStatus variant="primary" inverted>
             {locales.eventCard.draft}
           </CardStatus>
         )}
-        {event.published && event.isTeamMember && (
+        {event.published === true && event.isTeamMember === true && (
           <CardStatus variant="positive">
             {locales.eventCard.published}
           </CardStatus>

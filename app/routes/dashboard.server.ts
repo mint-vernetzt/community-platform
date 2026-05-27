@@ -11,6 +11,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
+import { getAllEvents } from "./explore/events.server";
 
 export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
@@ -339,7 +340,9 @@ export async function getEventsForCards(take: number) {
 
 export async function enhanceEventsWithParticipationStatus(
   sessionUser: User | null,
-  events: Awaited<ReturnType<typeof getEventsForCards>>
+  events:
+    | Awaited<ReturnType<typeof getEventsForCards>>
+    | Awaited<ReturnType<typeof getAllEvents>>
 ) {
   if (sessionUser === null) {
     const enhancedEvents = events.map((item) => {

@@ -658,7 +658,6 @@ export async function getAllEvents(options: {
           path: true,
         },
       },
-      published: true,
       stage: {
         select: {
           slug: true,
@@ -711,7 +710,6 @@ export async function getAllEvents(options: {
           participationFrom: true,
           participantLimit: true,
           backgroundImageMetaData: true,
-          published: true,
           stage: true,
           canceled: true,
           subline: true,

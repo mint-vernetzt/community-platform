@@ -10,7 +10,6 @@ import {
   type LoaderFunctionArgs,
   redirect,
   useLoaderData,
-  useNavigation,
   useSearchParams,
 } from "react-router";
 import {
@@ -436,8 +435,6 @@ function MyEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language } = loaderData;
 
-  const navigation = useNavigation();
-
   const firstUpcoming = Object.entries(loaderData.upcomingEvents.count).find(
     ([_key, value]) => {
       return value > 0;
@@ -515,6 +512,8 @@ function MyEvents() {
       setInvites(firstInvites[0]);
       setRequests(firstRequests);
     }
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   useEffect(() => {
