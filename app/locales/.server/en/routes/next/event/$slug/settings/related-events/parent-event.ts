@@ -18,6 +18,8 @@ export const locale = {
     },
     blankStateHint:
       "There is currently no parent event that you can add. Please create an event in the corresponding time period first and then add your sub-event to it.",
+    publishedHint:
+      "Since your event has already been published, you cannot make any changes to the link to the parent event.",
   },
   pending: {
     headline: "Pending Request",

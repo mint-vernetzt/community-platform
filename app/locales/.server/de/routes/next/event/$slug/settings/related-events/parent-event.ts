@@ -18,6 +18,8 @@ export const locale = {
     },
     blankStateHint:
       "Es gibt aktuell kein Rahmenevent, das Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge diesem Dein untergeordnetes Event hinzu.",
+    publishedHint:
+      "Da Dein Event bereits veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen.",
   },
   pending: {
     headline: "Ausstehende Anfrage",

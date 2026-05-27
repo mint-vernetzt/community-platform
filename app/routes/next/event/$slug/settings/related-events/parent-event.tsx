@@ -388,7 +388,7 @@ function ParentEvent() {
         {locales.route.pending.notificationHint}
       </Hint>
     </>
-  ) : event.published === true || event.parentEvent !== null ? (
+  ) : event.parentEvent !== null ? (
     <>
       <TitleSection>
         <TitleSection.Headline>
@@ -493,9 +493,14 @@ function ParentEvent() {
         </Hint>
       )}
     </>
+  ) : event.published === true ? (
+    <Hint>
+      <Hint.InfoIcon />
+      {locales.route.addOrRequest.publishedHint}
+    </Hint>
   ) : (
     <>
-      {/* published false & parentEvent === null */}
+      {/* parentEvent === null */}
       <TitleSection>
         <TitleSection.Headline>
           {locales.route.addOrRequest.headline}

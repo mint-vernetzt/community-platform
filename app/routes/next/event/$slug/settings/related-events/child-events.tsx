@@ -5,6 +5,7 @@ import {
   useLoaderData,
   type LoaderFunctionArgs,
   useSearchParams,
+  useLocation,
 } from "react-router";
 import {
   createAuthClient,
@@ -208,6 +209,7 @@ function ChildEvents() {
   const { language, locales, event, childEventsToAdd } = loaderData;
 
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   return (
     <>
