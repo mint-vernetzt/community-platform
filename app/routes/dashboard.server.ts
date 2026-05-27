@@ -784,7 +784,7 @@ export async function getUpcomingCanceledEvents(
   return enhancedEvents;
 }
 
-export async function getEventInvites(profileId: string) {
+export async function getEventInvitesAndRequests(profileId: string) {
   const profileEventInvites =
     await prismaClient.inviteForProfileToJoinEvent.findMany({
       where: {
@@ -840,6 +840,28 @@ export async function getEventInvites(profileId: string) {
       },
     });
 
+  const parentEventRequests =
+    await prismaClient.requestToParentEventToAddChildEvent.findMany({
+      where: {
+        parentEvent: {
+          admins: {
+            some: {
+              profileId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        parentEvent: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
   const flattenedEventInvites = [
     ...profileEventInvites.map((invite) => {
       return {
@@ -857,6 +879,12 @@ export async function getEventInvites(profileId: string) {
       return {
         ...invite.event,
         role: "participant",
+      };
+    }),
+    ...parentEventRequests.map((request) => {
+      return {
+        ...request.parentEvent,
+        role: "parentEvent",
       };
     }),
   ];

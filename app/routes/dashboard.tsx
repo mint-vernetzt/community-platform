@@ -59,7 +59,7 @@ import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { redirectWithToast } from "~/toast.server";
 import {
   enhanceEventsWithParticipationStatus,
-  getEventInvites,
+  getEventInvitesAndRequests,
   getEventsForCards,
   getNetworkInvites,
   getNetworkRequests,
@@ -571,22 +571,39 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const networkRequests = await getNetworkRequests(authClient, sessionUser.id);
 
-  const eventInvites = await getEventInvites(sessionUser.id);
-  const eventAdminInvites = eventInvites.filter((invite) => {
-    return invite.role === "admin";
-  });
-  const eventTeamMemberInvites = eventInvites.filter((invite) => {
-    return invite.role === "member";
-  });
-  const eventSpeakerInvites = eventInvites.filter((invite) => {
-    return invite.role === "speaker";
-  });
-  const eventParticipantInvites = eventInvites.filter((invite) => {
-    return invite.role === "participant";
-  });
-  const eventResponsibleOrganizationInvites = eventInvites.filter((invite) => {
-    return invite.role === "responsibleOrganization";
-  });
+  const eventInvitesAndRequests = await getEventInvitesAndRequests(
+    sessionUser.id
+  );
+  const eventAdminInvites = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "admin";
+    }
+  );
+  const eventTeamMemberInvites = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "member";
+    }
+  );
+  const eventSpeakerInvites = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "speaker";
+    }
+  );
+  const eventParticipantInvites = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "participant";
+    }
+  );
+  const eventResponsibleOrganizationInvites = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "responsibleOrganization";
+    }
+  );
+  const parentEventRequests = eventInvitesAndRequests.filter(
+    (inviteOrRequest) => {
+      return inviteOrRequest.role === "parentEvent";
+    }
+  );
 
   const upcomingCanceledEvents = await getUpcomingCanceledEvents(
     authClient,
@@ -661,6 +678,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventSpeakerInvites,
     eventParticipantInvites,
     eventResponsibleOrganizationInvites,
+    parentEventRequests,
     upcomingCanceledEvents,
     locales,
     imageCropperLocales,
@@ -1380,6 +1398,53 @@ function Dashboard() {
               {
                 loaderData.locales.route.content
                   .eventResponsibleOrganizationInvites.linkDescription
+              }
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Parent Event Requests Section */}
+      {loaderData.parentEventRequests.length > 0 && (
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.parentEventRequests
+                      .headline_one,
+                    loaderData.locales.route.content.parentEventRequests
+                      .headline_other,
+                    loaderData.parentEventRequests.length
+                  ),
+                  {
+                    count: loaderData.parentEventRequests.length,
+                  }
+                )}
+              </h3>
+              <p className="@lg:text-left text-sm text-center">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.parentEventRequests
+                    .description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button
+              as="link"
+              // TODO: link to correct tab so it gets opened right away
+              to="/my/events?TODO"
+              className="w-full @lg:w-fit"
+              prefetch="intent"
+            >
+              {
+                loaderData.locales.route.content.parentEventRequests
+                  .linkDescription
               }
             </Button>
           </div>

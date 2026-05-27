@@ -232,5 +232,12 @@ export const locale = {
         "When you confirm invitations, your organization becomes visible as a <0>responsible organization</0> for the event.",
       linkDescription: "To my events",
     },
+    parentEventRequests: {
+      headline_one: "You have {{count}} open membership requests for an event.",
+      headline_other: "You have {{count}} open membership requests for events.",
+      description:
+        "When you confirm requests, sub-events are linked to your event.",
+      linkDescription: "To my events",
+    },
   },
 } as const;

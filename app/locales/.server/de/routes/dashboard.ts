@@ -238,5 +238,12 @@ export const locale = {
         "Wenn Du Einladungen bestätigst, wird Deine Organisation als <0>verantwortliche Organisation</0> des Events sichtbar.",
       linkDescription: "Zu meinen Events",
     },
+    parentEventRequests: {
+      headline_one: "Du hast {{count}} offene Beitrittsanfragen für ein Event.",
+      headline_other: "Du hast {{count}} offene Beitrittsanfragen für Events.",
+      description:
+        "Wenn Du Anfragen bestätigst, werden Unterveranstaltungen mit Deiner Veranstaltung verknüpft.",
+      linkDescription: "Zu meinen Events",
+    },
   },
 } as const;
