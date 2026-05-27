@@ -95,10 +95,16 @@ export async function action(args: ActionFunctionArgs) {
       if (intent === "participate") {
         result = await addProfileToParticipants(sessionUser.id, data.eventId);
       } else if (intent === "withdrawParticipation") {
-        result = await removeProfileFromParticipants(
-          sessionUser.id,
-          data.eventId
-        );
+        result = await removeProfileFromParticipants({
+          profileId: sessionUser.id,
+          eventId: data.eventId,
+          locales: {
+            mail: {
+              moveFromWaitingListToParticipants:
+                locales.route.mail.moveFromWaitingListToParticipants,
+            },
+          },
+        });
       } else if (intent === "joinWaitingList") {
         result = await addProfileToWaitingList(sessionUser.id, data.eventId);
       } else {
