@@ -5,6 +5,7 @@ import {
   useLoaderData,
   type LoaderFunctionArgs,
   useSearchParams,
+  useLocation,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
 import Hint from "~/components/next/Hint";
@@ -202,7 +203,12 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-    return redirectWithToast(request.url, {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    searchParams.delete(
+      `${CONFIRM_MODAL_SEARCH_PARAM}-${submission.value[PARENT_EVENT_ID]}`
+    );
+    return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
       id: "request-parent-event-success",
       key: `request-parent-event-success-${Date.now()}`,
       message: locales.route.success.requestToJoinParentEvent,
@@ -275,6 +281,7 @@ function ParentEvent() {
   const { locales, language, event, parentEventsToAdd } = loaderData;
 
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   return event._count.childEvents > 0 ? (
     <>
@@ -565,7 +572,7 @@ function ParentEvent() {
                       <>
                         <Button
                           as="link"
-                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
+                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_MODAL_SEARCH_PARAM}-${parentEvent.id}`]: "true" } }).toString()}`}
                           preventScrollReset
                           size="small"
                           variant="outline"
@@ -574,7 +581,9 @@ function ParentEvent() {
                           {locales.route.addOrRequest.cta.request}
                         </Button>
 
-                        <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
+                        <Modal
+                          searchParam={`${CONFIRM_MODAL_SEARCH_PARAM}-${parentEvent.id}`}
+                        >
                           <Modal.Title>
                             {
                               locales.route.addOrRequest.requestConfirmation
