@@ -1437,8 +1437,7 @@ function Dashboard() {
             </div>
             <Button
               as="link"
-              // TODO: link to correct tab so it gets opened right away
-              to="/my/events?TODO"
+              to={`/my/events?requests=${loaderData.parentEventRequests[0].slug}`}
               className="w-full @lg:w-fit"
               prefetch="intent"
             >

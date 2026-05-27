@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const EVENT_ID = "eventId";
+export const CHILD_EVENT_ID = "childEventId";
 export const ORGANIZATION_ID = "organizationId";
 export const ACCEPT_ADMIN_INVITE_INTENT = "accept-admin-invite";
 export const REJECT_ADMIN_INVITE_INTENT = "reject-admin-invite";
@@ -14,10 +15,15 @@ export const ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT =
   "accept-responsible-organization-invite";
 export const REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT =
   "reject-responsible-organization-invite";
+export const ACCEPT_PARENT_EVENT_JOIN_REQUEST_INTENT =
+  "accept-parent-event-join-request";
+export const REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT =
+  "reject-parent-event-join-request";
 
-export function createAcceptOrRejectInviteSchema() {
+export function createAcceptOrRejectInviteOrRequestSchema() {
   return z.object({
     [EVENT_ID]: z.string().uuid(),
     [ORGANIZATION_ID]: z.string().uuid().optional(),
+    [CHILD_EVENT_ID]: z.string().uuid().optional(),
   });
 }
