@@ -99,10 +99,10 @@ export const locale = {
       subject: "Die Einladung als Speaker:in eines Events wurde abgelehnt",
     },
     inviteAsParticipantAccepted: {
-      subject: "The invitation to participate in an event has been accepted",
+      subject: "Die Einladung zur Teilnahme an einem Event wurde angenommen",
     },
     inviteAsParticipantRejected: {
-      subject: "The invitation to participate in an event has been rejected",
+      subject: "Die Einladung zur Teilnahme an einem Event wurde abgelehnt",
     },
     inviteAsResponsibleOrganizationAccepted: {
       subject:
