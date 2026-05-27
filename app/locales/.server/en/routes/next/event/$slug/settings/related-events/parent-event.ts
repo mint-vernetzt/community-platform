@@ -1,5 +1,5 @@
 export const locale = {
-  add: {
+  addOrRequest: {
     headline: "Add Parent Event",
     hasChildEventsHint:
       "Your event is already set as a parent event. Therefore, you cannot assign it to another parent event. If you want to make your event a sub-event of an existing parent event, first remove the sub-events from your current event. Then you can assign it to a parent event.",
@@ -8,9 +8,26 @@ export const locale = {
     timePeriodHint:
       "The parent event must be completely within the time period of your sub-event.",
     label: "Add an event as a parent event",
-    cta: "Assign as parent event",
+    cta: { add: "Assign as parent event", request: "Request to add" },
+    requestConfirmation: {
+      title: "Request to add",
+      description:
+        "Once your request is confirmed, the admins of the parent event will automatically gain admin rights for your event, as the admins are responsible for the overall management of the parent event and its associated events.",
+      confirm: "Request",
+      abort: "Cancel",
+    },
     blankStateHint:
       "There is currently no parent event that you can add. Please create an event in the corresponding time period first and then add your sub-event to it.",
+  },
+  pending: {
+    headline: "Pending Request",
+    subline:
+      "An admin of the parent event must still confirm that your event will be added as a sub-event.",
+    pendingRequestHint:
+      "Since you have already requested a parent event, you cannot link another event as a parent event. If you want to add another event instead, first withdraw your existing request.",
+    notificationHint:
+      "If you withdraw your request, an admin of the parent event will be informed.",
+    cta: "Withdraw request",
   },
   current: {
     headline: "Current Parent Event",
@@ -37,9 +54,32 @@ export const locale = {
       "The parent event could not be added. Please try again later.",
     removeParentEvent:
       "The parent event could not be removed. Please try again later.",
+    requestToJoinParentEvent:
+      "The request to add the parent event could not be sent. Please try again later.",
+    cancelParentEventJoinRequest:
+      "The request to add the parent event could not be withdrawn. Please try again later.",
   },
   success: {
     addParentEvent: "The parent event was successfully added.",
     removeParentEvent: "The parent event was successfully removed.",
+    requestToJoinParentEvent:
+      "The request to add the parent event was successfully sent.",
+    cancelParentEventJoinRequest:
+      "The request to add the parent event was successfully withdrawn.",
+  },
+  mail: {
+    request: {
+      buttonText: "Zur Community Plattform",
+      subject:
+        "Dein Event wurde als Unterveranstaltung zu einem Rahmenevent angefragt",
+    },
+    cancel: {
+      buttonText: "Zur Community Plattform",
+      subject:
+        "Die Anfrage eines Events, Teil deines Events zu werden, wurde zurückgezogen",
+    },
+    remove: {
+      subject: "Ein Event wurde aus deinem Rahmenevent entfernt",
+    },
   },
 } as const;

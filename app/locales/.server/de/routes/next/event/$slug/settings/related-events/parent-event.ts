@@ -1,5 +1,5 @@
 export const locale = {
-  add: {
+  addOrRequest: {
     headline: "Rahmenveranstaltung hinzufügen",
     hasChildEventsHint:
       "Dein Event ist bereits als Rahmenveranstaltung angelegt. Daher kannst Du es nicht zusätzlich einem anderen Rahmenevent zuordnen. Wenn Du Dein Event stattdessen als Unterveranstaltung eines bestehenden Rahmenevents anlegen möchtest, entferne zuerst die Unterevents aus Deinem aktuellen Event. Danach kannst Du es einem Rahmenevent zuordnen.",
@@ -8,9 +8,26 @@ export const locale = {
     timePeriodHint:
       "Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen.",
     label: "Füge ein Event als Rahmenevent hinzu",
-    cta: "Als Rahmenevent zuweisen",
+    cta: { add: "Als Rahmenevent zuweisen", request: "Hinzufügen anfragen" },
+    requestConfirmation: {
+      title: "Hinzufügen anfragen",
+      description:
+        "Sobald Deine Anfrage bestätigt wird, erhalten die Adminpersonen der Rahmenveranstaltung automatisch auch Adminrechte für Dein Event, da die Admins die Gesamtverantwortung für die Rahmenveranstaltung und die zugehörigen Events tragen.",
+      confirm: "Anfragen",
+      abort: "Abbrechen",
+    },
     blankStateHint:
       "Es gibt aktuell kein Rahmenevent, das Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge diesem Dein untergeordnetes Event hinzu.",
+  },
+  pending: {
+    headline: "Ausstehende Anfrage",
+    subline:
+      "Ein Admin der Rahmenveranstaltung muss noch bestätigen, dass Dein Event als Unterevent hinzugefügt wird.",
+    pendingRequestHint:
+      "Da Du bereits bei einem Event als Rahmenevent angefragt hast, kannst Du kein anderes Event als Rahmenveranstaltung verknüpfen. Wenn Du stattdessen ein anderes Event hinzufügen möchtest, ziehe  zuerst Deine bestehende Anfrage zurück.",
+    notificationHint:
+      "Wenn Du Deine Anfrage zurückziehst, wird ein Admin der Rahmenveranstaltung darüber informiert.",
+    cta: "Anfrage zurückziehen",
   },
   current: {
     headline: "Aktuelles Rahmenevent",
@@ -37,9 +54,32 @@ export const locale = {
       "Die Rahmenveranstaltung konnte nicht hinzugefügt werden. Bitte versuche es später erneut.",
     removeParentEvent:
       "Die Rahmenveranstaltung konnte nicht entfernt werden. Bitte versuche es später erneut.",
+    requestToJoinParentEvent:
+      "Die Anfrage zum Hinzufügen der Rahmenveranstaltung konnte nicht gesendet werden. Bitte versuche es später erneut.",
+    cancelParentEventJoinRequest:
+      "Die Anfrage zum Hinzufügen der Rahmenveranstaltung konnte nicht zurückgezogen werden. Bitte versuche es später erneut.",
   },
   success: {
     addParentEvent: "Die Rahmenveranstaltung wurde erfolgreich hinzugefügt.",
     removeParentEvent: "Die Rahmenveranstaltung wurde erfolgreich entfernt.",
+    requestToJoinParentEvent:
+      "Die Anfrage zum Hinzufügen der Rahmenveranstaltung wurde erfolgreich gesendet.",
+    cancelParentEventJoinRequest:
+      "Die Anfrage zum Hinzufügen der Rahmenveranstaltung wurde erfolgreich zurückgezogen.",
+  },
+  mail: {
+    request: {
+      buttonText: "Zur Community Plattform",
+      subject:
+        "Dein Event wurde als Unterveranstaltung zu einem Rahmenevent angefragt",
+    },
+    cancel: {
+      buttonText: "Zur Community Plattform",
+      subject:
+        "Die Anfrage eines Events, Teil deines Events zu werden, wurde zurückgezogen",
+    },
+    remove: {
+      subject: "Ein Event wurde aus deinem Rahmenevent entfernt",
+    },
   },
 } as const;

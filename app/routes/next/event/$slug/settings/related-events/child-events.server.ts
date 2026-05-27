@@ -17,6 +17,14 @@ export async function getEventBySlug(options: {
     select: {
       id: true,
       parentEventId: true,
+      sentParentEventJoinRequests: {
+        where: {
+          status: "pending",
+        },
+        select: {
+          parentEventId: true,
+        },
+      },
       slug: true,
       startTime: true,
       endTime: true,
@@ -213,6 +221,14 @@ export async function getEventBySlugForAction(slug: string) {
       slug: true,
       startTime: true,
       endTime: true,
+      sentParentEventJoinRequests: {
+        where: {
+          status: "pending",
+        },
+        select: {
+          parentEventId: true,
+        },
+      },
     },
   });
 
@@ -226,10 +242,19 @@ export async function addChildEvent(options: {
     slug: string;
     startTime: Date;
     endTime: Date;
+    sentParentEventJoinRequests: {
+      parentEventId: string;
+    }[];
   };
   childEventId: string;
 }) {
   const { userId, event, childEventId } = options;
+
+  if (event.sentParentEventJoinRequests.length > 0) {
+    throw new Error(
+      "You have already requested to join a parent event. While this request is pending, you cannot add a child event. If you want to add a child event instead, first withdraw your existing request."
+    );
+  }
 
   const childEvent = await prismaClient.event.findFirst({
     where: {

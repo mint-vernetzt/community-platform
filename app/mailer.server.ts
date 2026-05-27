@@ -226,6 +226,16 @@ type GeneralNotificationAddOrRemovedFromEventContent = {
   };
 };
 
+type DisconnectFromParentEventContent = {
+  firstName: string;
+  event: {
+    name: string;
+  };
+  parentEvent: {
+    name: string;
+  };
+};
+
 type TemplatePath =
   | "mail-templates/standard-message/html.hbs"
   | "mail-templates/standard-message/text.hbs"
@@ -271,6 +281,10 @@ type TemplatePath =
   | "mail-templates/requests/network-to-add-organization/rejected-text.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-html.hbs"
   | "mail-templates/requests/network-to-add-organization/canceled-text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/canceled-html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs"
   | "mail-templates/invites/organization-to-join-network/text.hbs"
   | "mail-templates/invites/organization-to-join-network/html.hbs"
   | "mail-templates/invites/organization-to-join-network/accepted-text.hbs"
@@ -334,7 +348,9 @@ type TemplatePath =
   | "mail-templates/general-notification/remove-participant-from-event-html.hbs"
   | "mail-templates/general-notification/remove-participant-from-event-text.hbs"
   | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs"
-  | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+  | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs"
+  | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
+  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -429,6 +445,10 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                         | "mail-templates/invites/profile-to-join-event/as-participant-text.hbs"
                                         | "mail-templates/invites/organization-to-join-event/html.hbs"
                                         | "mail-templates/invites/organization-to-join-event/text.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/html.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/text.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/canceled-html.hbs"
+                                        | "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs"
                                     ? InviteContent
                                     : TemplatePath extends
                                           | "mail-templates/invites/profile-to-join-event/as-admin-accepted-html.hbs"
@@ -486,7 +506,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                               | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs"
                                               | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs"
                                           ? GeneralNotificationAddOrRemovedFromEventContent
-                                          : never;
+                                          : TemplatePath extends
+                                                | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
+                                                | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
+                                            ? DisconnectFromParentEventContent
+                                            : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,

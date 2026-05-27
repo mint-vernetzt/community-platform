@@ -569,6 +569,8 @@ model Event {
   admins                           AdminOfEvent[]
   profileJoinInvites               InviteForProfileToJoinEvent[]
   abuseReports                     EventAbuseReport[]                             @relation("event_of_event_abuse_report")
+  sentParentEventJoinRequests      RequestToParentEventToAddChildEvent[]          @relation("sent_requests")
+  receivedParentEventJoinRequests  RequestToParentEventToAddChildEvent[]          @relation("received_requests")
 
   filterVector Unsupported("tsvector")? @map("filter_vector")
 
@@ -640,6 +642,8 @@ model EventVisibility {
   eventVisibility                  Boolean @default(true)
   abuseReports                     Boolean @default(false)
   filterVector                     Boolean @default(true)
+  sentParentEventJoinRequests      Boolean @default(false)
+  receivedParentEventJoinRequests  Boolean @default(false)
   event                            Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId                          String  @unique
 
@@ -1785,4 +1789,17 @@ model RequestToNetworkToAddOrganization {
 
   @@id([networkId, organizationId])
   @@map("requests_to_networks_to_add_organizations")
+}
+
+model RequestToParentEventToAddChildEvent {
+  parentEventId String     @map("parent_event_id")
+  parentEvent   Event      @relation(name: "received_requests", fields: [parentEventId], references: [id], onDelete: Cascade)
+  childEventId  String     @map("child_event_id")
+  childEvent    Event      @relation(name: "sent_requests", fields: [childEventId], references: [id], onDelete: Cascade)
+  status        JoinStatus
+  updatedAt     DateTime   @default(now()) @updatedAt @map("updated_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+
+  @@id([parentEventId, childEventId])
+  @@map("requests_to_parent_events_to_add_child_events")
 }

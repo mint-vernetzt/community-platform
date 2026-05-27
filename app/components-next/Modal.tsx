@@ -1,4 +1,4 @@
-import { type LinkProps, useSearchParams } from "react-router";
+import { type LinkProps, useLocation, useSearchParams } from "react-router";
 import { createPortal } from "react-dom";
 import {
   Children,
@@ -127,6 +127,7 @@ function ModalTitle(props: { children: React.ReactNode }) {
 function useRedirect(props: { searchParam: string }) {
   const [searchParams] = useSearchParams();
   const [redirect, setRedirect] = useState<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     const searchParamsCopy = new URLSearchParams(searchParams.toString());
