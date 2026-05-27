@@ -18,6 +18,9 @@ export async function getEventBySlug(options: {
       id: true,
       parentEventId: true,
       sentParentEventJoinRequests: {
+        where: {
+          status: "pending",
+        },
         select: {
           parentEventId: true,
         },
