@@ -51,11 +51,11 @@ export const locale = {
     participate: "Participate",
     accept: {
       invite: "Accept invite",
-      request: "Accept request",
+      request: "Accept link request",
     },
     reject: {
       invite: "Reject invite",
-      request: "Reject request",
+      request: "Reject link request",
     },
   },
   errors: {
@@ -76,9 +76,9 @@ export const locale = {
     rejectInviteAsResponsibleOrganization:
       "Error rejecting invite as responsible organization for the event.",
     acceptRequestAsParentEvent:
-      "Error accepting request for your parent event.",
+      "Error accepting link request for your parent event.",
     rejectRequestAsParentEvent:
-      "Error rejecting request for your parent event.",
+      "Error rejecting link request for your parent event.",
   },
   success: {
     acceptInviteAsAdmin: "Invite accepted as admin for the event.",
@@ -93,8 +93,8 @@ export const locale = {
       "Invite accepted as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
       "Invite rejected as responsible organization for the event.",
-    acceptRequestAsParentEvent: "Request accepted for your parent event.",
-    rejectRequestAsParentEvent: "Request rejected for your parent event.",
+    acceptRequestAsParentEvent: "Link request accepted for your parent event.",
+    rejectRequestAsParentEvent: "Link request rejected for your parent event.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -130,10 +130,12 @@ export const locale = {
         "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
     },
     requestAsParentEventAccepted: {
-      subject: "Die Beitrittsanfrage zur Rahmenveranstaltung wurde angenommen",
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde angenommen",
     },
     requestAsParentEventRejected: {
-      subject: "Die Beitrittsanfrage zur Rahmenveranstaltung wurde abgelehnt",
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde abgelehnt",
     },
   },
 } as const;

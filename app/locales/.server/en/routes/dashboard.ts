@@ -233,10 +233,11 @@ export const locale = {
       linkDescription: "To my events",
     },
     parentEventRequests: {
-      headline_one: "You have {{count}} open membership requests for an event.",
-      headline_other: "You have {{count}} open membership requests for events.",
+      headline_one: "You have {{count}} open link request for a parent event.",
+      headline_other:
+        "You have {{count}} open link requests for parent events.",
       description:
-        "When you confirm requests, sub-events are linked to your event.",
+        "When you confirm requests, sub-events are linked to your parent event.",
       linkDescription: "To my events",
     },
   },

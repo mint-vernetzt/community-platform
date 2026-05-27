@@ -239,8 +239,10 @@ export const locale = {
       linkDescription: "Zu meinen Events",
     },
     parentEventRequests: {
-      headline_one: "Du hast {{count}} offene Beitrittsanfragen für ein Event.",
-      headline_other: "Du hast {{count}} offene Beitrittsanfragen für Events.",
+      headline_one:
+        "Du hast {{count}} offene Verknüpfungsanfrage für ein Event.",
+      headline_other:
+        "Du hast {{count}} offene Verknüpfungsanfragen für Events.",
       description:
         "Wenn Du Anfragen bestätigst, werden Unterveranstaltungen mit Deiner Veranstaltung verknüpft.",
       linkDescription: "Zu meinen Events",

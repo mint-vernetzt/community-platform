@@ -54,11 +54,11 @@ export const locale = {
     participate: "Teilnehmen",
     accept: {
       invite: "Einladung annehmen",
-      request: "Beitrittsanfrage annehmen",
+      request: "Verknüpfungsanfrage annehmen",
     },
     reject: {
       invite: "Einladung ablehnen",
-      request: "Beitrittsanfrage ablehnen",
+      request: "Verknüpfungsanfrage ablehnen",
     },
   },
   errors: {
@@ -83,9 +83,9 @@ export const locale = {
     rejectInviteAsResponsibleOrganization:
       "Fehler beim Ablehnen der Einladung als verantwortliche Organisation für das Event.",
     acceptRequestAsParentEvent:
-      "Fehler beim Akzeptieren der Beitrittsanfrage zu Deiner Rahmenveranstaltung.",
+      "Fehler beim Akzeptieren der Verknüpfungsanfrage zu Deiner Rahmenveranstaltung.",
     rejectRequestAsParentEvent:
-      "Fehler beim Ablehnen der Beitrittsanfrage zu Deiner Rahmenveranstaltung.",
+      "Fehler beim Ablehnen der Verknüpfungsanfrage zu Deiner Rahmenveranstaltung.",
   },
   success: {
     acceptInviteAsAdmin: "Einladung als Admin für das Event angenommen.",
@@ -105,9 +105,9 @@ export const locale = {
     rejectInviteAsResponsibleOrganization:
       "Einladung als verantwortliche Organisation für das Event abgelehnt.",
     acceptRequestAsParentEvent:
-      "Beitrittsanfrage zu Deiner Rahmenveranstaltung angenommen.",
+      "Verknüpfungsanfrage zu Deiner Rahmenveranstaltung angenommen.",
     rejectRequestAsParentEvent:
-      "Beitrittsanfrage zu Deiner Rahmenveranstaltung abgelehnt.",
+      "Verknüpfungsanfrage zu Deiner Rahmenveranstaltung abgelehnt.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -143,10 +143,12 @@ export const locale = {
         "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
     },
     requestAsParentEventAccepted: {
-      subject: "Die Beitrittsanfrage zur Rahmenveranstaltung wurde angenommen",
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde angenommen",
     },
     requestAsParentEventRejected: {
-      subject: "Die Beitrittsanfrage zur Rahmenveranstaltung wurde abgelehnt",
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde abgelehnt",
     },
   },
 } as const;
