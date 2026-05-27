@@ -12,7 +12,7 @@ export const locale = {
     requestConfirmation: {
       title: "Hinzufügen anfragen",
       description:
-        "Sobald Deine Anfrage bestätigt wird, erhalten die Adminpersonen der Rahmenveran-staltung automatisch auch Adminrechte für Dein Event, da die Admins die Gesamtver-antwortung für die Rahmenveranstaltung und die zugehörigen Events tragen.",
+        "Sobald Deine Anfrage bestätigt wird, erhalten die Adminpersonen der Rahmenveranstaltung automatisch auch Adminrechte für Dein Event, da die Admins die Gesamtverantwortung für die Rahmenveranstaltung und die zugehörigen Events tragen.",
       confirm: "Anfragen",
       abort: "Abbrechen",
     },
