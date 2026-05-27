@@ -43,7 +43,8 @@ import {
   REQUEST_TO_JOIN_PARENT_EVENT_INTENT,
   CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
   createCancelParentEventJoinRequestSchema,
-  CONFIRM_MODAL_SEARCH_PARAM,
+  CONFIRM_ADD_MODAL_SEARCH_PARAM,
+  CONFIRM_REMOVE_MODAL_SEARCH_PARAM,
 } from "./parent-event.shared";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseWithZod } from "@conform-to/zod";
@@ -206,7 +207,7 @@ export async function action(args: ActionFunctionArgs) {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     searchParams.delete(
-      `${CONFIRM_MODAL_SEARCH_PARAM}-${submission.value[PARENT_EVENT_ID]}`
+      `${CONFIRM_ADD_MODAL_SEARCH_PARAM}-${submission.value[PARENT_EVENT_ID]}`
     );
     return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
       id: "request-parent-event-success",
@@ -267,7 +268,10 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-    return redirectWithToast(request.url, {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    searchParams.delete(CONFIRM_REMOVE_MODAL_SEARCH_PARAM);
+    return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
       id: "remove-parent-event-success",
       key: `remove-parent-event-success-${Date.now()}`,
       message: locales.route.success.removeParentEvent,
@@ -391,9 +395,7 @@ function ParentEvent() {
           {locales.route.current.headline}
         </TitleSection.Headline>
       </TitleSection>
-      {event.published === false ? (
-        <Form id="remove-parent-form" method="POST" hidden preventScrollReset />
-      ) : null}
+      <Form id="remove-parent-form" method="POST" hidden preventScrollReset />
       {event.parentEvent !== null ? (
         <ListItemEvent
           index={0}
@@ -427,8 +429,8 @@ function ParentEvent() {
               )}
             </ListItemEvent.Subline>
           ) : null}
-          {event.published === false ? (
-            <ListItemEvent.Controls>
+          <ListItemEvent.Controls>
+            {event.published === false ? (
               <Button
                 type="submit"
                 form="remove-parent-form"
@@ -440,8 +442,39 @@ function ParentEvent() {
               >
                 {locales.route.current.cta}
               </Button>
-            </ListItemEvent.Controls>
-          ) : null}
+            ) : (
+              <>
+                <Button
+                  as="link"
+                  to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_REMOVE_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
+                  preventScrollReset
+                  size="small"
+                  variant="outline"
+                  fullSize
+                >
+                  {locales.route.current.cta}
+                </Button>
+                <Modal searchParam={CONFIRM_REMOVE_MODAL_SEARCH_PARAM}>
+                  <Modal.Title>
+                    {locales.route.current.removeConfirmation.title}
+                  </Modal.Title>
+                  <Modal.Section>
+                    {locales.route.current.removeConfirmation.description}
+                  </Modal.Section>
+                  <Modal.SubmitButton
+                    form="remove-parent-form"
+                    name={INTENT_FIELD_NAME}
+                    value={REMOVE_PARENT_EVENT_INTENT}
+                  >
+                    {locales.route.current.removeConfirmation.confirm}
+                  </Modal.SubmitButton>
+                  <Modal.CloseButton route={location.pathname}>
+                    {locales.route.current.removeConfirmation.abort}
+                  </Modal.CloseButton>
+                </Modal>
+              </>
+            )}
+          </ListItemEvent.Controls>
         </ListItemEvent>
       ) : null}
       {event.published === false ? (
@@ -454,7 +487,9 @@ function ParentEvent() {
       ) : (
         <Hint>
           <Hint.InfoIcon />
-          {locales.route.current.hint.published}
+          {event.parentEvent !== null && event.parentEvent.isAdmin
+            ? locales.route.current.hint.publishedSameAdmin
+            : locales.route.current.hint.publishedDifferentAdmin}
         </Hint>
       )}
     </>
@@ -572,7 +607,7 @@ function ParentEvent() {
                       <>
                         <Button
                           as="link"
-                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_MODAL_SEARCH_PARAM}-${parentEvent.id}`]: "true" } }).toString()}`}
+                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_ADD_MODAL_SEARCH_PARAM}-${parentEvent.id}`]: "true" } }).toString()}`}
                           preventScrollReset
                           size="small"
                           variant="outline"
@@ -582,7 +617,7 @@ function ParentEvent() {
                         </Button>
 
                         <Modal
-                          searchParam={`${CONFIRM_MODAL_SEARCH_PARAM}-${parentEvent.id}`}
+                          searchParam={`${CONFIRM_ADD_MODAL_SEARCH_PARAM}-${parentEvent.id}`}
                         >
                           <Modal.Title>
                             {
