@@ -34,9 +34,10 @@ export const locale = {
     teamMemberInvites: "Teammitglied",
     speakerEvents: "Speaker:in",
     speakerInvites: "Speaker:in",
+    participantEvents: "Teilnehmer:in",
+    participantInvites: "Teilnehmer:in",
     responsibleOrganizationEvents: "Verantwortliche Organisation",
     responsibleOrganizationInvites: "Verantwortliche Organisation",
-    participantEvents: "Teilnehmer:in",
     waitingListEvents: "Warteliste",
   },
   list: {
@@ -62,6 +63,10 @@ export const locale = {
       "Fehler beim Akzeptieren der Einladung als Speaker:in für das Event.",
     rejectInviteAsSpeaker:
       "Fehler beim Ablehnen der Einladung als Speaker:in für das Event.",
+    acceptInviteAsParticipant:
+      "Fehler beim Akzeptieren der Einladung zur Teilnahme an einem Event.",
+    rejectInviteAsParticipant:
+      "Fehler beim Ablehnen der Einladung zur Teilnahme an einem Event.",
     acceptInviteAsResponsibleOrganization:
       "Fehler beim Akzeptieren der Einladung als verantwortliche Organisation für das Event.",
     rejectInviteAsResponsibleOrganization:
@@ -76,6 +81,10 @@ export const locale = {
       "Einladung als Teammitglied für das Event abgelehnt.",
     acceptInviteAsSpeaker: "Einladung als Speaker:in für das Event angenommen.",
     rejectInviteAsSpeaker: "Einladung als Speaker:in für das Event abgelehnt.",
+    acceptInviteAsParticipant:
+      "Einladung zur Teilnahme an einem Event angenommen.",
+    rejectInviteAsParticipant:
+      "Einladung zur Teilnahme an einem Event abgelehnt.",
     acceptInviteAsResponsibleOrganization:
       "Einladung als verantwortliche Organisation für das Event angenommen.",
     rejectInviteAsResponsibleOrganization:
@@ -99,6 +108,12 @@ export const locale = {
     },
     inviteAsSpeakerRejected: {
       subject: "Die Einladung als Speaker:in eines Events wurde abgelehnt",
+    },
+    inviteAsParticipantAccepted: {
+      subject: "Die Einladung zur Teilnahme an einem Event wurde angenommen",
+    },
+    inviteAsParticipantRejected: {
+      subject: "Die Einladung zur Teilnahme an einem Event wurde abgelehnt",
     },
     inviteAsResponsibleOrganizationAccepted: {
       subject:

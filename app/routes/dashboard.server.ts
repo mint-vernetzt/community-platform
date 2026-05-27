@@ -824,6 +824,22 @@ export async function getEventInvites(profileId: string) {
       },
     });
 
+  const participateOnEventInvites =
+    await prismaClient.inviteForProfileToParticipateOnEvent.findMany({
+      where: {
+        profileId,
+        status: "pending",
+      },
+      select: {
+        event: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
   const flattenedEventInvites = [
     ...profileEventInvites.map((invite) => {
       return {
@@ -835,6 +851,12 @@ export async function getEventInvites(profileId: string) {
       return {
         ...invite.event,
         role: "responsibleOrganization",
+      };
+    }),
+    ...participateOnEventInvites.map((invite) => {
+      return {
+        ...invite.event,
+        role: "participant",
       };
     }),
   ];

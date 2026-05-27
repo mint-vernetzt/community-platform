@@ -93,6 +93,7 @@ export async function searchProfiles(options: {
     await prismaClient.inviteForProfileToParticipateOnEvent.findMany({
       where: {
         eventId,
+        status: "pending",
       },
       select: {
         profileId: true,

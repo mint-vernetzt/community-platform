@@ -56,6 +56,10 @@ export const locale = {
       "Error rejecting invite as team member for the event.",
     acceptInviteAsSpeaker: "Error accepting invite as speaker for the event.",
     rejectInviteAsSpeaker: "Error rejecting invite as speaker for the event.",
+    acceptInviteAsParticipant:
+      "Error accepting invite to participate in the event.",
+    rejectInviteAsParticipant:
+      "Error rejecting invite to participate in the event.",
     acceptInviteAsResponsibleOrganization:
       "Error accepting invite as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
@@ -68,6 +72,8 @@ export const locale = {
     rejectInviteAsTeamMember: "Invite rejected as team member for the event.",
     acceptInviteAsSpeaker: "Invite accepted as speaker for the event.",
     rejectInviteAsSpeaker: "Invite rejected as speaker for the event.",
+    acceptInviteAsParticipant: "Invite accepted to participate in the event.",
+    rejectInviteAsParticipant: "Invite rejected to participate in the event.",
     acceptInviteAsResponsibleOrganization:
       "Invite accepted as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
@@ -91,6 +97,12 @@ export const locale = {
     },
     inviteAsSpeakerRejected: {
       subject: "Die Einladung als Speaker:in eines Events wurde abgelehnt",
+    },
+    inviteAsParticipantAccepted: {
+      subject: "Die Einladung zur Teilnahme an einem Event wurde angenommen",
+    },
+    inviteAsParticipantRejected: {
+      subject: "Die Einladung zur Teilnahme an einem Event wurde abgelehnt",
     },
     inviteAsResponsibleOrganizationAccepted: {
       subject:

@@ -581,6 +581,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const eventSpeakerInvites = eventInvites.filter((invite) => {
     return invite.role === "speaker";
   });
+  const eventParticipantInvites = eventInvites.filter((invite) => {
+    return invite.role === "participant";
+  });
   const eventResponsibleOrganizationInvites = eventInvites.filter((invite) => {
     return invite.role === "responsibleOrganization";
   });
@@ -656,6 +659,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventAdminInvites,
     eventTeamMemberInvites,
     eventSpeakerInvites,
+    eventParticipantInvites,
     eventResponsibleOrganizationInvites,
     upcomingCanceledEvents,
     locales,
@@ -1284,6 +1288,50 @@ function Dashboard() {
             >
               {
                 loaderData.locales.route.content.eventSpeakerInvites
+                  .linkDescription
+              }
+            </Button>
+          </div>
+        </section>
+      )}
+      {/* Event Participant Invites Section */}
+      {loaderData.eventParticipantInvites.length > 0 && (
+        <section className="w-full mb-8 mx-auto px-4 @xl:px-6 @md:max-w-md @lg:max-w-lg @xl:max-w-xl @2xl:max-w-2xl">
+          <div className="flex flex-col @lg:flex-row gap-6 p-6 bg-primary-50 rounded-lg items-center">
+            <div className="flex-1 text-neutral-700">
+              <h3 className="appearance-none font-bold text-primary text-2xl mb-2 leading-6.5 text-center @lg:max-w-fit">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    loaderData.locales.route.content.eventParticipantInvites
+                      .headline_one,
+                    loaderData.locales.route.content.eventParticipantInvites
+                      .headline_other,
+                    loaderData.eventParticipantInvites.length
+                  ),
+                  { count: loaderData.eventParticipantInvites.length }
+                )}
+              </h3>
+              <p className="@lg:text-left text-sm text-center">
+                {insertComponentsIntoLocale(
+                  loaderData.locales.route.content.eventParticipantInvites
+                    .description,
+                  [
+                    <span
+                      key="highlight-request-description"
+                      className="font-semibold"
+                    />,
+                  ]
+                )}
+              </p>
+            </div>
+            <Button
+              as="link"
+              to="/my/events?invites=participantInvites"
+              className="w-full @lg:w-fit"
+              prefetch="intent"
+            >
+              {
+                loaderData.locales.route.content.eventParticipantInvites
                   .linkDescription
               }
             </Button>

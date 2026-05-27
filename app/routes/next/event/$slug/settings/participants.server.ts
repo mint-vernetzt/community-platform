@@ -8,7 +8,11 @@ export async function getEventBySlug(slug: string) {
         select: {
           participants: true,
           waitingList: true,
-          participantInvites: true,
+          participantInvites: {
+            where: {
+              status: "pending",
+            },
+          },
         },
       },
     },
