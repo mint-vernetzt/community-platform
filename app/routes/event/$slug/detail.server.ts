@@ -338,6 +338,7 @@ export async function removeProfileFromParticipants(options: {
     });
   } catch (error) {
     console.error("Error removing profile from participants:", error);
+    captureException(error);
     return { error };
   }
 
