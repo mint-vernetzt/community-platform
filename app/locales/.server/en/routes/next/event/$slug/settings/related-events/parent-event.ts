@@ -18,6 +18,8 @@ export const locale = {
     },
     blankStateHint:
       "There is currently no parent event that you can add. Please create an event in the corresponding time period first and then add your sub-event to it.",
+    publishedHint:
+      "Since your event has already been published, you cannot make any changes to the link to the parent event.",
   },
   pending: {
     headline: "Pending Request",
@@ -34,11 +36,20 @@ export const locale = {
     cta: "Remove as parent event",
     hint: {
       unpublishedSameAdmin:
-        "If you remove the link to the parent event, your event will become an independent event again. The link can only be removed as long as your event has not been published yet.",
+        "If you remove the link to the parent event, your event will become an independent event again.",
       unpublishedDifferentAdmin:
-        "If you remove the link to the parent event, your event will become an independent event again. The admin of the parent event will be informed about the dissolved link. The link can only be removed as long as your event has not been published yet.",
-      published:
-        "Since your event has already been published, you can no longer make changes to the link to the parent event.",
+        "If you remove the link to the parent event, your event will become an independent event again. The admin of the parent event will be informed about the dissolved link.",
+      publishedSameAdmin:
+        "If you remove the link to the parent event, your event will become an independent event again. Since your event has already been published, the parent event cannot be re-added after removal.",
+      publishedDifferentAdmin:
+        "If you remove the link to the parent event, your event will become an independent event again. The admin of the parent event will be informed about the dissolved link. Since your event has already been published, the parent event cannot be re-added after removal.",
+    },
+    removeConfirmation: {
+      title: "Remove Parent Event",
+      description:
+        "Since your event has already been published, the parent event cannot be re-added after removal. If you remove the parent event, your event will become an independent event again.",
+      confirm: "Remove anyway",
+      abort: "Cancel",
     },
   },
   list: {

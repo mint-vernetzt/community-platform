@@ -610,7 +610,6 @@ export async function removeParentEvent(options: {
   userId: string;
   event: {
     slug: string;
-    published: boolean;
   };
   locales: {
     mail: {
@@ -619,10 +618,6 @@ export async function removeParentEvent(options: {
   };
 }) {
   const { event, userId, locales } = options;
-
-  if (event.published === true) {
-    throw new Error("Cannot remove parent event from a published event");
-  }
 
   const currentEvent = await prismaClient.event.findFirst({
     where: {

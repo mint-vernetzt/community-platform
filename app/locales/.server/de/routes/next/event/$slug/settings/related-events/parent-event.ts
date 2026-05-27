@@ -18,6 +18,8 @@ export const locale = {
     },
     blankStateHint:
       "Es gibt aktuell kein Rahmenevent, das Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge diesem Dein untergeordnetes Event hinzu.",
+    publishedHint:
+      "Da Dein Event bereits veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen.",
   },
   pending: {
     headline: "Ausstehende Anfrage",
@@ -34,11 +36,20 @@ export const locale = {
     cta: "Als Rahmenevent entfernen",
     hint: {
       unpublishedSameAdmin:
-        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Eine Auflösung der Verknüpfung ist nur möglich, solange Dein Event noch nicht veröffentlicht ist.",
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung.",
       unpublishedDifferentAdmin:
-        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Der Admin des Rahmenevents wird über die aufgelöste Verknüpfung informiert. Eine Auflösung der Verknüpfung ist nur möglich, solange Dein Event noch nicht veröffentlicht ist.",
-      published:
-        "Da Dein Event bereits veröffentlicht ist, kannst Du keine Anpassung in der Verknüpfung zur Rahmenveranstaltung mehr vornehmen.",
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Der Admin des Rahmenevents wird über die aufgelöste Verknüpfung informiert.",
+      publishedSameAdmin:
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Da Dein Event bereits veröffentlicht ist, kann nach dem Entfernen nicht erneut eine Rahmenveranstaltung hinzugefügt werden.",
+      publishedDifferentAdmin:
+        "Solltest Du die Verknüpfung zum Rahmenevent entfernen, wird Dein Event wieder zur eigenständigen Veranstaltung. Der Admin des Rahmenevents wird über die aufgelöste Verknüpfung informiert. Da Dein Event bereits veröffentlicht ist, kann nach dem Entfernen nicht erneut eine Rahmenveranstaltung hinzugefügt werden.",
+    },
+    removeConfirmation: {
+      title: "Rahmenveranstaltung entfernen",
+      description:
+        "Da dein Event bereits veröffentlicht ist, kann die Rahmenveranstaltung nach dem Entfernen nicht wieder hinzugefügt werden. Wenn Du die Rahmenveranstaltung entfernst, wird Dein Event wieder zur eigenständigen Veranstaltung.",
+      confirm: "Trotzdem entfernen",
+      abort: "Abbrechen",
     },
   },
   list: {

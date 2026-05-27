@@ -2,6 +2,13 @@ export const locale = {
   current: {
     headline: "Current Child Events",
     cta: "Remove as Child Event",
+    removeConfirmation: {
+      title: "Remove Child Event",
+      description:
+        "The child event is already published. If you remove the child event, it will become an independent event again. The child event cannot be added as a child event again after removal.",
+      confirm: "Remove Anyway",
+      abort: "Cancel",
+    },
   },
   addOrCreate: {
     headline: "Add Child Events",
