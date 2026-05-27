@@ -99,7 +99,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function Cancel() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, event } = loaderData;
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
@@ -111,8 +111,17 @@ function Cancel() {
 
   return (
     <>
-      <Hint>{locales.route.hint}</Hint>
+      <Hint>
+        <Hint.InfoIcon />
+        {locales.route.hint.explanation}
+      </Hint>
       {/* <p>{locales.route.explanation}</p> */}
+      {event._count.childEvents > 0 && (
+        <Hint>
+          <Hint.DiagramIcon />
+          {locales.route.hint.childEvents}
+        </Hint>
+      )}
       <div className="w-full flex justify-end">
         <div className="w-full lg:w-fit">
           <Button

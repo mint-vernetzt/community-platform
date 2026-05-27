@@ -7,6 +7,17 @@ export async function getEventBySlug(slug: string) {
       name: true,
       published: true,
       canceled: true,
+      childEvents: {
+        select: {
+          slug: true,
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
   return event;

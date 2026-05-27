@@ -1,7 +1,12 @@
 export const locale = {
   explanation:
     "Once you cancel the event, all registered participants will automatically receive an email with the cancellation information.",
-  hint: "Your event is already published. You have the option to cancel your event. After that, you will also be able to delete it here.",
+  hint: {
+    explanation:
+      "Your event is already published. You have the option to cancel your event. After that, you will also be able to delete it here.",
+    childEvents:
+      "Your event has sub-events. If you cancel it, participants, speakers, team members, and admins of your event and the sub-events will be informed about the cancellation.",
+  },
   cancel: "Cancel event",
   confirmation: {
     title: "Do you really want to cancel {{eventName}}?",
