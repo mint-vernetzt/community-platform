@@ -30,7 +30,11 @@ export const locale = {
   },
   mail: {
     removeParticipant: {
-      subject: "You have been removed as a participant from an event",
+      subject: "Du wurdest als Teilnehmer:in von einem Event entfernt",
+    },
+    moveFromWaitingListToParticipants: {
+      subject:
+        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
     },
   },
   errors: {
