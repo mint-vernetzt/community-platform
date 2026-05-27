@@ -2,6 +2,13 @@ export const locale = {
   current: {
     headline: "Aktuelle Unterevents",
     cta: "Als Unterevent entfernen",
+    removeConfirmation: {
+      title: "Unterevent entfernen",
+      description:
+        "Das Unterevent ist bereits veröffentlicht. Wenn Du das Unterevent entfernst, wird es wieder zu einem eigenständigen Event. Das Unterevent kann nach dem Entfernen nicht erneut als Unterevent hinzugefügt werden.",
+      confirm: "Trotzdem entfernen",
+      abort: "Abbrechen",
+    },
   },
   addOrCreate: {
     headline: "Unterevents hinzufügen",

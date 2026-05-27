@@ -4,6 +4,7 @@ import {
   redirect,
   useLoaderData,
   type LoaderFunctionArgs,
+  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
@@ -31,6 +32,7 @@ import {
   EVENT_ID,
   createAddOrRemoveChildEventSchema,
   REMOVE_CHILD_EVENT_INTENT,
+  CONFIRM_REMOVE_MODAL_SEARCH_PARAM,
 } from "./child-events.shared";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
@@ -40,6 +42,8 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { Modal } from "~/components-next/Modal";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -185,7 +189,12 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
-    return redirectWithToast(request.url, {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    searchParams.delete(
+      `${CONFIRM_REMOVE_MODAL_SEARCH_PARAM}-${submission.value[EVENT_ID]}`
+    );
+    return redirectWithToast(`${url.pathname}?${searchParams.toString()}`, {
       id: "remove-child-event-success",
       key: `remove-child-event-success-${Date.now()}`,
       message: locales.route.success.removeChildEvent,
@@ -197,6 +206,8 @@ export async function action(args: ActionFunctionArgs) {
 function ChildEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { language, locales, event, childEventsToAdd } = loaderData;
+
+  const [searchParams] = useSearchParams();
 
   return (
     <>
@@ -254,11 +265,7 @@ function ChildEvents() {
                     >
                       <input name={EVENT_ID} defaultValue={event.id} />
                     </Form>
-                    {event.published === true ? (
-                      <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                        <span>{locales.route.list.alreadyPublished}</span>
-                      </div>
-                    ) : (
+                    {event.published === false ? (
                       <Button
                         type="submit"
                         form={`remove-child-form-${event.id}`}
@@ -270,6 +277,42 @@ function ChildEvents() {
                       >
                         {locales.route.current.cta}
                       </Button>
+                    ) : (
+                      <>
+                        <Button
+                          as="link"
+                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_REMOVE_MODAL_SEARCH_PARAM}-${event.id}`]: "true" } }).toString()}`}
+                          preventScrollReset
+                          size="small"
+                          variant="outline"
+                          fullSize
+                        >
+                          {locales.route.current.cta}
+                        </Button>
+                        <Modal
+                          searchParam={`${CONFIRM_REMOVE_MODAL_SEARCH_PARAM}-${event.id}`}
+                        >
+                          <Modal.Title>
+                            {locales.route.current.removeConfirmation.title}
+                          </Modal.Title>
+                          <Modal.Section>
+                            {
+                              locales.route.current.removeConfirmation
+                                .description
+                            }
+                          </Modal.Section>
+                          <Modal.SubmitButton
+                            form={`remove-child-form-${event.id}`}
+                            name={INTENT_FIELD_NAME}
+                            value={REMOVE_CHILD_EVENT_INTENT}
+                          >
+                            {locales.route.current.removeConfirmation.confirm}
+                          </Modal.SubmitButton>
+                          <Modal.CloseButton route={location.pathname}>
+                            {locales.route.current.removeConfirmation.abort}
+                          </Modal.CloseButton>
+                        </Modal>
+                      </>
                     )}
                   </ListItemEvent.Controls>
                   <ListItemEvent.Flag

@@ -312,7 +312,6 @@ export async function removeChildEvent(options: {
       parentEventId: {
         equals: event.id,
       },
-      published: false,
     },
     select: {
       slug: true,
