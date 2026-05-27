@@ -32,6 +32,10 @@ export const locale = {
     removeParticipant: {
       subject: "Du wurdest als Teilnehmer:in von einem Event entfernt",
     },
+    moveFromWaitingListToParticipants: {
+      subject:
+        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+    },
   },
   errors: {
     removeParticipant:

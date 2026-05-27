@@ -123,7 +123,9 @@ export async function action(args: ActionFunctionArgs) {
       eventId: event.id,
       locales: {
         mail: {
-          subject: locales.route.mail.removeParticipant.subject,
+          removeFromParticipants: locales.route.mail.removeParticipant,
+          moveFromWaitingListToParticipants:
+            locales.route.mail.moveFromWaitingListToParticipants,
         },
       },
     });

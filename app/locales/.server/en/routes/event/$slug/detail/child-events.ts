@@ -27,4 +27,10 @@ export const locale = {
     joinWaitingList: "Successfully added to waiting list",
     leaveWaitingList: "Successfully removed from waiting list",
   },
+  mail: {
+    moveFromWaitingListToParticipants: {
+      subject:
+        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+    },
+  },
 } as const;
