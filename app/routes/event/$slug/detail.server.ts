@@ -16,6 +16,11 @@ import { filterProfileByVisibility } from "~/public-fields-filtering.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { FILE_FIELD_NAME } from "~/storage.shared";
+import {
+  getCompiledMailTemplate,
+  mailer,
+  mailerOptions,
+} from "~/mailer.server";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -307,22 +312,135 @@ export async function addProfileToParticipants(
   }
 }
 
-export async function removeProfileFromParticipants(
-  profileId: string,
-  eventId: string
-) {
+export async function removeProfileFromParticipants(options: {
+  profileId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      moveFromWaitingListToParticipants: {
+        subject: string;
+      };
+    };
+  };
+}) {
+  const { profileId, eventId } = options;
+
+  let data: Awaited<
+    ReturnType<typeof prismaClient.participantOfEvent.deleteMany>
+  >;
+
   try {
-    const data = await prismaClient.participantOfEvent.deleteMany({
+    data = await prismaClient.participantOfEvent.deleteMany({
       where: {
         eventId,
         profileId,
       },
     });
-    return { data };
   } catch (error) {
     console.error("Error removing profile from participants:", error);
     return { error };
   }
+
+  // Try to move first profile from waiting list to participants
+  try {
+    const event = await prismaClient.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        moveUpToParticipants: true,
+        participantLimit: true,
+        _count: {
+          select: {
+            participants: true,
+          },
+        },
+        waitingList: {
+          select: {
+            profileId: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+      },
+    });
+
+    if (event === null) {
+      throw new Error("Event not found");
+    }
+
+    if (
+      event.moveUpToParticipants &&
+      event.participantLimit !== null &&
+      event._count.participants < event.participantLimit &&
+      event.waitingList.length > 0
+    ) {
+      const firstInWaitingList = event.waitingList[0];
+      const result = await prismaClient.$transaction([
+        prismaClient.participantOfEvent.create({
+          data: {
+            eventId,
+            profileId: firstInWaitingList.profileId,
+          },
+          select: {
+            profile: {
+              select: {
+                email: true,
+                firstName: true,
+              },
+            },
+            event: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        }),
+        prismaClient.waitingParticipantOfEvent.delete({
+          where: {
+            profileId_eventId: {
+              eventId,
+              profileId: firstInWaitingList.profileId,
+            },
+          },
+        }),
+      ]);
+
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      const recipient = result[0].profile.email;
+      const subject =
+        options.locales.mail.moveFromWaitingListToParticipants.subject;
+      const textTemplatePath =
+        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+
+      const text = getCompiledMailTemplate<typeof textTemplatePath>(
+        textTemplatePath,
+        {
+          firstName: result[0].profile.firstName,
+          event: { name: result[0].event.name },
+        },
+        "text"
+      );
+      const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+        htmlTemplatePath,
+        {
+          firstName: result[0].profile.firstName,
+          event: { name: result[0].event.name },
+        },
+        "html"
+      );
+
+      await mailer(mailerOptions, sender, recipient, subject, text, html);
+    }
+  } catch (error) {
+    console.error("Error sending mail after removing participant:", error);
+    captureException(error);
+  }
+
+  return { data };
 }
 
 export async function addProfileToWaitingList(
