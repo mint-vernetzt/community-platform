@@ -9,17 +9,24 @@ export const locale = {
       "Die Rahmenveranstaltung muss zeitlich vollständig innerhalb des Zeitraums Deines Unterevents liegen.",
     label: "Füge ein Event als Rahmenevent hinzu",
     cta: { add: "Als Rahmenevent zuweisen", request: "Hinzufügen anfragen" },
+    requestConfirmation: {
+      title: "Hinzufügen anfragen",
+      description:
+        "Sobald Deine Anfrage bestätigt wird, erhal-ten die Adminpersonen der Rahmenveran-staltung automatisch auch Adminrechte für Dein Event, da die Admins die Gesamtver-antwortung für die Rahmenveranstaltung und die zugehörigen Events tragen.",
+      confirm: "Anfragen",
+      abort: "Abbrechen",
+    },
     blankStateHint:
       "Es gibt aktuell kein Rahmenevent, das Du hinzufügen kannst. Erstelle zunächst ein Event im entsprechenden Zeitraum und füge diesem Dein untergeordnetes Event hinzu.",
   },
   pending: {
     headline: "Ausstehende Anfrage",
     subline:
-      "Ein Admin der Rahmenveranstaltung muss noch be-stätigen, dass Dein Event als Unterevent hinzugefügt wird.",
+      "Ein Admin der Rahmenveranstaltung muss noch bestätigen, dass Dein Event als Unterevent hinzugefügt wird.",
     pendingRequestHint:
-      "Da Du bereits bei einem Event als Rahmenevent an-gefragt hast, kannst Du kein anderes Event als Rah-menveranstaltung verknüpfen. Wenn Du stattdes-sen ein anderes Event hinzufügen möchtest, ziehe  zuerst Deine bestehende Anfrage zurück.",
-    notficationHint:
-      "Wenn Du Deine Anfrage zurückziehst, wird ein Ad-min der Rahmenveranstaltung darüber informiert.",
+      "Da Du bereits bei einem Event als Rahmenevent angefragt hast, kannst Du kein anderes Event als Rahmenveranstaltung verknüpfen. Wenn Du stattdessen ein anderes Event hinzufügen möchtest, ziehe  zuerst Deine bestehende Anfrage zurück.",
+    notificationHint:
+      "Wenn Du Deine Anfrage zurückziehst, wird ein Admin der Rahmenveranstaltung darüber informiert.",
     cta: "Anfrage zurückziehen",
   },
   current: {

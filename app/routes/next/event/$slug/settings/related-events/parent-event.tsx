@@ -4,6 +4,7 @@ import {
   redirect,
   useLoaderData,
   type LoaderFunctionArgs,
+  useSearchParams,
 } from "react-router";
 import BasicStructure from "~/components/next/BasicStructure";
 import Hint from "~/components/next/Hint";
@@ -41,11 +42,14 @@ import {
   REQUEST_TO_JOIN_PARENT_EVENT_INTENT,
   CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
   createCancelParentEventJoinRequestSchema,
+  CONFIRM_MODAL_SEARCH_PARAM,
 } from "./parent-event.shared";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { parseWithZod } from "@conform-to/zod";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
+import { Modal } from "~/components-next/Modal";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -270,6 +274,8 @@ function ParentEvent() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, parentEventsToAdd } = loaderData;
 
+  const [searchParams] = useSearchParams();
+
   return event._count.childEvents > 0 ? (
     <>
       <TitleSection>
@@ -368,7 +374,7 @@ function ParentEvent() {
       </Hint>
       <Hint>
         <Hint.InfoIcon />
-        {locales.route.pending.notficationHint}
+        {locales.route.pending.notificationHint}
       </Hint>
     </>
   ) : event.published === true || event.parentEvent !== null ? (
@@ -556,17 +562,49 @@ function ParentEvent() {
                         {locales.route.addOrRequest.cta.add}
                       </Button>
                     ) : (
-                      <Button
-                        type="submit"
-                        form={`add-or-request-parent-form-${parentEvent.id}`}
-                        name={INTENT_FIELD_NAME}
-                        value={REQUEST_TO_JOIN_PARENT_EVENT_INTENT}
-                        size="small"
-                        variant="outline"
-                        fullSize
-                      >
-                        {locales.route.addOrRequest.cta.request}
-                      </Button>
+                      <>
+                        <Button
+                          as="link"
+                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
+                          preventScrollReset
+                          size="small"
+                          variant="outline"
+                          fullSize
+                        >
+                          {locales.route.addOrRequest.cta.request}
+                        </Button>
+
+                        <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
+                          <Modal.Title>
+                            {
+                              locales.route.addOrRequest.requestConfirmation
+                                .title
+                            }
+                          </Modal.Title>
+                          <Modal.Section>
+                            {
+                              locales.route.addOrRequest.requestConfirmation
+                                .description
+                            }
+                          </Modal.Section>
+                          <Modal.SubmitButton
+                            form={`add-or-request-parent-form-${parentEvent.id}`}
+                            name={INTENT_FIELD_NAME}
+                            value={REQUEST_TO_JOIN_PARENT_EVENT_INTENT}
+                          >
+                            {
+                              locales.route.addOrRequest.requestConfirmation
+                                .confirm
+                            }
+                          </Modal.SubmitButton>
+                          <Modal.CloseButton route={location.pathname}>
+                            {
+                              locales.route.addOrRequest.requestConfirmation
+                                .abort
+                            }
+                          </Modal.CloseButton>
+                        </Modal>
+                      </>
                     )}
                   </ListItemEvent.Controls>
                 </ListItemEvent>

@@ -7,6 +7,7 @@ export const REQUEST_TO_JOIN_PARENT_EVENT_INTENT =
 export const CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT =
   "cancel_parent_event_join_request";
 export const REMOVE_PARENT_EVENT_INTENT = "remove_parent_event";
+export const CONFIRM_MODAL_SEARCH_PARAM = "confirm_add_parent_event_admins";
 
 export function createAddParentEventSchema() {
   return z.object({

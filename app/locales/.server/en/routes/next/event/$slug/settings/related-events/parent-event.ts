@@ -9,6 +9,13 @@ export const locale = {
       "The parent event must be completely within the time period of your sub-event.",
     label: "Add an event as a parent event",
     cta: { add: "Assign as parent event", request: "Request to add" },
+    requestConfirmation: {
+      title: "Request to add",
+      description:
+        "Once your request is confirmed, the admins of the parent event will automatically gain admin rights for your event, as the admins are responsible for the overall management of the parent event and its associated events.",
+      confirm: "Request",
+      abort: "Cancel",
+    },
     blankStateHint:
       "There is currently no parent event that you can add. Please create an event in the corresponding time period first and then add your sub-event to it.",
   },
@@ -18,7 +25,7 @@ export const locale = {
       "An admin of the parent event must still confirm that your event will be added as a sub-event.",
     pendingRequestHint:
       "Since you have already requested a parent event, you cannot link another event as a parent event. If you want to add another event instead, first withdraw your existing request.",
-    notficationHint:
+    notificationHint:
       "If you withdraw your request, an admin of the parent event will be informed.",
     cta: "Withdraw request",
   },
