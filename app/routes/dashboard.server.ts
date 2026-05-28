@@ -11,7 +11,7 @@ import { type ArrayElement } from "~/lib/utils/types";
 import { type languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getPublicURL } from "~/storage.server";
-import { getAllEvents } from "./explore/events.server";
+import { type getAllEvents } from "./explore/events.server";
 
 export type DashboardLocales = (typeof languageModuleMap)[ArrayElement<
   typeof SUPPORTED_COOKIE_LANGUAGES
