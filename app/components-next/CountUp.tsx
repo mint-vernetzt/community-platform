@@ -34,7 +34,7 @@ export function CountUp(props: CountUpProps) {
           setTimeout(() => {
             startCountUp();
           }, autoAnimateDelay);
-          if (autoAnimateOnce === true) {
+          if (autoAnimateOnce) {
             observer.disconnect();
           }
         }

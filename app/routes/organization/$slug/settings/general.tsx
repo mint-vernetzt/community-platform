@@ -797,7 +797,7 @@ function General() {
             <h2 className="text-primary text-lg font-semibold mb-0">
               {locales.route.content.supportedBy.headline}
             </h2>
-            {isHydrated === true ? (
+            {isHydrated ? (
               <>
                 <div className="flex flex-row gap-4 items-center">
                   <Input

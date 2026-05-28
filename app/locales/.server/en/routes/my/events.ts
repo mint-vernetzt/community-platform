@@ -11,6 +11,11 @@ export const locale = {
     description:
       "By accepting invitations, you become an admin, team member, or speaker of the event.",
   },
+  requests: {
+    title: "Join Requests for Events",
+    description:
+      "By accepting join requests from subordinate events, your event becomes the parent event and the subordinate events are linked. You and other admins of your parent event automatically become admins of the subordinate events.",
+  },
   canceled: {
     title_one: "Canceled Event",
     title_other: "Canceled Events",
@@ -44,8 +49,14 @@ export const locale = {
     seatsFree: "seats free",
     unlimitedSeats: "Unlimited seats",
     participate: "Participate",
-    accept: "Accept invite",
-    reject: "Reject invite",
+    accept: {
+      invite: "Accept invite",
+      request: "Accept link request",
+    },
+    reject: {
+      invite: "Reject invite",
+      request: "Reject link request",
+    },
   },
   errors: {
     acceptInviteAsAdmin: "Error accepting invite as admin for the event.",
@@ -64,6 +75,10 @@ export const locale = {
       "Error accepting invite as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
       "Error rejecting invite as responsible organization for the event.",
+    acceptRequestAsParentEvent:
+      "Error accepting link request for your parent event.",
+    rejectRequestAsParentEvent:
+      "Error rejecting link request for your parent event.",
   },
   success: {
     acceptInviteAsAdmin: "Invite accepted as admin for the event.",
@@ -78,6 +93,8 @@ export const locale = {
       "Invite accepted as responsible organization for the event.",
     rejectInviteAsResponsibleOrganization:
       "Invite rejected as responsible organization for the event.",
+    acceptRequestAsParentEvent: "Link request accepted for your parent event.",
+    rejectRequestAsParentEvent: "Link request rejected for your parent event.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -111,6 +128,14 @@ export const locale = {
     inviteAsResponsibleOrganizationRejected: {
       subject:
         "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
+    },
+    requestAsParentEventAccepted: {
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde angenommen",
+    },
+    requestAsParentEventRejected: {
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde abgelehnt",
     },
   },
 } as const;

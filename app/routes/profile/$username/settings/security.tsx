@@ -267,7 +267,7 @@ export default function Security() {
                       </Input.Error>
                     ))
                   : null}
-                {isHydrated === true ? (
+                {isHydrated ? (
                   <Input.Controls>
                     <div className="h-10 w-10">
                       <ShowPasswordButton
@@ -313,7 +313,7 @@ export default function Security() {
                       </Input.Error>
                     ))
                   : null}
-                {isHydrated === true ? (
+                {isHydrated ? (
                   <Input.Controls>
                     <div className="h-10 w-10">
                       <ShowPasswordButton

@@ -41,7 +41,7 @@ function useIsDisabled() {
     );
   }
   const { disabled } = context;
-  return disabled === true;
+  return disabled;
 }
 
 function Badge(props: React.PropsWithChildren) {

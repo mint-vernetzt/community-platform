@@ -18,7 +18,7 @@ Action:
 --> Current behaviour: log statement on the server with no info on the client
 --> Question: we dont want to show which emails are registered. How to solve this?
 - Does not return "User not found" error
-- Returns actionData.success === true on reset success or on "User not found" error
+- Returns actionData.success on reset success or on "User not found" error
 ? --> Trims the form input values and normalizes the email to lower case (TODO: Not current behaviour)
 ? --> Only login_redirect param to own domain should work (TODO: Not current behaviour)
 

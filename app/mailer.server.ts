@@ -226,7 +226,7 @@ type GeneralNotificationAddOrRemovedFromEventContent = {
   };
 };
 
-type DisconnectFromParentEventContent = {
+type ChildAndParentEventConnection = {
   firstName: string;
   event: {
     name: string;
@@ -285,6 +285,10 @@ type TemplatePath =
   | "mail-templates/requests/parent-event-to-add-child-event/text.hbs"
   | "mail-templates/requests/parent-event-to-add-child-event/canceled-html.hbs"
   | "mail-templates/requests/parent-event-to-add-child-event/canceled-text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
+  | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
   | "mail-templates/invites/organization-to-join-network/text.hbs"
   | "mail-templates/invites/organization-to-join-network/html.hbs"
   | "mail-templates/invites/organization-to-join-network/accepted-text.hbs"
@@ -509,7 +513,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                           : TemplatePath extends
                                                 | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
                                                 | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
-                                            ? DisconnectFromParentEventContent
+                                                | "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs"
+                                                | "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs"
+                                                | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
+                                                | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
+                                            ? ChildAndParentEventConnection
                                             : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(

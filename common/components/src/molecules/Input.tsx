@@ -85,7 +85,7 @@ function InputClearIcon(props: React.HTMLProps<HTMLButtonElement>) {
       />
     </svg>
   );
-  return isHydrated === true ? (
+  return isHydrated ? (
     <button
       {...props}
       onClick={(event) => {
@@ -185,8 +185,7 @@ function Input(props: InputProps) {
 
   const isSubmitting = useIsSubmitting();
 
-  const name =
-    withoutName === true ? undefined : inputProps.name || inputProps.id;
+  const name = withoutName ? undefined : inputProps.name || inputProps.id;
 
   const defaultValueLength = inputProps.defaultValue
     ? inputProps.defaultValue.toString().length
@@ -278,7 +277,7 @@ function Input(props: InputProps) {
     "rounded-lg border border-neutral-300 w-full p-2 text-gray-800 text-base leading-snug font-semibold outline-hidden placeholder:font-normal placeholder:text-neutral-700 focus:ring-2 focus:ring-primary-200 focus:border-transparent focus-visible:outline-0",
     errors.length > 0 && "border-negative-700",
     typeof inputProps.disabled !== "undefined" &&
-      inputProps.disabled === true &&
+      inputProps.disabled &&
       "text-neutral-300",
     typeof searchIcon !== "undefined" && "pl-10",
     typeof clearIcon !== "undefined" && characterCount > 0 && "pr-12"
@@ -321,7 +320,7 @@ function Input(props: InputProps) {
           </div>
           {typeof controls !== "undefined" && controls}
         </div>
-        {inputProps.maxLength !== undefined || countCharacters === true ? (
+        {inputProps.maxLength !== undefined || countCharacters ? (
           <div className={inputCounterContainerClasses}>
             {helperText !== undefined || errors.length > 0 ? (
               <div className="flex flex-col">

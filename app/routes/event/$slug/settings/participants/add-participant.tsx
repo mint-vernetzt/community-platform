@@ -68,7 +68,7 @@ export async function action(args: ActionFunctionArgs) {
     },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     const event = await getEventBySlug(slug);
     invariantResponse(event, locales.error.notFound, { status: 404 });
     if (sessionUser.id !== result.data.profileId) {

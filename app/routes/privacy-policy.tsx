@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
         // @ts-expect-error - Matomo docs mention that this works. https://developer.matomo.org/guides/tracking-javascript-guide
         function () {
           // @ts-expect-error
-          setIsOptedOutOfMatomo(dnt === true ? true : this.isUserOptedOut());
+          setIsOptedOutOfMatomo(dnt ? true : this.isUserOptedOut());
         },
       ]);
     } catch (error) {

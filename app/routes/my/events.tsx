@@ -48,23 +48,29 @@ import {
   acceptInviteAsSpeaker,
   acceptInviteAsTeamMember,
   getEventInvites,
+  getEventsWithPendingRequests,
   getEvents,
   rejectInviteAsAdmin,
   rejectInviteAsParticipant,
   rejectInviteAsResponsibleOrganization,
   rejectInviteAsSpeaker,
   rejectInviteAsTeamMember,
+  acceptRequestAsParentEvent,
+  rejectRequestAsParentEvent,
 } from "./events.server";
 import {
   ACCEPT_ADMIN_INVITE_INTENT,
+  ACCEPT_PARENT_EVENT_JOIN_REQUEST_INTENT,
   ACCEPT_PARTICIPANT_INVITE_INTENT,
   ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   ACCEPT_SPEAKER_INVITE_INTENT,
   ACCEPT_TEAM_MEMBER_INVITE_INTENT,
-  createAcceptOrRejectInviteSchema,
+  CHILD_EVENT_ID,
+  createAcceptOrRejectInviteOrRequestSchema,
   EVENT_ID,
   ORGANIZATION_ID,
   REJECT_ADMIN_INVITE_INTENT,
+  REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT,
   REJECT_PARTICIPANT_INVITE_INTENT,
   REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
   REJECT_SPEAKER_INVITE_INTENT,
@@ -111,11 +117,17 @@ export async function loader(args: LoaderFunctionArgs) {
     invites.count.adminInvites = 0;
   }
 
+  const eventsWithPendingRequests = await getEventsWithPendingRequests(
+    sessionUser.id,
+    authClient
+  );
+
   return {
     upcomingEvents,
     pastEvents,
     canceledEvents,
     invites,
+    eventsWithPendingRequests,
     abilities,
     locales,
     language,
@@ -146,12 +158,14 @@ export async function action(args: ActionFunctionArgs) {
       intent === ACCEPT_PARTICIPANT_INVITE_INTENT ||
       intent === REJECT_PARTICIPANT_INVITE_INTENT ||
       intent === ACCEPT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT ||
-      intent === REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT,
+      intent === REJECT_RESPONSIBLE_ORGANIZATION_INVITE_INTENT ||
+      intent === ACCEPT_PARENT_EVENT_JOIN_REQUEST_INTENT ||
+      intent === REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT,
     "invalid intent",
     { status: 400 }
   );
   const submission = await parseWithZod(formData, {
-    schema: createAcceptOrRejectInviteSchema(),
+    schema: createAcceptOrRejectInviteOrRequestSchema(),
   });
 
   if (submission.status !== "success") {
@@ -361,6 +375,52 @@ export async function action(args: ActionFunctionArgs) {
         level: "negative",
       });
     }
+  } else if (
+    intent === ACCEPT_PARENT_EVENT_JOIN_REQUEST_INTENT &&
+    typeof submission.value[CHILD_EVENT_ID] !== "undefined"
+  ) {
+    try {
+      await acceptRequestAsParentEvent({
+        userId: sessionUser.id,
+        childEventId: submission.value[CHILD_EVENT_ID],
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.requestAsParentEventAccepted,
+        },
+      });
+      toastMessage = locales.route.success.acceptRequestAsParentEvent;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "accept-parent-event-join-request-error",
+        key: `accept-parent-event-join-request-error-${Date.now()}`,
+        message: locales.route.errors.acceptRequestAsParentEvent,
+        level: "negative",
+      });
+    }
+  } else if (
+    intent === REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT &&
+    typeof submission.value[CHILD_EVENT_ID] !== "undefined"
+  ) {
+    try {
+      await rejectRequestAsParentEvent({
+        userId: sessionUser.id,
+        childEventId: submission.value[CHILD_EVENT_ID],
+        eventId: submission.value[EVENT_ID],
+        locales: {
+          mail: locales.route.mail.requestAsParentEventRejected,
+        },
+      });
+      toastMessage = locales.route.success.rejectRequestAsParentEvent;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "reject-parent-event-join-request-error",
+        key: `reject-parent-event-join-request-error-${Date.now()}`,
+        message: locales.route.errors.rejectRequestAsParentEvent,
+        level: "negative",
+      });
+    }
   }
 
   return redirectWithToast(request.url, {
@@ -392,6 +452,11 @@ function MyEvents() {
     }
   ) || ["adminInvites", 0];
 
+  const firstRequests =
+    loaderData.eventsWithPendingRequests.length > 0
+      ? loaderData.eventsWithPendingRequests[0].slug
+      : "";
+
   const [searchParams, setSearchParams] = useSearchParams({
     upcoming: firstUpcoming[0],
     past: firstPast[0],
@@ -412,11 +477,53 @@ function MyEvents() {
       ? (searchParams.get("invites") as string)
       : firstInvites[0]
   );
+  const [requests, setRequests] = useState(
+    searchParams.has("requests")
+      ? (searchParams.get("requests") as string)
+      : firstRequests[0]
+  );
+
+  // TODO: Clean up this client side state management. Action redirect can return the correct search params for the next tabs to be opened. Then the Toast won't be interrupted by another server side request (setSearchParams) after the action. Currently a delay of 5 seconds acts as a workarround to still display the toast.
+  useEffect(() => {
+    if (searchParams.has("toast-trigger")) {
+      const firstUpcoming = Object.entries(
+        loaderData.upcomingEvents.count
+      ).find(([_key, value]) => {
+        return value > 0;
+      }) || ["adminEvents", 0];
+      const firstPast = Object.entries(loaderData.pastEvents.count).find(
+        ([_key, value]) => {
+          return value > 0;
+        }
+      ) || ["adminEvents", 0];
+
+      const firstInvites = Object.entries(loaderData.invites.count).find(
+        ([_key, value]) => {
+          return value > 0;
+        }
+      ) || ["adminInvites", 0];
+
+      const firstRequests =
+        loaderData.eventsWithPendingRequests.length > 0
+          ? loaderData.eventsWithPendingRequests[0].slug
+          : "";
+      setUpcoming(firstUpcoming[0]);
+      setPast(firstPast[0]);
+      setInvites(firstInvites[0]);
+      setRequests(firstRequests);
+    }
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("upcoming", upcoming);
-    setSearchParams(params, { preventScrollReset: true, replace: true });
+    params.delete("toast-trigger");
+    const timeout = setTimeout(() => {
+      setSearchParams(params, { preventScrollReset: true, replace: true });
+    }, 5000);
+    return () => clearTimeout(timeout);
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [upcoming]);
@@ -424,7 +531,11 @@ function MyEvents() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("past", past);
-    setSearchParams(params, { preventScrollReset: true, replace: true });
+    params.delete("toast-trigger");
+    const timeout = setTimeout(() => {
+      setSearchParams(params, { preventScrollReset: true, replace: true });
+    }, 5000);
+    return () => clearTimeout(timeout);
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [past]);
@@ -432,10 +543,26 @@ function MyEvents() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("invites", invites);
-    setSearchParams(params, { preventScrollReset: true, replace: true });
+    params.delete("toast-trigger");
+    const timeout = setTimeout(() => {
+      setSearchParams(params, { preventScrollReset: true, replace: true });
+    }, 5000);
+    return () => clearTimeout(timeout);
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invites]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("requests", requests);
+    params.delete("toast-trigger");
+    const timeout = setTimeout(() => {
+      setSearchParams(params, { preventScrollReset: true, replace: true });
+    }, 5000);
+    return () => clearTimeout(timeout);
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requests]);
 
   const upcomingEventsCount = Object.values(
     loaderData.upcomingEvents.count
@@ -607,7 +734,7 @@ function MyEvents() {
                             event.stopPropagation();
                           }}
                         >
-                          {locales.route.list.reject}
+                          {locales.route.list.reject.invite}
                         </Button>
                       </Form>
                       <Form
@@ -635,7 +762,7 @@ function MyEvents() {
                             event.stopPropagation();
                           }}
                         >
-                          {locales.route.list.accept}
+                          {locales.route.list.accept.invite}
                         </Button>
                       </Form>
                     </ListItemEvent.Controls>
@@ -643,6 +770,160 @@ function MyEvents() {
                 );
               }
             )}
+          </List>
+        </Container.Section>
+      )}
+      {loaderData.eventsWithPendingRequests.length > 0 && (
+        <Container.Section>
+          <Section.Title>{locales.route.requests.title}</Section.Title>
+          <Section.Text>{locales.route.requests.description}</Section.Text>
+          <Section.TabBar>
+            {loaderData.eventsWithPendingRequests.map((event) => {
+              if (event.receivedParentEventJoinRequests.length === 0) {
+                return null;
+              }
+
+              const searchParamsCopy = new URLSearchParams(searchParams);
+              searchParamsCopy.set("requests", event.slug);
+
+              return (
+                <TabBar.Item
+                  key={`requests-${event.slug}`}
+                  active={requests === event.slug}
+                >
+                  <Link
+                    to={`./?${searchParamsCopy.toString()}`}
+                    onClick={(clickEvent) => {
+                      clickEvent.preventDefault();
+                      setRequests(event.slug);
+                    }}
+                    preventScrollReset
+                  >
+                    <TabBarTitle>
+                      {event.name}
+                      <TabBar.Counter active={requests === event.slug}>
+                        {event.receivedParentEventJoinRequests.length}
+                      </TabBar.Counter>
+                    </TabBarTitle>
+                  </Link>
+                </TabBar.Item>
+              );
+            })}
+          </Section.TabBar>
+          <List id="requests" hideAfter={3} locales={locales.route.list}>
+            {loaderData.eventsWithPendingRequests
+              .find((event) => event.slug === requests)
+              ?.receivedParentEventJoinRequests.map((event, index) => {
+                return (
+                  <ListItemEvent
+                    key={`${requests}-${event.childEvent.slug}`}
+                    to={`/event/${event.childEvent.slug}/detail/about`}
+                    index={index}
+                  >
+                    <ListItemEvent.Image
+                      src={event.childEvent.background}
+                      blurredSrc={event.childEvent.blurredBackground}
+                      alt={event.childEvent.name}
+                    />
+                    <ListItemEvent.Info
+                      {...event.childEvent}
+                      participantCount={event.childEvent._count.participants}
+                      stage={event.childEvent.stage}
+                      locales={{
+                        stages: loaderData.locales.stages,
+                        ...loaderData.locales.route.list,
+                      }}
+                      language={loaderData.language}
+                    ></ListItemEvent.Info>
+                    <ListItemEvent.Headline>
+                      {event.childEvent.name}
+                    </ListItemEvent.Headline>
+                    {hasSubline(event.childEvent) ||
+                    hasDescription(event.childEvent) ? (
+                      <ListItemEvent.Subline>
+                        {hasSubline(event.childEvent) ? (
+                          event.childEvent.subline
+                        ) : (
+                          <RichText
+                            html={event.childEvent.description as string}
+                          />
+                        )}
+                      </ListItemEvent.Subline>
+                    ) : null}
+                    <ListItemEvent.Controls>
+                      <Form
+                        id={`reject-request-form-${event.childEvent.slug}`}
+                        method="POST"
+                        preventScrollReset
+                      >
+                        <input
+                          type="hidden"
+                          name={EVENT_ID}
+                          value={
+                            loaderData.eventsWithPendingRequests.find(
+                              (event) => event.slug === requests
+                            )?.id
+                          }
+                        />
+                        <input
+                          type="hidden"
+                          name={CHILD_EVENT_ID}
+                          value={event.childEvent.id}
+                        />
+                        <Button
+                          type="submit"
+                          size="small"
+                          fullSize
+                          variant="outline"
+                          name={INTENT_FIELD_NAME}
+                          value={REJECT_PARENT_EVENT_JOIN_REQUEST_INTENT}
+                          onClick={(
+                            event: React.MouseEvent<HTMLButtonElement>
+                          ) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {locales.route.list.reject.request}
+                        </Button>
+                      </Form>
+                      <Form
+                        id={`accept-request-form-${event.childEvent.slug}`}
+                        method="POST"
+                        preventScrollReset
+                      >
+                        <input
+                          type="hidden"
+                          name={EVENT_ID}
+                          value={
+                            loaderData.eventsWithPendingRequests.find(
+                              (event) => event.slug === requests
+                            )?.id
+                          }
+                        />
+                        <input
+                          type="hidden"
+                          name={CHILD_EVENT_ID}
+                          value={event.childEvent.id}
+                        />
+                        <Button
+                          type="submit"
+                          size="small"
+                          fullSize
+                          name={INTENT_FIELD_NAME}
+                          value={ACCEPT_PARENT_EVENT_JOIN_REQUEST_INTENT}
+                          onClick={(
+                            event: React.MouseEvent<HTMLButtonElement>
+                          ) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          {locales.route.list.accept.request}
+                        </Button>
+                      </Form>
+                    </ListItemEvent.Controls>
+                  </ListItemEvent>
+                );
+              })}
           </List>
         </Container.Section>
       )}

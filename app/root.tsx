@@ -752,8 +752,7 @@ export default function App() {
                 {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
                 {alert !== null ? (
                   <Alert level={alert.level}>
-                    {alert.isRichtext !== undefined &&
-                    alert.isRichtext === true ? (
+                    {alert.isRichtext !== undefined && alert.isRichtext ? (
                       <RichText html={alert.message} />
                     ) : (
                       alert.message

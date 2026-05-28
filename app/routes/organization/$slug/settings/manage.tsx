@@ -414,7 +414,7 @@ function Manage() {
               typeof organizationTypeNetwork !== "undefined",
               "Organization type network not found"
             );
-            if (hasSelectedNetwork === true && networkTypes.length === 0) {
+            if (hasSelectedNetwork && networkTypes.length === 0) {
               ctx.addIssue({
                 code: "custom",
                 message: locales.route.error.networkTypesRequired,
@@ -867,7 +867,7 @@ function Manage() {
                       </Button>
                     </noscript>
                   </div>
-                  {isNetwork === true &&
+                  {isNetwork &&
                   hasSelectedNetwork === false &&
                   networkMembers.length > 0 ? (
                     <>
@@ -1141,7 +1141,7 @@ function Manage() {
                 </div>
               ) : null}
             </searchNetworkMembersFetcher.Form>
-            {isNetwork === true && searchedNetworkMembers.length > 0 ? (
+            {isNetwork && searchedNetworkMembers.length > 0 ? (
               <Form
                 {...getFormProps(inviteNetworkMemberForm)}
                 method="post"

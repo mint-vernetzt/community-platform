@@ -508,7 +508,7 @@ export async function createOrganization(options: {
           locales.route.validation.notANetwork,
           { status: 400 }
         );
-        if (isNetwork === true && data.networkTypes.length === 0) {
+        if (isNetwork && data.networkTypes.length === 0) {
           ctx.addIssue({
             code: "custom",
             message: locales.route.validation.networkTypesRequired,

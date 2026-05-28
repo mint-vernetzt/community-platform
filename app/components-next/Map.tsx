@@ -111,7 +111,7 @@ export function MapView(props: {
 
   useEffect(() => {
     // Default to open on desktop, closed on mobile
-    if (isMobile === true) {
+    if (isMobile) {
       setMapMenuIsOpen(false);
     } else {
       setMapMenuIsOpen(true);
@@ -840,17 +840,17 @@ export function MapView(props: {
       <div
         ref={mapContainer}
         className={`absolute h-full min-h-71 overflow-hidden ${
-          mapLoaded === true
-            ? mapMenuIsOpen === true && organizations.length > 0
+          mapLoaded
+            ? mapMenuIsOpen && organizations.length > 0
               ? "left-0 w-full md:left-84 md:w-[calc(100%-336px)]"
               : "w-full"
             : "w-0"
         }`}
       />
-      {notSupported === true ? (
+      {notSupported ? (
         <div
           className={`absolute top-0 bottom-0 right-0 flex flex-col gap-2 overflow-y-scroll p-4 bg-primary-50 text-neutral-700 font-semibold text-sm ${
-            mapMenuIsOpen === true && organizations.length > 0
+            mapMenuIsOpen && organizations.length > 0
               ? "left-0 w-full md:left-84 md:w-[calc(100%-336px)] rounded-r-lg"
               : "w-full rounded-lg pl-16 md:pl-88"
           }`}
@@ -876,7 +876,7 @@ export function MapView(props: {
       {organizations.length > 0 ? (
         <div
           className={`absolute top-0 bottom-0 left-0 w-fit md:w-84 pointer-events-none z-10 ${
-            mapMenuIsOpen === true ? "w-full md:w-84" : "w-fit md:w-84"
+            mapMenuIsOpen ? "w-full md:w-84" : "w-fit md:w-84"
           }`}
         >
           <div
@@ -934,7 +934,7 @@ export function MapView(props: {
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        if (isMobile === true) {
+                        if (isMobile) {
                           setMapMenuIsOpen(false);
                           void submit(closeMenuSearchParams, {
                             preventScrollReset: true,
@@ -998,7 +998,7 @@ export function MapView(props: {
           </div>
         </div>
       ) : null}
-      {embeddable === true ? (
+      {embeddable ? (
         <div className="absolute top-4 right-4">
           <Link
             to="/"
@@ -1100,8 +1100,8 @@ function Popup(props: {
       <a
         href={`/organization/${organizations[0].slug}/detail/about`}
         className="appearance-none font-semibold whitespace-nowrap flex items-center justify-center align-middle text-center rounded-lg h-10 text-sm px-4 py-2.5 leading-5 w-full bg-white border border-primary text-primary hover:bg-neutral-100 active:bg-neutral-200 focus:ring-1 focus:ring-primary-200 focus:outline-hidden focus:border-primary-200 pointer-events-auto"
-        rel={embeddable === true ? "noreferrer noopener" : undefined}
-        target={embeddable === true ? "_blank" : undefined}
+        rel={embeddable ? "noreferrer noopener" : undefined}
+        target={embeddable ? "_blank" : undefined}
       >
         {locales.components.Map.organizationCardCta}
       </a>

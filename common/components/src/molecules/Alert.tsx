@@ -62,7 +62,7 @@ export function Alert(props: AlertProps & { onClose?: () => void }) {
         >
           {props.children}
         </div>
-        {closeable === true ? (
+        {closeable ? (
           <button onClick={handleClick}>
             <svg
               xmlns="http://www.w3.org/2000/svg"

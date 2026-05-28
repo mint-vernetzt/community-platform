@@ -428,7 +428,7 @@ export async function updateOrganization(options: {
             locales.route.error.notAllowed,
             { status: 400 }
           );
-          if (isNetwork === true && networkTypes.length === 0) {
+          if (isNetwork && networkTypes.length === 0) {
             ctx.addIssue({
               code: "custom",
               message: locales.route.error.networkTypesRequired,

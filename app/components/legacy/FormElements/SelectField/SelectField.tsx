@@ -43,7 +43,7 @@ function SelectField(
       <div className="flex flex-row items-center">
         <label htmlFor={selectProps.id} className="font-semibold flex-auto">
           {label}
-          {selectProps.required === true ? " *" : ""}
+          {selectProps.required ? " *" : ""}
         </label>
         {withPublicPrivateToggle !== undefined &&
           isPublic !== undefined &&

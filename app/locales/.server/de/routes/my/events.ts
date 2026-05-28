@@ -11,6 +11,11 @@ export const locale = {
     description:
       "Wenn Du Einladungen annimmst, wirst Du Admin, Teammitglied oder Speaker:in des Events.",
   },
+  requests: {
+    title: "Beitrittsanfragen für Events",
+    description:
+      "Wenn Du Beitrittsanfragen von untergeordneten Events annimmst, wird Dein Event zur Rahmenveranstaltung und die untergeordneten Events werden verknüpft. Du und andere Admins Deiner Rahmenveranstaltung werden dadurch automatisch zu Admins der untergeordneten Events.",
+  },
   canceled: {
     title_one: "Abgesagtes Event",
     title_other: "Abgesagte Events",
@@ -47,8 +52,14 @@ export const locale = {
     seatsFree: "Plätzen frei",
     unlimitedSeats: "Unbegrenzte Plätze",
     participate: "Teilnehmen",
-    accept: "Einladung annehmen",
-    reject: "Einladung ablehnen",
+    accept: {
+      invite: "Einladung annehmen",
+      request: "Verknüpfungsanfrage annehmen",
+    },
+    reject: {
+      invite: "Einladung ablehnen",
+      request: "Verknüpfungsanfrage ablehnen",
+    },
   },
   errors: {
     acceptInviteAsAdmin:
@@ -71,6 +82,10 @@ export const locale = {
       "Fehler beim Akzeptieren der Einladung als verantwortliche Organisation für das Event.",
     rejectInviteAsResponsibleOrganization:
       "Fehler beim Ablehnen der Einladung als verantwortliche Organisation für das Event.",
+    acceptRequestAsParentEvent:
+      "Fehler beim Akzeptieren der Verknüpfungsanfrage zu Deiner Rahmenveranstaltung.",
+    rejectRequestAsParentEvent:
+      "Fehler beim Ablehnen der Verknüpfungsanfrage zu Deiner Rahmenveranstaltung.",
   },
   success: {
     acceptInviteAsAdmin: "Einladung als Admin für das Event angenommen.",
@@ -89,6 +104,10 @@ export const locale = {
       "Einladung als verantwortliche Organisation für das Event angenommen.",
     rejectInviteAsResponsibleOrganization:
       "Einladung als verantwortliche Organisation für das Event abgelehnt.",
+    acceptRequestAsParentEvent:
+      "Verknüpfungsanfrage zu Deiner Rahmenveranstaltung angenommen.",
+    rejectRequestAsParentEvent:
+      "Verknüpfungsanfrage zu Deiner Rahmenveranstaltung abgelehnt.",
   },
   mail: {
     inviteAsAdminAccepted: {
@@ -122,6 +141,14 @@ export const locale = {
     inviteAsResponsibleOrganizationRejected: {
       subject:
         "Die Einladung als verantwortliche Organisation eines Events wurde abgelehnt",
+    },
+    requestAsParentEventAccepted: {
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde angenommen",
+    },
+    requestAsParentEventRejected: {
+      subject:
+        "Die Verknüpfungsanfrage Deines Events zur Rahmenveranstaltung wurde abgelehnt",
     },
   },
 } as const;

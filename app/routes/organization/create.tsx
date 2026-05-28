@@ -298,7 +298,7 @@ function CreateOrganization() {
             const isNetwork = types.some(
               (id) => id === organizationTypeNetwork.id
             );
-            if (isNetwork === true && networkTypes.length === 0) {
+            if (isNetwork && networkTypes.length === 0) {
               ctx.addIssue({
                 code: "custom",
                 message: locales.route.validation.networkTypesRequired,

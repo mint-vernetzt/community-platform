@@ -61,7 +61,7 @@ async function main() {
   }
 
   const answers = await inquirer.prompt(prompts);
-  if (answers.packagesChanged === true) {
+  if (answers.packagesChanged) {
     await executeCommand("npm", ["i"]);
   }
   if (answers.migrationsChanged) {

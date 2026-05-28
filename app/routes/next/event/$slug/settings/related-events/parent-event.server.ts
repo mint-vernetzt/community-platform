@@ -331,7 +331,7 @@ export async function addParentEvent(options: {
 }) {
   const { userId, event, parentEventId } = options;
 
-  if (event.published === true) {
+  if (event.published) {
     throw new Error("Cannot add parent event to a published event");
   }
 
@@ -388,7 +388,7 @@ export async function requestToJoinParentEvent(options: {
 }) {
   const { event, parentEventId } = options;
 
-  if (event.published === true) {
+  if (event.published) {
     throw new Error("Cannot request to join parent event on a published event");
   }
 

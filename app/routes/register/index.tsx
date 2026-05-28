@@ -173,7 +173,7 @@ export default function Register() {
                 <div className="basis-full @lg:basis-1/2">
                   <Dropdown>
                     <Dropdown.Label>
-                      {isHydrated === true &&
+                      {isHydrated &&
                       typeof registerFields.academicTitle.value !== "undefined"
                         ? registerFields.academicTitle.value
                         : locales.form.title.label}
@@ -302,7 +302,7 @@ export default function Register() {
                         </Input.Error>
                       ))
                     : null}
-                  {isHydrated === true ? (
+                  {isHydrated ? (
                     <Input.Controls>
                       <div className="h-10 w-10">
                         <ShowPasswordButton
