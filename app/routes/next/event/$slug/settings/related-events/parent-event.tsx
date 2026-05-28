@@ -493,7 +493,7 @@ function ParentEvent() {
         </Hint>
       )}
     </>
-  ) : event.published === true ? (
+  ) : event.published ? (
     <Hint>
       <Hint.InfoIcon />
       {locales.route.addOrRequest.publishedHint}

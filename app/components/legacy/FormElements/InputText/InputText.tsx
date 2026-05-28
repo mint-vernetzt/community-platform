@@ -74,7 +74,7 @@ const InputText = forwardRef(
               name={inputProps.id || label}
             />
           </div>
-          {withClearButton === true && (
+          {withClearButton && (
             <button className="p-2 ml-2 text-neutral-600" onClick={handleClear}>
               <svg
                 viewBox="0 0 10 10"

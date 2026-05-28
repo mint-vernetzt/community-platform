@@ -28,17 +28,17 @@ export async function filterEventConferenceLink(options: {
     (stageSlug) => event.stage !== null && event.stage.slug === stageSlug
   );
   const allowedToSeeConferenceLink =
-    (isMember === true ||
+    (isMember ||
       (mode === "participating" &&
         inPast === false &&
         event.canceled === false)) &&
-    isOnlineEvent === true;
+    isOnlineEvent;
 
   let conferenceLink = event.conferenceLink;
   let conferenceCode = event.conferenceCode;
   let conferenceLinkToBeAnnounced = false;
 
-  if (allowedToSeeConferenceLink === true && conferenceLink === null) {
+  if (allowedToSeeConferenceLink && conferenceLink === null) {
     conferenceLinkToBeAnnounced = true;
   }
 

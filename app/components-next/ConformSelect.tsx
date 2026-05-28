@@ -35,11 +35,11 @@ function ConformSelectInput(props: {
     const handleClickOutside = (event: MouseEvent) => {
       const { target } = event;
       if (
-        (closeOnSelect === true &&
+        (closeOnSelect &&
           labelRef.current !== null &&
           labelRef.current !== target &&
           labelRef.current.contains(target as Node) === false) ||
-        (isOpen === true &&
+        (isOpen &&
           inputRef.current !== null &&
           listRef.current !== null &&
           labelRef.current !== null &&
@@ -71,7 +71,7 @@ function ConformSelectInput(props: {
 
   const labelClasses = classNames(
     "relative flex gap-2.5 justify-between bg-white rounded-lg border border-neutral-300 w-full pl-3 py-2 pr-2 text-base leading-5 font-normal peer-focus:border-primary-200 peer-focus:ring-1 peer-focus:ring-primary-200 peer-checked:rounded-b-none",
-    isDisabled === true ? "text-neutral-300" : "text-neutral-700"
+    isDisabled ? "text-neutral-300" : "text-neutral-700"
   );
 
   return (

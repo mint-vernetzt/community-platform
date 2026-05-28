@@ -177,7 +177,7 @@ export async function getChildEventsOfEvent(options: {
 
   const filteredChildEvents = enhancedChildEvents.filter((event) => {
     if (event.published === false) {
-      return event.isMember === true;
+      return event.isMember;
     }
     return true;
   });

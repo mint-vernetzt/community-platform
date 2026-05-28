@@ -40,7 +40,7 @@ export async function loader(args: LoaderFunctionArgs) {
       select: { termsAccepted: true },
     });
     if (profile !== null) {
-      if (profile.termsAccepted === true) {
+      if (profile.termsAccepted) {
         return redirect("/dashboard");
       }
       const language = await detectLanguage(request);

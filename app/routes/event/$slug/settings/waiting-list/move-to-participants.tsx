@@ -53,7 +53,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const result = await performMutation({ request, schema, mutation });
 
-  if (result.success === true) {
+  if (result.success) {
     const event = await getEventBySlug(slug);
     invariantResponse(event, locales.error.notFound.event, { status: 404 });
     const profile = await getProfileByUserId(result.data.profileId);

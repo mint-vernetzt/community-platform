@@ -36,7 +36,7 @@ export async function action(args: ActionFunctionArgs) {
   await checkFeatureAbilitiesOrThrow(authClient, "events");
 
   const result = await performMutation({ request, schema, mutation });
-  if (result.success === true) {
+  if (result.success) {
     await cancelEvent(slug, result.data.cancel);
   }
   return redirect(`/event/${slug}/detail/about`);

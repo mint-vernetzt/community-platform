@@ -1483,7 +1483,7 @@ function Dashboard() {
                   );
                   setHideNotifications(hideNotifications);
                 }}
-                checked={hideNotifications === true}
+                checked={hideNotifications}
                 className="w-0 h-0 opacity-0"
               />
             </div>
@@ -1648,7 +1648,7 @@ function Dashboard() {
                 });
                 setHideUpdates(hideUpdates);
               }}
-              checked={hideUpdates === true}
+              checked={hideUpdates}
               className="w-0 h-0 opacity-0"
             />
           </div>
@@ -1723,7 +1723,7 @@ function Dashboard() {
                   setHideNews(hideNews);
                 }}
                 className="w-0 h-0 opacity-0"
-                checked={hideNews === true}
+                checked={hideNews}
               />
             </div>
           </div>

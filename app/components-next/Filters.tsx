@@ -20,11 +20,7 @@ export function ShowFiltersButton(
   searchParams.set("showFilters", "on");
 
   return (
-    <div
-      className={`${
-        showFilters === true ? "hidden" : "@lg:hidden"
-      } text-center`}
-    >
+    <div className={`${showFilters ? "hidden" : "@lg:hidden"} text-center`}>
       <Link
         className="inline-flex items-center font-semibold whitespace-nowrap px-6 py-2.5 border rounded-lg border-primary-500 gap-2 bg-primary text-neutral-50 hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-700 cursor-pointer"
         to={`./?${searchParams.toString()}#top`}
@@ -208,7 +204,7 @@ export function Filters(props: FiltersProps) {
 
   const filterClasses = classNames(
     "fixed left-0 top-0 overflow-scroll @lg:overflow-visible @lg:relative z-20 w-full h-dvh @lg:h-fit @lg:justify-between flex flex-col @lg:flex-row bg-white @lg:bg-transparent",
-    showFilters === true ? "flex" : "hidden @lg:flex"
+    showFilters ? "flex" : "hidden @lg:flex"
   );
 
   const children = Children.toArray(props.children);

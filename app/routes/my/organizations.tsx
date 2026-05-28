@@ -1046,7 +1046,7 @@ export default function MyOrganizations() {
                   </div>
                 ) : null}
               </Form>
-            ) : isHydrated === true &&
+            ) : isHydrated &&
               searchForm.valid &&
               searchForm.dirty &&
               typeof currentSearchQuery !== "undefined" ? (
@@ -1862,7 +1862,7 @@ export default function MyOrganizations() {
                                     name="intent"
                                     value={`quit-organization-${key}-${organization.id}`}
                                     disabled={
-                                      isHydrated === true
+                                      isHydrated
                                         ? quitOrganizationForm.valid ===
                                             false || isSubmitting
                                         : false

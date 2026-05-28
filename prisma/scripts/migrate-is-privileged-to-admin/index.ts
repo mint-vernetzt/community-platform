@@ -23,7 +23,7 @@ async function migrateAdminsForEvents() {
   });
   for (const event of events) {
     for (const teamMember of event.teamMembers) {
-      if (teamMember.isPrivileged === true) {
+      if (teamMember.isPrivileged) {
         const transaction = prismaClient.event.update({
           where: {
             id: event.id,
@@ -68,7 +68,7 @@ async function migrateAdminsForOrganizations() {
   });
   for (const organization of organizations) {
     for (const teamMember of organization.teamMembers) {
-      if (teamMember.isPrivileged === true) {
+      if (teamMember.isPrivileged) {
         const transaction = prismaClient.organization.update({
           where: {
             id: organization.id,
@@ -113,7 +113,7 @@ async function migrateAdminsForProjects() {
   });
   for (const project of projects) {
     for (const teamMember of project.teamMembers) {
-      if (teamMember.isPrivileged === true) {
+      if (teamMember.isPrivileged) {
         const transaction = prismaClient.project.update({
           where: {
             id: project.id,

@@ -68,7 +68,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { eventSlug: slug },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     const event = await getEventBySlug(slug);
     invariantResponse(event, "Event not found", { status: 404 });
     await connectOrganizationToEvent(event.id, result.data.organizationId);

@@ -440,11 +440,11 @@ function ChildEvents() {
                         >
                           <input name={EVENT_ID} defaultValue={event.id} />
                         </Form>
-                        {event.published === true ? (
+                        {event.published ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyPublished}</span>
                           </div>
-                        ) : event.alreadyAdded === true ? (
+                        ) : event.alreadyAdded ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyAdded}</span>
                           </div>

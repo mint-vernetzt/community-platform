@@ -596,7 +596,7 @@ function Detail() {
 
   return (
     <BasicStructure>
-      {loaderData.abilities["next_event_settings"].hasAccess === true ? (
+      {loaderData.abilities["next_event_settings"].hasAccess ? (
         <Button as="link" to={`/next/event/${loaderData.event.slug}/settings`}>
           Zu den neuen Event-Einstellungen
         </Button>

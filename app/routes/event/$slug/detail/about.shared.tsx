@@ -97,7 +97,7 @@ export function hasGeneralInfo(event: {
     hasExperienceLevel(event) ||
     hasTags(event) ||
     hasConferenceLink(event) ||
-    event.conferenceLinkToBeAnnounced === true
+    event.conferenceLinkToBeAnnounced
   );
 }
 

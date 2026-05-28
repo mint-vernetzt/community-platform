@@ -75,7 +75,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { slug: slug },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     await updateParentEventRelationOrThrow(slug, result.data.parentEventId);
     if (
       result.data.parentEventId !== undefined &&

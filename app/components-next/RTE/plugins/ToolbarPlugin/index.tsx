@@ -126,7 +126,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
     <div className="flex gap-1 w-full h-10 items-center border-b border-gray-200 pl-1">
       <button
         className={`${baseButtonClassName} ${
-          canUndo === true ? enabledClassName : disabledClassName
+          canUndo ? enabledClassName : disabledClassName
         }`}
         disabled={canUndo === false}
         // This is added for Safari which would otherwise lead to focus loss
@@ -142,7 +142,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
       </button>
       <button
         className={`${baseButtonClassName} ${
-          canRedo === true ? enabledClassName : disabledClassName
+          canRedo ? enabledClassName : disabledClassName
         }`}
         disabled={canRedo === false}
         // This is added for Safari which would otherwise lead to focus loss
@@ -231,7 +231,7 @@ function ToolbarPlugin(props: { locales: RTELocales }) {
         <button
           ref={showInsertLinkMenuButtonRef}
           className={`${baseButtonClassName} ${
-            canInsertLink === true ? enabledClassName : disabledClassName
+            canInsertLink ? enabledClassName : disabledClassName
           }`}
           disabled={canInsertLink === false}
           // This is added for Safari which would otherwise lead to focus loss

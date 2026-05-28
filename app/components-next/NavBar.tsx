@@ -140,12 +140,12 @@ export function NavBar(props: NavBarProps) {
           <div className="grow">
             <Form
               className={
-                hideSearchBar === true &&
+                hideSearchBar &&
                 typeof props.hideSearchBar !== "undefined" &&
                 typeof props.hideSearchBar === "object"
                   ? `block ${props.hideSearchBar.afterBreakpoint}:hidden`
                   : typeof props.hideSearchBar === "boolean" &&
-                      props.hideSearchBar === true
+                      props.hideSearchBar
                     ? "hidden"
                     : "w-full"
               }

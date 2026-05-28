@@ -752,7 +752,7 @@ function Details() {
                 )}
               </Chip.Container>
             )}
-            {isHydrated === true ? (
+            {isHydrated ? (
               <>
                 <div className="flex flex-row gap-4 items-center">
                   <Input
