@@ -26,6 +26,14 @@ export async function getEventBySlug(options: {
       published: true,
       startTime: true,
       endTime: true,
+      receivedParentEventJoinRequests: {
+        where: {
+          status: "pending",
+        },
+        select: {
+          parentEventId: true,
+        },
+      },
       sentParentEventJoinRequests: {
         where: {
           status: "pending",
@@ -317,6 +325,21 @@ export async function addParentEvent(options: {
   const event = await prismaClient.event.findUnique({
     where: {
       slug,
+      published: false,
+      parentEventId: null,
+      childEvents: {
+        none: {},
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+      receivedParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
     },
     select: {
       slug: true,
@@ -389,6 +412,21 @@ export async function requestToJoinParentEvent(options: {
   const event = await prismaClient.event.findUnique({
     where: {
       slug,
+      published: false,
+      parentEventId: null,
+      childEvents: {
+        none: {},
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+      receivedParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
     },
     select: {
       id: true,
@@ -412,6 +450,11 @@ export async function requestToJoinParentEvent(options: {
       id: parentEventId,
       slug: {
         not: event.slug,
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
       },
       parentEventId: null,
       published: true,
@@ -675,6 +718,15 @@ export async function removeParentEvent(options: {
     throw new Error("No parent event to remove");
   }
 
+  await prismaClient.event.update({
+    where: {
+      slug,
+    },
+    data: {
+      parentEventId: null,
+    },
+  });
+
   const isAdminOfParentEvent = currentEvent.parentEvent.admins.some(
     (admin) => admin.profile.id === userId
   );
@@ -721,13 +773,4 @@ export async function removeParentEvent(options: {
       })
     );
   }
-
-  await prismaClient.event.update({
-    where: {
-      slug,
-    },
-    data: {
-      parentEventId: null,
-    },
-  });
 }

@@ -4,6 +4,7 @@ import { captureException } from "@sentry/node";
 import {
   type ActionFunctionArgs,
   Form,
+  Link,
   type LoaderFunctionArgs,
   redirect,
   useLoaderData,
@@ -51,6 +52,7 @@ import {
   REMOVE_PARENT_EVENT_INTENT,
   REQUEST_TO_JOIN_PARENT_EVENT_INTENT,
 } from "./parent-event.shared";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -283,7 +285,29 @@ function ParentEvent() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  return event._count.childEvents > 0 ? (
+  return event.receivedParentEventJoinRequests.length > 0 ? (
+    <>
+      <TitleSection>
+        <TitleSection.Headline>
+          {locales.route.addOrRequest.headline}
+        </TitleSection.Headline>
+      </TitleSection>
+      <Hint>
+        <Hint.InfoIcon />
+        {insertComponentsIntoLocale(
+          locales.route.addOrRequest.hasPendingRequestHint,
+          [
+            <Link
+              key="pending-request-link"
+              to={`my/events?requests=${event.slug}`}
+              className="font-bold underline"
+              prefetch="intent"
+            />,
+          ]
+        )}
+      </Hint>
+    </>
+  ) : event._count.childEvents > 0 ? (
     <>
       <TitleSection>
         <TitleSection.Headline>
@@ -305,11 +329,7 @@ function ParentEvent() {
           {locales.route.pending.subline}
         </TitleSection.Subline>
       </TitleSection>
-      <List
-        id="pending-parent-requests-list"
-        hideAfter={4}
-        locales={locales.route.list}
-      >
+      <List id="pending-parent-requests-list" locales={locales.route.list}>
         {event.sentParentEventJoinRequests.map((request, index) => {
           return (
             <ListItemEvent
