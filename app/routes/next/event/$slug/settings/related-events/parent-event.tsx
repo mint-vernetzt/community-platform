@@ -593,7 +593,10 @@ function ParentEvent() {
                         defaultValue={parentEvent.id}
                       />
                     </Form>
-                    {parentEvent.parentEventId !== null ? (
+                    {parentEvent.parentEventId !== null ||
+                    parentEvent.sentParentEventJoinRequests.some(
+                      (request) => request.status === "pending"
+                    ) ? (
                       <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                         <span>{locales.route.list.hasParentEvent}</span>
                       </div>

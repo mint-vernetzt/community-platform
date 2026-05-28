@@ -231,6 +231,11 @@ export async function getParentEventsToAdd(options: {
     select: {
       id: true,
       parentEventId: true,
+      sentParentEventJoinRequests: {
+        select: {
+          status: true,
+        },
+      },
       name: true,
       slug: true,
       backgroundImageMetaData: {
