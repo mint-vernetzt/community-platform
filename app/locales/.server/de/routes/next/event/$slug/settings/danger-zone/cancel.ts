@@ -9,10 +9,19 @@ export const locale = {
   },
   cancel: "Event absagen",
   confirmation: {
-    title: "Willst Du wirklich {{eventName}} absagen?",
-    description: "Diese Aktion kannst Du nicht mehr rückgängig machen. ",
-    confirm: "Event absagen",
-    abort: "Abbrechen",
+    cancelOnlyThis: {
+      title: "Willst Du wirklich {{eventName}} absagen?",
+      description: "Diese Aktion kannst Du nicht mehr rückgängig machen. ",
+      confirm: "Event absagen",
+      abort: "Abbrechen",
+    },
+    cancelAll: {
+      title: "{{eventName}} und alle verknüpften Unterevents absagen?",
+      description:
+        "Dein Event und die zugehörigen Unterveranstaltungen werden unwiderruflich abgesagt. ",
+      confirm: "Events absagen",
+      abort: "Abbrechen",
+    },
   },
   success: "Das Event wurde abgesagt.",
   errors: {
@@ -27,5 +36,19 @@ export const locale = {
     less: "Weniger anzeigen",
     hint_singular: "Zu Deinem Event gehört eine Unterveranstaltung.",
     hint_plural: "Zu Deinem Event gehören {{count}} Unterveranstaltungen.",
+  },
+  handlingChildEvents: {
+    description:
+      "Entscheide, wie Du mit den Unterveranstaltungen umgehen möchtest.",
+    cancelOnlyThis: {
+      headline: "Nur Rahmenevent absagen",
+      description:
+        "Die Rahmenveranstaltung wird abgesagt, die Unterevents bleiben als eigenständige Events bestehen.",
+    },
+    cancelAll: {
+      headline: "Rahmenevent mit meinen Unterevents absagen",
+      description:
+        "Sowohl die Rahmenveranstaltung als auch alle von mir administrierten Unterveranstaltungen werden abgesagt.",
+    },
   },
 } as const;

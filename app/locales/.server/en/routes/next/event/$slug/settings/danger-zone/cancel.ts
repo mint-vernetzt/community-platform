@@ -9,10 +9,19 @@ export const locale = {
   },
   cancel: "Cancel event",
   confirmation: {
-    title: "Do you really want to cancel {{eventName}}?",
-    description: "This action cannot be undone. ",
-    confirm: "Cancel event",
-    abort: "Cancel",
+    cancelOnlyThis: {
+      title: "Do you really want to cancel {{eventName}}?",
+      description: "This action cannot be undone. ",
+      confirm: "Cancel event",
+      abort: "Abort",
+    },
+    cancelAll: {
+      title: "Cancel {{eventName}} and all linked sub-events?",
+      description:
+        "Your event and the associated sub-events will be irrevocably cancelled. ",
+      confirm: "Cancel events",
+      abort: "Abort",
+    },
   },
   success: "The event has been cancelled.",
   errors: {
@@ -27,5 +36,18 @@ export const locale = {
     less: "Show less",
     hint_singular: "Your event has one sub-event.",
     hint_plural: "Your event has {{count}} sub-events.",
+  },
+  handlingChildEvents: {
+    description: "Decide how you want to handle the sub-events.",
+    cancelOnlyThis: {
+      headline: "Cancel only main event",
+      description:
+        "The main event will be cancelled, the sub-events will remain as independent events.",
+    },
+    cancelAll: {
+      headline: "Cancel main event with my sub-events",
+      description:
+        "Both the main event and all associated sub-events that I administer will be cancelled.",
+    },
   },
 } as const;

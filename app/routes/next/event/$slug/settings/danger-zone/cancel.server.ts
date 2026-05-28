@@ -36,10 +36,25 @@ export async function getEventBySlug(slug: string) {
   return event;
 }
 
-export async function cancelEventBySlug(slug: string) {
+export async function cancelEventBySlug(options: {
+  slug: string;
+  cancelChildEvents?: boolean;
+}) {
+  const { slug, cancelChildEvents } = options;
   const canceledEvent = await prismaClient.event.update({
     where: { slug },
     data: { canceled: true },
   });
+  if (cancelChildEvents) {
+    await prismaClient.event.updateMany({
+      where: { parentEvent: { slug } },
+      data: { canceled: true },
+    });
+  } else {
+    await prismaClient.event.updateMany({
+      where: { parentEvent: { slug }, canceled: false },
+      data: { parentEventId: null },
+    });
+  }
   return canceledEvent;
 }
