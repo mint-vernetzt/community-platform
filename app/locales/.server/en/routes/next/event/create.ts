@@ -2,6 +2,14 @@ export const locale = {
   headline: "Create Event",
   close: "Back to my events",
   info: "Create free and non-commercial events for the STEM community and those interested in STEM education. Unfortunately, offers for <0>children and adolescents</0> cannot be represented. <1>You can find more information on our help page.</1>",
+  parentHint: "You are creating a sub-event for the following event",
+  list: {
+    waitinglist: "Waiting list places",
+    seatsFree: "Seats available",
+    unlimitedSeats: "Unlimited seats",
+    more: "{{count}} more",
+    less: "{{count}} less",
+  },
   name: {
     headline: "What is the name of your event?",
     label: "Event title*",
@@ -54,6 +62,8 @@ export const locale = {
       endTimeBeforeStartTime: "The end time is before the start time.",
       startTimeRequired: "Please enter the start time.",
       endTimeRequired: "Please enter the end time.",
+      eventNotInParentEventBoundaries:
+        "Your event is not within the timeframe of the parent event.",
       multiDaySameDay:
         "For multi-day events, the start and end dates must be different.",
     },

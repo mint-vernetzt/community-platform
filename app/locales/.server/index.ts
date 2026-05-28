@@ -556,6 +556,7 @@ const de = {
   // next event routes
   "next/event/create": {
     route: deNextCreateEvent,
+    stages: deStages,
   },
   "next/event/$slug/settings": {
     route: deNextEventSettings,
@@ -1120,6 +1121,7 @@ const en = {
   // next event routes
   "next/event/create": {
     route: enNextCreateEvent,
+    stages: enStages,
   },
   "next/event/$slug/settings": {
     route: enNextEventSettings,
