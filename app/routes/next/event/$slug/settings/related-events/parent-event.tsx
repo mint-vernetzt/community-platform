@@ -1,57 +1,56 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
 import {
   type ActionFunctionArgs,
   Form,
+  type LoaderFunctionArgs,
   redirect,
   useLoaderData,
-  type LoaderFunctionArgs,
-  useSearchParams,
   useLocation,
+  useSearchParams,
 } from "react-router";
-import BasicStructure from "~/components/next/BasicStructure";
-import Hint from "~/components/next/Hint";
-import TitleSection from "~/components/next/TitleSection";
-import { invariantResponse } from "~/lib/utils/response";
-import { languageModuleMap } from "~/locales/.server";
-import { detectLanguage } from "~/root.server";
-import List from "~/components/next/List";
-import ListItemEvent from "~/components/next/ListItemEvent";
-import { hasContent } from "~/utils.shared";
-import { RichText } from "~/components/legacy/Richtext/RichText";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import {
-  addParentEvent,
-  cancelParentEventJoinRequest,
-  getEventBySlug,
-  getEventBySlugForAction,
-  getParentEventsToAdd,
-  removeParentEvent,
-  requestToJoinParentEvent,
-} from "./parent-event.server";
 import {
   createAuthClient,
   getSessionUser,
   getSessionUserOrThrow,
 } from "~/auth.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { Modal } from "~/components-next/Modal";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import BasicStructure from "~/components/next/BasicStructure";
+import Hint from "~/components/next/Hint";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
+import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
+import { invariantResponse } from "~/lib/utils/response";
+import { extendSearchParams } from "~/lib/utils/searchParams";
+import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { hasContent } from "~/utils.shared";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  addParentEvent,
+  cancelParentEventJoinRequest,
+  getEventBySlug,
+  getParentEventsToAdd,
+  removeParentEvent,
+  requestToJoinParentEvent,
+} from "./parent-event.server";
 import {
   ADD_PARENT_EVENT_INTENT,
+  CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
+  CONFIRM_ADD_MODAL_SEARCH_PARAM,
+  CONFIRM_REMOVE_MODAL_SEARCH_PARAM,
   createAddParentEventSchema,
+  createCancelParentEventJoinRequestSchema,
   createRequestParentEventSchema,
   PARENT_EVENT_ID,
   REMOVE_PARENT_EVENT_INTENT,
   REQUEST_TO_JOIN_PARENT_EVENT_INTENT,
-  CANCEL_PARENT_EVENT_JOIN_REQUEST_INTENT,
-  createCancelParentEventJoinRequestSchema,
-  CONFIRM_ADD_MODAL_SEARCH_PARAM,
-  CONFIRM_REMOVE_MODAL_SEARCH_PARAM,
 } from "./parent-event.shared";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { Modal } from "~/components-next/Modal";
-import { extendSearchParams } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -146,9 +145,6 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
-  const event = await getEventBySlugForAction(slug);
-  invariantResponse(event !== null, "Event not found", { status: 404 });
-
   if (intent === ADD_PARENT_EVENT_INTENT) {
     const submission = await parseWithZod(formData, {
       schema: createAddParentEventSchema(),
@@ -159,7 +155,7 @@ export async function action(args: ActionFunctionArgs) {
     try {
       await addParentEvent({
         userId: sessionUser.id,
-        event,
+        slug,
         parentEventId: submission.value[PARENT_EVENT_ID],
       });
     } catch (error) {
@@ -186,7 +182,7 @@ export async function action(args: ActionFunctionArgs) {
     }
     try {
       await requestToJoinParentEvent({
-        event,
+        slug,
         parentEventId: submission.value[PARENT_EVENT_ID],
         locales: {
           mail: {
@@ -224,7 +220,7 @@ export async function action(args: ActionFunctionArgs) {
     }
     try {
       await cancelParentEventJoinRequest({
-        event,
+        slug,
         parentEventId: submission.value[PARENT_EVENT_ID],
         locales: {
           mail: {
@@ -252,7 +248,7 @@ export async function action(args: ActionFunctionArgs) {
     try {
       await removeParentEvent({
         userId: sessionUser.id,
-        event,
+        slug,
         locales: {
           mail: {
             subject: locales.route.mail.remove.subject,
@@ -593,7 +589,10 @@ function ParentEvent() {
                         defaultValue={parentEvent.id}
                       />
                     </Form>
-                    {parentEvent.parentEventId !== null ? (
+                    {parentEvent.parentEventId !== null ||
+                    parentEvent.sentParentEventJoinRequests.some(
+                      (request) => request.status === "pending"
+                    ) ? (
                       <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                         <span>{locales.route.list.hasParentEvent}</span>
                       </div>

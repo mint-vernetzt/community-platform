@@ -1,50 +1,49 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
 import {
   type ActionFunctionArgs,
   Form,
+  type LoaderFunctionArgs,
   redirect,
   useLoaderData,
-  type LoaderFunctionArgs,
-  useSearchParams,
   useLocation,
+  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
   getSessionUser,
   getSessionUserOrThrow,
 } from "~/auth.server";
+import { Modal } from "~/components-next/Modal";
+import { RichText } from "~/components/legacy/Richtext/RichText";
+import BasicStructure from "~/components/next/BasicStructure";
+import Hint from "~/components/next/Hint";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
+import TitleSection from "~/components/next/TitleSection";
+import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { invariantResponse } from "~/lib/utils/response";
+import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { hasContent } from "~/utils.shared";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import {
   addChildEvent,
   getChildEventsToAdd,
   getEventBySlug,
-  getEventBySlugForAction,
   removeChildEvent,
 } from "./child-events.server";
-import TitleSection from "~/components/next/TitleSection";
-import Hint from "~/components/next/Hint";
-import BasicStructure from "~/components/next/BasicStructure";
-import List from "~/components/next/List";
-import ListItemEvent from "~/components/next/ListItemEvent";
 import {
   ADD_CHILD_EVENT_INTENT,
-  EVENT_ID,
-  createAddOrRemoveChildEventSchema,
-  REMOVE_CHILD_EVENT_INTENT,
   CONFIRM_REMOVE_MODAL_SEARCH_PARAM,
+  createAddOrRemoveChildEventSchema,
+  EVENT_ID,
+  REMOVE_CHILD_EVENT_INTENT,
 } from "./child-events.shared";
-import { INTENT_FIELD_NAME } from "~/form-helpers";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { RichText } from "~/components/legacy/Richtext/RichText";
-import { hasContent } from "~/utils.shared";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import { Modal } from "~/components-next/Modal";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -143,9 +142,6 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
-  const event = await getEventBySlugForAction(slug);
-  invariantResponse(event !== null, "Event not found", { status: 404 });
-
   const submission = await parseWithZod(formData, {
     schema: createAddOrRemoveChildEventSchema(),
   });
@@ -157,7 +153,7 @@ export async function action(args: ActionFunctionArgs) {
     try {
       await addChildEvent({
         userId: sessionUser.id,
-        event,
+        slug,
         childEventId: submission.value[EVENT_ID],
       });
     } catch (error) {
@@ -178,7 +174,7 @@ export async function action(args: ActionFunctionArgs) {
   } else if (intent === REMOVE_CHILD_EVENT_INTENT) {
     try {
       await removeChildEvent({
-        event,
+        slug,
         childEventId: submission.value[EVENT_ID],
       });
     } catch (error) {
@@ -448,11 +444,17 @@ function ChildEvents() {
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyAdded}</span>
                           </div>
-                        ) : event._count.childEvents > 0 ? (
+                        ) : event._count.childEvents > 0 ||
+                          event.receivedParentEventJoinRequests.some(
+                            (request) => request.status === "pending"
+                          ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.hasChildEvents}</span>
                           </div>
-                        ) : event.parentEventId !== null ? (
+                        ) : event.parentEventId !== null ||
+                          event.sentParentEventJoinRequests.some(
+                            (request) => request.status === "pending"
+                          ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.hasDifferentParent}</span>
                           </div>
