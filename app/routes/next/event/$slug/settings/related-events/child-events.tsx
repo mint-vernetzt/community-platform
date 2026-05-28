@@ -448,11 +448,17 @@ function ChildEvents() {
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyAdded}</span>
                           </div>
-                        ) : event._count.childEvents > 0 ? (
+                        ) : event._count.childEvents > 0 ||
+                          event.receivedParentEventJoinRequests.some(
+                            (request) => request.status === "pending"
+                          ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.hasChildEvents}</span>
                           </div>
-                        ) : event.parentEventId !== null ? (
+                        ) : event.parentEventId !== null ||
+                          event.sentParentEventJoinRequests.some(
+                            (request) => request.status === "pending"
+                          ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.hasDifferentParent}</span>
                           </div>

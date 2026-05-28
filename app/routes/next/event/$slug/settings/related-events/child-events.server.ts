@@ -140,6 +140,16 @@ export async function getChildEventsToAdd(options: {
     select: {
       id: true,
       parentEventId: true,
+      sentParentEventJoinRequests: {
+        select: {
+          status: true,
+        },
+      },
+      receivedParentEventJoinRequests: {
+        select: {
+          status: true,
+        },
+      },
       published: true,
       canceled: true,
       name: true,
