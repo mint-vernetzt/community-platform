@@ -8,7 +8,6 @@ import {
   redirect,
   useLoaderData,
   useLocation,
-  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
@@ -24,7 +23,6 @@ import ListItemEvent from "~/components/next/ListItemEvent";
 import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { invariantResponse } from "~/lib/utils/response";
-import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -204,7 +202,6 @@ function ChildEvents() {
   const loaderData = useLoaderData<typeof loader>();
   const { language, locales, event, childEventsToAdd } = loaderData;
 
-  const [searchParams] = useSearchParams();
   const location = useLocation();
 
   return (
@@ -263,6 +260,19 @@ function ChildEvents() {
                     >
                       <input name={EVENT_ID} defaultValue={event.id} />
                     </Form>
+                    {event.published ? (
+                      <Form
+                        id={`confirm-remove-modal-form-${event.id}`}
+                        method="GET"
+                        hidden
+                        preventScrollReset
+                      >
+                        <input
+                          name={`${CONFIRM_REMOVE_MODAL_SEARCH_PARAM}-${event.id}`}
+                          defaultValue="true"
+                        />
+                      </Form>
+                    ) : null}
                     {event.published === false ? (
                       <Button
                         type="submit"
@@ -278,9 +288,8 @@ function ChildEvents() {
                     ) : (
                       <>
                         <Button
-                          as="link"
-                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_REMOVE_MODAL_SEARCH_PARAM}-${event.id}`]: "true" } }).toString()}`}
-                          preventScrollReset
+                          type="submit"
+                          form={`confirm-remove-modal-form-${event.id}`}
                           size="small"
                           variant="outline"
                           fullSize
