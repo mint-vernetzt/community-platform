@@ -39,6 +39,7 @@ export const locale = {
     alreadyAdded: "already added as a child event",
     hasChildEvents: "already has child events",
     hasDifferentParent: "has a different parent event",
+    outOfTimeframe: "not within the appropriate timeframe",
   },
   errors: {
     addChildEvent:

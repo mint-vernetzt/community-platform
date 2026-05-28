@@ -120,16 +120,64 @@ export async function getChildEventsToAdd(options: {
 }) {
   const { event, userId, authClient } = options;
 
-  const childEventsToAdd = await prismaClient.event.findMany({
+  const select = {
+    id: true,
+    parentEventId: true,
+    sentParentEventJoinRequests: {
+      select: {
+        status: true,
+      },
+    },
+    receivedParentEventJoinRequests: {
+      select: {
+        status: true,
+      },
+    },
+    published: true,
+    canceled: true,
+    name: true,
+    slug: true,
+    backgroundImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
+    subline: true,
+    description: true,
+    stage: {
+      select: {
+        slug: true,
+      },
+    },
+    startTime: true,
+    endTime: true,
+    participantLimit: true,
+    _count: {
+      select: {
+        participants: true,
+        childEvents: true,
+      },
+    },
+  };
+
+  const basicWhere = {
+    slug: {
+      not: event.slug,
+    },
+    admins: {
+      some: {
+        profileId: userId,
+      },
+    },
+  };
+
+  const orderBy = {
+    startTime: "asc",
+  } as const;
+
+  const childEventsToAddWithinTimeframe = await prismaClient.event.findMany({
     where: {
-      slug: {
-        not: event.slug,
-      },
-      admins: {
-        some: {
-          profileId: userId,
-        },
-      },
+      ...basicWhere,
       startTime: {
         gte: event.startTime,
       },
@@ -137,49 +185,38 @@ export async function getChildEventsToAdd(options: {
         lte: event.endTime,
       },
     },
-    select: {
-      id: true,
-      parentEventId: true,
-      sentParentEventJoinRequests: {
-        select: {
-          status: true,
-        },
-      },
-      receivedParentEventJoinRequests: {
-        select: {
-          status: true,
-        },
-      },
-      published: true,
-      canceled: true,
-      name: true,
-      slug: true,
-      backgroundImageMetaData: {
-        select: {
-          path: true,
-        },
-      },
-      subline: true,
-      description: true,
-      stage: {
-        select: {
-          slug: true,
-        },
-      },
-      startTime: true,
-      endTime: true,
-      participantLimit: true,
-      _count: {
-        select: {
-          participants: true,
-          childEvents: true,
-        },
-      },
-    },
-    orderBy: {
-      startTime: "asc",
-    },
+    select,
+    orderBy,
   });
+
+  const now = new Date();
+
+  const childEventsToAddOutOfTimeframe = await prismaClient.event.findMany({
+    where: {
+      ...basicWhere,
+      OR: [
+        {
+          startTime: {
+            lt: event.startTime,
+            gte: now,
+          },
+        },
+        {
+          endTime: {
+            gt: event.endTime,
+            gte: now,
+          },
+        },
+      ],
+    },
+    select,
+    orderBy,
+  });
+
+  const childEventsToAdd = [
+    ...childEventsToAddWithinTimeframe,
+    ...childEventsToAddOutOfTimeframe,
+  ];
 
   const enhancedChildEventsToAdd = childEventsToAdd.map((event) => {
     let blurredBackground;
