@@ -483,9 +483,9 @@ function MyEvents() {
       : firstRequests[0]
   );
 
+  // TODO: Clean up this client side state management. Action redirect can return the correct search params for the next tabs to be opened. Then the Toast won't be interrupted by another server side request (setSearchParams) after the action. Currently a delay of 5 seconds acts as a workarround to still display the toast.
   useEffect(() => {
     if (searchParams.has("toast-trigger")) {
-      console.log("Update Tab");
       const firstUpcoming = Object.entries(
         loaderData.upcomingEvents.count
       ).find(([_key, value]) => {

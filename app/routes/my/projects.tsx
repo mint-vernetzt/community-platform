@@ -150,10 +150,28 @@ function MyProjects() {
       : firstProject[0]
   );
 
+  // TODO: Clean up this client side state management. Action redirect can return the correct search params for the next tabs to be opened. Then the Toast won't be interrupted by another server side request (setSearchParams) after the action. Currently a delay of 5 seconds acts as a workarround to still display the toast.
+  useEffect(() => {
+    if (searchParams.has("toast-trigger")) {
+      const firstProject = Object.entries(loaderData.projects.count).find(
+        ([, value]) => {
+          return value > 0;
+        }
+      ) || ["admin", 0];
+      setProjects(firstProject[0]);
+    }
+    // This eslint error is intentional to make the tab changes work
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     params.set("projects", projects);
-    setSearchParams(params, { preventScrollReset: true, replace: true });
+    params.delete("toast-trigger");
+    const timeout = setTimeout(() => {
+      setSearchParams(params, { preventScrollReset: true, replace: true });
+    }, 5000);
+    return () => clearTimeout(timeout);
     // This eslint error is intentional to make the tab changes work
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects]);
