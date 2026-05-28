@@ -581,6 +581,7 @@ const de = {
   },
   "next/event/$slug/settings/danger-zone/cancel": {
     route: deNextEventSettingsCancel,
+    stages: deStages,
   },
   "next/event/$slug/settings/danger-zone/delete": {
     route: deNextEventSettingsDelete,
@@ -1145,6 +1146,7 @@ const en = {
   },
   "next/event/$slug/settings/danger-zone/cancel": {
     route: enNextEventSettingsCancel,
+    stages: enStages,
   },
   "next/event/$slug/settings/danger-zone/delete": {
     route: enNextEventSettingsDelete,

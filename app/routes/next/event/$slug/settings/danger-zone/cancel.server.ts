@@ -11,6 +11,19 @@ export async function getEventBySlug(slug: string) {
         select: {
           slug: true,
           name: true,
+          startTime: true,
+          endTime: true,
+          participantLimit: true,
+          stage: {
+            select: {
+              slug: true,
+            },
+          },
+          _count: {
+            select: {
+              participants: true,
+            },
+          },
         },
       },
       _count: {

@@ -19,4 +19,13 @@ export const locale = {
     cancelFailed:
       "An error occurred while cancelling the event. Please try again.",
   },
+  childEventsList: {
+    waitinglist: "Waiting list seats",
+    seatsFree: "Seats free",
+    unlimitedSeats: "Unlimited seats",
+    more: "Show more",
+    less: "Show less",
+    hint_singular: "Your event has one sub-event.",
+    hint_plural: "Your event has {{count}} sub-events.",
+  },
 } as const;

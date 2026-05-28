@@ -13,7 +13,10 @@ import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import { detectLanguage } from "~/i18n.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
+import {
+  decideBetweenSingularOrPlural,
+  insertParametersIntoLocale,
+} from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
 import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
@@ -22,6 +25,8 @@ import { redirectWithToast } from "~/toast.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { cancelEventBySlug, getEventBySlug } from "./cancel.server";
 import { ConfirmModalSearchParam } from "./cancel.shared";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -42,7 +47,7 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(url.toString());
   }
 
-  return { locales, event };
+  return { locales, event, language };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -99,7 +104,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function Cancel() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, event } = loaderData;
+  const { locales, event, language } = loaderData;
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
@@ -111,6 +116,48 @@ function Cancel() {
 
   return (
     <>
+      {event._count.childEvents > 0 && (
+        <div className="w-full flex flex-col gap-2 p-4 bg-primary-50 lg:rounded-lg">
+          <p className="text-neutral-700 text-base font-normal leading-5 text-center">
+            {insertParametersIntoLocale(
+              decideBetweenSingularOrPlural(
+                locales.route.childEventsList.hint_singular,
+                locales.route.childEventsList.hint_plural,
+                event._count.childEvents
+              ),
+              { count: event._count.childEvents }
+            )}
+          </p>
+          <List
+            id="child-events-list"
+            locales={locales.route.childEventsList}
+            hideAfter={0}
+          >
+            {event.childEvents.map((childEvent, index) => {
+              return (
+                <ListItemEvent
+                  key={childEvent.slug}
+                  index={index}
+                  to={`/event/${childEvent.slug}/detail/about`}
+                >
+                  <ListItemEvent.Info
+                    {...childEvent}
+                    participantCount={childEvent._count.participants}
+                    locales={{
+                      stages: locales.stages,
+                      ...locales.route.childEventsList,
+                    }}
+                    language={language}
+                  />
+                  <ListItemEvent.Headline>
+                    {childEvent.name}
+                  </ListItemEvent.Headline>
+                </ListItemEvent>
+              );
+            })}
+          </List>
+        </div>
+      )}
       <Hint>
         <Hint.InfoIcon />
         {locales.route.hint.explanation}

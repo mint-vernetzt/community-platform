@@ -19,4 +19,13 @@ export const locale = {
     cancelFailed:
       "Beim Absagen des Events ist ein Fehler aufgetreten. Bitte versuche es erneut.",
   },
+  childEventsList: {
+    waitinglist: "Wartelistenplätze",
+    seatsFree: "Plätzen frei",
+    unlimitedSeats: "Unbegrenzte Plätze",
+    more: "Mehr anzeigen",
+    less: "Weniger anzeigen",
+    hint_singular: "Zu Deinem Event gehört eine Unterveranstaltung.",
+    hint_plural: "Zu Deinem Event gehören {{count}} Unterveranstaltungen.",
+  },
 } as const;
