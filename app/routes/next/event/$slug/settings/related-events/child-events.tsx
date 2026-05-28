@@ -389,7 +389,7 @@ function ChildEvents() {
             {childEventsToAdd.length > 0 ? (
               <List
                 id="child-events-to-add-list"
-                hideAfter={4}
+                hideAfter={3}
                 locales={locales.route.list}
               >
                 {childEventsToAdd.map((event, index) => {
