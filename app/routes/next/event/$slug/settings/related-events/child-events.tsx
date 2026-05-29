@@ -436,18 +436,18 @@ function ChildEvents() {
                         >
                           <input name={EVENT_ID} defaultValue={childEvent.id} />
                         </Form>
-                        {childEvent.startTime < event.startTime ||
-                        childEvent.endTime > event.endTime ? (
-                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                            <span>{locales.route.list.outOfTimeframe}</span>
-                          </div>
-                        ) : childEvent.alreadyAdded ? (
+                        {childEvent.alreadyAdded ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyAdded}</span>
                           </div>
                         ) : childEvent.published ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyPublished}</span>
+                          </div>
+                        ) : childEvent.startTime < event.startTime ||
+                          childEvent.endTime > event.endTime ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.outOfTimeframe}</span>
                           </div>
                         ) : childEvent._count.childEvents > 0 ||
                           childEvent.receivedParentEventJoinRequests.some(
