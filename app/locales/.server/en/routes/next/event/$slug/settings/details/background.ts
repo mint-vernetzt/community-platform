@@ -13,6 +13,8 @@ export const locale = {
       zoomIn: "Zoom in",
       zoomOut: "Zoom out",
       move: "Move",
+      confirm: "Confirm crop",
+      edit: "Edit crop",
     },
     description: {
       label: "Image description",

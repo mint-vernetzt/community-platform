@@ -232,6 +232,7 @@ function Background() {
   );
 
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
+  const [freezeCrop, setFreezeCrop] = useState(false);
 
   const defaultValue = {
     [FILE_FIELD_NAME]: undefined,
@@ -317,6 +318,7 @@ function Background() {
           src={selectedFiles[0].src}
           aspect={3 / 2}
           setCroppedArea={setCroppedArea}
+          freezed={freezeCrop}
         />
       ) : (
         <div className="relative w-full aspect-3/2 rounded-md overflow-hidden">
@@ -353,20 +355,46 @@ function Background() {
       )}
 
       <div className="w-full flex flex-col gap-2 md:justify-start md:flex-row-reverse">
-        <div className="w-full md:w-fit">
-          <Button
-            as="label"
-            htmlFor={uploadFields[FILE_FIELD_NAME].id}
-            fullSize
-            variant="outline"
-            tabIndex={0}
-            onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
-              event.key === "Enter" && event.currentTarget.click()
-            }
-          >
-            <UploadIcon />
-            <span>{locales.route.changeBackground.pick}</span>
-          </Button>
+        <div className="w-full flex flex-col-reverse md:flex-row-reverse gap-2">
+          <div className="w-full md:w-fit">
+            <Button
+              as="label"
+              htmlFor={uploadFields[FILE_FIELD_NAME].id}
+              fullSize
+              variant="outline"
+              tabIndex={0}
+              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
+                event.key === "Enter" && event.currentTarget.click()
+              }
+            >
+              <UploadIcon />
+              <span>{locales.route.changeBackground.pick}</span>
+            </Button>
+          </div>
+          {isHydrated && selectedFiles.length > 0 ? (
+            <div className="w-full md:w-fit">
+              {freezeCrop === false ? (
+                <Button
+                  fullSize
+                  onClick={() => {
+                    setFreezeCrop(true);
+                  }}
+                >
+                  {locales.route.changeBackground.crop.confirm}
+                </Button>
+              ) : (
+                <Button
+                  fullSize
+                  variant="outline"
+                  onClick={() => {
+                    setFreezeCrop(false);
+                  }}
+                >
+                  {locales.route.changeBackground.crop.edit}
+                </Button>
+              )}
+            </div>
+          ) : null}
         </div>
         <Form
           {...getFormProps(uploadForm)}
@@ -413,6 +441,7 @@ function Background() {
                     ) {
                       setDescription(null);
                       setCredits(null);
+                      setFreezeCrop(false);
                     }
                   });
                   reader.readAsDataURL(file);
@@ -506,6 +535,7 @@ function Background() {
                       setCredits(
                         background !== null ? background.credits : null
                       );
+                      setFreezeCrop(false);
                       uploadForm.reset();
                     }}
                     variant="outline"
