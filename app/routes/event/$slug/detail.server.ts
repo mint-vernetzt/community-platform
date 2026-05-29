@@ -44,6 +44,7 @@ export async function getEventBySlug(
         select: {
           path: true,
           description: true,
+          credits: true,
         },
       },
       startTime: true,

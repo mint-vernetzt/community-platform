@@ -29,6 +29,10 @@ function Image(props: React.PropsWithChildren<ImageProps>) {
     (child) => isValidElement(child) && child.type === ImageRemoveButton
   );
 
+  const credits = Children.toArray(children).find(
+    (child) => isValidElement(child) && child.type === ImageCredits
+  );
+
   return (
     <>
       <div className="relative w-full h-full bg-neutral-100">
@@ -81,6 +85,11 @@ function Image(props: React.PropsWithChildren<ImageProps>) {
         {typeof removeButton !== "undefined" ? (
           <div className="absolute top-2 right-2">{removeButton}</div>
         ) : null}
+        {typeof credits !== "undefined" ? (
+          <div className="absolute bottom-2 right-2 origin-bottom-right transform-[rotate(-90deg)_translateX(100%)]">
+            {credits}
+          </div>
+        ) : null}
       </div>
     </>
   );
@@ -114,6 +123,16 @@ function ImageRemoveButton(props: {
   );
 }
 
+function ImageCredits(props: { credits: string }) {
+  const { credits } = props;
+  return (
+    <div className="px-1.5 py-1 bg-neutral-50/80 flex items-center text-neutral-700 text-xxs font-semibold leading-4">
+      {credits.includes("©") ? credits : `© ${credits}`}
+    </div>
+  );
+}
+
 Image.RemoveButton = ImageRemoveButton;
+Image.Credits = ImageCredits;
 
 export { Image };
