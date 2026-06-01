@@ -50,4 +50,7 @@ export const locale = {
         "Both the main event and all associated sub-events that I administer will be cancelled.",
     },
   },
+  mail: {
+    subject: "Ein Event wurde abgesagt",
+  },
 } as const;

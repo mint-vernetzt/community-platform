@@ -107,6 +107,11 @@ export async function action(args: ActionFunctionArgs) {
       cancelChildEvents:
         submission.payload[HANDLING_CANCEL_CHILD_EVENTS_SEARCH_PARAM] ===
         CANCEL_ALL,
+      locales: {
+        mail: {
+          subject: locales.route.mail.subject,
+        },
+      },
     });
   } catch (error) {
     captureException(error);

@@ -226,6 +226,9 @@ type GeneralNotificationAddOrRemovedFromEventContent = {
   };
 };
 
+type GeneralNotificationEventCanceledContent =
+  GeneralNotificationAddOrRemovedFromEventContent;
+
 type DisconnectFromParentEventContent = {
   firstName: string;
   event: {
@@ -350,7 +353,9 @@ type TemplatePath =
   | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs"
   | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs"
   | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
-  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
+  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
+  | "mail-templates/general-notification/event-canceled-html.hbs"
+  | "mail-templates/general-notification/event-canceled-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -510,7 +515,11 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                                 | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
                                                 | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
                                             ? DisconnectFromParentEventContent
-                                            : never;
+                                            : TemplatePath extends
+                                                  | "mail-templates/general-notification/event-canceled-html.hbs"
+                                                  | "mail-templates/general-notification/event-canceled-text.hbs"
+                                              ? GeneralNotificationEventCanceledContent
+                                              : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,
