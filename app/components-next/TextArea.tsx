@@ -92,7 +92,7 @@ const TextArea = (
               className="text-sm font-semibold leading-5 flex-auto"
             >
               {props.label}
-              {props.required === true ? "*" : ""}
+              {props.required ? "*" : ""}
             </label>
 
             {withPublicPrivateToggle !== undefined &&

@@ -120,16 +120,64 @@ export async function getChildEventsToAdd(options: {
 }) {
   const { event, userId, authClient } = options;
 
-  const childEventsToAdd = await prismaClient.event.findMany({
+  const select = {
+    id: true,
+    parentEventId: true,
+    sentParentEventJoinRequests: {
+      select: {
+        status: true,
+      },
+    },
+    receivedParentEventJoinRequests: {
+      select: {
+        status: true,
+      },
+    },
+    published: true,
+    canceled: true,
+    name: true,
+    slug: true,
+    backgroundImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
+    subline: true,
+    description: true,
+    stage: {
+      select: {
+        slug: true,
+      },
+    },
+    startTime: true,
+    endTime: true,
+    participantLimit: true,
+    _count: {
+      select: {
+        participants: true,
+        childEvents: true,
+      },
+    },
+  };
+
+  const basicWhere = {
+    slug: {
+      not: event.slug,
+    },
+    admins: {
+      some: {
+        profileId: userId,
+      },
+    },
+  };
+
+  const orderBy = {
+    startTime: "asc",
+  } as const;
+
+  const childEventsToAddWithinTimeframe = await prismaClient.event.findMany({
     where: {
-      slug: {
-        not: event.slug,
-      },
-      admins: {
-        some: {
-          profileId: userId,
-        },
-      },
+      ...basicWhere,
       startTime: {
         gte: event.startTime,
       },
@@ -137,39 +185,38 @@ export async function getChildEventsToAdd(options: {
         lte: event.endTime,
       },
     },
-    select: {
-      id: true,
-      parentEventId: true,
-      published: true,
-      canceled: true,
-      name: true,
-      slug: true,
-      backgroundImageMetaData: {
-        select: {
-          path: true,
-        },
-      },
-      subline: true,
-      description: true,
-      stage: {
-        select: {
-          slug: true,
-        },
-      },
-      startTime: true,
-      endTime: true,
-      participantLimit: true,
-      _count: {
-        select: {
-          participants: true,
-          childEvents: true,
-        },
-      },
-    },
-    orderBy: {
-      startTime: "asc",
-    },
+    select,
+    orderBy,
   });
+
+  const now = new Date();
+
+  const childEventsToAddOutOfTimeframe = await prismaClient.event.findMany({
+    where: {
+      ...basicWhere,
+      OR: [
+        {
+          startTime: {
+            lt: event.startTime,
+            gte: now,
+          },
+        },
+        {
+          endTime: {
+            gt: event.endTime,
+            gte: now,
+          },
+        },
+      ],
+    },
+    select,
+    orderBy,
+  });
+
+  const childEventsToAdd = [
+    ...childEventsToAddWithinTimeframe,
+    ...childEventsToAddOutOfTimeframe,
+  ];
 
   const enhancedChildEventsToAdd = childEventsToAdd.map((event) => {
     let blurredBackground;
@@ -211,14 +258,20 @@ export async function getChildEventsToAdd(options: {
   return enhancedChildEventsToAdd;
 }
 
-export async function getEventBySlugForAction(slug: string) {
-  const event = await prismaClient.event.findUnique({
+export async function addChildEvent(options: {
+  userId: string;
+  slug: string;
+  childEventId: string;
+}) {
+  const { userId, childEventId, slug } = options;
+
+  const event = await prismaClient.event.findFirst({
     where: {
       slug,
     },
     select: {
       id: true,
-      slug: true,
+      parentEventId: true,
       startTime: true,
       endTime: true,
       sentParentEventJoinRequests: {
@@ -232,23 +285,9 @@ export async function getEventBySlugForAction(slug: string) {
     },
   });
 
-  return event;
-}
-
-export async function addChildEvent(options: {
-  userId: string;
-  event: {
-    id: string;
-    slug: string;
-    startTime: Date;
-    endTime: Date;
-    sentParentEventJoinRequests: {
-      parentEventId: string;
-    }[];
-  };
-  childEventId: string;
-}) {
-  const { userId, event, childEventId } = options;
+  if (event === null) {
+    throw new Error("Event not found");
+  }
 
   if (event.sentParentEventJoinRequests.length > 0) {
     throw new Error(
@@ -260,7 +299,7 @@ export async function addChildEvent(options: {
     where: {
       id: childEventId,
       slug: {
-        not: event.slug,
+        not: slug,
       },
       published: false,
       parentEventId: null,
@@ -277,6 +316,16 @@ export async function addChildEvent(options: {
       },
       endTime: {
         lte: event.endTime,
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+      receivedParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
       },
     },
     select: {
@@ -299,12 +348,23 @@ export async function addChildEvent(options: {
 }
 
 export async function removeChildEvent(options: {
-  event: {
-    id: string;
-  };
+  slug: string;
   childEventId: string;
 }) {
-  const { event, childEventId } = options;
+  const { slug, childEventId } = options;
+
+  const event = await prismaClient.event.findFirst({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (event === null) {
+    throw new Error("Event not found");
+  }
 
   const childEvent = await prismaClient.event.findFirst({
     where: {

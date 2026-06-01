@@ -37,7 +37,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const result = await performMutation({ request, schema, mutation });
 
-  if (result.success === true) {
+  if (result.success) {
     await publishEventAndItsChildren(slug, result.data.publish);
   }
   return redirect(`/event/${slug}/detail/about`);

@@ -73,7 +73,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { slug: slug },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     await addChildEventRelationOrThrow(slug, result.data.childEventId);
     return {
       message: insertParametersIntoLocale(locales.feedback, {

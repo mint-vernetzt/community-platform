@@ -571,6 +571,119 @@ export async function getEventInvites(options: {
   };
 }
 
+export async function getEventsWithPendingRequests(
+  id: string,
+  authClient: SupabaseClient
+) {
+  const events = await prismaClient.event.findMany({
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      receivedParentEventJoinRequests: {
+        select: {
+          childEvent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              backgroundImageMetaData: {
+                select: {
+                  path: true,
+                },
+              },
+              subline: true,
+              description: true,
+              stage: {
+                select: {
+                  slug: true,
+                },
+              },
+              startTime: true,
+              endTime: true,
+              participantLimit: true,
+              _count: {
+                select: {
+                  participants: true,
+                },
+              },
+            },
+          },
+          status: true,
+        },
+      },
+    },
+    where: {
+      receivedParentEventJoinRequests: {
+        some: {
+          status: "pending",
+        },
+      },
+      admins: {
+        some: {
+          profileId: id,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  const enhancedEvents = events.map((event) => {
+    const receivedParentEventJoinRequests =
+      event.receivedParentEventJoinRequests.filter((relation) => {
+        return relation.status === "pending";
+      });
+    const enhancedReceivedParentEventJoinRequests =
+      receivedParentEventJoinRequests.map((request) => {
+        let blurredBackground;
+        let background =
+          request.childEvent.backgroundImageMetaData === null
+            ? null
+            : request.childEvent.backgroundImageMetaData.path;
+        if (background !== null) {
+          const publicURL = getPublicURL(authClient, background);
+          if (publicURL) {
+            background = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Event.ListItem.Background.width,
+                height: ImageSizes.Event.ListItem.Background.height,
+              },
+            });
+            blurredBackground = getImageURL(publicURL, {
+              resize: {
+                type: "fill",
+                width: ImageSizes.Event.ListItem.BlurredBackground.width,
+                height: ImageSizes.Event.ListItem.BlurredBackground.height,
+              },
+              blur: BlurFactor,
+            });
+          }
+        } else {
+          background = DefaultImages.Event.Background;
+          blurredBackground = DefaultImages.Event.BlurredBackground;
+        }
+
+        return {
+          ...request,
+          childEvent: {
+            ...request.childEvent,
+            background,
+            blurredBackground,
+          },
+        };
+      });
+    return {
+      ...event,
+      receivedParentEventJoinRequests: enhancedReceivedParentEventJoinRequests,
+    };
+  });
+
+  return enhancedEvents;
+}
+
 export async function acceptInviteAsAdmin(options: {
   userId: string;
   eventId: string;
@@ -1709,6 +1822,283 @@ export async function rejectInviteAsResponsibleOrganization(options: {
             event: { name: result.event.name },
             organization: {
               name: result.organization.name,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
+export async function acceptRequestAsParentEvent(options: {
+  userId: string;
+  childEventId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, childEventId, eventId } = options;
+
+  // check if request exists
+  const request =
+    await prismaClient.requestToParentEventToAddChildEvent.findUnique({
+      where: {
+        parentEventId_childEventId: {
+          parentEventId: eventId,
+          childEventId,
+        },
+        parentEvent: {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        parentEvent: {
+          select: {
+            name: true,
+            admins: {
+              select: {
+                profileId: true,
+              },
+            },
+          },
+        },
+        childEvent: {
+          select: {
+            admins: {
+              select: {
+                profileId: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+  if (request === null) {
+    throw new Error("Request not found");
+  }
+
+  const missingAdmins = request.parentEvent.admins.filter((parentAdmin) => {
+    return !request.childEvent.admins.some((childAdmin) => {
+      return childAdmin.profileId === parentAdmin.profileId;
+    });
+  });
+
+  console.log("Missing admins: ", missingAdmins);
+
+  const [childEvent] = await prismaClient.$transaction([
+    prismaClient.event.update({
+      where: {
+        id: childEventId,
+      },
+      data: {
+        parentEventId: eventId,
+        sentParentEventJoinRequests: {
+          updateMany: {
+            where: {
+              parentEventId: eventId,
+              status: "pending",
+            },
+            data: {
+              status: "accepted",
+            },
+          },
+        },
+      },
+      select: {
+        name: true,
+        admins: {
+          select: {
+            profile: {
+              select: {
+                id: true,
+                firstName: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prismaClient.adminOfEvent.createMany({
+      data: missingAdmins.map((admin) => {
+        return {
+          profileId: admin.profileId,
+          eventId: childEventId,
+        };
+      }),
+    }),
+  ]);
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs";
+
+  const recipients = childEvent.admins.filter((admin) => {
+    return admin.profile.id !== userId;
+  });
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    recipients.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: childEvent.name },
+            parentEvent: {
+              name: request.parentEvent.name,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: childEvent.name },
+            parentEvent: {
+              name: request.parentEvent.name,
+            },
+          },
+          "html"
+        );
+
+        await mailer(mailerOptions, sender, recipient, subject, text, html);
+      } catch (error) {
+        captureException(error);
+      }
+    })
+  );
+}
+
+export async function rejectRequestAsParentEvent(options: {
+  userId: string;
+  childEventId: string;
+  eventId: string;
+  locales: {
+    mail: {
+      subject: string;
+    };
+  };
+}) {
+  const { userId, childEventId, eventId } = options;
+
+  // check if request exists
+  const request =
+    await prismaClient.requestToParentEventToAddChildEvent.findUnique({
+      where: {
+        parentEventId_childEventId: {
+          parentEventId: eventId,
+          childEventId,
+        },
+        parentEvent: {
+          admins: {
+            some: {
+              profileId: userId,
+            },
+          },
+        },
+        status: "pending",
+      },
+      select: {
+        parentEvent: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+  if (request === null) {
+    throw new Error("Request not found");
+  }
+
+  const childEvent = await prismaClient.event.update({
+    where: {
+      id: childEventId,
+    },
+    data: {
+      sentParentEventJoinRequests: {
+        updateMany: {
+          where: {
+            parentEventId: eventId,
+            status: "pending",
+          },
+          data: {
+            status: "rejected",
+          },
+        },
+      },
+    },
+    select: {
+      name: true,
+      admins: {
+        select: {
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const sender = process.env.SYSTEM_MAIL_SENDER;
+  const subject = options.locales.mail.subject;
+  const textTemplatePath =
+    "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs";
+  const htmlTemplatePath =
+    "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs";
+
+  const recipients = childEvent.admins.filter((admin) => {
+    return admin.profile.id !== userId;
+  });
+
+  // Do not block main thread while sending the mail
+  void Promise.all(
+    recipients.map(async (admin) => {
+      try {
+        const recipient = admin.profile.email;
+        const text = getCompiledMailTemplate<typeof textTemplatePath>(
+          textTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: childEvent.name },
+            parentEvent: {
+              name: request.parentEvent.name,
+            },
+          },
+          "text"
+        );
+        const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+          htmlTemplatePath,
+          {
+            firstName: admin.profile.firstName,
+            event: { name: childEvent.name },
+            parentEvent: {
+              name: request.parentEvent.name,
             },
           },
           "html"

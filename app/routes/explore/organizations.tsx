@@ -1027,7 +1027,7 @@ export default function ExploreOrganizations() {
       </section>
       <div
         className={
-          loaderData.submission.value.showFilters === true
+          loaderData.submission.value.showFilters
             ? "hidden @lg:block"
             : undefined
         }

@@ -257,7 +257,7 @@ export async function loader(args: LoaderFunctionArgs) {
           : true;
   } else {
     alreadyRequestedToClaim = false;
-    allowedToClaimOrganization = organization.shadow === true;
+    allowedToClaimOrganization = organization.shadow;
   }
 
   return {

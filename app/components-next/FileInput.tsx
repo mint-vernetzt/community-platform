@@ -70,7 +70,7 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
       </noscript>
       <div className="grid grid-cols-2 w-fit gap-2">
         {as === "button" ? (
-          isHydrated === true ? (
+          isHydrated ? (
             <>
               <Button
                 as="label"
@@ -96,7 +96,7 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
               {text}
             </Button>
           )
-        ) : isHydrated === true ? (
+        ) : isHydrated ? (
           <>
             <input
               {...fileInputProps}
@@ -166,7 +166,7 @@ function FileInput(props: React.PropsWithChildren<FileInputProps>) {
               })
               .join(", ")}
           </p>
-        ) : isHydrated === true ? (
+        ) : isHydrated ? (
           locales.upload.selection.empty
         ) : null}
         {typeof errors !== "undefined" && errors.length > 0 ? (

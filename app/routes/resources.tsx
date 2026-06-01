@@ -212,19 +212,13 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
-                      typedResourceValue.external === true
+                      typedResourceValue.external
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    target={
-                      typedResourceValue.external === true
-                        ? "_blank"
-                        : undefined
-                    }
+                    target={typedResourceValue.external ? "_blank" : undefined}
                     className="w-full @lg:w-fit"
-                    prefetch={
-                      typedResourceValue.external === true ? "none" : "intent"
-                    }
+                    prefetch={typedResourceValue.external ? "none" : "intent"}
                   >
                     {typedResourceValue.external ? (
                       <span>
@@ -282,19 +276,13 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
-                      typedResourceValue.external === true
+                      typedResourceValue.external
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    target={
-                      typedResourceValue.external === true
-                        ? "_blank"
-                        : undefined
-                    }
+                    target={typedResourceValue.external ? "_blank" : undefined}
                     className="w-full @lg:w-fit"
-                    prefetch={
-                      typedResourceValue.external === true ? "none" : "intent"
-                    }
+                    prefetch={typedResourceValue.external ? "none" : "intent"}
                   >
                     <span>
                       <External />
@@ -357,19 +345,13 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
-                      typedResourceValue.external === true
+                      typedResourceValue.external
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    target={
-                      typedResourceValue.external === true
-                        ? "_blank"
-                        : undefined
-                    }
+                    target={typedResourceValue.external ? "_blank" : undefined}
                     className="w-full @lg:w-fit"
-                    prefetch={
-                      typedResourceValue.external === true ? "none" : "intent"
-                    }
+                    prefetch={typedResourceValue.external ? "none" : "intent"}
                   >
                     <span>
                       <External />
@@ -421,19 +403,13 @@ export default function Resources({ loaderData }: Route.ComponentProps) {
                     variant="outline"
                     to={typedResourceValue.link}
                     rel={
-                      typedResourceValue.external === true
+                      typedResourceValue.external
                         ? "noopener noreferrer"
                         : undefined
                     }
-                    target={
-                      typedResourceValue.external === true
-                        ? "_blank"
-                        : undefined
-                    }
+                    target={typedResourceValue.external ? "_blank" : undefined}
                     className="w-full @lg:w-fit"
-                    prefetch={
-                      typedResourceValue.external === true ? "none" : "intent"
-                    }
+                    prefetch={typedResourceValue.external ? "none" : "intent"}
                   >
                     <span>
                       <External />

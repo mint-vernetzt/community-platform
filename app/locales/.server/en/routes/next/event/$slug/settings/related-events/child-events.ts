@@ -26,6 +26,10 @@ export const locale = {
       label: "Add your own events as child events",
       cta: "Add as Child Event",
     },
+    create: {
+      label: "Create a Child Event",
+      cta: "Create New Child Event",
+    },
   },
   list: {
     more: "{{count}} more",
@@ -39,6 +43,7 @@ export const locale = {
     alreadyAdded: "already added as a child event",
     hasChildEvents: "already has child events",
     hasDifferentParent: "has a different parent event",
+    outOfTimeframe: "not within the appropriate timeframe",
   },
   errors: {
     addChildEvent:

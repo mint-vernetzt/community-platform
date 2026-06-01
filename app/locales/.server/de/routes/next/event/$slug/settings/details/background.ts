@@ -13,6 +13,8 @@ export const locale = {
       zoomIn: "Hineinzoomen",
       zoomOut: "Herauszoomen",
       move: "Verschieben",
+      confirm: "Bildausschnitt bestätigen",
+      edit: "Bildausschnitt bearbeiten",
     },
     description: {
       label: "Bildbeschreibung",
@@ -21,7 +23,7 @@ export const locale = {
         "Deine Beschreibung hilft Menschen mit Sehbehinderung Dein Bild zu verstehen.",
     },
     credits: {
-      label: "Credits",
+      label: "Bildnachweis",
       placeholder: "Gebe an, wer Dein Bild erstellt hat.",
       helperText: "Nenne den / die Urheber:in des Bildes.",
     },
@@ -37,7 +39,7 @@ export const locale = {
     invalidType: "Die Datei muss ein JPG oder PNG sein.",
     descriptionTooLong:
       "Die Bildbeschreibung darf maximal {{max}} Zeichen lang sein.",
-    creditsTooLong: "Die Credits dürfen maximal {{max}} Zeichen lang sein.",
+    creditsTooLong: "Der Bildnachweis maximal {{max}} Zeichen lang sein.",
   },
   errors: {
     uploadImageFailed: "Das Hochladen des Bildes ist fehlgeschlagen.",

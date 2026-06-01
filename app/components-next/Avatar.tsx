@@ -8,7 +8,7 @@ function getFullName(
 ) {
   const { firstName, lastName, academicTitle } = data;
 
-  if (typeof academicTitle === "string" && options.withAcademicTitle === true) {
+  if (typeof academicTitle === "string" && options.withAcademicTitle) {
     return `${academicTitle} ${firstName} ${lastName}`;
   }
 

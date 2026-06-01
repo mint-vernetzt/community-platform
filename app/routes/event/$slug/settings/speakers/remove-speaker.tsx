@@ -40,7 +40,7 @@ export async function action(args: ActionFunctionArgs) {
 
   const result = await performMutation({ request, schema, mutation });
 
-  if (result.success === true) {
+  if (result.success) {
     const event = await getEventBySlug(slug);
     invariantResponse(event, locales.error.notFound, { status: 404 });
     await disconnectSpeakerProfileFromEvent(event.id, result.data.profileId);

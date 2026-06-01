@@ -351,7 +351,7 @@ export async function writeToDatabase(
       },
     },
   });
-  if (verbose === true) {
+  if (verbose) {
     console.log(
       "Deleted " +
         queries.deleteStates.length +
@@ -390,7 +390,7 @@ export async function writeToDatabase(
     );
   }
   await prismaClient.$transaction([...stateUpdates, ...districtUpdates]);
-  if (verbose === true) {
+  if (verbose) {
     console.log(
       "Updated " +
         queries.updateStates.length +
@@ -410,7 +410,7 @@ export async function writeToDatabase(
   await prismaClient.area.createMany({
     data: queries.insertAreas,
   });
-  if (verbose === true) {
+  if (verbose) {
     console.log(
       "Created " +
         queries.insertStates.length +

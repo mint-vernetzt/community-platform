@@ -26,6 +26,10 @@ export const locale = {
       label: "Eigene Events als untergeordnete Veranstaltungen hinzufügen",
       cta: "Als Unterevent hinzufügen",
     },
+    create: {
+      label: "Erstelle eine Unterveranstaltung",
+      cta: "Neues Unterevent erstellen",
+    },
   },
   list: {
     more: "{{count}} weitere anzeigen",
@@ -39,6 +43,7 @@ export const locale = {
     alreadyAdded: "bereits als Unterevent hinzugefügt",
     hasChildEvents: "hat selbst Unterevents",
     hasDifferentParent: "hat ein anderes Rahmenevent",
+    outOfTimeframe: "nicht im entsprechenden Zeitraum",
   },
   errors: {
     addChildEvent:

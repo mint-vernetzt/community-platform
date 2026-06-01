@@ -236,7 +236,7 @@ function ListItemFlag(props: {
     "flex font-semibold items-center ml-auto border-r-8 pr-4 h-30.75 @md:h-24 rounded-r-[7px]"
   );
 
-  if (canceled === true) {
+  if (canceled) {
     return (
       <div
         className={classNames(classes, "border-negative-700 text-negative-700")}

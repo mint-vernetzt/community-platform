@@ -26,6 +26,14 @@ export async function getEventBySlug(options: {
       published: true,
       startTime: true,
       endTime: true,
+      receivedParentEventJoinRequests: {
+        where: {
+          status: "pending",
+        },
+        select: {
+          parentEventId: true,
+        },
+      },
       sentParentEventJoinRequests: {
         where: {
           status: "pending",
@@ -231,6 +239,11 @@ export async function getParentEventsToAdd(options: {
     select: {
       id: true,
       parentEventId: true,
+      sentParentEventJoinRequests: {
+        select: {
+          status: true,
+        },
+      },
       name: true,
       slug: true,
       backgroundImageMetaData: {
@@ -302,13 +315,33 @@ export async function getParentEventsToAdd(options: {
   return enhancedParentEventsToAdd;
 }
 
-export async function getEventBySlugForAction(slug: string) {
+export async function addParentEvent(options: {
+  userId: string;
+  slug: string;
+  parentEventId: string;
+}) {
+  const { userId, slug, parentEventId } = options;
+
   const event = await prismaClient.event.findUnique({
     where: {
       slug,
+      published: false,
+      parentEventId: null,
+      childEvents: {
+        none: {},
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+      receivedParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
     },
     select: {
-      id: true,
       slug: true,
       startTime: true,
       endTime: true,
@@ -316,22 +349,11 @@ export async function getEventBySlugForAction(slug: string) {
     },
   });
 
-  return event;
-}
+  if (event === null) {
+    throw new Error("Event not found");
+  }
 
-export async function addParentEvent(options: {
-  userId: string;
-  event: {
-    slug: string;
-    startTime: Date;
-    endTime: Date;
-    published: boolean;
-  };
-  parentEventId: string;
-}) {
-  const { userId, event, parentEventId } = options;
-
-  if (event.published === true) {
+  if (event.published) {
     throw new Error("Cannot add parent event to a published event");
   }
 
@@ -342,6 +364,11 @@ export async function addParentEvent(options: {
         not: event.slug,
       },
       parentEventId: null,
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
       admins: {
         some: {
           profileId: userId,
@@ -371,13 +398,7 @@ export async function addParentEvent(options: {
 }
 
 export async function requestToJoinParentEvent(options: {
-  event: {
-    id: string;
-    slug: string;
-    startTime: Date;
-    endTime: Date;
-    published: boolean;
-  };
+  slug: string;
   parentEventId: string;
   locales: {
     mail: {
@@ -386,9 +407,41 @@ export async function requestToJoinParentEvent(options: {
     };
   };
 }) {
-  const { event, parentEventId } = options;
+  const { slug, parentEventId } = options;
 
-  if (event.published === true) {
+  const event = await prismaClient.event.findUnique({
+    where: {
+      slug,
+      published: false,
+      parentEventId: null,
+      childEvents: {
+        none: {},
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+      receivedParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
+    },
+    select: {
+      id: true,
+      slug: true,
+      startTime: true,
+      endTime: true,
+      published: true,
+    },
+  });
+
+  if (event === null) {
+    throw new Error("Event not found");
+  }
+
+  if (event.published) {
     throw new Error("Cannot request to join parent event on a published event");
   }
 
@@ -397,6 +450,11 @@ export async function requestToJoinParentEvent(options: {
       id: parentEventId,
       slug: {
         not: event.slug,
+      },
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
       },
       parentEventId: null,
       published: true,
@@ -413,7 +471,6 @@ export async function requestToJoinParentEvent(options: {
     throw new Error("Parent event not found or not eligible to be a parent");
   }
 
-  // TODO: Implement request to join logic
   const result = await prismaClient.requestToParentEventToAddChildEvent.upsert({
     where: {
       parentEventId_childEventId: {
@@ -499,9 +556,7 @@ export async function requestToJoinParentEvent(options: {
 }
 
 export async function cancelParentEventJoinRequest(options: {
-  event: {
-    id: string;
-  };
+  slug: string;
   parentEventId: string;
   locales: {
     mail: {
@@ -510,7 +565,20 @@ export async function cancelParentEventJoinRequest(options: {
     };
   };
 }) {
-  const { event, parentEventId } = options;
+  const { slug, parentEventId } = options;
+
+  const event = await prismaClient.event.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (event === null) {
+    throw new Error("Event not found");
+  }
 
   const pendingRequest =
     await prismaClient.requestToParentEventToAddChildEvent.findUnique({
@@ -608,20 +676,18 @@ export async function cancelParentEventJoinRequest(options: {
 
 export async function removeParentEvent(options: {
   userId: string;
-  event: {
-    slug: string;
-  };
+  slug: string;
   locales: {
     mail: {
       subject: string;
     };
   };
 }) {
-  const { event, userId, locales } = options;
+  const { slug, userId, locales } = options;
 
   const currentEvent = await prismaClient.event.findFirst({
     where: {
-      slug: event.slug,
+      slug,
     },
     select: {
       parentEvent: {
@@ -651,6 +717,15 @@ export async function removeParentEvent(options: {
   if (currentEvent.parentEvent === null) {
     throw new Error("No parent event to remove");
   }
+
+  await prismaClient.event.update({
+    where: {
+      slug,
+    },
+    data: {
+      parentEventId: null,
+    },
+  });
 
   const isAdminOfParentEvent = currentEvent.parentEvent.admins.some(
     (admin) => admin.profile.id === userId
@@ -698,13 +773,4 @@ export async function removeParentEvent(options: {
       })
     );
   }
-
-  await prismaClient.event.update({
-    where: {
-      slug: event.slug,
-    },
-    data: {
-      parentEventId: null,
-    },
-  });
 }

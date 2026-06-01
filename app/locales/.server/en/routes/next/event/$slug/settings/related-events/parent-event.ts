@@ -1,6 +1,8 @@
 export const locale = {
   addOrRequest: {
     headline: "Add Parent Event",
+    hasPendingRequestHint:
+      "You have a pending request to become a parent event. Once this request is confirmed or rejected, you can add a new parent event. <0>Go to the link request</0>",
     hasChildEventsHint:
       "Your event is already set as a parent event. Therefore, you cannot assign it to another parent event. If you want to make your event a sub-event of an existing parent event, first remove the sub-events from your current event. Then you can assign it to a parent event.",
     subline:

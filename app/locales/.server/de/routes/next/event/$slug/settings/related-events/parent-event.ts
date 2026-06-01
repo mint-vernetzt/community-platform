@@ -1,6 +1,8 @@
 export const locale = {
   addOrRequest: {
     headline: "Rahmenveranstaltung hinzufügen",
+    hasPendingRequestHint:
+      "Du hast noch eine ausstehende Anfrage, selbst Rahmenevent zu werden. Sobald diese Anfrage bestätigt oder abgelehnt wurde, kannst Du eine neue Rahmenveranstaltung hinzufügen. <0>Zur Verknüpfungsanfrage</0>",
     hasChildEventsHint:
       "Dein Event ist bereits als Rahmenveranstaltung angelegt. Daher kannst Du es nicht zusätzlich einem anderen Rahmenevent zuordnen. Wenn Du Dein Event stattdessen als Unterveranstaltung eines bestehenden Rahmenevents anlegen möchtest, entferne zuerst die Unterevents aus Deinem aktuellen Event. Danach kannst Du es einem Rahmenevent zuordnen.",
     subline:

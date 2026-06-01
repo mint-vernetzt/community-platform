@@ -392,7 +392,7 @@ export default function ExploreOrganizationsList() {
               />
             </div>
           </Modal.Section>
-          {isHydrated === true ? (
+          {isHydrated ? (
             <Modal.SubmitButton
               onClick={async () => {
                 await copyToClipboard(iframeString);

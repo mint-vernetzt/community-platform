@@ -259,7 +259,7 @@ function Participants() {
 
       {moveToParticipantsFetcher.data !== undefined &&
         "success" in moveToParticipantsFetcher.data &&
-        moveToParticipantsFetcher.data.success === true && (
+        moveToParticipantsFetcher.data.success && (
           <div>{locales.route.content.current.feedback}</div>
         )}
       {loaderData.waitingList.length > 0 ? (

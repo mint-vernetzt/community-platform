@@ -49,7 +49,7 @@ function OverlayMenu(props: OverlayMenuProps) {
   const fallBackIsOpen =
     enhancedSearchParams.has(searchParam) &&
     enhancedSearchParams.get(searchParam) === "true";
-  if (fallBackIsOpen === true) {
+  if (fallBackIsOpen) {
     enhancedSearchParams.delete(searchParam);
   } else {
     enhancedSearchParams.delete(searchParam);
@@ -68,7 +68,7 @@ function OverlayMenu(props: OverlayMenuProps) {
     const handleClickOutside = (event: MouseEvent) => {
       const { target } = event;
       if (
-        isOpen === true &&
+        isOpen &&
         listRef.current !== null &&
         linkRef.current !== null &&
         listRef.current !== target &&
@@ -102,7 +102,7 @@ function OverlayMenu(props: OverlayMenuProps) {
       if (
         firstFocusableElement !== null &&
         "focus" in firstFocusableElement &&
-        isOpen === true
+        isOpen
       ) {
         (firstFocusableElement as HTMLElement).focus();
       }
@@ -167,7 +167,7 @@ function OverlayMenu(props: OverlayMenuProps) {
           </svg>
         </CircleButton>
       )}
-      {isOpen === true ? (
+      {isOpen ? (
         <div
           className={`fixed w-screen lg:w-fit min-w-40 h-dvh lg:h-fit p-4 lg:p-0 lg:absolute top-0 ${as === "square-button" ? (squareButtonProps?.size === "small" ? "lg:top-10" : squareButtonProps?.size === "medium" ? "lg:top-12" : "lg:top-14") : "lg:top-14"} left-0 lg:left-auto right-0 text-nowrap rounded-none lg:rounded-lg shadow-none lg:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] bg-black/50 backdrop-blur-xs lg:bg-white flex flex-col gap-4 justify-end lg:justify-normal z-30 lg:z-20`}
         >

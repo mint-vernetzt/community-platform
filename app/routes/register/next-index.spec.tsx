@@ -14,7 +14,7 @@ Action:
 - Returns correct error messages on validation failure
 - Returns correct error message on terms not accepted
 - Does not return "User already registered" error
-- Returns actionData.success === true on register success or on "User already registered" error
+- Returns actionData.success on register success or on "User already registered" error
 ? --> Trims the form input values and normalizes the email to lower case (TODO: Not current behaviour)
 ? --> Only login_redirect param to own domain should work (TODO: Not current behaviour)
 
@@ -32,7 +32,7 @@ Functional tests:
 ? --> E-Mail verification link contains the correct login_redirect param if present
 - All links work
 --> Link to login ships along the login_redirect searchParam
---> Don't forget password reset link that is only rendered on actionData.success === true
+--> Don't forget password reset link that is only rendered on actionData.success
 ? - No browser console warnings/errors
 
 */

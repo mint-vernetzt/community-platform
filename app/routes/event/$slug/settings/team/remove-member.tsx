@@ -60,7 +60,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { memberCount: event._count.teamMembers },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     await removeTeamMemberFromEvent(event.id, result.data.profileId);
   }
   return { ...result };

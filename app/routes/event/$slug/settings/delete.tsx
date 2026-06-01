@@ -110,7 +110,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { eventSlug: slug, eventName: event.name },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     const profile = await getProfileById(sessionUser.id);
     if (profile === null) {
       invariantResponse(false, locales.error.profileNotFound, { status: 404 });

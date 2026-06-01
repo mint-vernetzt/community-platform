@@ -62,7 +62,7 @@ export async function action(args: ActionFunctionArgs) {
     environment: { adminCount: event._count.admins },
   });
 
-  if (result.success === true) {
+  if (result.success) {
     await removeAdminFromEvent(event.id, result.data.profileId);
     if (sessionUser.id === result.data.profileId) {
       const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);

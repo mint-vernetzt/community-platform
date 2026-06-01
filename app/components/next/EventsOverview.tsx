@@ -37,7 +37,12 @@ function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
 }
 
-function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
+function Image(props: {
+  credits: string | null;
+  src?: string;
+  alt?: string;
+  blurredSrc?: string;
+}) {
   return (
     <div className="relative h-full md:h-100 aspect-3/2 border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
       <ImageComponent
@@ -45,7 +50,9 @@ function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
         src={props.src}
         blurredSrc={props.blurredSrc}
         resizeType="fit"
-      />
+      >
+        {props.credits && <ImageComponent.Credits credits={props.credits} />}
+      </ImageComponent>
     </div>
   );
 }
@@ -286,7 +293,7 @@ function Stage(props: {
     "border-0 md:border border-neutral-200 rounded-lg",
     "order-3 md:order-last",
     (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced === true || hasContent(conferenceLink))
+      (conferenceLinkToBeAnnounced || hasContent(conferenceLink))
       ? "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
       : ""
   );
@@ -294,7 +301,7 @@ function Stage(props: {
   const iconClasses = classNames(
     "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700",
     (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced === true || hasContent(conferenceLink))
+      (conferenceLinkToBeAnnounced || hasContent(conferenceLink))
       ? "group-hover:bg-white"
       : ""
   );
@@ -321,10 +328,7 @@ function Stage(props: {
         </div>
       </>
     );
-    if (
-      props.conferenceLinkToBeAnnounced === true ||
-      hasContent(conferenceLink)
-    ) {
+    if (props.conferenceLinkToBeAnnounced || hasContent(conferenceLink)) {
       return (
         <Link
           to={`/event/${slug}/detail/about#address-and-conference-link`}
@@ -492,7 +496,7 @@ function Stage(props: {
       </>
     );
     if (
-      props.conferenceLinkToBeAnnounced === true ||
+      props.conferenceLinkToBeAnnounced ||
       hasContent(conferenceLink) ||
       (hasContent(props.venueStreet) &&
         hasContent(props.venueZipCode) &&
@@ -756,7 +760,7 @@ function ReportEvent(props: {
         <button
           {...OverlayMenuComponent.getListChildrenStyles()}
           type="submit"
-          disabled={props.alreadyReported === true}
+          disabled={props.alreadyReported}
         >
           {props.alreadyReported === false ? (
             <span className="p-0.5">
