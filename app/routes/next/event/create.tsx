@@ -233,7 +233,7 @@ export default function Create() {
       </MobileSettingsHeader>
 
       <div className="w-full flex flex-col gap-4 p-4 bg-primary-50 xl:hidden">
-        <p className="text-neutral-700 text-base leading-5">
+        <p className="text-primary-700 text-base leading-5">
           {parentEvent === null
             ? insertComponentsIntoLocale(locales.route.info, [
                 <span key="highlight" className="font-bold" />,
@@ -280,7 +280,7 @@ export default function Create() {
             <SettingsHeading>{locales.route.headline}</SettingsHeading>
           </div>
           <div className="hidden xl:flex w-full flex-col gap-4 p-6 bg-primary-50 border border-neutral-200 rounded-2xl">
-            <p className="text-neutral-700 text-base leading-5">
+            <p className="text-primary-700 text-base leading-5">
               {parentEvent === null
                 ? insertComponentsIntoLocale(locales.route.info, [
                     <span key="highlight" className="font-bold" />,

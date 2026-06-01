@@ -233,7 +233,7 @@ export default function Settings() {
         {event.published === false ? (
           <SettingsNavigation.MobileActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
-              <p className="text-neutral-600 text-base font-normal leading-5">
+              <p className="text-primary-700 text-base font-normal leading-5">
                 {locales.route.publishHint}
               </p>
               <Form method="post">

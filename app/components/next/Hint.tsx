@@ -23,14 +23,14 @@ function Hint(props: { children: React.ReactNode }) {
 
   if (typeof icon === "undefined") {
     return (
-      <p className="py-2 px-4 rounded-lg bg-primary-50 text-neutral-600">
+      <p className="py-2 px-4 rounded-lg bg-primary-50 text-primary-700">
         {props.children}
       </p>
     );
   }
 
   return (
-    <div className="py-2 px-4 rounded-lg bg-primary-50 text-neutral-600 flex gap-2">
+    <div className="py-2 px-4 rounded-lg bg-primary-50 text-primary-700 flex gap-2">
       {icon}
       <div>{otherChildren}</div>
     </div>

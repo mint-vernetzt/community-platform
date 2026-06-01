@@ -40,7 +40,7 @@ export default function Admins() {
 
   return (
     <>
-      <div className="p-4 lg:mx-6 lg:mt-6 bg-primary-50 lg:rounded-lg text-neutral-600 leading-[1.3rem]">
+      <div className="p-4 lg:mx-6 lg:mt-6 bg-primary-50 lg:rounded-lg text-primary-700 leading-[1.3rem]">
         {locales.route.explanation}
       </div>
       <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
