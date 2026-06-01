@@ -152,10 +152,8 @@ function TabBar(props: TabBarProps) {
           scrollContainerRef.current.scrollWidth >
           scrollContainerRef.current.clientWidth
         ) {
-          console.log("scrollable");
           setShowScrollRight(true);
         } else {
-          console.log("not scrollable");
           setShowScrollRight(false);
         }
       }
@@ -179,16 +177,12 @@ function TabBar(props: TabBarProps) {
   const leftScrollClasses = classNames(
     scrollClasses,
     "left-0 justify-start",
-    showScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+    showScrollLeft ? "" : "hidden"
   );
   const rightScrollClasses = classNames(
     scrollClasses,
     "right-0 justify-end",
-    showScrollRight
-      ? ""
-      : // ? "visible opacity-100"
-        "hidden"
-    // : "invisible opacity-0 pointer-events-none"
+    showScrollRight ? "" : "hidden"
   );
 
   return (
