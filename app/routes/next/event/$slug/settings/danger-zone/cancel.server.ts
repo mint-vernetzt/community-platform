@@ -151,16 +151,14 @@ export async function cancelEventBySlug(options: {
 
   const uniqueProfilesToContact = profilesToContact.filter(
     (profile, index, array) => {
-      return (
-        index ===
-        array.findIndex((item) => {
-          return (
-            item.email === profile.email &&
-            item.firstName === profile.firstName &&
-            item.eventName === profile.eventName
-          );
-        })
-      );
+      const profileIndex = array.findIndex((item) => {
+        return (
+          item.email === profile.email &&
+          item.firstName === profile.firstName &&
+          item.eventName === profile.eventName
+        );
+      });
+      return profileIndex === index;
     }
   );
 
@@ -179,7 +177,7 @@ export async function cancelEventBySlug(options: {
           textTemplatePath,
           {
             firstName: profile.firstName,
-            event: { name: canceledEvent.name },
+            event: { name: profile.eventName },
           },
           "text"
         );
@@ -187,7 +185,7 @@ export async function cancelEventBySlug(options: {
           htmlTemplatePath,
           {
             firstName: profile.firstName,
-            event: { name: canceledEvent.name },
+            event: { name: profile.eventName },
           },
           "html"
         );
