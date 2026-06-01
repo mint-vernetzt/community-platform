@@ -39,78 +39,87 @@ export default function Speakers() {
   const { pathname } = location;
 
   return (
-    <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
-      <BasicStructure.Container
-        deflatedUntil="lg"
-        gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
-        rounded="rounded-lg"
-      >
-        <TabBar>
-          <TabBar.Item active={pathname.endsWith("/list")}>
-            {event._count.speakers > 0 ? (
-              <Link
-                to={`./list?${Deep}=true`}
-                {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
-                preventScrollReset
-                prefetch="intent"
-              >
-                <TabBar.Item.Title>
-                  {locales.route.tabbar.list}
-                </TabBar.Item.Title>
-                <TabBar.Item.Counter>
-                  {loaderData.event._count.speakers}
-                </TabBar.Item.Counter>
-              </Link>
-            ) : (
-              <>
-                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
-                  {locales.route.tabbar.list}
-                  <Counter active={false}>
+    <>
+      <div className="p-4 lg:mx-6 lg:mt-6 bg-primary-50 lg:rounded-lg text-neutral-600 leading-[1.3rem]">
+        {locales.route.explanation}
+      </div>
+      <div className="w-full flex flex-col p-4 gap-8 lg:p-6 lg:gap-6">
+        <BasicStructure.Container
+          deflatedUntil="lg"
+          gaps={{ base: "gap-4", md: "gap-4", xl: "gap-4" }}
+          rounded="rounded-lg"
+        >
+          <TabBar>
+            <TabBar.Item active={pathname.endsWith("/list")}>
+              {event._count.speakers > 0 ? (
+                <Link
+                  to={`./list?${Deep}=true`}
+                  {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}
+                  preventScrollReset
+                  prefetch="intent"
+                >
+                  <TabBar.Item.Title>
+                    {locales.route.tabbar.list}
+                  </TabBar.Item.Title>
+                  <TabBar.Item.Counter>
                     {loaderData.event._count.speakers}
-                  </Counter>
-                </h2>
-              </>
-            )}
-          </TabBar.Item>
-          <TabBar.Item active={pathname.endsWith("/add")}>
-            <Link
-              to={`./add?${Deep}=true`}
-              {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
-              preventScrollReset
-              prefetch="intent"
-            >
-              <TabBar.Item.Title>{locales.route.tabbar.add}</TabBar.Item.Title>
-            </Link>
-          </TabBar.Item>
-          <TabBar.Item active={pathname.endsWith("/invites")}>
-            {event._count.profileJoinInvites > 0 ? (
+                  </TabBar.Item.Counter>
+                </Link>
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                    {locales.route.tabbar.list}
+                    <Counter active={false}>
+                      {loaderData.event._count.speakers}
+                    </Counter>
+                  </h2>
+                </>
+              )}
+            </TabBar.Item>
+            <TabBar.Item active={pathname.endsWith("/add")}>
               <Link
-                to={`./invites?${Deep}=true`}
-                {...TabBar.getItemElementClasses(pathname.endsWith("/invites"))}
+                to={`./add?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
                 preventScrollReset
                 prefetch="intent"
               >
                 <TabBar.Item.Title>
-                  {locales.route.tabbar.invites}
+                  {locales.route.tabbar.add}
                 </TabBar.Item.Title>
-                <TabBar.Item.Counter>
-                  {loaderData.event._count.profileJoinInvites}
-                </TabBar.Item.Counter>
               </Link>
-            ) : (
-              <>
-                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
-                  {locales.route.tabbar.invites}
-                  <Counter active={false}>
+            </TabBar.Item>
+            <TabBar.Item active={pathname.endsWith("/invites")}>
+              {event._count.profileJoinInvites > 0 ? (
+                <Link
+                  to={`./invites?${Deep}=true`}
+                  {...TabBar.getItemElementClasses(
+                    pathname.endsWith("/invites")
+                  )}
+                  preventScrollReset
+                  prefetch="intent"
+                >
+                  <TabBar.Item.Title>
+                    {locales.route.tabbar.invites}
+                  </TabBar.Item.Title>
+                  <TabBar.Item.Counter>
                     {loaderData.event._count.profileJoinInvites}
-                  </Counter>
-                </h2>
-              </>
-            )}
-          </TabBar.Item>
-        </TabBar>
-        <Outlet />
-      </BasicStructure.Container>
-    </div>
+                  </TabBar.Item.Counter>
+                </Link>
+              ) : (
+                <>
+                  <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+                    {locales.route.tabbar.invites}
+                    <Counter active={false}>
+                      {loaderData.event._count.profileJoinInvites}
+                    </Counter>
+                  </h2>
+                </>
+              )}
+            </TabBar.Item>
+          </TabBar>
+          <Outlet />
+        </BasicStructure.Container>
+      </div>
+    </>
   );
 }

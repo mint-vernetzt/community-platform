@@ -209,7 +209,7 @@ function Admins() {
           loaderData.admins.length
         )}
       </p>
-      <div className="mb-4 @md:max-h-[630px] overflow-auto">
+      <div className="mb-4 @md:max-h-157.5 overflow-auto">
         {loaderData.admins.map((admin) => {
           const initials = getInitials(admin);
           return (
