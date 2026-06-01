@@ -160,7 +160,7 @@ function Cancel() {
     <>
       {event._count.childEvents > 0 && (
         <div className="w-full flex flex-col gap-2 p-4 bg-primary-50 lg:rounded-lg">
-          <p className="text-neutral-700 text-base font-normal leading-5 text-center">
+          <p className="text-primary-700 text-base font-normal leading-5 text-center">
             {insertParametersIntoLocale(
               decideBetweenSingularOrPlural(
                 locales.route.childEventsList.hint_singular,

@@ -245,7 +245,7 @@ export default function TimePeriod() {
             <div className="w-full flex flex-col gap-4 p-4 lg:p-6 bg-primary-50 lg:rounded-lg">
               {event.parentEvent !== null ? (
                 <>
-                  <p className="text-neutral-700 text-base font-normal leading-5">
+                  <p className="text-primary-700 text-base font-normal leading-5">
                     {locales.route.eventLists.parentEvent.hint}
                   </p>
                   <List
@@ -276,7 +276,7 @@ export default function TimePeriod() {
               ) : null}
               {event.childEvents.data.length > 0 ? (
                 <>
-                  <p className="text-neutral-700 text-base font-normal leading-5">
+                  <p className="text-primary-700 text-base font-normal leading-5">
                     {decideBetweenSingularOrPlural(
                       locales.route.eventLists.childEvents.hint_singular,
                       locales.route.eventLists.childEvents.hint_plural,
