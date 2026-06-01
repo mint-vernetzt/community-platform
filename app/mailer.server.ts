@@ -226,6 +226,9 @@ type GeneralNotificationAddOrRemovedFromEventContent = {
   };
 };
 
+type GeneralNotificationEventCanceledContent =
+  GeneralNotificationAddOrRemovedFromEventContent;
+
 type ChildAndParentEventConnection = {
   firstName: string;
   event: {
@@ -354,7 +357,9 @@ type TemplatePath =
   | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs"
   | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs"
   | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
-  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs";
+  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
+  | "mail-templates/general-notification/event-canceled-html.hbs"
+  | "mail-templates/general-notification/event-canceled-text.hbs";
 
 type TemplateContent<TemplatePath> = TemplatePath extends
   | "mail-templates/standard-message/html.hbs"
@@ -511,14 +516,18 @@ type TemplateContent<TemplatePath> = TemplatePath extends
                                               | "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs"
                                           ? GeneralNotificationAddOrRemovedFromEventContent
                                           : TemplatePath extends
-                                                | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
-                                                | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
-                                                | "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs"
-                                                | "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs"
-                                                | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
-                                                | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
-                                            ? ChildAndParentEventConnection
-                                            : never;
+                                                | "mail-templates/general-notification/event-canceled-html.hbs"
+                                                | "mail-templates/general-notification/event-canceled-text.hbs"
+                                            ? GeneralNotificationEventCanceledContent
+                                            : TemplatePath extends
+                                                  | "mail-templates/general-notification/disconnect-from-parent-event-html.hbs"
+                                                  | "mail-templates/general-notification/disconnect-from-parent-event-text.hbs"
+                                                  | "mail-templates/requests/parent-event-to-add-child-event/accepted-html.hbs"
+                                                  | "mail-templates/requests/parent-event-to-add-child-event/accepted-text.hbs"
+                                                  | "mail-templates/requests/parent-event-to-add-child-event/rejected-html.hbs"
+                                                  | "mail-templates/requests/parent-event-to-add-child-event/rejected-text.hbs"
+                                              ? ChildAndParentEventConnection
+                                              : never;
 
 export function getCompiledMailTemplate<T extends TemplatePath>(
   templatePath: TemplatePath,

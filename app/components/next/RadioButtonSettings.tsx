@@ -24,7 +24,8 @@ function RadioButtonSettings(
             <div className="w-3.5 h-3.5 rounded-full bg-primary-700 border border-neutral-700" />
           ) : null}
         </div>
-        {children}
+
+        <div className="inline-flex flex-col items-start ">{children}</div>
       </div>
     </Link>
   );
