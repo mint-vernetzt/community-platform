@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { Counter as DesignCounter } from "./Counter";
+import { useHydrated } from "remix-utils/use-hydrated";
 
 // Design:
 // Name: Tabbar_desktop and Tabbar_mobile
@@ -88,6 +89,8 @@ function TabBar(props: TabBarProps) {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const isHydrated = useHydrated();
+
   const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
 
@@ -149,8 +152,10 @@ function TabBar(props: TabBarProps) {
           scrollContainerRef.current.scrollWidth >
           scrollContainerRef.current.clientWidth
         ) {
+          console.log("scrollable");
           setShowScrollRight(true);
         } else {
+          console.log("not scrollable");
           setShowScrollRight(false);
         }
       }
@@ -180,8 +185,10 @@ function TabBar(props: TabBarProps) {
     scrollClasses,
     "right-0 justify-end",
     showScrollRight
-      ? "visible opacity-100"
-      : "invisible opacity-0 pointer-events-none"
+      ? ""
+      : // ? "visible opacity-100"
+        "hidden"
+    // : "invisible opacity-0 pointer-events-none"
   );
 
   return (
@@ -199,7 +206,7 @@ function TabBar(props: TabBarProps) {
         <button
           className={leftScrollClasses}
           onClick={handleLeftClick}
-          disabled={!showScrollLeft}
+          disabled={isHydrated ? !showScrollLeft : false}
         >
           <span className="bg-white h-full flex items-center">
             <svg
@@ -215,14 +222,14 @@ function TabBar(props: TabBarProps) {
               />
             </svg>
           </span>
-          <span className="h-full w-5 bg-gradient-to-r from-white" />
+          <span className="h-full w-5 bg-linear-to-r from-white" />
         </button>
         <button
           className={rightScrollClasses}
           onClick={handleRightClick}
-          disabled={!showScrollRight}
+          disabled={isHydrated ? !showScrollRight : false}
         >
-          <span className="h-full w-5 bg-gradient-to-l from-white" />
+          <span className="h-full w-5 bg-linear-to-r from-white" />
           <span className="bg-white h-full flex items-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
