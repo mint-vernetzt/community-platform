@@ -18,11 +18,17 @@ export function createEventCreationSchema(options: {
     endTimeBeforeStartTime: string;
     startTimeRequired: string;
     endTimeRequired: string;
+    eventNotInParentEventBoundaries: string;
     multiDaySameDay: string;
   };
   timePeriod: typeof TIME_PERIOD_SINGLE | typeof TIME_PERIOD_MULTI;
+  parentEvent: {
+    id: string;
+    startTime: Date;
+    endTime: Date;
+  } | null;
 }) {
-  const { locales, timePeriod } = options;
+  const { locales, timePeriod, parentEvent } = options;
   let schema;
 
   if (timePeriod === TIME_PERIOD_SINGLE) {
@@ -94,11 +100,40 @@ export function createEventCreationSchema(options: {
 
         const participationUntil = startTime;
 
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            if (startTime.getDate() < parentEvent.startTime.getDate()) {
+              context.addIssue({
+                path: ["startDate"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            } else {
+              context.addIssue({
+                path: ["startTime"],
+                code: z.ZodIssueCode.custom,
+                message: locales.eventNotInParentEventBoundaries,
+              });
+            }
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endTime"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
         return {
           name: data.name,
           startTime,
           endTime,
           participationUntil,
+          parentEventId: parentEvent === null ? null : parentEvent.id,
         };
       });
   } else {
@@ -170,11 +205,32 @@ export function createEventCreationSchema(options: {
 
         const participationUntil = startTime;
 
+        if (parentEvent !== null) {
+          // validate against parentEvent
+          if (startTime < parentEvent.startTime) {
+            context.addIssue({
+              path: ["startDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+          if (endTime > parentEvent.endTime) {
+            context.addIssue({
+              path: ["endDate"],
+              code: z.ZodIssueCode.custom,
+              message: locales.eventNotInParentEventBoundaries,
+            });
+            return z.NEVER;
+          }
+        }
+
         return {
           name: data.name,
           startTime,
           endTime,
           participationUntil,
+          parentEventId: parentEvent === null ? null : parentEvent.id,
         };
       });
   }

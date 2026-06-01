@@ -9,7 +9,6 @@ import {
   redirect,
   useLoaderData,
   useLocation,
-  useSearchParams,
 } from "react-router";
 import {
   createAuthClient,
@@ -25,7 +24,6 @@ import ListItemEvent from "~/components/next/ListItemEvent";
 import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { invariantResponse } from "~/lib/utils/response";
-import { extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
@@ -282,7 +280,6 @@ function ParentEvent() {
   const loaderData = useLoaderData<typeof loader>();
   const { locales, language, event, parentEventsToAdd } = loaderData;
 
-  const [searchParams] = useSearchParams();
   const location = useLocation();
 
   return event.receivedParentEventJoinRequests.length > 0 ? (
@@ -412,6 +409,16 @@ function ParentEvent() {
         </TitleSection.Headline>
       </TitleSection>
       <Form id="remove-parent-form" method="POST" hidden preventScrollReset />
+      {event.published ? (
+        <Form
+          id="confirm-remove-modal-form"
+          method="GET"
+          hidden
+          preventScrollReset
+        >
+          <input name={CONFIRM_REMOVE_MODAL_SEARCH_PARAM} defaultValue="true" />
+        </Form>
+      ) : null}
       {event.parentEvent !== null ? (
         <ListItemEvent
           index={0}
@@ -461,9 +468,8 @@ function ParentEvent() {
             ) : (
               <>
                 <Button
-                  as="link"
-                  to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_REMOVE_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
-                  preventScrollReset
+                  type="submit"
+                  form="confirm-remove-modal-form"
                   size="small"
                   variant="outline"
                   fullSize
@@ -609,6 +615,23 @@ function ParentEvent() {
                         defaultValue={parentEvent.id}
                       />
                     </Form>
+                    {parentEvent.parentEventId === null &&
+                    parentEvent.sentParentEventJoinRequests.some(
+                      (request) => request.status === "pending"
+                    ) === false &&
+                    parentEvent.isAdmin === false ? (
+                      <Form
+                        id={`confirm-add-modal-form-${parentEvent.id}`}
+                        method="GET"
+                        hidden
+                        preventScrollReset
+                      >
+                        <input
+                          name={`${CONFIRM_ADD_MODAL_SEARCH_PARAM}-${parentEvent.id}`}
+                          defaultValue="true"
+                        />
+                      </Form>
+                    ) : null}
                     {parentEvent.parentEventId !== null ||
                     parentEvent.sentParentEventJoinRequests.some(
                       (request) => request.status === "pending"
@@ -630,9 +653,8 @@ function ParentEvent() {
                     ) : (
                       <>
                         <Button
-                          as="link"
-                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [`${CONFIRM_ADD_MODAL_SEARCH_PARAM}-${parentEvent.id}`]: "true" } }).toString()}`}
-                          preventScrollReset
+                          type="submit"
+                          form={`confirm-add-modal-form-${parentEvent.id}`}
                           size="small"
                           variant="outline"
                           fullSize

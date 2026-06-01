@@ -26,6 +26,10 @@ export const locale = {
       label: "Add your own events as child events",
       cta: "Add as Child Event",
     },
+    create: {
+      label: "Create a Child Event",
+      cta: "Create New Child Event",
+    },
   },
   list: {
     more: "{{count}} more",

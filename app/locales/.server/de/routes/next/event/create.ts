@@ -2,6 +2,14 @@ export const locale = {
   headline: "Event erstellen",
   close: "Zurück zu meinen Events",
   info: "Erstelle kostenfreie und nicht kommerzielle Veranstaltungen für die MINT-Community und Interessierte der MINT-Bildung. Angebote für <0>Kinder und Jugendliche</0> können leider <0>nicht</0> abgebildet werden. <1>Weitere Informationen findest Du auf unserer Hilfeseite.</1>",
+  parentHint: "Du erstellst eine Unterveranstaltung für folgendes Event",
+  list: {
+    waitinglist: "Wartelistenplätze",
+    seatsFree: "Plätzen frei",
+    unlimitedSeats: "Unbegrenzte Plätze",
+    more: "{{count}} weitere anzeigen",
+    less: "{{count}} weniger anzeigen",
+  },
   name: {
     headline: "Wie heißt Dein Event?",
     label: "Titel des Events*",
@@ -55,6 +63,8 @@ export const locale = {
       endTimeBeforeStartTime: "Die Endzeit liegt vor der Startzeit.",
       startTimeRequired: "Bitte gib die Startzeit an.",
       endTimeRequired: "Bitte gib die Endzeit an.",
+      eventNotInParentEventBoundaries:
+        "Dein Event liegt nicht im Zeitraum der Rahmenveranstaltung.",
       multiDaySameDay:
         "Bei mehrtägigen Events müssen Start- und Enddatum unterschiedlich sein.",
     },

@@ -26,6 +26,10 @@ export const locale = {
       label: "Eigene Events als untergeordnete Veranstaltungen hinzufügen",
       cta: "Als Unterevent hinzufügen",
     },
+    create: {
+      label: "Erstelle eine Unterveranstaltung",
+      cta: "Neues Unterevent erstellen",
+    },
   },
   list: {
     more: "{{count}} weitere anzeigen",

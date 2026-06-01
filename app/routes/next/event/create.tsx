@@ -1,4 +1,10 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
 import { Input } from "@mint-vernetzt/components/src/molecules/Input";
+import { captureException } from "@sentry/node";
+import classNames from "classnames";
+import { useState } from "react";
 import {
   Form,
   Link,
@@ -7,38 +13,38 @@ import {
   useLoaderData,
   useNavigation,
   useSearchParams,
-  type LoaderFunctionArgs,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "react-router";
+import { useHydrated } from "remix-utils/use-hydrated";
 import {
   createAuthClient,
   getSessionUserOrRedirectPathToLogin,
   getSessionUserOrThrow,
 } from "~/auth.server";
 import BasicStructure from "~/components/next/BasicStructure";
+import List from "~/components/next/List";
+import ListItemEvent from "~/components/next/ListItemEvent";
 import MobileSettingsHeader from "~/components/next/MobileSettingsHeader";
+import RadioButtonSettings from "~/components/next/RadioButtonSettings";
 import SettingsHeading from "~/components/next/SettingsHeading";
 import TitleSection from "~/components/next/TitleSection";
 import { detectLanguage } from "~/i18n.server";
+import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
+import { invariant, invariantResponse } from "~/lib/utils/response";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import RadioButtonSettings from "~/components/next/RadioButtonSettings";
-import { extendSearchParams } from "~/lib/utils/searchParams";
-import { useState } from "react";
-import classNames from "classnames";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { redirectWithToast } from "~/toast.server";
+import { generateEventSlug } from "~/utils.server";
+import {
+  createEvent,
+  getParentEventBySlug,
+  getParentEventBySlugForAction,
+} from "./create.server";
 import { createEventCreationSchema } from "./create.shared";
 import { TIME_PERIOD_MULTI, TIME_PERIOD_SINGLE } from "./utils.shared";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { prismaClient } from "~/prisma.server";
-import { generateEventSlug } from "~/utils.server";
-import { redirectWithToast } from "~/toast.server";
-import { captureException } from "@sentry/node";
-import { useHydrated } from "remix-utils/use-hydrated";
-import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
-import { invariant, invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -58,7 +64,16 @@ export async function loader(args: LoaderFunctionArgs) {
     "next_event_create",
   ]);
 
-  return { locales };
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const parentSlug = searchParams.get("parent");
+
+  let parentEvent = null;
+  if (parentSlug !== null) {
+    parentEvent = await getParentEventBySlug(parentSlug);
+  }
+
+  return { locales, language, parentEvent };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -84,9 +99,29 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const parentSlug = searchParams.get("parent");
+
+  let parentEvent = null;
+  if (parentSlug !== null) {
+    parentEvent = await getParentEventBySlugForAction(
+      parentSlug,
+      sessionUser.id
+    );
+    invariantResponse(
+      parentEvent !== null,
+      "Parent Event not found or not authorized",
+      {
+        status: 404,
+      }
+    );
+  }
+
   const schema = createEventCreationSchema({
     locales: locales.route.form.validation,
     timePeriod,
+    parentEvent,
   });
   const submission = await parseWithZod(formData, { schema });
 
@@ -97,31 +132,10 @@ export async function action(args: ActionFunctionArgs) {
   const slug = generateEventSlug(submission.value.name);
 
   try {
-    await prismaClient.$transaction(async (client) => {
-      const event = await client.event.create({
-        data: {
-          ...submission.value,
-          slug,
-        },
-      });
-      await client.eventVisibility.create({
-        data: {
-          eventId: event.id,
-        },
-      });
-      await client.teamMemberOfEvent.create({
-        data: {
-          profileId: sessionUser.id,
-          eventId: event.id,
-        },
-      });
-      await client.adminOfEvent.create({
-        data: {
-          profileId: sessionUser.id,
-          eventId: event.id,
-        },
-      });
-      return event;
+    await createEvent({
+      userId: sessionUser.id,
+      slug,
+      data: submission.value,
     });
   } catch (error) {
     captureException(error);
@@ -133,15 +147,19 @@ export async function action(args: ActionFunctionArgs) {
     });
   }
 
-  return redirect(`/event/${slug}/detail/about`);
+  return redirect(
+    parentEvent !== null
+      ? `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+      : `/event/${slug}/detail/about`
+  );
 }
 
 export default function Create() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const { locales } = loaderData;
-  const [searchParams] = useSearchParams();
+  const { locales, language, parentEvent } = loaderData;
 
+  const [searchParams] = useSearchParams();
   const timePeriodParam = searchParams.get("timePeriod");
 
   const [timePeriod, setTimePeriod] = useState<
@@ -161,6 +179,7 @@ export default function Create() {
       createEventCreationSchema({
         locales: locales.route.form.validation,
         timePeriod,
+        parentEvent,
       })
     ),
     shouldDirtyConsider(name) {
@@ -178,6 +197,7 @@ export default function Create() {
         schema: createEventCreationSchema({
           locales: locales.route.form.validation,
           timePeriod,
+          parentEvent,
         }),
       });
       return submission;
@@ -199,7 +219,11 @@ export default function Create() {
         </MobileSettingsHeader.Heading>
         <MobileSettingsHeader.Close>
           <Link
-            to="/my/events"
+            to={
+              parentEvent === null
+                ? "/my/events"
+                : `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+            }
             aria-label={locales.route.close}
             prefetch="intent"
           >
@@ -207,28 +231,11 @@ export default function Create() {
           </Link>
         </MobileSettingsHeader.Close>
       </MobileSettingsHeader>
-      <div className="w-full p-4 bg-primary-50 xl:hidden">
+
+      <div className="w-full flex flex-col gap-4 p-4 bg-primary-50 xl:hidden">
         <p className="text-neutral-700 text-base leading-5">
-          {insertComponentsIntoLocale(locales.route.info, [
-            <span key="highlight" className="font-bold" />,
-            <Link
-              key="help-link"
-              to="/help#events-eventCreationConsiderations"
-              target="_blank"
-              className="font-bold underline"
-              prefetch="intent"
-            />,
-          ])}
-        </p>
-      </div>
-      <Form {...getFormProps(form)} method="post">
-        <BasicStructure>
-          <div className="hidden xl:block w-full">
-            <SettingsHeading>{locales.route.headline}</SettingsHeading>
-          </div>
-          <div className="hidden xl:block w-full p-6 bg-primary-50 border border-neutral-200 rounded-2xl">
-            <p className="text-neutral-700 text-base leading-5">
-              {insertComponentsIntoLocale(locales.route.info, [
+          {parentEvent === null
+            ? insertComponentsIntoLocale(locales.route.info, [
                 <span key="highlight" className="font-bold" />,
                 <Link
                   key="help-link"
@@ -237,8 +244,78 @@ export default function Create() {
                   className="font-bold underline"
                   prefetch="intent"
                 />,
-              ])}
+              ])
+            : locales.route.parentHint}
+        </p>
+        {parentEvent !== null ? (
+          <List
+            id="parent-event-list"
+            locales={locales.route.list}
+            hideAfter={0}
+          >
+            <ListItemEvent
+              index={0}
+              to={`/event/${parentEvent.slug}/detail/about`}
+            >
+              <ListItemEvent.Info
+                {...parentEvent}
+                stage={parentEvent.stage}
+                participantCount={parentEvent._count.participants}
+                locales={{
+                  stages: locales.stages,
+                  ...locales.route.list,
+                }}
+                language={language}
+              ></ListItemEvent.Info>
+              <ListItemEvent.Headline>
+                {parentEvent.name}
+              </ListItemEvent.Headline>
+            </ListItemEvent>
+          </List>
+        ) : null}
+      </div>
+      <Form {...getFormProps(form)} method="post">
+        <BasicStructure>
+          <div className="hidden xl:block w-full">
+            <SettingsHeading>{locales.route.headline}</SettingsHeading>
+          </div>
+          <div className="hidden xl:flex w-full flex-col gap-4 p-6 bg-primary-50 border border-neutral-200 rounded-2xl">
+            <p className="text-neutral-700 text-base leading-5">
+              {parentEvent === null
+                ? insertComponentsIntoLocale(locales.route.info, [
+                    <span key="highlight" className="font-bold" />,
+                    <Link
+                      key="help-link"
+                      to="/help#events-eventCreationConsiderations"
+                      target="_blank"
+                      className="font-bold underline"
+                      prefetch="intent"
+                    />,
+                  ])
+                : locales.route.parentHint}
             </p>
+            {parentEvent !== null ? (
+              <List id="parent-event-list" locales={locales.route.list}>
+                <ListItemEvent
+                  index={0}
+                  to={`/event/${parentEvent.slug}/detail/about`}
+                >
+                  <ListItemEvent.Info
+                    {...parentEvent}
+                    stage={parentEvent.stage}
+                    participantCount={parentEvent._count.participants}
+                    locales={{
+                      stages: locales.stages,
+                      ...locales.route.list,
+                    }}
+                    language={language}
+                  ></ListItemEvent.Info>
+                  <ListItemEvent.Headline>
+                    {parentEvent.name}
+                  </ListItemEvent.Headline>
+                </ListItemEvent>
+              </List>
+            ) : null}
           </div>
           <BasicStructure.Container
             deflatedUntil="xl"
@@ -431,7 +508,11 @@ export default function Create() {
               <div className="w-full md:w-fit">
                 <Button
                   as="link"
-                  to="/my/events"
+                  to={
+                    parentEvent === null
+                      ? "/my/events"
+                      : `/next/event/${parentEvent.slug}/settings/related-events/child-events?${Deep}=true`
+                  }
                   variant="outline"
                   fullSize
                   prefetch="intent"
