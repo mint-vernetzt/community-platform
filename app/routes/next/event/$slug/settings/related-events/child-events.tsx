@@ -401,67 +401,72 @@ function ChildEvents() {
                 hideAfter={3}
                 locales={locales.route.list}
               >
-                {childEventsToAdd.map((event, index) => {
+                {childEventsToAdd.map((childEvent, index) => {
                   return (
                     <ListItemEvent
                       index={index}
-                      to={`/event/${event.slug}/detail/about`}
-                      key={`child-to-add-${event.id}`}
+                      to={`/event/${childEvent.slug}/detail/about`}
+                      key={`child-to-add-${childEvent.id}`}
                     >
                       <ListItemEvent.Image
-                        alt={event.name}
-                        src={event.background}
-                        blurredSrc={event.blurredBackground}
+                        alt={childEvent.name}
+                        src={childEvent.background}
+                        blurredSrc={childEvent.blurredBackground}
                       />
                       <ListItemEvent.Info
-                        {...event}
-                        stage={event.stage}
+                        {...childEvent}
+                        stage={childEvent.stage}
                         locales={{
                           stages: locales.stages,
                           ...loaderData.locales.route.list,
                         }}
-                        participantCount={event._count.participants}
+                        participantCount={childEvent._count.participants}
                         language={language}
                       ></ListItemEvent.Info>
                       <ListItemEvent.Headline>
-                        {event.name}
+                        {childEvent.name}
                       </ListItemEvent.Headline>
-                      {hasContent(event.subline) ||
-                      hasContent(event.description) ? (
+                      {hasContent(childEvent.subline) ||
+                      hasContent(childEvent.description) ? (
                         <ListItemEvent.Subline>
-                          {hasContent(event.subline) ? (
-                            event.subline
+                          {hasContent(childEvent.subline) ? (
+                            childEvent.subline
                           ) : (
-                            <RichText html={event.description as string} />
+                            <RichText html={childEvent.description as string} />
                           )}
                         </ListItemEvent.Subline>
                       ) : null}
                       <ListItemEvent.Controls>
                         <Form
-                          id={`add-child-form-${event.id}`}
+                          id={`add-child-form-${childEvent.id}`}
                           method="POST"
                           hidden
                           preventScrollReset
                         >
-                          <input name={EVENT_ID} defaultValue={event.id} />
+                          <input name={EVENT_ID} defaultValue={childEvent.id} />
                         </Form>
-                        {event.published ? (
-                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
-                            <span>{locales.route.list.alreadyPublished}</span>
-                          </div>
-                        ) : event.alreadyAdded ? (
+                        {childEvent.alreadyAdded ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.alreadyAdded}</span>
                           </div>
-                        ) : event._count.childEvents > 0 ||
-                          event.receivedParentEventJoinRequests.some(
+                        ) : childEvent.published ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.alreadyPublished}</span>
+                          </div>
+                        ) : childEvent.startTime < event.startTime ||
+                          childEvent.endTime > event.endTime ? (
+                          <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
+                            <span>{locales.route.list.outOfTimeframe}</span>
+                          </div>
+                        ) : childEvent._count.childEvents > 0 ||
+                          childEvent.receivedParentEventJoinRequests.some(
                             (request) => request.status === "pending"
                           ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
                             <span>{locales.route.list.hasChildEvents}</span>
                           </div>
-                        ) : event.parentEventId !== null ||
-                          event.sentParentEventJoinRequests.some(
+                        ) : childEvent.parentEventId !== null ||
+                          childEvent.sentParentEventJoinRequests.some(
                             (request) => request.status === "pending"
                           ) ? (
                           <div className="flex items-center justify-end font-semibold leading-5 text-sm w-full h-8 text-nowrap">
@@ -470,7 +475,7 @@ function ChildEvents() {
                         ) : (
                           <Button
                             type="submit"
-                            form={`add-child-form-${event.id}`}
+                            form={`add-child-form-${childEvent.id}`}
                             name={INTENT_FIELD_NAME}
                             value={ADD_CHILD_EVENT_INTENT}
                             size="small"
@@ -492,10 +497,6 @@ function ChildEvents() {
                           </Button>
                         )}
                       </ListItemEvent.Controls>
-                      <ListItemEvent.Flag
-                        canceled={event.canceled}
-                        locales={locales.route.list}
-                      />
                     </ListItemEvent>
                   );
                 })}

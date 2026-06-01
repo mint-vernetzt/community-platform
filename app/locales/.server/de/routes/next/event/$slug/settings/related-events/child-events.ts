@@ -43,6 +43,7 @@ export const locale = {
     alreadyAdded: "bereits als Unterevent hinzugefügt",
     hasChildEvents: "hat selbst Unterevents",
     hasDifferentParent: "hat ein anderes Rahmenevent",
+    outOfTimeframe: "nicht im entsprechenden Zeitraum",
   },
   errors: {
     addChildEvent:
