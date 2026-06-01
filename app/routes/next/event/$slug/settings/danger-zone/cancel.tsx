@@ -204,7 +204,6 @@ function Cancel() {
         <Hint.InfoIcon />
         {locales.route.hint.explanation}
       </Hint>
-      {/* <p>{locales.route.explanation}</p> */}
       {event._count.childEvents > 0 && (
         <>
           <Hint>
