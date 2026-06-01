@@ -137,7 +137,7 @@ function SettingsNavigation(props: {
   );
 
   const contentClasses = classNames(
-    "h-fit grow lg:border-b border-neutral-200 bg-white",
+    "h-fit grow lg:border-b border-neutral-200 bg-white overflow-auto",
     contentSmallerThanMenu
       ? "lg:rounded-br-lg lg:border-r"
       : "lg:rounded-b-lg lg:border-x",
