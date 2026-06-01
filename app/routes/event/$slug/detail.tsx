@@ -65,6 +65,7 @@ import { UPLOAD_DOCUMENT_INTENT_VALUE } from "~/storage.shared";
 import { hasContent } from "~/utils.shared";
 import { filterEventConferenceLink } from "./utils.server";
 import { Deep } from "~/lib/utils/searchParams";
+import { utcToZonedTime } from "date-fns-tz";
 
 export function links() {
   return [
@@ -603,6 +604,11 @@ function Detail() {
   const previousLocation = usePreviousLocation();
   const navigate = useNavigate();
 
+  const zonedParticipationFrom = utcToZonedTime(
+    loaderData.event.participationFrom,
+    "Europe/Berlin"
+  );
+
   return (
     <BasicStructure>
       {loaderData.abilities["next_event_settings"].hasAccess ? (
@@ -691,7 +697,7 @@ function Detail() {
         {loaderData.beforeParticipationPeriod && (
           <EventsOverview.State>
             {formatDateTime(
-              loaderData.event.participationFrom,
+              zonedParticipationFrom,
               loaderData.language,
               loaderData.locales.route.content.beforeParticipationPeriod
             )}
