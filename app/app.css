@@ -269,10 +269,19 @@
   background-color: #154194 !important;
 }
 
+.rc-slider-disabled .rc-slider-track {
+  background-color: #70809d !important;
+}
+
 .rc-slider-handle {
   border-color: #154194 !important;
   opacity: 1 !important;
   background: #154194 !important;
+}
+
+.rc-slider-disabled .rc-slider-handle {
+  border-color: #70809d !important;
+  background: #70809d !important;
 }
 
 .rc-slider-handle-dragging.rc-slider-handle-dragging.rc-slider-handle-dragging {

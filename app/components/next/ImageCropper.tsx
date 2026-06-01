@@ -13,6 +13,7 @@ function ImageCropper(props: {
   src: CropperProps["image"];
   aspect: CropperProps["aspect"];
   setCroppedArea: Dispatch<SetStateAction<Area | null>>;
+  freezed: boolean;
   shape?: CropperProps["cropShape"];
 }) {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
@@ -30,17 +31,29 @@ function ImageCropper(props: {
           zoom={zoom}
           aspect={props.aspect}
           cropShape={props.shape}
-          onCropChange={setCrop}
-          onCropComplete={onCropComplete}
-          onZoomChange={setZoom}
+          onCropChange={props.freezed ? () => {} : setCrop}
+          onCropComplete={props.freezed ? undefined : onCropComplete}
+          onZoomChange={props.freezed ? undefined : setZoom}
           objectFit="contain"
           disableAutomaticStylesInjection
+          showGrid={props.freezed === false}
+          style={
+            props.freezed === false
+              ? undefined
+              : {
+                  containerStyle: {
+                    background: "rgba(0, 0, 0, 0.3)",
+                    pointerEvents: "none",
+                  },
+                }
+          }
         />
       </div>
       <div className="flex items-center w-full gap-4">
         <SquareButton
           variant="outline"
           size="small"
+          disabled={props.freezed}
           onClick={() => {
             setZoom((prev) => Math.max(prev - 0.1, 1));
           }}
@@ -55,7 +68,7 @@ function ImageCropper(props: {
             >
               <path
                 d="M0 0.75C0 0.335786 0.335786 0 0.75 0H11.25C11.6642 0 12 0.335786 12 0.75C12 1.16421 11.6642 1.5 11.25 1.5H0.75C0.335786 1.5 0 1.16421 0 0.75Z"
-                fill="#154194"
+                fill="currentColor"
               />
             </svg>
           </span>
@@ -65,6 +78,7 @@ function ImageCropper(props: {
           max={3}
           step={0.1}
           value={zoom}
+          disabled={props.freezed}
           onChange={(v) => {
             if (Array.isArray(v)) {
               if (v.length > 0) {
@@ -79,6 +93,7 @@ function ImageCropper(props: {
         <SquareButton
           variant="outline"
           size="small"
+          disabled={props.freezed}
           onClick={() => {
             setZoom((prev) => {
               return Math.min(prev + 0.1, 3);
@@ -95,7 +110,7 @@ function ImageCropper(props: {
             >
               <path
                 d="M6 0C6.41421 0 6.75 0.335786 6.75 0.75V5.25H11.25C11.6642 5.25 12 5.58579 12 6C12 6.41421 11.6642 6.75 11.25 6.75H6.75V11.25C6.75 11.6642 6.41421 12 6 12C5.58579 12 5.25 11.6642 5.25 11.25V6.75H0.75C0.335786 6.75 0 6.41421 0 6C0 5.58579 0.335786 5.25 0.75 5.25H5.25V0.75C5.25 0.335786 5.58579 0 6 0Z"
-                fill="#154194"
+                fill="currentColor"
               />
             </svg>
           </span>
