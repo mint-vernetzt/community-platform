@@ -10,6 +10,7 @@ export const locale = {
     types: {
       label: "Veranstaltungstyp",
       cta: "Bitte auswählen",
+      helperText: "Mehrfachauswahl möglich",
       notFound: "Veranstaltungstyp nicht gefunden",
     },
     subline: {
