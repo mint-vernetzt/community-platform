@@ -37,7 +37,12 @@ function EventsOverview(props: { children: React.ReactNode }) {
   return <div className="flex flex-col relative">{props.children}</div>;
 }
 
-function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
+function Image(props: {
+  credits: string | null;
+  src?: string;
+  alt?: string;
+  blurredSrc?: string;
+}) {
   return (
     <div className="relative h-full md:h-100 aspect-3/2 border-x border-t border-neutral-200 rounded-t-2xl overflow-hidden">
       <ImageComponent
@@ -45,7 +50,9 @@ function Image(props: { src?: string; alt?: string; blurredSrc?: string }) {
         src={props.src}
         blurredSrc={props.blurredSrc}
         resizeType="fit"
-      />
+      >
+        {props.credits && <ImageComponent.Credits credits={props.credits} />}
+      </ImageComponent>
     </div>
   );
 }

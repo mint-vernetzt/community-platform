@@ -644,6 +644,11 @@ function Detail() {
       )}
       <EventsOverview>
         <EventsOverview.Image
+          credits={
+            loaderData.event.backgroundImageMetaData !== null
+              ? loaderData.event.backgroundImageMetaData.credits
+              : null
+          }
           alt={
             loaderData.event.backgroundImageMetaData !== null &&
             loaderData.event.backgroundImageMetaData.description !== null

@@ -30,7 +30,7 @@ export const locale = {
       editImage: "Fotoinformation editieren",
       title: "Titel",
       credits: {
-        label: "Credits",
+        label: "Bildnachweis",
         helper: "Bitte nenne hier den oder die Urheber:in des Bildes",
       },
       description: {
