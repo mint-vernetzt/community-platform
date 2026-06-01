@@ -266,13 +266,17 @@ export default function Info() {
                 {locales.route.infos.types.label}
               </ConformSelect.Label>
               {typeof fields.types.errors !== "undefined" &&
-              fields.types.errors.length > 0
-                ? fields.types.errors.map((error) => (
-                    <ConformSelect.Error id={fields.types.errorId} key={error}>
-                      {error}
-                    </ConformSelect.Error>
-                  ))
-                : null}
+              fields.types.errors.length > 0 ? (
+                fields.types.errors.map((error) => (
+                  <ConformSelect.Error id={fields.types.errorId} key={error}>
+                    {error}
+                  </ConformSelect.Error>
+                ))
+              ) : (
+                <ConformSelect.HelperText>
+                  {locales.route.infos.types.helperText}
+                </ConformSelect.HelperText>
+              )}
               {allEventTypes
                 .filter((eventType) => {
                   return !eventTypesList.some((field) => {
