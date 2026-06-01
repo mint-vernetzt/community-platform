@@ -15,7 +15,7 @@ export const locale = {
     childEvents: "Zugehörige Veranstaltungen",
     inPast: "Event hat bereits stattgefunden",
     beforeParticipationPeriod:
-      "Anmeldefrist beginnt am {{date}} um {{time}} Uhr",
+      "Anmeldefrist beginnt am {{date}} um {{time}} Uhr (MEZ)",
     afterParticipationPeriod: "Anmeldefrist abgelaufen",
     draft: "Entwurf",
     canceled: "Event abgesagt",

@@ -73,8 +73,8 @@ export const getDuration = (
     .replaceAll(" p", " PM");
 
   return sameDay && !result.match(/^(.*)(Uhr|PM|AM)$/)
-    ? `${result} Uhr`
-    : result;
+    ? `${result} Uhr (${language === "de" ? "MEZ" : "CET"})`
+    : `${result} (${language === "de" ? "MEZ" : "CET"})`;
 };
 
 export function getDateDuration(
@@ -123,7 +123,9 @@ export function getTimeDuration(
     .replaceAll(" - ", " - ")
     .replaceAll(/\u202F/g, " ");
 
-  return result.match(/^(.*)(Uhr|PM|AM)$/) ? result : `${result} Uhr`;
+  return result.match(/^(.*)(Uhr|PM|AM)$/)
+    ? `${result} (${language === "de" ? "MEZ" : "CET"})`
+    : `${result} Uhr (${language === "de" ? "MEZ" : "CET"})`;
 }
 
 export function isSameDay(date1: Date, date2: Date) {
