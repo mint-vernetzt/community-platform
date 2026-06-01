@@ -137,7 +137,13 @@ function Cancel() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  const [cancel, setCancel] = useState(CANCEL_ONLY_THIS);
+  const cancelSearchParamValue = searchParams.get(
+    HANDLING_CANCEL_CHILD_EVENTS_SEARCH_PARAM
+  );
+
+  const [cancel, setCancel] = useState(
+    cancelSearchParamValue === CANCEL_ALL ? CANCEL_ALL : CANCEL_ONLY_THIS
+  );
 
   const extendedSearchParams = extendSearchParams(searchParams, {
     addOrReplace: {
