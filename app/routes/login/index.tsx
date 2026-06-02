@@ -27,20 +27,9 @@ import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { checkHoneypot } from "~/honeypot.server";
-import { isBotRequest } from "~/utils.server";
-import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -63,12 +52,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
     await checkHoneypot(formData);
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
   }
   const { submission } = await login({
     formData,

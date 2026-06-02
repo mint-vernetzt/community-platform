@@ -3,23 +3,13 @@ import { createAuthClient, getSessionUser } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { prismaClient } from "~/prisma.server";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
-import { generateValidSlug, isBotRequest } from "~/utils.server";
+import { generateValidSlug } from "~/utils.server";
 import { captureException } from "@sentry/node";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  if (process.env.NODE_ENV !== "test") {
-    const isBot = isBotRequest(request.headers.get("user-agent"));
-    invariantResponse(
-      isBot === false,
-      "Bots are not allowed to access this resource",
-      { status: 403 }
-    );
-  }
-
   const { authClient, headers } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
