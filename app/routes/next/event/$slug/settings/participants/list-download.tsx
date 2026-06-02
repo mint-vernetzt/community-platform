@@ -1,5 +1,9 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient, getSessionUser } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";

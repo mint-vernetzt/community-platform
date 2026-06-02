@@ -47,6 +47,7 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { slug } = params;
 
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
