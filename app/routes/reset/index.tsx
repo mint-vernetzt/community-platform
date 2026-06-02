@@ -26,9 +26,21 @@ import { requestPasswordChange } from "./index.server";
 import { createRequestPasswordChangeSchema } from "./index.shared";
 import { checkHoneypot } from "~/honeypot.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { isBotRequest } from "~/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
 
@@ -53,6 +65,12 @@ export async function action(args: ActionFunctionArgs) {
   const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
     await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
   }
   const { submission } = await requestPasswordChange({
     formData,

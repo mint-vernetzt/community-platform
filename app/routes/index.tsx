@@ -39,9 +39,16 @@ import {
 } from "./utils.server";
 import { checkHoneypot } from "~/honeypot.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { isBotRequest } from "~/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+
+  let isBot = false;
+  if (process.env.NODE_ENV !== "test") {
+    isBot = isBotRequest(request.headers.get("user-agent"));
+  }
 
   const { authClient } = createAuthClient(request);
 
@@ -66,6 +73,7 @@ export async function loader(args: LoaderFunctionArgs) {
     eventCount,
     projectCount,
     locales,
+    isBot,
   };
 }
 
@@ -78,6 +86,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   if (process.env.NODE_ENV !== "test") {
     await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
   }
   const { submission } = await login({
     formData,
@@ -228,116 +242,120 @@ export default function Index() {
                       </span>
                     </div>
                   </div>
-                  <Form
-                    {...getFormProps(loginForm)}
-                    method="post"
-                    autoComplete="off"
-                  >
-                    <HoneypotInputs />
-                    {typeof loginForm.errors !== "undefined" &&
-                    loginForm.errors.length > 0 ? (
-                      <div>
-                        {loginForm.errors.map((error, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
-                            >
-                              <RichText id={loginForm.errorId} html={error} />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+                  {loaderData.isBot === false && (
+                    <Form
+                      {...getFormProps(loginForm)}
+                      method="post"
+                      autoComplete="off"
+                    >
+                      <HoneypotInputs />
+                      {typeof loginForm.errors !== "undefined" &&
+                      loginForm.errors.length > 0 ? (
+                        <div>
+                          {loginForm.errors.map((error, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="p-3 mb-3 bg-negative-100 text-negative-900 rounded-md"
+                              >
+                                <RichText id={loginForm.errorId} html={error} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : null}
 
-                    <div className="mb-4">
+                      <div className="mb-4">
+                        <Input
+                          {...getInputProps(loginFields.email, {
+                            type: "text",
+                          })}
+                          key="email"
+                        >
+                          <Input.Label htmlFor={loginFields.email.id}>
+                            {locales.route.form.label.email}
+                          </Input.Label>
+                          {typeof loginFields.email.errors !== "undefined" &&
+                          loginFields.email.errors.length > 0
+                            ? loginFields.email.errors.map((error) => (
+                                <Input.Error
+                                  id={loginFields.email.errorId}
+                                  key={error}
+                                >
+                                  {error}
+                                </Input.Error>
+                              ))
+                            : null}
+                        </Input>
+                      </div>
                       <Input
-                        {...getInputProps(loginFields.email, { type: "text" })}
-                        key="email"
+                        {...getInputProps(loginFields.password, {
+                          type: showPassword ? "text" : "password",
+                        })}
+                        key="password"
                       >
-                        <Input.Label htmlFor={loginFields.email.id}>
-                          {locales.route.form.label.email}
+                        <Input.Label htmlFor={loginFields.password.id}>
+                          {locales.route.form.label.password}
                         </Input.Label>
-                        {typeof loginFields.email.errors !== "undefined" &&
-                        loginFields.email.errors.length > 0
-                          ? loginFields.email.errors.map((error) => (
+                        {typeof loginFields.password.errors !== "undefined" &&
+                        loginFields.password.errors.length > 0
+                          ? loginFields.password.errors.map((error) => (
                               <Input.Error
-                                id={loginFields.email.errorId}
+                                id={loginFields.password.errorId}
                                 key={error}
                               >
                                 {error}
                               </Input.Error>
                             ))
                           : null}
+                        {isHydrated ? (
+                          <Input.Controls>
+                            <div className="h-10 w-10">
+                              <ShowPasswordButton
+                                onClick={() => {
+                                  setShowPassword(!showPassword);
+                                }}
+                                aria-label={
+                                  showPassword
+                                    ? locales.route.form.label.hidePassword
+                                    : locales.route.form.label.showPassword
+                                }
+                              >
+                                {showPassword ? (
+                                  <PublicVisibility aria-hidden="true" />
+                                ) : (
+                                  <PrivateVisibility aria-hidden="true" />
+                                )}
+                              </ShowPasswordButton>
+                            </div>
+                          </Input.Controls>
+                        ) : null}
                       </Input>
-                    </div>
-                    <Input
-                      {...getInputProps(loginFields.password, {
-                        type: showPassword ? "text" : "password",
-                      })}
-                      key="password"
-                    >
-                      <Input.Label htmlFor={loginFields.password.id}>
-                        {locales.route.form.label.password}
-                      </Input.Label>
-                      {typeof loginFields.password.errors !== "undefined" &&
-                      loginFields.password.errors.length > 0
-                        ? loginFields.password.errors.map((error) => (
-                            <Input.Error
-                              id={loginFields.password.errorId}
-                              key={error}
-                            >
-                              {error}
-                            </Input.Error>
-                          ))
-                        : null}
-                      {isHydrated ? (
-                        <Input.Controls>
-                          <div className="h-10 w-10">
-                            <ShowPasswordButton
-                              onClick={() => {
-                                setShowPassword(!showPassword);
-                              }}
-                              aria-label={
-                                showPassword
-                                  ? locales.route.form.label.hidePassword
-                                  : locales.route.form.label.showPassword
-                              }
-                            >
-                              {showPassword ? (
-                                <PublicVisibility aria-hidden="true" />
-                              ) : (
-                                <PrivateVisibility aria-hidden="true" />
-                              )}
-                            </ShowPasswordButton>
-                          </div>
-                        </Input.Controls>
-                      ) : null}
-                    </Input>
 
-                    <input
-                      {...getInputProps(loginFields.loginRedirect, {
-                        type: "hidden",
-                      })}
-                      key="loginRedirect"
-                    />
-                    <div className="mt-4 mb-2">
-                      <Button
-                        type="submit"
-                        fullSize
-                        // Don't disable button when js is disabled
-                        disabled={
-                          isHydrated
-                            ? loginForm.dirty === false ||
-                              loginForm.valid === false ||
-                              isSubmitting
-                            : false
-                        }
-                      >
-                        {locales.route.form.label.submit}
-                      </Button>
-                    </div>
-                  </Form>
+                      <input
+                        {...getInputProps(loginFields.loginRedirect, {
+                          type: "hidden",
+                        })}
+                        key="loginRedirect"
+                      />
+                      <div className="mt-4 mb-2">
+                        <Button
+                          type="submit"
+                          fullSize
+                          // Don't disable button when js is disabled
+                          disabled={
+                            isHydrated
+                              ? loginForm.dirty === false ||
+                                loginForm.valid === false ||
+                                isSubmitting
+                              : false
+                          }
+                        >
+                          {locales.route.form.label.submit}
+                        </Button>
+                      </div>
+                    </Form>
+                  )}
                   <>
                     <div className="mb-6 text-center">
                       <Link
