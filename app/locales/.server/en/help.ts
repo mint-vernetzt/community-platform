@@ -167,7 +167,7 @@ export const locale = {
           question:
             "How can I claim the organizational profile of an organization created by MINTvernetzt?",
           answer:
-            '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>“Claim”</b> button on the organizational detail page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>“Claim Organization”</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > “Add Me to an Organization”</b> and click on <b>“Claim Organization”</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
+            '<p>There are several ways to claim the organizational profile of an organization created by us:</br></br><ul><li>First, you can click the <b>“Claim”</b> button on the organization page of the organization created by us.</li><li>Second option: If you find that your organization already exists on the platform as an organization created by us when creating an organization, you can directly claim it and become an administrator. To do this, click on <b>“Claim Organization”</b>.</li><li>Third option: You can also claim the organizational profile if you search for the organization created by us under <b>My space > My Organizations > “Add Me to an Organization”</b> and click on <b>“Claim Organization”</b>.</li></ul></br></br>In each of these cases, an email will be sent to us. We will review your request and grant you administrator access after successful verification.</br></br>If you have any further questions or need assistance, please feel free to contact us at <a href="mailto:support@mint-vernetzt.de">support@mint-vernetzt.de</a>.</p>',
         },
         howToDeleteProvisionalOrganizations: {
           question:
@@ -257,7 +257,7 @@ export const locale = {
         howToCreateAProject: {
           question: "How can I create my own project on the platform?",
           answer:
-            "<p>Go to <b>My space > My Projects</b> and click on <b>“Create Project”</b>. First, a draft will be created. So you don't have to have all the information ready right away, but can gradually add it before publishing your project. To edit your draft, go to your project and click on <b>“Edit”</b>. You will then be guided step by step through the form. Describe your project as vividly as possible – this way others will immediately understand what it's about. On your project detail page, you will find the button to <b>Publish</b>.</p>",
+            "<p>Go to <b>My space > My Projects</b> and click on <b>“Create Project”</b>. First, a draft will be created. So you don't have to have all the information ready right away, but can gradually add it before publishing your project. To edit your draft, go to your project and click on <b>“Edit”</b>. You will then be guided step by step through the form. Describe your project as vividly as possible – this way others will immediately understand what it's about. On your project page, you will find the button to <b>Publish</b>.</p>",
         },
         projectWithoutOrganization: {
           question: "Can I create projects without a responsible organization?",
@@ -289,7 +289,7 @@ export const locale = {
         hideProject: {
           question: "I want my project to be no longer publicly visible.",
           answer:
-            "<p>On your project detail page, you will find the button <b>“Hide”</b> after publishing your project. This allows you to turn your project back into a draft that is no longer visible to everyone. If you want to completely delete your project, you can find this option in the project settings under the tab <b>Danger zone”</b>. Select the tab <b>“Delete Project”</b> and follow the instructions.</p>",
+            "<p>On your project page, you will find the button <b>“Hide”</b> after publishing your project. This allows you to turn your project back into a draft that is no longer visible to everyone. If you want to completely delete your project, you can find this option in the project settings under the tab <b>Danger zone”</b>. Select the tab <b>“Delete Project”</b> and follow the instructions.</p>",
         },
       },
     },
@@ -311,7 +311,7 @@ export const locale = {
           question:
             "I have registered for an event, but I can no longer attend. How can I cancel my participation?",
           answer:
-            "<p>On the event detail page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event detail page.</p>",
+            "<p>On the event page, you will find the button <b>“Cancel Participation”</b>. This allows you to withdraw your participation. This may free up spots for others.</br></br>You can find the events you have registered for under <b>My space > My events</b>. Clicking on your event will take you to the event page.</p>",
         },
         whoCanCreateEvents: {
           question: "Who can create events?",
@@ -333,26 +333,26 @@ export const locale = {
         editEventDraft: {
           question: "How can I edit my event draft?",
           answer:
-            "<p>If you have created an event draft, you will be redirected to the event view (event detail page). To edit your draft, click on <b>“Edit Event”</b>.</br></br>You can find your event at any time under <b>My Space > My Events</b>. Clicking on your event will take you to the event detail page, where you will find the <b>“Edit Event”</b> button.</br></br>By clicking on <b>“Edit Event”</b>, you will enter the event settings. Here you can make changes, such as publishing, canceling, deleting, and in the future also copying your event.</br></br>You can also edit your event after it has been published.</p>",
+            "<p>If you have created an event draft, you will be redirected to the event view (event page). To edit your draft, click on <b>“Edit Event”</b>.</br></br>You can find your event at any time under <b>My Space > My Events</b>. Clicking on your event will take you to the event page, where you will find the <b>“Edit Event”</b> button.</br></br>By clicking on <b>“Edit Event”</b>, you will enter the event settings. Here you can make changes, such as publishing, canceling, deleting, and in the future also copying your event.</br></br>You can also edit your event after it has been published.</p>",
           featureFlag: "events",
         },
         editEventAfterPublishing: {
           question: "Can I edit my event after it has been published?",
           answer:
-            "<p>Yes. You can find your created events under <b>My Space > My Events</b>. Clicking on your event will take you to the event detail page. From there, you can access the event settings by clicking on <b>“Edit Event”</b>. Here, you can make changes or also cancel and delete the event.</p>",
+            "<p>Yes. You can find your created events under <b>My Space > My Events</b>. Clicking on your event will take you to the event page. From there, you can access the event settings by clicking on <b>“Edit Event”</b>. Here, you can make changes or also cancel and delete the event.</p>",
           featureFlag: "events",
         },
         provideEventMaterial: {
           question:
             "Can I provide materials such as presentations or participation certificates?",
           answer:
-            "<p>Yes, you can upload or add files directly in the event settings under <b>“Manage Documents”</b>. Participants can find these on the event detail page.</p>",
+            "<p>Yes, you can upload or add files directly in the event settings under <b>“Manage Documents”</b>. Participants can find these on the event page.</p>",
           featureFlag: "events",
         },
         reportEvent: {
           question: "How can I report an event?",
           answer:
-            '<p>Users have the option to report events. The report button is located on the event detail page in the upper area behind the 3-dot menu button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason for the report need to be provided.</br></br><b>The following reasons speak for reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>For example: MINT holiday camps for students or regular courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="/terms-of-use">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></br></br>After the event has been reported, it will be checked by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</p>',
+            '<p>Users have the option to report events. The report button is located on the event page in the upper area behind the 3-dot menu button <span class="w-5 h-5 inline-flex place-items-center justify-center rounded-md border border-primary bg-neutral-50"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5C2.17157 9.5 1.5 8.82843 1.5 8C1.5 7.17157 2.17157 6.5 3 6.5C3.82843 6.5 4.5 7.17157 4.5 8C4.5 8.82843 3.82843 9.5 3 9.5ZM8 9.5C7.17157 9.5 6.5 8.82843 6.5 8C6.5 7.17157 7.17157 6.5 8 6.5C8.82843 6.5 9.5 7.17157 9.5 8C9.5 8.82843 8.82843 9.5 8 9.5ZM13 9.5C12.1716 9.5 11.5 8.82843 11.5 8C11.5 7.17157 12.1716 6.5 13 6.5C13.8284 6.5 14.5 7.17157 14.5 8C14.5 8.82843 13.8284 9.5 13 9.5Z" fill="black" /></svg></span>.</br></br>In the following query, at least one reason for the report need to be provided.</br></br><b>The following reasons speak for reporting an event:</b></br></br><ul><li><b>Inappropriate content, such as offers specifically for children and young people</b></br>For example: MINT holiday camps for students or regular courses in schools or student laboratories.</li><li><b>Commercial events, sales or promotional events</b></br>That is, events that are only offered for a fee in order to make a profit and product presentations or training courses that are primarily aimed at acquiring customers.</li><li><b>Events that violate our <a href="/terms-of-use">terms of use</a></b></br>Which for example show harassment, depictions of violence, pornographic or inhuman content or symbols of banned organizations or content that incites hatred or violence against people or against certain groups of people or content that denies or trivializes acts committed under the rule of national socialism or glorifies the rule of national socialism. More detailed information can be found in our terms of use.</li></ul></br></br>After the event has been reported, it will be checked by us and possibly deactivated. If you have reported an event, you cannot report it again while it is being reviewed.</br></br>The creator of the event will be informed by us. A violation of the terms of use can lead to exclusion from the community platform and legal consequences.</p>',
         },
         iReportedAnEvent: {
           question: "I reported an event, what happens next?",
