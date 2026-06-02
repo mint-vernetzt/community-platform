@@ -42,18 +42,30 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  const mode = deriveMode(sessionUser);
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["organization/$slug/settings/team"];
 
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  const mode = deriveMode(sessionUser);
-
   const organization = await getOrganizationWithTeamMembers({
-    slug,
+    slug: params.slug,
     authClient,
     locales,
   });

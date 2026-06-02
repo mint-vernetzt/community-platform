@@ -12,7 +12,11 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
 } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import SettingsHeading from "~/components/next/SettingsHeading";
@@ -32,29 +36,31 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = params.slug;
-  invariantResponse(typeof slug === "string", "Slug is required", {
+
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/settings"];
 
-  await checkFeatureAbilitiesOrThrow(authClient, "next_event_settings");
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };

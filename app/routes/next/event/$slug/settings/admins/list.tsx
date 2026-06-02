@@ -11,7 +11,11 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { Modal } from "~/components-next/Modal";
 import Hint from "~/components/next/Hint";
 import List from "~/components/next/List";
@@ -46,7 +50,21 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =

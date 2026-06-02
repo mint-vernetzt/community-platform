@@ -14,7 +14,11 @@ import {
   getWaitingListOfEvent,
   moveToParticipants,
 } from "./waiting-list.server";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { Deep } from "~/lib/utils/searchParams";
 import { useEffect, useState } from "react";
 import TitleSection from "~/components/next/TitleSection";
@@ -40,11 +44,26 @@ import { redirectWithToast } from "~/toast.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "Invalid slug", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -55,10 +74,8 @@ export async function loader(args: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
-
-  const { authClient } = createAuthClient(request);
 
   const result = await getWaitingListOfEvent({
     eventId: event.id,

@@ -35,16 +35,32 @@ import {
   updateProjectWebSocial,
 } from "./web-social.server";
 import { createWebSocialSchema } from "./web-social.shared";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/web-social"];
 
-  const project = await getProjectWebSocial({ slug, locales });
+  const project = await getProjectWebSocial({ slug: params.slug, locales });
 
   return { project, locales };
 }

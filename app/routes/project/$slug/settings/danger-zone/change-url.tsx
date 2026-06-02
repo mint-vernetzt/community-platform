@@ -25,7 +25,6 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
@@ -35,7 +34,22 @@ import { createSchema } from "./change-url.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { params, request } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const language = await detectLanguage(request);
   const locales =
@@ -44,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
     ];
 
   return {
-    slug,
+    slug: params.slug,
     baseURL: process.env.COMMUNITY_BASE_URL,
     locales,
   };

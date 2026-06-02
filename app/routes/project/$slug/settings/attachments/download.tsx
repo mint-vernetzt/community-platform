@@ -10,27 +10,26 @@ import { languageModuleMap } from "~/locales/.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/attachments/download"];
 
-  invariantResponse(params.slug !== undefined, locales.error.invalidRoute, {
+  invariantResponse(params.slug !== undefined, "No valid route", {
     status: 400,
   });
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
-
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
     slug: params.slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments/download"];
 
   const url = new URL(request.url);
   const type = url.searchParams.get("type") as

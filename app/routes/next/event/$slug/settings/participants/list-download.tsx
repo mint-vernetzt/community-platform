@@ -1,5 +1,9 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
@@ -12,31 +16,31 @@ import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialCh
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "Invalid slug", { status: 400 });
-
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+    status: 400,
+  });
   const { authClient } = createAuthClient(request);
-
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
-  const eventName = await getEventNameBySlug(slug);
+  const eventName = await getEventNameBySlug(params.slug);
   invariantResponse(eventName !== null, "Event not found", { status: 404 });
 
-  const participants = await getParticipantsOfEvent(slug);
+  const participants = await getParticipantsOfEvent(params.slug);
   const csv = createCsvString(participants);
   const date = new Date().toLocaleDateString("en-EN", {
     year: "numeric",

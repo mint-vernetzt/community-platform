@@ -1,35 +1,39 @@
+import { parseWithZod } from "@conform-to/zod";
+import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { captureException } from "@sentry/node";
+import { useEffect, useState } from "react";
 import {
-  type ActionFunctionArgs,
   Form,
   redirect,
   useLoaderData,
+  type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
+import List from "~/components/next/List";
+import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
+import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
-import { detectLanguage } from "~/root.server";
 import { languageModuleMap } from "~/locales/.server";
+import { detectLanguage } from "~/root.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
+import { redirectWithToast } from "~/toast.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
 import { getEventIdBySlug } from "../admins.server";
 import {
   getInvitedProfilesToJoinEventAsAdmin,
   revokeInviteOfProfileToJoinEventAsAdmin,
 } from "./invites.server";
-import { useEffect, useState } from "react";
 import {
   createRevokeInviteOfProfileToJoinEventAsAdminSchema,
   createSearchInvitedProfilesSchema,
   INVITED_PROFILES_SEARCH_PARAM,
   PROFILE_ID_FIELD,
 } from "./invites.shared";
-import List from "~/components/next/List";
-import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
-import { Button } from "@mint-vernetzt/components/src/molecules/Button";
-import { parseWithZod } from "@conform-to/zod";
-import { captureException } from "@sentry/node";
-import { redirectWithToast } from "~/toast.server";
-import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -39,11 +43,7 @@ export async function loader(args: LoaderFunctionArgs) {
   });
 
   const { authClient } = createAuthClient(request);
-  await checkFeatureAbilitiesOrThrow(authClient, [
-    "events",
-    "next_event_settings",
-  ]);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
     slug: params.slug,
@@ -53,6 +53,10 @@ export async function loader(args: LoaderFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
