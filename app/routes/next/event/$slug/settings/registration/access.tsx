@@ -15,7 +15,11 @@ import {
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Hint from "~/components/next/Hint";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { RadioSubmitButtonSettings } from "~/components/next/RadioButtonSettings";
@@ -39,6 +43,8 @@ import {
 } from "./access.server";
 import {
   createExternalRegistrationUrlSchema,
+  SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
+  SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT,
   SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT,
   SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
   SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
@@ -48,11 +54,26 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -60,7 +81,7 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/registration/access"
     ];
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
@@ -258,6 +279,11 @@ function RegistrationAccess() {
           <TitleSection>
             <TitleSection.Headline>
               {locales.route.type.headline}
+              <TitleSection.Headline.HelpIcon
+                // TODO: Add correct hash param for help page
+                to="/help"
+                label={locales.route.type.helpIcon.label}
+              />
             </TitleSection.Headline>
             <TitleSection.Subline>
               {locales.route.type.subline}
@@ -426,6 +452,93 @@ function RegistrationAccess() {
             </Form>
           </div>
         )}
+        {event.external === false &&
+          event.openForRegistration &&
+          (event._count.childEvents > 0 || event.parentEvent !== null) && (
+            <div className="flex flex-col gap-4">
+              <TitleSection>
+                <TitleSection.Headline>
+                  {locales.route.parentParticipation.headline}
+                  <TitleSection.Headline.HelpIcon
+                    // TODO: Add correct hash param for help page
+                    to="/help"
+                    label={locales.route.parentParticipation.helpIcon.label}
+                  />
+                </TitleSection.Headline>
+                {event._count.childEvents > 0 && (
+                  <TitleSection.Subline>
+                    {locales.route.parentParticipation.subline.parent}
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null && (
+                  <>
+                    <TitleSection.Subline>
+                      {locales.route.parentParticipation.subline.child.general}
+                    </TitleSection.Subline>
+                    <TitleSection.Subline>
+                      {
+                        locales.route.parentParticipation.subline.child
+                          .childException
+                      }
+                    </TitleSection.Subline>
+                    {event.parentParticipationRequired ===
+                      event.parentEvent.parentParticipationRequired && (
+                      <TitleSection.Subline>
+                        {
+                          locales.route.parentParticipation.subline.child
+                            .sameAsParent
+                        }
+                      </TitleSection.Subline>
+                    )}
+                  </>
+                )}
+              </TitleSection>
+              <Form
+                id="parent-participation-required-form"
+                method="post"
+                className="flex flex-col gap-4"
+              >
+                <RadioSubmitButtonSettings
+                  name={INTENT_FIELD_NAME}
+                  value={SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT}
+                  active={
+                    event.parentParticipationRequired === null &&
+                    event.parentEvent !== null &&
+                    event.parentEvent.parentParticipationRequired !== null
+                      ? event.parentEvent.parentParticipationRequired
+                      : event.parentParticipationRequired === true
+                  }
+                  disabled={
+                    event.published ||
+                    (event.parentEvent !== null &&
+                      event.parentParticipationRequired === false)
+                  }
+                >
+                  <RadioSubmitButtonSettings.Title>
+                    {locales.route.parentParticipation.required}
+                  </RadioSubmitButtonSettings.Title>
+                </RadioSubmitButtonSettings>
+                <RadioSubmitButtonSettings
+                  name={INTENT_FIELD_NAME}
+                  value={SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT}
+                  active={
+                    event.parentParticipationRequired === null &&
+                    event.parentEvent !== null &&
+                    event.parentEvent.parentParticipationRequired !== null
+                      ? event.parentEvent.parentParticipationRequired === false
+                      : event.parentParticipationRequired === false
+                  }
+                  disabled={event.published}
+                >
+                  <RadioSubmitButtonSettings.Title>
+                    {event.parentEvent !== null
+                      ? locales.route.parentParticipation.notRequired.child
+                      : locales.route.parentParticipation.notRequired.parent}
+                  </RadioSubmitButtonSettings.Title>
+                </RadioSubmitButtonSettings>
+              </Form>
+            </div>
+          )}
       </div>
     </>
   );

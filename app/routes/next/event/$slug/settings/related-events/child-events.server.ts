@@ -274,6 +274,7 @@ export async function addChildEvent(options: {
       parentEventId: true,
       startTime: true,
       endTime: true,
+      parentParticipationRequired: true,
       sentParentEventJoinRequests: {
         where: {
           status: "pending",
@@ -337,14 +338,31 @@ export async function addChildEvent(options: {
     throw new Error("Child event not found or not eligible to be a child");
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug: childEvent.slug,
-    },
-    data: {
-      parentEventId: event.id,
-    },
-  });
+  const transactions = [
+    prismaClient.event.update({
+      where: {
+        slug: childEvent.slug,
+      },
+      data: {
+        parentEventId: event.id,
+      },
+    }),
+  ];
+
+  if (event.parentParticipationRequired === null) {
+    transactions.push(
+      prismaClient.event.update({
+        where: {
+          id: event.id,
+        },
+        data: {
+          parentParticipationRequired: true,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 }
 
 export async function removeChildEvent(options: {
@@ -359,6 +377,11 @@ export async function removeChildEvent(options: {
     },
     select: {
       id: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
 
@@ -384,12 +407,29 @@ export async function removeChildEvent(options: {
     );
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug: childEvent.slug,
-    },
-    data: {
-      parentEventId: null,
-    },
-  });
+  const transactions = [
+    prismaClient.event.update({
+      where: {
+        slug: childEvent.slug,
+      },
+      data: {
+        parentEventId: null,
+      },
+    }),
+  ];
+
+  if (event._count.childEvents === 1) {
+    transactions.push(
+      prismaClient.event.update({
+        where: {
+          id: event.id,
+        },
+        data: {
+          parentParticipationRequired: null,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 }

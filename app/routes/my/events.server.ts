@@ -1867,7 +1867,9 @@ export async function acceptRequestAsParentEvent(options: {
       select: {
         parentEvent: {
           select: {
+            id: true,
             name: true,
+            parentParticipationRequired: true,
             admins: {
               select: {
                 profileId: true,
@@ -1897,7 +1899,19 @@ export async function acceptRequestAsParentEvent(options: {
     });
   });
 
-  console.log("Missing admins: ", missingAdmins);
+  const transactions =
+    request.parentEvent.parentParticipationRequired === null
+      ? [
+          prismaClient.event.update({
+            where: {
+              id: request.parentEvent.id,
+            },
+            data: {
+              parentParticipationRequired: true,
+            },
+          }),
+        ]
+      : [];
 
   const [childEvent] = await prismaClient.$transaction([
     prismaClient.event.update({
@@ -1941,6 +1955,7 @@ export async function acceptRequestAsParentEvent(options: {
         };
       }),
     }),
+    ...transactions,
   ]);
 
   const sender = process.env.SYSTEM_MAIL_SENDER;

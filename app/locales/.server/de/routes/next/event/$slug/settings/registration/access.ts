@@ -1,6 +1,9 @@
 export const locale = {
   type: {
     headline: "Art der Registrierung",
+    helpIcon: {
+      label: "Weitere Informationen zur Art der Registrierung",
+    },
     subline:
       "Hier entscheidest Du, wo sich Deine Teilnehmenden anmelden – entweder direkt über die Plattform oder über ein externes Anmeldetool, das Du per Verlinkung einfügen kannst.",
     hint: "Nach der Veröffentlichung kannst Du die Registrierungsart nicht mehr ändern.",
@@ -41,6 +44,31 @@ export const locale = {
       headline: "Geschlossene Veranstaltung",
       subline:
         "Nur auf Einladung zugänglich. Diese Option ist bei externer Registrierung nicht verfügbar.",
+    },
+  },
+  parentParticipation: {
+    headline: "Festlegung zur Registrierung für untergeordneten Events",
+    helpIcon: {
+      label:
+        "Weitere Informationen zur Registrierung für untergeordnete Events",
+    },
+    subline: {
+      parent:
+        "Lege fest, ob sich Deine Teilnehmenden unabhängig von der Rahmenveranstaltung für einzelne Unterveranstaltungen anmelden können – oder ob zunächst eine Anmeldung zur Rahmenveranstaltung erforderlich ist.",
+      child: {
+        general:
+          "Lege fest, ob sich Deine Teilnehmenden unabhängig von der Rahmenveranstaltung für dieses Unterevent anmelden können – oder ob zunächst eine Anmeldung zur Rahmenveranstaltung erforderlich ist.",
+        childException:
+          "Unabhängig von der Einstellung im Rahmenevent, kannst Du im Unterevent eine andere Regel festlegen.",
+        sameAsParent: "Aktuelle Einstellung in der Rahmenveranstaltung:",
+      },
+    },
+    required:
+      "Teilnehmende müssen sich zuerst für die Rahmenveranstaltung anmelden.",
+    notRequired: {
+      parent:
+        "Teilnehmende können sich direkt für Unterveranstaltungen anmelden.",
+      child: "Teilnehmende können sich direkt für dieses Unterevent anmelden.",
     },
   },
   errors: {
