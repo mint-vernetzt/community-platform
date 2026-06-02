@@ -6,8 +6,18 @@ import { invariantResponse } from "~/lib/utils/response";
 import { createProfile, sendWelcomeMail } from "../register/utils.server";
 import { detectLanguage } from "~/i18n.server";
 import { languageModuleMap } from "~/locales/.server";
+import { isBotRequest } from "~/utils.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const requestUrl = new URL(request.url);
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["auth/verify"];
