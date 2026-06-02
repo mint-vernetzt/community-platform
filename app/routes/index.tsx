@@ -37,8 +37,6 @@ import {
   getProfileCount,
   getProjectCount,
 } from "./utils.server";
-import { checkHoneypot } from "~/honeypot.server";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -76,9 +74,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Conform
   const formData = await request.formData();
-  if (process.env.NODE_ENV !== "test") {
-    await checkHoneypot(formData);
-  }
   const { submission } = await login({
     formData,
     request,
@@ -233,7 +228,6 @@ export default function Index() {
                     method="post"
                     autoComplete="off"
                   >
-                    <HoneypotInputs />
                     {typeof loginForm.errors !== "undefined" &&
                     loginForm.errors.length > 0 ? (
                       <div>

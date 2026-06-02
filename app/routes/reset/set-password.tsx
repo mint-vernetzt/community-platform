@@ -28,8 +28,6 @@ import {
 } from "../../auth.server";
 import { setNewPassword } from "./set-password.server";
 import { createSetPasswordSchema } from "./set-password.shared";
-import { checkHoneypot } from "~/honeypot.server";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -55,9 +53,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const locales = languageModuleMap[language]["reset/set-password"];
 
   const formData = await request.formData();
-  if (process.env.NODE_ENV !== "test") {
-    await checkHoneypot(formData);
-  }
   const { submission } = await setNewPassword({
     formData,
     sessionUser,
@@ -124,7 +119,6 @@ export default function SetPassword() {
       autoComplete="off"
     >
       <>
-        <HoneypotInputs />
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="flex flex-col w-full items-center">
             <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">

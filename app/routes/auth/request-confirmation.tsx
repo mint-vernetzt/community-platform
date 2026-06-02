@@ -24,8 +24,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestConfirmation } from "./request-confirmation.server";
 import { createRequestConfirmationSchema } from "./request-confirmation.shared";
-import { checkHoneypot } from "~/honeypot.server";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -49,9 +47,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Conform
   const formData = await request.formData();
-  if (process.env.NODE_ENV !== "test") {
-    await checkHoneypot(formData);
-  }
   const { submission } = await requestConfirmation({
     formData,
     authClient,
@@ -131,7 +126,6 @@ export default function RequestConfirmation() {
               preventScrollReset
               autoComplete="off"
             >
-              <HoneypotInputs />
               <p className="mb-4">{locales.content.description}</p>
               <div className="mb-10">
                 <Input

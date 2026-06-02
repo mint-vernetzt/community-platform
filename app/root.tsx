@@ -63,8 +63,6 @@ import {
 import { getPublicURL } from "./storage.server";
 import { getToast } from "./toast.server";
 import { combineHeaders, deriveMode } from "./utils.server";
-import { honeypot } from "./honeypot.server";
-import { HoneypotProvider } from "remix-utils/honeypot/react";
 
 export const meta: MetaFunction<typeof loader> = (args) => {
   const { loaderData } = args;
@@ -116,9 +114,6 @@ export const headers = ({ loaderHeaders }: HeadersArgs) => {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
-
-  const honeyProps = await honeypot.getInputProps();
-
   const language = await detectLanguage(request);
   const languageCookieHeaders = {
     "Set-Cookie": await localeCookie.serialize(language),
@@ -266,7 +261,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return data(
     {
-      honeyProps,
       matomoUrl: process.env.MATOMO_URL,
       matomoSiteId: process.env.MATOMO_SITE_ID,
       sessionUserInfo,
@@ -355,166 +349,164 @@ export const ErrorBoundary = () => {
   }
 
   return (
-    <HoneypotProvider {...rootLoaderData?.honeyProps}>
-      <html
-        lang={hasRootLoaderData ? rootLoaderData.currentLanguage : "de"}
-        data-theme="light"
-      >
-        <head>
-          <Meta />
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
-            <meta name="robots" content="noindex, nofollow" />
-          ) : null}
-          <Links nonce={nonce} />
-        </head>
+    <html
+      lang={hasRootLoaderData ? rootLoaderData.currentLanguage : "de"}
+      data-theme="light"
+    >
+      <head>
+        <Meta />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {ENV.ALLOW_INDEXING === "false" ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
+        <Links nonce={nonce} />
+      </head>
 
-        <body id="top" className={bodyClasses}>
-          <PreviousLocationContext>
-            <MainMenu
-              mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
-              openMainMenuKey={openMainMenuKey}
-              username={
-                hasRootLoaderData &&
-                typeof rootLoaderData.sessionUserInfo !== "undefined"
-                  ? rootLoaderData.sessionUserInfo.username
-                  : undefined
-              }
-              currentLanguage={
-                hasRootLoaderData
-                  ? rootLoaderData.currentLanguage
-                  : DEFAULT_LANGUAGE
-              }
-              locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-              preferredExploreOrganizationsView={
-                hasRootLoaderData
-                  ? rootLoaderData.preferredExploreOrganizationsView
-                  : "map"
-              }
-            />
-            <div
-              className={`flex flex-col w-full @container relative ${
-                mainMenuIsOpen === null || mainMenuIsOpen === "false"
-                  ? ""
-                  : "hidden xl:block"
-              }`}
-            >
-              <NavBar
-                sessionUserInfo={
-                  hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
-                }
-                openMainMenuKey={openMainMenuKey}
-                locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
-              />
-              <main className="w-full h-full @md:bg-neutral-50">
-                {/* Content */}
-                <section className="mx-auto @lg:px-6 max-w-2xl mb-8 @lg:mb-16">
-                  <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
-                    {hasRootLoaderData
-                      ? rootLoaderData.locales.route.root.errorBoundary.title
-                      : DEFAULT_LANGUAGE === "de"
-                        ? "Tut uns leid, etwas ist schiefgelaufen..."
-                        : "We're sorry, something went wrong..."}
-                  </h1>
-                  <div className="w-full flex justify-center mb-8 px-4">
-                    <p className="text-left @sm:text-center text-neutral-700">
-                      {insertComponentsIntoLocale(
-                        insertParametersIntoLocale(
-                          hasRootLoaderData
-                            ? rootLoaderData.locales.route.root.errorBoundary
-                                .message
-                            : DEFAULT_LANGUAGE === "de"
-                              ? "Es würde uns freuen, wenn Du uns über eine E-Mail an <0>{{supportMail}}</0> über den Fehler informierst. Vielen Dank!"
-                              : "We would appreciate it if you could inform us about the error via email at <0>{{supportMail}}</0>. Thank you!",
-                          {
-                            supportMail: ENV.SUPPORT_MAIL,
-                          }
-                        ),
-                        [
-                          <TextButton
-                            key="supportMail"
-                            as="link"
-                            to={`mailto:${ENV.SUPPORT_MAIL}`}
-                            className="inline"
-                          />,
-                        ]
-                      )}
-                    </p>
-                  </div>
-                  <div className="w-full flex flex-col items-center">
-                    <div className="fixed @sm:static bottom-0 w-full @sm:w-fit grid grid-cols-2 grid-rows-1 @sm:flex @sm:justify-center mb-8 px-4 gap-4">
-                      <Button
-                        variant="outline"
-                        as="link"
-                        to={
-                          hasRootLoaderData &&
-                          typeof rootLoaderData.sessionUserInfo !== "undefined"
-                            ? "/dashboard"
-                            : "/"
-                        }
-                        fullSize
-                        prefetch="intent"
-                      >
-                        {hasRootLoaderData &&
-                        typeof rootLoaderData.sessionUserInfo !== "undefined"
-                          ? rootLoaderData.locales.route.root.errorBoundary
-                              .secondaryCta.toDashboard
-                          : hasRootLoaderData
-                            ? rootLoaderData.locales.route.root.errorBoundary
-                                .secondaryCta.toLandingPage
-                            : DEFAULT_LANGUAGE === "de"
-                              ? "Zur Startseite"
-                              : "To the landing page"}
-                      </Button>
-                      <Button
-                        fullSize
-                        as="link"
-                        to={`${location.pathname}${location.search}${location.hash}`}
-                        reloadDocument
-                        prefetch="intent"
-                      >
-                        {hasRootLoaderData
-                          ? rootLoaderData.locales.route.root.errorBoundary
-                              .primaryCta
-                          : DEFAULT_LANGUAGE === "de"
-                            ? "Seite neu laden"
-                            : "Reload the page"}
-                      </Button>
-                    </div>
-                    <div className="py-6 px-4 @lg:px-6 flex flex-col gap-4 @sm:border border-neutral-200 @sm:bg-white rounded-2xl w-full @sm:w-fit @sm:max-w-96">
-                      <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
-                        {hasRootLoaderData
-                          ? rootLoaderData.locales.route.root.errorBoundary
-                              .errorDetails.headline
-                          : DEFAULT_LANGUAGE === "de"
-                            ? "Details zur Fehlermeldung"
-                            : "Error Details"}
-                      </h2>
-                      <p>{errorTitle}</p>
-                      {typeof errorText !== "undefined" && errorText !== "" ? (
-                        <p>{errorText}</p>
-                      ) : null}
-                      {typeof errorData !== "undefined" && errorData !== "" ? (
-                        <p>{errorData}</p>
-                      ) : null}
-                    </div>
-                  </div>
-                </section>
-              </main>
-            </div>
-          </PreviousLocationContext>
-          <script
-            nonce={nonce}
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
+      <body id="top" className={bodyClasses}>
+        <PreviousLocationContext>
+          <MainMenu
+            mode={hasRootLoaderData ? rootLoaderData.mode : "anon"}
+            openMainMenuKey={openMainMenuKey}
+            username={
+              hasRootLoaderData &&
+              typeof rootLoaderData.sessionUserInfo !== "undefined"
+                ? rootLoaderData.sessionUserInfo.username
+                : undefined
+            }
+            currentLanguage={
+              hasRootLoaderData
+                ? rootLoaderData.currentLanguage
+                : DEFAULT_LANGUAGE
+            }
+            locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+            preferredExploreOrganizationsView={
+              hasRootLoaderData
+                ? rootLoaderData.preferredExploreOrganizationsView
+                : "map"
+            }
           />
-          <ScrollRestoration nonce={nonce} />
-          <Scripts nonce={nonce} />
-        </body>
-      </html>
-    </HoneypotProvider>
+          <div
+            className={`flex flex-col w-full @container relative ${
+              mainMenuIsOpen === null || mainMenuIsOpen === "false"
+                ? ""
+                : "hidden xl:block"
+            }`}
+          >
+            <NavBar
+              sessionUserInfo={
+                hasRootLoaderData ? rootLoaderData.sessionUserInfo : undefined
+              }
+              openMainMenuKey={openMainMenuKey}
+              locales={hasRootLoaderData ? rootLoaderData.locales : undefined}
+            />
+            <main className="w-full h-full @md:bg-neutral-50">
+              {/* Content */}
+              <section className="mx-auto @lg:px-6 max-w-2xl mb-8 @lg:mb-16">
+                <h1 className="font-black text-6xl text-center mt-8 mb-8 word-break-normal px-4">
+                  {hasRootLoaderData
+                    ? rootLoaderData.locales.route.root.errorBoundary.title
+                    : DEFAULT_LANGUAGE === "de"
+                      ? "Tut uns leid, etwas ist schiefgelaufen..."
+                      : "We're sorry, something went wrong..."}
+                </h1>
+                <div className="w-full flex justify-center mb-8 px-4">
+                  <p className="text-left @sm:text-center text-neutral-700">
+                    {insertComponentsIntoLocale(
+                      insertParametersIntoLocale(
+                        hasRootLoaderData
+                          ? rootLoaderData.locales.route.root.errorBoundary
+                              .message
+                          : DEFAULT_LANGUAGE === "de"
+                            ? "Es würde uns freuen, wenn Du uns über eine E-Mail an <0>{{supportMail}}</0> über den Fehler informierst. Vielen Dank!"
+                            : "We would appreciate it if you could inform us about the error via email at <0>{{supportMail}}</0>. Thank you!",
+                        {
+                          supportMail: ENV.SUPPORT_MAIL,
+                        }
+                      ),
+                      [
+                        <TextButton
+                          key="supportMail"
+                          as="link"
+                          to={`mailto:${ENV.SUPPORT_MAIL}`}
+                          className="inline"
+                        />,
+                      ]
+                    )}
+                  </p>
+                </div>
+                <div className="w-full flex flex-col items-center">
+                  <div className="fixed @sm:static bottom-0 w-full @sm:w-fit grid grid-cols-2 grid-rows-1 @sm:flex @sm:justify-center mb-8 px-4 gap-4">
+                    <Button
+                      variant="outline"
+                      as="link"
+                      to={
+                        hasRootLoaderData &&
+                        typeof rootLoaderData.sessionUserInfo !== "undefined"
+                          ? "/dashboard"
+                          : "/"
+                      }
+                      fullSize
+                      prefetch="intent"
+                    >
+                      {hasRootLoaderData &&
+                      typeof rootLoaderData.sessionUserInfo !== "undefined"
+                        ? rootLoaderData.locales.route.root.errorBoundary
+                            .secondaryCta.toDashboard
+                        : hasRootLoaderData
+                          ? rootLoaderData.locales.route.root.errorBoundary
+                              .secondaryCta.toLandingPage
+                          : DEFAULT_LANGUAGE === "de"
+                            ? "Zur Startseite"
+                            : "To the landing page"}
+                    </Button>
+                    <Button
+                      fullSize
+                      as="link"
+                      to={`${location.pathname}${location.search}${location.hash}`}
+                      reloadDocument
+                      prefetch="intent"
+                    >
+                      {hasRootLoaderData
+                        ? rootLoaderData.locales.route.root.errorBoundary
+                            .primaryCta
+                        : DEFAULT_LANGUAGE === "de"
+                          ? "Seite neu laden"
+                          : "Reload the page"}
+                    </Button>
+                  </div>
+                  <div className="py-6 px-4 @lg:px-6 flex flex-col gap-4 @sm:border border-neutral-200 @sm:bg-white rounded-2xl w-full @sm:w-fit @sm:max-w-96">
+                    <h2 className="text-2xl font-bold text-primary leading-6.5 mb-0">
+                      {hasRootLoaderData
+                        ? rootLoaderData.locales.route.root.errorBoundary
+                            .errorDetails.headline
+                        : DEFAULT_LANGUAGE === "de"
+                          ? "Details zur Fehlermeldung"
+                          : "Error Details"}
+                    </h2>
+                    <p>{errorTitle}</p>
+                    {typeof errorText !== "undefined" && errorText !== "" ? (
+                      <p>{errorText}</p>
+                    ) : null}
+                    {typeof errorData !== "undefined" && errorData !== "" ? (
+                      <p>{errorData}</p>
+                    ) : null}
+                  </div>
+                </div>
+              </section>
+            </main>
+          </div>
+        </PreviousLocationContext>
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+      </body>
+    </html>
   );
 };
 
@@ -530,7 +522,6 @@ export default function App() {
     preferredExploreOrganizationsView,
     mode,
     ENV,
-    honeyProps,
   } = useLoaderData<typeof loader>();
   const location = useLocation();
   const nonce = useNonce();
@@ -668,127 +659,123 @@ export default function App() {
   );
 
   return (
-    <HoneypotProvider {...honeyProps}>
-      <html lang={currentLanguage} data-theme="light">
-        <head>
-          <Meta />
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width,initial-scale=1" />
-          {ENV.ALLOW_INDEXING === "false" ? (
-            <meta name="robots" content="noindex, nofollow" />
-          ) : null}
-          <Links nonce={nonce} />
-        </head>
+    <html lang={currentLanguage} data-theme="light">
+      <head>
+        <Meta />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {ENV.ALLOW_INDEXING === "false" ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
+        <Links nonce={nonce} />
+      </head>
 
-        <body id="top" className={bodyClasses}>
-          <PreviousLocationContext>
-            {isMap === false ? (
-              <>
-                <div
-                  inert={modal ? true : undefined}
-                  className={
-                    mainMenuIsOpen ? "w-full xl:w-fit" : "hidden xl:block"
+      <body id="top" className={bodyClasses}>
+        <PreviousLocationContext>
+          {isMap === false ? (
+            <>
+              <div
+                inert={modal ? true : undefined}
+                className={
+                  mainMenuIsOpen ? "w-full xl:w-fit" : "hidden xl:block"
+                }
+              >
+                <MainMenu
+                  mode={mode}
+                  openMainMenuKey={openMainMenuKey}
+                  username={sessionUserInfo?.username}
+                  currentLanguage={currentLanguage}
+                  locales={locales}
+                  preferredExploreOrganizationsView={
+                    preferredExploreOrganizationsView
                   }
+                />
+              </div>
+              <div
+                inert={modal ? true : undefined}
+                className={`flex flex-col w-full @container relative ${
+                  mainMenuIsOpen === null || mainMenuIsOpen === "false"
+                    ? ""
+                    : "hidden xl:block"
+                }`}
+              >
+                <div
+                  className={`${showFilters ? "hidden @lg:block " : ""}${
+                    isProjectSettings || isOrganizationSettings
+                      ? "hidden @md:block "
+                      : ""
+                  }${isEventCreate ? "hidden " : ""}${isEventSettings ? "hidden lg:block xl:hidden " : ""}sticky top-0 z-30`}
                 >
-                  <MainMenu
-                    mode={mode}
+                  <NavBar
+                    sessionUserInfo={sessionUserInfo}
                     openMainMenuKey={openMainMenuKey}
-                    username={sessionUserInfo?.username}
-                    currentLanguage={currentLanguage}
                     locales={locales}
-                    preferredExploreOrganizationsView={
-                      preferredExploreOrganizationsView
+                    hideSearchBar={
+                      isDashboard
+                        ? {
+                            untilScrollY: 570,
+                            afterBreakpoint: "@md",
+                          }
+                        : isExplore
+                          ? {
+                              untilScrollY: 274,
+                              afterBreakpoint: "@lg",
+                            }
+                          : isEventSettings
+                            ? true
+                            : undefined
                     }
                   />
                 </div>
-                <div
-                  inert={modal ? true : undefined}
-                  className={`flex flex-col w-full @container relative ${
-                    mainMenuIsOpen === null || mainMenuIsOpen === "false"
-                      ? ""
-                      : "hidden xl:block"
-                  }`}
-                >
-                  <div
-                    className={`${showFilters ? "hidden @lg:block " : ""}${
-                      isProjectSettings || isOrganizationSettings
-                        ? "hidden @md:block "
-                        : ""
-                    }${isEventCreate ? "hidden " : ""}${isEventSettings ? "hidden lg:block xl:hidden " : ""}sticky top-0 z-30`}
-                  >
-                    <NavBar
-                      sessionUserInfo={sessionUserInfo}
-                      openMainMenuKey={openMainMenuKey}
+                {isIndexRoute === false && isNonAppBaseRoute === false && (
+                  <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
+                    <LoginOrRegisterCTA
+                      isAnon={mode === "anon"}
                       locales={locales}
-                      hideSearchBar={
-                        isDashboard
-                          ? {
-                              untilScrollY: 570,
-                              afterBreakpoint: "@md",
-                            }
-                          : isExplore
-                            ? {
-                                untilScrollY: 274,
-                                afterBreakpoint: "@lg",
-                              }
-                            : isEventSettings
-                              ? true
-                              : undefined
-                      }
                     />
                   </div>
-                  {isIndexRoute === false && isNonAppBaseRoute === false && (
-                    <div className={`${showFilters ? "hidden @lg:block" : ""}`}>
-                      <LoginOrRegisterCTA
-                        isAnon={mode === "anon"}
-                        locales={locales}
-                      />
-                    </div>
-                  )}
-                  <div className="flex flex-nowrap w-full">
-                    <main className="w-full @md:bg-neutral-50">
-                      <Outlet />
-                    </main>
-                    <div
-                      className={`${isSettings ? "hidden @md:block " : ""}${
-                        showFilters === "true" && isMapOnExplore === false
-                          ? "hidden @lg:block "
-                          : ""
-                      }${isMapOnExplore ? "hidden " : ""}${isEventSettings ? "hidden lg:block " : ""}w-0`}
-                    >
-                      <ScrollToTopButton locales={locales} />
-                    </div>
+                )}
+                <div className="flex flex-nowrap w-full">
+                  <main className="w-full @md:bg-neutral-50">
+                    <Outlet />
+                  </main>
+                  <div
+                    className={`${isSettings ? "hidden @md:block " : ""}${
+                      showFilters === "true" && isMapOnExplore === false
+                        ? "hidden @lg:block "
+                        : ""
+                    }${isMapOnExplore ? "hidden " : ""}${isEventSettings ? "hidden lg:block " : ""}w-0`}
+                  >
+                    <ScrollToTopButton locales={locales} />
                   </div>
-                  {isIndexRoute ? (
-                    <Footer locales={locales} mode={mode} />
-                  ) : null}
-                  {alert !== null ? (
-                    <Alert level={alert.level}>
-                      {alert.isRichtext !== undefined && alert.isRichtext ? (
-                        <RichText html={alert.message} />
-                      ) : (
-                        alert.message
-                      )}
-                    </Alert>
-                  ) : null}
-                  {toast !== null ? <ToastContainer toast={toast} /> : null}
                 </div>
-                <ModalRoot />
-              </>
-            ) : (
-              <Outlet />
-            )}
-          </PreviousLocationContext>
-          <script
-            nonce={nonce}
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(ENV)}`,
-            }}
-          />
-          <ScrollRestoration nonce={nonce} />
-          <Scripts nonce={nonce} />
-        </body>
-      </html>
-    </HoneypotProvider>
+                {isIndexRoute ? <Footer locales={locales} mode={mode} /> : null}
+                {alert !== null ? (
+                  <Alert level={alert.level}>
+                    {alert.isRichtext !== undefined && alert.isRichtext ? (
+                      <RichText html={alert.message} />
+                    ) : (
+                      alert.message
+                    )}
+                  </Alert>
+                ) : null}
+                {toast !== null ? <ToastContainer toast={toast} /> : null}
+              </div>
+              <ModalRoot />
+            </>
+          ) : (
+            <Outlet />
+          )}
+        </PreviousLocationContext>
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(ENV)}`,
+          }}
+        />
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+      </body>
+    </html>
   );
 }

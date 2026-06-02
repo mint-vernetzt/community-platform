@@ -25,8 +25,6 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { login } from "./index.server";
 import { createLoginSchema } from "./index.shared";
-import { HoneypotInputs } from "remix-utils/honeypot/react";
-import { checkHoneypot } from "~/honeypot.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -50,9 +48,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Conform
   const formData = await request.formData();
-  if (process.env.NODE_ENV !== "test") {
-    await checkHoneypot(formData);
-  }
   const { submission } = await login({
     formData,
     request,
@@ -119,7 +114,6 @@ export default function Index() {
 
   return (
     <Form {...getFormProps(loginForm)} method="post" autoComplete="off">
-      <HoneypotInputs />
       <>
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="flex flex-col w-full items-center">
