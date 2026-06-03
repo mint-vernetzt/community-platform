@@ -45,8 +45,19 @@ const environmentSchema = z.object({
 });
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
   const username = getParamValueOrThrow(params, "username");
+
+  const { authClient } = createAuthClient(request);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Unauthorized", {
+    status: 403,
+  });
 
   const language = await detectLanguage(request);
   const locales =
@@ -56,16 +67,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (profile === null) {
     invariantResponse(false, locales.error.profileNotFound, { status: 404 });
   }
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
-
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-  const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", locales.error.notPrivileged, {
-    status: 403,
-  });
 
   return { locales };
 };

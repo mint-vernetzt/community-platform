@@ -55,14 +55,13 @@ export async function loader(args: LoaderFunctionArgs) {
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  const language = await detectLanguage(request);
-  const locales = languageModuleMap[language]["next/event/create"];
-
   await checkFeatureAbilitiesOrThrow(authClient, [
     "events",
     "next_event_create",
   ]);
+
+  const language = await detectLanguage(request);
+  const locales = languageModuleMap[language]["next/event/create"];
 
   const url = new URL(request.url);
   const searchParams = url.searchParams;

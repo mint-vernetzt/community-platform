@@ -3,17 +3,37 @@ import { Section } from "@mint-vernetzt/components/src/organisms/containers/Sect
 import {
   Link,
   Outlet,
+  redirect,
   useLoaderData,
   useLocation,
   type LoaderFunctionArgs,
 } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { SettingsMenuBackButton } from "~/components-next/SettingsMenuBackButton";
 import { detectLanguage } from "~/i18n.server";
+import { invariantResponse } from "~/lib/utils/response";
 import { Deep } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
+import { getRedirectPathOnProtectedOrganizationRoute } from "../utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
-  const { request } = args;
+  const { request, params } = args;
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const language = await detectLanguage(request);
   const locales =

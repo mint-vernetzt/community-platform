@@ -43,6 +43,7 @@ export async function deriveOrganizationMode(
   return mode;
 }
 
+// We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
 export async function getRedirectPathOnProtectedOrganizationRoute(args: {
   request: Request;
   slug: string;

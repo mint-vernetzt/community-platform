@@ -21,26 +21,22 @@ import { type OrganizationSettingsLocales } from "./settings.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { authClient } = createAuthClient(request);
 
-  const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
   invariantResponse(params.slug !== undefined, "No valid route", {
     status: 400,
   });
-
-  // We could use the mode out of deriveOrganizationMode() inside getRedirectPathOnProtectedOrganizationRoute()
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
     request,
     slug: params.slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const organization = await prismaClient.organization.findFirst({
     where: { slug: params.slug },

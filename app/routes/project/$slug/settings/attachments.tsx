@@ -66,33 +66,26 @@ import { getRedirectPathOnProtectedProjectRoute } from "./utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["project/$slug/settings/attachments"];
 
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
   const { authClient } = createAuthClient(request);
-
   const sessionUser = await getSessionUser(authClient);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
-
   const redirectPath = await getRedirectPathOnProtectedProjectRoute({
     request,
     slug: params.slug,
     sessionUser,
     authClient,
   });
-
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["project/$slug/settings/attachments"];
 
   const project = await prismaClient.project.findFirst({
     where: {

@@ -41,13 +41,9 @@ import { changeEmailSchema, changePasswordSchema } from "./security.shared";
 import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
-
   const username = getParamValueOrThrow(params, "username");
-  const profile = await getProfileByUsername(username);
-  if (profile === null) {
-    invariantResponse(false, "Profile not found", { status: 404 });
-  }
+
+  const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
 
@@ -55,11 +51,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", "Not privileged", { status: 403 });
+  invariantResponse(mode === "owner", "Unauthorized", {
+    status: 403,
+  });
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["profile/$username/settings/security"];
+
+  const profile = await getProfileByUsername(username);
+  if (profile === null) {
+    invariantResponse(false, "Profile not found", { status: 404 });
+  }
 
   const provider = sessionUser.app_metadata.provider || "email";
 

@@ -47,25 +47,26 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  invariantResponse(sessionUser !== null, "Unauthorized", { status: 401 }); // Needed for type narrowing
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -75,7 +76,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const searchParams = url.searchParams;
 
   const { teamMembers, submission } = await getTeamMembersOfEvent({
-    slug,
+    slug: params.slug,
     authClient,
     searchParams,
   });

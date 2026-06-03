@@ -56,25 +56,43 @@ import {
   UPDATE_PARTICIPANT_LIMIT_INTENT,
 } from "./limit.shared";
 import { useRef } from "react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/registration/limit"];
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event.external || event.openForRegistration === false) {
     return redirect(
-      `/next/event/${slug}/settings/registration/access?${Deep}=true`,
+      `/next/event/${params.slug}/settings/registration/access?${Deep}=true`,
       {
         status: 302,
       }
