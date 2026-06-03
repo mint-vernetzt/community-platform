@@ -47,7 +47,7 @@ export const locale = {
     },
   },
   parentParticipation: {
-    headline: "Festlegung zur Registrierung für untergeordneten Events",
+    headline: "Festlegung zur Registrierung für untergeordnete Events",
     helpIcon: {
       label:
         "Weitere Informationen zur Registrierung für untergeordnete Events",
