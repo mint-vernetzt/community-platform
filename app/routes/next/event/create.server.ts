@@ -53,20 +53,24 @@ export async function createEvent(options: {
 }) {
   const { userId, slug, data } = options;
 
+  let parentEvent = null;
   if (data.parentEventId !== null) {
-    const parentEvent = await prismaClient.event.findUnique({
+    parentEvent = await prismaClient.event.findUnique({
       where: {
         id: data.parentEventId,
         admins: { some: { profileId: userId } },
       },
       select: {
         id: true,
+        parentParticipationRequired: true,
       },
     });
     if (parentEvent === null) {
       throw new Error("Parent event not found");
     }
   }
+
+  parentEvent;
 
   await prismaClient.$transaction(async (client) => {
     const event = await client.event.create({
@@ -92,5 +96,18 @@ export async function createEvent(options: {
         eventId: event.id,
       },
     });
+    if (
+      parentEvent !== null &&
+      parentEvent.parentParticipationRequired === null
+    ) {
+      await client.event.update({
+        where: {
+          id: parentEvent.id,
+        },
+        data: {
+          parentParticipationRequired: true,
+        },
+      });
+    }
   });
 }
