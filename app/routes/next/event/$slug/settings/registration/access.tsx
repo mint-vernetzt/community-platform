@@ -511,7 +511,7 @@ function RegistrationAccess() {
                   disabled={
                     event.published ||
                     (event.parentEvent !== null &&
-                      event.parentParticipationRequired === false)
+                      event.parentEvent.parentParticipationRequired === false)
                   }
                 >
                   <RadioSubmitButtonSettings.Title>
