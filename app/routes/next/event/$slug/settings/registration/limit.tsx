@@ -466,7 +466,11 @@ function RegistrationLimit() {
                       .description,
                     {
                       participantLimit:
-                        participantLimitFields.participantLimit.value,
+                        typeof participantLimitFields.participantLimit.value !==
+                        "undefined"
+                          ? participantLimitFields.participantLimit.value
+                          : locales.route.limit.form.modal
+                              .moveUpToParticipantsModal.noParticipantLimit,
                       participantsCount: loaderData.event._count.participants,
                       waitingListCount: loaderData.event._count.waitingList,
                     }
@@ -480,7 +484,7 @@ function RegistrationLimit() {
                 onClick={() => {
                   moveUpToParticipantsAutomatically.current = true;
                 }}
-                variant="outline"
+                variant="normal"
                 type="submit"
                 form={participantLimitForm.id}
                 fullSize

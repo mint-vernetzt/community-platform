@@ -27,6 +27,7 @@ export const locale = {
             "The <0>maximum number of participants ({{participantLimit}})</0> you set is above the <0>number of current registrations ({{participantsCount}})</0>. There are <0>{{waitingListCount}} persons</0> on the waiting list. Should the list of participants be automatically filled with people from the waiting list?",
           accept: "Automatically move up",
           decline: "Don't automatically move up",
+          noParticipantLimit: "unlimited",
         },
       },
     },
