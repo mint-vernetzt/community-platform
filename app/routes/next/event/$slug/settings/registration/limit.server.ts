@@ -59,84 +59,84 @@ export async function updateEventById(options: {
   });
 
   if (moveUpToParticipantsAutomatically) {
-    try {
-      const updatedEvent = await prismaClient.event.findUnique({
-        where: { id: eventId },
-        select: {
-          name: true,
-          participantLimit: true,
-          _count: {
-            select: {
-              participants: true,
-              waitingList: true,
-            },
-          },
-          waitingList: {
-            select: {
-              profile: {
-                select: {
-                  id: true,
-                  email: true,
-                  firstName: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: "asc",
-            },
+    const event = await prismaClient.event.findUnique({
+      where: { id: eventId },
+      select: {
+        name: true,
+        participantLimit: true,
+        _count: {
+          select: {
+            participants: true,
+            waitingList: true,
           },
         },
-      });
-      if (updatedEvent === null) {
-        throw new Error("Event not found after update");
-      }
-      const participantsOffset =
-        updatedEvent.participantLimit !== null
-          ? updatedEvent.participantLimit - updatedEvent._count.participants
-          : updatedEvent._count.waitingList;
+        waitingList: {
+          select: {
+            profile: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+      },
+    });
+    if (event === null) {
+      throw new Error("Event not found after update");
+    }
+    const participantsOffset =
+      event.participantLimit !== null
+        ? event.participantLimit - event._count.participants
+        : event._count.waitingList;
 
-      if (participantsOffset > 0) {
-        const profilesToMoveUp = updatedEvent.waitingList
-          .slice(0, participantsOffset)
-          .map((relation) => {
-            return { ...relation.profile };
+    if (participantsOffset > 0) {
+      const profilesToMoveUp = event.waitingList
+        .slice(0, participantsOffset)
+        .map((relation) => {
+          return { ...relation.profile };
+        });
+      await prismaClient.$transaction([
+        ...profilesToMoveUp.map((profile) => {
+          return prismaClient.participantOfEvent.create({
+            data: {
+              eventId,
+              profileId: profile.id,
+            },
           });
-        await prismaClient.$transaction([
-          ...profilesToMoveUp.map((profile) => {
-            return prismaClient.participantOfEvent.create({
-              data: {
+        }),
+        ...profilesToMoveUp.map((profile) => {
+          return prismaClient.waitingParticipantOfEvent.delete({
+            where: {
+              profileId_eventId: {
                 eventId,
                 profileId: profile.id,
               },
-            });
-          }),
-          ...profilesToMoveUp.map((profile) => {
-            return prismaClient.waitingParticipantOfEvent.delete({
-              where: {
-                profileId_eventId: {
-                  eventId,
-                  profileId: profile.id,
-                },
-              },
-            });
-          }),
-        ]);
+            },
+          });
+        }),
+      ]);
 
-        const sender = process.env.SYSTEM_MAIL_SENDER;
-        const subject = options.locales.mail.moveUpToParticipants.subject;
-        const textTemplatePath =
-          "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
-        const htmlTemplatePath =
-          "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+      const subject = options.locales.mail.moveUpToParticipants.subject;
+      const textTemplatePath =
+        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+      const htmlTemplatePath =
+        "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
 
-        void Promise.all(
-          profilesToMoveUp.map(async (profile) => {
+      void Promise.all(
+        profilesToMoveUp.map(async (profile) => {
+          try {
             const recipient = profile.email;
             const text = getCompiledMailTemplate<typeof textTemplatePath>(
               textTemplatePath,
               {
                 firstName: profile.firstName,
-                event: { name: updatedEvent.name },
+                event: { name: event.name },
               },
               "text"
             );
@@ -144,16 +144,16 @@ export async function updateEventById(options: {
               htmlTemplatePath,
               {
                 firstName: profile.firstName,
-                event: { name: updatedEvent.name },
+                event: { name: event.name },
               },
               "html"
             );
             await mailer(mailerOptions, sender, recipient, subject, text, html);
-          })
-        );
-      }
-    } catch (error) {
-      captureException(error);
+          } catch (error) {
+            captureException(error);
+          }
+        })
+      );
     }
   }
 
