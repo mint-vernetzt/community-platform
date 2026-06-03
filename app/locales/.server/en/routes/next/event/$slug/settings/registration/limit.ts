@@ -14,11 +14,20 @@ export const locale = {
       reset: "Discard changes",
       submit: "Save input",
       modal: {
-        title: "Do you really want to change your participant limit?",
-        description:
-          "The <0>maximum number of participants ({{participantLimit}})</0> you set is below the <0>number of current registrations ({{participantsCount}})</0>. To manage your participants, go to the <0>Participants</0> page in your event settings.",
-        submit: "Change limit anyway",
-        cancel: "Cancel",
+        limitBelowCurrentParticipants: {
+          title: "Do you really want to change your participant limit?",
+          description:
+            "The <0>maximum number of participants ({{participantLimit}})</0> you set is below the <0>number of current registrations ({{participantsCount}})</0>. To manage your participants, go to the <0>Participants</0> page in your event settings.",
+          submit: "Change limit anyway",
+          cancel: "Cancel",
+        },
+        moveUpToParticipantsModal: {
+          title: "Should people on the waiting list automatically move up?",
+          description:
+            "The <0>maximum number of participants ({{participantLimit}})</0> you set is above the <0>number of current registrations ({{participantsCount}})</0>. There are <0>{{waitingListCount}} persons</0> on the waiting list. Should the list of participants be automatically filled with people from the waiting list?",
+          accept: "Automatically move up",
+          decline: "Don't automatically move up",
+        },
       },
     },
   },
@@ -43,5 +52,11 @@ export const locale = {
   success: {
     moveUpToParticipants: "Settings updated successfully.",
     participantLimit: "Settings updated successfully.",
+  },
+  mail: {
+    moveUpToParticipants: {
+      subject:
+        "You have been added from the waiting list to the participants of an event",
+    },
   },
 } as const;

@@ -45,12 +45,17 @@ import {
   updateEventById,
 } from "./limit.server";
 import {
+  ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT,
   createMoveUpToParticipantsSchema,
   createParticipantLimitSchema,
+  DECLINE_MOVE_UP_TO_PARTICIPANTS_INTENT,
+  HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY,
   LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM,
+  MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM,
   UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT,
   UPDATE_PARTICIPANT_LIMIT_INTENT,
 } from "./limit.shared";
+import { useRef } from "react";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -115,8 +120,16 @@ export async function action(args: ActionFunctionArgs) {
     }
 
     try {
-      await updateEventById(eventId, {
-        moveUpToParticipants: submission.value.moveUpToParticipants,
+      await updateEventById({
+        eventId,
+        data: {
+          moveUpToParticipants: submission.value.moveUpToParticipants,
+        },
+        locales: {
+          mail: {
+            moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+          },
+        },
       });
       const toastHeaders = await createToastHeaders({
         id: "update-participant-limit-success",
@@ -148,8 +161,19 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   try {
-    await updateEventById(eventId, {
-      participantLimit: submission.value.participantLimit,
+    await updateEventById({
+      eventId,
+      data: {
+        participantLimit: submission.value.participantLimit,
+      },
+      moveUpToParticipantsAutomatically:
+        submission.value[HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY] ===
+        ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT,
+      locales: {
+        mail: {
+          moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+        },
+      },
     });
     const toastHeaders = await createToastHeaders({
       id: "update-participant-limit-success",
@@ -177,6 +201,8 @@ export async function action(args: ActionFunctionArgs) {
 function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+
+  const moveUpToParticipantsAutomatically = useRef(false);
 
   const { locales } = loaderData;
 
@@ -250,6 +276,46 @@ function RegistrationLimit() {
           event.preventDefault();
           const action = `?${extendSearchParams(searchParams, { remove: [LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM] })}`;
           void submit(context.formData, {
+            ...context,
+            action,
+            preventScrollReset: true,
+            replace: true,
+          });
+        }
+      } else if (
+        submission.status === "success" &&
+        (submission.value.participantLimit === null ||
+          submission.value.participantLimit >
+            loaderData.event._count.participants) &&
+        loaderData.event._count.waitingList > 0
+      ) {
+        if (
+          searchParams.get(
+            MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+          ) === null ||
+          searchParams.get(
+            MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+          ) === "false"
+        ) {
+          event.preventDefault();
+          const url = `?${extendSearchParams(searchParams, { addOrReplace: { [MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM]: "true" } })}`;
+          void submit(url, {
+            preventScrollReset: true,
+            replace: true,
+          });
+        } else {
+          event.preventDefault();
+          const action = `?${extendSearchParams(searchParams, { remove: [MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM] })}`;
+
+          const formData = context.formData;
+          formData.set(
+            HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY,
+            moveUpToParticipantsAutomatically.current
+              ? ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT
+              : DECLINE_MOVE_UP_TO_PARTICIPANTS_INTENT
+          );
+
+          void submit(formData, {
             ...context,
             action,
             preventScrollReset: true,
@@ -331,12 +397,18 @@ function RegistrationLimit() {
             </Input>
           </Form>
           <Modal searchParam={LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM}>
-            <Modal.Title>{locales.route.limit.form.modal.title}</Modal.Title>
+            <Modal.Title>
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .title
+              }
+            </Modal.Title>
             <Modal.Section>
               <p>
                 {insertComponentsIntoLocale(
                   insertParametersIntoLocale(
-                    locales.route.limit.form.modal.description,
+                    locales.route.limit.form.modal.limitBelowCurrentParticipants
+                      .description,
                     {
                       participantLimit:
                         participantLimitFields.participantLimit.value,
@@ -348,12 +420,75 @@ function RegistrationLimit() {
               </p>
             </Modal.Section>
             <Modal.SubmitButton form={participantLimitForm.id} level="negative">
-              {locales.route.limit.form.modal.submit}
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .submit
+              }
             </Modal.SubmitButton>
             <Modal.CloseButton route={location.pathname}>
-              {locales.route.limit.form.modal.cancel}
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .cancel
+              }
             </Modal.CloseButton>
           </Modal>
+          <Modal
+            searchParam={
+              MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+            }
+          >
+            <Modal.Title>
+              {locales.route.limit.form.modal.moveUpToParticipantsModal.title}
+            </Modal.Title>
+            <Modal.Section>
+              <p>
+                {insertComponentsIntoLocale(
+                  insertParametersIntoLocale(
+                    locales.route.limit.form.modal.moveUpToParticipantsModal
+                      .description,
+                    {
+                      participantLimit:
+                        participantLimitFields.participantLimit.value,
+                      participantsCount: loaderData.event._count.participants,
+                      waitingListCount: loaderData.event._count.waitingList,
+                    }
+                  ),
+                  [<span key="highlight" className="font-semibold" />]
+                )}
+              </p>
+            </Modal.Section>
+            <Modal.Controls>
+              <Button
+                onClick={() => {
+                  moveUpToParticipantsAutomatically.current = true;
+                }}
+                variant="outline"
+                type="submit"
+                form={participantLimitForm.id}
+                fullSize
+              >
+                {
+                  locales.route.limit.form.modal.moveUpToParticipantsModal
+                    .accept
+                }
+              </Button>
+              <Button
+                onClick={() => {
+                  moveUpToParticipantsAutomatically.current = false;
+                }}
+                variant="outline"
+                type="submit"
+                form={participantLimitForm.id}
+                fullSize
+              >
+                {
+                  locales.route.limit.form.modal.moveUpToParticipantsModal
+                    .decline
+                }
+              </Button>
+            </Modal.Controls>
+          </Modal>
+
           <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
             <div className="w-full md:w-fit">
               <Button

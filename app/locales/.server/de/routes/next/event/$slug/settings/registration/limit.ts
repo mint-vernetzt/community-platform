@@ -14,11 +14,20 @@ export const locale = {
       reset: "Änderungen verwerfen",
       submit: "Eingabe speichern",
       modal: {
-        title: "Willst Du wirklich Deine Teilnehmendenbegrenzung ändern?",
-        description:
-          "Die von Dir festgelegte <0>maximale Anzahl von Teilnehmenden ({{participantLimit}})</0> unterschreitet die <0>Anzahl der bisherigen Anmeldungen ({{participantsCount}})</0>. Gehe zum Verwalten Deiner Teilnehmenden in die Event-Einstellungen auf die Seite <0>Teilnehmende</0>.",
-        submit: "Begrenzung trotzdem ändern",
-        cancel: "Abbrechen",
+        limitBelowCurrentParticipants: {
+          title: "Willst Du wirklich Deine Teilnehmendenbegrenzung ändern?",
+          description:
+            "Die von Dir festgelegte <0>maximale Anzahl von Teilnehmenden ({{participantLimit}})</0> unterschreitet die <0>Anzahl der bisherigen Anmeldungen ({{participantsCount}})</0>. Gehe zum Verwalten Deiner Teilnehmenden in die Event-Einstellungen auf die Seite <0>Teilnehmende</0>.",
+          submit: "Begrenzung trotzdem ändern",
+          cancel: "Abbrechen",
+        },
+        moveUpToParticipantsModal: {
+          title: "Sollen Personen auf der Warteliste automatisch nachrücken?",
+          description:
+            "Die von Dir festgelegte <0>maximale Anzahl von Teilnehmenden ({{participantLimit}})</0> überschreitet die <0>Anzahl der bisherigen Anmeldungen ({{participantsCount}})</0>. Es befinden sich <0>{{waitingListCount}} Personen</0> auf der Warteliste. Soll die Liste der Teilnehmenden mit Personen von der Warteliste automatisch aufgefüllt werden?",
+          accept: "Automatisch nachrücken",
+          decline: "Nicht automatisch nachrücken",
+        },
       },
     },
   },
@@ -43,5 +52,11 @@ export const locale = {
   success: {
     moveUpToParticipants: "Einstellung erfolgreich aktualisiert.",
     participantLimit: "Einstellung erfolgreich aktualisiert.",
+  },
+  mail: {
+    moveUpToParticipants: {
+      subject:
+        "Du wurdest von der Warteliste zu den Teilnehmenden eines Events hinzugefügt",
+    },
   },
 } as const;
