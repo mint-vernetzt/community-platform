@@ -60,6 +60,7 @@ export const locale = {
         sameAsParent: "Current setting in the main event:",
       },
     },
+    hint: "This setting applies to all sub-events. However, you can set individual rules within each sub-event and adjust this setting as needed.",
     required: "Participants must first register for the main event.",
     notRequired: {
       parent: "Participants can register directly for sub-events.",
@@ -76,5 +77,7 @@ export const locale = {
       "Updating the external registration link failed. Please try again.",
     eventPublished:
       "Since your event is already published, you can no longer change the registration type or accessibility.",
+    updateParentParticipationFailed:
+      "Updating the setting for registration for sub-events failed. Please try again.",
   },
 } as const;

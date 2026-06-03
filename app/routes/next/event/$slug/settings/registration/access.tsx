@@ -40,6 +40,7 @@ import {
   getEventBySlug,
   updateEventExternalRegistrationUrl,
   updateEventRegistrationAccess,
+  updateParentParticipationRequired,
 } from "./access.server";
 import {
   createExternalRegistrationUrlSchema,
@@ -125,7 +126,9 @@ export async function action(args: ActionFunctionArgs) {
       intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT ||
       intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT ||
       intent === SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT ||
-      intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
+      intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT ||
+      intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT ||
+      intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
     "Invalid intent",
     {
       status: 400,
@@ -215,6 +218,27 @@ export async function action(args: ActionFunctionArgs) {
         id: "registration-url-update-error",
         key: `registration-url-update-error-${Date.now()}`,
         message: locales.route.errors.updateRegistrationUrlFailed,
+        level: "negative",
+      });
+    }
+  }
+
+  if (
+    intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT ||
+    intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT
+  ) {
+    try {
+      await updateParentParticipationRequired({
+        event: event,
+        intent,
+      });
+      return null;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "parent-participation-update-error",
+        key: `parent-participation-update-error-${Date.now()}`,
+        message: locales.route.errors.updateParentParticipationFailed,
         level: "negative",
       });
     }
@@ -471,28 +495,36 @@ function RegistrationAccess() {
                   </TitleSection.Subline>
                 )}
                 {event.parentEvent !== null && (
-                  <>
+                  <TitleSection.Subline>
+                    {locales.route.parentParticipation.subline.child.general}
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null && (
+                  <TitleSection.Subline>
+                    {
+                      locales.route.parentParticipation.subline.child
+                        .childException
+                    }
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null &&
+                  event.parentParticipationRequired === null && (
                     <TitleSection.Subline>
-                      {locales.route.parentParticipation.subline.child.general}
-                    </TitleSection.Subline>
-                    <TitleSection.Subline>
-                      {
-                        locales.route.parentParticipation.subline.child
-                          .childException
-                      }
-                    </TitleSection.Subline>
-                    {event.parentParticipationRequired ===
-                      event.parentEvent.parentParticipationRequired && (
-                      <TitleSection.Subline>
+                      <span className="font-semibold">
                         {
                           locales.route.parentParticipation.subline.child
                             .sameAsParent
                         }
-                      </TitleSection.Subline>
-                    )}
-                  </>
-                )}
+                      </span>
+                    </TitleSection.Subline>
+                  )}
               </TitleSection>
+              {event._count.childEvents > 0 && (
+                <Hint>
+                  <Hint.InfoIcon />
+                  {locales.route.parentParticipation.hint}
+                </Hint>
+              )}
               <Form
                 id="parent-participation-required-form"
                 method="post"

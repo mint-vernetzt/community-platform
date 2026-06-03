@@ -63,6 +63,7 @@ export const locale = {
         sameAsParent: "Aktuelle Einstellung in der Rahmenveranstaltung:",
       },
     },
+    hint: "Diese Einstellung gilt für alle untergeordneten Veranstaltungen. Du kannst jedoch innerhalb jeder einzelnen Unterveranstaltung eigene Regeln festlegen und damit diese Einstellung bei Bedarf anpassen.",
     required:
       "Teilnehmende müssen sich zuerst für die Rahmenveranstaltung anmelden.",
     notRequired: {
@@ -81,5 +82,7 @@ export const locale = {
       "Die Aktualisierung des externen Registrierungslinks ist fehlgeschlagen. Bitte versuche es erneut.",
     eventPublished:
       "Da Deine Veranstaltung bereits veröffentlicht ist, kannst Du die Registrierungsart oder die Zugänglichkeit nicht mehr ändern.",
+    updateParentParticipationFailed:
+      "Die Aktualisierung der Einstellung zur Registrierung für untergeordnete Events ist fehlgeschlagen. Bitte versuche es erneut.",
   },
 } as const;
