@@ -30,11 +30,24 @@ import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidation
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+
+  const username = getParamValueOrThrow(params, "username");
+  const { authClient } = createAuthClient(request);
+  const { sessionUser, redirectPath } =
+    await getSessionUserOrRedirectPathToLogin(authClient, request);
+
+  if (sessionUser === null && redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  const mode = await deriveProfileMode(sessionUser, username);
+  invariantResponse(mode === "owner", "Unauthorized", {
+    status: 403,
+  });
+
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["profile/$username/settings/notifications"];
-  const { authClient } = createAuthClient(request);
-  const username = getParamValueOrThrow(params, "username");
+
   const profile = await prismaClient.profile.findFirst({
     where: { username },
     select: {
@@ -44,16 +57,6 @@ export async function loader(args: LoaderFunctionArgs) {
   if (profile === null) {
     invariantResponse(false, locales.error.profileNotFound, { status: 404 });
   }
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
-
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
-  const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", locales.error.notPrivileged, {
-    status: 403,
-  });
 
   const notificationSettings = profile.notificationSettings ?? {
     updates: false,

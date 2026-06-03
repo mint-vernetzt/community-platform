@@ -19,7 +19,11 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import RadioButtonSettings, {
   RadioSubmitButtonSettings,
@@ -51,11 +55,26 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -63,7 +82,7 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/registration/period"
     ];
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };

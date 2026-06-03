@@ -53,21 +53,10 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
-
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language][
-      "next/event/$slug/settings/responsible-orgs/add"
-    ];
-
-  const event = await getEventBySlug(params.slug);
-  invariantResponse(event !== null, "event not found", {
-    status: 404,
-  });
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
@@ -79,8 +68,22 @@ export async function loader(args: LoaderFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
-  invariantResponse(sessionUser !== null, "Unauthorized", { status: 401 }); // Needed for type narrowing
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language][
+      "next/event/$slug/settings/responsible-orgs/add"
+    ];
+
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "event not found", {
+    status: 404,
+  });
 
   const { result: searchedOrganizations } = await searchOrganizations({
     eventId: event.id,

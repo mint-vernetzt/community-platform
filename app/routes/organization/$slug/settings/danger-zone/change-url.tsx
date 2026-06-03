@@ -15,27 +15,41 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import { z } from "zod";
 import { createAuthClient, getSessionUser } from "~/auth.server";
+import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { UnsavedChangesModal } from "~/components/next/UnsavedChangesModal";
 import { detectLanguage } from "~/i18n.server";
+import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import {
   insertComponentsIntoLocale,
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { Deep, UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedOrganizationRoute } from "~/routes/organization/$slug/utils.server";
 import { redirectWithToast } from "~/toast.server";
 import { createSchema } from "./change-url.shared";
-import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
-import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidationAfterSuccess";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { params, request } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const language = await detectLanguage(request);
   const locales =
@@ -44,7 +58,7 @@ export async function loader(args: LoaderFunctionArgs) {
     ];
 
   return {
-    slug,
+    slug: params.slug,
     baseURL: process.env.COMMUNITY_BASE_URL,
     locales,
   };

@@ -23,7 +23,6 @@ import {
   insertParametersIntoLocale,
 } from "~/lib/utils/i18n";
 import { invariant, invariantResponse } from "~/lib/utils/response";
-import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { languageModuleMap } from "~/locales/.server";
 import { prismaClient } from "~/prisma.server";
 import { getRedirectPathOnProtectedProjectRoute } from "../utils.server";
@@ -32,14 +31,29 @@ import { createSchema } from "./delete.shared";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = getParamValueOrThrow(params, "slug");
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedProjectRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["project/$slug/settings/danger-zone/delete"];
 
   const project = await prismaClient.project.findFirst({
-    where: { slug },
+    where: { slug: params.slug },
     select: {
       name: true,
     },

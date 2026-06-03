@@ -53,11 +53,9 @@ import {
 } from "./general.shared";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { authClient } = createAuthClient(request);
-  const language = await detectLanguage(request);
-  const locales =
-    languageModuleMap[language]["profile/$username/settings/general"];
   const username = getParamValueOrThrow(params, "username");
+
+  const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
 
@@ -65,9 +63,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     return redirect(redirectPath);
   }
   const mode = await deriveProfileMode(sessionUser, username);
-  invariantResponse(mode === "owner", locales.route.error.notPrivileged, {
+  invariantResponse(mode === "owner", "Unauthorized", {
     status: 403,
   });
+
+  const language = await detectLanguage(request);
+  const locales =
+    languageModuleMap[language]["profile/$username/settings/general"];
+
   const dbProfile = await getWholeProfileFromUsername(username);
   if (dbProfile === null) {
     invariantResponse(false, locales.route.error.profileNotFound, {

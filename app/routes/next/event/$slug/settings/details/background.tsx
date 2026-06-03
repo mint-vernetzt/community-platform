@@ -19,7 +19,11 @@ import {
 import { useHydrated } from "remix-utils/use-hydrated";
 import eventDefaultBackgroundBlurred from "~/assets/default-event-background-blurred.jpg";
 import eventDefaultBackground from "~/assets/default-event-background.jpg";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import { UploadIcon } from "~/components-next/icons/UploadIcon";
 import TitleSection from "~/components/next/TitleSection";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
@@ -74,12 +78,27 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/details/background"];
 
-  const { authClient } = createAuthClient(request);
   const background = await getEventBackground(params.slug, authClient);
 
   return { locales, background };

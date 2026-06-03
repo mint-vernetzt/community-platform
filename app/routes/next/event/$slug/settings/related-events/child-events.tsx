@@ -45,10 +45,10 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+
   invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
@@ -60,8 +60,11 @@ export async function loader(args: LoaderFunctionArgs) {
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  invariantResponse(sessionUser !== null, "Unauthorized", { status: 401 }); // Needed for type narrowing
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
