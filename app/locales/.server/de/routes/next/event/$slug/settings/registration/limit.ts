@@ -21,7 +21,7 @@ export const locale = {
           submit: "Begrenzung trotzdem ändern",
           cancel: "Abbrechen",
         },
-        moveUpToParticipantsModal: {
+        fillUpParticipantsAutomaticallyModal: {
           title: "Sollen Personen auf der Warteliste automatisch nachrücken?",
           description:
             "Die von Dir festgelegte <0>maximale Anzahl von Teilnehmenden ({{participantLimit}})</0> überschreitet die <0>Anzahl der bisherigen Anmeldungen ({{participantsCount}})</0>. Es befinden sich <0>{{waitingListCount}} Personen</0> auf der Warteliste. Soll die Liste der Teilnehmenden mit Personen von der Warteliste automatisch aufgefüllt werden?",

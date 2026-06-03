@@ -45,13 +45,13 @@ import {
   updateEventById,
 } from "./limit.server";
 import {
-  ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT,
+  ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
   createMoveUpToParticipantsSchema,
   createParticipantLimitSchema,
-  DECLINE_MOVE_UP_TO_PARTICIPANTS_INTENT,
-  HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY,
+  DECLINE_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
+  FILL_UP_PARTICIPANTS_AUTOMATICALLY,
   LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM,
-  MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM,
+  FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM,
   UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT,
   UPDATE_PARTICIPANT_LIMIT_INTENT,
 } from "./limit.shared";
@@ -185,8 +185,8 @@ export async function action(args: ActionFunctionArgs) {
         participantLimit: submission.value.participantLimit,
       },
       moveUpToParticipantsAutomatically:
-        submission.value[HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY] ===
-        ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT,
+        submission.value[FILL_UP_PARTICIPANTS_AUTOMATICALLY] ===
+        ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
       locales: {
         mail: {
           moveUpToParticipants: locales.route.mail.moveUpToParticipants,
@@ -220,7 +220,7 @@ function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const moveUpToParticipantsAutomatically = useRef(false);
+  const fillUpParticipantsAutomatically = useRef(false);
 
   const { locales } = loaderData;
 
@@ -309,28 +309,28 @@ function RegistrationLimit() {
       ) {
         if (
           searchParams.get(
-            MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
           ) === null ||
           searchParams.get(
-            MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
           ) === "false"
         ) {
           event.preventDefault();
-          const url = `?${extendSearchParams(searchParams, { addOrReplace: { [MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM]: "true" } })}`;
+          const url = `?${extendSearchParams(searchParams, { addOrReplace: { [FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM]: "true" } })}`;
           void submit(url, {
             preventScrollReset: true,
             replace: true,
           });
         } else {
           event.preventDefault();
-          const action = `?${extendSearchParams(searchParams, { remove: [MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM] })}`;
+          const action = `?${extendSearchParams(searchParams, { remove: [FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM] })}`;
 
           const formData = context.formData;
           formData.set(
-            HANDLE_MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_KEY,
-            moveUpToParticipantsAutomatically.current
-              ? ACCEPT_MOVE_UP_TO_PARTICIPANTS_INTENT
-              : DECLINE_MOVE_UP_TO_PARTICIPANTS_INTENT
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY,
+            fillUpParticipantsAutomatically.current
+              ? ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY
+              : DECLINE_FILL_UP_PARTICIPANTS_AUTOMATICALLY
           );
 
           void submit(formData, {
@@ -451,26 +451,28 @@ function RegistrationLimit() {
             </Modal.CloseButton>
           </Modal>
           <Modal
-            searchParam={
-              MOVE_UP_TO_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
-            }
+            searchParam={FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM}
           >
             <Modal.Title>
-              {locales.route.limit.form.modal.moveUpToParticipantsModal.title}
+              {
+                locales.route.limit.form.modal
+                  .fillUpParticipantsAutomaticallyModal.title
+              }
             </Modal.Title>
             <Modal.Section>
               <p>
                 {insertComponentsIntoLocale(
                   insertParametersIntoLocale(
-                    locales.route.limit.form.modal.moveUpToParticipantsModal
-                      .description,
+                    locales.route.limit.form.modal
+                      .fillUpParticipantsAutomaticallyModal.description,
                     {
                       participantLimit:
                         typeof participantLimitFields.participantLimit.value !==
                         "undefined"
                           ? participantLimitFields.participantLimit.value
                           : locales.route.limit.form.modal
-                              .moveUpToParticipantsModal.noParticipantLimit,
+                              .fillUpParticipantsAutomaticallyModal
+                              .noParticipantLimit,
                       participantsCount: loaderData.event._count.participants,
                       waitingListCount: loaderData.event._count.waitingList,
                     }
@@ -482,7 +484,7 @@ function RegistrationLimit() {
             <Modal.Controls>
               <Button
                 onClick={() => {
-                  moveUpToParticipantsAutomatically.current = true;
+                  fillUpParticipantsAutomatically.current = true;
                 }}
                 variant="normal"
                 type="submit"
@@ -490,13 +492,13 @@ function RegistrationLimit() {
                 fullSize
               >
                 {
-                  locales.route.limit.form.modal.moveUpToParticipantsModal
-                    .accept
+                  locales.route.limit.form.modal
+                    .fillUpParticipantsAutomaticallyModal.accept
                 }
               </Button>
               <Button
                 onClick={() => {
-                  moveUpToParticipantsAutomatically.current = false;
+                  fillUpParticipantsAutomatically.current = false;
                 }}
                 variant="outline"
                 type="submit"
@@ -504,8 +506,8 @@ function RegistrationLimit() {
                 fullSize
               >
                 {
-                  locales.route.limit.form.modal.moveUpToParticipantsModal
-                    .decline
+                  locales.route.limit.form.modal
+                    .fillUpParticipantsAutomaticallyModal.decline
                 }
               </Button>
             </Modal.Controls>
