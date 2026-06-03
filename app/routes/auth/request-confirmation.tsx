@@ -24,9 +24,22 @@ import { languageModuleMap } from "~/locales/.server";
 import { createAuthClient, getSessionUser } from "../../auth.server";
 import { requestConfirmation } from "./request-confirmation.server";
 import { createRequestConfirmationSchema } from "./request-confirmation.shared";
+import { checkHoneypot } from "~/honeypot.server";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { isBotRequest } from "~/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
 
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
@@ -47,6 +60,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // Conform
   const formData = await request.formData();
+  if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
   const { submission } = await requestConfirmation({
     formData,
     authClient,
@@ -126,6 +148,7 @@ export default function RequestConfirmation() {
               preventScrollReset
               autoComplete="off"
             >
+              <HoneypotInputs />
               <p className="mb-4">{locales.content.description}</p>
               <div className="mb-10">
                 <Input

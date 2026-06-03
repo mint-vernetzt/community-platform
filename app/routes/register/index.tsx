@@ -33,9 +33,23 @@ import {
 import { languageModuleMap } from "~/locales/.server";
 import { register } from "./index.server";
 import { createRegisterSchema } from "./index.shared";
+import { checkHoneypot } from "~/honeypot.server";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { isBotRequest } from "~/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   if (sessionUser !== null) {
@@ -57,6 +71,15 @@ export async function action(args: ActionFunctionArgs) {
 
   // Conform
   const formData = await request.formData();
+  if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
   const { submission } = await register({
     formData,
     authClient,
@@ -168,6 +191,7 @@ export default function Register() {
               preventScrollReset
               autoComplete="off"
             >
+              <HoneypotInputs />
               <p className="mb-4">{locales.form.intro}</p>
               <div className="flex flex-row mb-4">
                 <div className="basis-full @lg:basis-1/2">
