@@ -243,17 +243,15 @@ export default function Settings() {
                 {locales.route.publishHint}
               </p>
               <Form method="post">
-                <div className="w-full md:w-fit">
-                  <Button
-                    name={INTENT_FIELD_NAME}
-                    value="publish"
-                    type="submit"
-                    variant="outline"
-                    fullSize
-                  >
-                    {locales.route.publishCta}
-                  </Button>
-                </div>
+                <Button
+                  name={INTENT_FIELD_NAME}
+                  value="publish"
+                  type="submit"
+                  variant="outline"
+                  fullSize
+                >
+                  {locales.route.publishCta}
+                </Button>
               </Form>
             </div>
           </SettingsNavigation.MobileActionSection>
