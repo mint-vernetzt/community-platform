@@ -186,6 +186,9 @@ function Modal(props: ModalProps) {
   const closeButton = children.find((child) => {
     return isValidElement(child) && child.type === ModalCloseButton;
   });
+  const modalControls = children.find((child) => {
+    return isValidElement(child) && child.type === ModalControls;
+  });
   const alert = children.find((child) => {
     return isValidElement(child) && child.type === Alert;
   });
@@ -216,6 +219,7 @@ function Modal(props: ModalProps) {
           <ModalClose route={redirect ?? "."} />
         </div>
         {sections}
+        {modalControls !== null && modalControls}
         {(submitButton !== null || closeButtonClone !== null) && (
           <div className="w-full flex flex-col gap-2">
             {submitButton !== null && submitButton}
@@ -231,10 +235,15 @@ function Modal(props: ModalProps) {
   );
 }
 
+function ModalControls(props: { children: React.ReactNode }) {
+  return <div className="w-full flex flex-col gap-2">{props.children}</div>;
+}
+
 Modal.Title = ModalTitle;
 Modal.Section = ModalSection;
 Modal.CloseButton = ModalCloseButton;
 Modal.SubmitButton = ModalSubmitButton;
+Modal.Controls = ModalControls;
 Modal.Alert = Alert;
 
 export { Modal };
