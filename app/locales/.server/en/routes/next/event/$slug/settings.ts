@@ -25,4 +25,27 @@ export const locale = {
       "Publishing the event failed. Please try again later or contact support.",
   },
   publishSuccess: "Event published!",
+  modal: {
+    publishEventModal: {
+      withIssues: {
+        headline: "Completing your event is recommended",
+        description:
+          "Your event can be published, but we recommend adding the following information in the settings beforehand:",
+        submit: "Publish anyway",
+        cancel: "Back to settings",
+      },
+      noIssues: {
+        headline: "Publish event",
+        description: "Great! Your event is complete and ready to be published.",
+        hint: "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later.",
+        submit: "Publish now",
+        cancel: "Cancel",
+      },
+    },
+  },
+  issues: {
+    registration: {
+      missingExternalRegistrationUrl: "Add external registration link",
+    },
+  },
 } as const;

@@ -24,7 +24,7 @@ import SettingsNavigation from "~/components/next/SettingsNavigation";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { Deep } from "~/lib/utils/searchParams";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
@@ -33,6 +33,14 @@ import {
   getRedirectPathOnProtectedEventRoute,
   updateEventBySlug,
 } from "./settings.server";
+import {
+  FIRST_PUBLISH_EVENT_INTENT,
+  PUBLISH_EVENT_INTENT,
+  PUBLISH_EVENT_MODAL_SEARCH_PARAM,
+} from "./settings.shared";
+import { Modal } from "~/components-next/Modal";
+import Hint from "~/components/next/Hint";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -63,7 +71,20 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, event };
+  // TODO: functionality
+  const issues: { section: string; field: string; message: string }[] = [];
+  if (event.publishIntended) {
+    // aggregate issues
+
+    // Test
+    issues.push({
+      section: "registration",
+      field: "externalRegistrationUrl",
+      message: locales.route.issues.registration.missingExternalRegistrationUrl,
+    });
+  }
+
+  return { locales, event, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -91,14 +112,29 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const intent = formData.get(INTENT_FIELD_NAME);
-  invariantResponse(intent === "publish", locales.route.errors.invalidIntent, {
-    status: 400,
-  });
+  invariantResponse(
+    intent === FIRST_PUBLISH_EVENT_INTENT || intent === PUBLISH_EVENT_INTENT,
+    locales.route.errors.invalidIntent,
+    {
+      status: 400,
+    }
+  );
 
   try {
-    await updateEventBySlug(params.slug, {
-      published: true,
-    });
+    if (intent === FIRST_PUBLISH_EVENT_INTENT) {
+      await updateEventBySlug(params.slug, {
+        publishIntended: true,
+      });
+      const url = new URL(request.url);
+      const searchParams = extendSearchParams(url.searchParams, {
+        addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
+      });
+      return redirect(`${url.pathname}?${searchParams.toString()}`);
+    } else if (intent === PUBLISH_EVENT_INTENT) {
+      // await updateEventBySlug(params.slug, {
+      //   published: true,
+      // });
+    }
   } catch (error) {
     captureException(error);
     return redirectWithToast(`/event/${params.slug}/settings/time-period`, {
@@ -118,8 +154,10 @@ export async function action(args: ActionFunctionArgs) {
 
 export default function Settings() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, event } = loaderData;
+  const { locales, event, issues } = loaderData;
   const [searchParams] = useSearchParams();
+
+  const publishEventModal = searchParams.get(PUBLISH_EVENT_MODAL_SEARCH_PARAM);
   const deep = searchParams.get(Deep);
 
   const location = useLocation();
@@ -242,10 +280,40 @@ export default function Settings() {
               <p className="text-primary-700 text-base font-normal leading-5">
                 {locales.route.publishHint}
               </p>
+              {event.publishIntended === false ? (
+                <Form method="post">
+                  <Button
+                    name={INTENT_FIELD_NAME}
+                    value={FIRST_PUBLISH_EVENT_INTENT}
+                    type="submit"
+                    variant="outline"
+                    fullSize
+                  >
+                    {locales.route.publishCta}
+                  </Button>
+                </Form>
+              ) : (
+                <Button
+                  as="link"
+                  to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" } })}`}
+                  variant="outline"
+                  fullSize
+                  preventScrollReset
+                >
+                  {locales.route.publishCta}
+                </Button>
+              )}
+            </div>
+          </SettingsNavigation.MobileActionSection>
+        ) : null}
+        {event.published === false ? (
+          <SettingsNavigation.DesktopActionSection>
+            <span>{locales.route.publishHint}</span>
+            {event.publishIntended === false ? (
               <Form method="post">
                 <Button
                   name={INTENT_FIELD_NAME}
-                  value="publish"
+                  value={FIRST_PUBLISH_EVENT_INTENT}
                   type="submit"
                   variant="outline"
                   fullSize
@@ -253,22 +321,16 @@ export default function Settings() {
                   {locales.route.publishCta}
                 </Button>
               </Form>
-            </div>
-          </SettingsNavigation.MobileActionSection>
-        ) : null}
-        {event.published === false ? (
-          <SettingsNavigation.DesktopActionSection>
-            <span>{locales.route.publishHint}</span>
-            <Form method="post">
+            ) : (
               <Button
-                name={INTENT_FIELD_NAME}
-                value="publish"
-                type="submit"
+                as="link"
+                to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" } })}`}
                 variant="outline"
+                preventScrollReset
               >
                 {locales.route.publishCta}
               </Button>
-            </Form>
+            )}
           </SettingsNavigation.DesktopActionSection>
         ) : null}
         {links.map((link) => {
@@ -311,6 +373,88 @@ export default function Settings() {
           <Outlet />
         </SettingsNavigation.Content>
       </SettingsNavigation>
+      {issues.length > 0 ? (
+        <Modal searchParam={PUBLISH_EVENT_MODAL_SEARCH_PARAM}>
+          <Modal.Title>
+            {locales.route.modal.publishEventModal.withIssues.headline}
+          </Modal.Title>
+          <Modal.Section>
+            {locales.route.modal.publishEventModal.withIssues.description}
+            <div className="flex flex-col gap-4">
+              {issues.map((issue, index) => {
+                return (
+                  <div
+                    key={`${issue.section}-${issue.field}-${index}`}
+                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4 text-neutral-700"
+                  >
+                    <p className="font-semibold text-lg">
+                      {
+                        locales.route.menu[
+                          issue.section as keyof typeof locales.route.menu
+                        ]
+                      }
+                    </p>
+                    <div className="flex gap-2 items-center">
+                      <p className="text-sm">{issue.message}</p>
+                      <div className="rounded-full w-2 h-2 bg-primary-300" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Modal.Section>
+          <Modal.Controls>
+            <Button
+              as="link"
+              to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}
+              fullSize
+            >
+              {locales.route.modal.publishEventModal.withIssues.cancel}
+            </Button>
+            <Form method="post" className="w-full">
+              <Button
+                type="submit"
+                fullSize
+                variant="outline"
+                name={INTENT_FIELD_NAME}
+                value={PUBLISH_EVENT_INTENT}
+              >
+                {locales.route.modal.publishEventModal.withIssues.submit}
+              </Button>
+            </Form>
+          </Modal.Controls>
+        </Modal>
+      ) : (
+        <Modal searchParam={PUBLISH_EVENT_MODAL_SEARCH_PARAM}>
+          <Modal.Title>
+            {locales.route.modal.publishEventModal.noIssues.headline}
+          </Modal.Title>
+          <Modal.Section>
+            {locales.route.modal.publishEventModal.noIssues.description}
+            <Hint>
+              {insertComponentsIntoLocale(
+                locales.route.modal.publishEventModal.noIssues.hint,
+                [<span key="semibold" className="font-semibold" />]
+              )}
+            </Hint>
+          </Modal.Section>
+          <Modal.Controls>
+            <Form method="post" className="w-full">
+              <Button type="submit" fullSize>
+                {locales.route.modal.publishEventModal.noIssues.submit}
+              </Button>
+            </Form>
+            <Button
+              as="link"
+              to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}
+              variant="outline"
+              fullSize
+            >
+              {locales.route.modal.publishEventModal.noIssues.cancel}
+            </Button>
+          </Modal.Controls>
+        </Modal>
+      )}
     </BasicStructure>
   );
 }
