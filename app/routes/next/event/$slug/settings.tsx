@@ -164,6 +164,11 @@ export default function Settings() {
     .replace(`/next/event/${event.slug}/settings/`, "")
     .split("/")[0];
   const links = [
+    {
+      to: `participants/list?${Deep}=true`,
+      label: locales.route.menu.participants,
+      count: event._count.participants,
+    },
     { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
       to: `registration/access?${Deep}=true`,
@@ -189,11 +194,7 @@ export default function Settings() {
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
-    {
-      to: `participants/list?${Deep}=true`,
-      label: locales.route.menu.participants,
-      count: event._count.participants,
-    },
+
     {
       to:
         event._count.responsibleOrganizations > 0

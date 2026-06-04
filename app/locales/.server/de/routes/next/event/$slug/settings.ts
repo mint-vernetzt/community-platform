@@ -11,7 +11,7 @@ export const locale = {
     details: "Event Details",
     documents: "Dokumente verwalten",
     location: "Ort und Zugänglichkeit",
-    participants: "Teilnehmer:innen",
+    participants: "Teilnehmende",
     registration: "Registrierung",
     relatedEvents: "Zugehörige Events",
     responsibleOrgs: "Verantwortliche Organisationen",
@@ -30,7 +30,7 @@ export const locale = {
       withIssues: {
         headline: "Ergänzungen empfohlen",
         description:
-          "Du kannst dein Event veröffentlichen, jedoch empfehlen wir vorher noch folgende Angaben in den Einstellungen zu ergänzen:",
+          "Du kannst Dein Event veröffentlichen, jedoch empfehlen wir vorher noch folgende Angaben in den Einstellungen zu ergänzen:",
         submit: "Trotzdem veröffentlichen",
         cancel: "Zurück zu den Einstellungen",
       },
