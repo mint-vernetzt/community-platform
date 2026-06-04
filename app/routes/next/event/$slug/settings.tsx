@@ -157,7 +157,6 @@ export default function Settings() {
   const { locales, event, issues } = loaderData;
   const [searchParams] = useSearchParams();
 
-  const publishEventModal = searchParams.get(PUBLISH_EVENT_MODAL_SEARCH_PARAM);
   const deep = searchParams.get(Deep);
 
   const location = useLocation();
