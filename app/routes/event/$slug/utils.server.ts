@@ -36,17 +36,12 @@ export async function filterEventConferenceLink(options: {
 
   let conferenceLink = event.conferenceLink;
   let conferenceCode = event.conferenceCode;
-  let conferenceLinkToBeAnnounced = false;
-
-  if (allowedToSeeConferenceLink && conferenceLink === null) {
-    conferenceLinkToBeAnnounced = true;
-  }
 
   if (allowedToSeeConferenceLink === false) {
     conferenceLink = null;
     conferenceCode = null;
   }
-  return { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced };
+  return { conferenceLink, conferenceCode };
 }
 
 // old

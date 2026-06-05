@@ -331,13 +331,12 @@ export async function loader(args: LoaderFunctionArgs) {
     sessionUser
   );
 
-  const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
-    await filterEventConferenceLink({
-      event,
-      mode,
-      isMember,
-      inPast,
-    });
+  const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
+    event,
+    mode,
+    isMember,
+    inPast,
+  });
 
   const enhancedEvent = {
     ...event,
@@ -347,7 +346,6 @@ export async function loader(args: LoaderFunctionArgs) {
     contactPersons,
     conferenceLink,
     conferenceCode,
-    conferenceLinkToBeAnnounced,
     _count: {
       ...event._count,
       participants: participantsCount,
@@ -741,9 +739,6 @@ function Detail() {
                     .slug as keyof typeof loaderData.locales.stages
                 }
                 conferenceLink={loaderData.event.conferenceLink}
-                conferenceLinkToBeAnnounced={
-                  loaderData.event.conferenceLinkToBeAnnounced
-                }
                 locales={loaderData.locales}
               />
             )}
