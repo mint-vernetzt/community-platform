@@ -375,14 +375,14 @@ function TeamList() {
                       </>
                     ) : (
                       <Form
-                        id={`remove-admin-form-${teamMember.id}`}
+                        id={`remove-team-member-form-${teamMember.id}`}
                         method="POST"
                         preventScrollReset
                       >
                         <input
                           type="hidden"
                           name={TEAM_MEMBER_ID}
-                          value={teamMember.id}
+                          defaultValue={teamMember.id}
                         />
                         <Button
                           type="submit"
