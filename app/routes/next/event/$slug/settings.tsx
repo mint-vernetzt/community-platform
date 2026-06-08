@@ -35,6 +35,7 @@ import {
 } from "./settings.server";
 import {
   FIRST_PUBLISH_EVENT_INTENT,
+  getLinkIssueInfo,
   PUBLISH_EVENT_INTENT,
   PUBLISH_EVENT_MODAL_SEARCH_PARAM,
 } from "./settings.shared";
@@ -72,10 +73,14 @@ export async function loader(args: LoaderFunctionArgs) {
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   // TODO: functionality
-  const issues: { section: string; field: string; message: string }[] = [];
+  const issues: {
+    section: string;
+    field: string;
+    message: string;
+  }[] = [];
+
   if (event.publishIntended) {
     // aggregate issues
-
     // Test
     issues.push({
       section: "registration",
@@ -163,7 +168,15 @@ export default function Settings() {
   const leafPathname = location.pathname
     .replace(`/next/event/${event.slug}/settings/`, "")
     .split("/")[0];
-  const links = [
+  const links: Array<{
+    to: string;
+    label: string;
+    count?: number;
+    disabled?: boolean;
+    hint?: string;
+    issues?: Array<{ section: string; field: string; message: string }>;
+    critical?: boolean;
+  }> = [
     {
       to: `participants/list?${Deep}=true`,
       label: locales.route.menu.participants,
@@ -172,14 +185,22 @@ export default function Settings() {
       hint:
         event.published === false
           ? locales.route.menuHints.participantsDisabledUntilPublished
-          : event._count.waitingList > 0
-            ? locales.route.menuHints.waitingListHasMembers
-            : undefined,
+          : event.openForRegistration === false &&
+              event._count.participants === 0
+            ? locales.route.menuHints.inviteParticipants
+            : event._count.waitingList > 0
+              ? locales.route.menuHints.waitingListHasMembers
+              : undefined,
     },
     { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
       to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
+      ...getLinkIssueInfo({
+        section: "registration",
+        issues: loaderData.issues,
+        locales: locales.route.issues,
+      }),
     },
     { to: `details/info?${Deep}=true`, label: locales.route.menu.details },
     { to: `location?${Deep}=true`, label: locales.route.menu.location },
@@ -399,8 +420,12 @@ export default function Settings() {
                         ) : null}
                       </span>
                       {link.hint && (
-                        <span className="font-normal text-base">
+                        <span className="font-normal text-base flex items-center gap-2">
                           {link.hint}
+                          {Array.isArray(link.issues) &&
+                            link.issues.length > 0 && (
+                              <span className="rounded-full w-2 h-2 bg-primary-300" />
+                            )}
                         </span>
                       )}
                     </div>

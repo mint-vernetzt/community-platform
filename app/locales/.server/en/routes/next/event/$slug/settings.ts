@@ -22,6 +22,7 @@ export const locale = {
   menuHints: {
     participantsDisabledUntilPublished:
       "Once your event is published, you can manage your participants here.",
+    inviteParticipants: "Invite participants",
     waitingListHasMembers: "People on the waiting list",
   },
   errors: {
@@ -52,5 +53,6 @@ export const locale = {
     registration: {
       missingExternalRegistrationUrl: "Add external registration link",
     },
+    multiple: "Add information",
   },
 } as const;
