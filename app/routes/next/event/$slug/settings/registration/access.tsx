@@ -153,7 +153,7 @@ export async function action(args: ActionFunctionArgs) {
   ) {
     try {
       await updateEventRegistrationAccess({
-        eventId: event.id,
+        event,
         external: intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
       });
     } catch (error) {
@@ -174,7 +174,7 @@ export async function action(args: ActionFunctionArgs) {
   ) {
     try {
       await updateEventRegistrationAccess({
-        eventId: event.id,
+        event,
         openForRegistration: intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
       });
     } catch (error) {
@@ -201,7 +201,7 @@ export async function action(args: ActionFunctionArgs) {
 
     try {
       await updateEventExternalRegistrationUrl({
-        eventId: event.id,
+        event,
         externalRegistrationUrl: submission.value.externalRegistrationUrl,
       });
       const toastHeaders = await createToastHeaders({
@@ -333,6 +333,16 @@ function RegistrationAccess() {
               value={SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT}
               active={event.external === false}
               disabled={event.published}
+              buttonProps={{
+                onClick: (changeEvent) => {
+                  if (event.external === false) {
+                    changeEvent.preventDefault();
+                  } else {
+                    // Reset the external registration url input when switching back to internal
+                    form.reset();
+                  }
+                },
+              }}
             >
               <RadioSubmitButtonSettings.Title>
                 {locales.route.type.internal.headline}
