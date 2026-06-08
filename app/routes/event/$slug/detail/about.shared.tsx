@@ -82,7 +82,6 @@ export function hasGeneralInfo(event: {
   focuses: unknown[];
   conferenceLink: string | null;
   conferenceCode: string | null;
-  conferenceLinkToBeAnnounced: boolean;
   experienceLevel: {
     slug: string;
   } | null;
@@ -96,8 +95,7 @@ export function hasGeneralInfo(event: {
     hasFocuses(event) ||
     hasExperienceLevel(event) ||
     hasTags(event) ||
-    hasConferenceLink(event) ||
-    event.conferenceLinkToBeAnnounced
+    hasConferenceLink(event)
   );
 }
 
