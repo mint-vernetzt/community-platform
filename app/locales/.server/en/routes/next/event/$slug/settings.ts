@@ -24,6 +24,7 @@ export const locale = {
       "Once your event is published, you can manage your participants here.",
     inviteParticipants: "Invite participants",
     waitingListHasMembers: "People on the waiting list",
+    externalEvent: "This event is managed externally",
   },
   errors: {
     invalidIntent: "This action is not allowed",

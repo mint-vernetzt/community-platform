@@ -181,16 +181,18 @@ export default function Settings() {
       to: `participants/list?${Deep}=true`,
       label: locales.route.menu.participants,
       count: event._count.participants,
-      disabled: event.published === false,
+      disabled: event.published === false || event.external,
       hint:
         event.published === false
           ? locales.route.menuHints.participantsDisabledUntilPublished
-          : event.openForRegistration === false &&
-              event._count.participants === 0
-            ? locales.route.menuHints.inviteParticipants
-            : event._count.waitingList > 0
-              ? locales.route.menuHints.waitingListHasMembers
-              : undefined,
+          : event.external
+            ? locales.route.menuHints.externalEvent
+            : event.openForRegistration === false &&
+                event._count.participants === 0
+              ? locales.route.menuHints.inviteParticipants
+              : event._count.waitingList > 0
+                ? locales.route.menuHints.waitingListHasMembers
+                : undefined,
     },
     { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
