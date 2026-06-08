@@ -3,11 +3,13 @@ import { prismaClient } from "~/prisma.server";
 
 export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
+    where: { slug },
     select: {
       id: true,
       name: true,
       slug: true,
       published: true,
+      publishIntended: true,
       parentEventId: true,
       _count: {
         select: {
@@ -21,7 +23,6 @@ export async function getEventBySlug(slug: string) {
         },
       },
     },
-    where: { slug },
   });
   return event;
 }
@@ -29,7 +30,8 @@ export async function getEventBySlug(slug: string) {
 export async function updateEventBySlug(
   slug: string,
   data: {
-    published: boolean;
+    published?: boolean;
+    publishIntended?: boolean;
   }
 ) {
   const updatedEvent = await prismaClient.event.update({
