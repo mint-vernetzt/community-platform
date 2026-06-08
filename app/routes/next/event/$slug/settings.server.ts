@@ -20,6 +20,7 @@ export async function getEventBySlug(slug: string) {
           responsibleOrganizations: true,
           documents: true,
           childEvents: true,
+          waitingList: true,
         },
       },
     },

@@ -202,14 +202,14 @@ function Item(props: {
   const { contentSmallerThanMenu } = useSettingsNavigationContext();
 
   const classes = classNames(
-    "relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter",
+    "items-center relative border-b border-neutral-200 last:border-b-0 focus-within:outline-2 focus-within:outline-primary-200 focus-within:-outline-offset-2 group/counter",
     contentSmallerThanMenu ? "lg:last:rounded-b-lg" : "lg:last:rounded-bl-lg"
   );
   return (
     <SettingsNavigationItemContext value={{ active, critical }}>
       <li className={classes}>
         <StateFlag />
-        {children}
+        <div className="flex flex-col">{children}</div>
       </li>
     </SettingsNavigationItemContext>
   );
@@ -218,15 +218,18 @@ function Item(props: {
 function getSettingsNavigationItemStyles(options: {
   active?: boolean;
   critical?: boolean;
+  disabled?: boolean;
 }) {
-  const { active = false, critical = false } = options;
+  const { active = false, critical = false, disabled = false } = options;
   const classes = classNames(
-    "w-full p-4 lg:p-8 bg-white flex items-center justify-between gap-2 text-lg lg:text-3xl font-semibold leading-[22px] lg:leading-7 focus:outline-none",
+    "w-full min-h-22.5 lg:h-24 p-4 lg:px-8 bg-white flex items-center justify-between gap-2 text-lg lg:text-3xl font-semibold leading-5.5 lg:leading-7 focus:outline-none",
     critical
-      ? "text-negative-700 hover:text-negative-900"
+      ? "text-negative-700"
       : active
-        ? "lg:text-primary hover:text-primary"
-        : "text-neutral-700 hover:text-primary"
+        ? "lg:text-primary"
+        : "text-neutral-700",
+    disabled === false && critical && "hover:text-negative-900",
+    disabled === false && critical === false && "hover:text-primary"
   );
   return {
     className: classes,

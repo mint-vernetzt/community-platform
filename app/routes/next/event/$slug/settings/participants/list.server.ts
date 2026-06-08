@@ -130,6 +130,8 @@ export async function getEventBySlug(slug: string) {
     where: { slug },
     select: {
       id: true,
+      published: true,
+      external: true,
     },
   });
   return event;

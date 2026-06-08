@@ -71,11 +71,16 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/participants/waiting-list"
     ];
 
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const deep = searchParams.get(Deep);
+
+  if (event.published === false || event.external) {
+    return redirect(`../../time-period?${Deep}=${deep}`);
+  }
 
   const result = await getWaitingListOfEvent({
     eventId: event.id,
@@ -128,6 +133,13 @@ export async function action(args: ActionFunctionArgs) {
 
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.published === false || event.external) {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    const deep = searchParams.get(Deep);
+    return redirect(`../../time-period?${Deep}=${deep}`);
+  }
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, {

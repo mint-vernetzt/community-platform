@@ -168,6 +168,13 @@ export default function Settings() {
       to: `participants/list?${Deep}=true`,
       label: locales.route.menu.participants,
       count: event._count.participants,
+      disabled: event.published === false,
+      hint:
+        event.published === false
+          ? locales.route.menuHints.participantsDisabledUntilPublished
+          : event._count.waitingList > 0
+            ? locales.route.menuHints.waitingListHasMembers
+            : undefined,
     },
     { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
@@ -224,6 +231,7 @@ export default function Settings() {
     {
       to: `danger-zone/change-url?${Deep}=true`,
       label: locales.route.menu.dangerZone,
+      critical: true,
     },
   ];
 
@@ -341,31 +349,65 @@ export default function Settings() {
                 leafPathname ===
                 link.to.replace(`?${Deep}=true`, "").split("/")[0]
               }
-              critical={link.to.includes("danger-zone")}
+              critical={link.critical}
             >
-              <NavLink
-                to={link.to}
-                prefetch="intent"
-                className={() => {
-                  const isActive =
-                    leafPathname ===
-                    link.to.replace(`?${Deep}=true`, "").split("/")[0];
-                  return SettingsNavigation.getSettingsNavigationItemStyles({
-                    active: isActive,
-                    critical: link.to.includes("danger-zone"),
-                  }).className;
-                }}
-              >
-                <SettingsNavigation.Item.Label>
-                  <span>{link.label}</span>
-                  {typeof link.count !== "undefined" && link.count !== 0 ? (
-                    <SettingsNavigation.Item.Counter>
-                      {link.count}
-                    </SettingsNavigation.Item.Counter>
-                  ) : null}
-                </SettingsNavigation.Item.Label>
-                <SettingsNavigation.Item.ChevronRightIcon />
-              </NavLink>
+              {link.disabled ? (
+                <div
+                  {...SettingsNavigation.getSettingsNavigationItemStyles({
+                    disabled: true,
+                  })}
+                >
+                  <SettingsNavigation.Item.Label>
+                    <div className="flex flex-col gap-2">
+                      <span>{link.label}</span>
+                      {link.hint && (
+                        <span className="font-normal text-base">
+                          {link.hint}
+                        </span>
+                      )}
+                    </div>
+                    {typeof link.count !== "undefined" && link.count !== 0 ? (
+                      <SettingsNavigation.Item.Counter>
+                        {link.count}
+                      </SettingsNavigation.Item.Counter>
+                    ) : null}
+                  </SettingsNavigation.Item.Label>
+                </div>
+              ) : (
+                <NavLink
+                  to={link.to}
+                  prefetch="intent"
+                  className={() => {
+                    const isActive =
+                      leafPathname ===
+                      link.to.replace(`?${Deep}=true`, "").split("/")[0];
+                    return SettingsNavigation.getSettingsNavigationItemStyles({
+                      active: isActive,
+                      critical: link.critical,
+                    }).className;
+                  }}
+                >
+                  <SettingsNavigation.Item.Label>
+                    <div className="flex flex-col gap-2">
+                      <span className="flex items-center gap-2">
+                        {link.label}
+                        {typeof link.count !== "undefined" &&
+                        link.count !== 0 ? (
+                          <SettingsNavigation.Item.Counter>
+                            {link.count}
+                          </SettingsNavigation.Item.Counter>
+                        ) : null}
+                      </span>
+                      {link.hint && (
+                        <span className="font-normal text-base">
+                          {link.hint}
+                        </span>
+                      )}
+                    </div>
+                  </SettingsNavigation.Item.Label>
+                  <SettingsNavigation.Item.ChevronRightIcon />
+                </NavLink>
+              )}
             </SettingsNavigation.Item>
           );
         })}

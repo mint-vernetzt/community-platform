@@ -19,6 +19,11 @@ export const locale = {
     team: "Team",
     timePeriod: "Date and time",
   },
+  menuHints: {
+    participantsDisabledUntilPublished:
+      "Once your event is published, you can manage your participants here.",
+    waitingListHasMembers: "People on the waiting list",
+  },
   errors: {
     invalidIntent: "This action is not allowed",
     publishFailed:

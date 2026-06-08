@@ -6,19 +6,7 @@ export async function getEventBySlug(slug: string) {
     select: {
       published: true,
       external: true,
-      _count: {
-        select: {
-          participants: true,
-          waitingList: true,
-          participantInvites: {
-            where: {
-              status: "pending",
-            },
-          },
-        },
-      },
     },
   });
-
   return event;
 }

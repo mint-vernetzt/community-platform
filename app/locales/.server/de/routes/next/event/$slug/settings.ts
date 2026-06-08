@@ -19,6 +19,11 @@ export const locale = {
     team: "Team",
     timePeriod: "Datum und Uhrzeit",
   },
+  menuHints: {
+    participantsDisabledUntilPublished:
+      "Sobald Dein Event veröffentlicht ist, kannst Du hier Deine Teilnehmenden verwalten.",
+    waitingListHasMembers: "Personen auf der Warteliste",
+  },
   errors: {
     invalidIntent: "Diese Aktion ist nicht zulässig",
     publishFailed:
