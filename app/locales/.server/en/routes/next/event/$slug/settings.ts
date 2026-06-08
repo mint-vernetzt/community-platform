@@ -19,6 +19,13 @@ export const locale = {
     team: "Team",
     timePeriod: "Date and time",
   },
+  menuHints: {
+    participantsDisabledUntilPublished:
+      "Once your event is published, you can manage your participants here.",
+    inviteParticipants: "Invite participants",
+    waitingListHasMembers: "People on the waiting list",
+    externalEvent: "This event is managed externally",
+  },
   errors: {
     invalidIntent: "This action is not allowed",
     publishFailed:
@@ -47,5 +54,6 @@ export const locale = {
     registration: {
       missingExternalRegistrationUrl: "Add external registration link",
     },
+    multiple: "Add information",
   },
 } as const;

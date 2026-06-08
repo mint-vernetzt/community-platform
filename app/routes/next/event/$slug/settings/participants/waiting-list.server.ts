@@ -19,6 +19,8 @@ export async function getEventBySlug(slug: string) {
     select: {
       id: true,
       moveUpToParticipants: true,
+      published: true,
+      external: true,
     },
   });
   return event;

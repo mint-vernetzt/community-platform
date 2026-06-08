@@ -48,6 +48,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
+  if (event.published === false || event.external) {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    const deep = searchParams.get(Deep);
+    return redirect(`./time-period?${Deep}=${deep}`);
+  }
+
   return { locales, event };
 }
 

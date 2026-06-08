@@ -11,13 +11,20 @@ export const locale = {
     details: "Event Details",
     documents: "Dokumente verwalten",
     location: "Ort und Zugänglichkeit",
-    participants: "Teilnehmer:innen",
+    participants: "Teilnehmende",
     registration: "Registrierung",
     relatedEvents: "Zugehörige Events",
     responsibleOrgs: "Verantwortliche Organisationen",
     speakers: "Speaker:innen",
     team: "Team",
     timePeriod: "Datum und Uhrzeit",
+  },
+  menuHints: {
+    participantsDisabledUntilPublished:
+      "Sobald Dein Event veröffentlicht ist, kannst Du hier Deine Teilnehmenden verwalten.",
+    inviteParticipants: "Lade Teilnehmende ein",
+    waitingListHasMembers: "Personen auf der Warteliste",
+    externalEvent: "Dieses Event wird extern verwaltet",
   },
   errors: {
     invalidIntent: "Diese Aktion ist nicht zulässig",
@@ -30,7 +37,7 @@ export const locale = {
       withIssues: {
         headline: "Ergänzungen empfohlen",
         description:
-          "Du kannst dein Event veröffentlichen, jedoch empfehlen wir vorher noch folgende Angaben in den Einstellungen zu ergänzen:",
+          "Du kannst Dein Event veröffentlichen, jedoch empfehlen wir vorher noch folgende Angaben in den Einstellungen zu ergänzen:",
         submit: "Trotzdem veröffentlichen",
         cancel: "Zurück zu den Einstellungen",
       },
@@ -48,5 +55,6 @@ export const locale = {
     registration: {
       missingExternalRegistrationUrl: "Externer Registrierungslink hinterlegen",
     },
+    multiple: "Ergänze Informationen",
   },
 } as const;

@@ -11,6 +11,8 @@ export async function getEventBySlug(slug: string) {
       published: true,
       publishIntended: true,
       parentEventId: true,
+      openForRegistration: true,
+      external: true,
       _count: {
         select: {
           admins: true,
@@ -20,6 +22,7 @@ export async function getEventBySlug(slug: string) {
           responsibleOrganizations: true,
           documents: true,
           childEvents: true,
+          waitingList: true,
         },
       },
     },

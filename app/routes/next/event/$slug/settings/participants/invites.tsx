@@ -14,7 +14,7 @@ import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { detectLanguage } from "~/root.server";
 import {
-  getEventIdBySlug,
+  getEventBySlug,
   getInvitedProfilesToParticipateOnEvent,
   revokeInviteOfProfileToParticipateOnEvent,
 } from "./invites.server";
@@ -35,6 +35,7 @@ import List from "~/components/next/List";
 import ListItemPersonOrg from "~/components/next/ListItemPersonOrg";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
 import { Button } from "@mint-vernetzt/components/src/molecules/Button";
+import { Deep } from "~/lib/utils/searchParams";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -65,20 +66,28 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/participants/invites"
     ];
 
-  const eventId = await getEventIdBySlug(params.slug);
-  invariantResponse(eventId !== null, "Event not found", { status: 404 });
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.published === false || event.external) {
+    const deep = searchParams.get(Deep);
+    return redirect(`../../time-period?${Deep}=${deep}`);
+  }
 
   const { submission, profiles } = await getInvitedProfilesToParticipateOnEvent(
     {
       request,
-      eventId,
+      eventId: event.id,
       authClient,
       locales: locales.route.search,
     }
   );
 
   if (profiles.length === 0) {
-    return redirect(`/next/event/${params.slug}/settings/participants/add`);
+    return redirect("../add");
   }
 
   return { locales, language, profiles, submission };
@@ -108,8 +117,15 @@ export async function action(args: ActionFunctionArgs) {
     return redirect(redirectPath);
   }
 
-  const event = await getEventIdBySlug(slug);
+  const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.published === false || event.external) {
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    const deep = searchParams.get(Deep);
+    return redirect(`../../time-period?${Deep}=${deep}`);
+  }
 
   const language = await detectLanguage(request);
   const locales =
@@ -128,7 +144,7 @@ export async function action(args: ActionFunctionArgs) {
 
   try {
     await revokeInviteOfProfileToParticipateOnEvent({
-      eventId: event,
+      eventId: event.id,
       profileId: submission.value[PROFILE_ID],
       locales: {
         mail: locales.route.mail.revokeInviteToParticipateOnEvent,

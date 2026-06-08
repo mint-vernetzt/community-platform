@@ -60,6 +60,7 @@ export async function getEventBySlug(
       canceled: true,
       conferenceLink: true,
       conferenceCode: true,
+      external: true,
       stage: {
         select: {
           slug: true,

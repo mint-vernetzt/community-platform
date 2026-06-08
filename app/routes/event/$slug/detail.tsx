@@ -610,7 +610,15 @@ function Detail() {
   return (
     <BasicStructure>
       {loaderData.abilities["next_event_settings"].hasAccess ? (
-        <Button as="link" to={`/next/event/${loaderData.event.slug}/settings`}>
+        <Button
+          as="link"
+          to={
+            loaderData.event.published && loaderData.event.external === false
+              ? `/next/event/${loaderData.event.slug}/settings/participants?${Deep}=false`
+              : `/next/event/${loaderData.event.slug}/settings/time-period?${Deep}=false`
+          }
+          prefetch="intent"
+        >
           Zu den neuen Event-Einstellungen
         </Button>
       ) : null}

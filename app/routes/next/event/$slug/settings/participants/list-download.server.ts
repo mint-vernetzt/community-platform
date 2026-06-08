@@ -5,6 +5,8 @@ export async function getParticipantsOfEvent(slug: string) {
     where: { slug },
     select: {
       name: true,
+      published: true,
+      external: true,
       participants: {
         select: {
           profile: {
