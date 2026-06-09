@@ -516,6 +516,7 @@ model Event {
   description                      String?
   descriptionRTEState              String?                                        @map("description_rte_state")
   published                        Boolean                                        @default(false)
+  publishIntended                  Boolean                                        @default(false) @map("publish_intended")
   createdAt                        DateTime                                       @default(now()) @map("created_at")
   updatedAt                        DateTime                                       @default(now()) @updatedAt @map("updated_at")
   experienceLevelId                String?                                        @map("experience_level_id")
@@ -589,6 +590,7 @@ model EventVisibility {
   description                      Boolean @default(true)
   descriptionRTEState              Boolean @default(false) @map("description_rte_state")
   published                        Boolean @default(true)
+  publishIntended                  Boolean @default(true) @map("publish_intended")
   createdAt                        Boolean @default(true) @map("created_at")
   updatedAt                        Boolean @default(true) @map("updated_at")
   experienceLevelId                Boolean @default(true) @map("experience_level_id")

@@ -68,22 +68,27 @@ import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidation
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+
+  invariantResponse(params.slug !== undefined, "No valid route", {
+    status: 400,
+  });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedOrganizationRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  const mode = deriveMode(sessionUser);
+
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["organization/$slug/settings/manage"];
-
-  const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUser(authClient);
-  const mode = deriveMode(sessionUser);
-
-  // check slug exists (throw bad request if not)
-  invariantResponse(
-    params.slug !== undefined,
-    locales.route.error.invalidRoute,
-    {
-      status: 400,
-    }
-  );
 
   const organization = await getOrganizationWithNetworksAndNetworkMembers({
     slug: params.slug,

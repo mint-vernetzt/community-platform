@@ -1,8 +1,18 @@
 import { redirect, type LoaderFunctionArgs } from "react-router";
 import { createAuthClient } from "~/auth.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { isBotRequest } from "~/utils.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const url = new URL(request.url);
   const { authClient, headers } = createAuthClient(request);
   invariantResponse(

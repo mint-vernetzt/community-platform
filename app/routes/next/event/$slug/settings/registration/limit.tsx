@@ -45,31 +45,54 @@ import {
   updateEventById,
 } from "./limit.server";
 import {
+  ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
   createMoveUpToParticipantsSchema,
   createParticipantLimitSchema,
+  DECLINE_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
+  FILL_UP_PARTICIPANTS_AUTOMATICALLY,
   LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM,
+  FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM,
   UPDATE_MOVE_UP_TO_PARTICIPANTS_INTENT,
   UPDATE_PARTICIPANT_LIMIT_INTENT,
 } from "./limit.shared";
+import { useRef } from "react";
+import { createAuthClient, getSessionUser } from "~/auth.server";
+import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/registration/limit"];
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   if (event.external || event.openForRegistration === false) {
     return redirect(
-      `/next/event/${slug}/settings/registration/access?${Deep}=true`,
+      `/next/event/${params.slug}/settings/registration/access?${Deep}=true`,
       {
         status: 302,
       }
@@ -115,8 +138,16 @@ export async function action(args: ActionFunctionArgs) {
     }
 
     try {
-      await updateEventById(eventId, {
-        moveUpToParticipants: submission.value.moveUpToParticipants,
+      await updateEventById({
+        eventId,
+        data: {
+          moveUpToParticipants: submission.value.moveUpToParticipants,
+        },
+        locales: {
+          mail: {
+            moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+          },
+        },
       });
       const toastHeaders = await createToastHeaders({
         id: "update-participant-limit-success",
@@ -148,8 +179,19 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   try {
-    await updateEventById(eventId, {
-      participantLimit: submission.value.participantLimit,
+    await updateEventById({
+      eventId,
+      data: {
+        participantLimit: submission.value.participantLimit,
+      },
+      moveUpToParticipantsAutomatically:
+        submission.value[FILL_UP_PARTICIPANTS_AUTOMATICALLY] ===
+        ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY,
+      locales: {
+        mail: {
+          moveUpToParticipants: locales.route.mail.moveUpToParticipants,
+        },
+      },
     });
     const toastHeaders = await createToastHeaders({
       id: "update-participant-limit-success",
@@ -177,6 +219,8 @@ export async function action(args: ActionFunctionArgs) {
 function RegistrationLimit() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+
+  const fillUpParticipantsAutomatically = useRef(false);
 
   const { locales } = loaderData;
 
@@ -250,6 +294,46 @@ function RegistrationLimit() {
           event.preventDefault();
           const action = `?${extendSearchParams(searchParams, { remove: [LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM] })}`;
           void submit(context.formData, {
+            ...context,
+            action,
+            preventScrollReset: true,
+            replace: true,
+          });
+        }
+      } else if (
+        submission.status === "success" &&
+        (submission.value.participantLimit === null ||
+          submission.value.participantLimit >
+            loaderData.event._count.participants) &&
+        loaderData.event._count.waitingList > 0
+      ) {
+        if (
+          searchParams.get(
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+          ) === null ||
+          searchParams.get(
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM
+          ) === "false"
+        ) {
+          event.preventDefault();
+          const url = `?${extendSearchParams(searchParams, { addOrReplace: { [FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM]: "true" } })}`;
+          void submit(url, {
+            preventScrollReset: true,
+            replace: true,
+          });
+        } else {
+          event.preventDefault();
+          const action = `?${extendSearchParams(searchParams, { remove: [FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM] })}`;
+
+          const formData = context.formData;
+          formData.set(
+            FILL_UP_PARTICIPANTS_AUTOMATICALLY,
+            fillUpParticipantsAutomatically.current
+              ? ACCEPT_FILL_UP_PARTICIPANTS_AUTOMATICALLY
+              : DECLINE_FILL_UP_PARTICIPANTS_AUTOMATICALLY
+          );
+
+          void submit(formData, {
             ...context,
             action,
             preventScrollReset: true,
@@ -331,12 +415,18 @@ function RegistrationLimit() {
             </Input>
           </Form>
           <Modal searchParam={LIMIT_BELOW_CURRENT_PARTICIPANTS_SEARCH_PARAM}>
-            <Modal.Title>{locales.route.limit.form.modal.title}</Modal.Title>
+            <Modal.Title>
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .title
+              }
+            </Modal.Title>
             <Modal.Section>
               <p>
                 {insertComponentsIntoLocale(
                   insertParametersIntoLocale(
-                    locales.route.limit.form.modal.description,
+                    locales.route.limit.form.modal.limitBelowCurrentParticipants
+                      .description,
                     {
                       participantLimit:
                         participantLimitFields.participantLimit.value,
@@ -348,12 +438,81 @@ function RegistrationLimit() {
               </p>
             </Modal.Section>
             <Modal.SubmitButton form={participantLimitForm.id} level="negative">
-              {locales.route.limit.form.modal.submit}
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .submit
+              }
             </Modal.SubmitButton>
             <Modal.CloseButton route={location.pathname}>
-              {locales.route.limit.form.modal.cancel}
+              {
+                locales.route.limit.form.modal.limitBelowCurrentParticipants
+                  .cancel
+              }
             </Modal.CloseButton>
           </Modal>
+          <Modal
+            searchParam={FILL_UP_PARTICIPANTS_AUTOMATICALLY_MODAL_SEARCH_PARAM}
+          >
+            <Modal.Title>
+              {
+                locales.route.limit.form.modal
+                  .fillUpParticipantsAutomaticallyModal.title
+              }
+            </Modal.Title>
+            <Modal.Section>
+              <p>
+                {insertComponentsIntoLocale(
+                  insertParametersIntoLocale(
+                    locales.route.limit.form.modal
+                      .fillUpParticipantsAutomaticallyModal.description,
+                    {
+                      participantLimit:
+                        typeof participantLimitFields.participantLimit.value !==
+                        "undefined"
+                          ? participantLimitFields.participantLimit.value
+                          : locales.route.limit.form.modal
+                              .fillUpParticipantsAutomaticallyModal
+                              .noParticipantLimit,
+                      participantsCount: loaderData.event._count.participants,
+                      waitingListCount: loaderData.event._count.waitingList,
+                    }
+                  ),
+                  [<span key="highlight" className="font-semibold" />]
+                )}
+              </p>
+            </Modal.Section>
+            <Modal.Controls>
+              <Button
+                onClick={() => {
+                  fillUpParticipantsAutomatically.current = true;
+                }}
+                variant="normal"
+                type="submit"
+                form={participantLimitForm.id}
+                fullSize
+              >
+                {
+                  locales.route.limit.form.modal
+                    .fillUpParticipantsAutomaticallyModal.accept
+                }
+              </Button>
+              <Button
+                onClick={() => {
+                  fillUpParticipantsAutomatically.current = false;
+                }}
+                variant="outline"
+                type="submit"
+                form={participantLimitForm.id}
+                fullSize
+              >
+                {
+                  locales.route.limit.form.modal
+                    .fillUpParticipantsAutomaticallyModal.decline
+                }
+              </Button>
+            </Modal.Controls>
+          </Modal>
+
           <div className="w-full flex flex-col md:flex-row-reverse gap-4 md:justify-start">
             <div className="w-full md:w-fit">
               <Button

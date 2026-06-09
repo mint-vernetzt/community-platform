@@ -380,13 +380,12 @@ export async function getEventBySlug(options: {
   });
 
   const isMember = await getIsMember(sessionUser, event);
-  const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
-    await filterEventConferenceLink({
-      event,
-      mode,
-      isMember,
-      inPast,
-    });
+  const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
+    event,
+    mode,
+    isMember,
+    inPast,
+  });
 
   const teamMembers = event.teamMembers.map((relation) => {
     let filteredProfile;
@@ -528,7 +527,6 @@ export async function getEventBySlug(options: {
       speakers,
       conferenceLink,
       conferenceCode,
-      conferenceLinkToBeAnnounced,
     },
   };
 }

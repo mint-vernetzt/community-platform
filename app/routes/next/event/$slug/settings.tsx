@@ -12,7 +12,11 @@ import {
   type LoaderFunctionArgs,
   type ActionFunctionArgs,
 } from "react-router";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import BackButton from "~/components/next/BackButton";
 import BasicStructure from "~/components/next/BasicStructure";
 import SettingsHeading from "~/components/next/SettingsHeading";
@@ -20,7 +24,7 @@ import SettingsNavigation from "~/components/next/SettingsNavigation";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
-import { Deep } from "~/lib/utils/searchParams";
+import { Deep, extendSearchParams } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
@@ -29,35 +33,63 @@ import {
   getRedirectPathOnProtectedEventRoute,
   updateEventBySlug,
 } from "./settings.server";
+import {
+  FIRST_PUBLISH_EVENT_INTENT,
+  getLinkIssueInfo,
+  PUBLISH_EVENT_INTENT,
+  PUBLISH_EVENT_MODAL_SEARCH_PARAM,
+} from "./settings.shared";
+import { Modal } from "~/components-next/Modal";
+import Hint from "~/components/next/Hint";
+import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const slug = params.slug;
-  invariantResponse(typeof slug === "string", "Slug is required", {
+
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
-  const sessionUser = await getSessionUserOrThrow(authClient);
+  const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/settings"];
 
-  await checkFeatureAbilitiesOrThrow(authClient, "next_event_settings");
-  await checkFeatureAbilitiesOrThrow(authClient, "events");
-
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, event };
+  // TODO: functionality
+  const issues: {
+    section: string;
+    field: string;
+    message: string;
+  }[] = [];
+
+  if (event.publishIntended) {
+    // aggregate issues
+    // Test
+    issues.push({
+      section: "registration",
+      field: "externalRegistrationUrl",
+      message: locales.route.issues.registration.missingExternalRegistrationUrl,
+    });
+  }
+
+  return { locales, event, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -85,14 +117,29 @@ export async function action(args: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const intent = formData.get(INTENT_FIELD_NAME);
-  invariantResponse(intent === "publish", locales.route.errors.invalidIntent, {
-    status: 400,
-  });
+  invariantResponse(
+    intent === FIRST_PUBLISH_EVENT_INTENT || intent === PUBLISH_EVENT_INTENT,
+    locales.route.errors.invalidIntent,
+    {
+      status: 400,
+    }
+  );
 
   try {
-    await updateEventBySlug(params.slug, {
-      published: true,
-    });
+    if (intent === FIRST_PUBLISH_EVENT_INTENT) {
+      await updateEventBySlug(params.slug, {
+        publishIntended: true,
+      });
+      const url = new URL(request.url);
+      const searchParams = extendSearchParams(url.searchParams, {
+        addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
+      });
+      return redirect(`${url.pathname}?${searchParams.toString()}`);
+    } else if (intent === PUBLISH_EVENT_INTENT) {
+      // await updateEventBySlug(params.slug, {
+      //   published: true,
+      // });
+    }
   } catch (error) {
     captureException(error);
     return redirectWithToast(`/event/${params.slug}/settings/time-period`, {
@@ -112,19 +159,50 @@ export async function action(args: ActionFunctionArgs) {
 
 export default function Settings() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, event } = loaderData;
+  const { locales, event, issues } = loaderData;
   const [searchParams] = useSearchParams();
+
   const deep = searchParams.get(Deep);
 
   const location = useLocation();
   const leafPathname = location.pathname
     .replace(`/next/event/${event.slug}/settings/`, "")
     .split("/")[0];
-  const links = [
+  const links: Array<{
+    to: string;
+    label: string;
+    count?: number;
+    disabled?: boolean;
+    hint?: string;
+    issues?: Array<{ section: string; field: string; message: string }>;
+    critical?: boolean;
+  }> = [
+    {
+      to: `participants/list?${Deep}=true`,
+      label: locales.route.menu.participants,
+      count: event._count.participants,
+      disabled: event.published === false || event.external,
+      hint:
+        event.published === false
+          ? locales.route.menuHints.participantsDisabledUntilPublished
+          : event.external
+            ? locales.route.menuHints.externalEvent
+            : event.openForRegistration === false &&
+                event._count.participants === 0
+              ? locales.route.menuHints.inviteParticipants
+              : event._count.waitingList > 0
+                ? locales.route.menuHints.waitingListHasMembers
+                : undefined,
+    },
     { to: `time-period?${Deep}=true`, label: locales.route.menu.timePeriod },
     {
       to: `registration/access?${Deep}=true`,
       label: locales.route.menu.registration,
+      ...getLinkIssueInfo({
+        section: "registration",
+        issues: loaderData.issues,
+        locales: locales.route.issues,
+      }),
     },
     { to: `details/info?${Deep}=true`, label: locales.route.menu.details },
     { to: `location?${Deep}=true`, label: locales.route.menu.location },
@@ -146,11 +224,7 @@ export default function Settings() {
       label: locales.route.menu.speakers,
       count: event._count.speakers,
     },
-    {
-      to: `participants/list?${Deep}=true`,
-      label: locales.route.menu.participants,
-      count: event._count.participants,
-    },
+
     {
       to:
         event._count.responsibleOrganizations > 0
@@ -180,6 +254,7 @@ export default function Settings() {
     {
       to: `danger-zone/change-url?${Deep}=true`,
       label: locales.route.menu.dangerZone,
+      critical: true,
     },
   ];
 
@@ -236,35 +311,57 @@ export default function Settings() {
               <p className="text-primary-700 text-base font-normal leading-5">
                 {locales.route.publishHint}
               </p>
-              <Form method="post">
-                <div className="w-full md:w-fit">
+              {event.publishIntended === false ? (
+                <Form method="post">
                   <Button
                     name={INTENT_FIELD_NAME}
-                    value="publish"
+                    value={FIRST_PUBLISH_EVENT_INTENT}
                     type="submit"
                     variant="outline"
                     fullSize
                   >
                     {locales.route.publishCta}
                   </Button>
-                </div>
-              </Form>
+                </Form>
+              ) : (
+                <Button
+                  as="link"
+                  to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" } })}`}
+                  variant="outline"
+                  fullSize
+                  preventScrollReset
+                >
+                  {locales.route.publishCta}
+                </Button>
+              )}
             </div>
           </SettingsNavigation.MobileActionSection>
         ) : null}
         {event.published === false ? (
           <SettingsNavigation.DesktopActionSection>
             <span>{locales.route.publishHint}</span>
-            <Form method="post">
+            {event.publishIntended === false ? (
+              <Form method="post">
+                <Button
+                  name={INTENT_FIELD_NAME}
+                  value={FIRST_PUBLISH_EVENT_INTENT}
+                  type="submit"
+                  variant="outline"
+                  fullSize
+                >
+                  {locales.route.publishCta}
+                </Button>
+              </Form>
+            ) : (
               <Button
-                name={INTENT_FIELD_NAME}
-                value="publish"
-                type="submit"
+                as="link"
+                to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" } })}`}
                 variant="outline"
+                preventScrollReset
               >
                 {locales.route.publishCta}
               </Button>
-            </Form>
+            )}
           </SettingsNavigation.DesktopActionSection>
         ) : null}
         {links.map((link) => {
@@ -275,31 +372,69 @@ export default function Settings() {
                 leafPathname ===
                 link.to.replace(`?${Deep}=true`, "").split("/")[0]
               }
-              critical={link.to.includes("danger-zone")}
+              critical={link.critical}
             >
-              <NavLink
-                to={link.to}
-                prefetch="intent"
-                className={() => {
-                  const isActive =
-                    leafPathname ===
-                    link.to.replace(`?${Deep}=true`, "").split("/")[0];
-                  return SettingsNavigation.getSettingsNavigationItemStyles({
-                    active: isActive,
-                    critical: link.to.includes("danger-zone"),
-                  }).className;
-                }}
-              >
-                <SettingsNavigation.Item.Label>
-                  <span>{link.label}</span>
-                  {typeof link.count !== "undefined" && link.count !== 0 ? (
-                    <SettingsNavigation.Item.Counter>
-                      {link.count}
-                    </SettingsNavigation.Item.Counter>
-                  ) : null}
-                </SettingsNavigation.Item.Label>
-                <SettingsNavigation.Item.ChevronRightIcon />
-              </NavLink>
+              {link.disabled ? (
+                <div
+                  {...SettingsNavigation.getSettingsNavigationItemStyles({
+                    disabled: true,
+                  })}
+                >
+                  <SettingsNavigation.Item.Label>
+                    <div className="flex flex-col gap-2">
+                      <span>{link.label}</span>
+                      {link.hint && (
+                        <span className="font-normal text-base">
+                          {link.hint}
+                        </span>
+                      )}
+                    </div>
+                    {typeof link.count !== "undefined" && link.count !== 0 ? (
+                      <SettingsNavigation.Item.Counter>
+                        {link.count}
+                      </SettingsNavigation.Item.Counter>
+                    ) : null}
+                  </SettingsNavigation.Item.Label>
+                </div>
+              ) : (
+                <NavLink
+                  to={link.to}
+                  prefetch="intent"
+                  className={() => {
+                    const isActive =
+                      leafPathname ===
+                      link.to.replace(`?${Deep}=true`, "").split("/")[0];
+                    return SettingsNavigation.getSettingsNavigationItemStyles({
+                      active: isActive,
+                      critical: link.critical,
+                    }).className;
+                  }}
+                >
+                  <SettingsNavigation.Item.Label>
+                    <div className="flex flex-col gap-2">
+                      <span className="flex items-center gap-2">
+                        {link.label}
+                        {typeof link.count !== "undefined" &&
+                        link.count !== 0 ? (
+                          <SettingsNavigation.Item.Counter>
+                            {link.count}
+                          </SettingsNavigation.Item.Counter>
+                        ) : null}
+                      </span>
+                      {link.hint && (
+                        <span className="font-normal text-base flex items-center gap-2">
+                          {link.hint}
+                          {Array.isArray(link.issues) &&
+                            link.issues.length > 0 && (
+                              <span className="rounded-full w-2 h-2 bg-primary-300" />
+                            )}
+                        </span>
+                      )}
+                    </div>
+                  </SettingsNavigation.Item.Label>
+                  <SettingsNavigation.Item.ChevronRightIcon />
+                </NavLink>
+              )}
             </SettingsNavigation.Item>
           );
         })}
@@ -307,6 +442,88 @@ export default function Settings() {
           <Outlet />
         </SettingsNavigation.Content>
       </SettingsNavigation>
+      {issues.length > 0 ? (
+        <Modal searchParam={PUBLISH_EVENT_MODAL_SEARCH_PARAM}>
+          <Modal.Title>
+            {locales.route.modal.publishEventModal.withIssues.headline}
+          </Modal.Title>
+          <Modal.Section>
+            {locales.route.modal.publishEventModal.withIssues.description}
+            <div className="flex flex-col gap-4">
+              {issues.map((issue, index) => {
+                return (
+                  <div
+                    key={`${issue.section}-${issue.field}-${index}`}
+                    className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4 text-neutral-700"
+                  >
+                    <p className="font-semibold text-lg">
+                      {
+                        locales.route.menu[
+                          issue.section as keyof typeof locales.route.menu
+                        ]
+                      }
+                    </p>
+                    <div className="flex gap-2 items-center">
+                      <p className="text-sm">{issue.message}</p>
+                      <div className="rounded-full w-2 h-2 bg-primary-300" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Modal.Section>
+          <Modal.Controls>
+            <Button
+              as="link"
+              to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}
+              fullSize
+            >
+              {locales.route.modal.publishEventModal.withIssues.cancel}
+            </Button>
+            <Form method="post" className="w-full">
+              <Button
+                type="submit"
+                fullSize
+                variant="outline"
+                name={INTENT_FIELD_NAME}
+                value={PUBLISH_EVENT_INTENT}
+              >
+                {locales.route.modal.publishEventModal.withIssues.submit}
+              </Button>
+            </Form>
+          </Modal.Controls>
+        </Modal>
+      ) : (
+        <Modal searchParam={PUBLISH_EVENT_MODAL_SEARCH_PARAM}>
+          <Modal.Title>
+            {locales.route.modal.publishEventModal.noIssues.headline}
+          </Modal.Title>
+          <Modal.Section>
+            {locales.route.modal.publishEventModal.noIssues.description}
+            <Hint>
+              {insertComponentsIntoLocale(
+                locales.route.modal.publishEventModal.noIssues.hint,
+                [<span key="semibold" className="font-semibold" />]
+              )}
+            </Hint>
+          </Modal.Section>
+          <Modal.Controls>
+            <Form method="post" className="w-full">
+              <Button type="submit" fullSize>
+                {locales.route.modal.publishEventModal.noIssues.submit}
+              </Button>
+            </Form>
+            <Button
+              as="link"
+              to={`${location.pathname}?${extendSearchParams(searchParams, { remove: [PUBLISH_EVENT_MODAL_SEARCH_PARAM] })}`}
+              variant="outline"
+              fullSize
+            >
+              {locales.route.modal.publishEventModal.noIssues.cancel}
+            </Button>
+          </Modal.Controls>
+        </Modal>
+      )}
     </BasicStructure>
   );
 }

@@ -16,11 +16,10 @@ import { languageModuleMap } from "~/locales/.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { authClient } = createAuthClient(request);
 
+  const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
-
   if (sessionUser === null && redirectPath !== null) {
     return redirect(redirectPath);
   }

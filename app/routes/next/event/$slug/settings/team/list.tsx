@@ -47,25 +47,26 @@ import { INTENT_FIELD_NAME } from "~/form-helpers";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
-
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug,
+    slug: params.slug,
     sessionUser,
     authClient,
   });
   if (redirectPath !== null) {
     return redirect(redirectPath);
   }
-
-  invariantResponse(sessionUser !== null, "Unauthorized", { status: 401 }); // Needed for type narrowing
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -75,7 +76,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const searchParams = url.searchParams;
 
   const { teamMembers, submission } = await getTeamMembersOfEvent({
-    slug,
+    slug: params.slug,
     authClient,
     searchParams,
   });
@@ -246,6 +247,7 @@ function TeamList() {
   useEffect(() => {
     setTeamMembers(loaderData.teamMembers);
   }, [loaderData.teamMembers]);
+
   return (
     <>
       <h3 className="text-primary text-2xl font-bold leading-6.5 mt-2 mb-1">
@@ -286,113 +288,115 @@ function TeamList() {
                   : ""}
                 {teamMember.firstName} {teamMember.lastName}
               </ListItemPersonOrg.Headline>
-              {loaderData.teamMembers.length > 1 && (
-                <ListItemPersonOrg.Controls>
-                  {teamMember.isContactPerson ? (
-                    <Form
-                      id={`remove-contact-person-form-${teamMember.id}`}
-                      method="POST"
-                      preventScrollReset
+              <ListItemPersonOrg.Controls>
+                {teamMember.isContactPerson ? (
+                  <Form
+                    id={`remove-contact-person-form-${teamMember.id}`}
+                    method="POST"
+                    preventScrollReset
+                  >
+                    <input
+                      type="hidden"
+                      name={TEAM_MEMBER_ID}
+                      value={teamMember.id}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      name={INTENT_FIELD_NAME}
+                      value={REMOVE_CONTACT_PERSON_INTENT}
                     >
-                      <input
-                        type="hidden"
-                        name={TEAM_MEMBER_ID}
-                        value={teamMember.id}
-                      />
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        name={INTENT_FIELD_NAME}
-                        value={REMOVE_CONTACT_PERSON_INTENT}
-                      >
-                        {locales.route.list.removeContactPerson}
-                      </Button>
-                    </Form>
-                  ) : (
-                    <Form
-                      id={`add-contact-person-form-${teamMember.id}`}
-                      method="POST"
-                      preventScrollReset
+                      {locales.route.list.removeContactPerson}
+                    </Button>
+                  </Form>
+                ) : (
+                  <Form
+                    id={`add-contact-person-form-${teamMember.id}`}
+                    method="POST"
+                    preventScrollReset
+                  >
+                    <input
+                      type="hidden"
+                      name={TEAM_MEMBER_ID}
+                      value={teamMember.id}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      name={INTENT_FIELD_NAME}
+                      value={ADD_CONTACT_PERSON_INTENT}
                     >
-                      <input
-                        type="hidden"
-                        name={TEAM_MEMBER_ID}
-                        value={teamMember.id}
-                      />
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        name={INTENT_FIELD_NAME}
-                        value={ADD_CONTACT_PERSON_INTENT}
-                      >
-                        {locales.route.list.addContactPerson}
-                      </Button>
-                    </Form>
-                  )}
-                  {loaderData.userId === teamMember.id ? (
-                    <>
-                      <Button
-                        variant="outline"
-                        as="link"
-                        to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
-                        preventScrollReset
-                      >
-                        {locales.route.list.remove}
-                      </Button>
+                      {locales.route.list.addContactPerson}
+                    </Button>
+                  </Form>
+                )}
+                {loaderData.teamMembers.length > 1 && (
+                  <>
+                    {loaderData.userId === teamMember.id ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          as="link"
+                          to={`?${extendSearchParams(searchParams, { addOrReplace: { [CONFIRM_MODAL_SEARCH_PARAM]: "true" } }).toString()}`}
+                          preventScrollReset
+                        >
+                          {locales.route.list.remove}
+                        </Button>
+                        <Form
+                          id={`remove-team-member-form-${teamMember.id}`}
+                          method="POST"
+                          preventScrollReset
+                          hidden
+                        >
+                          <input
+                            name={TEAM_MEMBER_ID}
+                            defaultValue={teamMember.id}
+                          />
+                        </Form>
+                        <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
+                          <Modal.Title>
+                            {locales.route.confirmation.title}
+                          </Modal.Title>
+                          <Modal.Section>
+                            {locales.route.confirmation.description}
+                          </Modal.Section>
+                          <Modal.SubmitButton
+                            form={`remove-team-member-form-${teamMember.id}`}
+                            level="negative"
+                            name={INTENT_FIELD_NAME}
+                            value={REMOVE_TEAM_MEMBER_INTENT}
+                          >
+                            {locales.route.confirmation.confirm}
+                          </Modal.SubmitButton>
+                          <Modal.CloseButton route={location.pathname}>
+                            {locales.route.confirmation.abort}
+                          </Modal.CloseButton>
+                        </Modal>
+                      </>
+                    ) : (
                       <Form
                         id={`remove-team-member-form-${teamMember.id}`}
                         method="POST"
                         preventScrollReset
-                        hidden
                       >
                         <input
+                          type="hidden"
                           name={TEAM_MEMBER_ID}
                           defaultValue={teamMember.id}
                         />
-                      </Form>
-                      <Modal searchParam={CONFIRM_MODAL_SEARCH_PARAM}>
-                        <Modal.Title>
-                          {locales.route.confirmation.title}
-                        </Modal.Title>
-                        <Modal.Section>
-                          {locales.route.confirmation.description}
-                        </Modal.Section>
-                        <Modal.SubmitButton
-                          form={`remove-team-member-form-${teamMember.id}`}
-                          level="negative"
+                        <Button
+                          type="submit"
+                          variant="outline"
                           name={INTENT_FIELD_NAME}
                           value={REMOVE_TEAM_MEMBER_INTENT}
                         >
-                          {locales.route.confirmation.confirm}
-                        </Modal.SubmitButton>
-                        <Modal.CloseButton route={location.pathname}>
-                          {locales.route.confirmation.abort}
-                        </Modal.CloseButton>
-                      </Modal>
-                    </>
-                  ) : (
-                    <Form
-                      id={`remove-admin-form-${teamMember.id}`}
-                      method="POST"
-                      preventScrollReset
-                    >
-                      <input
-                        type="hidden"
-                        name={TEAM_MEMBER_ID}
-                        value={teamMember.id}
-                      />
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        name={INTENT_FIELD_NAME}
-                        value={REMOVE_TEAM_MEMBER_INTENT}
-                      >
-                        {locales.route.list.remove}
-                      </Button>
-                    </Form>
-                  )}
-                </ListItemPersonOrg.Controls>
-              )}
+                          {locales.route.list.remove}
+                        </Button>
+                      </Form>
+                    )}
+                  </>
+                )}
+              </ListItemPersonOrg.Controls>
             </ListItemPersonOrg>
           );
         })}

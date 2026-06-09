@@ -4,6 +4,7 @@ import sanitizeHtml from "sanitize-html";
 import { getScoreOfEntity } from "../prisma/scripts/update-score/utils";
 import { prismaClient } from "./prisma.server";
 import { z } from "zod";
+import * as isbotModule from "isbot";
 
 export type Mode = "anon" | "authenticated";
 
@@ -375,4 +376,14 @@ export function createCSPHeaderOptions(
 
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function isBotRequest(userAgent: string | null) {
+  if (!userAgent) {
+    return false;
+  }
+  if ("isbot" in isbotModule && typeof isbotModule.isbot === "function") {
+    return isbotModule.isbot(userAgent);
+  }
+  return false;
 }

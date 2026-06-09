@@ -28,9 +28,23 @@ import {
 } from "../../auth.server";
 import { setNewPassword } from "./set-password.server";
 import { createSetPasswordSchema } from "./set-password.shared";
+import { checkHoneypot } from "~/honeypot.server";
+import { HoneypotInputs } from "remix-utils/honeypot/react";
+import { isBotRequest } from "~/utils.server";
+import { invariantResponse } from "~/lib/utils/response";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
+
+  if (process.env.NODE_ENV !== "test") {
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
+
   const { authClient } = createAuthClient(request);
   const { sessionUser, redirectPath } =
     await getSessionUserOrRedirectPathToLogin(authClient, request);
@@ -53,6 +67,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const locales = languageModuleMap[language]["reset/set-password"];
 
   const formData = await request.formData();
+  if (process.env.NODE_ENV !== "test") {
+    await checkHoneypot(formData);
+    const isBot = isBotRequest(request.headers.get("user-agent"));
+    invariantResponse(
+      isBot === false,
+      "Bots are not allowed to access this resource",
+      { status: 403 }
+    );
+  }
   const { submission } = await setNewPassword({
     formData,
     sessionUser,
@@ -119,6 +142,7 @@ export default function SetPassword() {
       autoComplete="off"
     >
       <>
+        <HoneypotInputs />
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="flex flex-col w-full items-center">
             <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">

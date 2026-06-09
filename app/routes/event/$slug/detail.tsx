@@ -331,13 +331,12 @@ export async function loader(args: LoaderFunctionArgs) {
     sessionUser
   );
 
-  const { conferenceLink, conferenceCode, conferenceLinkToBeAnnounced } =
-    await filterEventConferenceLink({
-      event,
-      mode,
-      isMember,
-      inPast,
-    });
+  const { conferenceLink, conferenceCode } = await filterEventConferenceLink({
+    event,
+    mode,
+    isMember,
+    inPast,
+  });
 
   const enhancedEvent = {
     ...event,
@@ -347,7 +346,6 @@ export async function loader(args: LoaderFunctionArgs) {
     contactPersons,
     conferenceLink,
     conferenceCode,
-    conferenceLinkToBeAnnounced,
     _count: {
       ...event._count,
       participants: participantsCount,
@@ -612,7 +610,15 @@ function Detail() {
   return (
     <BasicStructure>
       {loaderData.abilities["next_event_settings"].hasAccess ? (
-        <Button as="link" to={`/next/event/${loaderData.event.slug}/settings`}>
+        <Button
+          as="link"
+          to={
+            loaderData.event.published && loaderData.event.external === false
+              ? `/next/event/${loaderData.event.slug}/settings/participants?${Deep}=false`
+              : `/next/event/${loaderData.event.slug}/settings/time-period?${Deep}=false`
+          }
+          prefetch="intent"
+        >
           Zu den neuen Event-Einstellungen
         </Button>
       ) : null}
@@ -741,9 +747,6 @@ function Detail() {
                     .slug as keyof typeof loaderData.locales.stages
                 }
                 conferenceLink={loaderData.event.conferenceLink}
-                conferenceLinkToBeAnnounced={
-                  loaderData.event.conferenceLinkToBeAnnounced
-                }
                 locales={loaderData.locales}
               />
             )}

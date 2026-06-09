@@ -14,19 +14,17 @@ import {
   mailerOptions,
 } from "~/mailer.server";
 
-export async function getEventIdBySlug(slug: string) {
+export async function getEventBySlug(slug: string) {
   const event = await prismaClient.event.findUnique({
     where: { slug },
     select: {
       id: true,
+      published: true,
+      external: true,
     },
   });
 
-  if (event === null) {
-    return null;
-  }
-
-  return event.id;
+  return event;
 }
 
 export async function getInvitedProfilesToParticipateOnEvent(options: {

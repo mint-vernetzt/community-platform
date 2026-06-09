@@ -22,13 +22,13 @@ import {
   createAbuseReportSchema,
   REPORT_REASON_MAX_LENGTH,
 } from "~/routes/event/$slug/details.shared";
+import { hasContent } from "~/utils.shared";
 import { Modal } from "../../components-next/Modal"; // refactor?
 import ImageCropper, {
   type ImageCropperLocales,
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
-import { hasContent } from "~/utils.shared";
 
 // Design:
 // Name: Events_Overview
@@ -277,13 +277,12 @@ function Stage(props: {
         typeof SUPPORTED_COOKIE_LANGUAGES
       >]["event/$slug/detail"]["stages"]
     | null;
-  conferenceLinkToBeAnnounced: boolean;
   conferenceLink: string | null;
   locales: (typeof languageModuleMap)[ArrayElement<
     typeof SUPPORTED_COOKIE_LANGUAGES
   >]["event/$slug/detail"];
 }) {
-  const { stage, conferenceLinkToBeAnnounced, conferenceLink, slug } = props;
+  const { stage, conferenceLink, slug } = props;
   if (hasContent(stage) === false) {
     return null;
   }
@@ -292,16 +291,14 @@ function Stage(props: {
     "group flex gap-4 align-center py-4 md:px-4",
     "border-0 md:border border-neutral-200 rounded-lg",
     "order-3 md:order-last",
-    (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced || hasContent(conferenceLink))
+    (stage === "online" || stage === "hybrid") && hasContent(conferenceLink)
       ? "focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
       : ""
   );
 
   const iconClasses = classNames(
     "w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0 text-neutral-700",
-    (stage === "online" || stage === "hybrid") &&
-      (conferenceLinkToBeAnnounced || hasContent(conferenceLink))
+    (stage === "online" || stage === "hybrid") && hasContent(conferenceLink)
       ? "group-hover:bg-white"
       : ""
   );
@@ -328,7 +325,7 @@ function Stage(props: {
         </div>
       </>
     );
-    if (props.conferenceLinkToBeAnnounced || hasContent(conferenceLink)) {
+    if (hasContent(conferenceLink)) {
       return (
         <Link
           to={`/event/${slug}/detail/about#address-and-conference-link`}
@@ -496,7 +493,6 @@ function Stage(props: {
       </>
     );
     if (
-      props.conferenceLinkToBeAnnounced ||
       hasContent(conferenceLink) ||
       (hasContent(props.venueStreet) &&
         hasContent(props.venueZipCode) &&

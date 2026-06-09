@@ -19,10 +19,41 @@ export const locale = {
     team: "Team",
     timePeriod: "Date and time",
   },
+  menuHints: {
+    participantsDisabledUntilPublished:
+      "Once your event is published, you can manage your participants here.",
+    inviteParticipants: "Invite participants",
+    waitingListHasMembers: "People on the waiting list",
+    externalEvent: "This event is managed externally",
+  },
   errors: {
     invalidIntent: "This action is not allowed",
     publishFailed:
       "Publishing the event failed. Please try again later or contact support.",
   },
   publishSuccess: "Event published!",
+  modal: {
+    publishEventModal: {
+      withIssues: {
+        headline: "Completing your event is recommended",
+        description:
+          "Your event can be published, but we recommend adding the following information in the settings beforehand:",
+        submit: "Publish anyway",
+        cancel: "Back to settings",
+      },
+      noIssues: {
+        headline: "Publish event",
+        description: "Great! Your event is complete and ready to be published.",
+        hint: "<0>Note</0>: After publishing, your event will be visible to users and cannot be set back to draft. If necessary, you can still cancel and delete the event later.",
+        submit: "Publish now",
+        cancel: "Cancel",
+      },
+    },
+  },
+  issues: {
+    registration: {
+      missingExternalRegistrationUrl: "Add external registration link",
+    },
+    multiple: "Add information",
+  },
 } as const;
