@@ -126,14 +126,15 @@ export async function action(args: ActionFunctionArgs) {
         publishIntended: true,
       });
       const url = new URL(request.url);
+      const location = formData.get("location");
       const searchParams = extendSearchParams(url.searchParams, {
         addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
       });
-      return redirect(`${url.pathname}?${searchParams.toString()}`);
+      return redirect(`${location}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
-      // await updateEventBySlug(params.slug, {
-      //   published: true,
-      // });
+      await updateEventBySlug(params.slug, {
+        published: true,
+      });
     }
   } catch (error) {
     captureException(error);
@@ -323,7 +324,12 @@ export default function Settings() {
                 {locales.route.publishHint}
               </p>
               {event.publishIntended === false ? (
-                <Form method="post">
+                <Form method="post" action={location.pathname}>
+                  <input
+                    type="hidden"
+                    name="location"
+                    value={location.pathname}
+                  />
                   <Button
                     name={INTENT_FIELD_NAME}
                     value={FIRST_PUBLISH_EVENT_INTENT}
@@ -353,6 +359,11 @@ export default function Settings() {
             <span>{locales.route.publishHint}</span>
             {event.publishIntended === false ? (
               <Form method="post">
+                <input
+                  type="hidden"
+                  name="location"
+                  value={location.pathname}
+                />
                 <Button
                   name={INTENT_FIELD_NAME}
                   value={FIRST_PUBLISH_EVENT_INTENT}
