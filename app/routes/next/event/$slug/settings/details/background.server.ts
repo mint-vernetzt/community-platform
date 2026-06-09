@@ -4,30 +4,42 @@ import { prismaClient } from "~/prisma.server";
 import { getPublicURL, uploadFileToStorage } from "~/storage.server";
 import { BUCKET_NAME_IMAGES } from "~/storage.shared";
 
-export async function getEventBackground(
+export async function getEventBySlugWithBackground(
   slug: string,
   authClient: SupabaseClient
 ) {
-  const background = await prismaClient.imageMetaData.findFirst({
-    where: {
-      backgroundOfEvent: {
-        slug: slug,
-      },
-    },
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
     select: {
-      path: true,
-      credits: true,
-      description: true,
+      id: true,
+      publishIntended: true,
+      backgroundImageMetaData: {
+        select: {
+          path: true,
+          credits: true,
+          description: true,
+        },
+      },
     },
   });
 
-  if (background === null) {
-    return background;
+  if (event === null) {
+    return null;
   }
 
-  let enhancedBackground = background.path;
+  if (event.backgroundImageMetaData === null) {
+    return {
+      ...event,
+      background: null,
+    };
+  }
+
+  let enhancedBackground = event.backgroundImageMetaData.path;
   let blurredBackground;
-  const publicURL = getPublicURL(authClient, background.path);
+  const publicURL = getPublicURL(
+    authClient,
+    event.backgroundImageMetaData.path
+  );
   if (publicURL !== null) {
     enhancedBackground = getImageURL(publicURL, {
       resize: {
@@ -45,9 +57,12 @@ export async function getEventBackground(
   }
 
   return {
-    ...background,
-    path: enhancedBackground,
-    blurredPath: blurredBackground,
+    ...event,
+    background: {
+      ...event.backgroundImageMetaData,
+      path: enhancedBackground,
+      blurredPath: blurredBackground,
+    },
   };
 }
 

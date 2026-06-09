@@ -31,7 +31,11 @@ import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  getEventBySlugForIssues,
+  getIssues,
+  getRedirectPathOnProtectedEventRoute,
+} from "../../settings.server";
 import {
   getEventBySlug,
   updateEventExternalRegistrationUrl,
@@ -63,7 +67,17 @@ export async function loader(args: LoaderFunctionArgs) {
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  return { locales, event };
+  let issues: ReturnType<typeof getIssues> = [];
+  if (event.publishIntended) {
+    const eventForIssues = await getEventBySlugForIssues(slug);
+    issues = getIssues({
+      event: eventForIssues,
+      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+      section: "registration",
+    });
+  }
+
+  return { locales, event, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -246,6 +260,15 @@ function RegistrationAccess() {
         previousLocation.search.includes(UnsavedChangesModalParam)),
   });
 
+  const externalRegistrationUrlIssue = loaderData.issues.find((issue) => {
+    return (
+      issue.section === "registration" &&
+      issue.fields.some((field) => {
+        return field === "externalRegistrationUrl";
+      })
+    );
+  });
+
   return (
     <>
       <UnsavedChangesModal
@@ -322,7 +345,12 @@ function RegistrationAccess() {
                   key="externalRegistrationUrl"
                 >
                   <Input.Label htmlFor={fields.externalRegistrationUrl.id}>
-                    {locales.route.type.external.form.registrationUrl.label}
+                    <span className="flex items-center gap-2.5">
+                      {locales.route.type.external.form.registrationUrl.label}
+                      {typeof externalRegistrationUrlIssue !== "undefined" && (
+                        <span className="rounded-full w-2 h-2 bg-primary-300" />
+                      )}
+                    </span>
                   </Input.Label>
                   {typeof fields.externalRegistrationUrl.errors !==
                     "undefined" &&

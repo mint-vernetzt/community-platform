@@ -25,6 +25,7 @@ export const locale = {
     inviteParticipants: "Invite participants",
     waitingListHasMembers: "People on the waiting list",
     externalEvent: "This event is managed externally",
+    multiple: "Add information",
   },
   errors: {
     invalidIntent: "This action is not allowed",
@@ -54,6 +55,16 @@ export const locale = {
     registration: {
       missingExternalRegistrationUrl: "Add external registration link",
     },
-    multiple: "Add information",
+    details: {
+      missingDescriptionAndSubline: "Add short info and description",
+      missingKeywordsAndTags: "Add keywords / tags",
+      missingBackgroundImage: "Add a cover image",
+    },
+    location: {
+      missingAddress: "No address provided",
+      missingConferenceLink: "No conference link provided",
+      missingAddressAndConferenceLink:
+        "Address and conference link are missing",
+    },
   },
 } as const;

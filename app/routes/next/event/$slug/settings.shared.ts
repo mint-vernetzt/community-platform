@@ -4,7 +4,7 @@ export const PUBLISH_EVENT_MODAL_SEARCH_PARAM = "publishEventModal";
 
 export function getLinkIssueInfo(options: {
   section: string;
-  issues: Array<{ section: string; field: string; message: string }>;
+  issues: Array<{ section: string; fields: string[]; message: string }>;
   locales: {
     multiple: string;
   };
