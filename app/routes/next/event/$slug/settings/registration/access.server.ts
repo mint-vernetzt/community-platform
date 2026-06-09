@@ -114,10 +114,6 @@ export async function updateParentParticipationRequired(options: {
     | typeof SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT
     | typeof SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT;
 }) {
-  // TODO:
-  // - Check if we are on a parent or a child event
-  // - Check what to ensure and to update in either case (published restriction, etc...)
-  // - Then update accordingly
   const { event, intent } = options;
 
   let parentParticipationRequired;
