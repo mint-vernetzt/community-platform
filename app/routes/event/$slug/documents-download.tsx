@@ -6,11 +6,12 @@ import {
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
 import { getDownloadDocumentsResponse } from "~/storage.server";
-import { deriveEventMode } from "../utils.server";
 import { getDocumentById, getEventBySlug } from "./documents-download.server";
 import { detectLanguage } from "~/i18n.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { languageModuleMap } from "~/locales/.server";
+import { getIsMember } from "./detail.server";
+import { getIsParticipant } from "./utils.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -28,11 +29,13 @@ export async function loader(args: LoaderFunctionArgs) {
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
-  const mode = await deriveEventMode(sessionUser, slug);
 
-  if (mode !== "admin" && event.published === false) {
-    invariantResponse(false, "Event not published", { status: 403 });
+  if (event.openForRegistration === false || event.published === false) {
+    const isMember = await getIsMember(sessionUser, event);
+    const isParticipant = await getIsParticipant(event.id, sessionUser?.id);
+    invariantResponse(isMember || isParticipant, "Forbidden", { status: 403 });
   }
+
   const url = new URL(request.url);
   const documentId = url.searchParams.get("document_id");
   let documents;

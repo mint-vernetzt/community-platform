@@ -525,7 +525,12 @@ export async function getEventBySlug(options: {
     };
   });
   let documents = event.documents;
-  if (sessionUser === null) {
+  if (
+    sessionUser === null ||
+    (event.openForRegistration === false &&
+      isMember === false &&
+      mode !== "participating")
+  ) {
     documents = [];
   }
 

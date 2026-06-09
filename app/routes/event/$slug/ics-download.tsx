@@ -26,17 +26,17 @@ export async function loader(args: LoaderFunctionArgs) {
   const isSpeaker = await getIsSpeaker(event.id, sessionUser?.id);
   const isParticipant = await getIsParticipant(event.id, sessionUser?.id);
 
-  const isMember =
+  const isMemberOrParticipant =
     isTeamMember || isSpeaker || isParticipant || mode === "admin";
 
   if (event.openForRegistration === false || event.published === false) {
-    invariantResponse(isMember, "Forbidden", { status: 403 });
+    invariantResponse(isMemberOrParticipant, "Forbidden", { status: 403 });
   }
 
   const url = new URL(request.url);
   const absoluteEventURL =
     url.protocol + "//" + url.host + `/event/${event.slug}/detail/about`;
-  const ics = createIcsString(event, absoluteEventURL, isMember);
+  const ics = createIcsString(event, absoluteEventURL, isMemberOrParticipant);
   const filename = escapeFilenameSpecialChars(event.name + ".ics");
 
   // TODO: Check for missing headers
