@@ -317,6 +317,7 @@ export async function getIsMember(
     where: {
       id: sessionUser.id,
       OR: [
+        // is team member
         {
           teamMemberOfEvents: {
             some: {
@@ -324,6 +325,7 @@ export async function getIsMember(
             },
           },
         },
+        // is speaker
         {
           contributedEvents: {
             some: {
@@ -331,10 +333,35 @@ export async function getIsMember(
             },
           },
         },
+        // is admin
         {
           administeredEvents: {
             some: {
               eventId: event.id,
+            },
+          },
+        },
+        // is admin of the parent event
+        {
+          administeredEvents: {
+            some: {
+              event: {
+                childEvents: { some: { id: event.id } },
+              },
+            },
+          },
+        },
+        // is admin of a potential parent event
+        {
+          administeredEvents: {
+            some: {
+              event: {
+                receivedParentEventJoinRequests: {
+                  some: {
+                    childEventId: event.id,
+                  },
+                },
+              },
             },
           },
         },
