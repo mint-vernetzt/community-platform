@@ -58,6 +58,9 @@ export async function getEventBySlug(options: {
               },
               startTime: true,
               endTime: true,
+              external: true,
+              openForRegistration: true,
+              parentParticipationRequired: true,
               participantLimit: true,
               _count: {
                 select: {
@@ -87,6 +90,9 @@ export async function getEventBySlug(options: {
           },
           startTime: true,
           endTime: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           participantLimit: true,
           _count: {
             select: {
@@ -253,6 +259,9 @@ export async function getParentEventsToAdd(options: {
       },
       subline: true,
       description: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       stage: {
         select: {
           slug: true,

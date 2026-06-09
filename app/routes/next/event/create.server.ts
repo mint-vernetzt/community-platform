@@ -10,6 +10,9 @@ export async function getParentEventBySlug(slug: string) {
       name: true,
       slug: true,
       participantLimit: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       _count: {
         select: { participants: true },
       },

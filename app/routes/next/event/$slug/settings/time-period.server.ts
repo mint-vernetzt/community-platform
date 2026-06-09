@@ -14,6 +14,9 @@ export async function getEventBySlug(slug: string) {
           name: true,
           slug: true,
           participantLimit: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           _count: {
             select: { participants: true },
           },
@@ -30,6 +33,9 @@ export async function getEventBySlug(slug: string) {
           name: true,
           slug: true,
           participantLimit: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           _count: {
             select: { participants: true },
           },

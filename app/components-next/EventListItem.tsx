@@ -43,7 +43,7 @@ function ListItemImage(props: {
   );
 
   return (
-    <div className="hidden @lg:block w-36 shrink-0 aspect-[3/2] bg-neutral-200">
+    <div className="hidden @lg:block w-36 shrink-0 aspect-3/2 bg-neutral-200">
       <div className="w-36 h-full relative">
         <img
           ref={blurredImgRef}
@@ -81,8 +81,8 @@ function EventListItemFlag(props: {
     props.canceled
       ? "border-negative-500 text-negative-500"
       : !props.published
-      ? "border-primary-300 text-primary-300"
-      : "border-gray-200"
+        ? "border-primary-300 text-primary-300"
+        : "border-gray-200"
   );
 
   return typeof props.canceled === "boolean" && props.canceled ? (
@@ -109,6 +109,9 @@ function EventListItemContent(props: {
       participants: number;
       waitingList: number;
     };
+    external: boolean;
+    openForRegistration: boolean;
+    parentParticipationRequired: boolean | null;
     canceled?: boolean;
     published?: boolean;
   };
@@ -140,24 +143,29 @@ function EventListItemContent(props: {
               })() + " | "
             : ""}
           {getDuration(startTime, endTime, currentLanguage)}
-
-          {event.participantLimit === null &&
-            ` | ${locales.components.EventListItemContent.unlimitedSeats}`}
-          {event.participantLimit !== null &&
-            event.participantLimit - event._count.participants > 0 &&
-            ` | ${event.participantLimit - event._count.participants} / ${
-              event.participantLimit
-            } ${locales.components.EventListItemContent.seatsFree}`}
-
-          {event.participantLimit !== null &&
-          event.participantLimit - event._count.participants <= 0 ? (
+          {event.external === false &&
+          event.openForRegistration &&
+          event.parentParticipationRequired !== false ? (
             <>
-              {" "}
-              |{" "}
-              <span>
-                {event._count.waitingList}{" "}
-                {locales.components.EventListItemContent.onWaitingList}
-              </span>
+              {event.participantLimit === null &&
+                ` | ${locales.components.EventListItemContent.unlimitedSeats}`}
+              {event.participantLimit !== null &&
+                event.participantLimit - event._count.participants > 0 &&
+                ` | ${event.participantLimit - event._count.participants} / ${
+                  event.participantLimit
+                } ${locales.components.EventListItemContent.seatsFree}`}
+
+              {event.participantLimit !== null &&
+              event.participantLimit - event._count.participants <= 0 ? (
+                <>
+                  {" "}
+                  |{" "}
+                  <span>
+                    {event._count.waitingList}{" "}
+                    {locales.components.EventListItemContent.onWaitingList}
+                  </span>
+                </>
+              ) : null}
             </>
           ) : null}
         </p>
@@ -192,7 +200,7 @@ export function EventListItem(
   const classes = classNames(
     "rounded-lg bg-white border border-neutral-200 overflow-hidden",
     props.hideAfter !== undefined && props.listIndex > props.hideAfter - 1
-      ? "hidden group-has-[:checked]:block"
+      ? "hidden group-has-checked:block"
       : "block"
   );
 

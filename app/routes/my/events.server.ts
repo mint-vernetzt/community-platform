@@ -39,6 +39,9 @@ export async function getEvents(options: {
       },
     },
     canceled: true,
+    external: true,
+    openForRegistration: true,
+    parentParticipationRequired: true,
     subline: true,
     description: true,
     startTime: true,
@@ -370,6 +373,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -412,6 +418,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -459,6 +468,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -602,6 +614,9 @@ export async function getEventsWithPendingRequests(
               startTime: true,
               endTime: true,
               participantLimit: true,
+              external: true,
+              openForRegistration: true,
+              parentParticipationRequired: true,
               _count: {
                 select: {
                   participants: true,
