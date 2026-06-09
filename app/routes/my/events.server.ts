@@ -1388,18 +1388,50 @@ export async function acceptInviteAsParticipant(options: {
         },
         status: "pending",
       },
+      select: {
+        event: {
+          select: {
+            parentParticipationRequired: true,
+            parentEvent: {
+              select: {
+                id: true,
+                parentParticipationRequired: true,
+              },
+            },
+          },
+        },
+      },
     });
 
   if (invite === null) {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.participantOfEvent.create({
-    data: {
-      eventId,
-      profileId: userId,
-    },
-  });
+  const transactions = [
+    prismaClient.participantOfEvent.create({
+      data: {
+        eventId,
+        profileId: userId,
+      },
+    }),
+  ];
+
+  if (
+    invite.event.parentEvent !== null &&
+    invite.event.parentEvent.parentParticipationRequired &&
+    invite.event.parentParticipationRequired !== false
+  ) {
+    transactions.push(
+      prismaClient.participantOfEvent.create({
+        data: {
+          eventId: invite.event.parentEvent.id,
+          profileId: userId,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 
   const result = await prismaClient.inviteForProfileToParticipateOnEvent.update(
     {
