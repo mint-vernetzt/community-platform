@@ -129,27 +129,33 @@ export async function getEventBySlug(
             where: {
               OR: [
                 { published: true },
-                {
-                  admins: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
-                {
-                  teamMembers: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
-                {
-                  speakers: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
+                profileId !== undefined
+                  ? {
+                      admins: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
+                profileId !== undefined
+                  ? {
+                      teamMembers: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
+                profileId !== undefined
+                  ? {
+                      speakers: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
               ],
             },
           },
