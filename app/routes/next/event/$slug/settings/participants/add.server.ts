@@ -23,6 +23,13 @@ export async function getEventBySlug(slug: string) {
       id: true,
       published: true,
       external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
   return event;

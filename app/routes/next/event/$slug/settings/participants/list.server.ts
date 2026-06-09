@@ -27,6 +27,25 @@ export async function getParticipantsOfEvent(options: {
 
   let participants = [];
 
+  const select = {
+    createdAt: true,
+    profile: {
+      select: {
+        id: true,
+        username: true,
+        academicTitle: true,
+        firstName: true,
+        lastName: true,
+        avatarImageMetaData: {
+          select: {
+            path: true,
+          },
+        },
+        createdAt: true,
+      },
+    },
+  };
+
   if (
     submission.status !== "success" ||
     typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
@@ -35,24 +54,7 @@ export async function getParticipantsOfEvent(options: {
       where: {
         eventId,
       },
-      select: {
-        createdAt: true,
-        profile: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: {
-              select: {
-                path: true,
-              },
-            },
-            createdAt: true,
-          },
-        },
-      },
+      select,
     });
   } else {
     const query =
@@ -73,24 +75,7 @@ export async function getParticipantsOfEvent(options: {
           }),
         },
       },
-      select: {
-        createdAt: true,
-        profile: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: {
-              select: {
-                path: true,
-              },
-            },
-            createdAt: true,
-          },
-        },
-      },
+      select,
     });
   }
 
@@ -122,7 +107,10 @@ export async function getParticipantsOfEvent(options: {
     return { ...participant.profile, avatar, blurredAvatar };
   });
 
-  return { submission: submission.reply(), participants: enhancedParticipants };
+  return {
+    submission: submission.reply(),
+    participants: enhancedParticipants,
+  };
 }
 
 export async function getEventBySlug(slug: string) {
@@ -132,6 +120,17 @@ export async function getEventBySlug(slug: string) {
       id: true,
       published: true,
       external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      childEvents: {
+        select: {
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
     },
   });
   return event;

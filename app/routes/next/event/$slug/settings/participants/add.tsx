@@ -83,6 +83,14 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`../../time-period?${Deep}=${deep}`);
   }
 
+  if (
+    event._count.childEvents > 0 &&
+    event.openForRegistration &&
+    event.parentParticipationRequired === false
+  ) {
+    return redirect(`../list?${Deep}=true`);
+  }
+
   const { result: searchedProfiles } = await searchProfiles({
     eventId: event.id,
     authClient,
@@ -139,7 +147,13 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (event.published === false || event.external) {
+  if (
+    event.published === false ||
+    event.external ||
+    (event._count.childEvents > 0 &&
+      event.openForRegistration &&
+      event.parentParticipationRequired === false)
+  ) {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const deep = searchParams.get(Deep);

@@ -6,6 +6,8 @@ export async function getEventBySlug(slug: string) {
     select: {
       published: true,
       external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       _count: {
         select: {
           participants: true,
@@ -13,6 +15,16 @@ export async function getEventBySlug(slug: string) {
           participantInvites: {
             where: {
               status: "pending",
+            },
+          },
+          childEvents: true,
+        },
+      },
+      childEvents: {
+        select: {
+          _count: {
+            select: {
+              participants: true,
             },
           },
         },
