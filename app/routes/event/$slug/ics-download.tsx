@@ -1,8 +1,5 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import {
-  createAuthClient,
-  getSessionUserOrRedirectPathToLogin,
-} from "~/auth.server";
+import { type LoaderFunctionArgs } from "react-router";
+import { createAuthClient, getSessionUser } from "~/auth.server";
 import { escapeFilenameSpecialChars } from "~/lib/string/escapeFilenameSpecialChars";
 import { invariantResponse } from "~/lib/utils/response";
 import { getParamValueOrThrow } from "~/lib/utils/routes";
@@ -18,35 +15,28 @@ export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
   const { authClient } = createAuthClient(request);
 
-  const { sessionUser, redirectPath } =
-    await getSessionUserOrRedirectPathToLogin(authClient, request);
+  const sessionUser = await getSessionUser(authClient);
 
-  if (sessionUser === null && redirectPath !== null) {
-    return redirect(redirectPath);
-  }
   const slug = getParamValueOrThrow(params, "slug");
   const event = await getEventBySlug(slug);
   invariantResponse(event, "Event not found", { status: 404 });
   const mode = await deriveEventMode(sessionUser, slug);
 
-  const isTeamMember = await getIsTeamMember(event.id, sessionUser.id);
-  const isSpeaker = await getIsSpeaker(event.id, sessionUser.id);
-  const isParticipant = await getIsParticipant(event.id, sessionUser.id);
+  const isTeamMember = await getIsTeamMember(event.id, sessionUser?.id);
+  const isSpeaker = await getIsSpeaker(event.id, sessionUser?.id);
+  const isParticipant = await getIsParticipant(event.id, sessionUser?.id);
 
-  invariantResponse(
-    isTeamMember || isSpeaker || isParticipant || mode === "admin",
-    "Forbidden",
-    { status: 403 }
-  );
+  const isMember =
+    isTeamMember || isSpeaker || isParticipant || mode === "admin";
 
-  if (mode !== "admin" && event.published === false) {
-    invariantResponse(false, "Event not published", { status: 403 });
+  if (event.openForRegistration === false || event.published === false) {
+    invariantResponse(isMember, "Forbidden", { status: 403 });
   }
 
   const url = new URL(request.url);
   const absoluteEventURL =
     url.protocol + "//" + url.host + `/event/${event.slug}/detail/about`;
-  const ics = createIcsString(event, absoluteEventURL);
+  const ics = createIcsString(event, absoluteEventURL, isMember);
   const filename = escapeFilenameSpecialChars(event.name + ".ics");
 
   // TODO: Check for missing headers

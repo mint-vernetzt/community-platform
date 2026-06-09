@@ -107,6 +107,11 @@ export async function getEventBySlug(
           ],
         },
       },
+      speakers: {
+        select: {
+          profileId: true,
+        },
+      },
       responsibleOrganizations: {
         select: {
           organization: {

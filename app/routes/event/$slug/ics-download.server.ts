@@ -31,6 +31,7 @@ export async function getEventBySlug(slug: string) {
       venueZipCode: true,
       conferenceLink: true,
       conferenceCode: true,
+      openForRegistration: true,
     },
     where: {
       slug,
@@ -58,13 +59,14 @@ export function createIcsString(
     | "conferenceLink"
     | "conferenceCode"
   > & { tags: Array<{ tag: { title: string } }> },
-  absoluteEventUrl: string
+  absoluteEventUrl: string,
+  isMember: boolean
 ) {
   const location: string[] = [];
-  if (event.conferenceLink) {
+  if (event.conferenceLink && isMember) {
     location.push(`Konferenzlink: ${event.conferenceLink}`);
   }
-  if (event.conferenceCode) {
+  if (event.conferenceCode && isMember) {
     location.push(`Zugangscode zur Konferenz: ${event.conferenceCode}`);
   }
   if (
