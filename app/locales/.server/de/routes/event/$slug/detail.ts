@@ -2,6 +2,14 @@ export const locale = {
   content: {
     back: "Events entdecken",
     jointEvent: "Gemeinsames Event",
+    external: "Registrierung über externen Link",
+    registrationClosed: {
+      label: "Geschlossene Veranstaltung",
+      subline: "Teilnahme nur für geladene Gäste",
+    },
+    registrationOnChilds: "Registrierung über die Unterveranstaltungen",
+    parentParticipationRequired:
+      "Melde Dich zuerst an der Rahmenveranstaltung an",
     unlimitedSeats: "Unbegrenzte Plätze",
     seatsFree: "Plätze frei",
     waitingListAvailable: "Wartelistenplätze verfügbar",
@@ -20,6 +28,7 @@ export const locale = {
     draft: "Entwurf",
     canceled: "Event abgesagt",
     edit: "Event bearbeiten",
+    externalParticipate: "Link zur Anmeldung",
     login: "Anmelden um teilzunehmen",
     participate: "Teilnehmen",
     withdrawParticipation: "Nicht mehr teilnehmen",

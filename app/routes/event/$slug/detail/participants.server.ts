@@ -23,71 +23,79 @@ export async function getParticipantsOfEvent(options: {
 
   let participants = [];
 
-  if (
-    submission.status !== "success" ||
-    typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
-  ) {
-    participants = await prismaClient.profile.findMany({
-      where: {
-        participatedEvents: {
-          some: {
-            OR: [
-              { event: { slug } },
-              {
-                event: {
-                  AND: [
-                    {
-                      parentEvent: { slug },
-                    },
-                    {
-                      OR: [
-                        { published: true },
-                        sessionUser !== null
-                          ? {
-                              teamMembers: {
-                                some: { profileId: sessionUser?.id },
-                              },
-                              admins: {
-                                some: { profileId: sessionUser?.id },
-                              },
-                              speakers: {
-                                some: { profileId: sessionUser?.id },
-                              },
-                            }
-                          : {},
-                      ],
-                    },
+  const where = {
+    participatedEvents: {
+      some: {
+        OR: [
+          { event: { slug } },
+          {
+            event: {
+              AND: [
+                {
+                  parentEvent: {
+                    slug,
+                    external: false,
+                    openForRegistration: true,
+                  },
+                },
+                {
+                  OR: [
+                    { published: true },
+                    sessionUser !== null
+                      ? {
+                          teamMembers: {
+                            some: { profileId: sessionUser?.id },
+                          },
+                          admins: {
+                            some: { profileId: sessionUser?.id },
+                          },
+                          speakers: {
+                            some: { profileId: sessionUser?.id },
+                          },
+                        }
+                      : {},
                   ],
                 },
-              },
-            ],
+              ],
+            },
           },
-        },
+        ],
       },
+    },
+  };
+
+  const select = {
+    id: true,
+    username: true,
+    academicTitle: true,
+    firstName: true,
+    lastName: true,
+    avatarImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
+    position: true,
+    profileVisibility: {
       select: {
         id: true,
         username: true,
         academicTitle: true,
         firstName: true,
         lastName: true,
-        avatarImageMetaData: {
-          select: {
-            path: true,
-          },
-        },
+        avatarImageMetaData: true,
         position: true,
-        profileVisibility: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: true,
-            position: true,
-          },
-        },
       },
+    },
+  };
+
+  if (
+    submission.status !== "success" ||
+    typeof submission.value[SEARCH_PARTICIPANTS_SEARCH_PARAM] === "undefined"
+  ) {
+    participants = await prismaClient.profile.findMany({
+      where,
+      select,
       distinct: ["username"],
     });
   } else {
@@ -96,14 +104,7 @@ export async function getParticipantsOfEvent(options: {
 
     participants = await prismaClient.profile.findMany({
       where: {
-        participatedEvents: {
-          some: {
-            OR: [
-              { event: { slug } },
-              { event: { childEvents: { some: { slug } } } },
-            ],
-          },
-        },
+        ...where,
         OR: query.map((term) => {
           return {
             OR: [
@@ -114,30 +115,8 @@ export async function getParticipantsOfEvent(options: {
           };
         }),
       },
-      select: {
-        id: true,
-        username: true,
-        academicTitle: true,
-        firstName: true,
-        lastName: true,
-        avatarImageMetaData: {
-          select: {
-            path: true,
-          },
-        },
-        position: true,
-        profileVisibility: {
-          select: {
-            id: true,
-            username: true,
-            academicTitle: true,
-            firstName: true,
-            lastName: true,
-            avatarImageMetaData: true,
-            position: true,
-          },
-        },
-      },
+      select,
+      distinct: ["username"],
     });
   }
 
@@ -183,4 +162,39 @@ export async function getParticipantsOfEvent(options: {
   });
 
   return { submission: submission.reply(), participants: enhancedParticipants };
+}
+
+export async function getEventBySlug(slug: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      canceled: true,
+      participantLimit: true,
+      participationFrom: true,
+      participationUntil: true,
+      endTime: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      parentEvent: {
+        select: {
+          parentParticipationRequired: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          participants: true,
+          childEvents: true,
+        },
+      },
+    },
+  });
+
+  return event;
 }

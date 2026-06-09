@@ -2,6 +2,13 @@ export const locale = {
   content: {
     back: "Explore events",
     jointEvent: "Joint event",
+    external: "Registration via external link",
+    registrationClosed: {
+      label: "Closed event",
+      subline: "Participation only for invited guests",
+    },
+    registrationOnChilds: "Registration via child events",
+    parentParticipationRequired: "Please register for the parent event first",
     unlimitedSeats: "Unlimited seats",
     seatsFree: "seats free",
     waitingListAvailable: "Seats on waiting list available",
@@ -20,6 +27,7 @@ export const locale = {
     draft: "Draft",
     canceled: "Event canceled",
     edit: "Edit event",
+    externalParticipate: "External registration link",
     login: "Log in to participate",
     participate: "Participate",
     withdrawParticipation: "Withdraw participation",

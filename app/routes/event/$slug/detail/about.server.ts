@@ -144,6 +144,19 @@ export async function getEventBySlug(options: {
       canceled: true,
       accessibilityInformation: true,
       privacyInformation: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      parentEvent: {
+        select: {
+          parentParticipationRequired: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
       eventTargetGroups: {
         select: {
           eventTargetGroup: {
@@ -349,6 +362,7 @@ export async function getEventBySlug(options: {
       _count: {
         select: {
           participants: true,
+          childEvents: true,
         },
       },
     },
@@ -377,6 +391,7 @@ export async function getEventBySlug(options: {
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
+    hasChildEvents: event._count.childEvents > 0,
   });
 
   const isMember = await getIsMember(sessionUser, event);

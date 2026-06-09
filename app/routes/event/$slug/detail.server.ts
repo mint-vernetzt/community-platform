@@ -61,6 +61,9 @@ export async function getEventBySlug(
       conferenceLink: true,
       conferenceCode: true,
       external: true,
+      externalRegistrationUrl: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       stage: {
         select: {
           slug: true,
@@ -70,6 +73,12 @@ export async function getEventBySlug(
         select: {
           name: true,
           slug: true,
+          parentParticipationRequired: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
         },
         where: {
           OR: [
@@ -195,6 +204,14 @@ export async function deriveModeForEvent(
     canceled: boolean;
     participantLimit: number | null;
     participantCount: number;
+    external: boolean;
+    openForRegistration: boolean;
+    parentParticipationRequired: boolean | null;
+    hasChildEvents: boolean;
+    parentEvent: {
+      parentParticipationRequired: boolean | null;
+      participants: { profileId: string }[];
+    } | null;
   }
 ) {
   if (sessionUser === null) {
@@ -239,7 +256,17 @@ export async function deriveModeForEvent(
     eventInfo.inPast ||
     eventInfo.afterParticipationPeriod ||
     eventInfo.beforeParticipationPeriod ||
-    eventInfo.canceled
+    eventInfo.canceled ||
+    eventInfo.external ||
+    eventInfo.openForRegistration === false ||
+    (eventInfo.hasChildEvents &&
+      eventInfo.parentParticipationRequired === false) ||
+    (eventInfo.parentEvent !== null &&
+      eventInfo.parentParticipationRequired !== false &&
+      eventInfo.parentEvent.parentParticipationRequired === true &&
+      eventInfo.parentEvent.participants.some(
+        (relation) => relation.profileId === sessionUser.id
+      ) === false)
   ) {
     return null;
   }
@@ -930,7 +957,11 @@ export async function getParticipantsCount(
           event: {
             AND: [
               {
-                parentEvent: { slug },
+                parentEvent: {
+                  slug,
+                  external: false,
+                  openForRegistration: true,
+                },
               },
               {
                 OR: [

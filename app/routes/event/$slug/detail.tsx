@@ -241,6 +241,7 @@ export async function loader(args: LoaderFunctionArgs) {
     beforeParticipationPeriod,
     afterParticipationPeriod,
     inPast,
+    hasChildEvents: event._count.childEvents > 0,
   });
 
   // No right to access unpublished events
@@ -348,7 +349,13 @@ export async function loader(args: LoaderFunctionArgs) {
     conferenceCode,
     _count: {
       ...event._count,
-      participants: participantsCount,
+      participants:
+        event.external ||
+        (event.openForRegistration === false &&
+          isMember === false &&
+          mode !== "participating")
+          ? 0
+          : participantsCount,
     },
   };
 
@@ -397,7 +404,6 @@ export async function action(args: ActionFunctionArgs) {
 
   const { formData, error } = await parseMultipartFormData(request);
   if (error !== null || formData === null) {
-    console.error({ error });
     captureException(error);
     return redirectWithToast(request.url, {
       id: "upload-failed",
@@ -535,6 +541,34 @@ export async function action(args: ActionFunctionArgs) {
       message: locales.route.success.abuseReport,
     });
   }
+
+  const eventInfo = await getEventBySlug(sessionUser, { slug: event.slug });
+  invariantResponse(eventInfo !== null, "event not found", { status: 404 });
+
+  const now = new Date();
+  const beforeParticipationPeriod = now < eventInfo.participationFrom;
+  const afterParticipationPeriod = now > eventInfo.participationUntil;
+  const inPast = now > eventInfo.endTime;
+
+  const mode = await deriveModeForEvent(sessionUser, {
+    ...eventInfo,
+    participantCount: eventInfo._count.participants,
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
+    hasChildEvents: eventInfo._count.childEvents > 0,
+  });
+
+  invariantResponse(
+    mode === "canParticipate" ||
+      mode === "canWait" ||
+      mode === "participating" ||
+      mode === "waiting",
+    "Forbidden",
+    {
+      status: 403,
+    }
+  );
 
   const submission = await parseWithZod(formData, {
     schema: createParticipationSchema(locales.route.errors).transform(
@@ -700,20 +734,41 @@ function Detail() {
             {loaderData.locales.route.content.canceled}
           </EventsOverview.StateFlag>
         )}
-        {loaderData.beforeParticipationPeriod && (
-          <EventsOverview.State>
-            {formatDateTime(
-              zonedParticipationFrom,
-              loaderData.language,
-              loaderData.locales.route.content.beforeParticipationPeriod
-            )}
-          </EventsOverview.State>
-        )}
-        {loaderData.afterParticipationPeriod && loaderData.inPast === false && (
-          <EventsOverview.State>
-            {loaderData.locales.route.content.afterParticipationPeriod}
-          </EventsOverview.State>
-        )}
+        {loaderData.beforeParticipationPeriod &&
+          loaderData.event.external === false &&
+          loaderData.event.openForRegistration &&
+          (loaderData.event._count.childEvents === 0 ||
+            loaderData.event.parentParticipationRequired) &&
+          (loaderData.event.parentEvent === null ||
+            loaderData.event.parentEvent.parentParticipationRequired ===
+              false ||
+            loaderData.event.parentEvent.participants.some(
+              (relation) => relation.profileId === loaderData.profileId
+            )) && (
+            <EventsOverview.State>
+              {formatDateTime(
+                zonedParticipationFrom,
+                loaderData.language,
+                loaderData.locales.route.content.beforeParticipationPeriod
+              )}
+            </EventsOverview.State>
+          )}
+        {loaderData.afterParticipationPeriod &&
+          loaderData.inPast === false &&
+          loaderData.event.external === false &&
+          loaderData.event.openForRegistration &&
+          (loaderData.event._count.childEvents === 0 ||
+            loaderData.event.parentParticipationRequired) &&
+          (loaderData.event.parentEvent === null ||
+            loaderData.event.parentEvent.parentParticipationRequired ===
+              false ||
+            loaderData.event.parentEvent.participants.some(
+              (relation) => relation.profileId === loaderData.profileId
+            )) && (
+            <EventsOverview.State>
+              {loaderData.locales.route.content.afterParticipationPeriod}
+            </EventsOverview.State>
+          )}
         {loaderData.inPast && (
           <EventsOverview.State tint="neutral">
             {loaderData.locales.route.content.inPast}
@@ -750,11 +805,36 @@ function Detail() {
                 locales={loaderData.locales}
               />
             )}
-            <EventsOverview.FreeSeats
-              participantLimit={loaderData.event.participantLimit}
-              participantsCount={loaderData.event._count.participants}
-              locales={loaderData.locales}
-            />
+            {loaderData.event.external ? (
+              <EventsOverview.External
+                locales={loaderData.locales.route.content}
+              />
+            ) : loaderData.event.openForRegistration === false ? (
+              <EventsOverview.RegistrationClosed
+                locales={loaderData.locales.route.content}
+              />
+            ) : loaderData.event._count.childEvents > 0 &&
+              loaderData.event.parentParticipationRequired === false ? (
+              <EventsOverview.RegistrationOnChilds
+                locales={loaderData.locales.route.content}
+              />
+            ) : loaderData.event.parentEvent !== null &&
+              loaderData.event.parentParticipationRequired !== false &&
+              loaderData.event.parentEvent.parentParticipationRequired &&
+              loaderData.event.parentEvent.participants.some(
+                (relation) => relation.profileId === loaderData.profileId
+              ) === false ? (
+              <EventsOverview.ParentParticipationRequired
+                parentEvent={loaderData.event.parentEvent}
+                locales={loaderData.locales.route.content}
+              />
+            ) : (
+              <EventsOverview.FreeSeats
+                participantLimit={loaderData.event.participantLimit}
+                participantsCount={loaderData.event._count.participants}
+                locales={loaderData.locales}
+              />
+            )}
           </EventsOverview.InfoContainer>
           <EventsOverview.ButtonStates>
             <EventsOverview.OverlayMenu
@@ -785,10 +865,30 @@ function Detail() {
                 {loaderData.locales.route.content.edit}
               </EventsOverview.Edit>
             )}
-            {loaderData.mode === "anon" && (
-              <EventsOverview.Login pathname={pathname}>
-                {loaderData.locales.route.content.login}
-              </EventsOverview.Login>
+            {loaderData.mode === "anon" &&
+              loaderData.event.external === false &&
+              loaderData.event.openForRegistration &&
+              (loaderData.event._count.childEvents === 0 ||
+                loaderData.event.parentParticipationRequired) &&
+              (loaderData.event.parentEvent === null ||
+                loaderData.event.parentParticipationRequired === false ||
+                loaderData.event.parentEvent.parentParticipationRequired ===
+                  false) &&
+              loaderData.beforeParticipationPeriod === false &&
+              loaderData.afterParticipationPeriod === false && (
+                <EventsOverview.Login pathname={pathname}>
+                  {loaderData.locales.route.content.login}
+                </EventsOverview.Login>
+              )}
+            {loaderData.event.external && (
+              <EventsOverview.ExternalParticipate
+                externalRegistrationUrl={
+                  loaderData.event.externalRegistrationUrl
+                }
+                isAdmin={loaderData.mode === "admin"}
+              >
+                {loaderData.locales.route.content.externalParticipate}
+              </EventsOverview.ExternalParticipate>
             )}
             {loaderData.mode === "canParticipate" && (
               <EventsOverview.Participate profileId={loaderData.profileId}>
