@@ -30,9 +30,37 @@ export const locale = {
     externalParticipate: "External registration link",
     login: "Log in to participate",
     participate: "Participate",
-    withdrawParticipation: "Withdraw participation",
+    withdrawParticipation: {
+      cta: "Withdraw participation",
+      doubleConfirmationModal: {
+        title: "Do you really want to withdraw your participation?",
+        description: {
+          closedForRegistration:
+            "This is a closed event. You would need to be invited again to participate.",
+          afterParticipationPeriod:
+            "The registration period for this event has ended. You can no longer participate.",
+          waitingList:
+            "People on the waiting list would move up if you withdraw your participation. You can then only join the waiting list.",
+          childEvents:
+            "By withdrawing your participation in the parent event, your participation and waiting list spots in the following child events would also be withdrawn:",
+        },
+        submit: "Withdraw participation",
+        abort: "Cancel",
+      },
+    },
     joinWaitingList: "Join waiting list",
-    leaveWaitingList: "Leave waiting list",
+    leaveWaitingList: {
+      cta: "Leave waiting list",
+      doubleConfirmationModal: {
+        title: "Do you really want to leave the waiting list?",
+        description: {
+          afterParticipationPeriod:
+            "The registration period for this event has ended. You can no longer join the waiting list.",
+        },
+        submit: "Leave waiting list",
+        abort: "Cancel",
+      },
+    },
     report: "Report",
     reported: "Report is being reviewed",
     reportFaq: "More info about reporting",

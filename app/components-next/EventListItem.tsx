@@ -111,7 +111,6 @@ function EventListItemContent(props: {
     };
     external: boolean;
     openForRegistration: boolean;
-    parentParticipationRequired: boolean | null;
     canceled?: boolean;
     published?: boolean;
   };
@@ -143,9 +142,7 @@ function EventListItemContent(props: {
               })() + " | "
             : ""}
           {getDuration(startTime, endTime, currentLanguage)}
-          {event.external === false &&
-          event.openForRegistration &&
-          event.parentParticipationRequired !== false ? (
+          {event.external === false && event.openForRegistration ? (
             <>
               {event.participantLimit === null &&
                 ` | ${locales.components.EventListItemContent.unlimitedSeats}`}

@@ -31,9 +31,37 @@ export const locale = {
     externalParticipate: "Link zur Anmeldung",
     login: "Anmelden um teilzunehmen",
     participate: "Teilnehmen",
-    withdrawParticipation: "Nicht mehr teilnehmen",
+    withdrawParticipation: {
+      cta: "Nicht mehr teilnehmen",
+      doubleConfirmationModal: {
+        title: "Möchtest Du Deine Teilnahme wirklich zurückziehen?",
+        description: {
+          closedForRegistration:
+            "Es handelt sich um eine geschlossene Veranstaltung. Du müsstest erneut eingeladen werden, um wieder teilnehmen zu können.",
+          afterParticipationPeriod:
+            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst dann nicht mehr teilnehmen.",
+          waitingList:
+            "Personen auf der Warteliste würden nachrücken, wenn Du Deine Teilnahme zurückziehst. Du kannst dann selbst nur noch auf die Warteliste.",
+          childEvents:
+            "Durch das Zurückziehen deiner Teilnahme am Rahmenevent würden automatisch auch Deine Teilnahmen und Wartelistenplätze bei folgenden Unterveranstaltungen zurückgezogen werden:",
+        },
+        submit: "Teilnahme zurückziehen",
+        abort: "Abbrechen",
+      },
+    },
     joinWaitingList: "Zur Warteliste hinzufügen",
-    leaveWaitingList: "Von der Warteliste entfernen",
+    leaveWaitingList: {
+      cta: "Von der Warteliste entfernen",
+      doubleConfirmationModal: {
+        title: "Möchtest Du Dich wirklich von der Warteliste entfernen?",
+        description: {
+          afterParticipationPeriod:
+            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst dich dann nicht mehr auf die Warteliste setzen.",
+        },
+        submit: "Von der Warteliste entfernen",
+        abort: "Abbrechen",
+      },
+    },
     report: "Melden",
     reported: "Meldung wird geprüft",
     reportFaq: "Weitere Infos zum Melden",

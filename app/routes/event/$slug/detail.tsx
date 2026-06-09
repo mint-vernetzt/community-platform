@@ -910,8 +910,16 @@ function Detail() {
               loaderData.inPast === false && (
                 <EventsOverview.WithdrawParticipation
                   profileId={loaderData.profileId}
+                  event={{
+                    ...loaderData.event,
+                    afterParticipationPeriod:
+                      loaderData.afterParticipationPeriod,
+                  }}
+                  locales={
+                    loaderData.locales.route.content.withdrawParticipation
+                  }
                 >
-                  {loaderData.locales.route.content.withdrawParticipation}
+                  {loaderData.locales.route.content.withdrawParticipation.cta}
                 </EventsOverview.WithdrawParticipation>
               )}
             {loaderData.mode === "canWait" && (
@@ -920,8 +928,14 @@ function Detail() {
               </EventsOverview.JoinWaitingList>
             )}
             {loaderData.mode === "waiting" && loaderData.inPast === false && (
-              <EventsOverview.LeaveWaitingList profileId={loaderData.profileId}>
-                {loaderData.locales.route.content.leaveWaitingList}
+              <EventsOverview.LeaveWaitingList
+                profileId={loaderData.profileId}
+                event={{
+                  afterParticipationPeriod: loaderData.afterParticipationPeriod,
+                }}
+                locales={loaderData.locales.route.content.leaveWaitingList}
+              >
+                {loaderData.locales.route.content.leaveWaitingList.cta}
               </EventsOverview.LeaveWaitingList>
             )}
           </EventsOverview.ButtonStates>

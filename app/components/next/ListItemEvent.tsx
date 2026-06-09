@@ -180,18 +180,11 @@ function ListItemInfo(props: {
   endTime: Date;
   participantLimit: number | null;
   participantCount: number;
-  parentParticipationRequired: boolean | null;
   openForRegistration: boolean;
   external: boolean;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
 }) {
-  const {
-    startTime,
-    endTime,
-    parentParticipationRequired,
-    openForRegistration,
-    external,
-  } = props;
+  const { startTime, endTime, openForRegistration, external } = props;
   const strings: string[] = [];
   if (props.stage !== null) {
     if (typeof props.locales.stages[props.stage.slug] === "undefined") {
@@ -214,11 +207,7 @@ function ListItemInfo(props: {
     strings.push(getTimeDuration(zonedStartTime, zonedEndTime, props.language));
   }
 
-  if (
-    external === false &&
-    openForRegistration &&
-    parentParticipationRequired !== false
-  ) {
+  if (external === false && openForRegistration) {
     if (props.participantLimit !== null) {
       if (props.participantCount >= props.participantLimit) {
         strings.push(props.locales.waitinglist);

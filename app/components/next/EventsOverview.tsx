@@ -8,7 +8,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refact
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Form, Link, useLocation } from "react-router";
+import { Form, Link, useLocation, useSearchParams } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -29,6 +29,7 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 // Design:
 // Name: Events_Overview
@@ -1198,15 +1199,121 @@ function ExternalParticipate(props: {
 
 function WithdrawParticipation(props: {
   children: React.ReactNode;
+  event: {
+    openForRegistration: boolean;
+    afterParticipationPeriod: boolean;
+    _count: {
+      waitingList: number;
+    };
+    childEvents: {
+      id: string;
+      name: string;
+      participants: { profileId: string }[];
+    }[];
+  };
   profileId?: string;
+  locales: {
+    doubleConfirmationModal: {
+      title: string;
+      description: {
+        closedForRegistration: string;
+        afterParticipationPeriod: string;
+        waitingList: string;
+        childEvents: string;
+      };
+      submit: string;
+      abort: string;
+    };
+  };
 }) {
+  const { event, locales } = props;
+
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
   if (typeof props.profileId === "undefined") {
     return null;
   }
 
-  return (
-    <Form method="post" preventScrollReset>
+  const showDoubleConfirmation =
+    event.openForRegistration === false ||
+    event.afterParticipationPeriod ||
+    event._count.waitingList > 0;
+
+  const childEventsToBeWithdrawnFrom = [];
+  if (event.childEvents.length > 0) {
+    const participatedChildEvents = event.childEvents.filter((childEvent) =>
+      childEvent.participants.some(
+        (participant) => participant.profileId === props.profileId
+      )
+    );
+    if (participatedChildEvents.length > 0) {
+      childEventsToBeWithdrawnFrom.push(...participatedChildEvents);
+    }
+  }
+
+  return showDoubleConfirmation || childEventsToBeWithdrawnFrom.length > 0 ? (
+    <>
+      <Button
+        as="link"
+        to={`?${extendSearchParams(searchParams, {
+          addOrReplace: {
+            "modal-double-confirm-withdraw-participation": "true",
+          },
+        })}`}
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+      <Form
+        id="withdraw-participation-form"
+        method="post"
+        preventScrollReset
+        hidden
+      >
+        <input type="hidden" name="profileId" defaultValue={props.profileId} />
+        <input type="hidden" name="redirectTo" value={location.pathname} />
+      </Form>
+      <Modal searchParam="modal-double-confirm-withdraw-participation">
+        <Modal.Title>{locales.doubleConfirmationModal.title}</Modal.Title>
+        {showDoubleConfirmation && (
+          <Modal.Section>
+            {event.openForRegistration === false
+              ? locales.doubleConfirmationModal.description
+                  .closedForRegistration
+              : event.afterParticipationPeriod
+                ? locales.doubleConfirmationModal.description
+                    .afterParticipationPeriod
+                : event._count.waitingList > 0
+                  ? locales.doubleConfirmationModal.description.waitingList
+                  : ""}
+          </Modal.Section>
+        )}
+        {childEventsToBeWithdrawnFrom.length > 0 && (
+          <Modal.Section>
+            {locales.doubleConfirmationModal.description.childEvents}
+            <ul className="list-disc list-inside">
+              {childEventsToBeWithdrawnFrom.map((childEvent) => (
+                <li key={childEvent.id}>{childEvent.name}</li>
+              ))}
+            </ul>
+          </Modal.Section>
+        )}
+        <Modal.SubmitButton
+          form="withdraw-participation-form"
+          name={INTENT_FIELD_NAME}
+          value="withdrawParticipation"
+        >
+          {locales.doubleConfirmationModal.submit}
+        </Modal.SubmitButton>
+        <Modal.CloseButton>
+          {locales.doubleConfirmationModal.abort}
+        </Modal.CloseButton>
+      </Modal>
+    </>
+  ) : (
+    <Form id="withdraw-participation-form" method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1250,14 +1357,73 @@ function JoinWaitingList(props: {
 function LeaveWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
+  event: {
+    afterParticipationPeriod: boolean;
+  };
+  locales: {
+    doubleConfirmationModal: {
+      title: string;
+      description: {
+        afterParticipationPeriod: string;
+      };
+      submit: string;
+      abort: string;
+    };
+  };
 }) {
+  const { event, locales } = props;
+
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
   if (typeof props.profileId === "undefined") {
     return null;
   }
 
-  return (
-    <Form method="post" preventScrollReset>
+  const showDoubleConfirmation = event.afterParticipationPeriod;
+
+  return showDoubleConfirmation ? (
+    <>
+      <Button
+        as="link"
+        to={`?${extendSearchParams(searchParams, {
+          addOrReplace: {
+            "modal-double-confirm-leave-waiting-list": "true",
+          },
+        })}`}
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+      <Form
+        id="leave-waiting-list-form"
+        method="post"
+        preventScrollReset
+        hidden
+      >
+        <input type="hidden" name="profileId" defaultValue={props.profileId} />
+        <input type="hidden" name="redirectTo" value={location.pathname} />
+      </Form>
+      <Modal searchParam="modal-double-confirm-leave-waiting-list">
+        <Modal.Title>{locales.doubleConfirmationModal.title}</Modal.Title>
+        <Modal.Section>
+          {locales.doubleConfirmationModal.description.afterParticipationPeriod}
+        </Modal.Section>
+        <Modal.SubmitButton
+          form="leave-waiting-list-form"
+          name={INTENT_FIELD_NAME}
+          value="leaveWaitingList"
+        >
+          {locales.doubleConfirmationModal.submit}
+        </Modal.SubmitButton>
+        <Modal.CloseButton>
+          {locales.doubleConfirmationModal.abort}
+        </Modal.CloseButton>
+      </Modal>
+    </>
+  ) : (
+    <Form id="leave-waiting-list-form" method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
