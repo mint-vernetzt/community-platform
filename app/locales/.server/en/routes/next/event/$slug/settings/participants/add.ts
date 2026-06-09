@@ -2,6 +2,8 @@ export const locale = {
   title: "Add Participants",
   subline:
     "Invite participants to your event. Invitations must be accepted by the recipients.",
+  parentParticipationRequiredHint:
+    "Your current setting only allows participation in your sub-event if the main event is also attended. Since you are not an administrator of the main event, you cannot invite participants.",
   search: {
     label: "Search People",
     placeholder: "Name or Email Address",

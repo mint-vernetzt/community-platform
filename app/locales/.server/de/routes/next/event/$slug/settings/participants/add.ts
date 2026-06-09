@@ -2,6 +2,8 @@ export const locale = {
   title: "Teilnehmende einladen",
   subline:
     "Lade Teilnehmer:innen für Deine Veranstaltung ein. Die Einladungen müssen von den Personen angenommen werden.",
+  parentParticipationRequiredHint:
+    "Deine Einstellung erlaubt aktuell nur die Teilnahme zu deinem Unterevent, wenn auch am Rahmenevent teilgenommen wird. Da Du nicht Administrator:in der Rahmenveranstaltung bist, kannst du keine Teilnehmer:innen einladen.",
   search: {
     label: "Suche Personen",
     placeholder: "Name oder E-Mail-Adresse",

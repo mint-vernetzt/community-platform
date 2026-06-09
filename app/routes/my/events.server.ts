@@ -1411,6 +1411,11 @@ export async function acceptInviteAsParticipant(options: {
               select: {
                 id: true,
                 parentParticipationRequired: true,
+                participants: {
+                  select: {
+                    profileId: true,
+                  },
+                },
               },
             },
           },
@@ -1434,7 +1439,10 @@ export async function acceptInviteAsParticipant(options: {
   if (
     invite.event.parentEvent !== null &&
     invite.event.parentEvent.parentParticipationRequired &&
-    invite.event.parentParticipationRequired !== false
+    invite.event.parentEvent.participants.some(
+      (relation) => relation.profileId === userId
+    ) === false &&
+    invite.event.parentParticipationRequired === true
   ) {
     transactions.push(
       prismaClient.participantOfEvent.create({
