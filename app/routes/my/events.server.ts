@@ -1949,9 +1949,11 @@ export async function acceptRequestAsParentEvent(options: {
   }
 
   const missingAdmins = request.parentEvent.admins.filter((parentAdmin) => {
-    return !request.childEvent.admins.some((childAdmin) => {
+    const isAdmin = request.childEvent.admins.some((childAdmin) => {
       return childAdmin.profileId === parentAdmin.profileId;
     });
+
+    return isAdmin === false;
   });
 
   const transactions =
