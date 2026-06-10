@@ -372,10 +372,11 @@ export async function addChildEvent(options: {
 }
 
 export async function removeChildEvent(options: {
+  userId: string;
   slug: string;
   childEventId: string;
 }) {
-  const { slug, childEventId } = options;
+  const { slug, childEventId, userId } = options;
 
   const event = await prismaClient.event.findFirst({
     where: {
@@ -399,6 +400,11 @@ export async function removeChildEvent(options: {
     where: {
       id: childEventId,
       parentEventId: event.id,
+      admins: {
+        some: {
+          profileId: userId,
+        },
+      },
     },
     select: {
       slug: true,
@@ -418,6 +424,7 @@ export async function removeChildEvent(options: {
       },
       data: {
         parentEventId: null,
+        parentParticipationRequired: null,
       },
     }),
   ];
