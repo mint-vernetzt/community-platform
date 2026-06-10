@@ -302,12 +302,6 @@ export async function addChildEvent(options: {
     throw new Error("Event not found");
   }
 
-  if (event.sentParentEventJoinRequests.length > 0) {
-    throw new Error(
-      "You have already requested to join a parent event. While this request is pending, you cannot add a child event. If you want to add a child event instead, first withdraw your existing request."
-    );
-  }
-
   const childEvent = await prismaClient.event.findFirst({
     where: {
       id: childEventId,
@@ -350,7 +344,9 @@ export async function addChildEvent(options: {
     throw new Error("Child event not found or not eligible to be a child");
   }
 
-  const transactions = [
+  const transactions = [];
+
+  transactions.push(
     prismaClient.event.update({
       where: {
         slug: childEvent.slug,
@@ -358,8 +354,8 @@ export async function addChildEvent(options: {
       data: {
         parentEventId: event.id,
       },
-    }),
-  ];
+    })
+  );
 
   if (event.parentParticipationRequired === null) {
     transactions.push(
@@ -369,6 +365,20 @@ export async function addChildEvent(options: {
         },
         data: {
           parentParticipationRequired: true,
+        },
+      })
+    );
+  }
+
+  if (event.sentParentEventJoinRequests.length > 0) {
+    transactions.push(
+      prismaClient.requestToParentEventToAddChildEvent.updateMany({
+        where: {
+          childEventId: event.id,
+          status: "pending",
+        },
+        data: {
+          status: "canceled",
         },
       })
     );
