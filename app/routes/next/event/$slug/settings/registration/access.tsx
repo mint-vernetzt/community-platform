@@ -303,11 +303,6 @@ function RegistrationAccess() {
           <TitleSection>
             <TitleSection.Headline>
               {locales.route.type.headline}
-              <TitleSection.Headline.HelpIcon
-                // TODO: Add correct hash param for help page
-                to="/help"
-                label={locales.route.type.helpIcon.label}
-              />
             </TitleSection.Headline>
             <TitleSection.Subline>
               {locales.route.type.subline}
@@ -493,11 +488,6 @@ function RegistrationAccess() {
               <TitleSection>
                 <TitleSection.Headline>
                   {locales.route.parentParticipation.headline}
-                  <TitleSection.Headline.HelpIcon
-                    // TODO: Add correct hash param for help page
-                    to="/help"
-                    label={locales.route.parentParticipation.helpIcon.label}
-                  />
                 </TitleSection.Headline>
                 {event._count.childEvents > 0 && (
                   <TitleSection.Subline>
