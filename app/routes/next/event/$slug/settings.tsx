@@ -125,6 +125,18 @@ export async function action(args: ActionFunctionArgs) {
     }
   );
 
+  const event = await getEventBySlug(params.slug);
+  invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (event.parentEvent !== null && event.parentEvent.published === false) {
+    return redirectWithToast(request.url, {
+      id: "publish-error",
+      key: `publish-error-${Date.now()}`,
+      message: locales.route.parentEventNotPublishedHint,
+      level: "negative",
+    });
+  }
+
   try {
     if (intent === FIRST_PUBLISH_EVENT_INTENT) {
       await updateEventBySlug(params.slug, {
@@ -136,9 +148,9 @@ export async function action(args: ActionFunctionArgs) {
       });
       return redirect(`${url.pathname}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
-      // await updateEventBySlug(params.slug, {
-      //   published: true,
-      // });
+      await updateEventBySlug(params.slug, {
+        published: true,
+      });
     }
   } catch (error) {
     captureException(error);
@@ -309,7 +321,12 @@ export default function Settings() {
           <SettingsNavigation.MobileActionSection>
             <div className="w-full p-4 flex flex-col gap-2.5 bg-primary-50 lg:hidden">
               <p className="text-primary-700 text-base font-normal leading-5">
-                {locales.route.publishHint}
+                {`${locales.route.publishHint} ${
+                  event.parentEvent !== null &&
+                  event.parentEvent.published === false
+                    ? locales.route.parentEventNotPublishedHint
+                    : ""
+                }`.trim()}
               </p>
               {event.publishIntended === false ? (
                 <Form method="post">
@@ -319,6 +336,10 @@ export default function Settings() {
                     type="submit"
                     variant="outline"
                     fullSize
+                    disabled={
+                      event.parentEvent !== null &&
+                      event.parentEvent.published === false
+                    }
                   >
                     {locales.route.publishCta}
                   </Button>
@@ -330,6 +351,10 @@ export default function Settings() {
                   variant="outline"
                   fullSize
                   preventScrollReset
+                  disabled={
+                    event.parentEvent !== null &&
+                    event.parentEvent.published === false
+                  }
                 >
                   {locales.route.publishCta}
                 </Button>
@@ -339,7 +364,14 @@ export default function Settings() {
         ) : null}
         {event.published === false ? (
           <SettingsNavigation.DesktopActionSection>
-            <span>{locales.route.publishHint}</span>
+            <span>
+              {`${locales.route.publishHint} ${
+                event.parentEvent !== null &&
+                event.parentEvent.published === false
+                  ? locales.route.parentEventNotPublishedHint
+                  : ""
+              }`.trim()}
+            </span>
             {event.publishIntended === false ? (
               <Form method="post">
                 <Button
@@ -348,6 +380,10 @@ export default function Settings() {
                   type="submit"
                   variant="outline"
                   fullSize
+                  disabled={
+                    event.parentEvent !== null &&
+                    event.parentEvent.published === false
+                  }
                 >
                   {locales.route.publishCta}
                 </Button>
@@ -358,6 +394,10 @@ export default function Settings() {
                 to={`${location.pathname}?${extendSearchParams(searchParams, { addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" } })}`}
                 variant="outline"
                 preventScrollReset
+                disabled={
+                  event.parentEvent !== null &&
+                  event.parentEvent.published === false
+                }
               >
                 {locales.route.publishCta}
               </Button>

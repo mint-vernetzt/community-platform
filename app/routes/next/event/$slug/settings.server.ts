@@ -13,6 +13,11 @@ export async function getEventBySlug(slug: string) {
       parentEventId: true,
       openForRegistration: true,
       external: true,
+      parentEvent: {
+        select: {
+          published: true,
+        },
+      },
       _count: {
         select: {
           admins: true,

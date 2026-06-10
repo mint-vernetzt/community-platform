@@ -5,6 +5,8 @@ export const locale = {
   back: "Zurück zum Menü",
   publishHint: "Dein Event ist im Entwurfsmodus nicht öffentlich sichtbar.",
   publishCta: "Event veröffentlichen",
+  parentEventNotPublishedHint:
+    "Dein Event ist Teil eines Rahmenevents. Du musst zunächst das Rahmenevent veröffentlichen.",
   menu: {
     admins: "Administrator:innen",
     dangerZone: "Kritischer Bereich",
