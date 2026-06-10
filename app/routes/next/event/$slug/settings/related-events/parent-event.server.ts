@@ -765,19 +765,6 @@ export async function removeParentEvent(options: {
     }),
   ];
 
-  if (currentEvent.parentEvent._count.childEvents === 1) {
-    transactions.push(
-      prismaClient.event.update({
-        where: {
-          id: currentEvent.parentEvent.id,
-        },
-        data: {
-          parentParticipationRequired: null,
-        },
-      })
-    );
-  }
-
   await prismaClient.$transaction(transactions);
 
   const isAdminOfParentEvent = currentEvent.parentEvent.admins.some(
