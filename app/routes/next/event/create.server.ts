@@ -62,6 +62,12 @@ export async function createEvent(options: {
       where: {
         id: data.parentEventId,
         admins: { some: { profileId: userId } },
+        parentEventId: null,
+        sentParentEventJoinRequests: {
+          none: {
+            status: "pending",
+          },
+        },
       },
       select: {
         id: true,
@@ -72,8 +78,6 @@ export async function createEvent(options: {
       throw new Error("Parent event not found");
     }
   }
-
-  parentEvent;
 
   await prismaClient.$transaction(async (client) => {
     const event = await client.event.create({

@@ -274,6 +274,12 @@ export async function addChildEvent(options: {
   const event = await prismaClient.event.findFirst({
     where: {
       slug,
+      parentEventId: null,
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
     },
     select: {
       id: true,
