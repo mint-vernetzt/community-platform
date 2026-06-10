@@ -398,9 +398,7 @@ export async function removeChildEvent(options: {
   const childEvent = await prismaClient.event.findFirst({
     where: {
       id: childEventId,
-      parentEventId: {
-        equals: event.id,
-      },
+      parentEventId: event.id,
     },
     select: {
       slug: true,
