@@ -405,6 +405,7 @@ export default function Info() {
             }
             errorId={fields.subline.errorId}
             maxLength={SUBLINE_MAX_LENGTH}
+            height="h-[79px]"
           />
           <TextArea
             {...getInputProps(fields.description, {
