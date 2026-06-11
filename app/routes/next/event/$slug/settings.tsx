@@ -571,7 +571,12 @@ export default function Settings() {
           </Modal.Section>
           <Modal.Controls>
             <Form method="post" className="w-full">
-              <Button type="submit" fullSize>
+              <Button
+                type="submit"
+                fullSize
+                name={INTENT_FIELD_NAME}
+                value={PUBLISH_EVENT_INTENT}
+              >
                 {locales.route.modal.publishEventModal.noIssues.submit}
               </Button>
             </Form>
