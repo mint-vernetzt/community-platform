@@ -109,17 +109,32 @@ export async function getParticipantsOfEvent(slug: string) {
     }
   );
 
-  const sortedParticipants = uniqueParticipants.sort((a, b) => {
-    const nameA = a.firstName.toLowerCase();
-    const nameB = b.firstName.toLowerCase();
-    if (nameA < nameB) {
-      return -1;
+  const enhancedParticipantsWithListOfEvents = uniqueParticipants.map(
+    (participant) => {
+      const eventsOfParticipant = aggregatedParticipants
+        .filter((item) => {
+          return item.id === participant.id;
+        })
+        .map((item) => {
+          return item.event;
+        });
+      return { ...participant, event: eventsOfParticipant.join(", ") };
     }
-    if (nameA > nameB) {
-      return 1;
+  );
+
+  const sortedParticipants = enhancedParticipantsWithListOfEvents.sort(
+    (a, b) => {
+      const nameA = a.firstName.toLowerCase();
+      const nameB = b.firstName.toLowerCase();
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
     }
-    return 0;
-  });
+  );
 
   return sortedParticipants;
 }
