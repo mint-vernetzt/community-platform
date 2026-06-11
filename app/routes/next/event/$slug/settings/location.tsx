@@ -43,7 +43,11 @@ import { updateFilterVectorOfEvent } from "~/routes/event/$slug/settings/utils.s
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
 import { getCoordinatesFromAddress, sanitizeUserHtml } from "~/utils.server";
-import { getRedirectPathOnProtectedEventRoute } from "../settings.server";
+import {
+  getEventBySlugForIssues,
+  getIssues,
+  getRedirectPathOnProtectedEventRoute,
+} from "../settings.server";
 import {
   createEventLocationSchema,
   getStageDefaultValue,
@@ -52,15 +56,16 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { slug } = params;
 
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -79,9 +84,10 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const event = await prismaClient.event.findFirst({
     where: {
-      slug: params.slug,
+      slug,
     },
     select: {
+      publishIntended: true,
       venueName: true,
       venueStreet: true,
       venueCity: true,
@@ -98,12 +104,22 @@ export async function loader(args: LoaderFunctionArgs) {
 
   invariantResponse(event, locales.route.errors.notFound, { status: 404 });
 
+  let issues: ReturnType<typeof getIssues> = [];
+  if (event.publishIntended) {
+    const eventForIssues = await getEventBySlugForIssues(slug);
+    issues = getIssues({
+      event: eventForIssues,
+      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+      section: "location",
+    });
+  }
+
   let stage = null;
   if (event.stage !== null) {
     stage = event.stage.slug;
   }
 
-  return { locales, event: { ...event, stage } };
+  return { locales, event: { ...event, stage }, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -274,7 +290,7 @@ export async function action(args: ActionFunctionArgs) {
 
 export default function Location() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, issues } = loaderData;
 
   const actionData = useActionData<typeof action>();
 
@@ -419,7 +435,16 @@ export default function Location() {
                   label={locales.route.venueStreet}
                   {...getInputProps(fields.venueStreet, { type: "text" })}
                 >
-                  <Input.Label>{locales.route.venueStreet}</Input.Label>
+                  <Input.Label>
+                    <span className="flex items-center gap-2.5">
+                      {locales.route.venueStreet}
+                      {issues.some((issue) => {
+                        return issue.fields.includes(fields.venueStreet.name);
+                      }) && (
+                        <span className="rounded-full w-2 h-2 bg-primary-300" />
+                      )}
+                    </span>
+                  </Input.Label>
                   {Array.isArray(fields.venueStreet.errors) &&
                     fields.venueStreet.errors.length > 0 &&
                     fields.venueStreet.errors.map((error) => (
@@ -434,7 +459,16 @@ export default function Location() {
                   label={locales.route.venueZipCode}
                   {...getInputProps(fields.venueZipCode, { type: "text" })}
                 >
-                  <Input.Label>{locales.route.venueZipCode}</Input.Label>
+                  <Input.Label>
+                    <span className="flex items-center gap-2.5">
+                      {locales.route.venueZipCode}
+                      {issues.some((issue) => {
+                        return issue.fields.includes(fields.venueZipCode.name);
+                      }) && (
+                        <span className="rounded-full w-2 h-2 bg-primary-300" />
+                      )}
+                    </span>
+                  </Input.Label>
                   {Array.isArray(fields.venueZipCode.errors) &&
                     fields.venueZipCode.errors.length > 0 &&
                     fields.venueZipCode.errors.map((error) => (
@@ -449,7 +483,16 @@ export default function Location() {
                   label={locales.route.venueCity}
                   {...getInputProps(fields.venueCity, { type: "text" })}
                 >
-                  <Input.Label>{locales.route.venueCity}</Input.Label>
+                  <Input.Label>
+                    <span className="flex items-center gap-2.5">
+                      {locales.route.venueCity}
+                      {issues.some((issue) => {
+                        return issue.fields.includes(fields.venueCity.name);
+                      }) && (
+                        <span className="rounded-full w-2 h-2 bg-primary-300" />
+                      )}
+                    </span>
+                  </Input.Label>
                   {Array.isArray(fields.venueCity.errors) &&
                     fields.venueCity.errors.length > 0 &&
                     fields.venueCity.errors.map((error) => (
@@ -464,7 +507,18 @@ export default function Location() {
                   label={locales.route.conferenceLink}
                   {...getInputProps(fields.conferenceLink, { type: "text" })}
                 >
-                  <Input.Label>{locales.route.conferenceLink}</Input.Label>
+                  <Input.Label>
+                    <span className="flex items-center gap-2.5">
+                      {locales.route.conferenceLink}
+                      {issues.some((issue) => {
+                        return issue.fields.includes(
+                          fields.conferenceLink.name
+                        );
+                      }) && (
+                        <span className="rounded-full w-2 h-2 bg-primary-300" />
+                      )}
+                    </span>
+                  </Input.Label>
                   {Array.isArray(fields.conferenceLink.errors) &&
                     fields.conferenceLink.errors.length > 0 &&
                     fields.conferenceLink.errors.map((error) => (

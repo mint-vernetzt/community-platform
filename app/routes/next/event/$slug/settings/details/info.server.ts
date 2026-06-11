@@ -8,6 +8,7 @@ export async function getEventBySlug(slug: string) {
     where: { slug },
     select: {
       name: true,
+      publishIntended: true,
       types: {
         select: {
           eventType: {

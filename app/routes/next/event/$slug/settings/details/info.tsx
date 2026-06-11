@@ -36,7 +36,11 @@ import { UnsavedChangesModalParam } from "~/lib/utils/searchParams";
 import { languageModuleMap } from "~/locales/.server";
 import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  getEventBySlugForIssues,
+  getIssues,
+  getRedirectPathOnProtectedEventRoute,
+} from "../../settings.server";
 import {
   getAllEventTargetGroups,
   getAllEventTypes,
@@ -55,15 +59,16 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { slug } = params;
 
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -80,7 +85,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/details/info"];
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   const allEventTypes = await getAllEventTypes();
@@ -88,6 +93,18 @@ export async function loader(args: LoaderFunctionArgs) {
   const allEventTargetGroups = await getAllEventTargetGroups();
   const allExperienceLevels = await getAllExperienceLevels();
   const allFocuses = await getAllFocuses();
+
+  let issues: ReturnType<typeof getIssues> = [];
+  if (event.publishIntended) {
+    const eventForIssues = await getEventBySlugForIssues(slug);
+    if (eventForIssues !== null) {
+      issues = getIssues({
+        event: eventForIssues,
+        locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+        section: "details",
+      });
+    }
+  }
 
   return {
     locales,
@@ -97,6 +114,7 @@ export async function loader(args: LoaderFunctionArgs) {
     allEventTargetGroups,
     allExperienceLevels,
     allFocuses,
+    issues,
   };
 }
 
@@ -163,6 +181,7 @@ export default function Info() {
   const {
     locales,
     event,
+    issues,
     allEventTypes,
     allTags,
     allEventTargetGroups,
@@ -187,7 +206,10 @@ export default function Info() {
       return submission;
     },
     defaultValue: {
-      ...event,
+      name: event.name,
+      description: event.description,
+      descriptionRTEState: event.descriptionRTEState,
+      subline: event.subline,
       experienceLevel:
         event.experienceLevel !== null ? event.experienceLevel.id : null,
       types: event.types.map((relation) => relation.eventType.id),
@@ -373,6 +395,9 @@ export default function Info() {
                 max: SUBLINE_MAX_LENGTH,
               }
             )}
+            hasIssue={issues.some((issue) => {
+              return issue.fields.includes(fields.subline.name);
+            })}
             errorMessage={
               Array.isArray(fields.subline.errors)
                 ? fields.subline.errors.join(", ")
@@ -393,6 +418,9 @@ export default function Info() {
                 max: DESCRIPTION_MAX_LENGTH,
               }
             )}
+            hasIssue={issues.some((issue) => {
+              return issue.fields.includes(fields.description.name);
+            })}
             errorMessage={
               Array.isArray(fields.description.errors)
                 ? fields.description.errors.join(", ")
@@ -419,7 +447,14 @@ export default function Info() {
               cta={locales.route.keywords.tags.cta}
             >
               <ConformSelect.Label htmlFor={fields.tags.id}>
-                {locales.route.keywords.tags.label}
+                <span className="flex items-center gap-2.5">
+                  {locales.route.keywords.tags.label}
+                  {issues.some((issue) => {
+                    return issue.fields.includes(fields.tags.name);
+                  }) && (
+                    <span className="rounded-full w-2 h-2 bg-primary-300" />
+                  )}
+                </span>
               </ConformSelect.Label>
               {typeof fields.tags.errors !== "undefined" &&
               fields.tags.errors.length > 0
@@ -494,7 +529,14 @@ export default function Info() {
               cta={locales.route.keywords.eventTargetGroups.cta}
             >
               <ConformSelect.Label htmlFor={fields.eventTargetGroups.id}>
-                {locales.route.keywords.eventTargetGroups.label}
+                <span className="flex items-center gap-2.5">
+                  {locales.route.keywords.eventTargetGroups.label}
+                  {issues.some((issue) => {
+                    return issue.fields.includes(fields.eventTargetGroups.name);
+                  }) && (
+                    <span className="rounded-full w-2 h-2 bg-primary-300" />
+                  )}
+                </span>
               </ConformSelect.Label>
               {typeof fields.eventTargetGroups.errors !== "undefined" &&
               fields.eventTargetGroups.errors.length > 0
@@ -649,7 +691,14 @@ export default function Info() {
               cta={locales.route.keywords.focuses.cta}
             >
               <ConformSelect.Label htmlFor={fields.focuses.id}>
-                {locales.route.keywords.focuses.label}
+                <span className="flex items-center gap-2.5">
+                  {locales.route.keywords.focuses.label}
+                  {issues.some((issue) => {
+                    return issue.fields.includes(fields.focuses.name);
+                  }) && (
+                    <span className="rounded-full w-2 h-2 bg-primary-300" />
+                  )}
+                </span>
               </ConformSelect.Label>
               {typeof fields.focuses.errors !== "undefined" &&
               fields.focuses.errors.length > 0

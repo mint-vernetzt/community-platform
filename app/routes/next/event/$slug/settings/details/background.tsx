@@ -49,10 +49,14 @@ import {
   UPLOAD_IMAGE_INTENT_VALUE,
 } from "~/storage.shared";
 import { createToastHeaders, redirectWithToast } from "~/toast.server";
-import { getRedirectPathOnProtectedEventRoute } from "../../settings.server";
+import {
+  getEventBySlugForIssues,
+  getIssues,
+  getRedirectPathOnProtectedEventRoute,
+} from "../../settings.server";
 import {
   changeEventBackground,
-  getEventBackground,
+  getEventBySlugWithBackground,
   removeEventBackground,
 } from "./background.server";
 import ShadowOrganizationHint from "~/components/next/ShadowOrganizationHint";
@@ -75,14 +79,15 @@ export function links() {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  const { slug } = params;
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -99,14 +104,26 @@ export async function loader(args: LoaderFunctionArgs) {
   const locales =
     languageModuleMap[language]["next/event/$slug/settings/details/background"];
 
-  const background = await getEventBackground(params.slug, authClient);
+  const event = await getEventBySlugWithBackground(slug, authClient);
+  invariantResponse(event, "Event not found", { status: 404 });
 
-  return { locales, background };
+  let issues: ReturnType<typeof getIssues> = [];
+  if (event.publishIntended) {
+    const eventForIssues = await getEventBySlugForIssues(slug);
+    issues = getIssues({
+      event: eventForIssues,
+      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
+      section: "details",
+    });
+  }
+
+  return { locales, background: event.background, issues };
 }
 
 export async function action(args: ActionFunctionArgs) {
   const { request, params } = args;
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  const { slug } = params;
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
@@ -117,7 +134,7 @@ export async function action(args: ActionFunctionArgs) {
   const sessionUser = await getSessionUserOrThrow(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -168,7 +185,7 @@ export async function action(args: ActionFunctionArgs) {
 
     try {
       await changeEventBackground({
-        slug: params.slug,
+        slug,
         authClient,
         data: submission.value,
       });
@@ -197,7 +214,7 @@ export async function action(args: ActionFunctionArgs) {
   } else {
     try {
       await removeEventBackground({
-        slug: params.slug,
+        slug,
       });
     } catch (error) {
       captureException(error);
@@ -226,7 +243,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function Background() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, background } = loaderData;
+  const { locales, background, issues } = loaderData;
   const actionData = useActionData<typeof action>();
   const { submission } = actionData ?? {};
 
@@ -315,7 +332,14 @@ function Background() {
         locales={locales.components.UnsavedChangesModal}
       />
       <TitleSection>
-        <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
+        <TitleSection.Headline>
+          <span className="flex items-center gap-2.5">
+            {locales.route.title}
+            {issues.some((issue) => {
+              return issue.fields.includes("title");
+            }) && <span className="rounded-full w-2 h-2 bg-primary-300" />}
+          </span>
+        </TitleSection.Headline>
         <TitleSection.Subline>
           {insertParametersIntoLocale(locales.route.fileExplanation, {
             size: MAX_UPLOAD_FILE_SIZE / 1000 / 1000,

@@ -30,6 +30,8 @@ import { checkFeatureAbilitiesOrThrow } from "~/routes/feature-access.server";
 import { redirectWithToast } from "~/toast.server";
 import {
   getEventBySlug,
+  getEventBySlugForIssues,
+  getIssues,
   getRedirectPathOnProtectedEventRoute,
   updateEventBySlug,
 } from "./settings.server";
@@ -45,15 +47,16 @@ import { insertComponentsIntoLocale } from "~/lib/utils/i18n";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { slug } = params;
 
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -69,23 +72,15 @@ export async function loader(args: LoaderFunctionArgs) {
   const language = await detectLanguage(request);
   const locales = languageModuleMap[language]["next/event/$slug/settings"];
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  // TODO: functionality
-  const issues: {
-    section: string;
-    field: string;
-    message: string;
-  }[] = [];
-
+  let issues: ReturnType<typeof getIssues> = [];
   if (event.publishIntended) {
-    // aggregate issues
-    // Test
-    issues.push({
-      section: "registration",
-      field: "externalRegistrationUrl",
-      message: locales.route.issues.registration.missingExternalRegistrationUrl,
+    const eventForIssues = await getEventBySlugForIssues(slug);
+    issues = getIssues({
+      event: eventForIssues,
+      locales: languageModuleMap[language]["next/event/$slug/settings"].route,
     });
   }
 
@@ -143,10 +138,11 @@ export async function action(args: ActionFunctionArgs) {
         publishIntended: true,
       });
       const url = new URL(request.url);
+      const location = formData.get("location");
       const searchParams = extendSearchParams(url.searchParams, {
         addOrReplace: { [PUBLISH_EVENT_MODAL_SEARCH_PARAM]: "true" },
       });
-      return redirect(`${url.pathname}?${searchParams.toString()}`);
+      return redirect(`${location}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
       await updateEventBySlug(params.slug, {
         published: true,
@@ -186,7 +182,7 @@ export default function Settings() {
     count?: number;
     disabled?: boolean;
     hint?: string;
-    issues?: Array<{ section: string; field: string; message: string }>;
+    issues?: Array<{ section: string; fields: string[]; message: string }>;
     critical?: boolean;
   }> = [
     {
@@ -213,11 +209,27 @@ export default function Settings() {
       ...getLinkIssueInfo({
         section: "registration",
         issues: loaderData.issues,
-        locales: locales.route.issues,
+        locales: locales.route.menuHints,
       }),
     },
-    { to: `details/info?${Deep}=true`, label: locales.route.menu.details },
-    { to: `location?${Deep}=true`, label: locales.route.menu.location },
+    {
+      to: `details/info?${Deep}=true`,
+      label: locales.route.menu.details,
+      ...getLinkIssueInfo({
+        section: "details",
+        issues: loaderData.issues,
+        locales: locales.route.menuHints,
+      }),
+    },
+    {
+      to: `location?${Deep}=true`,
+      label: locales.route.menu.location,
+      ...getLinkIssueInfo({
+        section: "location",
+        issues: loaderData.issues,
+        locales: locales.route.menuHints,
+      }),
+    },
     {
       to: `admins/list?${Deep}=true`,
       label: locales.route.menu.admins,
@@ -329,7 +341,12 @@ export default function Settings() {
                 }`.trim()}
               </p>
               {event.publishIntended === false ? (
-                <Form method="post">
+                <Form method="post" action={location.pathname}>
+                  <input
+                    type="hidden"
+                    name="location"
+                    value={location.pathname}
+                  />
                   <Button
                     name={INTENT_FIELD_NAME}
                     value={FIRST_PUBLISH_EVENT_INTENT}
@@ -374,6 +391,11 @@ export default function Settings() {
             </span>
             {event.publishIntended === false ? (
               <Form method="post">
+                <input
+                  type="hidden"
+                  name="location"
+                  value={location.pathname}
+                />
                 <Button
                   name={INTENT_FIELD_NAME}
                   value={FIRST_PUBLISH_EVENT_INTENT}
@@ -493,7 +515,7 @@ export default function Settings() {
               {issues.map((issue, index) => {
                 return (
                   <div
-                    key={`${issue.section}-${issue.field}-${index}`}
+                    key={`${issue.section}-${issue.fields.join("-")}-${index}`}
                     className="flex flex-col gap-2 border-neutral-200 border rounded-lg p-4 text-neutral-700"
                   >
                     <p className="font-semibold text-lg">
@@ -549,7 +571,12 @@ export default function Settings() {
           </Modal.Section>
           <Modal.Controls>
             <Form method="post" className="w-full">
-              <Button type="submit" fullSize>
+              <Button
+                type="submit"
+                fullSize
+                name={INTENT_FIELD_NAME}
+                value={PUBLISH_EVENT_INTENT}
+              >
                 {locales.route.modal.publishEventModal.noIssues.submit}
               </Button>
             </Form>

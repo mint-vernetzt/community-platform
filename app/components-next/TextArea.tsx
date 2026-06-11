@@ -9,6 +9,7 @@ import { type UseFormRegisterReturn } from "react-hook-form";
 export interface TextAreaProps {
   label: string;
   isPublic?: boolean;
+  hasIssue?: boolean;
   withPublicPrivateToggle?: boolean;
   errorMessage?: string;
   errorId?: string;
@@ -41,7 +42,8 @@ const TextArea = (
     height = "h-58.5",
     ...inputProps
   } = props;
-  const { value, className, readOnly, tabIndex, ...rteInputProps } = inputProps;
+  const { value, className, readOnly, tabIndex, hasIssue, ...rteInputProps } =
+    inputProps;
 
   const [characterCount, updateCharacterCount] = useState(
     props.defaultValue?.toString().length || 0
@@ -87,13 +89,18 @@ const TextArea = (
       <div className="flex flex-col w-full">
         <div className="flex flex-col w-full">
           <div className="flex flex-row items-center mb-1">
-            <label
-              htmlFor={inputProps.id || label}
-              className="text-sm font-semibold leading-5 flex-auto"
-            >
-              {props.label}
-              {props.required ? "*" : ""}
-            </label>
+            <span className="flex items-center gap-2.5">
+              <label
+                htmlFor={inputProps.id || label}
+                className="text-sm font-semibold leading-5 flex-auto"
+              >
+                {props.label}
+                {props.required ? "*" : ""}
+              </label>
+              {hasIssue && (
+                <span className="rounded-full w-2 h-2 bg-primary-300" />
+              )}
+            </span>
 
             {withPublicPrivateToggle !== undefined &&
               isPublic !== undefined &&
