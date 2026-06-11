@@ -4,6 +4,8 @@ export const locale = {
     "Invite participants to your event. Invitations must be accepted by the recipients.",
   parentParticipationRequiredHint:
     "Your current setting only allows participation in your sub-event if the main event is also attended. Since you are not an administrator of the main event, you cannot invite participants.",
+  participationOnChildEventsRequiredHint:
+    "Your current setting only allows participation in your sub-events. Therefore, you cannot invite participants to the main event.",
   search: {
     label: "Search People",
     placeholder: "Name or Email Address",

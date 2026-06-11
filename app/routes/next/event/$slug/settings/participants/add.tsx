@@ -84,14 +84,6 @@ export async function loader(args: LoaderFunctionArgs) {
     return redirect(`../../time-period?${Deep}=${deep}`);
   }
 
-  if (
-    event._count.childEvents > 0 &&
-    event.openForRegistration &&
-    event.parentParticipationRequired === false
-  ) {
-    return redirect(`../list?${Deep}=true`);
-  }
-
   const { result: searchedProfiles } = await searchProfiles({
     eventId: event.id,
     authClient,
@@ -150,18 +142,15 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (
-    event.published === false ||
-    event.external ||
-    (event._count.childEvents > 0 &&
-      event.openForRegistration &&
-      event.parentParticipationRequired === false)
-  ) {
-    const url = new URL(request.url);
-    const searchParams = url.searchParams;
-    const deep = searchParams.get(Deep);
-    return redirect(`../../time-period?${Deep}=${deep}`);
-  }
+  invariantResponse(
+    event.published &&
+      event.external === false &&
+      (event._count.childEvents === 0 || event.parentParticipationRequired),
+    "Forbidden",
+    {
+      status: 403,
+    }
+  );
 
   const submission = await parseWithZod(formData, {
     schema: createInviteProfileToParticipateOnEvent(),
@@ -251,6 +240,12 @@ function ParticipantsAdd() {
         <Hint>
           <Hint.InfoIcon />
           {locales.route.parentParticipationRequiredHint}
+        </Hint>
+      ) : event._count.childEvents > 0 &&
+        event.parentParticipationRequired === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.participationOnChildEventsRequiredHint}
         </Hint>
       ) : (
         <>

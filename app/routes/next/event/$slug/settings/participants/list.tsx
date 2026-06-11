@@ -90,20 +90,14 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const { submission, participants } = result;
 
-  if (
+  const hasNoParticipants =
     participants.length === 0 &&
-    (event.childEvents.length === 0 ||
-      event.childEvents.every(
-        (childEvent) => childEvent.participants.length === 0
-      ))
-  ) {
-    if (
-      event.childEvents.length === 0 ||
-      event.openForRegistration === false ||
-      event.parentParticipationRequired
-    ) {
-      return redirect(`../add?${Deep}=true`);
-    }
+    event.childEvents.every((childEvent) => {
+      return childEvent.participants.length === 0;
+    });
+
+  if (hasNoParticipants) {
+    return redirect(`../add?${Deep}=true`);
   }
 
   const flatAggregatedParticipantIds = event.childEvents

@@ -132,24 +132,16 @@ export default function Participants() {
               )}
             </TabBar.Item>
             <TabBar.Item active={pathname.endsWith("/add")}>
-              {event._count.childEvents === 0 ||
-              event.openForRegistration === false ||
-              event.parentParticipationRequired ? (
-                <Link
-                  to={`./add?${Deep}=true`}
-                  {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
-                  preventScrollReset
-                  prefetch="intent"
-                >
-                  <TabBar.Item.Title>
-                    {locales.route.tabbar.add}
-                  </TabBar.Item.Title>
-                </Link>
-              ) : (
-                <h2 className="text-lg font-semibold text-neutral-300 mb-3 p-2 flex gap-2 items-center cursor-not-allowed">
+              <Link
+                to={`./add?${Deep}=true`}
+                {...TabBar.getItemElementClasses(pathname.endsWith("/add"))}
+                preventScrollReset
+                prefetch="intent"
+              >
+                <TabBar.Item.Title>
                   {locales.route.tabbar.add}
-                </h2>
-              )}
+                </TabBar.Item.Title>
+              </Link>
             </TabBar.Item>
             <TabBar.Item active={pathname.endsWith("/invites")}>
               {event._count.participantInvites > 0 ? (
