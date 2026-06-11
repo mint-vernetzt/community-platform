@@ -23,6 +23,50 @@ export async function getChildEventsOfEvent(options: {
 
   let childEvents;
 
+  const select = {
+    id: true,
+    slug: true,
+    name: true,
+    backgroundImageMetaData: {
+      select: {
+        path: true,
+      },
+    },
+    description: true,
+    subline: true,
+    startTime: true,
+    endTime: true,
+    participantLimit: true,
+    participationFrom: true,
+    participationUntil: true,
+    published: true,
+    canceled: true,
+    external: true,
+    openForRegistration: true,
+    parentParticipationRequired: true,
+    parentEvent: {
+      select: {
+        parentParticipationRequired: true,
+        participants: {
+          select: {
+            profileId: true,
+          },
+        },
+      },
+    },
+    stage: {
+      select: {
+        slug: true,
+      },
+    },
+    _count: {
+      select: {
+        participants: true,
+        childEvents: true,
+      },
+    },
+  };
+
   if (
     submission.status !== "success" ||
     typeof submission.value[SEARCH_CHILD_EVENTS_SEARCH_PARAM] === "undefined"
@@ -31,35 +75,7 @@ export async function getChildEventsOfEvent(options: {
       where: {
         parentEvent: { slug },
       },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        backgroundImageMetaData: {
-          select: {
-            path: true,
-          },
-        },
-        description: true,
-        subline: true,
-        startTime: true,
-        endTime: true,
-        participantLimit: true,
-        participationFrom: true,
-        participationUntil: true,
-        published: true,
-        canceled: true,
-        stage: {
-          select: {
-            slug: true,
-          },
-        },
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
+      select,
       orderBy: {
         startTime: "asc",
       },
@@ -80,35 +96,7 @@ export async function getChildEventsOfEvent(options: {
           };
         }),
       },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        backgroundImageMetaData: {
-          select: {
-            path: true,
-          },
-        },
-        description: true,
-        subline: true,
-        startTime: true,
-        endTime: true,
-        participantLimit: true,
-        participationFrom: true,
-        participationUntil: true,
-        published: true,
-        canceled: true,
-        stage: {
-          select: {
-            slug: true,
-          },
-        },
-        _count: {
-          select: {
-            participants: true,
-          },
-        },
-      },
+      select,
       orderBy: {
         startTime: "asc",
       },
@@ -126,10 +114,11 @@ export async function getChildEventsOfEvent(options: {
 
       const mode = await deriveModeForEvent(sessionUser, {
         ...event,
-        participantCount,
+        participantCount: event._count.participants,
         beforeParticipationPeriod,
         afterParticipationPeriod,
         inPast,
+        hasChildEvents: event._count.childEvents > 0,
       });
 
       const isMember = await getIsMember(sessionUser, event);
@@ -183,4 +172,39 @@ export async function getChildEventsOfEvent(options: {
   });
 
   return { submission: submission.reply(), childEvents: filteredChildEvents };
+}
+
+export async function getEventByIdForAction(id: string) {
+  const event = await prismaClient.event.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      canceled: true,
+      participantLimit: true,
+      participationFrom: true,
+      participationUntil: true,
+      endTime: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      parentEvent: {
+        select: {
+          parentParticipationRequired: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          participants: true,
+          childEvents: true,
+        },
+      },
+    },
+  });
+
+  return event;
 }

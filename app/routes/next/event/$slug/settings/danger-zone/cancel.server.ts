@@ -20,6 +20,9 @@ export async function getEventBySlug(slug: string) {
           startTime: true,
           endTime: true,
           participantLimit: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           stage: {
             select: {
               slug: true,

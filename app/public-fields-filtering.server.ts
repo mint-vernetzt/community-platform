@@ -407,6 +407,7 @@ export function filterEventByVisibility<
         key === "experienceLevel" ||
         key === "parentEvent" ||
         key === "stage" ||
+        key === "parentParticipationRequired" ||
         key === "eventVisibility" ||
         key === "filterVector"
       ) {

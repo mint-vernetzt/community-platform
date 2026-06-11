@@ -18,10 +18,14 @@ import { redirectWithToast } from "~/toast.server";
 import {
   addProfileToParticipants,
   addProfileToWaitingList,
+  deriveModeForEvent,
   removeProfileFromParticipants,
   removeProfileFromWaitingList,
 } from "../detail.server";
-import { getChildEventsOfEvent } from "./child-events.server";
+import {
+  getChildEventsOfEvent,
+  getEventByIdForAction,
+} from "./child-events.server";
 import {
   getParticipationSchema,
   hasDescription,
@@ -80,6 +84,38 @@ export async function action(args: ActionFunctionArgs) {
     "invalid intent",
     {
       status: 400,
+    }
+  );
+
+  const eventId = formData.get("eventId");
+  invariantResponse(typeof eventId === "string", "eventId not found", {
+    status: 400,
+  });
+  const event = await getEventByIdForAction(eventId);
+  invariantResponse(event !== null, "event not found", { status: 404 });
+
+  const now = new Date();
+  const beforeParticipationPeriod = now < event.participationFrom;
+  const afterParticipationPeriod = now > event.participationUntil;
+  const inPast = now > event.endTime;
+
+  const mode = await deriveModeForEvent(sessionUser, {
+    ...event,
+    participantCount: event._count.participants,
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
+    hasChildEvents: event._count.childEvents > 0,
+  });
+
+  invariantResponse(
+    mode === "canParticipate" ||
+      mode === "canWait" ||
+      mode === "participating" ||
+      mode === "waiting",
+    "Forbidden",
+    {
+      status: 403,
     }
   );
 

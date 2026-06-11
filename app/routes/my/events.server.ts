@@ -39,6 +39,9 @@ export async function getEvents(options: {
       },
     },
     canceled: true,
+    external: true,
+    openForRegistration: true,
+    parentParticipationRequired: true,
     subline: true,
     description: true,
     startTime: true,
@@ -370,6 +373,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -412,6 +418,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -459,6 +468,9 @@ export async function getEventInvites(options: {
             startTime: true,
             endTime: true,
             participantLimit: true,
+            external: true,
+            openForRegistration: true,
+            parentParticipationRequired: true,
             stage: {
               select: {
                 slug: true,
@@ -602,6 +614,9 @@ export async function getEventsWithPendingRequests(
               startTime: true,
               endTime: true,
               participantLimit: true,
+              external: true,
+              openForRegistration: true,
+              parentParticipationRequired: true,
               _count: {
                 select: {
                   participants: true,
@@ -1388,18 +1403,58 @@ export async function acceptInviteAsParticipant(options: {
         },
         status: "pending",
       },
+      select: {
+        event: {
+          select: {
+            parentParticipationRequired: true,
+            parentEvent: {
+              select: {
+                id: true,
+                parentParticipationRequired: true,
+                participants: {
+                  select: {
+                    profileId: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
   if (invite === null) {
     throw new Error("Invite not found");
   }
 
-  await prismaClient.participantOfEvent.create({
-    data: {
-      eventId,
-      profileId: userId,
-    },
-  });
+  const transactions = [
+    prismaClient.participantOfEvent.create({
+      data: {
+        eventId,
+        profileId: userId,
+      },
+    }),
+  ];
+
+  if (
+    invite.event.parentEvent !== null &&
+    invite.event.parentEvent.parentParticipationRequired &&
+    invite.event.parentEvent.participants.some(
+      (relation) => relation.profileId === userId
+    ) === false &&
+    invite.event.parentParticipationRequired !== false
+  ) {
+    transactions.push(
+      prismaClient.participantOfEvent.create({
+        data: {
+          eventId: invite.event.parentEvent.id,
+          profileId: userId,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 
   const result = await prismaClient.inviteForProfileToParticipateOnEvent.update(
     {
@@ -1867,7 +1922,9 @@ export async function acceptRequestAsParentEvent(options: {
       select: {
         parentEvent: {
           select: {
+            id: true,
             name: true,
+            parentParticipationRequired: true,
             admins: {
               select: {
                 profileId: true,
@@ -1892,12 +1949,26 @@ export async function acceptRequestAsParentEvent(options: {
   }
 
   const missingAdmins = request.parentEvent.admins.filter((parentAdmin) => {
-    return !request.childEvent.admins.some((childAdmin) => {
+    const isAdmin = request.childEvent.admins.some((childAdmin) => {
       return childAdmin.profileId === parentAdmin.profileId;
     });
+
+    return isAdmin === false;
   });
 
-  console.log("Missing admins: ", missingAdmins);
+  const transactions =
+    request.parentEvent.parentParticipationRequired === null
+      ? [
+          prismaClient.event.update({
+            where: {
+              id: request.parentEvent.id,
+            },
+            data: {
+              parentParticipationRequired: true,
+            },
+          }),
+        ]
+      : [];
 
   const [childEvent] = await prismaClient.$transaction([
     prismaClient.event.update({
@@ -1941,6 +2012,7 @@ export async function acceptRequestAsParentEvent(options: {
         };
       }),
     }),
+    ...transactions,
   ]);
 
   const sender = process.env.SYSTEM_MAIL_SENDER;

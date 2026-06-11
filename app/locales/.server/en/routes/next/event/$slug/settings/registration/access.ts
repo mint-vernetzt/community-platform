@@ -1,6 +1,9 @@
 export const locale = {
   type: {
     headline: "Type of Registration",
+    helpIcon: {
+      label: "More information about the type of registration",
+    },
     subline:
       "Here you decide where your participants register - either directly through the platform or through an external registration tool that you can link to.",
     hint: "After publishing, you can no longer change the type of registration.",
@@ -41,6 +44,29 @@ export const locale = {
         "Accessible by invitation only. This option is not available for external registration.",
     },
   },
+  parentParticipation: {
+    headline: "Setting for Registration for Sub-Events",
+    helpIcon: {
+      label: "More information about registration for sub-events",
+    },
+    subline: {
+      parent:
+        "Decide whether your participants can register for individual sub-events independently of the main event, or if registration for the main event is required first.",
+      child: {
+        general:
+          "Decide whether your participants can register for this sub-event independently of the main event, or if registration for the main event is required first.",
+        childException:
+          "Regardless of the setting in the main event, you can set a different rule in the sub-event.",
+        sameAsParent: "Current setting in the main event:",
+      },
+    },
+    hint: "This setting applies to all sub-events. However, you can set individual rules within each sub-event and adjust this setting as needed.",
+    required: "Participants must first register for the main event.",
+    notRequired: {
+      parent: "Participants can register directly for sub-events.",
+      child: "Participants can register directly for this sub-event.",
+    },
+  },
   errors: {
     validationError: "An error occurred. Please try again.",
     updateTypeFailed:
@@ -51,5 +77,7 @@ export const locale = {
       "Updating the external registration link failed. Please try again.",
     eventPublished:
       "Since your event is already published, you can no longer change the registration type or accessibility.",
+    updateParentParticipationFailed:
+      "Updating the setting for registration for sub-events failed. Please try again.",
   },
 } as const;

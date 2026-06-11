@@ -2,6 +2,14 @@ export const locale = {
   content: {
     back: "Events entdecken",
     jointEvent: "Gemeinsames Event",
+    external: "Registrierung über externen Link",
+    registrationClosed: {
+      label: "Geschlossene Veranstaltung",
+      subline: "Teilnahme nur für geladene Gäste",
+    },
+    registrationOnChildEvents: "Registrierung über die Unterveranstaltungen",
+    parentParticipationRequired:
+      "Melde Dich zuerst an der Rahmenveranstaltung an",
     unlimitedSeats: "Unbegrenzte Plätze",
     seatsFree: "Plätze frei",
     waitingListAvailable: "Wartelistenplätze verfügbar",
@@ -20,11 +28,40 @@ export const locale = {
     draft: "Entwurf",
     canceled: "Event abgesagt",
     edit: "Event bearbeiten",
+    externalParticipate: "Link zur Anmeldung",
     login: "Anmelden um teilzunehmen",
     participate: "Teilnehmen",
-    withdrawParticipation: "Nicht mehr teilnehmen",
+    withdrawParticipation: {
+      cta: "Nicht mehr teilnehmen",
+      confirmationModal: {
+        title: "Möchtest Du Deine Teilnahme wirklich zurückziehen?",
+        description: {
+          closedForRegistration:
+            "Es handelt sich um eine geschlossene Veranstaltung. Du müsstest erneut eingeladen werden, um wieder teilnehmen zu können.",
+          afterParticipationPeriod:
+            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst dann nicht mehr teilnehmen.",
+          waitingList:
+            "Personen auf der Warteliste würden nachrücken, wenn Du Deine Teilnahme zurückziehst. Du kannst dann selbst nur noch auf die Warteliste.",
+          childEvents:
+            "Durch das Zurückziehen deiner Teilnahme am Rahmenevent werden automatisch auch Deine Teilnahmen und Wartelistenplätze bei folgenden Unterveranstaltungen zurückgezogen:",
+        },
+        submit: "Teilnahme zurückziehen",
+        abort: "Abbrechen",
+      },
+    },
     joinWaitingList: "Zur Warteliste hinzufügen",
-    leaveWaitingList: "Von der Warteliste entfernen",
+    leaveWaitingList: {
+      cta: "Von der Warteliste entfernen",
+      confirmationModal: {
+        title: "Möchtest Du Dich wirklich von der Warteliste entfernen?",
+        description: {
+          afterParticipationPeriod:
+            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst Dich dann nicht mehr auf die Warteliste setzen.",
+        },
+        submit: "Von der Warteliste entfernen",
+        abort: "Abbrechen",
+      },
+    },
     report: "Melden",
     reported: "Meldung wird geprüft",
     reportFaq: "Weitere Infos zum Melden",

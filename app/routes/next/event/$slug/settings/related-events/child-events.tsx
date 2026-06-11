@@ -177,6 +177,7 @@ export async function action(args: ActionFunctionArgs) {
       await removeChildEvent({
         slug,
         childEventId: submission.value[EVENT_ID],
+        userId: sessionUser.id,
       });
     } catch (error) {
       captureException(error);

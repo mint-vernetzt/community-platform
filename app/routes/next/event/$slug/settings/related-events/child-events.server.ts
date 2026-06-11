@@ -32,6 +32,9 @@ export async function getEventBySlug(options: {
         select: {
           published: true,
           canceled: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           id: true,
           name: true,
           slug: true,
@@ -133,6 +136,9 @@ export async function getChildEventsToAdd(options: {
         status: true,
       },
     },
+    external: true,
+    openForRegistration: true,
+    parentParticipationRequired: true,
     published: true,
     canceled: true,
     name: true,
@@ -268,12 +274,19 @@ export async function addChildEvent(options: {
   const event = await prismaClient.event.findFirst({
     where: {
       slug,
+      parentEventId: null,
+      sentParentEventJoinRequests: {
+        none: {
+          status: "pending",
+        },
+      },
     },
     select: {
       id: true,
       parentEventId: true,
       startTime: true,
       endTime: true,
+      parentParticipationRequired: true,
       sentParentEventJoinRequests: {
         where: {
           status: "pending",
@@ -287,12 +300,6 @@ export async function addChildEvent(options: {
 
   if (event === null) {
     throw new Error("Event not found");
-  }
-
-  if (event.sentParentEventJoinRequests.length > 0) {
-    throw new Error(
-      "You have already requested to join a parent event. While this request is pending, you cannot add a child event. If you want to add a child event instead, first withdraw your existing request."
-    );
   }
 
   const childEvent = await prismaClient.event.findFirst({
@@ -337,21 +344,55 @@ export async function addChildEvent(options: {
     throw new Error("Child event not found or not eligible to be a child");
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug: childEvent.slug,
-    },
-    data: {
-      parentEventId: event.id,
-    },
-  });
+  const transactions = [];
+
+  transactions.push(
+    prismaClient.event.update({
+      where: {
+        slug: childEvent.slug,
+      },
+      data: {
+        parentEventId: event.id,
+      },
+    })
+  );
+
+  if (event.parentParticipationRequired === null) {
+    transactions.push(
+      prismaClient.event.update({
+        where: {
+          id: event.id,
+        },
+        data: {
+          parentParticipationRequired: true,
+        },
+      })
+    );
+  }
+
+  if (event.sentParentEventJoinRequests.length > 0) {
+    transactions.push(
+      prismaClient.requestToParentEventToAddChildEvent.updateMany({
+        where: {
+          childEventId: event.id,
+          status: "pending",
+        },
+        data: {
+          status: "canceled",
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 }
 
 export async function removeChildEvent(options: {
+  userId: string;
   slug: string;
   childEventId: string;
 }) {
-  const { slug, childEventId } = options;
+  const { slug, childEventId, userId } = options;
 
   const event = await prismaClient.event.findFirst({
     where: {
@@ -359,6 +400,11 @@ export async function removeChildEvent(options: {
     },
     select: {
       id: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
 
@@ -369,8 +415,11 @@ export async function removeChildEvent(options: {
   const childEvent = await prismaClient.event.findFirst({
     where: {
       id: childEventId,
-      parentEventId: {
-        equals: event.id,
+      parentEventId: event.id,
+      admins: {
+        some: {
+          profileId: userId,
+        },
       },
     },
     select: {
@@ -384,12 +433,30 @@ export async function removeChildEvent(options: {
     );
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug: childEvent.slug,
-    },
-    data: {
-      parentEventId: null,
-    },
-  });
+  const transactions = [
+    prismaClient.event.update({
+      where: {
+        slug: childEvent.slug,
+      },
+      data: {
+        parentEventId: null,
+        parentParticipationRequired: null,
+      },
+    }),
+  ];
+
+  if (event._count.childEvents === 1) {
+    transactions.push(
+      prismaClient.event.update({
+        where: {
+          id: event.id,
+        },
+        data: {
+          parentParticipationRequired: null,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 }

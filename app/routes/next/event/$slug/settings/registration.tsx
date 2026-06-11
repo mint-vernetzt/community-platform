@@ -76,7 +76,10 @@ export default function Registration() {
             </Link>
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/period")}>
-            {event.external === false && event.openForRegistration ? (
+            {event.external === false &&
+            event.openForRegistration &&
+            (event._count.childEvents === 0 ||
+              event.parentParticipationRequired) ? (
               <Link
                 to={`./period?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/period"))}
@@ -96,7 +99,10 @@ export default function Registration() {
             )}
           </TabBar.Item>
           <TabBar.Item active={pathname.endsWith("/limit")}>
-            {event.external === false && event.openForRegistration ? (
+            {event.external === false &&
+            event.openForRegistration &&
+            (event._count.childEvents === 0 ||
+              event.parentParticipationRequired) ? (
               <Link
                 to={`./limit?${Deep}=true`}
                 {...TabBar.getItemElementClasses(pathname.endsWith("/limit"))}

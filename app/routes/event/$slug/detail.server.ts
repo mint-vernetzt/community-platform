@@ -12,15 +12,15 @@ import {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { filterProfileByVisibility } from "~/public-fields-filtering.server";
-import { prismaClient } from "~/prisma.server";
-import { getPublicURL, uploadFileToStorage } from "~/storage.server";
-import { FILE_FIELD_NAME } from "~/storage.shared";
 import {
   getCompiledMailTemplate,
   mailer,
   mailerOptions,
 } from "~/mailer.server";
+import { prismaClient } from "~/prisma.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
+import { getPublicURL, uploadFileToStorage } from "~/storage.server";
+import { FILE_FIELD_NAME } from "~/storage.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -61,6 +61,9 @@ export async function getEventBySlug(
       conferenceLink: true,
       conferenceCode: true,
       external: true,
+      externalRegistrationUrl: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       stage: {
         select: {
           slug: true,
@@ -70,6 +73,12 @@ export async function getEventBySlug(
         select: {
           name: true,
           slug: true,
+          parentParticipationRequired: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
         },
         where: {
           OR: [
@@ -98,6 +107,22 @@ export async function getEventBySlug(
           ],
         },
       },
+      childEvents: {
+        select: {
+          id: true,
+          name: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+      speakers: {
+        select: {
+          profileId: true,
+        },
+      },
       responsibleOrganizations: {
         select: {
           organization: {
@@ -116,31 +141,38 @@ export async function getEventBySlug(
       _count: {
         select: {
           participants: true,
+          waitingList: true,
           childEvents: {
             where: {
               OR: [
                 { published: true },
-                {
-                  admins: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
-                {
-                  teamMembers: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
-                {
-                  speakers: {
-                    some: {
-                      profileId,
-                    },
-                  },
-                },
+                profileId !== undefined
+                  ? {
+                      admins: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
+                profileId !== undefined
+                  ? {
+                      teamMembers: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
+                profileId !== undefined
+                  ? {
+                      speakers: {
+                        some: {
+                          profileId,
+                        },
+                      },
+                    }
+                  : {},
               ],
             },
           },
@@ -195,6 +227,14 @@ export async function deriveModeForEvent(
     canceled: boolean;
     participantLimit: number | null;
     participantCount: number;
+    external: boolean;
+    openForRegistration: boolean;
+    parentParticipationRequired: boolean | null;
+    hasChildEvents: boolean;
+    parentEvent: {
+      parentParticipationRequired: boolean | null;
+      participants: { profileId: string }[];
+    } | null;
   }
 ) {
   if (sessionUser === null) {
@@ -239,7 +279,17 @@ export async function deriveModeForEvent(
     eventInfo.inPast ||
     eventInfo.afterParticipationPeriod ||
     eventInfo.beforeParticipationPeriod ||
-    eventInfo.canceled
+    eventInfo.canceled ||
+    eventInfo.external ||
+    eventInfo.openForRegistration === false ||
+    (eventInfo.hasChildEvents &&
+      eventInfo.parentParticipationRequired === false) ||
+    (eventInfo.parentEvent !== null &&
+      eventInfo.parentParticipationRequired !== false &&
+      eventInfo.parentEvent.parentParticipationRequired &&
+      eventInfo.parentEvent.participants.some(
+        (relation) => relation.profileId === sessionUser.id
+      ) === false)
   ) {
     return null;
   }
@@ -266,6 +316,7 @@ export async function getIsMember(
     where: {
       id: sessionUser.id,
       OR: [
+        // is team member
         {
           teamMemberOfEvents: {
             some: {
@@ -273,6 +324,7 @@ export async function getIsMember(
             },
           },
         },
+        // is speaker
         {
           contributedEvents: {
             some: {
@@ -280,10 +332,35 @@ export async function getIsMember(
             },
           },
         },
+        // is admin
         {
           administeredEvents: {
             some: {
               eventId: event.id,
+            },
+          },
+        },
+        // is admin of the parent event
+        {
+          administeredEvents: {
+            some: {
+              event: {
+                childEvents: { some: { id: event.id } },
+              },
+            },
+          },
+        },
+        // is admin of a potential parent event
+        {
+          administeredEvents: {
+            some: {
+              event: {
+                receivedParentEventJoinRequests: {
+                  some: {
+                    childEventId: event.id,
+                  },
+                },
+              },
             },
           },
         },
@@ -309,7 +386,6 @@ export async function addProfileToParticipants(
     });
     return { data };
   } catch (error) {
-    console.error("Error adding profile to participants:", error);
     return { error };
   }
 }
@@ -327,26 +403,104 @@ export async function removeProfileFromParticipants(options: {
 }) {
   const { profileId, eventId } = options;
 
+  const event = await prismaClient.event.findUnique({
+    where: {
+      id: eventId,
+    },
+    select: {
+      parentParticipationRequired: true,
+      childEvents: {
+        where: {
+          participants: {
+            some: {
+              profileId,
+            },
+          },
+          waitingList: {
+            some: {
+              profileId,
+            },
+          },
+        },
+        select: {
+          id: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+          waitingList: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (event === null) {
+    const error = new Error("Event not found");
+    return { error };
+  }
+
+  const childEventWithdrawTransaction =
+    event.childEvents.length > 0
+      ? [
+          prismaClient.participantOfEvent.deleteMany({
+            where: {
+              eventId: {
+                in: event.childEvents
+                  .filter((childEvent) =>
+                    childEvent.participants.some(
+                      (relation) => relation.profileId === profileId
+                    )
+                  )
+                  .map((childEvent) => childEvent.id),
+              },
+              profileId,
+            },
+          }),
+          prismaClient.waitingParticipantOfEvent.deleteMany({
+            where: {
+              eventId: {
+                in: event.childEvents
+                  .filter((childEvent) =>
+                    childEvent.waitingList.some(
+                      (relation) => relation.profileId === profileId
+                    )
+                  )
+                  .map((childEvent) => childEvent.id),
+              },
+              profileId,
+            },
+          }),
+        ]
+      : [];
+
   let data: Awaited<
     ReturnType<typeof prismaClient.participantOfEvent.deleteMany>
   >;
 
   try {
-    data = await prismaClient.participantOfEvent.deleteMany({
-      where: {
-        eventId,
-        profileId,
-      },
-    });
+    const [result] = await prismaClient.$transaction([
+      prismaClient.participantOfEvent.deleteMany({
+        where: {
+          eventId,
+          profileId,
+        },
+      }),
+      ...childEventWithdrawTransaction,
+    ]);
+    data = result;
   } catch (error) {
-    console.error("Error removing profile from participants:", error);
     captureException(error);
     return { error };
   }
 
   // Try to move first profile from waiting list to participants
   try {
-    const event = await prismaClient.event.findUnique({
+    const eventForWaitingList = await prismaClient.event.findUnique({
       where: {
         id: eventId,
       },
@@ -365,21 +519,46 @@ export async function removeProfileFromParticipants(options: {
           orderBy: {
             createdAt: "asc",
           },
+          take: 1,
+        },
+        childEvents: {
+          where: {
+            moveUpToParticipants: true,
+          },
+          select: {
+            id: true,
+            participantLimit: true,
+            _count: {
+              select: {
+                participants: true,
+              },
+            },
+            waitingList: {
+              select: {
+                profileId: true,
+              },
+              orderBy: {
+                createdAt: "asc",
+              },
+              take: 1,
+            },
+          },
         },
       },
     });
 
-    if (event === null) {
+    if (eventForWaitingList === null) {
       throw new Error("Event not found");
     }
 
     if (
-      event.moveUpToParticipants &&
-      event.participantLimit !== null &&
-      event._count.participants < event.participantLimit &&
-      event.waitingList.length > 0
+      eventForWaitingList.moveUpToParticipants &&
+      eventForWaitingList.participantLimit !== null &&
+      eventForWaitingList._count.participants <
+        eventForWaitingList.participantLimit &&
+      eventForWaitingList.waitingList.length > 0
     ) {
-      const firstInWaitingList = event.waitingList[0];
+      const firstInWaitingList = eventForWaitingList.waitingList[0];
       const result = await prismaClient.$transaction([
         prismaClient.participantOfEvent.create({
           data: {
@@ -438,8 +617,98 @@ export async function removeProfileFromParticipants(options: {
 
       await mailer(mailerOptions, sender, recipient, subject, text, html);
     }
+
+    if (eventForWaitingList.childEvents.length > 0) {
+      const childEventsToMoveUpToParticipants =
+        eventForWaitingList.childEvents.filter(
+          (childEvent) =>
+            childEvent.participantLimit !== null &&
+            childEvent._count.participants < childEvent.participantLimit &&
+            childEvent.waitingList.length > 0
+        );
+
+      const childEventMoveUpTransactions =
+        childEventsToMoveUpToParticipants.length > 0
+          ? [
+              ...childEventsToMoveUpToParticipants.map((childEvent) =>
+                prismaClient.participantOfEvent.create({
+                  data: {
+                    eventId: childEvent.id,
+                    profileId: childEvent.waitingList[0].profileId,
+                  },
+                  select: {
+                    profile: {
+                      select: {
+                        email: true,
+                        firstName: true,
+                      },
+                    },
+                    event: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                })
+              ),
+              ...childEventsToMoveUpToParticipants.map((childEvent) =>
+                prismaClient.waitingParticipantOfEvent.delete({
+                  where: {
+                    profileId_eventId: {
+                      profileId: childEvent.waitingList[0].profileId,
+                      eventId: childEvent.id,
+                    },
+                  },
+                })
+              ),
+            ]
+          : [];
+
+      const results = await prismaClient.$transaction(
+        childEventMoveUpTransactions
+      );
+
+      const sender = process.env.SYSTEM_MAIL_SENDER;
+
+      void Promise.all(
+        results.map(async (result) => {
+          if ("profile" in result === false) {
+            return;
+          }
+          try {
+            const recipient = result.profile.email;
+            const subject =
+              options.locales.mail.moveFromWaitingListToParticipants.subject;
+            const textTemplatePath =
+              "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-text.hbs";
+            const htmlTemplatePath =
+              "mail-templates/general-notification/move-from-waiting-list-to-participants-of-event-html.hbs";
+
+            const text = getCompiledMailTemplate<typeof textTemplatePath>(
+              textTemplatePath,
+              {
+                firstName: result.profile.firstName,
+                event: { name: result.event.name },
+              },
+              "text"
+            );
+            const html = getCompiledMailTemplate<typeof htmlTemplatePath>(
+              htmlTemplatePath,
+              {
+                firstName: result.profile.firstName,
+                event: { name: result.event.name },
+              },
+              "html"
+            );
+
+            await mailer(mailerOptions, sender, recipient, subject, text, html);
+          } catch (error) {
+            captureException(error);
+          }
+        })
+      );
+    }
   } catch (error) {
-    console.error("Error sending mail after removing participant:", error);
     captureException(error);
   }
 
@@ -459,7 +728,6 @@ export async function addProfileToWaitingList(
     });
     return { data };
   } catch (error) {
-    console.error("Error adding profile to waiting list:", error);
     return { error };
   }
 }
@@ -477,7 +745,6 @@ export async function removeProfileFromWaitingList(
     });
     return { data };
   } catch (error) {
-    console.error("Error removing profile from waiting list:", error);
     return { error };
   }
 }
@@ -930,7 +1197,11 @@ export async function getParticipantsCount(
           event: {
             AND: [
               {
-                parentEvent: { slug },
+                parentEvent: {
+                  slug,
+                  external: false,
+                  openForRegistration: true,
+                },
               },
               {
                 OR: [
