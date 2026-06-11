@@ -37,10 +37,24 @@ export async function updateEventBySlug(
     publishIntended?: boolean;
   }
 ) {
-  const updatedEvent = await prismaClient.event.update({
-    where: { slug },
-    data,
-  });
+  const transactions = [];
+  transactions.push(
+    prismaClient.event.update({
+      where: { slug },
+      data,
+    })
+  );
+
+  if (typeof data.published !== "undefined" && data.published) {
+    transactions.push(
+      prismaClient.requestToParentEventToAddChildEvent.updateMany({
+        where: { childEvent: { slug }, status: "pending" },
+        data: { status: "canceled" },
+      })
+    );
+  }
+
+  const [updatedEvent] = await prismaClient.$transaction(transactions);
   return updatedEvent;
 }
 

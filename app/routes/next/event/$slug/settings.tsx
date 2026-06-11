@@ -136,9 +136,9 @@ export async function action(args: ActionFunctionArgs) {
       });
       return redirect(`${url.pathname}?${searchParams.toString()}`);
     } else if (intent === PUBLISH_EVENT_INTENT) {
-      // await updateEventBySlug(params.slug, {
-      //   published: true,
-      // });
+      await updateEventBySlug(params.slug, {
+        published: true,
+      });
     }
   } catch (error) {
     captureException(error);
