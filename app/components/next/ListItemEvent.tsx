@@ -213,7 +213,7 @@ function ListItemInfo(props: {
         strings.push(props.locales.waitinglist);
       } else {
         strings.push(
-          `${props.participantCount}/${props.participantLimit} ${props.locales.seatsFree}`
+          `${props.participantLimit - props.participantCount}/${props.participantLimit} ${props.locales.seatsFree}`
         );
       }
     } else {
