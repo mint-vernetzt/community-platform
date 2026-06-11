@@ -48,7 +48,7 @@ export async function updateEventBySlug(
   if (typeof data.published !== "undefined" && data.published) {
     transactions.push(
       prismaClient.requestToParentEventToAddChildEvent.updateMany({
-        where: { childEvent: { slug } },
+        where: { childEvent: { slug }, status: "pending" },
         data: { status: "canceled" },
       })
     );
