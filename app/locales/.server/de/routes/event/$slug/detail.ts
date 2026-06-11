@@ -7,7 +7,7 @@ export const locale = {
       label: "Geschlossene Veranstaltung",
       subline: "Teilnahme nur für geladene Gäste",
     },
-    registrationOnChilds: "Registrierung über die Unterveranstaltungen",
+    registrationOnChildEvents: "Registrierung über die Unterveranstaltungen",
     parentParticipationRequired:
       "Melde Dich zuerst an der Rahmenveranstaltung an",
     unlimitedSeats: "Unbegrenzte Plätze",
@@ -33,7 +33,7 @@ export const locale = {
     participate: "Teilnehmen",
     withdrawParticipation: {
       cta: "Nicht mehr teilnehmen",
-      doubleConfirmationModal: {
+      confirmationModal: {
         title: "Möchtest Du Deine Teilnahme wirklich zurückziehen?",
         description: {
           closedForRegistration:
@@ -43,7 +43,7 @@ export const locale = {
           waitingList:
             "Personen auf der Warteliste würden nachrücken, wenn Du Deine Teilnahme zurückziehst. Du kannst dann selbst nur noch auf die Warteliste.",
           childEvents:
-            "Durch das Zurückziehen deiner Teilnahme am Rahmenevent würden automatisch auch Deine Teilnahmen und Wartelistenplätze bei folgenden Unterveranstaltungen zurückgezogen werden:",
+            "Durch das Zurückziehen deiner Teilnahme am Rahmenevent werden automatisch auch Deine Teilnahmen und Wartelistenplätze bei folgenden Unterveranstaltungen zurückgezogen:",
         },
         submit: "Teilnahme zurückziehen",
         abort: "Abbrechen",
@@ -52,11 +52,11 @@ export const locale = {
     joinWaitingList: "Zur Warteliste hinzufügen",
     leaveWaitingList: {
       cta: "Von der Warteliste entfernen",
-      doubleConfirmationModal: {
+      confirmationModal: {
         title: "Möchtest Du Dich wirklich von der Warteliste entfernen?",
         description: {
           afterParticipationPeriod:
-            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst dich dann nicht mehr auf die Warteliste setzen.",
+            "Die Anmeldefrist für diese Veranstaltung ist abgelaufen. Du kannst Dich dann nicht mehr auf die Warteliste setzen.",
         },
         submit: "Von der Warteliste entfernen",
         abort: "Abbrechen",

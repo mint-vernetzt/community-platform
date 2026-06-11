@@ -7,7 +7,7 @@ export const locale = {
       label: "Closed event",
       subline: "Participation only for invited guests",
     },
-    registrationOnChilds: "Registration via child events",
+    registrationOnChildEvents: "Registration via child events",
     parentParticipationRequired: "Please register for the parent event first",
     unlimitedSeats: "Unlimited seats",
     seatsFree: "seats free",
@@ -32,7 +32,7 @@ export const locale = {
     participate: "Participate",
     withdrawParticipation: {
       cta: "Withdraw participation",
-      doubleConfirmationModal: {
+      confirmationModal: {
         title: "Do you really want to withdraw your participation?",
         description: {
           closedForRegistration:
@@ -51,7 +51,7 @@ export const locale = {
     joinWaitingList: "Join waiting list",
     leaveWaitingList: {
       cta: "Leave waiting list",
-      doubleConfirmationModal: {
+      confirmationModal: {
         title: "Do you really want to leave the waiting list?",
         description: {
           afterParticipationPeriod:

@@ -621,9 +621,9 @@ function RegistrationClosed(props: {
   );
 }
 
-function RegistrationOnChilds(props: {
+function RegistrationOnChildEvents(props: {
   locales: {
-    registrationOnChilds: string;
+    registrationOnChildEvents: string;
   };
 }) {
   const { locales } = props;
@@ -638,7 +638,7 @@ function RegistrationOnChilds(props: {
       <RegistrationStateIcon />
       <div className="flex flex-col self-center text-neutral-700">
         <div className="font-semibold line-clamp-1">
-          {locales.registrationOnChilds}
+          {locales.registrationOnChildEvents}
         </div>
       </div>
     </Link>
@@ -1196,7 +1196,7 @@ function WithdrawParticipation(props: {
   };
   profileId?: string;
   locales: {
-    doubleConfirmationModal: {
+    confirmationModal: {
       title: string;
       description: {
         closedForRegistration: string;
@@ -1218,7 +1218,7 @@ function WithdrawParticipation(props: {
     return null;
   }
 
-  const showDoubleConfirmation =
+  const showConfirmation =
     event.openForRegistration === false ||
     event.afterParticipationPeriod ||
     event._count.waitingList > 0;
@@ -1235,7 +1235,7 @@ function WithdrawParticipation(props: {
     }
   }
 
-  return showDoubleConfirmation || childEventsToBeWithdrawnFrom.length > 0 ? (
+  return showConfirmation || childEventsToBeWithdrawnFrom.length > 0 ? (
     <>
       <Button
         as="link"
@@ -1259,23 +1259,21 @@ function WithdrawParticipation(props: {
         <input type="hidden" name="redirectTo" value={location.pathname} />
       </Form>
       <Modal searchParam="modal-double-confirm-withdraw-participation">
-        <Modal.Title>{locales.doubleConfirmationModal.title}</Modal.Title>
-        {showDoubleConfirmation && (
+        <Modal.Title>{locales.confirmationModal.title}</Modal.Title>
+        {showConfirmation && (
           <Modal.Section>
             {event.openForRegistration === false
-              ? locales.doubleConfirmationModal.description
-                  .closedForRegistration
+              ? locales.confirmationModal.description.closedForRegistration
               : event.afterParticipationPeriod
-                ? locales.doubleConfirmationModal.description
-                    .afterParticipationPeriod
+                ? locales.confirmationModal.description.afterParticipationPeriod
                 : event._count.waitingList > 0
-                  ? locales.doubleConfirmationModal.description.waitingList
+                  ? locales.confirmationModal.description.waitingList
                   : ""}
           </Modal.Section>
         )}
         {childEventsToBeWithdrawnFrom.length > 0 && (
           <Modal.Section>
-            {locales.doubleConfirmationModal.description.childEvents}
+            {locales.confirmationModal.description.childEvents}
             <ul className="list-disc list-inside">
               {childEventsToBeWithdrawnFrom.map((childEvent) => (
                 <li key={childEvent.id}>{childEvent.name}</li>
@@ -1288,11 +1286,9 @@ function WithdrawParticipation(props: {
           name={INTENT_FIELD_NAME}
           value="withdrawParticipation"
         >
-          {locales.doubleConfirmationModal.submit}
+          {locales.confirmationModal.submit}
         </Modal.SubmitButton>
-        <Modal.CloseButton>
-          {locales.doubleConfirmationModal.abort}
-        </Modal.CloseButton>
+        <Modal.CloseButton>{locales.confirmationModal.abort}</Modal.CloseButton>
       </Modal>
     </>
   ) : (
@@ -1344,7 +1340,7 @@ function LeaveWaitingList(props: {
     afterParticipationPeriod: boolean;
   };
   locales: {
-    doubleConfirmationModal: {
+    confirmationModal: {
       title: string;
       description: {
         afterParticipationPeriod: string;
@@ -1363,9 +1359,9 @@ function LeaveWaitingList(props: {
     return null;
   }
 
-  const showDoubleConfirmation = event.afterParticipationPeriod;
+  const showConfirmation = event.afterParticipationPeriod;
 
-  return showDoubleConfirmation ? (
+  return showConfirmation ? (
     <>
       <Button
         as="link"
@@ -1389,20 +1385,18 @@ function LeaveWaitingList(props: {
         <input type="hidden" name="redirectTo" value={location.pathname} />
       </Form>
       <Modal searchParam="modal-double-confirm-leave-waiting-list">
-        <Modal.Title>{locales.doubleConfirmationModal.title}</Modal.Title>
+        <Modal.Title>{locales.confirmationModal.title}</Modal.Title>
         <Modal.Section>
-          {locales.doubleConfirmationModal.description.afterParticipationPeriod}
+          {locales.confirmationModal.description.afterParticipationPeriod}
         </Modal.Section>
         <Modal.SubmitButton
           form="leave-waiting-list-form"
           name={INTENT_FIELD_NAME}
           value="leaveWaitingList"
         >
-          {locales.doubleConfirmationModal.submit}
+          {locales.confirmationModal.submit}
         </Modal.SubmitButton>
-        <Modal.CloseButton>
-          {locales.doubleConfirmationModal.abort}
-        </Modal.CloseButton>
+        <Modal.CloseButton>{locales.confirmationModal.abort}</Modal.CloseButton>
       </Modal>
     </>
   ) : (
@@ -1637,7 +1631,7 @@ EventsOverview.ButtonStates = ButtonStates;
 EventsOverview.FreeSeats = FreeSeats;
 EventsOverview.External = External;
 EventsOverview.RegistrationClosed = RegistrationClosed;
-EventsOverview.RegistrationOnChilds = RegistrationOnChilds;
+EventsOverview.RegistrationOnChildEvents = RegistrationOnChildEvents;
 EventsOverview.ParentParticipationRequired = ParentParticipationRequired;
 EventsOverview.Stage = Stage;
 EventsOverview.PeriodOfTime = PeriodOfTime;

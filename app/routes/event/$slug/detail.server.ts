@@ -12,16 +12,15 @@ import {
 } from "~/components/legacy/ImageCropper/ImageCropper";
 import { BlurFactor, getImageURL, ImageSizes } from "~/images.server";
 import { insertParametersIntoLocale } from "~/lib/utils/i18n";
-import { filterProfileByVisibility } from "~/public-fields-filtering.server";
-import { prismaClient } from "~/prisma.server";
-import { getPublicURL, uploadFileToStorage } from "~/storage.server";
-import { FILE_FIELD_NAME } from "~/storage.shared";
 import {
   getCompiledMailTemplate,
   mailer,
   mailerOptions,
 } from "~/mailer.server";
-import { invariantResponse } from "~/lib/utils/response";
+import { prismaClient } from "~/prisma.server";
+import { filterProfileByVisibility } from "~/public-fields-filtering.server";
+import { getPublicURL, uploadFileToStorage } from "~/storage.server";
+import { FILE_FIELD_NAME } from "~/storage.shared";
 
 export async function getEventBySlug(
   sessionUser: { id: string } | null,
@@ -387,7 +386,6 @@ export async function addProfileToParticipants(
     });
     return { data };
   } catch (error) {
-    console.error("Error adding profile to participants:", error);
     return { error };
   }
 }
@@ -418,18 +416,33 @@ export async function removeProfileFromParticipants(options: {
               profileId,
             },
           },
-          parentEvent: {
-            parentParticipationRequired: true,
+          waitingList: {
+            some: {
+              profileId,
+            },
           },
         },
         select: {
           id: true,
+          participants: {
+            select: {
+              profileId: true,
+            },
+          },
+          waitingList: {
+            select: {
+              profileId: true,
+            },
+          },
         },
       },
     },
   });
 
-  invariantResponse(event, "Event not found");
+  if (event === null) {
+    const error = new Error("Event not found");
+    return { error };
+  }
 
   const childEventWithdrawTransaction =
     event.childEvents.length > 0
@@ -437,7 +450,27 @@ export async function removeProfileFromParticipants(options: {
           prismaClient.participantOfEvent.deleteMany({
             where: {
               eventId: {
-                in: event.childEvents.map((childEvent) => childEvent.id),
+                in: event.childEvents
+                  .filter((childEvent) =>
+                    childEvent.participants.some(
+                      (relation) => relation.profileId === profileId
+                    )
+                  )
+                  .map((childEvent) => childEvent.id),
+              },
+              profileId,
+            },
+          }),
+          prismaClient.waitingParticipantOfEvent.deleteMany({
+            where: {
+              eventId: {
+                in: event.childEvents
+                  .filter((childEvent) =>
+                    childEvent.waitingList.some(
+                      (relation) => relation.profileId === profileId
+                    )
+                  )
+                  .map((childEvent) => childEvent.id),
               },
               profileId,
             },
@@ -486,6 +519,7 @@ export async function removeProfileFromParticipants(options: {
           orderBy: {
             createdAt: "asc",
           },
+          take: 1,
         },
         childEvents: {
           where: {
@@ -506,6 +540,7 @@ export async function removeProfileFromParticipants(options: {
               orderBy: {
                 createdAt: "asc",
               },
+              take: 1,
             },
           },
         },
@@ -592,11 +627,6 @@ export async function removeProfileFromParticipants(options: {
             childEvent.waitingList.length > 0
         );
 
-      console.log(
-        "childEventsToMoveUpToParticipants",
-        childEventsToMoveUpToParticipants
-      );
-
       const childEventMoveUpTransactions =
         childEventsToMoveUpToParticipants.length > 0
           ? [
@@ -679,7 +709,6 @@ export async function removeProfileFromParticipants(options: {
       );
     }
   } catch (error) {
-    console.error("Error sending mail after removing participant:", error);
     captureException(error);
   }
 
@@ -699,7 +728,6 @@ export async function addProfileToWaitingList(
     });
     return { data };
   } catch (error) {
-    console.error("Error adding profile to waiting list:", error);
     return { error };
   }
 }
@@ -717,7 +745,6 @@ export async function removeProfileFromWaitingList(
     });
     return { data };
   } catch (error) {
-    console.error("Error removing profile from waiting list:", error);
     return { error };
   }
 }

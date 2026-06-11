@@ -575,9 +575,12 @@ export async function action(args: ActionFunctionArgs) {
     schema: createParticipationSchema(locales.route.errors).transform(
       async (data, ctx) => {
         let result: { error?: unknown } = {};
-        if (intent === "participate") {
+        if (intent === "participate" && mode === "canParticipate") {
           result = await addProfileToParticipants(sessionUser.id, eventId);
-        } else if (intent === "withdrawParticipation") {
+        } else if (
+          intent === "withdrawParticipation" &&
+          mode === "participating"
+        ) {
           result = await removeProfileFromParticipants({
             profileId: sessionUser.id,
             eventId,
@@ -588,9 +591,9 @@ export async function action(args: ActionFunctionArgs) {
               },
             },
           });
-        } else if (intent === "joinWaitingList") {
+        } else if (intent === "joinWaitingList" && mode === "canWait") {
           result = await addProfileToWaitingList(sessionUser.id, eventId);
-        } else {
+        } else if (intent === "leaveWaitingList" && mode === "waiting") {
           result = await removeProfileFromWaitingList(sessionUser.id, eventId);
         }
         if (typeof result.error !== "undefined") {
@@ -741,6 +744,7 @@ function Detail() {
           (loaderData.event._count.childEvents === 0 ||
             loaderData.event.parentParticipationRequired) &&
           (loaderData.event.parentEvent === null ||
+            loaderData.event.parentParticipationRequired === false ||
             loaderData.event.parentEvent.parentParticipationRequired ===
               false ||
             loaderData.event.parentEvent.participants.some(
@@ -761,6 +765,7 @@ function Detail() {
           (loaderData.event._count.childEvents === 0 ||
             loaderData.event.parentParticipationRequired) &&
           (loaderData.event.parentEvent === null ||
+            loaderData.event.parentParticipationRequired === false ||
             loaderData.event.parentEvent.parentParticipationRequired ===
               false ||
             loaderData.event.parentEvent.participants.some(
@@ -819,7 +824,7 @@ function Detail() {
               />
             ) : loaderData.event._count.childEvents > 0 &&
               loaderData.event.parentParticipationRequired === false ? (
-              <EventsOverview.RegistrationOnChilds
+              <EventsOverview.RegistrationOnChildEvents
                 locales={loaderData.locales.route.content}
               />
             ) : loaderData.event.parentEvent !== null &&
