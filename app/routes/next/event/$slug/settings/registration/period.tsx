@@ -36,6 +36,7 @@ import { useFormRevalidationAfterSuccess } from "~/lib/hooks/useFormRevalidation
 import { useIsSubmitting } from "~/lib/hooks/useIsSubmitting";
 import { invariantResponse } from "~/lib/utils/response";
 import {
+  Deep,
   extendSearchParams,
   UnsavedChangesModalParam,
 } from "~/lib/utils/searchParams";
@@ -84,6 +85,20 @@ export async function loader(args: LoaderFunctionArgs) {
 
   const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
+
+  if (
+    event.external ||
+    event.openForRegistration === false ||
+    (event._count.childEvents > 0 &&
+      event.parentParticipationRequired === false)
+  ) {
+    return redirect(
+      `/next/event/${params.slug}/settings/registration/access?${Deep}=true`,
+      {
+        status: 302,
+      }
+    );
+  }
 
   return { locales, event };
 }

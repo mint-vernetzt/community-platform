@@ -8,7 +8,7 @@ import { Input } from "@mint-vernetzt/components/src/molecules/Input"; // refact
 import classNames from "classnames";
 import { utcToZonedTime } from "date-fns-tz";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Form, Link, useLocation } from "react-router";
+import { Form, Link, useLocation, useSearchParams } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
 import { INTENT_FIELD_NAME } from "~/form-helpers";
 import type { SUPPORTED_COOKIE_LANGUAGES } from "~/i18n.shared";
@@ -29,6 +29,7 @@ import ImageCropper, {
 } from "../legacy/ImageCropper/ImageCropper";
 import { RichText } from "../legacy/Richtext/RichText"; // refactor?
 import { OverlayMenu as OverlayMenuComponent } from "./OverlayMenu"; // refactor?
+import { extendSearchParams } from "~/lib/utils/searchParams";
 
 // Design:
 // Name: Events_Overview
@@ -141,8 +142,11 @@ function PeriodOfTime(props: {
   endTime: Date;
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   slug: string;
+  openForRegistration: boolean;
+  isMember: boolean;
+  published: boolean;
 }) {
-  const { startTime, endTime } = props;
+  const { startTime, endTime, isMember, published } = props;
 
   const isSameDay =
     startTime.getFullYear() === endTime.getFullYear() &&
@@ -239,29 +243,31 @@ function PeriodOfTime(props: {
           <div className="font-normal line-clamp-1">{timeDuration}</div>
         ) : null}
       </div>
-      <CircleButton
-        as="link"
-        to={`/event/${props.slug}/ics-download`}
-        reloadDocument
-        variant="ghost"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 20 20"
-          fill="none"
+      {published || isMember ? (
+        <CircleButton
+          as="link"
+          to={`/event/${props.slug}/ics-download`}
+          reloadDocument
+          variant="ghost"
         >
-          <path
-            d="M0.625 12.375C0.970178 12.375 1.25 12.6549 1.25 13V16.125C1.25 16.8154 1.80964 17.375 2.5 17.375H17.5C18.1904 17.375 18.75 16.8154 18.75 16.125V13C18.75 12.6549 19.0298 12.375 19.375 12.375C19.7202 12.375 20 12.6549 20 13V16.125C20 17.5057 18.8807 18.625 17.5 18.625H2.5C1.11929 18.625 0 17.5057 0 16.125V13C0 12.6549 0.279822 12.375 0.625 12.375Z"
-            fill="currentColor"
-          />
-          <path
-            d="M9.55806 14.8169C9.80214 15.061 10.1979 15.061 10.4419 14.8169L14.1919 11.0669C14.436 10.8229 14.436 10.4271 14.1919 10.1831C13.9479 9.93898 13.5521 9.93898 13.3081 10.1831L10.625 12.8661V1.875C10.625 1.52982 10.3452 1.25 10 1.25C9.65482 1.25 9.375 1.52982 9.375 1.875V12.8661L6.69194 10.1831C6.44786 9.93898 6.05214 9.93898 5.80806 10.1831C5.56398 10.4271 5.56398 10.8229 5.80806 11.0669L9.55806 14.8169Z"
-            fill="currentColor"
-          />
-        </svg>
-      </CircleButton>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M0.625 12.375C0.970178 12.375 1.25 12.6549 1.25 13V16.125C1.25 16.8154 1.80964 17.375 2.5 17.375H17.5C18.1904 17.375 18.75 16.8154 18.75 16.125V13C18.75 12.6549 19.0298 12.375 19.375 12.375C19.7202 12.375 20 12.6549 20 13V16.125C20 17.5057 18.8807 18.625 17.5 18.625H2.5C1.11929 18.625 0 17.5057 0 16.125V13C0 12.6549 0.279822 12.375 0.625 12.375Z"
+              fill="currentColor"
+            />
+            <path
+              d="M9.55806 14.8169C9.80214 15.061 10.1979 15.061 10.4419 14.8169L14.1919 11.0669C14.436 10.8229 14.436 10.4271 14.1919 10.1831C13.9479 9.93898 13.5521 9.93898 13.3081 10.1831L10.625 12.8661V1.875C10.625 1.52982 10.3452 1.25 10 1.25C9.65482 1.25 9.375 1.52982 9.375 1.875V12.8661L6.69194 10.1831C6.44786 9.93898 6.05214 9.93898 5.80806 10.1831C5.56398 10.4271 5.56398 10.8229 5.80806 11.0669L9.55806 14.8169Z"
+              fill="currentColor"
+            />
+          </svg>
+        </CircleButton>
+      ) : null}
     </div>
   );
 }
@@ -514,6 +520,38 @@ function Stage(props: {
   return null;
 }
 
+function RegistrationStateIcon() {
+  return (
+    <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M22.5 21C22.5 21 24 21 24 19.5C24 18 22.5 13.5 16.5 13.5C10.5 13.5 9 18 9 19.5C9 21 10.5 21 10.5 21H22.5ZM10.5335 19.5C10.5283 19.4994 10.521 19.4984 10.5122 19.497C10.5081 19.4963 10.504 19.4955 10.5 19.4948C10.5022 19.0987 10.7503 17.9504 11.6389 16.9137C12.47 15.944 13.924 15 16.5 15C19.076 15 20.53 15.944 21.3611 16.9137C22.2497 17.9504 22.4978 19.0987 22.5 19.4948C22.496 19.4955 22.4919 19.4963 22.4878 19.497C22.479 19.4984 22.4717 19.4994 22.4665 19.5H10.5335Z"
+          fill="currentColor"
+        />
+        <path
+          d="M16.5 10.5C18.1569 10.5 19.5 9.15685 19.5 7.5C19.5 5.84315 18.1569 4.5 16.5 4.5C14.8431 4.5 13.5 5.84315 13.5 7.5C13.5 9.15685 14.8431 10.5 16.5 10.5ZM21 7.5C21 9.98528 18.9853 12 16.5 12C14.0147 12 12 9.98528 12 7.5C12 5.01472 14.0147 3 16.5 3C18.9853 3 21 5.01472 21 7.5Z"
+          fill="currentColor"
+        />
+        <path
+          d="M10.4039 13.9199C9.8522 13.7435 9.2393 13.6152 8.55942 13.5496C8.22292 13.5171 7.87002 13.5 7.5 13.5C1.5 13.5 0 18 0 19.5C0 20.5 0.5 21 1.5 21H7.82454C7.61334 20.5739 7.5 20.0687 7.5 19.5C7.5 17.9846 8.06587 16.437 9.13473 15.1443C9.4999 14.7026 9.9238 14.2907 10.4039 13.9199ZM7.38006 15.0007C6.48383 16.3704 6 17.932 6 19.5H1.5C1.5 19.1089 1.74637 17.955 2.63888 16.9137C3.45703 15.9592 4.87874 15.0295 7.38006 15.0007Z"
+          fill="currentColor"
+        />
+        <path
+          d="M2.25 8.25C2.25 5.76472 4.26472 3.75 6.75 3.75C9.23528 3.75 11.25 5.76472 11.25 8.25C11.25 10.7353 9.23528 12.75 6.75 12.75C4.26472 12.75 2.25 10.7353 2.25 8.25ZM6.75 5.25C5.09315 5.25 3.75 6.59315 3.75 8.25C3.75 9.90685 5.09315 11.25 6.75 11.25C8.40685 11.25 9.75 9.90685 9.75 8.25C9.75 6.59315 8.40685 5.25 6.75 5.25Z"
+          fill="currentColor"
+        />
+      </svg>
+    </div>
+  );
+}
+
 function FreeSeats(props: {
   participantLimit: number | null;
   participantsCount: number;
@@ -525,32 +563,7 @@ function FreeSeats(props: {
 
   return (
     <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
-      <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center shrink-0">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <path
-            d="M22.5 21C22.5 21 24 21 24 19.5C24 18 22.5 13.5 16.5 13.5C10.5 13.5 9 18 9 19.5C9 21 10.5 21 10.5 21H22.5ZM10.5335 19.5C10.5283 19.4994 10.521 19.4984 10.5122 19.497C10.5081 19.4963 10.504 19.4955 10.5 19.4948C10.5022 19.0987 10.7503 17.9504 11.6389 16.9137C12.47 15.944 13.924 15 16.5 15C19.076 15 20.53 15.944 21.3611 16.9137C22.2497 17.9504 22.4978 19.0987 22.5 19.4948C22.496 19.4955 22.4919 19.4963 22.4878 19.497C22.479 19.4984 22.4717 19.4994 22.4665 19.5H10.5335Z"
-            fill="currentColor"
-          />
-          <path
-            d="M16.5 10.5C18.1569 10.5 19.5 9.15685 19.5 7.5C19.5 5.84315 18.1569 4.5 16.5 4.5C14.8431 4.5 13.5 5.84315 13.5 7.5C13.5 9.15685 14.8431 10.5 16.5 10.5ZM21 7.5C21 9.98528 18.9853 12 16.5 12C14.0147 12 12 9.98528 12 7.5C12 5.01472 14.0147 3 16.5 3C18.9853 3 21 5.01472 21 7.5Z"
-            fill="currentColor"
-          />
-          <path
-            d="M10.4039 13.9199C9.8522 13.7435 9.2393 13.6152 8.55942 13.5496C8.22292 13.5171 7.87002 13.5 7.5 13.5C1.5 13.5 0 18 0 19.5C0 20.5 0.5 21 1.5 21H7.82454C7.61334 20.5739 7.5 20.0687 7.5 19.5C7.5 17.9846 8.06587 16.437 9.13473 15.1443C9.4999 14.7026 9.9238 14.2907 10.4039 13.9199ZM7.38006 15.0007C6.48383 16.3704 6 17.932 6 19.5H1.5C1.5 19.1089 1.74637 17.955 2.63888 16.9137C3.45703 15.9592 4.87874 15.0295 7.38006 15.0007Z"
-            fill="currentColor"
-          />
-          <path
-            d="M2.25 8.25C2.25 5.76472 4.26472 3.75 6.75 3.75C9.23528 3.75 11.25 5.76472 11.25 8.25C11.25 10.7353 9.23528 12.75 6.75 12.75C4.26472 12.75 2.25 10.7353 2.25 8.25ZM6.75 5.25C5.09315 5.25 3.75 6.59315 3.75 8.25C3.75 9.90685 5.09315 11.25 6.75 11.25C8.40685 11.25 9.75 9.90685 9.75 8.25C9.75 6.59315 8.40685 5.25 6.75 5.25Z"
-            fill="currentColor"
-          />
-        </svg>
-      </div>
+      <RegistrationStateIcon />
       <div className="flex flex-col self-center text-neutral-700">
         <div className="font-semibold line-clamp-1">
           {hasContent(participantLimit) === false
@@ -565,6 +578,96 @@ function FreeSeats(props: {
           )}
       </div>
     </div>
+  );
+}
+
+function External(props: {
+  locales: {
+    external: string;
+  };
+}) {
+  const { locales } = props;
+
+  return (
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
+      <RegistrationStateIcon />
+      <div className="flex flex-col self-center text-neutral-700">
+        <div className="font-semibold line-clamp-1">{locales.external}</div>
+      </div>
+    </div>
+  );
+}
+
+function RegistrationClosed(props: {
+  locales: {
+    registrationClosed: {
+      label: string;
+      subline: string;
+    };
+  };
+}) {
+  const { locales } = props;
+
+  return (
+    <div className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg">
+      <RegistrationStateIcon />
+      <div className="flex flex-col self-center text-neutral-700">
+        <div className="font-semibold line-clamp-1">
+          {locales.registrationClosed.label}
+        </div>
+        <div className="line-clamp-1">{locales.registrationClosed.subline}</div>
+      </div>
+    </div>
+  );
+}
+
+function RegistrationOnChildEvents(props: {
+  locales: {
+    registrationOnChildEvents: string;
+  };
+}) {
+  const { locales } = props;
+
+  return (
+    <Link
+      to="./child-events"
+      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+      prefetch="intent"
+      preventScrollReset
+    >
+      <RegistrationStateIcon />
+      <div className="flex flex-col self-center text-neutral-700">
+        <div className="font-semibold line-clamp-1">
+          {locales.registrationOnChildEvents}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function ParentParticipationRequired(props: {
+  parentEvent: {
+    slug: string;
+  };
+  locales: {
+    parentParticipationRequired: string;
+  };
+}) {
+  const { parentEvent, locales } = props;
+
+  return (
+    <Link
+      to={`/event/${parentEvent.slug}/detail/about`}
+      className="flex gap-4 align-center py-4 md:px-4 border-0 md:border border-neutral-200 rounded-lg focus:ring-2 focus:ring-primary-200 hover:bg-neutral-100 active:bg-primary-50 focus:outline-none"
+      prefetch="intent"
+    >
+      <RegistrationStateIcon />
+      <div className="flex flex-col self-center text-neutral-700">
+        <div className="font-semibold line-clamp-1">
+          {locales.parentParticipationRequired}
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -1024,17 +1127,172 @@ function Participate(props: { children: React.ReactNode; profileId?: string }) {
   );
 }
 
-function WithdrawParticipation(props: {
+function ExternalParticipate(props: {
   children: React.ReactNode;
-  profileId?: string;
+  externalRegistrationUrl: string | null;
+  isAdmin: boolean;
 }) {
-  const location = useLocation();
-  if (typeof props.profileId === "undefined") {
+  const { externalRegistrationUrl, isAdmin } = props;
+
+  if (!externalRegistrationUrl) {
     return null;
   }
 
   return (
-    <Form method="post" preventScrollReset>
+    <Button
+      as="link"
+      to={externalRegistrationUrl}
+      fullSize
+      target="_blank"
+      rel="noreferrer noopener"
+      variant={isAdmin ? "outline" : undefined}
+    >
+      <span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          className="w-4 h-4"
+          aria-hidden="true"
+        >
+          <path
+            fill="currentColor"
+            fillRule="evenodd"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeWidth=".3"
+            d="M7.477 3.625a.375.375 0 0 0-.375-.375H2.125C1.504 3.25 1 3.754 1 4.375v7.5C1 12.496 1.504 13 2.125 13h7.5c.621 0 1.125-.504 1.125-1.125V6.898a.375.375 0 0 0-.75 0v4.977a.375.375 0 0 1-.375.375h-7.5a.375.375 0 0 1-.375-.375v-7.5c0-.207.168-.375.375-.375h4.977a.375.375 0 0 0 .375-.375Z"
+            clipRule="evenodd"
+          />
+          <path
+            fill="currentColor"
+            fillRule="evenodd"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth=".3"
+            d="M13 1.375A.375.375 0 0 0 12.625 1h-3.75a.375.375 0 1 0 0 .75h2.845L5.61 7.86a.375.375 0 0 0 .53.53l6.11-6.11v2.845a.375.375 0 0 0 .75 0v-3.75Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </span>
+      <span>{props.children}</span>
+    </Button>
+  );
+}
+
+function WithdrawParticipation(props: {
+  children: React.ReactNode;
+  event: {
+    openForRegistration: boolean;
+    afterParticipationPeriod: boolean;
+    _count: {
+      waitingList: number;
+    };
+    childEvents: {
+      id: string;
+      name: string;
+      participants: { profileId: string }[];
+    }[];
+  };
+  profileId?: string;
+  locales: {
+    confirmationModal: {
+      title: string;
+      description: {
+        closedForRegistration: string;
+        afterParticipationPeriod: string;
+        waitingList: string;
+        childEvents: string;
+      };
+      submit: string;
+      abort: string;
+    };
+  };
+}) {
+  const { event, locales } = props;
+
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  if (typeof props.profileId === "undefined") {
+    return null;
+  }
+
+  const showConfirmation =
+    event.openForRegistration === false ||
+    event.afterParticipationPeriod ||
+    event._count.waitingList > 0;
+
+  const childEventsToBeWithdrawnFrom = [];
+  if (event.childEvents.length > 0) {
+    const participatedChildEvents = event.childEvents.filter((childEvent) =>
+      childEvent.participants.some(
+        (participant) => participant.profileId === props.profileId
+      )
+    );
+    if (participatedChildEvents.length > 0) {
+      childEventsToBeWithdrawnFrom.push(...participatedChildEvents);
+    }
+  }
+
+  return showConfirmation || childEventsToBeWithdrawnFrom.length > 0 ? (
+    <>
+      <Button
+        as="link"
+        to={`?${extendSearchParams(searchParams, {
+          addOrReplace: {
+            "modal-double-confirm-withdraw-participation": "true",
+          },
+        })}`}
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+      <Form
+        id="withdraw-participation-form"
+        method="post"
+        preventScrollReset
+        hidden
+      >
+        <input type="hidden" name="profileId" defaultValue={props.profileId} />
+        <input type="hidden" name="redirectTo" value={location.pathname} />
+      </Form>
+      <Modal searchParam="modal-double-confirm-withdraw-participation">
+        <Modal.Title>{locales.confirmationModal.title}</Modal.Title>
+        {showConfirmation && (
+          <Modal.Section>
+            {event.openForRegistration === false
+              ? locales.confirmationModal.description.closedForRegistration
+              : event.afterParticipationPeriod
+                ? locales.confirmationModal.description.afterParticipationPeriod
+                : event._count.waitingList > 0
+                  ? locales.confirmationModal.description.waitingList
+                  : ""}
+          </Modal.Section>
+        )}
+        {childEventsToBeWithdrawnFrom.length > 0 && (
+          <Modal.Section>
+            {locales.confirmationModal.description.childEvents}
+            <ul className="list-disc list-inside">
+              {childEventsToBeWithdrawnFrom.map((childEvent) => (
+                <li key={childEvent.id}>{childEvent.name}</li>
+              ))}
+            </ul>
+          </Modal.Section>
+        )}
+        <Modal.SubmitButton
+          form="withdraw-participation-form"
+          name={INTENT_FIELD_NAME}
+          value="withdrawParticipation"
+        >
+          {locales.confirmationModal.submit}
+        </Modal.SubmitButton>
+        <Modal.CloseButton>{locales.confirmationModal.abort}</Modal.CloseButton>
+      </Modal>
+    </>
+  ) : (
+    <Form id="withdraw-participation-form" method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1078,14 +1336,71 @@ function JoinWaitingList(props: {
 function LeaveWaitingList(props: {
   children: React.ReactNode;
   profileId?: string;
+  event: {
+    afterParticipationPeriod: boolean;
+  };
+  locales: {
+    confirmationModal: {
+      title: string;
+      description: {
+        afterParticipationPeriod: string;
+      };
+      submit: string;
+      abort: string;
+    };
+  };
 }) {
+  const { event, locales } = props;
+
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
   if (typeof props.profileId === "undefined") {
     return null;
   }
 
-  return (
-    <Form method="post" preventScrollReset>
+  const showConfirmation = event.afterParticipationPeriod;
+
+  return showConfirmation ? (
+    <>
+      <Button
+        as="link"
+        to={`?${extendSearchParams(searchParams, {
+          addOrReplace: {
+            "modal-double-confirm-leave-waiting-list": "true",
+          },
+        })}`}
+        fullSize
+        variant="outline"
+      >
+        {props.children}
+      </Button>
+      <Form
+        id="leave-waiting-list-form"
+        method="post"
+        preventScrollReset
+        hidden
+      >
+        <input type="hidden" name="profileId" defaultValue={props.profileId} />
+        <input type="hidden" name="redirectTo" value={location.pathname} />
+      </Form>
+      <Modal searchParam="modal-double-confirm-leave-waiting-list">
+        <Modal.Title>{locales.confirmationModal.title}</Modal.Title>
+        <Modal.Section>
+          {locales.confirmationModal.description.afterParticipationPeriod}
+        </Modal.Section>
+        <Modal.SubmitButton
+          form="leave-waiting-list-form"
+          name={INTENT_FIELD_NAME}
+          value="leaveWaitingList"
+        >
+          {locales.confirmationModal.submit}
+        </Modal.SubmitButton>
+        <Modal.CloseButton>{locales.confirmationModal.abort}</Modal.CloseButton>
+      </Modal>
+    </>
+  ) : (
+    <Form id="leave-waiting-list-form" method="post" preventScrollReset>
       <input type="hidden" name="profileId" defaultValue={props.profileId} />
       <input type="hidden" name="redirectTo" value={location.pathname} />
       <Button
@@ -1302,6 +1617,7 @@ OverlayMenu.ReportEvent = ReportEvent;
 EventsOverview.EditBackgroundModal = EditBackgroundModal;
 EventsOverview.EditBackground = EditBackground;
 EventsOverview.AbuseReportModal = AbuseReportModal;
+EventsOverview.ExternalParticipate = ExternalParticipate;
 EventsOverview.Participate = Participate;
 EventsOverview.WithdrawParticipation = WithdrawParticipation;
 EventsOverview.JoinWaitingList = JoinWaitingList;
@@ -1313,6 +1629,10 @@ EventsOverview.StateFlag = StateFlag;
 EventsOverview.OverlayMenu = OverlayMenu;
 EventsOverview.ButtonStates = ButtonStates;
 EventsOverview.FreeSeats = FreeSeats;
+EventsOverview.External = External;
+EventsOverview.RegistrationClosed = RegistrationClosed;
+EventsOverview.RegistrationOnChildEvents = RegistrationOnChildEvents;
+EventsOverview.ParentParticipationRequired = ParentParticipationRequired;
 EventsOverview.Stage = Stage;
 EventsOverview.PeriodOfTime = PeriodOfTime;
 EventsOverview.ResponsibleOrganizations = ResponsibleOrganizations;

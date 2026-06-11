@@ -15,7 +15,11 @@ import {
   useNavigation,
 } from "react-router";
 import { useHydrated } from "remix-utils/use-hydrated";
-import { createAuthClient, getSessionUserOrThrow } from "~/auth.server";
+import {
+  createAuthClient,
+  getSessionUser,
+  getSessionUserOrThrow,
+} from "~/auth.server";
 import Hint from "~/components/next/Hint";
 import { usePreviousLocation } from "~/components/next/PreviousLocationContext";
 import { RadioSubmitButtonSettings } from "~/components/next/RadioButtonSettings";
@@ -36,9 +40,12 @@ import {
   getEventBySlug,
   updateEventExternalRegistrationUrl,
   updateEventRegistrationAccess,
+  updateParentParticipationRequired,
 } from "./access.server";
 import {
   createExternalRegistrationUrlSchema,
+  SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
+  SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT,
   SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT,
   SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
   SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
@@ -48,11 +55,26 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
-  const { slug } = params;
 
-  invariantResponse(typeof slug === "string", "slug is not defined", {
+  invariantResponse(typeof params.slug === "string", "slug is not defined", {
     status: 400,
   });
+  const { authClient } = createAuthClient(request);
+  const sessionUser = await getSessionUser(authClient);
+  const redirectPath = await getRedirectPathOnProtectedEventRoute({
+    request,
+    slug: params.slug,
+    sessionUser,
+    authClient,
+  });
+  if (redirectPath !== null) {
+    return redirect(redirectPath);
+  }
+  invariantResponse(sessionUser, "User not authenticated", { status: 401 });
+  await checkFeatureAbilitiesOrThrow(authClient, [
+    "events",
+    "next_event_settings",
+  ]);
 
   const language = await detectLanguage(request);
   const locales =
@@ -60,7 +82,7 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/registration/access"
     ];
 
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   return { locales, event };
@@ -104,7 +126,9 @@ export async function action(args: ActionFunctionArgs) {
       intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT ||
       intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT ||
       intent === SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT ||
-      intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT,
+      intent === UPDATE_EXTERNAL_REGISTRATION_URL_INTENT ||
+      intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT ||
+      intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT,
     "Invalid intent",
     {
       status: 400,
@@ -129,7 +153,7 @@ export async function action(args: ActionFunctionArgs) {
   ) {
     try {
       await updateEventRegistrationAccess({
-        eventId: event.id,
+        event,
         external: intent === SET_REGISTRATION_TYPE_TO_EXTERNAL_INTENT,
       });
     } catch (error) {
@@ -150,7 +174,7 @@ export async function action(args: ActionFunctionArgs) {
   ) {
     try {
       await updateEventRegistrationAccess({
-        eventId: event.id,
+        event,
         openForRegistration: intent === SET_REGISTRATION_ACCESS_TO_OPEN_INTENT,
       });
     } catch (error) {
@@ -177,7 +201,7 @@ export async function action(args: ActionFunctionArgs) {
 
     try {
       await updateEventExternalRegistrationUrl({
-        eventId: event.id,
+        event,
         externalRegistrationUrl: submission.value.externalRegistrationUrl,
       });
       const toastHeaders = await createToastHeaders({
@@ -194,6 +218,27 @@ export async function action(args: ActionFunctionArgs) {
         id: "registration-url-update-error",
         key: `registration-url-update-error-${Date.now()}`,
         message: locales.route.errors.updateRegistrationUrlFailed,
+        level: "negative",
+      });
+    }
+  }
+
+  if (
+    intent === SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT ||
+    intent === SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT
+  ) {
+    try {
+      await updateParentParticipationRequired({
+        event: event,
+        intent,
+      });
+      return null;
+    } catch (error) {
+      captureException(error);
+      return redirectWithToast(request.url, {
+        id: "parent-participation-update-error",
+        key: `parent-participation-update-error-${Date.now()}`,
+        message: locales.route.errors.updateParentParticipationFailed,
         level: "negative",
       });
     }
@@ -283,6 +328,16 @@ function RegistrationAccess() {
               value={SET_REGISTRATION_TYPE_TO_INTERNAL_INTENT}
               active={event.external === false}
               disabled={event.published}
+              buttonProps={{
+                onClick: (changeEvent) => {
+                  if (event.external === false) {
+                    changeEvent.preventDefault();
+                  } else {
+                    // Reset the external registration url input when switching back to internal
+                    form.reset();
+                  }
+                },
+              }}
             >
               <RadioSubmitButtonSettings.Title>
                 {locales.route.type.internal.headline}
@@ -426,6 +481,96 @@ function RegistrationAccess() {
             </Form>
           </div>
         )}
+        {event.external === false &&
+          event.openForRegistration &&
+          (event._count.childEvents > 0 || event.parentEvent !== null) && (
+            <div className="flex flex-col gap-4">
+              <TitleSection>
+                <TitleSection.Headline>
+                  {locales.route.parentParticipation.headline}
+                </TitleSection.Headline>
+                {event._count.childEvents > 0 && (
+                  <TitleSection.Subline>
+                    {locales.route.parentParticipation.subline.parent}
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null && (
+                  <TitleSection.Subline>
+                    {locales.route.parentParticipation.subline.child.general}
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null && (
+                  <TitleSection.Subline>
+                    {
+                      locales.route.parentParticipation.subline.child
+                        .childException
+                    }
+                  </TitleSection.Subline>
+                )}
+                {event.parentEvent !== null &&
+                  event.parentParticipationRequired === null && (
+                    <TitleSection.Subline>
+                      <span className="font-semibold">
+                        {
+                          locales.route.parentParticipation.subline.child
+                            .sameAsParent
+                        }
+                      </span>
+                    </TitleSection.Subline>
+                  )}
+              </TitleSection>
+              {event._count.childEvents > 0 && (
+                <Hint>
+                  <Hint.InfoIcon />
+                  {locales.route.parentParticipation.hint}
+                </Hint>
+              )}
+              <Form
+                id="parent-participation-required-form"
+                method="post"
+                className="flex flex-col gap-4"
+              >
+                <RadioSubmitButtonSettings
+                  name={INTENT_FIELD_NAME}
+                  value={SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT}
+                  active={
+                    event.parentParticipationRequired === null &&
+                    event.parentEvent !== null &&
+                    event.parentEvent.parentParticipationRequired !== null
+                      ? event.parentEvent.parentParticipationRequired
+                      : event.parentParticipationRequired === true
+                  }
+                  disabled={
+                    event.published ||
+                    (event.parentEvent !== null &&
+                      event.parentEvent.parentParticipationRequired === false)
+                  }
+                >
+                  <RadioSubmitButtonSettings.Title>
+                    {locales.route.parentParticipation.required}
+                  </RadioSubmitButtonSettings.Title>
+                </RadioSubmitButtonSettings>
+                <RadioSubmitButtonSettings
+                  name={INTENT_FIELD_NAME}
+                  value={SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT}
+                  active={
+                    event.parentParticipationRequired === null &&
+                    event.parentEvent !== null &&
+                    event.parentEvent.parentParticipationRequired !== null
+                      ? event.parentEvent.parentParticipationRequired === false
+                      : event.parentParticipationRequired === false
+                  }
+                  disabled={event.published}
+                >
+                  <RadioSubmitButtonSettings.Title>
+                    {event.parentEvent !== null
+                      ? locales.route.parentParticipation.notRequired.child
+                      : locales.route.parentParticipation.notRequired.parent}
+                  </RadioSubmitButtonSettings.Title>
+                </RadioSubmitButtonSettings>
+              </Form>
+            </div>
+          )}
       </div>
     </>
   );

@@ -40,6 +40,9 @@ export async function getOrganization(slug: string) {
                   participantLimit: true,
                   canceled: true,
                   published: true,
+                  external: true,
+                  openForRegistration: true,
+                  parentParticipationRequired: true,
                   _count: {
                     select: {
                       participants: true,
@@ -109,6 +112,9 @@ export async function getOrganization(slug: string) {
                   startTime: true,
                   endTime: true,
                   participantLimit: true,
+                  external: true,
+                  openForRegistration: true,
+                  parentParticipationRequired: true,
                   canceled: true,
                   published: true,
                   _count: {

@@ -11,6 +11,10 @@ export const SET_REGISTRATION_ACCESS_TO_CLOSED_INTENT =
   "set-registration-access-to-closed";
 export const UPDATE_EXTERNAL_REGISTRATION_URL_INTENT =
   "update-external-registration-url";
+export const SET_PARENT_PARTICIPATION_TO_REQUIRED_INTENT =
+  "set-parent-participation-to-required";
+export const SET_PARENT_PARTICIPATION_TO_NOT_REQUIRED_INTENT =
+  "set-parent-participation-to-not-required";
 
 export function createExternalRegistrationUrlSchema(options: {
   locales: { invalidUrl: string; required: string };

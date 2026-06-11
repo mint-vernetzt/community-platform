@@ -8,11 +8,12 @@ import { detectLanguage } from "~/i18n.server";
 import { invariantResponse } from "~/lib/utils/response";
 import { languageModuleMap } from "~/locales/.server";
 import { hasContent } from "~/utils.shared";
-import { getParticipantsOfEvent } from "./participants.server";
+import { getEventBySlug, getParticipantsOfEvent } from "./participants.server";
 import {
   getSearchParticipantsSchema,
   SEARCH_PARTICIPANTS_SEARCH_PARAM,
 } from "./participants.shared";
+import { deriveModeForEvent, getIsMember } from "../detail.server";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -42,6 +43,37 @@ export async function loader(args: LoaderFunctionArgs) {
     sessionUser,
     searchParams,
   });
+
+  const event = await getEventBySlug(slug);
+  invariantResponse(event !== null, "event not found", {
+    status: 404,
+  });
+
+  const isMember = await getIsMember(sessionUser, event);
+
+  const now = new Date();
+
+  const beforeParticipationPeriod = now < event.participationFrom;
+  const afterParticipationPeriod = now > event.participationUntil;
+  const inPast = now > event.endTime;
+
+  const mode = await deriveModeForEvent(sessionUser, {
+    ...event,
+    participantCount: event._count.participants,
+    beforeParticipationPeriod,
+    afterParticipationPeriod,
+    inPast,
+    hasChildEvents: event._count.childEvents > 0,
+  });
+
+  if (
+    event.external ||
+    (event.openForRegistration === false &&
+      isMember === false &&
+      mode !== "participating")
+  ) {
+    return redirect(`/event/${slug}/detail/about`);
+  }
 
   return { submission, participants, locales };
 }

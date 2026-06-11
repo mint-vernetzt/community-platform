@@ -10,6 +10,14 @@ export async function getEventBySlug(slug: string) {
       participationFrom: true,
       participationUntil: true,
       createdAt: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
+      _count: {
+        select: {
+          childEvents: true,
+        },
+      },
     },
   });
   return event;

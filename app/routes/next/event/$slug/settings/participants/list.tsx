@@ -90,11 +90,36 @@ export async function loader(args: LoaderFunctionArgs) {
   });
   const { submission, participants } = result;
 
-  if (participants.length === 0) {
+  const hasNoParticipants =
+    participants.length === 0 &&
+    event.childEvents.every((childEvent) => {
+      return childEvent.participants.length === 0;
+    });
+
+  if (hasNoParticipants) {
     return redirect(`../add?${Deep}=true`);
   }
 
-  return { locales, language, participants, submission };
+  const flatAggregatedParticipantIds = event.childEvents
+    .flatMap((childEvent) =>
+      childEvent.participants.map((relation) => relation.profileId)
+    )
+    .concat(participants.map((participant) => participant.id));
+
+  const uniqueParticipantIds = Array.from(
+    new Set(flatAggregatedParticipantIds)
+  );
+
+  const fullDepthParticipantsCount = uniqueParticipantIds.length;
+
+  return {
+    locales,
+    language,
+    participants,
+    event,
+    submission,
+    fullDepthParticipantsCount,
+  };
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -180,7 +205,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function ParticipantsList() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales, language } = loaderData;
+  const { locales, language, event, fullDepthParticipantsCount } = loaderData;
 
   const [participants, setParticipants] = useState(loaderData.participants);
 
@@ -197,10 +222,36 @@ function ParticipantsList() {
         <TitleSection.Headline>
           {locales.route.list.title}
         </TitleSection.Headline>
-        <TitleSection.Subline>
-          {locales.route.list.subline}
-        </TitleSection.Subline>
+        {event.childEvents.length === 0 ? (
+          <TitleSection.Subline>
+            {locales.route.list.subline}
+          </TitleSection.Subline>
+        ) : (
+          <TitleSection.Subline>
+            {locales.route.list.sublineWithChilds}
+          </TitleSection.Subline>
+        )}
+        {fullDepthParticipantsCount > 0 && (
+          <TitleSection.Subline>
+            <span className="font-semibold">
+              {insertParametersIntoLocale(
+                locales.route.list.fullDepthParticipantsCount,
+                {
+                  count: fullDepthParticipantsCount,
+                }
+              )}
+            </span>
+          </TitleSection.Subline>
+        )}
       </TitleSection>
+      {event.childEvents.length > 0 &&
+      event.openForRegistration &&
+      event.parentParticipationRequired === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.list.parentParticipationNotRequiredHint}
+        </Hint>
+      ) : null}
       <List id="participants-list" hideAfter={4} locales={locales.route.list}>
         <List.Search
           defaultItems={loaderData.participants}
@@ -294,9 +345,15 @@ function ParticipantsList() {
         <TitleSection.Headline>
           {locales.route.download.title}
         </TitleSection.Headline>
-        <TitleSection.Subline>
-          {locales.route.download.subline}
-        </TitleSection.Subline>
+        {event.childEvents.length === 0 ? (
+          <TitleSection.Subline>
+            {locales.route.download.subline}
+          </TitleSection.Subline>
+        ) : (
+          <TitleSection.Subline>
+            {locales.route.download.sublineWithChilds}
+          </TitleSection.Subline>
+        )}
       </TitleSection>
       <Hint>
         {insertComponentsIntoLocale(locales.route.download.hint, [

@@ -75,7 +75,10 @@ export default function Participants() {
         >
           <TabBar>
             <TabBar.Item active={pathname.endsWith("/list")}>
-              {event._count.participants > 0 ? (
+              {event._count.participants > 0 ||
+              event.childEvents.some(
+                (childEvent) => childEvent._count.participants > 0
+              ) ? (
                 <Link
                   to={`./list?${Deep}=true`}
                   {...TabBar.getItemElementClasses(pathname.endsWith("/list"))}

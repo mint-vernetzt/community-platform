@@ -44,6 +44,7 @@ import {
 } from "./add.shared";
 import { captureException } from "@sentry/node";
 import { redirectWithToast } from "~/toast.server";
+import Hint from "~/components/next/Hint";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
@@ -93,6 +94,8 @@ export async function loader(args: LoaderFunctionArgs) {
   return {
     locales,
     searchedProfiles,
+    event,
+    userId: sessionUser.id,
   };
 }
 
@@ -139,12 +142,15 @@ export async function action(args: ActionFunctionArgs) {
   const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
-  if (event.published === false || event.external) {
-    const url = new URL(request.url);
-    const searchParams = url.searchParams;
-    const deep = searchParams.get(Deep);
-    return redirect(`../../time-period?${Deep}=${deep}`);
-  }
+  invariantResponse(
+    event.published &&
+      event.external === false &&
+      (event._count.childEvents === 0 || event.parentParticipationRequired),
+    "Forbidden",
+    {
+      status: 403,
+    }
+  );
 
   const submission = await parseWithZod(formData, {
     schema: createInviteProfileToParticipateOnEvent(),
@@ -180,7 +186,7 @@ export async function action(args: ActionFunctionArgs) {
 
 function ParticipantsAdd() {
   const loaderData = useLoaderData<typeof loader>();
-  const { locales } = loaderData;
+  const { locales, event, userId } = loaderData;
 
   const [searchParams] = useSearchParams();
   const searchParticipantsParam = searchParams.get(
@@ -225,120 +231,145 @@ function ParticipantsAdd() {
         <TitleSection.Headline>{locales.route.title}</TitleSection.Headline>
         <TitleSection.Subline>{locales.route.subline}</TitleSection.Subline>
       </TitleSection>
-      <fetcher.Form
-        {...getFormProps(form)}
-        method="get"
-        autoComplete="off"
-        onChange={handleChange}
-      >
-        <Input name={Deep} defaultValue="true" type="hidden" />
-        <Input
-          {...getInputProps(fields[SEARCH_PARTICIPANTS_SEARCH_PARAM], {
-            type: "text",
-          })}
-          placeholder={locales.route.search.placeholder}
-          key={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].id}
-          standalone
-        >
-          <Input.Label htmlFor={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].id}>
-            {locales.route.search.label}
-          </Input.Label>
-          <Input.SearchIcon />
-          <Input.ClearIcon
-            onClick={() => {
-              form.reset();
-              void fetcher.submit(null, { preventScrollReset: true });
-            }}
-          />
-
-          {typeof fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors !==
-            "undefined" &&
-          fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors.length > 0 ? (
-            fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors.map((error) => (
-              <Input.Error
-                id={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errorId}
-                key={error}
-              >
-                {error}
-              </Input.Error>
-            ))
-          ) : (
-            <Input.HelperText>
-              {locales.route.search.helperText}
-            </Input.HelperText>
-          )}
-          <Input.Controls>
-            <noscript>
-              <Button type="submit" variant="outline">
-                {locales.route.search.submit}
-              </Button>
-            </noscript>
-          </Input.Controls>
-        </Input>
-      </fetcher.Form>
-      {searchedProfiles.length > 0 && (
+      {event.parentEvent !== null &&
+      event.parentEvent.parentParticipationRequired &&
+      event.parentParticipationRequired !== false &&
+      event.parentEvent.admins.some(
+        (relation) => relation.profileId === userId
+      ) === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.parentParticipationRequiredHint}
+        </Hint>
+      ) : event._count.childEvents > 0 &&
+        event.parentParticipationRequired === false ? (
+        <Hint>
+          <Hint.InfoIcon />
+          {locales.route.participationOnChildEventsRequiredHint}
+        </Hint>
+      ) : (
         <>
-          <p className="text-sm text-neutral-700 font-semibold text-center">
-            {insertParametersIntoLocale(
-              decideBetweenSingularOrPlural(
-                locales.route.search.result_one,
-                locales.route.search.result_other,
-                searchedProfiles.length
-              ),
-              { count: searchedProfiles.length }
-            )}
-          </p>
-          <List
-            locales={locales.route.list}
-            id="searched-profiles"
-            hideAfter={4}
+          <fetcher.Form
+            {...getFormProps(form)}
+            method="get"
+            autoComplete="off"
+            onChange={handleChange}
           >
-            {searchedProfiles.map((searchedProfile, index) => {
-              return (
-                <ListItemPersonOrg key={searchedProfile.id} index={index}>
-                  <ListItemPersonOrg.Avatar size="full" {...searchedProfile} />
-                  <ListItemPersonOrg.Headline>
-                    {searchedProfile.academicTitle !== null &&
-                    searchedProfile.academicTitle.length > 0
-                      ? `${searchedProfile.academicTitle} `
-                      : ""}
-                    {searchedProfile.firstName} {searchedProfile.lastName}
-                  </ListItemPersonOrg.Headline>
-                  <ListItemPersonOrg.Controls>
-                    {searchedProfile.alreadyParticipant ? (
-                      <p className="text-sm font-semibold text-positive-600">
-                        {locales.route.list.item.alreadyParticipant}
-                      </p>
-                    ) : searchedProfile.alreadyInvited ? (
-                      <p className="text-sm font-semibold text-neutral-700">
-                        {locales.route.list.item.alreadyInvited}
-                      </p>
-                    ) : (
-                      <Form
-                        id={`invite-profile-to-join-participant-on-event-${searchedProfile.id}`}
-                        method="post"
-                        preventScrollReset
-                      >
-                        <Input
-                          type="hidden"
-                          name={PROFILE_ID}
-                          value={searchedProfile.id}
-                        />
-                        <Button
-                          type="submit"
-                          variant="outline"
-                          name={INTENT_FIELD_NAME}
-                          value={INVITE_PROFILE_PARTICIPATE_INTENT}
-                        >
-                          {locales.route.list.item.invite}
-                        </Button>
-                      </Form>
-                    )}
-                  </ListItemPersonOrg.Controls>
-                </ListItemPersonOrg>
-              );
-            })}
-          </List>
+            <Input name={Deep} defaultValue="true" type="hidden" />
+            <Input
+              {...getInputProps(fields[SEARCH_PARTICIPANTS_SEARCH_PARAM], {
+                type: "text",
+              })}
+              placeholder={locales.route.search.placeholder}
+              key={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].id}
+              standalone
+            >
+              <Input.Label
+                htmlFor={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].id}
+              >
+                {locales.route.search.label}
+              </Input.Label>
+              <Input.SearchIcon />
+              <Input.ClearIcon
+                onClick={() => {
+                  form.reset();
+                  void fetcher.submit(null, { preventScrollReset: true });
+                }}
+              />
+
+              {typeof fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors !==
+                "undefined" &&
+              fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors.length > 0 ? (
+                fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errors.map((error) => (
+                  <Input.Error
+                    id={fields[SEARCH_PARTICIPANTS_SEARCH_PARAM].errorId}
+                    key={error}
+                  >
+                    {error}
+                  </Input.Error>
+                ))
+              ) : (
+                <Input.HelperText>
+                  {locales.route.search.helperText}
+                </Input.HelperText>
+              )}
+              <Input.Controls>
+                <noscript>
+                  <Button type="submit" variant="outline">
+                    {locales.route.search.submit}
+                  </Button>
+                </noscript>
+              </Input.Controls>
+            </Input>
+          </fetcher.Form>
+          {searchedProfiles.length > 0 && (
+            <>
+              <p className="text-sm text-neutral-700 font-semibold text-center">
+                {insertParametersIntoLocale(
+                  decideBetweenSingularOrPlural(
+                    locales.route.search.result_one,
+                    locales.route.search.result_other,
+                    searchedProfiles.length
+                  ),
+                  { count: searchedProfiles.length }
+                )}
+              </p>
+              <List
+                locales={locales.route.list}
+                id="searched-profiles"
+                hideAfter={4}
+              >
+                {searchedProfiles.map((searchedProfile, index) => {
+                  return (
+                    <ListItemPersonOrg key={searchedProfile.id} index={index}>
+                      <ListItemPersonOrg.Avatar
+                        size="full"
+                        {...searchedProfile}
+                      />
+                      <ListItemPersonOrg.Headline>
+                        {searchedProfile.academicTitle !== null &&
+                        searchedProfile.academicTitle.length > 0
+                          ? `${searchedProfile.academicTitle} `
+                          : ""}
+                        {searchedProfile.firstName} {searchedProfile.lastName}
+                      </ListItemPersonOrg.Headline>
+                      <ListItemPersonOrg.Controls>
+                        {searchedProfile.alreadyParticipant ? (
+                          <p className="text-sm font-semibold text-positive-600">
+                            {locales.route.list.item.alreadyParticipant}
+                          </p>
+                        ) : searchedProfile.alreadyInvited ? (
+                          <p className="text-sm font-semibold text-neutral-700">
+                            {locales.route.list.item.alreadyInvited}
+                          </p>
+                        ) : (
+                          <Form
+                            id={`invite-profile-to-join-participant-on-event-${searchedProfile.id}`}
+                            method="post"
+                            preventScrollReset
+                          >
+                            <Input
+                              type="hidden"
+                              name={PROFILE_ID}
+                              value={searchedProfile.id}
+                            />
+                            <Button
+                              type="submit"
+                              variant="outline"
+                              name={INTENT_FIELD_NAME}
+                              value={INVITE_PROFILE_PARTICIPATE_INTENT}
+                            >
+                              {locales.route.list.item.invite}
+                            </Button>
+                          </Form>
+                        )}
+                      </ListItemPersonOrg.Controls>
+                    </ListItemPersonOrg>
+                  );
+                })}
+              </List>
+            </>
+          )}
         </>
       )}
     </>

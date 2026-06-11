@@ -58,6 +58,9 @@ export async function getEventBySlug(options: {
               },
               startTime: true,
               endTime: true,
+              external: true,
+              openForRegistration: true,
+              parentParticipationRequired: true,
               participantLimit: true,
               _count: {
                 select: {
@@ -87,6 +90,9 @@ export async function getEventBySlug(options: {
           },
           startTime: true,
           endTime: true,
+          external: true,
+          openForRegistration: true,
+          parentParticipationRequired: true,
           participantLimit: true,
           _count: {
             select: {
@@ -253,6 +259,9 @@ export async function getParentEventsToAdd(options: {
       },
       subline: true,
       description: true,
+      external: true,
+      openForRegistration: true,
+      parentParticipationRequired: true,
       stage: {
         select: {
           slug: true,
@@ -381,20 +390,40 @@ export async function addParentEvent(options: {
         gte: event.endTime,
       },
     },
+    select: {
+      parentParticipationRequired: true,
+    },
   });
 
   if (parentEvent === null) {
     throw new Error("Parent event not found or not eligible to be a parent");
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug: event.slug,
-    },
-    data: {
-      parentEventId,
-    },
-  });
+  const transactions = [
+    prismaClient.event.update({
+      where: {
+        slug: event.slug,
+      },
+      data: {
+        parentEventId,
+      },
+    }),
+  ];
+
+  if (parentEvent.parentParticipationRequired === null) {
+    transactions.push(
+      prismaClient.event.update({
+        where: {
+          id: parentEventId,
+        },
+        data: {
+          parentParticipationRequired: true,
+        },
+      })
+    );
+  }
+
+  await prismaClient.$transaction(transactions);
 }
 
 export async function requestToJoinParentEvent(options: {
@@ -692,6 +721,7 @@ export async function removeParentEvent(options: {
     select: {
       parentEvent: {
         select: {
+          id: true,
           name: true,
           admins: {
             select: {
@@ -702,6 +732,11 @@ export async function removeParentEvent(options: {
                   firstName: true,
                 },
               },
+            },
+          },
+          _count: {
+            select: {
+              childEvents: true,
             },
           },
         },
@@ -718,14 +753,19 @@ export async function removeParentEvent(options: {
     throw new Error("No parent event to remove");
   }
 
-  await prismaClient.event.update({
-    where: {
-      slug,
-    },
-    data: {
-      parentEventId: null,
-    },
-  });
+  const transactions = [
+    prismaClient.event.update({
+      where: {
+        slug,
+      },
+      data: {
+        parentEventId: null,
+        parentParticipationRequired: null,
+      },
+    }),
+  ];
+
+  await prismaClient.$transaction(transactions);
 
   const isAdminOfParentEvent = currentEvent.parentEvent.admins.some(
     (admin) => admin.profile.id === userId

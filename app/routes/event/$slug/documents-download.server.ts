@@ -18,6 +18,7 @@ export async function getEventBySlug(slug: string) {
     select: {
       id: true,
       published: true,
+      openForRegistration: true,
       name: true,
       documents: {
         select: {

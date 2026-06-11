@@ -15,10 +15,12 @@ export async function getEventBySlug(slug: string) {
       moveUpToParticipants: true,
       external: true,
       openForRegistration: true,
+      parentParticipationRequired: true,
       _count: {
         select: {
           participants: true,
           waitingList: true,
+          childEvents: true,
         },
       },
     },
