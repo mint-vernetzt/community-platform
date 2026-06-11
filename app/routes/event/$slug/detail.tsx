@@ -358,10 +358,6 @@ export async function loader(args: LoaderFunctionArgs) {
           : participantsCount,
     },
     isMember,
-    isSpeaker: event.speakers.some(
-      (relation) => relation.profileId === sessionUser?.id
-    ),
-    isParticipant: mode === "participating",
   };
 
   const abilities = await getFeatureAbilities(
@@ -796,10 +792,7 @@ function Detail() {
               openForRegistration={loaderData.event.openForRegistration}
               published={loaderData.event.published}
               language={loaderData.language}
-              isTeamMember={loaderData.event.isMember}
-              isSpeaker={loaderData.event.isSpeaker}
-              isParticipant={loaderData.event.isParticipant}
-              mode={loaderData.mode}
+              isMember={loaderData.event.isMember}
             />
             {hasContent(loaderData.event.stage) && (
               <EventsOverview.Stage

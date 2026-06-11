@@ -143,22 +143,10 @@ function PeriodOfTime(props: {
   language: ArrayElement<typeof SUPPORTED_COOKIE_LANGUAGES>;
   slug: string;
   openForRegistration: boolean;
-  isTeamMember: boolean;
-  isSpeaker: boolean;
-  isParticipant: boolean;
-  mode: string | null;
+  isMember: boolean;
   published: boolean;
 }) {
-  const {
-    startTime,
-    endTime,
-    openForRegistration,
-    isTeamMember,
-    isSpeaker,
-    isParticipant,
-    mode,
-    published,
-  } = props;
+  const { startTime, endTime, isMember, published } = props;
 
   const isSameDay =
     startTime.getFullYear() === endTime.getFullYear() &&
@@ -255,12 +243,7 @@ function PeriodOfTime(props: {
           <div className="font-normal line-clamp-1">{timeDuration}</div>
         ) : null}
       </div>
-      {openForRegistration ||
-      published ||
-      isTeamMember ||
-      isSpeaker ||
-      isParticipant ||
-      mode === "admin" ? (
+      {published || isMember ? (
         <CircleButton
           as="link"
           to={`/event/${props.slug}/ics-download`}
