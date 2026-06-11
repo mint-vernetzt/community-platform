@@ -42,7 +42,8 @@ const TextArea = (
     height = "h-58.5",
     ...inputProps
   } = props;
-  const { value, className, readOnly, tabIndex, ...rteInputProps } = inputProps;
+  const { value, className, readOnly, tabIndex, hasIssue, ...rteInputProps } =
+    inputProps;
 
   const [characterCount, updateCharacterCount] = useState(
     props.defaultValue?.toString().length || 0
@@ -96,7 +97,7 @@ const TextArea = (
                 {props.label}
                 {props.required ? "*" : ""}
               </label>
-              {props.hasIssue && (
+              {hasIssue && (
                 <span className="rounded-full w-2 h-2 bg-primary-300" />
               )}
             </span>

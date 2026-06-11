@@ -59,15 +59,16 @@ import {
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request, params } = args;
+  const { slug } = params;
 
-  invariantResponse(typeof params.slug === "string", "slug is not defined", {
+  invariantResponse(typeof slug === "string", "slug is not defined", {
     status: 400,
   });
   const { authClient } = createAuthClient(request);
   const sessionUser = await getSessionUser(authClient);
   const redirectPath = await getRedirectPathOnProtectedEventRoute({
     request,
-    slug: params.slug,
+    slug,
     sessionUser,
     authClient,
   });
@@ -86,7 +87,7 @@ export async function loader(args: LoaderFunctionArgs) {
       "next/event/$slug/settings/registration/access"
     ];
 
-  const event = await getEventBySlug(params.slug);
+  const event = await getEventBySlug(slug);
   invariantResponse(event !== null, "Event not found", { status: 404 });
 
   let issues: ReturnType<typeof getIssues> = [];

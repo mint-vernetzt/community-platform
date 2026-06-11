@@ -206,7 +206,10 @@ export default function Info() {
       return submission;
     },
     defaultValue: {
-      ...event,
+      name: event.name,
+      description: event.description,
+      descriptionRTEState: event.descriptionRTEState,
+      subline: event.subline,
       experienceLevel:
         event.experienceLevel !== null ? event.experienceLevel.id : null,
       types: event.types.map((relation) => relation.eventType.id),
