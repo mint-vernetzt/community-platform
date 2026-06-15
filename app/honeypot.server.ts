@@ -5,7 +5,7 @@ import { Honeypot, SpamError } from "remix-utils/honeypot/server";
 // You have to call checkHoneypot() in every action function in your app and include the <HoneypotInputs /> (remix-utils) in your html forms. Don't forget to add a nonce if you're using strict CSP.
 
 export const honeypot = new Honeypot({
-  // Disable timestamp validation in test enviorment to prevent tests from failing due to honeypot timestamp expiration
+  // Disable timestamp validation in test environment to prevent tests from failing due to honeypot timestamp expiration
   validFromFieldName: process.env.NODE_ENV === "test" ? null : undefined,
   encryptionSeed: process.env.SESSION_SECRET,
 });
