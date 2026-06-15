@@ -32,6 +32,7 @@ import { checkHoneypot } from "~/honeypot.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { isBotRequest } from "~/utils.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { useNonce } from "~/nonce-provider";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -101,7 +102,9 @@ export default function SetPassword() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
+  const nonce = useNonce();
   const [urlSearchParams] = useSearchParams();
+
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -142,7 +145,7 @@ export default function SetPassword() {
       autoComplete="off"
     >
       <>
-        <HoneypotInputs />
+        <HoneypotInputs nonce={nonce} />
         <div className="w-full mx-auto px-4 @sm:max-w-sm @md:max-w-md @lg:max-w-lg @xl:max-w-xl @xl:px-6 @2xl:max-w-2xl relative">
           <div className="flex flex-col w-full items-center">
             <div className="w-full @sm:w-2/3 @md:w-1/2 @2xl:w-1/3">
