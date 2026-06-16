@@ -41,6 +41,7 @@ import { checkHoneypot } from "~/honeypot.server";
 import { HoneypotInputs } from "remix-utils/honeypot/react";
 import { isBotRequest } from "~/utils.server";
 import { invariantResponse } from "~/lib/utils/response";
+import { useNonce } from "~/nonce-provider";
 
 export async function loader(args: LoaderFunctionArgs) {
   const { request } = args;
@@ -131,7 +132,9 @@ export default function Index() {
   const navigation = useNavigation();
   const isHydrated = useHydrated();
   const isSubmitting = useIsSubmitting();
+  const nonce = useNonce();
   const [urlSearchParams] = useSearchParams();
+
   const loginRedirect = urlSearchParams.get("login_redirect");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -248,7 +251,7 @@ export default function Index() {
                       method="post"
                       autoComplete="off"
                     >
-                      <HoneypotInputs />
+                      <HoneypotInputs nonce={nonce} />
                       {typeof loginForm.errors !== "undefined" &&
                       loginForm.errors.length > 0 ? (
                         <div>

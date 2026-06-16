@@ -62,6 +62,8 @@ export default async function handleRequest(
   if (process.env.NODE_ENV === "development") {
     // HMR support
     styleSrcElem.push("'unsafe-inline'");
+  } else {
+    styleSrcElem.push(`'nonce-${nonce}'`);
   }
 
   const imgSrc = ["'self'", "data:"];
