@@ -26,6 +26,8 @@ const entitiesSchema = z.object({
       id: z.string(),
       avatar: z.string().nullable(),
       background: z.string().nullable(),
+      backgroundImageMetaData: z.any().nullable(),
+      avatarImageMetaData: z.any().nullable(),
     })
   ),
   organizations: z.array(
@@ -33,6 +35,8 @@ const entitiesSchema = z.object({
       id: z.string(),
       logo: z.string().nullable(),
       background: z.string().nullable(),
+      logoImageMetaData: z.any().nullable(),
+      backgroundImageMetaData: z.any().nullable(),
     })
   ),
   projects: z.array(
@@ -40,12 +44,15 @@ const entitiesSchema = z.object({
       id: z.string(),
       logo: z.string().nullable(),
       background: z.string().nullable(),
+      logoImageMetaData: z.any().nullable(),
+      backgroundImageMetaData: z.any().nullable(),
     })
   ),
   events: z.array(
     z.object({
       id: z.string(),
       background: z.string().nullable(),
+      backgroundImageMetaData: z.any().nullable(),
     })
   ),
 });
@@ -78,18 +85,12 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        avatarImageMetaData:
-          oldFields.avatar !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
-        backgroundImageMetaData:
-          oldFields.background !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
+        avatarImageMetaData: {
+          disconnect: true,
+        },
+        backgroundImageMetaData: {
+          disconnect: true,
+        },
       },
     });
   }
@@ -99,18 +100,12 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        logoImageMetaData:
-          oldFields.logo !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
-        backgroundImageMetaData:
-          oldFields.background !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
+        logoImageMetaData: {
+          disconnect: true,
+        },
+        backgroundImageMetaData: {
+          disconnect: true,
+        },
       },
     });
   }
@@ -120,18 +115,12 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        logoImageMetaData:
-          oldFields.logo !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
-        backgroundImageMetaData:
-          oldFields.background !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
+        logoImageMetaData: {
+          disconnect: true,
+        },
+        backgroundImageMetaData: {
+          disconnect: true,
+        },
       },
     });
   }
@@ -141,12 +130,9 @@ async function main() {
       where: { id },
       data: {
         ...oldFields,
-        backgroundImageMetaData:
-          oldFields.background !== null
-            ? {
-                delete: true,
-              }
-            : undefined,
+        backgroundImageMetaData: {
+          disconnect: true,
+        },
       },
     });
   }
